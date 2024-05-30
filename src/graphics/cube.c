@@ -67,15 +67,15 @@ void cube_destroy(cube *cube) {
 }
 
 void cube_draw(cube *cube, camera *camera) {
-  mat4 mvp = mat4CreateIdentity();
-  mat4 model = mat4CreateIdentity();
+  mat4 mvp = mat4_create_identity();
+  mat4 model = mat4_create_identity();
 
-  model = mat4Scale(&model, &cube->scale);
-  model = mat4Rotate(&model, &cube->rotation_axis, cube->rotation_degrees);
-  model = mat4Translate(&model, &cube->translation);
-  mvp = mat4Multiply(&mvp, &camera->projection);
-  mvp = mat4Multiply(&mvp, &camera->view);
-  mvp = mat4Multiply(&mvp, &model);
+  model = mat4_scale(&model, &cube->scale);
+  model = mat4_rotate(&model, &cube->rotation_axis, cube->rotation_degrees);
+  model = mat4_translate(&model, &cube->translation);
+  mvp = mat4_multiply(&mvp, &camera->projection);
+  mvp = mat4_multiply(&mvp, &camera->view);
+  mvp = mat4_multiply(&mvp, &model);
 
   texture_use(cube->texture, GL_TEXTURE0);
   shader_use(cube->shader);

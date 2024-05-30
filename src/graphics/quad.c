@@ -81,15 +81,15 @@ void quad_destroy(quad *quad) {
 }
 
 void quad_draw(quad *quad, camera *camera) {
-  mat4 mvp = mat4CreateIdentity();
-  mat4 model = mat4CreateIdentity();
+  mat4 mvp = mat4_create_identity();
+  mat4 model = mat4_create_identity();
 
-  model = mat4Scale(&model, &quad->scale);
-  model = mat4Rotate(&model, &quad->rotation_axis, quad->rotation_degrees);
-  model = mat4Scale(&model, &quad->translation);
-  mvp = mat4Multiply(&mvp, &camera->projection);
-  mvp = mat4Multiply(&mvp, &camera->view);
-  mvp = mat4Multiply(&mvp, &model);
+  model = mat4_scale(&model, &quad->scale);
+  model = mat4_rotate(&model, &quad->rotation_axis, quad->rotation_degrees);
+  model = mat4_translate(&model, &quad->translation);
+  mvp = mat4_multiply(&mvp, &camera->projection);
+  mvp = mat4_multiply(&mvp, &camera->view);
+  mvp = mat4_multiply(&mvp, &model);
 
   texture_use(quad->texture, GL_TEXTURE0);
   shader_use(quad->shader);

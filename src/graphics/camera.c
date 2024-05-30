@@ -8,9 +8,9 @@ void camera_update_vectors(camera *camera) {
   vec3 right;
   vec3 up;
 
-  front.x = cos(radians(camera->yaw)) * cos(radians(camera->pitch));
-  front.y = sin(radians(camera->pitch));
-  front.z = sin(radians(camera->yaw)) * cos(radians(camera->pitch));
+  front.x = cos(degs_to_rads(camera->yaw)) * cos(degs_to_rads(camera->pitch));
+  front.y = sin(degs_to_rads(camera->pitch));
+  front.z = sin(degs_to_rads(camera->yaw)) * cos(degs_to_rads(camera->pitch));
 
   camera->front = vec3_normalize(&front);
   right = vec3_cross(&camera->front, &camera->up_world);
@@ -21,8 +21,8 @@ void camera_update_vectors(camera *camera) {
 
 void camera_update_projection(camera *camera) {
   vec3 view = vec3_add(&camera->position, &camera->front);
-  camera->view = mat4Lookat(&camera->position, &view, &camera->up);
-  camera->projection = mat4Perspective(camera->fov, camera->aspect_ratio,
+  camera->view = mat4_lookat(&camera->position, &view, &camera->up);
+  camera->projection = mat4_perspective(camera->fov, camera->aspect_ratio,
                                         camera->near_plane, camera->far_plane);
 }
 

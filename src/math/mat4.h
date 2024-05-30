@@ -12,7 +12,7 @@ typedef struct mat4 {
 void mat4Print(mat4 *mat4_a);
 mat4 mat4CreateFromValues(float values[MAT4_SIZE]);
 mat4 mat4CreateSameValue(float value);
-mat4 mat4CreateIdentity(void);
+mat4 mat4Create_identity(void);
 mat4 mat4Multiply(mat4 *mat4_a, mat4 *mat4_b);
 mat4 mat4Scale(mat4 *transform, vec3 *scale);
 mat4 mat4Translate(mat4 *transform, vec3 *translate);

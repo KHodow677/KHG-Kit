@@ -2,7 +2,7 @@
 #include "graphics/renderer.h"
 #include "util/window.h"
 #include <GLFW/glfw3.h>
-//#include "khg2d/khg2d.h"
+#include "khg2d/khg2d.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720

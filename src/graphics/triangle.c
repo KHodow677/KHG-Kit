@@ -72,15 +72,16 @@ void triangle_destroy(triangle *triangle) {
 }
 
 void triangle_draw(triangle *triangle, camera *camera) {
-  mat4 mvp = mat4CreateIdentity();
-  mat4 model = mat4CreateIdentity();
+  mat4 mvp = mat4_create_identity();
+  mat4 model = mat4_create_identity();
 
-  model = mat4Scale(&model, &triangle->scale);
-  model = mat4Rotate(&model, &triangle->rotation_axis, triangle->rotation_degrees);
-  model = mat4Translate(&model, &triangle->translation);
-  mvp = mat4Multiply(&mvp, &camera->projection);
-  mvp = mat4Multiply(&mvp, &camera->view);
-  mvp = mat4Multiply(&mvp, &model);
+  model = mat4_scale(&model, &triangle->scale);
+  model =
+      mat4_rotate(&model, &triangle->rotation_axis, triangle->rotation_degrees);
+  model = mat4_translate(&model, &triangle->translation);
+  mvp = mat4_multiply(&mvp, &camera->projection);
+  mvp = mat4_multiply(&mvp, &camera->view);
+  mvp = mat4_multiply(&mvp, &model);
 
   texture_use(triangle->texture, GL_TEXTURE0);
   shader_use(triangle->shader);
