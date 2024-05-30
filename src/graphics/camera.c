@@ -8,21 +8,21 @@ void camera_update_vectors(camera *camera) {
   vec3 right;
   vec3 up;
 
-  front.x = cos(degs_to_rads(camera->yaw)) * cos(degs_to_rads(camera->pitch));
-  front.y = sin(degs_to_rads(camera->pitch));
-  front.z = sin(degs_to_rads(camera->yaw)) * cos(degs_to_rads(camera->pitch));
+  front.x = cos(radians(camera->yaw)) * cos(radians(camera->pitch));
+  front.y = sin(radians(camera->pitch));
+  front.z = sin(radians(camera->yaw)) * cos(radians(camera->pitch));
 
-  camera->front = vec3_normalize(&front);
-  right = vec3_cross(&camera->front, &camera->up_world);
-  camera->right = vec3_normalize(&right);
-  up = vec3_cross(&camera->right, &camera->front);
-  camera->up = vec3_normalize(&up);
+  camera->front = vec3Normalize(&front);
+  right = vec3Cross(&camera->front, &camera->up_world);
+  camera->right = vec3Normalize(&right);
+  up = vec3Cross(&camera->right, &camera->front);
+  camera->up = vec3Normalize(&up);
 }
 
 void camera_update_projection(camera *camera) {
-  vec3 view = vec3_add(&camera->position, &camera->front);
-  camera->view = mat4_lookat(&camera->position, &view, &camera->up);
-  camera->projection = mat4_perspective(camera->fov, camera->aspect_ratio,
+  vec3 view = vec3Add(&camera->position, &camera->front);
+  camera->view = mat4Lookat(&camera->position, &view, &camera->up);
+  camera->projection = mat4Perspective(camera->fov, camera->aspect_ratio,
                                         camera->near_plane, camera->far_plane);
 }
 
@@ -30,10 +30,10 @@ camera camera_create(float pos_x, float pos_y, float pos_z, float width,
                      float height) {
   camera camera;
 
-  camera.position = vec3_create_from_values(pos_x, pos_y, pos_z);
-  camera.front = vec3_create_from_values(0.0f, 0.0f, -1.0f);
-  camera.up = vec3_create_from_values(0.0f, 1.0f, 0.0f);
-  camera.up_world = vec3_create_from_values(0.0f, 1.0f, 0.0f);
+  camera.position = vec3CreateFromValues(pos_x, pos_y, pos_z);
+  camera.front = vec3CreateFromValues(0.0f, 0.0f, -1.0f);
+  camera.up = vec3CreateFromValues(0.0f, 1.0f, 0.0f);
+  camera.up_world = vec3CreateFromValues(0.0f, 1.0f, 0.0f);
   camera.yaw = -90.0f;
   camera.pitch = 0.0f;
   camera.speed = 2.5f;
@@ -54,23 +54,23 @@ void camera_process_key_input(camera *camera, GLFWwindow *window,
   float speed = camera->speed * delta_time;
 
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-    velocity = vec3_multiply_num_on_vec3(speed, &camera->front);
-    camera->position = vec3_add(&camera->position, &velocity);
+    velocity = vec3MultiplyNumOnVec3(speed, &camera->front);
+    camera->position = vec3Add(&camera->position, &velocity);
   }
 
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-    velocity = vec3_multiply_num_on_vec3(speed, &camera->front);
-    camera->position = vec3_subtract(&camera->position, &velocity);
+    velocity = vec3MultiplyNumOnVec3(speed, &camera->front);
+    camera->position = vec3Subtract(&camera->position, &velocity);
   }
 
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-    velocity = vec3_multiply_num_on_vec3(speed, &camera->right);
-    camera->position = vec3_subtract(&camera->position, &velocity);
+    velocity = vec3MultiplyNumOnVec3(speed, &camera->right);
+    camera->position = vec3Subtract(&camera->position, &velocity);
   }
 
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-    velocity = vec3_multiply_num_on_vec3(speed, &camera->right);
-    camera->position = vec3_add(&camera->position, &velocity);
+    velocity = vec3MultiplyNumOnVec3(speed, &camera->right);
+    camera->position = vec3Add(&camera->position, &velocity);
   }
 }
 

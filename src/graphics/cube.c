@@ -19,10 +19,10 @@ cube cube_create(shader *shader, texture *texture, float pos_x, float pos_y,
 
   cube.shader = shader;
   cube.texture = texture;
-  cube.scale = vec3_create_same_value(1.0f);
-  cube.rotation_axis = vec3_create_from_values(0.0f, 1.0f, 0.0f);
+  cube.scale = vec3CreateSameValue(1.0f);
+  cube.rotation_axis = vec3CreateFromValues(0.0f, 1.0f, 0.0f);
   cube.rotation_degrees = 0.0f;
-  cube.translation = vec3_create_from_values(pos_x, pos_y, pos_z);
+  cube.translation = vec3CreateFromValues(pos_x, pos_y, pos_z);
 
   glGenVertexArrays(1, &cube.vao);
   glBindVertexArray(cube.vao);
@@ -67,15 +67,15 @@ void cube_destroy(cube *cube) {
 }
 
 void cube_draw(cube *cube, camera *camera) {
-  mat4 mvp = mat4_create_identity();
-  mat4 model = mat4_create_identity();
+  mat4 mvp = mat4CreateIdentity();
+  mat4 model = mat4CreateIdentity();
 
-  model = mat4_scale(&model, &cube->scale);
-  model = mat4_rotate(&model, &cube->rotation_axis, cube->rotation_degrees);
-  model = mat4_translate(&model, &cube->translation);
-  mvp = mat4_multiply(&mvp, &camera->projection);
-  mvp = mat4_multiply(&mvp, &camera->view);
-  mvp = mat4_multiply(&mvp, &model);
+  model = mat4Scale(&model, &cube->scale);
+  model = mat4Rotate(&model, &cube->rotation_axis, cube->rotation_degrees);
+  model = mat4Translate(&model, &cube->translation);
+  mvp = mat4Multiply(&mvp, &camera->projection);
+  mvp = mat4Multiply(&mvp, &camera->view);
+  mvp = mat4Multiply(&mvp, &model);
 
   texture_use(cube->texture, GL_TEXTURE0);
   shader_use(cube->shader);

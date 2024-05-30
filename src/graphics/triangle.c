@@ -19,10 +19,10 @@ triangle triangle_create(shader *shader, texture *texture, float pos_x,
 
   triangle.shader = shader;
   triangle.texture = texture;
-  triangle.scale = vec3_create_same_value(1.0f);
-  triangle.rotation_axis = vec3_create_from_values(0.0f, 1.0f, 0.0f);
+  triangle.scale = vec3CreateSameValue(1.0f);
+  triangle.rotation_axis = vec3CreateFromValues(0.0f, 1.0f, 0.0f);
   triangle.rotation_degrees = 0.0f;
-  triangle.translation = vec3_create_from_values(pos_x, pos_y, pos_z);
+  triangle.translation = vec3CreateFromValues(pos_x, pos_y, pos_z);
 
   glGenVertexArrays(1, &triangle.vao);
   glBindVertexArray(triangle.vao);
@@ -72,16 +72,15 @@ void triangle_destroy(triangle *triangle) {
 }
 
 void triangle_draw(triangle *triangle, camera *camera) {
-  mat4 mvp = mat4_create_identity();
-  mat4 model = mat4_create_identity();
+  mat4 mvp = mat4CreateIdentity();
+  mat4 model = mat4CreateIdentity();
 
-  model = mat4_scale(&model, &triangle->scale);
-  model =
-      mat4_rotate(&model, &triangle->rotation_axis, triangle->rotation_degrees);
-  model = mat4_translate(&model, &triangle->translation);
-  mvp = mat4_multiply(&mvp, &camera->projection);
-  mvp = mat4_multiply(&mvp, &camera->view);
-  mvp = mat4_multiply(&mvp, &model);
+  model = mat4Scale(&model, &triangle->scale);
+  model = mat4Rotate(&model, &triangle->rotation_axis, triangle->rotation_degrees);
+  model = mat4Translate(&model, &triangle->translation);
+  mvp = mat4Multiply(&mvp, &camera->projection);
+  mvp = mat4Multiply(&mvp, &camera->view);
+  mvp = mat4Multiply(&mvp, &model);
 
   texture_use(triangle->texture, GL_TEXTURE0);
   shader_use(triangle->shader);

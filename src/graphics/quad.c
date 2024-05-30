@@ -23,23 +23,21 @@ quad quad_create(shader *shader, texture *texture, float pos_x, float pos_y,
 
   quad.shader = shader;
   quad.texture = texture;
-  quad.scale = vec3_create_same_value(1.0f);
-  quad.rotation_axis = vec3_create_from_values(0.0f, 1.0f, 0.0f);
+  quad.scale = vec3CreateSameValue(1.0f);
+  quad.rotation_axis = vec3CreateFromValues(0.0f, 1.0f, 0.0f);
   quad.rotation_degrees = 0.0f;
-  quad.translation = vec3_create_from_values(pos_x, pos_y, pos_z);
+  quad.translation = vec3CreateFromValues(pos_x, pos_y, pos_z);
 
   glGenVertexArrays(1, &quad.vao);
   glBindVertexArray(quad.vao);
 
   glGenBuffers(1, &quad.ebo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad.ebo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quad.indices), quad.indices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quad.indices), quad.indices, GL_STATIC_DRAW);
 
   glGenBuffers(1, &quad.vbo_position);
   glBindBuffer(GL_ARRAY_BUFFER, quad.vbo_position);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(quad.vertices), quad.vertices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(quad.vertices), quad.vertices, GL_STATIC_DRAW);
 
   glGenBuffers(1, &quad.vbo_color);
   glBindBuffer(GL_ARRAY_BUFFER, quad.vbo_color);
@@ -81,15 +79,15 @@ void quad_destroy(quad *quad) {
 }
 
 void quad_draw(quad *quad, camera *camera) {
-  mat4 mvp = mat4_create_identity();
-  mat4 model = mat4_create_identity();
+  mat4 mvp = mat4CreateIdentity();
+  mat4 model = mat4CreateIdentity();
 
-  model = mat4_scale(&model, &quad->scale);
-  model = mat4_rotate(&model, &quad->rotation_axis, quad->rotation_degrees);
-  model = mat4_translate(&model, &quad->translation);
-  mvp = mat4_multiply(&mvp, &camera->projection);
-  mvp = mat4_multiply(&mvp, &camera->view);
-  mvp = mat4_multiply(&mvp, &model);
+  model = mat4Scale(&model, &quad->scale);
+  model = mat4Rotate(&model, &quad->rotation_axis, quad->rotation_degrees);
+  model = mat4Translate(&model, &quad->translation);
+  mvp = mat4Multiply(&mvp, &camera->projection);
+  mvp = mat4Multiply(&mvp, &camera->view);
+  mvp = mat4Multiply(&mvp, &model);
 
   texture_use(quad->texture, GL_TEXTURE0);
   shader_use(quad->shader);

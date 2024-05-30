@@ -5,10 +5,10 @@
 #include <stdio.h>
 
 void mat4Print(mat4 *mat4_a) {
-  vec4 col1 = vec4_create_from_values(mat4_a->values[0], mat4_a->values[4], mat4_a->values[8], mat4_a->values[12]);
-  vec4 col2 = vec4_create_from_values(mat4_a->values[1], mat4_a->values[5], mat4_a->values[9], mat4_a->values[13]);
-  vec4 col3 = vec4_create_from_values(mat4_a->values[2], mat4_a->values[6], mat4_a->values[10], mat4_a->values[14]);
-  vec4 col4 = vec4_create_from_values(mat4_a->values[3], mat4_a->values[7], mat4_a->values[11], mat4_a->values[15]);
+  vec4 col1 = vec4CreateFromValues(mat4_a->values[0], mat4_a->values[4], mat4_a->values[8], mat4_a->values[12]);
+  vec4 col2 = vec4CreateFromValues(mat4_a->values[1], mat4_a->values[5], mat4_a->values[9], mat4_a->values[13]);
+  vec4 col3 = vec4CreateFromValues(mat4_a->values[2], mat4_a->values[6], mat4_a->values[10], mat4_a->values[14]);
+  vec4 col4 = vec4CreateFromValues(mat4_a->values[3], mat4_a->values[7], mat4_a->values[11], mat4_a->values[15]);
   printf("%f %f %f %f\n", col1.x, col1.y, col1.z, col1.w);
   printf("%f %f %f %f\n", col2.x, col2.y, col2.z, col2.w);
   printf("%f %f %f %f\n", col3.x, col3.y, col3.z, col3.w);
@@ -80,7 +80,7 @@ mat4 mat4Translate(mat4 *transform, vec3 *translate) {
 
 mat4 mat4Rotate(mat4 *transform, vec3 *axis, float angle) {
   mat4 transform_rotate;
-  vec3 axis_normal = vec3_normalize(axis);
+  vec3 axis_normal = vec3Normalize(axis);
   float x = axis_normal.x;
   float y = axis_normal.y;
   float z = axis_normal.z;
@@ -136,12 +136,12 @@ mat4 mat4Perspective(float fov, float aspect_ratio, float near_plane, float far_
 
 mat4 mat4Lookat(vec3 *position, vec3 *target, vec3 *up) {
   mat4 lookat = mat4CreateIdentity();
-  vec3 subtracted = vec3_subtract(target, position);
-  vec3 z_axis = vec3_normalize(&subtracted);
-  vec3 crossed = vec3_cross(&z_axis, up);
-  vec3 x_axis = vec3_normalize(&crossed);
-  vec3 y_axis = vec3_cross(&x_axis, &z_axis);
-  z_axis = vec3_negate(&z_axis);
+  vec3 subtracted = vec3Subtract(target, position);
+  vec3 z_axis = vec3Normalize(&subtracted);
+  vec3 crossed = vec3Cross(&z_axis, up);
+  vec3 x_axis = vec3Normalize(&crossed);
+  vec3 y_axis = vec3Cross(&x_axis, &z_axis);
+  z_axis = vec3Negate(&z_axis);
   lookat.values[0] = x_axis.x;
   lookat.values[1] = y_axis.x;
   lookat.values[2] = z_axis.x;
@@ -151,8 +151,8 @@ mat4 mat4Lookat(vec3 *position, vec3 *target, vec3 *up) {
   lookat.values[8] = x_axis.z;
   lookat.values[9] = y_axis.z;
   lookat.values[10] = z_axis.z;
-  lookat.values[12] = -vec3_dot(&x_axis, position);
-  lookat.values[13] = -vec3_dot(&y_axis, position);
-  lookat.values[14] = -vec3_dot(&z_axis, position);
+  lookat.values[12] = -vec3Dot(&x_axis, position);
+  lookat.values[13] = -vec3Dot(&y_axis, position);
+  lookat.values[14] = -vec3Dot(&z_axis, position);
   return lookat;
 }
