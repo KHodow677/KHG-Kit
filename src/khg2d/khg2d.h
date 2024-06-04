@@ -46,31 +46,30 @@ typedef struct shader {
 void bindShader(shader *s);
 void clearShader(shader *s);
 
-
 typedef struct texture {
   GLuint id;
 } texture;
 
-vec2 getSize(texture *texture);
-void createFromBuffer(texture *texture, const char *image_data, const int width, const int height, bool pixelated, bool useMipMaps);
-void create1PxSquare(texture *texture, const char *b);
-void createFromFileData(texture *texture, const unsigned char *image_file_data, const size_t image_file_size, bool pixelated, bool useMipMaps);
-void createFromFileDataWithPixelPadding(texture *texture, const unsigned char *image_file_data, const size_t image_file_size, int blockSize, bool pixelated, bool useMipMaps);
-void loadFromFile(texture *texture, const char *fileName, bool pixelated, bool useMipMaps);
-void loadFromFileWithPixelPadding(texture *texture, const char *fileName, int blockSize, bool pixelated, bool useMipMaps);
-size_t getMemorySize(texture *texture, int mipLevel, vec2 *outSize);
-void readtextureData(texture *texture, void *buffer, int mipLevel);
-unsigned char *readtextureDataToCharArray(texture *texture, int mipLevel, vec2 *outSize);
-void bindTexture(texture *texture, const unsigned int sample);
-void unbindTexture(texture *texture);
-void cleanupTexture(texture *texture);
+vec2 getSize(texture *t);
+void createFromBuffer(texture *t, const char *image_data, const int width, const int height, bool pixelated, bool useMipMaps);
+void create1PxSquare(texture *t, const char *b);
+void createFromFileData(texture *t, const unsigned char *image_file_data, const size_t image_file_size, bool pixelated, bool useMipMaps);
+void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_file_data, const size_t image_file_size, int blockSize, bool pixelated, bool useMipMaps);
+void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipMaps);
+void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSize, bool pixelated, bool useMipMaps);
+size_t getMemorySize(texture *t, int mipLevel, vec2 *outSize);
+void readtextureData(texture *t, void *buffer, int mipLevel);
+unsigned char *readtextureDataToCharArray(texture *t, int mipLevel, vec2 *outSize);
+void bindTexture(texture *t, const unsigned int sample);
+void unbindTexture(texture *t);
+void cleanupTexture(texture *t);
 
 typedef struct textureAtlas {
   int xCount;
 	int yCount;
 } textureAtlas;
 
-vec4 getTextureAtlas(int x, int y, bool flip);
+vec4 getTextureAtlas(textureAtlas *ta, int x, int y, bool flip);
 
 typedef struct textureAtlasPadding {
 		int xCount;
@@ -192,7 +191,7 @@ typedef struct Renderer2D {
 
 void defaultErrorFunc(const char *msg, void *userDefinedData);
 void setUserDefinedData(void *data);
-typedef void (*errorFuncType)(const char*, void*);
+typedef void (*errorFuncType)(const char *, void *);
 errorFuncType setErrorFuncCallback(errorFuncType newFunc);
 float positiontoscreencoordsx(const float position, float w);
 float positiontoscreencoordsy(const float position, float h);

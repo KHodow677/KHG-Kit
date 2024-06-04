@@ -30,7 +30,7 @@ struct {
 bool hasInitialized = 0;
 void *userDefinedData = 0;
 static shader defaultShader = { 0 };
-static Camera defaultCamera = { 0 };
+static camera defaultCamera = { 0 };
 static texture white1pxSquareTexture = { 0 };
 
 static const char *defaultVertexShader =
@@ -78,6 +78,7 @@ static const char *defaultVertexPostProcessShader =
   "}\n";
 
 
+
 static errorFuncType errorFunc = defaultErrorFunc;
 
 void defaultErrorFunc(const char *msg, void *userDefinedData) {
@@ -103,7 +104,7 @@ float positionToScreenCoordsY(const float position, float h) {
 }
 
 stbtt_aligned_quad fontGetGlyphQuad(const font f, const char c) {
-  stbtt_aligned_quad quad = {0};
+  stbtt_aligned_quad quad = { 0 };
   float x = 0;
   float y = 0;
   stbtt_GetPackedQuad(f.packedCharsBuffer, f.size.x, f.size.y, c - ' ', &x, &y, &quad, 1);
@@ -165,13 +166,14 @@ bool setVsync(bool b) {
 }
 
 vec2 rotateAroundPoint(vec2 vector, vec2 point, const float degrees) {
+  float newx, newy;
   float a = radians(degrees);
   float s = sinf(a);
   float c = cosf(a);
   point.y = -point.y;
   vector.x -= point.x;
-  float newx = vector.x * c - vector.y * s;
-  float newy = vector.x * s + vector.y * c; vector.y -= point.y;
+  newx = vector.x * c - vector.y * s;
+  newy = vector.x * s + vector.y * c; vector.y -= point.y;
   vector.x = newx + point.x;
   vector.y = newy + point.y;
   return vector;
@@ -218,29 +220,34 @@ shader createShaderProgram(const char *vertex, const char *fragment) {
 
 shader createShaderFromFile(const char *filePath) {
   FILE *file = fopen(filePath, "rb");
+  shader emptyShader, rez;
+  long fileSize;
+  char *fileData;
   if (!file) {
       char e[256];
       snprintf(e, sizeof(e), "error opening: %s", filePath);
       errorFunc(e, userDefinedData);
-      shader emptyShader = { 0 };
+      emptyShader.id = 0;
+      emptyShader.u_sampler = 0;
       return emptyShader;
   }
   fseek(file, 0, SEEK_END);
-  long fileSize = ftell(file);
+  fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  char *fileData = (char *)malloc(fileSize + 1); // null terminated
+  fileData = (char *)malloc(fileSize + 1);
   if (fileData == NULL) {
       char e[256];
       snprintf(e, sizeof(e), "memory allocation failed for: %s", filePath);
       errorFunc(e, userDefinedData);
       fclose(file);
-      shader emptyShader = {0}; 
+      emptyShader.id = 0;
+      emptyShader.u_sampler = 0;
       return emptyShader;
   }
   fread(fileData, 1, fileSize, file);
   fclose(file);
   fileData[fileSize] = '\0';
-  shader rez = createShader(fileData);
+  rez = createShader(fileData);
   free(fileData);
   return rez;
 }
@@ -251,29 +258,34 @@ shader createShader(const char *fragment) {
 
 shader createPostProcessShaderFromFile(const char *filePath) {
   FILE *file = fopen(filePath, "rb");
+  shader emptyShader, rez;
+  long fileSize;
+  char *fileData;
   if (!file) {
-      char e[256];
-      snprintf(e, sizeof(e), "error opening: %s", filePath);
-      errorFunc(e, userDefinedData);
-      shader emptyShader = {0};
-      return emptyShader;
+    char e[256];
+    snprintf(e, sizeof(e), "error opening: %s", filePath);
+    errorFunc(e, userDefinedData);
+    emptyShader.id = 0;
+    emptyShader.u_sampler = 0;
+    return emptyShader;
   }
   fseek(file, 0, SEEK_END);
-  long fileSize = ftell(file);
+  fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  char *fileData = (char *)malloc(fileSize + 1); // null terminated
+  fileData = (char *)malloc(fileSize + 1); // null terminated
   if (fileData == NULL) {
-      char e[256];
-      snprintf(e, sizeof(e), "memory allocation failed for: %s", filePath);
-      errorFunc(e, userDefinedData);
-      fclose(file);
-      shader emptyShader = {0};
-      return emptyShader;
+    char e[256];
+    snprintf(e, sizeof(e), "memory allocation failed for: %s", filePath);
+    errorFunc(e, userDefinedData);
+    fclose(file);
+    emptyShader.id = 0;
+    emptyShader.u_sampler = 0;
+    return emptyShader;
   }
   fread(fileData, 1, fileSize, file);
   fclose(file);
   fileData[fileSize] = '\0';
-  shader rez = createPostProcessShader(fileData);
+  rez = createPostProcessShader(fileData);
   free(fileData);
   return rez;
 }
@@ -285,9 +297,9 @@ shader createPostProcessShader(const char *fragment) {
 void cleanTextureCoordinates(int tSizeX, int tSizeY, int x, int y, int sizeX, int sizeY, int s1, int s2, int s3, int s4, vec4 *outer, vec4 *inner) {
   float newX = (float)tSizeX / (float)x;
   float newY = (float)tSizeY / (float)y;
-  newY = 1 - newY;
   float newSizeX = (float)tSizeX / (float)sizeX;
   float newSizeY = (float)tSizeY / (float)sizeY;
+  newY = 1 - newY;
   if (outer) {
     outer->x = newX;
     outer->y = newY;

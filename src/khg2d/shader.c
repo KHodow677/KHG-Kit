@@ -1,4 +1,5 @@
 #include "khg2d.h"
+#include <string.h>
 
 void bindShader(shader *s) {
   glUseProgram(s->id);
