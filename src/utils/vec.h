@@ -1,8 +1,8 @@
 #ifndef vec_h
 #define vec_h
 
-#include <stdbool.h>
 #include <stdlib.h>
+#include "bool.h"
 
 typedef void* vector;
 typedef size_t vec_size_t;

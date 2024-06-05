@@ -1,9 +1,10 @@
-#include "khg2d.h"
-#include "../math/math.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "../math/math.h"
+#include "../math/vec4.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -27,60 +28,6 @@ struct {
 
 #undef max
 
-bool hasInitialized = 0;
-void *userDefinedData = 0;
-static shader defaultShader = { 0 };
-static camera defaultCamera = { 0 };
-static texture white1pxSquareTexture = { 0 };
-
-static const char *defaultVertexShader =
-  KHG2D_OPNEGL_SHADER_VERSION "\n"
-  KHG2D_OPNEGL_SHADER_PRECISION "\n"
-  "in vec2 quad_positions;\n"
-  "in vec4 quad_colors;\n"
-  "in vec2 texturePositions;\n"
-  "out vec4 v_color;\n"
-  "out vec2 v_texture;\n"
-  "out vec2 v_positions;\n"
-  "void main()\n"
-  "{\n"
-  "	gl_Position = vec4(quad_positions, 0, 1);\n"
-  "	v_color = quad_colors;\n"
-  "	v_texture = texturePositions;\n"
-  "	v_positions = gl_Position.xy;\n"
-  "}\n";
-
-static const char *defaultFragmentShader =
-  KHG2D_OPNEGL_SHADER_VERSION "\n"
-  KHG2D_OPNEGL_SHADER_PRECISION "\n"
-  "out vec4 color;\n"
-  "in vec4 v_color;\n"
-  "in vec2 v_texture;\n"
-  "uniform sampler2D u_sampler;\n"
-  "void main()\n"
-  "{\n"
-  "    color = v_color * texture2D(u_sampler, v_texture);\n"
-  "}\n";
-
-static const char *defaultVertexPostProcessShader =
-  KHG2D_OPNEGL_SHADER_VERSION "\n"
-  KHG2D_OPNEGL_SHADER_PRECISION "\n"
-  "in vec2 quad_positions;\n"
-  "out vec2 v_positions;\n"
-  "out vec2 v_texture;\n"
-  "out vec4 v_color;\n"
-  "void main()\n"
-  "{\n"
-  "	gl_Position = vec4(quad_positions, 0, 1);\n"
-  "	v_positions = gl_Position.xy;\n"
-  "	v_color = vec4(1,1,1,1);\n"
-  "	v_texture = (gl_Position.xy + vec2(1))/2.f;\n"
-  "}\n";
-
-
-
-static errorFuncType errorFunc = defaultErrorFunc;
-
 void defaultErrorFunc(const char *msg, void *userDefinedData) {
   printf("KHG2D error: %s\n", msg);
 }
@@ -103,17 +50,18 @@ float positionToScreenCoordsY(const float position, float h) {
   return -((-position / h) * 2 - 1);
 }
 
-stbtt_aligned_quad fontGetGlyphQuad(const font f, const char c) {
-  stbtt_aligned_quad quad = { 0 };
-  float x = 0;
-  float y = 0;
-  stbtt_GetPackedQuad(f.packedCharsBuffer, f.size.x, f.size.y, c - ' ', &x, &y, &quad, 1);
-  return quad;
-}
-
-vec4 fontGetGlyphTextureCoords(const font f, const char c) {
-  const stbtt_aligned_quad quad = fontGetGlyphQuad(f, c);
-  return (vec4){quad.s0, quad.t0, quad.s1, quad.t1};
+vec2 convertPoint(const camera *c, const vec2 *p, float windowW, float windowH) {
+  vec2 r = *p;
+  vec2 cameraCenter1, cameraCenter2;
+  cameraCenter1.x = c->position.x + windowW / 2;
+  cameraCenter1.y = c->position.y - windowH / 2;
+  cameraCenter2.x = c->position.x + windowW / 2;
+  cameraCenter2.y = c->position.y + windowH / 2;
+  r.x = c->position.x;
+  r.y = c->position.y;
+  r = rotateAroundPoint(r, cameraCenter1, c->rotation);
+  r = scaleAroundPoint(r, cameraCenter2, 1 / c->zoom);
+  return r;
 }
 
 GLuint loadShader(const char *source, GLenum shaderType) {
@@ -144,7 +92,7 @@ void init(void) {
     errorFunc("OpenGL doesn't seem to be initialized, have you forgotten to call gladLoadGL() \
       or gladLoadGLLoader() or glewInit()?", userDefinedData);
   }
-  defaultShader = createshader(defaultVertexShader, defaultFragmentShader);
+  defaultShader = createShader(defaultVertexShader, defaultFragmentShader);
   create1PxSquare(&white1pxSquareTexture, 0);
   enableKHGNecessaryFeatures();
 }
@@ -163,6 +111,13 @@ bool setVsync(bool b) {
   else {
     return false;
   }
+}
+
+void enableKHGNecessaryFeatures(void) {
+  glEnable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 vec2 rotateAroundPoint(vec2 vector, vec2 point, const float degrees) {
@@ -200,7 +155,7 @@ void validateProgram(GLuint id) {
   glValidateProgram(id);
 }
 
-shader createShaderProgram(const char *vertex, const char *fragment) {
+shader createShader(const char *vertex, const char *fragment) {
   shader shader = { 0 };
   const GLuint vertexId = loadShader(vertex, GL_VERTEX_SHADER);
   const GLuint fragmentId = loadShader(fragment, GL_FRAGMENT_SHADER);
@@ -247,13 +202,13 @@ shader createShaderFromFile(const char *filePath) {
   fread(fileData, 1, fileSize, file);
   fclose(file);
   fileData[fileSize] = '\0';
-  rez = createShader(fileData);
+  rez = createShaderDefaultVertex(fileData);
   free(fileData);
   return rez;
 }
 
-shader createShader(const char *fragment) {
-  return createshader(defaultVertexShader, fragment);
+shader createShaderDefaultVertex(const char *fragment) {
+  return createShader(defaultVertexShader, fragment);
 }
 
 shader createPostProcessShaderFromFile(const char *filePath) {
@@ -291,7 +246,7 @@ shader createPostProcessShaderFromFile(const char *filePath) {
 }
 
 shader createPostProcessShader(const char *fragment) {
-  return createshader(defaultVertexPostProcessShader, fragment);
+  return createShader(defaultVertexPostProcessShader, fragment);
 }
 
 void cleanTextureCoordinates(int tSizeX, int tSizeY, int x, int y, int sizeX, int sizeY, int s1, int s2, int s3, int s4, vec4 *outer, vec4 *inner) {
@@ -313,4 +268,3 @@ void cleanTextureCoordinates(int tSizeX, int tSizeY, int x, int y, int sizeX, in
     inner->w = newY - newSizeY + ((float)s4 / tSizeY);
   }
 }
-

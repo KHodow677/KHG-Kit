@@ -1,6 +1,25 @@
-#include "khg2d.h"
-#include "khg2d.c"
+#define STB_TRUETYPE_IMPLEMENTATION
+
+#include "font.h"
 #include <string.h>
+
+stbtt_aligned_quad fontGetGlyphQuad(const font f, const char c) {
+  stbtt_aligned_quad quad;
+  float x = 0;
+  float y = 0;
+  stbtt_GetPackedQuad(f.packedCharsBuffer, f.size.x, f.size.y, c - ' ', &x, &y, &quad, 1);
+  return quad;
+}
+
+vec4 fontGetGlyphTextureCoords(const font f, const char c) {
+  const stbtt_aligned_quad quad = fontGetGlyphQuad(f, c);
+  vec4 quadVec;
+  quadVec.x = quad.s0;
+  quadVec.y = quad.t0;
+  quadVec.z = quad.s1;
+  quadVec.w = quad.t1;
+  return quadVec;
+}
 
 void createFromTTF(font *f, const unsigned char *ttf_data, const size_t ttf_data_size) {
   size_t fontMonochromeBufferSize, fontRgbaBufferSize;
@@ -42,7 +61,7 @@ void createFromTTF(font *f, const unsigned char *ttf_data, const size_t ttf_data
   free(fontMonochromeBuffer);
   free(fontRgbaBuffer);
   for (c = ' '; c <= '~'; c++) {
-    const stbtt_aligned_quad q = fontGetGlyphQuad(*f, c);
+    const stbtt_aligned_quad q =  fontGetGlyphQuad(*f, c);
     const float m = q.y1 - q.y0;
     if (m > f->maxHeight && m < 1.e+8f) {
       f->maxHeight = m;
@@ -58,7 +77,6 @@ void createFromFile(font *f, const char *file) {
     char c[300] = {0};
     strcat(c, "error opening: ");
     strcat(c + strlen(c), file);
-    errorFunc(c, (void *)setUserDefinedData);
     return;
   }
   fseek(fileFont, 0, SEEK_END);
@@ -67,7 +85,6 @@ void createFromFile(font *f, const char *file) {
   fileData = (unsigned char *)malloc(fileSize);
   if (fileData == NULL) {
     fclose(fileFont);
-    errorFunc("memory allocation failed", (void *)setUserDefinedData);
     return;
   }
   fread(fileData, 1, fileSize, fileFont);

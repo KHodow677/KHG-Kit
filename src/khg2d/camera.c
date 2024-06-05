@@ -1,7 +1,11 @@
-#include "khg2d.h"
+#include "camera.h"
+#include <math.h>
 
 void setDefault(camera *c) {
-  c = &(camera){ (vec2){ 0, 0 }, 0, 1 };
+  vec2 pos = { 0, 0 };
+  c->position = pos;
+  c->zoom = 0;
+  c->rotation = 1;
 }
 
 void follow(camera *c, vec2 pos, float speed, float min, float max, float w, float h) {
@@ -10,7 +14,7 @@ void follow(camera *c, vec2 pos, float speed, float min, float max, float w, flo
   pos.x -= w / 2.f;
   pos.y -= h / 2.f;
   delta = vec2Subtract(&pos, &c->position);
-  len = vec2Length(&delta);
+  len = sqrt(pow(delta.x, 2) + pow(delta.y, 2));
   vec2Normalize(&delta);
   if (len < min * 2) {
     speed /= 4.f;

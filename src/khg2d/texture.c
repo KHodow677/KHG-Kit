@@ -1,5 +1,6 @@
-#include "khg2d.h"
-#include "khg2d.c"
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "texture.h"
 #include <string.h>
 
 const unsigned char getOld(const unsigned char *decodedImage, int width, int x, int y, int c) {
@@ -159,7 +160,6 @@ void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipM
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
 		strcat(c + strlen(c), fileName);
-		errorFunc(c, (void *)userDefinedData);
 		return;
   }
   fseek(file, 0, SEEK_END);
@@ -168,7 +168,6 @@ void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipM
   fileData = (unsigned char *)malloc(fileSize);
   if (fileData == NULL) {
     fclose(file);
-    errorFunc("memory allocation failed", (void *)setUserDefinedData);
     return;
   }
   fread(fileData, 1, fileSize, file);
@@ -185,7 +184,6 @@ void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSiz
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
 		strcat(c + strlen(c), fileName);
-		errorFunc(c, (void *)userDefinedData);
 		return;
   }
   fseek(file, 0, SEEK_END);
@@ -194,7 +192,6 @@ void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSiz
   fileData = (unsigned char *)malloc(fileSize);
   if (fileData == NULL) {
     fclose(file);
-    errorFunc("memory allocation failed", (void *)setUserDefinedData);
     return;
   }
   fread(fileData, 1, fileSize, file);
@@ -252,5 +249,4 @@ void cleanupTexture(texture *t) {
   glDeleteTextures(1, &t->id);
   memset(t, 0, sizeof(texture));
 }
-
 

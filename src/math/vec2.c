@@ -74,7 +74,3 @@ float vec2Dot(vec2 *vec2_a, vec2 *vec2_b) {
 
   return dot;
 }
-
-float vec2Length(vec2 *vec2_a) {
-  return sqrt(pow(vec2_a->x, 2) + pow(vec2_a->y, 2));
-}

@@ -17,10 +17,8 @@ then
   fi
 elif [ "$1" = "build" ] && [ "$2" = "run" ]
 then
-  if ! [ -d "./build" ]
-  then
-    mkdir build
-  fi
+  rm -r build/
+  mkdir build
   cd build
   cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   make

@@ -4,7 +4,7 @@
 typedef struct {
 	vec_size_t size;
 	vec_size_t capacity;
-	unsigned char data[]; 
+	unsigned char *data; 
 } header;
 
 header* getHeader(vector vec) { 

@@ -1,4 +1,4 @@
-#include "khg2d.h"
+#include "shader.h"
 #include <string.h>
 
 void bindShader(shader *s) {
@@ -9,4 +9,3 @@ void clearShader(shader *s) {
   glDeleteProgram(s->id);
   memset(s, 0, sizeof(shader));
 }
-
