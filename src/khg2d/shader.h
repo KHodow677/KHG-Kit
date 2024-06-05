@@ -2,7 +2,7 @@
 
 #include "glad/glad.h"
 
-typedef struct shader {
+typedef struct {
   GLuint id;
   int u_sampler;
 } shader;

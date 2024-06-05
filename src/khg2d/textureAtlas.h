@@ -1,7 +1,7 @@
 #include "../utils/bool.h"
 #include "../math/vec4.h"
 
-typedef struct textureAtlas {
+typedef struct {
   int xCount;
 	int yCount;
 } textureAtlas;

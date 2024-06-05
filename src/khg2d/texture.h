@@ -5,7 +5,7 @@
 #include "../utils/bool.h"
 #include "../math/vec2.h"
 
-typedef struct texture {
+typedef struct {
   GLuint id;
 } texture;
 

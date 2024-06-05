@@ -4,7 +4,7 @@
 #include "texture.h"
 #include "../math/vec4.h"
 
-typedef struct font {
+typedef struct {
   texture texture;
   vec2 size;
   stbtt_packedchar *packedCharsBuffer;

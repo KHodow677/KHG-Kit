@@ -2,7 +2,7 @@
 
 #include "../math/vec2.h"
 
-typedef struct camera {
+typedef struct {
   vec2 position;
   float rotation;
   float zoom;
