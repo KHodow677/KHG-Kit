@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "renderer2d.h"
 #include "../math/math.h"
 #include "../math/vec4.h"
 
@@ -89,12 +90,11 @@ void init(void) {
   }
   hasInitialized = true;
   if (!glGenTextures) {
-    errorFunc("OpenGL doesn't seem to be initialized, have you forgotten to call gladLoadGL() \
-      or gladLoadGLLoader() or glewInit()?", userDefinedData);
+    errorFunc("OpenGL doesn't seem to be initialized, have you forgotten to call gladLoadGL() or gladLoadGLLoader() or glewInit()?", userDefinedData);
   }
   defaultShader = createShader(defaultVertexShader, defaultFragmentShader);
   create1PxSquare(&white1pxSquareTexture, 0);
-  enableKHGNecessaryFeatures();
+  enableGLNecessaryFeatures();
 }
 
 void cleanup(void) {
@@ -111,13 +111,6 @@ bool setVsync(bool b) {
   else {
     return false;
   }
-}
-
-void enableKHGNecessaryFeatures(void) {
-  glEnable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 vec2 rotateAroundPoint(vec2 vector, vec2 point, const float degrees) {

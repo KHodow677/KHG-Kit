@@ -30,7 +30,7 @@ void cleanupFramebuffer(framebuffer *fb) {
   }
 }
 
-void clearFrameBuffer(framebuffer *fb) {
+void clearFramebuffer(framebuffer *fb) {
   glBindFramebuffer(GL_FRAMEBUFFER, fb->fbo);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

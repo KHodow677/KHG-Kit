@@ -9,7 +9,7 @@ typedef struct {
   GLuint id;
 } texture;
 
-vec2 getSize(texture *t);
+vec2 getTextureSize(texture *t);
 void createFromBuffer(texture *t, const char *image_data, const int width, const int height, bool pixelated, bool useMipMaps);
 void create1PxSquare(texture *t, const char *b);
 void createFromFileData(texture *t, const unsigned char *image_file_data, const size_t image_file_size, bool pixelated, bool useMipMaps);

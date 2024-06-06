@@ -1,5 +1,6 @@
 #include "vec.h"
 #include <string.h>
+#include "bool.h"
 
 typedef struct {
 	vec_size_t size;
@@ -97,4 +98,9 @@ vector copy(vector vec, vec_type_t type_size) {
 	memcpy(copy_h, h, alloc_size);
 	copy_h->capacity = copy_h->size;
 	return &copy_h->data;
+}
+
+void vectorClear(vector vec) {
+  header* h = getHeader(vec);
+  h->size = 0;
 }

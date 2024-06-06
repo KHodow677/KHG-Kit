@@ -2,6 +2,7 @@
 
 #include "font.h"
 #include <string.h>
+#include "utils.h"
 
 stbtt_aligned_quad fontGetGlyphQuad(const font f, const char c) {
   stbtt_aligned_quad quad;
@@ -77,6 +78,7 @@ void createFromFile(font *f, const char *file) {
     char c[300] = {0};
     strcat(c, "error opening: ");
     strcat(c + strlen(c), file);
+    errorFunc(c, userDefinedData);
     return;
   }
   fseek(fileFont, 0, SEEK_END);

@@ -2,6 +2,7 @@
 
 #include "texture.h"
 #include <string.h>
+#include "utils.h"
 
 const unsigned char getOld(const unsigned char *decodedImage, int width, int x, int y, int c) {
   return decodedImage[4 * (x + (y * width)) + c];
@@ -19,7 +20,7 @@ void changeNew(unsigned char *newData, int newW, int x1, int y, int c1, int x2, 
   newData[4 * (x1 + (y * newW)) + c1] = getNew(newData, newW, x2, y, c2);
 }
 
-vec2 getSize(texture *t) {
+vec2 getTextureSize(texture *t) {
   	vec2 s;
 		glBindTexture(GL_TEXTURE_2D, t->id);
 		glGetTexLevelParameterfv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &s.x);
@@ -60,10 +61,10 @@ void createFromBuffer(texture *t, const char *image_data, const int width, const
 void create1PxSquare(texture *t, const char *b) {
   if (b == NULL) {
     const unsigned char buff[] = { 0xff, 0xff, 0xff, 0xff };
-    createFromBuffer(t, (char *)buff, 1, 1, false, false);
+    createFromBuffer(t, (char *)buff, 1, 1, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
   }
   else {
-    createFromBuffer(t, b, 1, 1, false, false);
+    createFromBuffer(t, b, 1, 1, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
   }
 }
 
@@ -160,6 +161,7 @@ void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipM
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
 		strcat(c + strlen(c), fileName);
+    errorFunc(c, userDefinedData);
 		return;
   }
   fseek(file, 0, SEEK_END);
@@ -184,6 +186,7 @@ void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSiz
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
 		strcat(c + strlen(c), fileName);
+    errorFunc(c, userDefinedData);
 		return;
   }
   fseek(file, 0, SEEK_END);
