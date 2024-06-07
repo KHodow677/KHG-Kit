@@ -60,10 +60,8 @@ vec2 vec2Normalize(vec2 *vec2_a) {
   float x = vec2_a->x;
   float y = vec2_a->y;
   float length = sqrt(x * x + y * y);
-
   vec2_normalized.x /= length;
   vec2_normalized.y /= length;
-
   return vec2_normalized;
 }
 

@@ -1,7 +1,9 @@
 #include "renderer2d.h"
+#include <math.h>
 #include "framebuffer.h"
 #include "texture.h"
 #include "utils.h"
+#include "../math/math.h"
 #include "../utils/vec.h"
 
 void internalFlush(renderer2d *r2d, bool shouldClear) {
@@ -72,6 +74,33 @@ void renderQuadToScreenInternal(renderer2d *r2d) {
   glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[texturePositions]);
   glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(vec2), texCoords, GL_STREAM_DRAW);
   glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void renderPoint(renderer2d *r2d, vec2 pos) {
+  vec2 offset = { 1.0f, 1.0f };
+  vec4 rect, colors[4];
+  vec2 origin = { 0.0f, 0.0f };
+  rect.x = pos.x = offset.x;
+  rect.y = pos.y - offset.y;
+  rect.z = 2.0f;
+  rect.w = 2.0f;
+  colors[0] = colorBlack;
+  colors[1] = colorBlack;
+  colors[2] = colorBlack;
+  colors[3] = colorBlack;
+  renderRectangle(r2d, rect, colors, origin, 0);
+}
+
+vec2 calcPos(int p, float size, int segments, vec2 position) {
+  vec2 circle;
+  float a = 3.1415926 * 2 * ((float)p / segments);
+  float c = cos(a);
+  float s = sin(a);
+  circle.x = size;
+  circle.y = 0.0f;
+  circle.x = c * circle.x - s * circle.y;
+  circle.y = s * circle.x - c * circle.y;
+  return vec2Add(&circle, &position);
 }
 
 void clearDrawData(renderer2d *r2d) {
@@ -209,27 +238,27 @@ void enableGLNecessaryFeatures(void) {
   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void renderRectangleTexture(renderer2d *r2d, const vec4 transforms, const texture t, const vec4 colors[4], const vec2 origin, const float rotationDegrees, const vec4 textureCoords) {
+void renderRectangleTexture(renderer2d *r2d, const vec4 transform, const texture t, const vec4 colors[4], const vec2 origin, const float rotationDegrees, const vec4 textureCoords) {
   vec2 newOrigin;
-  newOrigin.x = origin.x + transforms.x + (transforms.z / 2);
-  newOrigin.y = origin.y + transforms.y + (transforms.w / 2);
-  renderRectangleTextureAbsRotation(r2d, transforms, t, colors, newOrigin, rotationDegrees, textureCoords);
+  newOrigin.x = origin.x + transform.x + (transform.z / 2);
+  newOrigin.y = origin.y + transform.y + (transform.w / 2);
+  renderRectangleTextureAbsRotation(r2d, transform, t, colors, newOrigin, rotationDegrees, textureCoords);
 }
 
-void renderRectangleTextureAbsRotation(renderer2d *r2d, const vec4 transforms, const texture t, const vec4 colors[4], const vec2 origin, const float rotationDegrees, const vec4 textureCoords) {
+void renderRectangleTextureAbsRotation(renderer2d *r2d, const vec4 transform, const texture t, const vec4 colors[4], const vec2 origin, const float rotationDegrees, const vec4 textureCoords) {
   texture textureCopy = t;
-  const float transformsY = transforms.y * -1;
+  const float transformY = transform.y * -1;
   vec2 v1, v2, v3, v4;
   vec2 cameraCenter;
   vec2 tPos;
-  v1.x = transforms.x;
-  v1.y = transformsY;
-  v2.x = transforms.x;
-  v2.y = transformsY - transforms.w;
-  v3.x = transforms.x + transforms.z;
-  v3.y = transformsY - transforms.w;
-  v4.x = transforms.x + transforms.z;
-  v4.y = transformsY;
+  v1.x = transform.x;
+  v1.y = transformY;
+  v2.x = transform.x;
+  v2.y = transformY - transform.w;
+  v3.x = transform.x + transform.z;
+  v3.y = transformY - transform.w;
+  v4.x = transform.x + transform.z;
+  v4.y = transformY;
   if (textureCopy.id == 0) {
     errorFunc("Invalid texture", userDefinedData);
     textureCopy = white1pxSquareTexture;
@@ -304,11 +333,102 @@ void renderRectangleTextureAbsRotation(renderer2d *r2d, const vec4 transforms, c
   vectorAdd(&r2d->spriteTextures, texture, textureCopy);
 }
 
-void renderRectangle(renderer2d *r2d, const vec4 transforms, const vec4 colors[4], const vec2 origin, const float rotationDegrees) {
-  renderRectangleTexture(r2d, transforms, white1pxSquareTexture, colors, origin, rotationDegrees, defaultTextureCoords);
+void renderRectangle(renderer2d *r2d, const vec4 transform, const vec4 colors[4], const vec2 origin, const float rotationDegrees) {
+  renderRectangleTexture(r2d, transform, white1pxSquareTexture, colors, origin, rotationDegrees, defaultTextureCoords);
 }
 
-void renderRectangleAbsRotation(renderer2d *r2d, const vec4 transforms, const vec4 colors[4], const vec2 origin, const float rotationDegrees) {
-  renderRectangleTextureAbsRotation(r2d, transforms, white1pxSquareTexture, colors, origin, rotationDegrees, defaultTextureCoords);
+void renderRectangleAbsRotation(renderer2d *r2d, const vec4 transform, const vec4 colors[4], const vec2 origin, const float rotationDegrees) {
+  renderRectangleTextureAbsRotation(r2d, transform, white1pxSquareTexture, colors, origin, rotationDegrees, defaultTextureCoords);
 }
 
+void renderLineAngle(renderer2d *r2d, vec2 position, const float angleDegrees, const float length, const vec4 color, const float width) {
+  vec2 halfWidth, difference, origin;
+  vec4 transform, colors[4];
+  halfWidth.x = 0;
+  halfWidth.y = width / 2.0f;
+  difference = vec2Subtract(&position, &halfWidth);
+  transform.x = difference.x;
+  transform.y = difference.y;
+  transform.z = length;
+  transform.w = width;
+  colors[0] = color;
+  colors[1] = color;
+  colors[2] = color;
+  colors[3] = color;
+  origin.x = -length / 2.0f;
+  origin.y = 0;
+  renderRectangle(r2d, transform, colors, origin, angleDegrees);
+}
+
+void renderLineStartEnd(renderer2d *r2d, vec2 start, vec2 end, const vec4 color, const float width) {
+  vec2 distance = vec2Subtract(&end, &start);
+  float length = sqrt(pow(distance.x, 2) + pow(distance.y, 2));
+  float angle = atan2(distance.y, distance.x);
+  renderLineAngle(r2d, start, -degrees(angle), length, color, width);
+}
+
+void renderRectangleOutline(renderer2d *r2d, const vec4 position, const vec4 color, const float width, const vec2 origin, const float rotationDegrees) {
+  vec2 topLeft, topRight, bottomRight, bottomLeft;
+  vec2 p1, p2, p3, p4, p5, p6, p7, p8;
+  topLeft.x = position.x;
+  topLeft.y = position.y;
+  topRight.x = position.x + position.z;
+  topRight.y = position.y;
+  bottomRight.x = position.x;
+  bottomRight.y = position.y + position.w;
+  bottomLeft.x = position.x + position.z;
+  bottomLeft.y = position.y + position.w;
+  p1.x = topLeft.x - (width / 2.0f);
+  p1.y = topLeft.y;
+  p2.x = topRight.x + (width / 2.0f);
+  p2.y = topRight.y;
+  p3.x = topRight.x;
+  p3.y = topRight.y + (width / 2.0f);
+  p4.x = bottomRight.x;
+  p4.y = bottomRight.y - (width / 2.0f);
+  p5.x = bottomRight.x + (width / 2.0f);
+  p5.y = bottomRight.y;
+  p6.x = bottomLeft.x - (width / 2.0f);
+  p6.y = bottomLeft.y;
+  p7.x = bottomLeft.x;
+  p7.y = bottomLeft.y - (width / 2.0f);
+  p8.x = topLeft.x;
+  p8.y = topLeft.y + (width / 2.0f);
+  if (rotationDegrees != 0) {
+    vec2 o;
+    o.x = origin.x + position.x + position.z / 2.0f;
+    o.y = origin.y - position.y - position.w / 2.0f;
+    p1 = rotateAroundPoint(p1, o, -rotationDegrees);
+    p2 = rotateAroundPoint(p2, o, -rotationDegrees);
+    p3 = rotateAroundPoint(p3, o, -rotationDegrees);
+    p4 = rotateAroundPoint(p4, o, -rotationDegrees);
+    p5 = rotateAroundPoint(p5, o, -rotationDegrees);
+    p6 = rotateAroundPoint(p6, o, -rotationDegrees);
+    p7 = rotateAroundPoint(p7, o, -rotationDegrees);
+    p8 = rotateAroundPoint(p8, o, -rotationDegrees);
+  }
+  renderPoint(r2d, p1);
+  renderPoint(r2d, p2);
+  renderPoint(r2d, p3);
+  renderPoint(r2d, p4);
+  renderPoint(r2d, p5);
+  renderPoint(r2d, p6);
+  renderPoint(r2d, p7);
+  renderPoint(r2d, p8);
+  renderLineStartEnd(r2d, p1, p2, color, width);
+  renderLineStartEnd(r2d, p3, p4, color, width);
+  renderLineStartEnd(r2d, p5, p6, color, width);
+  renderLineStartEnd(r2d, p7, p8, color, width);
+}
+
+void renderCircleOutline(renderer2d *r2d, const vec2 position, const vec4 color, const float size, const float width, const unsigned int segments) {
+  vec2 lastPos = calcPos(1, size, segments, position);
+  int i;
+  renderLineStartEnd(r2d, calcPos(0, size, segments, position), lastPos, color, width);
+  for (i = 1; i < segments; i++) {
+    vec2 pos1 = lastPos;
+    vec2 pos2 = calcPos(i + 1, size, segments, position);
+    renderLineStartEnd(r2d, pos1, pos2, color, width);
+    lastPos = pos2;
+  }
+}

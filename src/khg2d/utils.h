@@ -25,7 +25,7 @@
 static vec4 colorRed = { 1, 0, 0, 1 };
 static vec4 colorGreen = { 0, 1, 0, 1 };
 static vec4 colorBlue = { 0, 0, 1, 1 };
-static vec4 colorsBlack = { 0, 0, 0, 1 };
+static vec4 colorBlack = { 0, 0, 0, 1 };
 static vec4 colorWhite = { 1, 1, 1, 1 };
 static vec4 colorYellow = { 1, 1, 0, 1 };
 static vec4 colorMagenta = { 1, 0, 1, 1 };

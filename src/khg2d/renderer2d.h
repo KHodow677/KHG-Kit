@@ -50,10 +50,10 @@ void renderRectangleTexture(renderer2d *r2d, const vec4 transforms, const textur
 void renderRectangleTextureAbsRotation(renderer2d *r2d, const vec4 transforms, const texture texture, const vec4 colors[4], const vec2 origin, const float rotationDegrees, const vec4 textureCoords);
 void renderRectangle(renderer2d *r2d, const vec4 transforms, const vec4 colors[4], const vec2 origin, const float rotationDegrees);
 void renderRectangleAbsRotation(renderer2d *r2d, const vec4 transforms, const vec4 colors[4], const vec2 origin, const float rotationDegrees);
-// void renderLineAngle(renderer2d *r2d, const vec2 position, const float angleDegrees, const float length, const vec4 color, const float width);
-// void renderLineStartEnd(renderer2d *r2d, const vec2 start, const vec2 end, const vec4 color, const float width);
-// void renderRectangleOutline(renderer2d *r2d, const vec4 position, const vec4 color, const float width, const vec2 origin, const float rotationDegrees);
-// void renderCircleOutline(renderer2d *r2d, const vec2 position, const vec4 color, const float size, const float width, const unsigned int segments);
+void renderLineAngle(renderer2d *r2d, vec2 position, const float angleDegrees, const float length, const vec4 color, const float width);
+void renderLineStartEnd(renderer2d *r2d, const vec2 start, const vec2 end, const vec4 color, const float width);
+void renderRectangleOutline(renderer2d *r2d, const vec4 position, const vec4 color, const float width, const vec2 origin, const float rotationDegrees);
+void renderCircleOutline(renderer2d *r2d, const vec2 position, const vec4 color, const float size, const float width, const unsigned int segments);
 // void renderNinePatch(renderer2d *r2d, const vec4 position, const vec4 color, const vec2 origin, const float rotationDegrees, const texture texture, const vec4 textureCoords, const vec4 inner_texture_coords);
 // void clearScreen(renderer2d *r2d, const vec4 color);
 // void setshader(renderer2d *r2d, const shader shader);
