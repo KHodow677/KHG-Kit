@@ -29,7 +29,7 @@ typedef struct {
 } renderer2d;
 
 void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount);
-// void cleanupRenderer2d(renderer2d *r2d);
+void cleanupRenderer2d(renderer2d *r2d);
 // void pushShader(renderer2d *r2d, shader s);
 // void popShader(renderer2d *r2d);
 // void pushCamera(renderer2d *r2d, camera c);

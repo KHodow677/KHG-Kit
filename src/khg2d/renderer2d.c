@@ -103,11 +103,49 @@ vec2 calcPos(int p, float size, int segments, vec2 position) {
   return vec2Add(&circle, &position);
 }
 
+void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount) {
+  if (!hasInitialized) {
+		errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
+  }
+  r2d->defaultFbo = fbo;
+  clearDrawData(r2d);
+  vectorReserve(&r2d->spritePositions, vec2, quadCount * 6);
+  vectorReserve(&r2d->spriteColors, vec4, quadCount * 6);
+  vectorReserve(&r2d->texturePositions, vec2, quadCount * 6);
+  vectorReserve(&r2d->spriteTextures, texture, quadCount);
+  resetShaderAndCamera(r2d);
+  glGenVertexArrays(1, &r2d->vao);
+  glBindVertexArray(r2d->vao);
+  glGenBuffers(bufferSize, r2d->buffers);
+  glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[quadPositions]);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+  glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[quadColors]);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
+  glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[texturePositions]);
+  glEnableVertexAttribArray(2);
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+  glBindVertexArray(0);
+}
+
+void cleanupRenderer2d(renderer2d *r2d) {
+  glDeleteVertexArrays(1, &r2d->vao);
+  glDeleteBuffers(bufferSize, r2d->buffers);
+  cleanupFramebuffer(&r2d->postProcessFbo1);
+  cleanupFramebuffer(&r2d->postProcessFbo2);
+  r2d->internalPostProcessFlip = 0;
+}
+
 void clearDrawData(renderer2d *r2d) {
   vectorClear(r2d->spritePositions);
   vectorClear(r2d->spriteColors);
   vectorClear(r2d->texturePositions);
   vectorClear(r2d->spriteTextures);
+}
+
+void resetShaderAndCamera(renderer2d *r2d) {
+
 }
 
 void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffer result) {
@@ -434,19 +472,41 @@ void renderCircleOutline(renderer2d *r2d, const vec2 position, const vec4 color,
 }
 
 void renderNinePatch(renderer2d *r2d, const vec4 position, const vec4 color, const vec2 origin, const float rotationDegrees, const texture texture, const vec4 textureCoords, const vec4 inner_texture_coords) {
-  vec4 colorData[4] = { color, color, color, color };
+  vec4 colorData[4];
   int w = 0;
   int h = 0;
-  glBindTexture(GL_TEXTURE_2D, texture.id);
-  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
-  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
   float textureSpaceW = textureCoords.z - textureCoords.x;
   float textureSpaceH = textureCoords.y - textureCoords.w;
   float topBorder = (textureCoords.y - inner_texture_coords.y) / textureSpaceH * position.w;
   float bottomBorder = (inner_texture_coords.w - textureCoords.w) / textureSpaceH * position.w;
-  float leftBorder = (inner_texture_coords.x - textureCoords.x) / textureSpaceH * position.z;
-  float rightBorder = (textureCoords.z - inner_texture_coords.z) / textureSpaceH * position.z;
+  float leftBorder = (inner_texture_coords.x - textureCoords.x) / textureSpaceW * position.z;
+  float rightBorder = (textureCoords.z - inner_texture_coords.z) / textureSpaceW * position.z;
   float newAspectRatio = position.z / position.w;
+  vec2 pos2d = { 0, 0 };
+  vec4 innerPos = position;
+  vec4 topPos = position;
+  vec4 bottom = position;
+  vec4 left = position;
+  vec4 right = position;
+  vec4 topleft = position;
+  vec4 topright = position;
+  vec4 bottomleft = position;
+  vec4 bottomright = position;
+  vec4 upperTexPos;
+  vec4 bottomTexPos;
+  vec4 leftTexPos;
+  vec4 rightTexPos;
+  vec4 topleftTexPos;
+  vec4 toprightTexPos;
+  vec4 bottomleftTexPos;
+  vec4 bottomrightTexPos;
+  colorData[0] = color;
+  colorData[1] = color;
+  colorData[2] = color; 
+  colorData[3] = color;
+  glBindTexture(GL_TEXTURE_2D, texture.id);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &w);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &h);
   if (newAspectRatio < 1.f) {
     topBorder *= newAspectRatio;
     bottomBorder *= newAspectRatio;
@@ -454,120 +514,75 @@ void renderNinePatch(renderer2d *r2d, const vec4 position, const vec4 color, con
   else {
     leftBorder /= newAspectRatio;
   }
-  vec4 innerPos = position;
   innerPos.x += leftBorder;
   innerPos.y += topBorder;
   innerPos.z -= leftBorder + rightBorder;
   innerPos.w -= topBorder + bottomBorder;
-  vec2 pos2d = { 0, 0 };
   renderRectangleTexture(r2d, innerPos, texture, colorData, pos2d, 0, inner_texture_coords);
-  vec4 topPos = position;
   topPos.x += leftBorder;
   topPos.z -= leftBorder + rightBorder;
   topPos.w = topBorder;
-  vec4 upperTexPos;
   upperTexPos.x = inner_texture_coords.x;
   upperTexPos.y = textureCoords.y;
   upperTexPos.z = inner_texture_coords.z;
   upperTexPos.w = inner_texture_coords.y;
   renderRectangleTexture(r2d, topPos, texture, colorData, pos2d, 0, upperTexPos);
-  vec4 bottom = position;
   bottom.x += leftBorder;
   bottom.y += (float)position.w - bottomBorder;
   bottom.z -= leftBorder + rightBorder;
   bottom.w = bottomBorder;
-  vec4 bottomTexPos;
   bottomTexPos.x = inner_texture_coords.x;
   bottomTexPos.y = inner_texture_coords.w;
   bottomTexPos.z = inner_texture_coords.z;
   bottomTexPos.w = textureCoords.w;
   renderRectangleTexture(r2d, bottom, texture, colorData, pos2d, 0, bottomTexPos);
-  vec4 left = position;
   left.y += topBorder;
   left.z = leftBorder;
   left.w -= topBorder + bottomBorder;
-  vec4 leftTexPos;
   leftTexPos.x = textureCoords.x;
   leftTexPos.y = inner_texture_coords.y;
   leftTexPos.z = inner_texture_coords.x;
   leftTexPos.w = inner_texture_coords.w;
   renderRectangleTexture(r2d, left, texture, colorData, pos2d, 0, leftTexPos);
-  vec4 right = position;
   right.x += position.z - rightBorder;
   right.y += topBorder;
   right.z = rightBorder;
   right.w -= topBorder + bottomBorder;
-  vec4 rightTexPos;
   rightTexPos.x = inner_texture_coords.z;
   rightTexPos.y = inner_texture_coords.y;
   rightTexPos.z = textureCoords.z;
   rightTexPos.w = inner_texture_coords.w;
   renderRectangleTexture(r2d, right, texture, colorData, pos2d, 0, rightTexPos);
-  vec4 topleft = position;
   topleft.z = leftBorder;
   topleft.w = topBorder;
-  vec4 topleftTexPos;
   topleftTexPos.x = textureCoords.x;
   topleftTexPos.y = textureCoords.y;
   topleftTexPos.z = inner_texture_coords.x;
   topleftTexPos.w = inner_texture_coords.y;
   renderRectangleTexture(r2d, topleft, texture, colorData, pos2d, 0, topleftTexPos);
-  vec4 topright = position;
   topright.x += position.z - rightBorder;
   topright.z = rightBorder;
   topright.w = topBorder;
-  vec4 toprightTexPos;
   toprightTexPos.x = inner_texture_coords.z;
   toprightTexPos.y = textureCoords.y;
   toprightTexPos.z = textureCoords.z;
   toprightTexPos.w = inner_texture_coords.y;
   renderRectangleTexture(r2d, topright, texture, colorData, pos2d, 0, toprightTexPos);
-  vec4 bottomleft = position;
   bottomleft.y += position.w - bottomBorder;
   bottomleft.z = leftBorder;
   bottomleft.w = bottomBorder;
-  vec4 bottomleftTexPos;
   bottomleftTexPos.x = textureCoords.x;
   bottomleftTexPos.y = inner_texture_coords.w;
   bottomleftTexPos.z = inner_texture_coords.x;
   bottomleftTexPos.w = textureCoords.w;
   renderRectangleTexture(r2d, bottomleft, texture, colorData, pos2d, 0, bottomleftTexPos);
-  vec4 bottomright = position;
   bottomright.y += position.w - bottomBorder;
   bottomright.x += position.z - rightBorder;
   bottomright.z = rightBorder;
   bottomright.w = bottomBorder;
-  vec4 bottomrightTexPos;
   bottomrightTexPos.x = inner_texture_coords.z;
   bottomrightTexPos.y = inner_texture_coords.w;
   bottomrightTexPos.z = textureCoords.z;
   bottomrightTexPos.w = textureCoords.w;
   renderRectangleTexture(r2d, bottomright, texture, colorData, pos2d, 0, bottomrightTexPos);
 }
-
-void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount) {
-  if (!hasInitialized) {
-		errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
-  }
-  r2d->defaultFbo = fbo;
-  clearDrawData(r2d);
-  vectorReserve(&r2d->spritePositions, vec2, quadCount * 6);
-  vectorReserve(&r2d->spriteColors, vec4, quadCount * 6);
-  vectorReserve(&r2d->texturePositions, vec2, quadCount * 6);
-  vectorReserve(&r2d->spriteTextures, texture, quadCount);
-  resetShaderAndCamera(r2d);
-  glGenVertexArrays(1, &r2d->vao);
-  glBindVertexArray(r2d->vao);
-  glGenBuffers(bufferSize, r2d->buffers);
-  glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[quadPositions]);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
-  glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[quadColors]);
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void *)0);
-  glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[texturePositions]);
-  glEnableVertexAttribArray(2);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
-  glBindVertexArray(0);
-}
-
