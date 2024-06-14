@@ -28,7 +28,7 @@ typedef struct {
   bool internalPostProcessFlip;
 } renderer2d;
 
-// void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount);
+void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount);
 // void cleanupRenderer2d(renderer2d *r2d);
 // void pushShader(renderer2d *r2d, shader s);
 // void popShader(renderer2d *r2d);
@@ -54,11 +54,11 @@ void renderLineAngle(renderer2d *r2d, vec2 position, const float angleDegrees, c
 void renderLineStartEnd(renderer2d *r2d, const vec2 start, const vec2 end, const vec4 color, const float width);
 void renderRectangleOutline(renderer2d *r2d, const vec4 position, const vec4 color, const float width, const vec2 origin, const float rotationDegrees);
 void renderCircleOutline(renderer2d *r2d, const vec2 position, const vec4 color, const float size, const float width, const unsigned int segments);
-// void renderNinePatch(renderer2d *r2d, const vec4 position, const vec4 color, const vec2 origin, const float rotationDegrees, const texture texture, const vec4 textureCoords, const vec4 inner_texture_coords);
+void renderNinePatch(renderer2d *r2d, const vec4 position, const vec4 color, const vec2 origin, const float rotationDegrees, const texture texture, const vec4 textureCoords, const vec4 inner_texture_coords);
 // void clearScreen(renderer2d *r2d, const vec4 color);
 // void setshader(renderer2d *r2d, const shader shader);
 // void setCamera(renderer2d *r2d, const camera c);
-// void resetShaderAndCamera(renderer2d *r2d);
+void resetShaderAndCamera(renderer2d *r2d);
 void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffer result);
 void flush(renderer2d *r2d, bool clearDrawData);
 void flushFbo(renderer2d *r2d, framebuffer frameBuffer, bool clearDrawData);
