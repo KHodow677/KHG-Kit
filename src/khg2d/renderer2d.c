@@ -255,6 +255,13 @@ vec4 pixToScreen(renderer2d *r2d, const vec4 *transform) {
   return result;
 }
 
+void clearDrawData(renderer2d *r2d) {
+  vectorClear(r2d->spritePositions);
+  vectorClear(r2d->spriteColors);
+  vectorClear(r2d->texturePositions);
+  vectorClear(r2d->spriteTextures);
+}
+
 vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float size, const float spacing, const float line_space) {
   vec2 position, result;
   const int textLength = (int)strlen(text);
@@ -301,6 +308,10 @@ vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float
   result.x = paddX;
   result.y = paddY;
   return result;
+}
+
+void renderText(renderer2d *r2d, vec2 position, const char *text, const font f, const vec4 color, const float size, const float spacing, const float line_space, short showInCenter, const vec4 shadowColor, const vec4 lightColor) {
+  
 }
 
 float determineTextRescaleFitSmaller(renderer2d *r2d, const char **str, font *f, vec4 transform, float maxSize) {
@@ -411,143 +422,21 @@ int wrap(renderer2d *r2d, const char **in, font *f, float baseSize, float maxDim
   return newLineCounter + 1;
 }
 
-void clearDrawData(renderer2d *r2d) {
-  vectorClear(r2d->spritePositions);
-  vectorClear(r2d->spriteColors);
-  vectorClear(r2d->texturePositions);
-  vectorClear(r2d->spriteTextures);
+void renderTextWrapped(renderer2d *r2d, const char *text, font f, vec4 textPos, vec4 color, float baseSize, float spacing, float lineSpacing, short showInCenter, vec4 shadowColor, vec4 lightColor) {
+  char *newText;
+  vec2 textPosition;
+  textPosition.x = textPos.x;
+  textPosition.y = textPos.y;
+  wrap(r2d, &text, &f, baseSize, textPos.z, &newText);
+  renderText(r2d, textPosition, newText, f, color, baseSize, spacing, lineSpacing, showInCenter, shadowColor, lightColor);
 }
 
-void resetShaderAndCamera(renderer2d *r2d) {
-
-}
-
-void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffer result) {
-
-}
-
-void flush(renderer2d *r2d, bool clearDrawData) {
-  glBindFramebuffer(GL_FRAMEBUFFER, r2d->defaultFbo);
-  internalFlush(r2d, clearDrawData);
-}
-
-void flushFbo(renderer2d *r2d, framebuffer frameBuffer, short clearDrawData) {
-  if (frameBuffer.fbo == 0) {
-    errorFunc("Framebuffer not initialized", userDefinedData);
-    return;
-  }
-  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  internalFlush(r2d, clearDrawData);
-  glBindFramebuffer(GL_FRAMEBUFFER, r2d->defaultFbo);
-}
-
-void renderFrameBufferToEntireScreen(renderer2d *r2d, framebuffer fbo, framebuffer screen) {
-  renderTextureToEntireScreen(r2d, fbo.texture, screen);
-}
-
-void renderTextureToEntireScreen(renderer2d *r2d, texture t, framebuffer screen) {
-  vec2 size;
-  size.x = r2d->windowW;
-  size.y = r2d->windowH;
-  glBindFramebuffer(GL_FRAMEBUFFER, screen.fbo);
-  glEnable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-  if (!hasInitialized) {
-    errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
-    return;
-  }
-  if (!r2d->vao) {
-    errorFunc("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", userDefinedData);
-    return;
-  }
-  if (!r2d->currentShader.id) {
-    errorFunc("Post Process Shader not created.", userDefinedData);
-    return;
-  }
-  if (screen.fbo) {
-    size = getTextureSize(&screen.texture);
-  }
-  if (size.x == 0 || size.y == 0) {
-    return;
-  }
-  glViewport(0, 0, size.x, size.y);
-  glUseProgram(r2d->currentShader.id);
-  glUniform1i(r2d->currentShader.u_sampler, 0);
-  bindTexture(&t, 0);
-  renderQuadToScreenInternal(r2d);
-  glBindVertexArray(0);
-}
-
-void flushPostProcess(renderer2d *r2d, const shader *postProcess, framebuffer frameBuffer, bool shouldClear) {
-  if (vectorSize(&postProcess) == 0) {
-    if (shouldClear) {
-      clearDrawData(r2d);
-      return;
-    }
-  }
-  if (!r2d->postProcessFbo1.fbo) {
-    createFramebuffer(&r2d->postProcessFbo1, 0, 0);
-  }
-  resizeFramebuffer(&r2d->postProcessFbo1, r2d->windowW, r2d->windowH);
-  clearFramebuffer(&r2d->postProcessFbo1);
-  flushFbo(r2d, r2d->postProcessFbo1, shouldClear);
-  r2d->internalPostProcessFlip = 1;
-  postProcessOverTexture(r2d, postProcess, r2d->postProcessFbo1.texture, frameBuffer);
-}
-
-void postProcessOverTexture(renderer2d *r2d, const shader *postProcess, texture in, framebuffer fb) {
-  int i;
-  if (vectorSize(&postProcess) == 0) {
-    return;
-  }
-  if (!r2d->postProcessFbo1.fbo) { 
-    createFramebuffer(&r2d->postProcessFbo1, 0, 0);
-  }
-  if (!r2d->postProcessFbo2.fbo && vectorSize(&postProcess) > 1) {
-    createFramebuffer(&r2d->postProcessFbo2, 0, 0);
-  }
-  if (r2d->internalPostProcessFlip == 0) {
-    resizeFramebuffer(&r2d->postProcessFbo1, r2d->windowW, r2d->windowH);
-    clearFramebuffer(&r2d->postProcessFbo1);
-    resizeFramebuffer(&r2d->postProcessFbo2, r2d->windowW, r2d->windowH);
-    clearFramebuffer(&r2d->postProcessFbo2); 
-  }
-  else if(r2d->postProcessFbo2.fbo) {
-    resizeFramebuffer(&r2d->postProcessFbo2, r2d->windowW, r2d->windowH);
-    clearFramebuffer(&r2d->postProcessFbo2);
-  }
-  for (i = 0; i < vectorSize(&postProcess); i++) {
-    framebuffer output;
-    texture input;
-    if (r2d->internalPostProcessFlip == 0) {
-      input = r2d->postProcessFbo2.texture;
-      output = r2d->postProcessFbo1;
-    }
-    else {
-      input = r2d->postProcessFbo1.texture;
-      output = r2d->postProcessFbo2;
-    }
-    if (i == 0) {
-      input = in;
-    }
-    if (i == vectorSize(&postProcess) - 1) {
-      output = fb;
-    }
-    clearFramebuffer(&output);
-    renderPostProcess(r2d, postProcess[i], input, output);
-    r2d->internalPostProcessFlip = !r2d->internalPostProcessFlip;
-  }
-  r2d->internalPostProcessFlip = 0;
-}
-
-void enableGLNecessaryFeatures(void) {
-  glEnable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+vec2 getTextSizeWrapped(renderer2d *r2d, const char *text, font f, float maxTextLength, float baseSize, float spacing, float lineSpacing) {
+  char *newText;
+  vec2 rez;
+  wrap(r2d, &text, &f, baseSize, maxTextLength, &newText);
+  rez = getTextSize(r2d, newText, f, baseSize, spacing, lineSpacing);
+  return rez;
 }
 
 void renderRectangleTexture(renderer2d *r2d, const vec4 transform, const texture t, const vec4 colors[4], const vec2 origin, const float rotationDegrees, const vec4 textureCoords) {
@@ -859,4 +748,157 @@ void renderNinePatch(renderer2d *r2d, const vec4 position, const vec4 color, con
   bottomrightTexPos.z = textureCoords.z;
   bottomrightTexPos.w = textureCoords.w;
   renderRectangleTexture(r2d, bottomright, texture, colorData, pos2d, 0, bottomrightTexPos);
+}
+
+void clearScreen(renderer2d *r2d, const vec4 color) {
+  glBindFramebuffer(GL_FRAMEBUFFER, r2d->defaultFbo);
+  #if KHG2D_USE_OPENGL_130
+    GLfloat oldColor[4];
+    glGetFloatv(GL_COLOR_CLEAR_VALUE, oldColor);
+    glClearColor(color.x, color.y, color.z, color.w);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(oldColor[0], oldColor[1], oldColor[2], oldColor[3]);
+  #else
+    glClearBufferfv(GL_COLOR, 0, &color.x);
+  #endif
+}
+
+void setshader(renderer2d *r2d, const shader s) {
+  r2d->currentShader = s;
+}
+
+void setCamera(renderer2d *r2d, const camera c) {
+  r2d->currentCamera = c;
+}
+
+void resetShaderAndCamera(renderer2d *r2d) {
+  
+}
+
+void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffer result) {
+
+}
+
+void flush(renderer2d *r2d, bool clearDrawData) {
+  glBindFramebuffer(GL_FRAMEBUFFER, r2d->defaultFbo);
+  internalFlush(r2d, clearDrawData);
+}
+
+void flushFbo(renderer2d *r2d, framebuffer frameBuffer, short clearDrawData) {
+  if (frameBuffer.fbo == 0) {
+    errorFunc("Framebuffer not initialized", userDefinedData);
+    return;
+  }
+  glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  internalFlush(r2d, clearDrawData);
+  glBindFramebuffer(GL_FRAMEBUFFER, r2d->defaultFbo);
+}
+
+void renderFrameBufferToEntireScreen(renderer2d *r2d, framebuffer fbo, framebuffer screen) {
+  renderTextureToEntireScreen(r2d, fbo.texture, screen);
+}
+
+void renderTextureToEntireScreen(renderer2d *r2d, texture t, framebuffer screen) {
+  vec2 size;
+  size.x = r2d->windowW;
+  size.y = r2d->windowH;
+  glBindFramebuffer(GL_FRAMEBUFFER, screen.fbo);
+  glEnable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  if (!hasInitialized) {
+    errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
+    return;
+  }
+  if (!r2d->vao) {
+    errorFunc("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", userDefinedData);
+    return;
+  }
+  if (!r2d->currentShader.id) {
+    errorFunc("Post Process Shader not created.", userDefinedData);
+    return;
+  }
+  if (screen.fbo) {
+    size = getTextureSize(&screen.texture);
+  }
+  if (size.x == 0 || size.y == 0) {
+    return;
+  }
+  glViewport(0, 0, size.x, size.y);
+  glUseProgram(r2d->currentShader.id);
+  glUniform1i(r2d->currentShader.u_sampler, 0);
+  bindTexture(&t, 0);
+  renderQuadToScreenInternal(r2d);
+  glBindVertexArray(0);
+}
+
+void flushPostProcess(renderer2d *r2d, const shader *postProcess, framebuffer frameBuffer, bool shouldClear) {
+  if (vectorSize(&postProcess) == 0) {
+    if (shouldClear) {
+      clearDrawData(r2d);
+      return;
+    }
+  }
+  if (!r2d->postProcessFbo1.fbo) {
+    createFramebuffer(&r2d->postProcessFbo1, 0, 0);
+  }
+  resizeFramebuffer(&r2d->postProcessFbo1, r2d->windowW, r2d->windowH);
+  clearFramebuffer(&r2d->postProcessFbo1);
+  flushFbo(r2d, r2d->postProcessFbo1, shouldClear);
+  r2d->internalPostProcessFlip = 1;
+  postProcessOverTexture(r2d, postProcess, r2d->postProcessFbo1.texture, frameBuffer);
+}
+
+void postProcessOverTexture(renderer2d *r2d, const shader *postProcess, texture in, framebuffer fb) {
+  int i;
+  if (vectorSize(&postProcess) == 0) {
+    return;
+  }
+  if (!r2d->postProcessFbo1.fbo) { 
+    createFramebuffer(&r2d->postProcessFbo1, 0, 0);
+  }
+  if (!r2d->postProcessFbo2.fbo && vectorSize(&postProcess) > 1) {
+    createFramebuffer(&r2d->postProcessFbo2, 0, 0);
+  }
+  if (r2d->internalPostProcessFlip == 0) {
+    resizeFramebuffer(&r2d->postProcessFbo1, r2d->windowW, r2d->windowH);
+    clearFramebuffer(&r2d->postProcessFbo1);
+    resizeFramebuffer(&r2d->postProcessFbo2, r2d->windowW, r2d->windowH);
+    clearFramebuffer(&r2d->postProcessFbo2); 
+  }
+  else if(r2d->postProcessFbo2.fbo) {
+    resizeFramebuffer(&r2d->postProcessFbo2, r2d->windowW, r2d->windowH);
+    clearFramebuffer(&r2d->postProcessFbo2);
+  }
+  for (i = 0; i < vectorSize(&postProcess); i++) {
+    framebuffer output;
+    texture input;
+    if (r2d->internalPostProcessFlip == 0) {
+      input = r2d->postProcessFbo2.texture;
+      output = r2d->postProcessFbo1;
+    }
+    else {
+      input = r2d->postProcessFbo1.texture;
+      output = r2d->postProcessFbo2;
+    }
+    if (i == 0) {
+      input = in;
+    }
+    if (i == vectorSize(&postProcess) - 1) {
+      output = fb;
+    }
+    clearFramebuffer(&output);
+    renderPostProcess(r2d, postProcess[i], input, output);
+    r2d->internalPostProcessFlip = !r2d->internalPostProcessFlip;
+  }
+  r2d->internalPostProcessFlip = 0;
+}
+
+void enableGLNecessaryFeatures(void) {
+  glEnable(GL_BLEND);
+  glDisable(GL_DEPTH_TEST);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
