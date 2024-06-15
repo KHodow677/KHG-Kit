@@ -97,6 +97,7 @@ void init(void);
 void cleanup(void);
 vec2 rotateAroundPoint(vec2 vec, vec2 point, const float degrees);
 vec2 scaleAroundPoint(vec2 vec, vec2 point, float scale);
+camera createCamera(void);
 shader createShader(const char *vertex, const char *fragment);
 shader createShaderFromFile(const char *filePath);
 shader createShaderDefaultVertex(const char *fragment);

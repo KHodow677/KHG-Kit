@@ -31,8 +31,8 @@ vec2 getTextureSize(texture *t) {
 void createFromBuffer(texture *t, const char *image_data, const int width, const int height, bool pixelated, bool useMipMaps) {
   	GLuint id = 0;
 		glActiveTexture(GL_TEXTURE0);
-		glGenTextures(1, &t->id);
-		glBindTexture(GL_TEXTURE_2D, t->id);
+		glGenTextures(1, &id);
+		glBindTexture(GL_TEXTURE_2D, id);
 		if (pixelated) {
 			if (useMipMaps) {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
@@ -222,7 +222,7 @@ void readTextureData(texture *t, void *buffer, int mipLevel) {
 
 cvector(unsigned char) readTextureDataToCharArray(texture *t, int mipLevel, vec2 *outSize) {
   vec2 stub = { 0 };
-  cvector(unsigned char) data;
+  cvector(unsigned char) data = NULL;
   glBindTexture(GL_TEXTURE_2D, t->id);
   if (!outSize) {
     outSize = &stub;

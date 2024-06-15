@@ -34,10 +34,11 @@ int main(int argc, char **argv) {
     updateWindowMetrics(&renderer, w, h);
     clearScreen(&renderer, color);
     renderRectangle(&renderer, transform1, colorOrangeData, origin, 0);
-    renderRectangle(&renderer, transform2, colorOrangeData, origin, 0);
+    renderRectangleTexture(&renderer, transform2, tex, colorWhiteData, origin, 0, defaultTextureCoords);
     flush(&renderer, true);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
+  cleanupRenderer2d(&renderer);
   return 0;
 }

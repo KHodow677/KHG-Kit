@@ -10,10 +10,7 @@ void internalFlush(renderer2d *r2d, bool shouldClear) {
   const int size = cvector_size(r2d->spriteTextures);
   int pos = 0, i;
   unsigned int id = r2d->spriteTextures[0].id;
-  glEnable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  enableGLNecessaryFeatures();
   if (!hasInitialized) {
     errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
     clearDrawData(r2d);
@@ -135,6 +132,10 @@ void cleanupRenderer2d(renderer2d *r2d) {
   cleanupFramebuffer(&r2d->postProcessFbo1);
   cleanupFramebuffer(&r2d->postProcessFbo2);
   r2d->internalPostProcessFlip = 0;
+  cvector_free(r2d->spritePositions);
+  cvector_free(r2d->spriteColors);
+  cvector_free(r2d->texturePositions);
+  cvector_free(r2d->spriteTextures);
 }
 
 void pushShader(renderer2d *r2d, shader s) {
@@ -565,7 +566,7 @@ void renderRectangleTexture(renderer2d *r2d, const vec4 transform, const texture
 
 void renderRectangleTextureAbsRotation(renderer2d *r2d, const vec4 transform, const texture t, const vec4 colors[4], const vec2 origin, const float rotationDegrees, const vec4 textureCoords) {
   texture textureCopy = t;
-  const float transformY = transform.y * -1;
+  const float transformY = transform.y * -1.0f;
   vec2 v1, v2, v3, v4;
   vec2 cameraCenter;
   vec2 tPos;
@@ -921,9 +922,9 @@ void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffe
   glBindVertexArray(0);
 }
 
-void flush(renderer2d *r2d, bool clearDrawData) {
+void flush(renderer2d *r2d, bool shouldClear) {
   glBindFramebuffer(GL_FRAMEBUFFER, r2d->defaultFbo);
-  internalFlush(r2d, clearDrawData);
+  internalFlush(r2d, shouldClear);
 }
 
 void flushFbo(renderer2d *r2d, framebuffer frameBuffer, short shouldClear) {

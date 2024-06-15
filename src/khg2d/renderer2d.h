@@ -62,7 +62,7 @@ void setshader(renderer2d *r2d, const shader s);
 void setCamera(renderer2d *r2d, const camera c);
 void resetShaderAndCamera(renderer2d *r2d);
 void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffer result);
-void flush(renderer2d *r2d, bool clearDrawData);
+void flush(renderer2d *r2d, bool shouldClear);
 void flushFbo(renderer2d *r2d, framebuffer frameBuffer, bool shouldClear);
 void renderFrameBufferToEntireScreen(renderer2d *r2d, framebuffer fbo, framebuffer screen);
 void renderTextureToEntireScreen(renderer2d *r2d, texture t, framebuffer screen);

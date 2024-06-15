@@ -79,6 +79,7 @@ void init(void) {
     errorFunc("OpenGL doesn't seem to be initialized, have you forgotten to call gladLoadGL() or gladLoadGLLoader() or glewInit()?", userDefinedData);
   }
   defaultShader = createShader(defaultVertexShader, defaultFragmentShader);
+  defaultCamera = createCamera();
   create1PxSquare(&white1pxSquareTexture, 0);
   enableGLNecessaryFeatures();
 }
@@ -122,6 +123,15 @@ void validateProgram(GLuint id) {
     free(message);
   }
   glValidateProgram(id);
+}
+
+camera createCamera(void) {
+  vec2 initPos = { 0.0f, 0.0f };
+  camera c = { 0 };
+  c.zoom = 1;
+  c.position = initPos;
+  c.rotation = 0.0f;
+  return c;
 }
 
 shader createShader(const char *vertex, const char *fragment) {
