@@ -1,18 +1,13 @@
 #include "renderer2d.h"
 #include <math.h>
 #include <string.h>
-#include "camera.h"
-#include "font.h"
-#include "framebuffer.h"
-#include "texture.h"
 #include "utils.h"
 #include "../math/minmax.h"
 #include "../math/math.h"
 #include "../math/mat3.h"
-#include "../utils/vec.h"
 
 void internalFlush(renderer2d *r2d, bool shouldClear) {
-  const int size = vectorSize(r2d->spriteTextures);
+  const int size = cvector_size(r2d->spriteTextures);
   int pos = 0, i;
   unsigned int id = r2d->spriteTextures[0].id;
   glEnable(GL_BLEND);
@@ -36,7 +31,7 @@ void internalFlush(renderer2d *r2d, bool shouldClear) {
     }
     return;
   }
-  if (vectorSize(r2d->spriteTextures) == 0) {
+  if (cvector_empty(r2d->spriteTextures)) {
     return; 
   }
   glViewport(0, 0, r2d->windowW, r2d->windowH);
@@ -44,11 +39,11 @@ void internalFlush(renderer2d *r2d, bool shouldClear) {
   glUseProgram(r2d->currentShader.id);
   glUniform1i(r2d->currentShader.u_sampler, 0);
   glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[quadPositions]);
-  glBufferData(GL_ARRAY_BUFFER, vectorSize(r2d->spritePositions) * sizeof(vec2), r2d->spritePositions, GL_STREAM_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, cvector_size(r2d->spritePositions) * sizeof(vec2), r2d->spritePositions, GL_STREAM_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[quadColors]);
-  glBufferData(GL_ARRAY_BUFFER, vectorSize(r2d->spriteColors) * sizeof(vec4), r2d->spriteColors, GL_STREAM_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, cvector_size(r2d->spriteColors) * sizeof(vec4), r2d->spriteColors, GL_STREAM_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[texturePositions]);
-  glBufferData(GL_ARRAY_BUFFER, vectorSize(r2d->texturePositions) * sizeof(vec2), r2d->texturePositions, GL_STREAM_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, cvector_size(r2d->texturePositions) * sizeof(vec2), r2d->texturePositions, GL_STREAM_DRAW);
   bindTexture(&r2d->spriteTextures[0], 0);
   for (i = 1; i < size; i++) {
     if (r2d->spriteTextures[i].id != id) {
@@ -114,10 +109,10 @@ void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount) {
   }
   r2d->defaultFbo = fbo;
   clearDrawData(r2d);
-  vectorReserve(&r2d->spritePositions, vec2, quadCount * 6);
-  vectorReserve(&r2d->spriteColors, vec4, quadCount * 6);
-  vectorReserve(&r2d->texturePositions, vec2, quadCount * 6);
-  vectorReserve(&r2d->spriteTextures, texture, quadCount);
+  cvector_reserve(r2d->spritePositions, quadCount * 6);
+  cvector_reserve(r2d->spriteColors, quadCount * 6);
+  cvector_reserve(r2d->texturePositions, quadCount * 6);
+  cvector_reserve(r2d->spriteTextures, quadCount);
   resetShaderAndCamera(r2d);
   glGenVertexArrays(1, &r2d->vao);
   glBindVertexArray(r2d->vao);
@@ -143,32 +138,32 @@ void cleanupRenderer2d(renderer2d *r2d) {
 }
 
 void pushShader(renderer2d *r2d, shader s) {
-  vectorAdd(&r2d->shaderPushPop, shader, s);
+  cvector_push_back(r2d->shaderPushPop, s);
   r2d->currentShader = s;
 }
 
 void popShader(renderer2d *r2d) {
-  if (vectorSize(r2d->shaderPushPop) == 0) {
+  if (cvector_empty(r2d->shaderPushPop)) {
     errorFunc("Pop on an empty stack on popShader", userDefinedData);
   }
   else {
-    vectorPop(r2d->shaderPushPop);
-    r2d->currentShader = r2d->shaderPushPop[vectorSize(r2d->shaderPushPop) - 1];
+    r2d->currentShader = *cvector_back(r2d->shaderPushPop);
+    cvector_pop_back(r2d->shaderPushPop);
   }
 }
 
 void pushCamera(renderer2d *r2d, camera c) {
-  vectorAdd(&r2d->cameraPushPop, camera, c);
+  cvector_push_back(r2d->cameraPushPop, c);
   r2d->currentCamera = c;
 }
 
 void popCamera(renderer2d *r2d) {
-  if (vectorSize(r2d->cameraPushPop) == 0) {
+  if (cvector_empty(r2d->cameraPushPop)) {
     errorFunc("Pop on an empty stack on popCamera", userDefinedData);
   }
   else {
-    vectorPop(r2d->cameraPushPop);
-    r2d->currentCamera = r2d->cameraPushPop[vectorSize(r2d->cameraPushPop) - 1];
+    r2d->currentCamera = *cvector_back(r2d->cameraPushPop);
+    cvector_pop_back(r2d->cameraPushPop);
   }
 }
 
@@ -220,6 +215,11 @@ vec4 getViewRect(renderer2d *r2d) {
   return rect;
 }
 
+void updateWindowMetrics(renderer2d *r2d, int w, int h) {
+  r2d->windowW = w;
+  r2d->windowH = h;
+}
+
 vec4 pixToScreen(renderer2d *r2d, const vec4 *transform) {
   const float transformY = transform->y * -1.0f;
   vec2 v1, v2, v3, v4, cameraCenter;
@@ -256,10 +256,10 @@ vec4 pixToScreen(renderer2d *r2d, const vec4 *transform) {
 }
 
 void clearDrawData(renderer2d *r2d) {
-  vectorClear(r2d->spritePositions);
-  vectorClear(r2d->spriteColors);
-  vectorClear(r2d->texturePositions);
-  vectorClear(r2d->spriteTextures);
+  cvector_clear(r2d->spritePositions);
+  cvector_clear(r2d->spriteColors);
+  cvector_clear(r2d->texturePositions);
+  cvector_clear(r2d->spriteTextures);
 }
 
 vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float size, const float spacing, const float line_space) {
@@ -282,12 +282,12 @@ vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float
     }
     else if (text[i] == '\t') {
       const stbtt_aligned_quad quad = fontGetGlyphQuad(font, '_');
-      int x = quad.x1 - quad.x0;
+      float x = quad.x1 - quad.x0;
       rectangle.x += x * size * 3 + spacing * size;
     }
     else if (text[i] == ' ') {
       const stbtt_aligned_quad quad = fontGetGlyphQuad(font, ' ');
-      int x = quad.x1 - quad.x0;
+      float x = quad.x1 - quad.x0;
       rectangle.x += x * size + spacing * size;
     }
     else if (text[i] >= ' ' && text[i] <= '~') {
@@ -311,7 +311,124 @@ vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float
 }
 
 void renderText(renderer2d *r2d, vec2 position, const char *text, const font f, const vec4 color, const float size, const float spacing, const float line_space, short showInCenter, const vec4 shadowColor, const vec4 lightColor) {
-  
+  const int text_length = (int)strlen(text);
+  vec4 rectangle;
+  float linePositionY = position.y;
+  int i;
+  if (f.texture.id == 0) {
+    errorFunc("Missing font", userDefinedData);
+    return;
+  }
+  rectangle.x = position.x;
+  if (showInCenter) {
+    vec2 textSize = getTextSize(r2d, text, f, size, spacing, line_space);
+    position.x -= textSize.x / 2.0f;
+    position.y -= textSize.y / 2.0f;
+  }
+  if (0) {
+    float maxPos = 0, maxPosY = 0, padd, paddY;
+    for (i = 0; i < text_length; i++) {
+      if (text[i] == '\n') {
+        rectangle.x = position.x;
+        linePositionY += (f.maxHeight + line_space) * size;
+      }
+      else if (text[i] == '\t') {
+        const stbtt_aligned_quad quad = fontGetGlyphQuad(f, '_');
+        float x = quad.x1 - quad.x0;
+        rectangle.x += x * size * 3 + spacing * size;
+      }
+      else if (text[i] == ' ') {
+        const stbtt_aligned_quad quad = fontGetGlyphQuad(f, ' ');
+        float x = quad.x1 - quad.x0;
+        rectangle.x += x * size + spacing * size;
+      }
+      else if (text[i] >= ' ' && text[i] <= '~') {
+        const stbtt_aligned_quad quad = fontGetGlyphQuad(f, text[i]);
+        rectangle.z = quad.x1 - quad.x0;
+        rectangle.w = quad.y1 - quad.y0;
+        rectangle.z *= size;
+        rectangle.w *= size;
+        rectangle.y = linePositionY + quad.y0 * size;
+        rectangle.x += rectangle.z + spacing * size;
+        maxPos = max(maxPos, rectangle.x);
+        maxPosY = max(maxPosY, rectangle.y);
+      }
+    }
+    padd = maxPos - position.x;
+    padd /= 2;
+    position.x -= padd;
+    paddY = maxPosY - position.y;
+    position.y -= paddY;
+  }
+  rectangle.x= 0.0f;
+  rectangle.y = 0.0f;
+  rectangle.z = 0.0f;
+  rectangle.w = 0.0f;
+  rectangle.x = position.x;
+  linePositionY = position.y;
+  for (i = 0; i < text_length; i++) {
+    if (text[i] == '\n') {
+      rectangle.x = position.x;
+      linePositionY += (f.maxHeight + line_space) * size;
+    }
+    else if (text[i] == '\t') {
+      const stbtt_aligned_quad quad = fontGetGlyphQuad(f, '_');
+      float x = quad.x1 - quad.x0;
+      rectangle.x += x * size * 3 + spacing * size;
+    }
+    else if (text[i] == ' ') {
+      const stbtt_aligned_quad quad = fontGetGlyphQuad(f, '_');
+      float x = quad.x1 - quad.x0;
+      rectangle.x += x * size + spacing * size;
+    }
+    else if (text[i] >= ' ' && text[i] <= '~') {
+      const stbtt_aligned_quad quad = fontGetGlyphQuad(f, text[i]);
+      vec4 colorData[4], textureCoords;
+      vec2 origin = { 0.0f, 0.0f };
+      rectangle.z = quad.x1 - quad.x0;
+      rectangle.w = quad.y1 - quad.y0;
+      rectangle.z *= size;
+      rectangle.y = linePositionY + quad.y0 * size;
+      colorData[0] = color;
+      colorData[1] = color;
+      colorData[2] = color;
+      colorData[3] = color;
+      textureCoords.x = quad.s0;
+      textureCoords.y = quad.t0;
+      textureCoords.z = quad.s1;
+      textureCoords.w = quad.t1;
+      if (shadowColor.w) {
+        vec2 pos = { -5.0f, 3.0f };
+        vec4 transform, shadowColorData[4];
+        pos = vec2MultiplyNumOnVec2(size, &pos);
+        transform.x = rectangle.x + pos.x;
+        transform.y = rectangle.y + pos.y;
+        transform.z = rectangle.z;
+        transform.w = rectangle.w;
+        shadowColorData[0] = shadowColor;
+        shadowColorData[1] = shadowColor;
+        shadowColorData[2] = shadowColor;
+        shadowColorData[3] = shadowColor;
+        renderRectangleTexture(r2d, transform, f.texture, shadowColorData, origin, 0, textureCoords);
+      }
+      renderRectangleTexture(r2d, rectangle, f.texture, colorData, origin, 0, textureCoords);
+      if (lightColor.w) {
+        vec2 pos = { -2.0f, 1.0f };
+        vec4 transform, lightColorData[4];
+        pos = vec2MultiplyNumOnVec2(size, &pos);
+        transform.x = rectangle.x + pos.x;
+        transform.y = rectangle.y + pos.y;
+        transform.z = rectangle.z;
+        transform.w = rectangle.w;
+        lightColorData[0] = lightColor;
+        lightColorData[1] = lightColor;
+        lightColorData[2] = lightColor;
+        lightColorData[3] = lightColor;
+        renderRectangleTexture(r2d, transform, f.texture, lightColorData, origin, 0, textureCoords);
+      }
+      rectangle.x += rectangle.z + spacing * size;
+    }
+  }
 }
 
 float determineTextRescaleFitSmaller(renderer2d *r2d, const char **str, font *f, vec4 transform, float maxSize) {
@@ -501,37 +618,37 @@ void renderRectangleTextureAbsRotation(renderer2d *r2d, const vec4 transform, co
   v2.y = positionToScreenCoordsY(v2.y, (float)r2d->windowH);
   v3.y = positionToScreenCoordsY(v3.y, (float)r2d->windowH);
   v4.y = positionToScreenCoordsY(v4.y, (float)r2d->windowH);
-  vectorAdd(&r2d->spritePositions, vec2, v1);
-  vectorAdd(&r2d->spritePositions, vec2, v2);
-  vectorAdd(&r2d->spritePositions, vec2, v4);
-  vectorAdd(&r2d->spritePositions, vec2, v2);
-  vectorAdd(&r2d->spritePositions, vec2, v3);
-  vectorAdd(&r2d->spritePositions, vec2, v4);
-  vectorAdd(&r2d->spriteColors, vec4, colors[0]);
-  vectorAdd(&r2d->spriteColors, vec4, colors[1]);
-  vectorAdd(&r2d->spriteColors, vec4, colors[3]);
-  vectorAdd(&r2d->spriteColors, vec4, colors[1]);
-  vectorAdd(&r2d->spriteColors, vec4, colors[2]);
-  vectorAdd(&r2d->spriteColors, vec4, colors[3]);
+  cvector_push_back(r2d->spritePositions, v1);
+  cvector_push_back(r2d->spritePositions, v2);
+  cvector_push_back(r2d->spritePositions, v4);
+  cvector_push_back(r2d->spritePositions, v2);
+  cvector_push_back(r2d->spritePositions, v3);
+  cvector_push_back(r2d->spritePositions, v4);
+  cvector_push_back(r2d->spriteColors, colors[0]);
+  cvector_push_back(r2d->spriteColors, colors[1]);
+  cvector_push_back(r2d->spriteColors, colors[3]);
+  cvector_push_back(r2d->spriteColors, colors[1]);
+  cvector_push_back(r2d->spriteColors, colors[2]);
+  cvector_push_back(r2d->spriteColors, colors[3]);
   tPos.x = textureCoords.x;
   tPos.y = textureCoords.y;
-  vectorAdd(&r2d->texturePositions, vec2, tPos);
+  cvector_push_back(r2d->texturePositions, tPos);
   tPos.x = textureCoords.x; 
   tPos.y = textureCoords.w;
-  vectorAdd(&r2d->texturePositions, vec2, tPos);
+  cvector_push_back(r2d->texturePositions, tPos);
   tPos.x = textureCoords.z;
   tPos.y = textureCoords.y;
-  vectorAdd(&r2d->texturePositions, vec2, tPos);
+  cvector_push_back(r2d->texturePositions, tPos);
   tPos.x = textureCoords.x; 
   tPos.y = textureCoords.w;
-  vectorAdd(&r2d->texturePositions, vec2, tPos);
+  cvector_push_back(r2d->texturePositions, tPos);
   tPos.x = textureCoords.z;
   tPos.y = textureCoords.w;
-  vectorAdd(&r2d->texturePositions, vec2, tPos);
+  cvector_push_back(r2d->texturePositions, tPos);
   tPos.x = textureCoords.z; 
   tPos.y = textureCoords.y;
-  vectorAdd(&r2d->texturePositions, vec2, tPos);
-  vectorAdd(&r2d->spriteTextures, texture, textureCopy);
+  cvector_push_back(r2d->texturePositions, tPos);
+  cvector_push_back(r2d->spriteTextures, textureCopy);
 }
 
 void renderRectangle(renderer2d *r2d, const vec4 transform, const vec4 colors[4], const vec2 origin, const float rotationDegrees) {
@@ -772,11 +889,36 @@ void setCamera(renderer2d *r2d, const camera c) {
 }
 
 void resetShaderAndCamera(renderer2d *r2d) {
-  
+  r2d->currentCamera = defaultCamera;
+  r2d->currentShader = defaultShader;
 }
 
 void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffer result) {
-
+  vec2 size;
+  glBindFramebuffer(GL_FRAMEBUFFER, result.fbo);
+  enableGLNecessaryFeatures();
+  if (!hasInitialized) {
+    errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
+    return;
+  }
+  if (!r2d->vao) {
+    errorFunc("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", userDefinedData);
+    return;
+  }
+  if (!shader.id) {
+    errorFunc("Post Process Shader not created.", userDefinedData);
+    return;
+  }
+  size = getTextureSize(&input);
+  if (size.x == 0 || size.y == 0) {
+    return;
+  }
+  glViewport(0, 0, size.x, size.y);
+  glUseProgram(shader.id);
+  glUniform1i(shader.u_sampler, 0);
+  bindTexture(&input, 0);
+  renderQuadToScreenInternal(r2d);
+  glBindVertexArray(0);
 }
 
 void flush(renderer2d *r2d, bool clearDrawData) {
@@ -784,14 +926,14 @@ void flush(renderer2d *r2d, bool clearDrawData) {
   internalFlush(r2d, clearDrawData);
 }
 
-void flushFbo(renderer2d *r2d, framebuffer frameBuffer, short clearDrawData) {
+void flushFbo(renderer2d *r2d, framebuffer frameBuffer, short shouldClear) {
   if (frameBuffer.fbo == 0) {
     errorFunc("Framebuffer not initialized", userDefinedData);
     return;
   }
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo);
   glBindTexture(GL_TEXTURE_2D, 0);
-  internalFlush(r2d, clearDrawData);
+  internalFlush(r2d, shouldClear);
   glBindFramebuffer(GL_FRAMEBUFFER, r2d->defaultFbo);
 }
 
@@ -834,8 +976,8 @@ void renderTextureToEntireScreen(renderer2d *r2d, texture t, framebuffer screen)
   glBindVertexArray(0);
 }
 
-void flushPostProcess(renderer2d *r2d, const shader *postProcess, framebuffer frameBuffer, bool shouldClear) {
-  if (vectorSize(&postProcess) == 0) {
+void flushPostProcess(renderer2d *r2d, const cvector(shader) *postProcess, framebuffer frameBuffer, bool shouldClear) {
+  if (cvector_empty(*postProcess)) {
     if (shouldClear) {
       clearDrawData(r2d);
       return;
@@ -851,15 +993,15 @@ void flushPostProcess(renderer2d *r2d, const shader *postProcess, framebuffer fr
   postProcessOverTexture(r2d, postProcess, r2d->postProcessFbo1.texture, frameBuffer);
 }
 
-void postProcessOverTexture(renderer2d *r2d, const shader *postProcess, texture in, framebuffer fb) {
+void postProcessOverTexture(renderer2d *r2d, const cvector(shader) *postProcess, texture in, framebuffer fb) {
   int i;
-  if (vectorSize(&postProcess) == 0) {
+  if (cvector_empty(*postProcess)) {
     return;
   }
   if (!r2d->postProcessFbo1.fbo) { 
     createFramebuffer(&r2d->postProcessFbo1, 0, 0);
   }
-  if (!r2d->postProcessFbo2.fbo && vectorSize(&postProcess) > 1) {
+  if (!r2d->postProcessFbo2.fbo && cvector_size(*postProcess) > 1) {
     createFramebuffer(&r2d->postProcessFbo2, 0, 0);
   }
   if (r2d->internalPostProcessFlip == 0) {
@@ -872,7 +1014,7 @@ void postProcessOverTexture(renderer2d *r2d, const shader *postProcess, texture 
     resizeFramebuffer(&r2d->postProcessFbo2, r2d->windowW, r2d->windowH);
     clearFramebuffer(&r2d->postProcessFbo2);
   }
-  for (i = 0; i < vectorSize(&postProcess); i++) {
+  for (i = 0; i < cvector_size(*postProcess); i++) {
     framebuffer output;
     texture input;
     if (r2d->internalPostProcessFlip == 0) {
@@ -886,11 +1028,11 @@ void postProcessOverTexture(renderer2d *r2d, const shader *postProcess, texture 
     if (i == 0) {
       input = in;
     }
-    if (i == vectorSize(&postProcess) - 1) {
+    if (i == cvector_size(*postProcess) - 1) {
       output = fb;
     }
     clearFramebuffer(&output);
-    renderPostProcess(r2d, postProcess[i], input, output);
+    renderPostProcess(r2d, *postProcess[i], input, output);
     r2d->internalPostProcessFlip = !r2d->internalPostProcessFlip;
   }
   r2d->internalPostProcessFlip = 0;

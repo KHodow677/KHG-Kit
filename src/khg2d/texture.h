@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include "stb/stb_image.h"
 #include "../utils/bool.h"
+#include "../utils/cvector.h"
 #include "../math/vec2.h"
 
 typedef struct {
@@ -17,7 +18,7 @@ void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_f
 void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipMaps);
 void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSize, bool pixelated, bool useMipMaps);
 size_t getMemorySize(texture *t, int mipLevel, vec2 *outSize);
-void readtextureData(texture *t, void *buffer, int mipLevel);
+cvector(unsigned char) readtextureData(texture *t, void *buffer, int mipLevel);
 unsigned char *readtextureDataToCharArray(texture *t, int mipLevel, vec2 *outSize);
 void bindTexture(texture *t, const unsigned int sample);
 void unbindTexture(texture *t);

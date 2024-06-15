@@ -6,21 +6,23 @@
 #include "shader.h"
 #include "texture.h"
 #include "renderer2dBufferType.h"
+#include "../utils/cvector.h"
 #include "../math/vec2.h"
 #include "../math/vec4.h"
+
 
 typedef struct {
   GLuint defaultFbo;
   GLuint buffers[bufferSize];
   GLuint vao;
-  vec2 *spritePositions;
-  vec4 *spriteColors;
-  vec2 *texturePositions;
-  texture *spriteTextures;
+  cvector(vec2) spritePositions;
+  cvector(vec4) spriteColors;
+  cvector(vec2) texturePositions;
+  cvector(texture) spriteTextures;
   shader currentShader;
-  shader *shaderPushPop;
+  cvector(shader) shaderPushPop;
   camera currentCamera;
-  camera *cameraPushPop;
+  cvector(camera) cameraPushPop;
   int windowW;
   int windowH;
   framebuffer postProcessFbo1;
@@ -35,7 +37,7 @@ void popShader(renderer2d *r2d);
 void pushCamera(renderer2d *r2d, camera c);
 void popCamera(renderer2d *r2d);
 vec4 getViewRect(renderer2d *r2d);
-// void updateWindowMetrics(renderer2d *r2d, int w, int h);
+void updateWindowMetrics(renderer2d *r2d, int w, int h);
 vec4 pixToScreen(renderer2d *r2d, const vec4 *transform);
 void clearDrawData(renderer2d *r2d);
 vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float size, const float spacing, const float line_space);
@@ -61,9 +63,9 @@ void setCamera(renderer2d *r2d, const camera c);
 void resetShaderAndCamera(renderer2d *r2d);
 void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffer result);
 void flush(renderer2d *r2d, bool clearDrawData);
-void flushFbo(renderer2d *r2d, framebuffer frameBuffer, bool clearDrawData);
+void flushFbo(renderer2d *r2d, framebuffer frameBuffer, bool shouldClear);
 void renderFrameBufferToEntireScreen(renderer2d *r2d, framebuffer fbo, framebuffer screen);
 void renderTextureToEntireScreen(renderer2d *r2d, texture t, framebuffer screen);
-void flushPostProcess(renderer2d *r2d, const shader *postProcess, framebuffer frameBuffer, bool clearDrawData);
-void postProcessOverTexture(renderer2d *r2d, const shader *postProcess, texture in, framebuffer framebuffer);
+void flushPostProcess(renderer2d *r2d, const cvector(shader) *postProcess, framebuffer frameBuffer, bool clearDrawData);
+void postProcessOverTexture(renderer2d *r2d, const cvector(shader) *postProcess, texture in, framebuffer framebuffer);
 void enableGLNecessaryFeatures(void);

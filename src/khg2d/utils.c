@@ -7,27 +7,13 @@
 #include "../math/math.h"
 #include "../math/vec4.h"
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
-#ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4244 4305 4267 4996 4018)
-#pragma comment(lib, "Opengl32.lib")
-#endif
-
-#ifdef _WIN32
-	typedef BOOL(WINAPI *PFNWGLSWAPINTERVALEXTPROC) (int interval);
-#else
-	typedef bool(*PFNWGLSWAPINTERVALEXTPROC) (int interval);
-#endif
-
-struct {
-	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
-} extensions = { 0 };
-
 #undef max
+
+bool hasInitialized = false;
+void *userDefinedData = 0;
+shader defaultShader = { 0 };
+camera defaultCamera = { 0 };
+texture white1pxSquareTexture = { 0 };
 
 void defaultErrorFunc(const char *msg, void *userDefinedData) {
   printf("KHG2D error: %s\n", msg);
@@ -101,16 +87,6 @@ void cleanup(void) {
   cleanupTexture(&white1pxSquareTexture);
   clearShader(&defaultShader);
   hasInitialized = false;
-}
-
-bool setVsync(bool b) {
-  if (extensions.wglSwapIntervalEXT != NULL) {
-    bool rezult = extensions.wglSwapIntervalEXT(b);
-    return rezult;
-  }
-  else {
-    return false;
-  }
 }
 
 vec2 rotateAroundPoint(vec2 vector, vec2 point, const float degrees) {

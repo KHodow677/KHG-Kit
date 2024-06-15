@@ -1,11 +1,8 @@
 #pragma once
 
 #include <X11/X.h>
-#ifdef _WIN32
-#define KHG2D_SIMD 1
-#else
+
 #define KHG2D_SIMD 0
-#endif
 
 #include "glad/glad.h"
 #include "camera.h"
@@ -35,11 +32,12 @@ static vec4 colorPurple = { 101.0f / 255.0f, 29.0f / 255.0f, 173.0f / 255.0f, 1 
 static vec4 colorGray = { (float)0x7F / 255.0f, (float)0x7F / 255.0f, (float)0x7F / 255.0f, 1 };
 static vec4 colorTransparent = { 0, 0, 0, 0 };
 
-static bool hasInitialized = 0;
-static void *userDefinedData = 0;
-static shader defaultShader = { 0 };
-static camera defaultCamera = { 0 };
-static texture white1pxSquareTexture = { 0 };
+extern bool hasInitialized;
+extern void *userDefinedData;
+extern shader defaultShader;
+extern camera defaultCamera;
+extern texture white1pxSquareTexture;
+
 static vec4 defaultTextureCoords = { 0, 1, 1, 0 };
 
 static const char *defaultVertexShader =
@@ -97,7 +95,6 @@ vec2 convertPoint(const camera *c, const vec2 *p, float windowW, float windowH);
 GLuint loadShader(const char *source, GLenum shaderType);
 void init(void);
 void cleanup(void);
-bool setVsync(bool b);
 vec2 rotateAroundPoint(vec2 vec, vec2 point, const float degrees);
 vec2 scaleAroundPoint(vec2 vec, vec2 point, float scale);
 shader createShader(const char *vertex, const char *fragment);

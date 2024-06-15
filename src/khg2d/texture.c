@@ -220,20 +220,16 @@ void readTextureData(texture *t, void *buffer, int mipLevel) {
   glGetTexImage(GL_TEXTURE_2D, mipLevel, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 }
 
-unsigned char *readTextureDataToCharArray(texture *t, int mipLevel, vec2 *outSize) {
+cvector(unsigned char) readTextureDataToCharArray(texture *t, int mipLevel, vec2 *outSize) {
   vec2 stub = { 0 };
-  unsigned char *data;
+  cvector(unsigned char) data;
   glBindTexture(GL_TEXTURE_2D, t->id);
   if (!outSize) {
     outSize = &stub;
   }
   glGetTexLevelParameterfv(GL_TEXTURE_2D, mipLevel, GL_TEXTURE_WIDTH, &outSize->x);
   glGetTexLevelParameterfv(GL_TEXTURE_2D, mipLevel, GL_TEXTURE_HEIGHT, &outSize->y);
-  data = (unsigned char*)malloc(outSize->x * outSize->y * 4 * sizeof(unsigned char));
-  if (data == NULL) {
-    glBindTexture(GL_TEXTURE_2D, 0);
-    return NULL;
-  }
+  cvector_resize(data, outSize->x * outSize->y * 4, ' ');
   glGetTexImage(GL_TEXTURE_2D, mipLevel, GL_RGBA, GL_UNSIGNED_BYTE, data);
   glBindTexture(GL_TEXTURE_2D, 0);
   return data;
