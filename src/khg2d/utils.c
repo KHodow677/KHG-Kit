@@ -15,6 +15,10 @@ shader defaultShader = { 0 };
 camera defaultCamera = { 0 };
 texture white1pxSquareTexture = { 0 };
 
+char *defaultVertexShader = "";
+char *defaultFragmentShader = "";
+char *defaultVertexPostProcessShader = "";
+
 void defaultErrorFunc(const char *msg, void *userDefinedData) {
   printf("KHG2D error: %s\n", msg);
 }
@@ -78,6 +82,9 @@ void init(void) {
   if (!glGenTextures) {
     errorFunc("OpenGL doesn't seem to be initialized, have you forgotten to call gladLoadGL() or gladLoadGLLoader() or glewInit()?", userDefinedData);
   }
+  defaultVertexShader = loadFileContents("./data/shaders/defaultVertexShader.vert");
+  defaultFragmentShader = loadFileContents("./data/shaders/defaultFragmentShader.frag");
+  defaultVertexPostProcessShader = loadFileContents("./data/shaders/defaultVertexPostProcessShader.vert");
   defaultShader = createShader(defaultVertexShader, defaultFragmentShader);
   defaultCamera = createCamera();
   create1PxSquare(&white1pxSquareTexture, 0);
@@ -246,4 +253,20 @@ void cleanTextureCoordinates(int tSizeX, int tSizeY, int x, int y, int sizeX, in
     inner->z = newX + newSizeX - ((float)s3 / tSizeX);
     inner->w = newY - newSizeY + ((float)s4 / tSizeY);
   }
+}
+
+char *loadFileContents(char const *path) {
+    char *buffer = 0;
+    long length;
+    FILE *f = fopen (path, "rb");
+    fseek (f, 0, SEEK_END);
+    length = ftell (f);
+    fseek (f, 0, SEEK_SET);
+    buffer = (char*)malloc ((length+1)*sizeof(char));
+    if (buffer) {
+      fread (buffer, sizeof(char), length, f);
+    }
+    fclose (f);
+    buffer[length] = '\0';
+    return buffer;
 }

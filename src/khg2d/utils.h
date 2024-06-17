@@ -40,49 +40,9 @@ extern texture white1pxSquareTexture;
 
 static vec4 defaultTextureCoords = { 0, 1, 1, 0 };
 
-static const char *defaultVertexShader =
-  KHG2D_OPNEGL_SHADER_VERSION "\n"
-  KHG2D_OPNEGL_SHADER_PRECISION "\n"
-  "in vec2 quad_positions;\n"
-  "in vec4 quad_colors;\n"
-  "in vec2 texturePositions;\n"
-  "out vec4 v_color;\n"
-  "out vec2 v_texture;\n"
-  "out vec2 v_positions;\n"
-  "void main()\n"
-  "{\n"
-  "	gl_Position = vec4(quad_positions, 0, 1);\n"
-  "	v_color = quad_colors;\n"
-  "	v_texture = texturePositions;\n"
-  "	v_positions = gl_Position.xy;\n"
-  "}\n";
-
-static const char *defaultFragmentShader =
-  KHG2D_OPNEGL_SHADER_VERSION "\n"
-  KHG2D_OPNEGL_SHADER_PRECISION "\n"
-  "out vec4 color;\n"
-  "in vec4 v_color;\n"
-  "in vec2 v_texture;\n"
-  "uniform sampler2D u_sampler;\n"
-  "void main()\n"
-  "{\n"
-  "    color = v_color * texture2D(u_sampler, v_texture);\n"
-  "}\n";
-
-static const char *defaultVertexPostProcessShader =
-  KHG2D_OPNEGL_SHADER_VERSION "\n"
-  KHG2D_OPNEGL_SHADER_PRECISION "\n"
-  "in vec2 quad_positions;\n"
-  "out vec2 v_positions;\n"
-  "out vec2 v_texture;\n"
-  "out vec4 v_color;\n"
-  "void main()\n"
-  "{\n"
-  "	gl_Position = vec4(quad_positions, 0, 1);\n"
-  "	v_positions = gl_Position.xy;\n"
-  "	v_color = vec4(1,1,1,1);\n"
-  "	v_texture = (gl_Position.xy + vec2(1))/2.f;\n"
-  "}\n";
+extern char *defaultVertexShader;
+extern char *defaultFragmentShader;
+extern char *defaultVertexPostProcessShader;
 
 void defaultErrorFunc(const char *msg, void *userDefinedData);
 void setUserDefinedData(void *data);
@@ -103,3 +63,4 @@ shader createShaderFromFile(const char *filePath);
 shader createShaderDefaultVertex(const char *fragment);
 shader createPostProcessShaderFromFile(const char *filePath);
 shader createPostProcessShader(const char *fragment);
+char *loadFileContents(char const *path);
