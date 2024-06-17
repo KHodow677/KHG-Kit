@@ -1,9 +1,5 @@
 #pragma once
 
-#include <X11/X.h>
-
-#define KHG2D_SIMD 0
-
 #include "glad/glad.h"
 #include "camera.h"
 #include "shader.h"
