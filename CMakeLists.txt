@@ -5,7 +5,11 @@ project(executable C)
 # Project options
 set(CMAKE_C_STANDARD 90)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_FLAGS "-std=89 -Wall -pedantic -fsanitize=address")
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_C_FLAGS "-std=89 -Wall -pedantic -fsanitize=address")
+elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_C_FLAGS "/std:c89 /W4 /WX")
+endif()
 
 # Get all sources
 file(GLOB_RECURSE HEADER_FILES src/*.h)
