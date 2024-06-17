@@ -58,7 +58,7 @@ void renderRectangleOutline(renderer2d *r2d, const vec4 position, const vec4 col
 void renderCircleOutline(renderer2d *r2d, const vec2 position, const vec4 color, const float size, const float width, const unsigned int segments);
 void renderNinePatch(renderer2d *r2d, const vec4 position, const vec4 color, const vec2 origin, const float rotationDegrees, const texture texture, const vec4 textureCoords, const vec4 inner_texture_coords);
 void clearScreen(renderer2d *r2d, const vec4 color);
-void setshader(renderer2d *r2d, const shader s);
+void setShader(renderer2d *r2d, const shader s);
 void setCamera(renderer2d *r2d, const camera c);
 void resetShaderAndCamera(renderer2d *r2d);
 void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffer result);

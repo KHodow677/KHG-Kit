@@ -23,3 +23,12 @@ float vec4Dot(vec4 *vec4_a, vec4 *vec4_b) {
   dot = (vec4_a->x * vec4_b->x) + (vec4_a->y * vec4_b->y) + (vec4_a->z * vec4_b->z) + (vec4_a->w * vec4_b->w);
   return dot;
 }
+
+vec4 vec4MultiplyNumOnVec4(float num, vec4 *vec4_a) {
+  vec4 vec4_multiplied;
+  vec4_multiplied.x = num * vec4_a->x;
+  vec4_multiplied.y = num * vec4_a->y;
+  vec4_multiplied.z = num * vec4_a->z;
+  vec4_multiplied.w = num * vec4_a->w;
+  return vec4_multiplied;
+}

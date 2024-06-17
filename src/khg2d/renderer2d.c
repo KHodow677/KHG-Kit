@@ -881,7 +881,7 @@ void clearScreen(renderer2d *r2d, const vec4 color) {
   #endif
 }
 
-void setshader(renderer2d *r2d, const shader s) {
+void setShader(renderer2d *r2d, const shader s) {
   r2d->currentShader = s;
 }
 

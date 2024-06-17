@@ -25,19 +25,21 @@ typedef struct {
 typedef enum {
   none = 0,
   linear,
-  curbe,
-  abruptCurbe,
+  curve,
+  abruptCurve,
   wave,
   wave2,
   delay,
   delay2
 } transitionTypes; 
 
-typedef struct {
-  struct particleSettings *deathRattle;
-  struct particleSettings *subemitParticle;
+typedef struct particleSettings particleSettings;
+
+struct particleSettings {
+  particleSettings *deathRattle;
+  particleSettings *subEmitParticle;
   int onCreateCount;
-  vec2 subemitParticleTime;
+  vec2 subEmitParticleTime;
   vec2 positionX;
   vec2 positionY;
   vec2 particleLifeTime;
@@ -48,11 +50,11 @@ typedef struct {
   vec2 rotation;
   vec2 rotationSpeed;
   vec2 rotationDrag;
-  particleAppearance createApearence;
-  particleAppearance createEndApearence;
+  particleAppearance createAppearance;
+  particleAppearance createEndAppearance;
   texture *texturePtr;
   int transitionType;
-} particleSettings;
+};
 
 typedef struct {
   bool postProcessing;
