@@ -1,5 +1,5 @@
-#include "khgmath/quat.h"
 #include "khgmath/math.h"
+#include "khgmath/quat.h"
 #include <math.h>
 
 quat quatCreate(float w, float x, float y, float z) {

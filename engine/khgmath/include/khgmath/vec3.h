@@ -1,5 +1,4 @@
-#ifndef VEC3_H
-#define VEC3_H
+#pragma once
 
 typedef struct vec3 {
   float x;
@@ -17,4 +16,3 @@ vec3 vec3Normalize(vec3 *vec3_a);
 vec3 vec3Cross(vec3 *vec3_a, vec3 *vec3_b);
 float vec3Dot(vec3 *vec3_a, vec3 *vec3_b);
 
-#endif

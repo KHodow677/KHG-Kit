@@ -1,5 +1,4 @@
-#ifndef QUAT_H
-#define QUAT_H
+#pragma once
 
 #include "mat4.h"
 #include "vec3.h"
@@ -22,4 +21,3 @@ vec3 quatToEuler(quat *quat_a);
 mat4 quatToMat4(quat *quat_a);
 quat axisAngleToQuat(vec3 *axis, float angle);
 
-#endif

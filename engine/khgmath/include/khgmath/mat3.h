@@ -1,5 +1,4 @@
-#ifndef MAT3_H
-#define MAT3_H
+#pragma once
 
 #include "vec3.h"
 
@@ -21,4 +20,3 @@ mat3 mat3Orthographic(float left, float right, float bottom, float top);
 mat3 mat3Transpose(mat3 *mat3_a);
 vec3 mat3TransformVec3(mat3 *mat3_a, vec3 *vec);
 
-#endif

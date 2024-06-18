@@ -17,22 +17,14 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 
-add_subdirectory(engine/glfw-3.3.2)			#window oppener
-add_subdirectory(engine/glad)				#opengl loader
-add_subdirectory(engine/stb_image)			#loading immaged
-add_subdirectory(engine/stb_truetype)		#loading ttf files
-#add_subdirectory(engine/enet-1.3.17)		#networking
-add_subdirectory(engine/raudio)				#audio
+add_subdirectory(engine/glfw-3.3.2)
+add_subdirectory(engine/glad)
+add_subdirectory(engine/stb_image)
+add_subdirectory(engine/stb_truetype)
+add_subdirectory(engine/raudio)
 add_subdirectory(engine/khgmath)
 add_subdirectory(engine/khgutils)
-#add_subdirectory(engine/glm)				#math
-#add_subdirectory(engine/imgui-docking)		#ui
-#----------V-----------------------V------------#my libraries												
-#add_subdirectory(engine/safeSave)			#saving data, designed for gamedev. It also makes backups so the player won't loose saves.
-#add_subdirectory(engine/profilerLib)		#profiling, just a simpe library for measuring elapsed time
-#add_subdirectory(engine/gl2d)				#2D rendering library
-#add_subdirectory(engine/glui)				#ui library, usefull for making game menus
-
+add_subdirectory(engine/khg2d)
 
 # MY_SOURCES is defined to be a list of all the source files for my game 
 # DON'T ADD THE SOURCES BY HAND, they are already added with this macro
@@ -75,4 +67,4 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/platform/")
 
 #enet not working yet on linux for some reason
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype raudio khgmath khgutils)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype raudio khgmath khgutils khg2d)

@@ -1,4 +1,4 @@
-#include <khgmath/mat3.h>
+#include "khgmath/mat3.h"
 #include <math.h>
 #include <stdio.h>
 

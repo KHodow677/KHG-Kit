@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 typedef void (*cvector_elem_destructor_t)(void *elem_ptr);
 

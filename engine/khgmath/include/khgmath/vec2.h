@@ -1,5 +1,4 @@
-#ifndef VEC2_H
-#define VEC2_H
+#pragma once
 
 typedef struct vec2 {
   float x;
@@ -15,4 +14,3 @@ vec2 vec2MultiplyNumOnVec2(float num, vec2 *vec2_a);
 vec2 vec2Normalize(vec2 *vec2_a);
 float vec2Dot(vec2 *vec2_a, vec2 *vec2_b);
 
-#endif

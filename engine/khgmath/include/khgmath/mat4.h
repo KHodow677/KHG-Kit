@@ -1,5 +1,4 @@
-#ifndef MAT4_H
-#define MAT4_H
+#pragma once
 
 #include "vec3.h"
 
@@ -21,4 +20,3 @@ mat4 mat4Perspective(float fov, float aspect_ratio, float near_plane, float far_
 mat4 mat4Orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane);
 mat4 mat4Lookat(vec3 *position, vec3 *target, vec3 *up);
 
-#endif
