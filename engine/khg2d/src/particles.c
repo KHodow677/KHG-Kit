@@ -30,8 +30,8 @@ float interpolate(float a, float b, float perc) {
 }
 
 void initKhg2dParticleSystem(void) {
-  defaultParticleVertexShader = loadFileContents("./data/shaders/defaultParticleVertexShader.vert");
-  defaultParticleFragmentShader = loadFileContents("./data/shaders/defaultParticleFragmentShader.frag");
+  defaultParticleVertexShader = loadFileContents("./res/shaders/defaultParticleVertexShader.vert");
+  defaultParticleFragmentShader = loadFileContents("./res/shaders/defaultParticleFragmentShader.frag");
   defaultParticleShader = createShader(defaultParticleVertexShader, defaultParticleFragmentShader);
 }
 

@@ -5,6 +5,7 @@
 #include "khg2d/utils.h"
 #include "glad/glad.h"
 #include <math.h>
+#include <stdio.h>
 #include <string.h>
 
 void internalFlush(renderer2d *r2d, bool shouldClear) {
@@ -106,6 +107,10 @@ void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount) {
 		errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
   }
   r2d->defaultFbo = fbo;
+  r2d->spritePositions = NULL;
+  r2d->spriteColors = NULL;
+  r2d->texturePositions = NULL;
+  r2d->spriteTextures = NULL;
   clearDrawData(r2d);
   cvector_reserve(r2d->spritePositions, quadCount * 6);
   cvector_reserve(r2d->spriteColors, quadCount * 6);

@@ -80,9 +80,9 @@ void init(void) {
     return;
   }
   hasInitialized = true;
-  defaultVertexShader = loadFileContents("./data/shaders/defaultVertexShader.vert");
-  defaultFragmentShader = loadFileContents("./data/shaders/defaultFragmentShader.frag");
-  defaultVertexPostProcessShader = loadFileContents("./data/shaders/defaultVertexPostProcessShader.vert");
+  defaultVertexShader = loadFileContents("./res/shaders/defaultVertexShader.vert");
+  defaultFragmentShader = loadFileContents("./res/shaders/defaultFragmentShader.frag");
+  defaultVertexPostProcessShader = loadFileContents("./res/shaders/defaultVertexPostProcessShader.vert");
   defaultShader = createShader(defaultVertexShader, defaultFragmentShader);
   defaultCamera = createCamera();
   create1PxSquare(&white1pxSquareTexture, 0);
