@@ -1,6 +1,0 @@
-CompileFlags:
-  Add: 
-    - -I/home/khodow/Documents/KHodow/KHG-Kit/libs
-    - -I/home/khodow/Documents/KHodow/KHG-Kit/libs/glad/include
-    - -I/home/khodow/Documents/KHodow/KHG-Kit/libs/glfw/include
-    - -I/home/khodow/Documents/KHodow/KHG-Kit/src/
