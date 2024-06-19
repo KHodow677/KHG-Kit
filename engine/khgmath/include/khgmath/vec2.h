@@ -13,4 +13,4 @@ vec2 vec2Negate(vec2 *vec2_a);
 vec2 vec2MultiplyNumOnVec2(float num, vec2 *vec2_a);
 vec2 vec2Normalize(vec2 *vec2_a);
 float vec2Dot(vec2 *vec2_a, vec2 *vec2_b);
-
+vec2 vec2Clamp(vec2 *vec2_a, vec2 *min, vec2 *max);

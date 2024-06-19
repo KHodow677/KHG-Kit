@@ -58,3 +58,10 @@ float vec2Dot(vec2 *vec2_a, vec2 *vec2_b) {
   dot = (vec2_a->x * vec2_b->x) + (vec2_a->y * vec2_b->y);
   return dot;
 }
+
+vec2 vec2Clamp(vec2 *vec2_a, vec2 *min, vec2 *max) {
+  vec2 vec2_clamped;
+  vec2_clamped.x = fmaxf(min->x, fminf(vec2_a->x, max->x));
+  vec2_clamped.y = fmaxf(min->y, fminf(vec2_a->y, max->y));
+  return vec2_clamped;
+}

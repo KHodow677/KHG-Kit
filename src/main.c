@@ -1,44 +1,123 @@
-#include "khg2d/texture.h"
 #include "khg2d/renderer2d.h"
 #include "khg2d/utils.h"
+#include "khgenv/errorReport.h"
+#include "khgenv/gameScripting.h"
+#include "khgenv/input.h"
+#include "khgenv/other.h"
+#include "khgmath/vec2.h"
 #include "GLFW/glfw3.h"
-#include "glad/glad.h"
+#include <time.h>
 
-int main(int argc, char **argv) {
-  GLFWwindow *window;
-  renderer2d renderer;
-  texture tex;
-  glfwInit();
-  window = glfwCreateWindow(840, 640, "Window", NULL, NULL);
-  glfwMakeContextCurrent(window);
-  gladLoadGLLoader((GLADloadproc)(glfwGetProcAddress));
+struct gameData {
+  vec2 rectPos;
+} gData;
+renderer2d renderer;
+
+bool initGame() {
   init();
   createRenderer2d(&renderer, 0, 1000);
-  loadFromFile(&tex, "./res/assets/images/test.jpg", KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
-  while (!glfwWindowShouldClose(window)) {
-    int w = 0; int h = 0;
-    vec4 color = { 0.1f, 0.2f, 0.6f, 1.0f };
-    vec4 transform1 = { 100, 250, 100 ,100 };
-    vec4 transform2 = { 100, 100, 100 ,100 };
-    vec2 origin = { 0.0f, 0.0f };
-    vec4 colorOrangeData[4], colorWhiteData[4];
-    colorOrangeData[0] = colorOrange;
-    colorOrangeData[1] = colorOrange;
-    colorOrangeData[2] = colorOrange;
-    colorOrangeData[3] = colorOrange;
-    colorWhiteData[0] = colorWhite;
-    colorWhiteData[1] = colorWhite;
-    colorWhiteData[2] = colorWhite;
-    colorWhiteData[3] = colorWhite;
-    glfwGetWindowSize(window, &w, &h);
-    updateWindowMetrics(&renderer, w, h);
-    clearScreen(&renderer, color);
-    renderRectangle(&renderer, transform1, colorOrangeData, origin, 0);
-    renderRectangleTexture(&renderer, transform2, tex, colorWhiteData, origin, 0, defaultTextureCoords);
-    flush(&renderer, true);
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+  readEntireFile("./res/gData.data", &gData, sizeof(gData));
+  return true;
+}
+
+bool gameLogic(float deltaTime) {
+  int w = 0; int h = 0;
+  w = getFrameBufferSizeX();
+  h = getFrameBufferSizeY();
+  glViewport(0, 0, w, h);
+  glClear(GL_COLOR_BUFFER_BIT);
+  updateWindowMetrics(&renderer, w, h);
+  if (isButtonHeld(KeyLeft)) {
+    gData.rectPos.x -= deltaTime * 100;
   }
+  if (isButtonHeld(KeyRight)) {
+    gData.rectPos.x += deltaTime * 100;
+  }
+  if (isButtonHeld(KeyUp)) {
+    gData.rectPos.y -= deltaTime * 100;
+  }
+  if (isButtonHeld(KeyDown)) {
+    gData.rectPos.y += deltaTime * 100;
+  }
+  if (isButtonPressedOn(KeyEscape)) {
+    return false;
+  }
+  vec2 min = { 0.0f, 0.0f };
+  vec2 max = { w - 100.0f, h - 100.0f };
+  gData.rectPos = vec2Clamp(&gData.rectPos, &min, &max);
+  vec4 blueColor[] = { colorBlue, colorBlue, colorBlue, colorBlue };
+  renderRectangle(&renderer, (vec4){ gData.rectPos.x, gData.rectPos.y, 100.0f, 100.0f }, blueColor, (vec2){ 0.0f, 0.0f }, 0);
+  flush(&renderer, true);
+  return true;
+}
+
+void closeGame() {
+  writeEntireFile("./res/gData.data", &gData, sizeof(gData));
   cleanupRenderer2d(&renderer);
+}
+
+int main(int argc, char **argv) {
+  glfwInit();
+  glfwWindowHint(GLFW_SAMPLES, 4);
+	int w = 500;
+	int h = 500;
+	wind = glfwCreateWindow(w, h, "Window", NULL, NULL);
+	glfwMakeContextCurrent(wind);
+	glfwSwapInterval(1);
+	glfwSetKeyCallback(wind, keyCallback);
+	glfwSetMouseButtonCallback(wind, mouseCallback);
+	glfwSetWindowFocusCallback(wind, windowFocusCallback);
+	glfwSetWindowSizeCallback(wind, windowSizeCallback);
+	glfwSetCursorPosCallback(wind, cursorPositionCallback);
+	glfwSetCharCallback(wind, characterCallback);
+  gladLoadGLLoader((GLADloadproc)(glfwGetProcAddress));
+  enableReportGLErrors();
+  init();
+  if (!initGame()) {
+    return 0;
+  }
+  struct timespec start, stop;
+  float deltaTime, augmentedDeltaTime;
+  clock_gettime(CLOCK_REALTIME, &stop);
+  while (!glfwWindowShouldClose(wind)) {
+    clock_gettime(CLOCK_REALTIME, &start);
+    deltaTime = (start.tv_sec - stop.tv_sec) + (start.tv_nsec - stop.tv_nsec) / 1000000000.0;
+    clock_gettime(CLOCK_REALTIME, &stop);
+    augmentedDeltaTime = deltaTime;
+    if (augmentedDeltaTime > 1.0f / 10.0f) {
+      augmentedDeltaTime = 1.0f / 10.0f;
+    }
+    if (!gameLogic(augmentedDeltaTime)) {
+      closeGame();
+			return 0;
+		}
+		if (isFocused() && currentFullScreen != fullScreen) {
+			static int lastW;
+			static int lastH;
+			static int lastPosX = 0;
+			static int lastPosY = 0;
+      lastW = w;
+      lastH = h;
+			if (fullScreen) {
+				lastW = w;
+				lastH = h;
+				glfwGetWindowPos(wind, &lastPosX, &lastPosY);
+				GLFWmonitor *monitor = getCurrentMonitor(wind);
+				const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+				glfwSetWindowMonitor(wind, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+				currentFullScreen = 1;
+			}
+			else {
+				glfwSetWindowMonitor(wind, NULL, lastPosX, lastPosY, lastW, lastH, 0);
+				currentFullScreen = 0;
+			}
+		}
+    mouseMovedFlag = 0;
+    updateAllButtons(deltaTime);
+    resetTypedInput();
+		glfwSwapBuffers(wind);
+		glfwPollEvents();
+  }
+  closeGame();
   return 0;
 }
