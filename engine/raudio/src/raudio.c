@@ -197,7 +197,7 @@ typedef struct tagBITMAPINFOHEADER {
     // TODO: Remap malloc()/free() calls to RL_MALLOC/RL_FREE
 
     #define STB_VORBIS_IMPLEMENTATION
-    #include "external/stb_vorbis.h"    // OGG loading functions
+    #include "stb_vorbis/stb_vorbis.h"    // OGG loading functions
 #endif
 
 #if defined(SUPPORT_FILEFORMAT_XM)

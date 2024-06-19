@@ -17,14 +17,16 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 
-add_subdirectory(engine/glfw-3.3.2)
+add_subdirectory(engine/glfw)
 add_subdirectory(engine/glad)
 add_subdirectory(engine/stb_image)
 add_subdirectory(engine/stb_truetype)
+add_subdirectory(engine/stb_vorbis)
 add_subdirectory(engine/raudio)
 add_subdirectory(engine/khgmath)
 add_subdirectory(engine/khgutils)
 add_subdirectory(engine/khg2d)
+add_subdirectory(engine/khgenv)
 
 # MY_SOURCES is defined to be a list of all the source files for my game 
 # DON'T ADD THE SOURCES BY HAND, they are already added with this macro
@@ -67,4 +69,4 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/platform/")
 
 #enet not working yet on linux for some reason
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype raudio khgmath khgutils khg2d)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype raudio khgmath khgutils khg2d khgenv)
