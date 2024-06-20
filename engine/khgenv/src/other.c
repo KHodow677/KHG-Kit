@@ -6,15 +6,12 @@ GLFWmonitor *getCurrentMonitor(GLFWwindow *window) {
   int nmonitors, i;
   int wx, wy, ww, wh;
   int mx, my, mw, mh;
-  int overlap, bestOverlap;
-  GLFWmonitor *bestMonitor;
-  GLFWmonitor **monitors;
+  int overlap, bestOverlap = 0;
+  GLFWmonitor *bestMonitor = NULL;
   const GLFWvidmode *mode;
-  bestOverlap = 0;
-  bestMonitor = NULL;
   glfwGetWindowPos(window, &wx, &wy);
   glfwGetWindowSize(window, &ww, &wh);
-  monitors = glfwGetMonitors(&nmonitors);
+  GLFWmonitor **monitors = glfwGetMonitors(&nmonitors);
   for (i = 0; i < nmonitors; i++) {
     mode = glfwGetVideoMode(monitors[i]);
     glfwGetMonitorPos(monitors[i], &mx, &my);

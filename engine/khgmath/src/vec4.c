@@ -1,34 +1,17 @@
 #include "khgmath/vec4.h"
 
 vec4 vec4CreateSameValues(float values) {
-  vec4 vec4;
-  vec4.x = values;
-  vec4.y = values;
-  vec4.z = values;
-  vec4.w = values;
-  return vec4;
+  return (vec4){ values, values, values, values };
 }
 
 vec4 vec4CreateFromValues(float x, float y, float z, float w) {
-  vec4 vec4;
-  vec4.x = x;
-  vec4.y = y;
-  vec4.z = z;
-  vec4.w = w;
-  return vec4;
+  return (vec4) { x, y, z, w };
 }
 
 float vec4Dot(vec4 *vec4_a, vec4 *vec4_b) {
-  float dot;
-  dot = (vec4_a->x * vec4_b->x) + (vec4_a->y * vec4_b->y) + (vec4_a->z * vec4_b->z) + (vec4_a->w * vec4_b->w);
-  return dot;
+  return (vec4_a->x * vec4_b->x) + (vec4_a->y * vec4_b->y) + (vec4_a->z * vec4_b->z) + (vec4_a->w * vec4_b->w);
 }
 
 vec4 vec4MultiplyNumOnVec4(float num, vec4 *vec4_a) {
-  vec4 vec4_multiplied;
-  vec4_multiplied.x = num * vec4_a->x;
-  vec4_multiplied.y = num * vec4_a->y;
-  vec4_multiplied.z = num * vec4_a->z;
-  vec4_multiplied.w = num * vec4_a->w;
-  return vec4_multiplied;
+  return (vec4){ num * vec4_a->x, num * vec4_a->y, num * vec4_a->z, num * vec4_a->w };
 }

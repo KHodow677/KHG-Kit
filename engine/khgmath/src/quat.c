@@ -12,31 +12,18 @@ quat quatCreate(float w, float x, float y, float z) {
 }
 
 quat quatCreateFromAxisAngle(vec3 *axis, float angle) {
-  quat quat;
   float half_angle = angle * 0.5;
   float sin_half_angle = sin(half_angle);
-  quat.w = cos(half_angle);
-  quat.x = axis->x * sin_half_angle;
-  quat.y = axis->y * sin_half_angle;
-  quat.z = axis->z * sin_half_angle;
-  return quat;
+  return (quat){ cos(half_angle), axis->x * sin_half_angle, axis->y * sin_half_angle, axis->z * sin_half_angle };
 }
 
 quat quatConjugate(quat *quat_a) {
-  quat quat_conjugate;
-  quat_conjugate.w = quat_a->w;
-  quat_conjugate.x = -quat_a->x;
-  quat_conjugate.y = -quat_a->y;
-  quat_conjugate.z = -quat_a->z;
-  return quat_conjugate;
+  return (quat) { quat_a->w, -quat_a->x, -quat_a->y, -quat_a->z };
 }
 
 quat quatNormalize(quat *quat_a) {
   quat quat_normalized = *quat_a;
-  float x = quat_a->x;
-  float y = quat_a->y;
-  float z = quat_a->z;
-  float w = quat_a->w;
+  float x = quat_a->x, y = quat_a->y, z = quat_a->z, w = quat_a->w;
   float length = sqrt(x * x + y * y + z * z + w * w);
   quat_normalized.x /= length;
   quat_normalized.y /= length;
@@ -46,29 +33,19 @@ quat quatNormalize(quat *quat_a) {
 }
 
 quat quatMultiply(quat *quat_a, quat *quat_b) {
-  quat quat_multiplied;
   float x = quat_a->x * quat_b->w + quat_a->w * quat_b->x + quat_a->y * quat_b->z - quat_a->z * quat_b->y;
   float y = quat_a->y * quat_b->w + quat_a->w * quat_b->y + quat_a->z * quat_b->x - quat_a->x * quat_b->z;
   float z = quat_a->z * quat_b->w + quat_a->w * quat_b->z + quat_a->x * quat_b->y - quat_a->y * quat_b->x;
   float w = quat_a->w * quat_b->w - quat_a->x * quat_b->x - quat_a->y * quat_b->y - quat_a->z * quat_b->z;
-  quat_multiplied.x = x;
-  quat_multiplied.y = y;
-  quat_multiplied.z = z;
-  quat_multiplied.w = w;
-  return quat_multiplied;
+  return (quat){ w, x, y, z };
 }
 
 quat quatMultiplyByVec3(quat *quat_a, vec3 *vec3_a) {
-  quat quat_multiplied;
   float x = quat_a->w * vec3_a->x + quat_a->y * vec3_a->z - quat_a->z * vec3_a->y;
   float y = quat_a->w * vec3_a->y + quat_a->z * vec3_a->x - quat_a->x * vec3_a->z;
   float z = quat_a->w * vec3_a->z + quat_a->x * vec3_a->y - quat_a->y * vec3_a->x;
   float w = -quat_a->x * vec3_a->x - quat_a->y * vec3_a->y - quat_a->z * vec3_a->z;
-  quat_multiplied.x = x;
-  quat_multiplied.y = y;
-  quat_multiplied.z = z;
-  quat_multiplied.w = w;
-  return quat_multiplied;
+  return (quat){ w, x, y, z };
 }
 
 quat eulerToQuat(float yaw, float pitch, float roll) {
@@ -126,12 +103,7 @@ mat4 quatToMat4(quat *quat_a) {
 }
 
 quat axisAngleToQuat(vec3 *axis, float angle) {
-  quat quat;
   float sin_half_angle = sin(angle * 0.5);
-  quat.x = axis->x * sin_half_angle;
-  quat.y = axis->y * sin_half_angle;
-  quat.z = axis->z * sin_half_angle;
-  quat.w = cos(angle * 0.5);
-  return quat;
+  return (quat){ axis->x * sin_half_angle, axis->y * sin_half_angle, axis->z * sin_half_angle, cos(angle * 0.5) };
 }
 

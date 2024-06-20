@@ -22,12 +22,9 @@ void setFullscreen(bool f) {
 }
 
 vec2 getWindowSize() {
-  int x = 0; int y = 0;
-  vec2 result;
+  int x = 0, y = 0;
   glfwGetWindowSize(wind, &x, &y);
-  result.x = x;
-  result.y = y;
-  return result;
+  return (vec2){ x, y };
 }
 
 int getWindowSizeX() {
@@ -39,12 +36,9 @@ int getWindowSizeY() {
 }
 
 vec2 getFramebufferSize() {
-  int x = 0; int y = 0;
-  vec2 result;
+  int x = 0, y = 0;
   glfwGetFramebufferSize(wind, &x, &y);
-  result.x = x;
-  result.y = y;
-  return result;
+  return (vec2){ x, y };
 }
 
 int getFrameBufferSizeX() {
@@ -57,11 +51,8 @@ int getFrameBufferSizeY() {
 
 vec2 getRelMousePosition() {
   double x = 0, y = 0;
-  vec2 result;
   glfwGetCursorPos(wind, &x, &y);
-  result.x = x;
-  result.y = y;
-  return result;
+  return (vec2){ x, y };
 }
 
 void showMouse(bool show) {

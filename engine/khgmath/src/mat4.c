@@ -18,8 +18,7 @@ void mat4Print(mat4 *mat4_a) {
 
 mat4 mat4CreateFromValues(float values[MAT4_SIZE]) {
   mat4 mat4;
-  size_t i;
-  for (i = 0; i < MAT4_SIZE; i++) {
+  for (size_t i = 0; i < MAT4_SIZE; i++) {
     mat4.values[i] = values[i];
   }
   return mat4;
@@ -27,8 +26,7 @@ mat4 mat4CreateFromValues(float values[MAT4_SIZE]) {
 
 mat4 mat4CreateSameValue(float value) {
   mat4 mat4;
-  size_t i;
-  for (i = 0; i < MAT4_SIZE; i++) {
+  for (size_t i = 0; i < MAT4_SIZE; i++) {
     mat4.values[i] = value;
   }
   return mat4;
@@ -45,10 +43,8 @@ mat4 mat4CreateIdentity(void) {
 
 mat4 mat4Multiply(mat4 *mat4_a, mat4 *mat4_b) {
   mat4 mat4;
-  size_t row;
-  size_t column;
-  for (row = 0; row < 4; row++) {
-    for (column = 0; column < 4; column++) {
+  for (size_t row = 0; row < 4; row++) {
+    for (size_t column = 0; column < 4; column++) {
       mat4.values[row * 4 + column] =
           mat4_a->values[0 * 4 + column] * mat4_b->values[row * 4 + 0] +
           mat4_a->values[1 * 4 + column] * mat4_b->values[row * 4 + 1] +

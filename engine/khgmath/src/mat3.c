@@ -11,8 +11,7 @@ void mat3Print(mat3 *mat3_a) {
 
 mat3 mat3CreateFromValues(float values[MAT3_SIZE]) {
   mat3 mat3;
-  size_t i;
-  for (i = 0; i < MAT3_SIZE; i++) {
+  for (size_t i = 0; i < MAT3_SIZE; i++) {
     mat3.values[i] = values[i];
   }
   return mat3;
@@ -20,8 +19,7 @@ mat3 mat3CreateFromValues(float values[MAT3_SIZE]) {
 
 mat3 mat3CreateSameValue(float value) {
   mat3 mat3;
-  size_t i;
-  for (i = 0; i < MAT3_SIZE; i++) {
+  for (size_t i = 0; i < MAT3_SIZE; i++) {
     mat3.values[i] = value;
   }
   return mat3;
@@ -37,9 +35,8 @@ mat3 mat3CreateIdentity(void) {
 
 mat3 mat3Multiply(mat3 *mat3_a, mat3 *mat3_b) {
   mat3 mat3;
-  size_t row, column;
-  for (row = 0; row < 3; row++) {
-    for (column = 0; column < 3; column++) {
+  for (size_t row = 0; row < 3; row++) {
+    for (size_t column = 0; column < 3; column++) {
       mat3.values[row * 3 + column] =
         mat3_a->values[0 * 3 + column] * mat3_b->values[row * 3 + 0] +
         mat3_a->values[1 * 3 + column] * mat3_b->values[row * 3 + 1] +
