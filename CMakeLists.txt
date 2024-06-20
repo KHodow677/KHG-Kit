@@ -26,6 +26,7 @@ add_subdirectory(engine/external/stb_image)
 add_subdirectory(engine/external/stb_truetype)
 add_subdirectory(engine/external/stb_vorbis)
 add_subdirectory(engine/external/raudio)
+add_subdirectory(engine/khgaudio)
 add_subdirectory(engine/khgmath)
 add_subdirectory(engine/khgutils)
 add_subdirectory(engine/khg2d)
@@ -72,4 +73,4 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/platform/")
 
 #enet not working yet on linux for some reason
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype raudio khgmath khgutils khg2d khgenv)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype raudio khgaudio khgmath khgutils khg2d khgenv)

@@ -80,24 +80,20 @@ void createFromFileData(texture *t, const unsigned char *image_file_data, const 
 }
 
 void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_file_data, const size_t image_file_size, int blockSize, bool pixelated, bool useMipMaps) {
- 	int width = 0, height = 0, channels = 0, x, y;
-  const unsigned char* decodedImage;
-  int newW, newH;
-  unsigned char *newData;
-  int newDataCursor = 0, dataCursor = 0;
+ 	int width = 0, height = 0, channels = 0;
   stbi_set_flip_vertically_on_load(true);
-  decodedImage = stbi_load_from_memory(image_file_data, (int)image_file_size, &width, &height, &channels, 4);
-  newW = width + ((width * 2) / blockSize);
-  newH = height + ((height * 2) / blockSize);
-  newData = malloc(newW * newH * 4);
-  newDataCursor = 0;
-  dataCursor = 0;
-  for (y = 0; y < newH; y++) {
+  const unsigned char *decodedImage = stbi_load_from_memory(image_file_data, (int)image_file_size, &width, &height, &channels, 4);
+  int newW = width + ((width * 2) / blockSize);
+  int newH = height + ((height * 2) / blockSize);
+  unsigned char *newData = malloc(newW * newH * 4);
+  int newDataCursor = 0;
+  int dataCursor = 0;
+  for (int y = 0; y < newH; y++) {
     int yNo = 0;
     if ((y == 0 || y == newH - 1 || ((y) % (blockSize + 2)) == 0 || ((y + 1) % (blockSize + 2)) == 0)) {
       yNo = 1;
     }
-    for (x = 0; x < newW; x++) {
+    for (int x = 0; x < newW; x++) {
       if (yNo || ((x == 0 || x == newW - 1 || (x % (blockSize + 2)) == 0 || ((x + 1) % (blockSize + 2)) == 0))) {
         newData[newDataCursor++] = 0;
         newData[newDataCursor++] = 0;
@@ -112,9 +108,9 @@ void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_f
       }
     }
   }
-  for (x = 1; x < newW - 1; x++) {
+  for (int x = 1; x < newW - 1; x++) {
     if (x == 1 || (x % (blockSize + 2)) == 1) {
-      for (y = 0; y < newH; y++) { 
+      for (int y = 0; y < newH; y++) { 
         changeNew(newData, newW, x - 1, y, 0, x, y, 0);
         changeNew(newData, newW, x - 1, y, 1, x, y, 1);
         changeNew(newData, newW, x - 1, y, 2, x, y, 2);
@@ -122,7 +118,7 @@ void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_f
       }
     } 
     else if (x == newW - 2 || (x % (blockSize + 2)) == blockSize) {
-      for (y = 0; y < newH; y++) {  
+      for (int y = 0; y < newH; y++) {  
         changeNew(newData, newW, x + 1, y, 0, x, y, 0);
         changeNew(newData, newW, x + 1, y, 1, x, y, 1);
         changeNew(newData, newW, x + 1, y, 2, x, y, 2);
@@ -130,9 +126,9 @@ void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_f
       }
     }
   }
-  for (y = 1; y < newH - 1; y++) {
+  for (int y = 1; y < newH - 1; y++) {
     if (y == 1 || (y % (blockSize + 2)) == 1) {
-      for (x = 0; x < newW; x++) {
+      for (int x = 0; x < newW; x++) {
         changeNew(newData, newW, x, y - 1, 0, x, y, 0);
         changeNew(newData, newW, x, y - 1, 1, x, y, 1);
         changeNew(newData, newW, x, y - 1, 2, x, y, 2);
@@ -140,7 +136,7 @@ void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_f
       }
     } 
     else if (y == newH - 2 || (y % (blockSize + 2)) == blockSize) {
-      for (x = 0; x < newW; x++) {
+      for (int x = 0; x < newW; x++) {
         changeNew(newData, newW, x, y + 1, 0, x, y, 0);
         changeNew(newData, newW, x, y + 1, 1, x, y, 1);
         changeNew(newData, newW, x, y + 1, 2, x, y, 2);
@@ -155,8 +151,6 @@ void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_f
 
 void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipMaps) {
   FILE *file = fopen(fileName, "rb");
-  long fileSize;
-  unsigned char *fileData;
   if (!file) {
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
@@ -165,9 +159,9 @@ void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipM
 		return;
   }
   fseek(file, 0, SEEK_END);
-  fileSize = ftell(file);
+  long fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  fileData = (unsigned char *)malloc(fileSize);
+  unsigned char *fileData = (unsigned char *)malloc(fileSize);
   if (fileData == NULL) {
     fclose(file);
     return;
@@ -180,8 +174,6 @@ void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipM
 
 void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSize, bool pixelated, bool useMipMaps) {
   FILE *file = fopen(fileName, "rb");
-  long fileSize;
-  unsigned char * fileData;
   if (!file) {
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
@@ -190,9 +182,9 @@ void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSiz
 		return;
   }
   fseek(file, 0, SEEK_END);
-  fileSize = ftell(file);
+  long fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  fileData = (unsigned char *)malloc(fileSize);
+  unsigned char *fileData = (unsigned char *)malloc(fileSize);
   if (fileData == NULL) {
     fclose(file);
     return;

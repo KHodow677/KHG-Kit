@@ -44,13 +44,9 @@ float positionToScreenCoordsY(const float position, float h) {
 
 vec2 convertPoint(const camera *c, const vec2 *p, float windowW, float windowH) {
   vec2 r = *p;
-  vec2 cameraCenter1, cameraCenter2;
-  cameraCenter1.x = c->position.x + windowW / 2;
-  cameraCenter1.y = c->position.y - windowH / 2;
-  cameraCenter2.x = c->position.x + windowW / 2;
-  cameraCenter2.y = c->position.y + windowH / 2;
-  r.x = c->position.x;
-  r.y = c->position.y;
+  vec2 cameraCenter1 = { c->position.x + windowW / 2, c->position.y - windowH / 2 };
+  vec2 cameraCenter2 = { c->position.x + windowW / 2, c->position.y + windowH / 2 };
+  r = (vec2){ c->position.x, c->position.y };
   r = rotateAroundPoint(r, cameraCenter1, c->rotation);
   r = scaleAroundPoint(r, cameraCenter2, 1 / c->zoom);
   return r;
@@ -63,10 +59,9 @@ GLuint loadShader(const char *source, GLenum shaderType) {
   glCompileShader(id);
   glGetShaderiv(id, GL_COMPILE_STATUS, &result);
   if (!result) {
-    char* message = 0;
     int l = 0;
     glGetShaderiv(id, GL_INFO_LOG_LENGTH, &l);
-    message = malloc(l);
+    char *message = malloc(l);
     glGetShaderInfoLog(id, l, &l, message);
     message[l - 1] = 0;
     errorFunc(message, userDefinedData);
@@ -104,8 +99,7 @@ vec2 rotateAroundPoint(vec2 vector, vec2 point, const float degrees) {
   vector.x -= point.x;
   newx = vector.x * c - vector.y * s;
   newy = vector.x * s + vector.y * c; vector.y -= point.y;
-  vector.x = newx + point.x;
-  vector.y = newy + point.y;
+  vector = (vec2){ newx + point.x, newy + point.y };
   return vector;
 }
 
@@ -119,10 +113,9 @@ void validateProgram(GLuint id) {
   int info = 0;
   glGetProgramiv(id, GL_LINK_STATUS, &info);
   if (info != GL_TRUE) {
-    char *message = 0;
     int l = 0;
     glGetProgramiv(id, GL_INFO_LOG_LENGTH, &l);
-    message = malloc(l);
+    char *message = malloc(l);
     glGetProgramInfoLog(id, l, &l, message);
     errorFunc(message, userDefinedData);
     free(message);
@@ -131,12 +124,7 @@ void validateProgram(GLuint id) {
 }
 
 camera createCamera(void) {
-  vec2 initPos = { 0.0f, 0.0f };
-  camera c = { 0 };
-  c.zoom = 1;
-  c.position = initPos;
-  c.rotation = 0.0f;
-  return c;
+  return (camera){ .zoom = 1, .position = (vec2){ 0.0f, 0.0f }, .rotation = 0.0f };
 }
 
 shader createShader(const char *vertex, const char *fragment) {
@@ -159,9 +147,7 @@ shader createShader(const char *vertex, const char *fragment) {
 
 shader createShaderFromFile(const char *filePath) {
   FILE *file = fopen(filePath, "rb");
-  shader emptyShader, rez;
-  long fileSize;
-  char *fileData;
+  shader emptyShader;
   if (!file) {
       char e[256];
       snprintf(e, sizeof(e), "error opening: %s", filePath);
@@ -171,9 +157,9 @@ shader createShaderFromFile(const char *filePath) {
       return emptyShader;
   }
   fseek(file, 0, SEEK_END);
-  fileSize = ftell(file);
+  long fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  fileData = (char *)malloc(fileSize + 1);
+  char *fileData = (char *)malloc(fileSize + 1);
   if (fileData == NULL) {
       char e[256];
       snprintf(e, sizeof(e), "memory allocation failed for: %s", filePath);
@@ -186,7 +172,7 @@ shader createShaderFromFile(const char *filePath) {
   fread(fileData, 1, fileSize, file);
   fclose(file);
   fileData[fileSize] = '\0';
-  rez = createShaderDefaultVertex(fileData);
+  shader rez = createShaderDefaultVertex(fileData);
   free(fileData);
   return rez;
 }
@@ -197,9 +183,7 @@ shader createShaderDefaultVertex(const char *fragment) {
 
 shader createPostProcessShaderFromFile(const char *filePath) {
   FILE *file = fopen(filePath, "rb");
-  shader emptyShader, rez;
-  long fileSize;
-  char *fileData;
+  shader emptyShader;
   if (!file) {
     char e[256];
     snprintf(e, sizeof(e), "error opening: %s", filePath);
@@ -209,9 +193,9 @@ shader createPostProcessShaderFromFile(const char *filePath) {
     return emptyShader;
   }
   fseek(file, 0, SEEK_END);
-  fileSize = ftell(file);
+  long fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  fileData = (char *)malloc(fileSize + 1); // null terminated
+  char *fileData = (char *)malloc(fileSize + 1); // null terminated
   if (fileData == NULL) {
     char e[256];
     snprintf(e, sizeof(e), "memory allocation failed for: %s", filePath);
@@ -224,7 +208,7 @@ shader createPostProcessShaderFromFile(const char *filePath) {
   fread(fileData, 1, fileSize, file);
   fclose(file);
   fileData[fileSize] = '\0';
-  rez = createPostProcessShader(fileData);
+  shader rez = createPostProcessShader(fileData);
   free(fileData);
   return rez;
 }
@@ -254,13 +238,11 @@ void cleanTextureCoordinates(int tSizeX, int tSizeY, int x, int y, int sizeX, in
 }
 
 char *loadFileContents(char const *path) {
-    char *buffer = 0;
-    long length;
     FILE *f = fopen (path, "rb");
     fseek (f, 0, SEEK_END);
-    length = ftell (f);
+    long length = ftell (f);
     fseek (f, 0, SEEK_SET);
-    buffer = (char*)malloc ((length+1)*sizeof(char));
+    char *buffer = (char*)malloc ((length+1)*sizeof(char));
     if (buffer) {
       fread (buffer, sizeof(char), length, f);
     }

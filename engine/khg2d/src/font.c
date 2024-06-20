@@ -6,19 +6,14 @@
 
 stbtt_aligned_quad fontGetGlyphQuad(const font f, const char c) {
   stbtt_aligned_quad quad;
-  float x = 0;
-  float y = 0;
+  float x = 0, y = 0;
   stbtt_GetPackedQuad(f.packedCharsBuffer, f.size.x, f.size.y, c - ' ', &x, &y, &quad, 1);
   return quad;
 }
 
 vec4 fontGetGlyphTextureCoords(const font f, const char c) {
   const stbtt_aligned_quad quad = fontGetGlyphQuad(f, c);
-  vec4 quadVec;
-  quadVec.x = quad.s0;
-  quadVec.y = quad.t0;
-  quadVec.z = quad.s1;
-  quadVec.w = quad.t1;
+  vec4 quadVec = { quad.s0, quad.t0, quad.s1, quad.t1 };
   return quadVec;
 }
 
@@ -28,8 +23,7 @@ void createFromTTF(font *f, const unsigned char *ttf_data, const size_t ttf_data
   stbtt_pack_context stbtt_context;
   int i;
   char c;
-  f->size.x = 2000,
-  f->size.y = 2000,
+  f->size = (vec2){ 2000.0f, 2000.0f };
   f->maxHeight = 0,
   f->packedCharsBufferSize = ('~' - ' ');
   fontMonochromeBufferSize = f->size.x * f->size.y;
@@ -72,8 +66,6 @@ void createFromTTF(font *f, const unsigned char *ttf_data, const size_t ttf_data
 
 void createFromFile(font *f, const char *file) {
   FILE *fileFont = fopen(file, "rb");
-  long fileSize;
-  unsigned char *fileData;
   if (!fileFont) {
     char c[300] = {0};
     strcat(c, "error opening: ");
@@ -82,9 +74,9 @@ void createFromFile(font *f, const char *file) {
     return;
   }
   fseek(fileFont, 0, SEEK_END);
-  fileSize = ftell(fileFont);
+  long fileSize = ftell(fileFont);
   fseek(fileFont, 0, SEEK_SET);
-  fileData = (unsigned char *)malloc(fileSize);
+  unsigned char *fileData = (unsigned char *)malloc(fileSize);
   if (fileData == NULL) {
     fclose(fileFont);
     return;

@@ -9,12 +9,10 @@ void setDefault(camera *c) {
 }
 
 void follow(camera *c, vec2 pos, float speed, float min, float max, float w, float h) {
-  vec2 delta;
-  float len;
   pos.x -= w / 2.f;
   pos.y -= h / 2.f;
-  delta = vec2Subtract(&pos, &c->position);
-  len = sqrt(pow(delta.x, 2) + pow(delta.y, 2));
+  vec2 delta = vec2Subtract(&pos, &c->position);
+  float len = sqrt(pow(delta.x, 2) + pow(delta.y, 2));
   vec2Normalize(&delta);
   if (len < min * 2) {
     speed /= 4.f;
