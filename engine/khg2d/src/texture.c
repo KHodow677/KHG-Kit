@@ -1,3 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "khg2d/texture.h"
 #include "khg2d/utils.h"
 #include <string.h>

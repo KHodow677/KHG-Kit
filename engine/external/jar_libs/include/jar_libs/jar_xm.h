@@ -52,6 +52,7 @@
 #define INCLUDE_JAR_XM_H
 
 #include <stdint.h>
+#include <limits.h>
 
 #define JAR_XM_DEBUG 0
 #define JAR_XM_LINEAR_INTERPOLATION 1 // speed increase with decrease in quality
@@ -69,6 +70,14 @@
 //-------------------------------------------------------------------------------
 struct jar_xm_context_s;
 typedef struct jar_xm_context_s jar_xm_context_t;
+
+#ifndef __cplusplus
+// Boolean type
+    #if !defined(_STDBOOL_H)
+        typedef enum { false, true } bool;
+        #define _STDBOOL_H
+    #endif
+#endif
 
 #ifdef __cplusplus
 extern "C" { 

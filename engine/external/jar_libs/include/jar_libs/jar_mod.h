@@ -238,6 +238,14 @@ typedef struct jar_mod_tracker_buffer_state_
     tracker_state * track_state_buf;
 }jar_mod_tracker_buffer_state;
 
+#ifndef __cplusplus
+// Boolean type
+    #if !defined(_STDBOOL_H)
+        typedef enum { false, true } bool;
+        #define _STDBOOL_H
+    #endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -263,6 +271,7 @@ void   jar_mod_seek_start(jar_mod_context_t * ctx);
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 //#include <stdbool.h>
 
 // Effects list

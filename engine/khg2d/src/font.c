@@ -1,3 +1,5 @@
+#define STB_TRUETYPE_IMPLEMENTATION
+
 #include "khg2d/font.h"
 #include "khg2d/utils.h"
 #include <string.h>
