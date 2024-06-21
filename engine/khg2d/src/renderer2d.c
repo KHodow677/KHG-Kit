@@ -1,8 +1,9 @@
+#include "khg2d/renderer2d.h"
+#include "khg2d/utils.h"
 #include "khgmath/minmax.h"
 #include "khgmath/math.h"
 #include "khgmath/mat3.h"
-#include "khg2d/renderer2d.h"
-#include "khg2d/utils.h"
+#include "khgutils/error_func.h"
 #include "glad/glad.h"
 #include <math.h>
 #include <stdio.h>
@@ -13,18 +14,18 @@ void internalFlush(renderer2d *r2d, bool shouldClear) {
   unsigned int id = r2d->spriteTextures[0].id;
   enableGLNecessaryFeatures();
   if (!hasInitialized) {
-    errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
+    error_func("Library not initialized. Have you forgotten to call gl2d::init() ?", user_defined_data);
     clearDrawData(r2d);
     return;
   }
   if (!r2d->vao) {
     clearDrawData(r2d);
-    errorFunc("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", userDefinedData);
+    error_func("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", user_defined_data);
     return;
   }
   if (r2d->windowH <= 0 || r2d->windowW <= 0) {
     if (shouldClear) {
-      errorFunc("Negative windowW or windowH, have you forgotten to call updateWindowMetrics(w, h)?", userDefinedData);
+      error_func("Negative windowW or windowH, have you forgotten to call updateWindowMetrics(w, h)?", user_defined_data);
       clearDrawData(r2d);
     }
     return;
@@ -91,7 +92,7 @@ vec2 calcPos(int p, float size, int segments, vec2 position) {
 
 void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount) {
   if (!hasInitialized) {
-		errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
+		error_func("Library not initialized. Have you forgotten to call gl2d::init() ?", user_defined_data);
   }
   r2d->defaultFbo = fbo;
   r2d->spritePositions = NULL;
@@ -138,7 +139,7 @@ void pushShader(renderer2d *r2d, shader s) {
 
 void popShader(renderer2d *r2d) {
   if (vector_empty(r2d->shaderPushPop)) {
-    errorFunc("Pop on an empty stack on popShader", userDefinedData);
+    error_func("Pop on an empty stack on popShader", user_defined_data);
   }
   else {
     r2d->currentShader = *vector_back(r2d->shaderPushPop);
@@ -153,7 +154,7 @@ void pushCamera(renderer2d *r2d, camera c) {
 
 void popCamera(renderer2d *r2d) {
   if (vector_empty(r2d->cameraPushPop)) {
-    errorFunc("Pop on an empty stack on popCamera", userDefinedData);
+    error_func("Pop on an empty stack on popCamera", user_defined_data);
   }
   else {
     r2d->currentCamera = *vector_back(r2d->cameraPushPop);
@@ -220,7 +221,7 @@ void clearDrawData(renderer2d *r2d) {
 
 vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float size, const float spacing, const float line_space) {
   if (font.texture.id == 0) {
-    errorFunc("Missing font", userDefinedData);
+    error_func("Missing font", user_defined_data);
     return (vec2){ 0.0f, 0.0f };
   }
   vec2 position = { 0.0f, 0.0f };
@@ -268,7 +269,7 @@ vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float
 
 void renderText(renderer2d *r2d, vec2 position, const char *text, const font f, const vec4 color, const float size, const float spacing, const float line_space, short showInCenter, const vec4 shadowColor, const vec4 lightColor) {
   if (f.texture.id == 0) {
-    errorFunc("Missing font", userDefinedData);
+    error_func("Missing font", user_defined_data);
     return;
   } 
   const int text_length = (int)strlen(text);
@@ -453,7 +454,7 @@ void renderRectangleTexture(renderer2d *r2d, const vec4 transform, const texture
 void renderRectangleTextureAbsRotation(renderer2d *r2d, const vec4 transform, const texture t, const vec4 colors[4], const vec2 origin, const float rotationDegrees, const vec4 textureCoords) {
   texture textureCopy = t;
   if (textureCopy.id == 0) {
-    errorFunc("Invalid texture", userDefinedData);
+    error_func("Invalid texture", user_defined_data);
     textureCopy = white1pxSquareTexture;
   }
   const float transformY = transform.y * -1.0f;
@@ -699,15 +700,15 @@ void renderPostProcess(renderer2d *r2d, shader shader, texture input, framebuffe
   glBindFramebuffer(GL_FRAMEBUFFER, result.fbo);
   enableGLNecessaryFeatures();
   if (!hasInitialized) {
-    errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
+    error_func("Library not initialized. Have you forgotten to call gl2d::init() ?", user_defined_data);
     return;
   }
   if (!r2d->vao) {
-    errorFunc("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", userDefinedData);
+    error_func("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", user_defined_data);
     return;
   }
   if (!shader.id) {
-    errorFunc("Post Process Shader not created.", userDefinedData);
+    error_func("Post Process Shader not created.", user_defined_data);
     return;
   }
   vec2 size = getTextureSize(&input);
@@ -729,7 +730,7 @@ void flush(renderer2d *r2d, bool shouldClear) {
 
 void flushFbo(renderer2d *r2d, framebuffer frameBuffer, short shouldClear) {
   if (frameBuffer.fbo == 0) {
-    errorFunc("Framebuffer not initialized", userDefinedData);
+    error_func("Framebuffer not initialized", user_defined_data);
     return;
   }
   glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer.fbo);
@@ -750,15 +751,15 @@ void renderTextureToEntireScreen(renderer2d *r2d, texture t, framebuffer screen)
   glBlendEquation(GL_FUNC_ADD);
   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   if (!hasInitialized) {
-    errorFunc("Library not initialized. Have you forgotten to call gl2d::init() ?", userDefinedData);
+    error_func("Library not initialized. Have you forgotten to call gl2d::init() ?", user_defined_data);
     return;
   }
   if (!r2d->vao) {
-    errorFunc("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", userDefinedData);
+    error_func("Renderer not initialized. Have you forgotten to call gl2d::Renderer2D::create() ?", user_defined_data);
     return;
   }
   if (!r2d->currentShader.id) {
-    errorFunc("Post Process Shader not created.", userDefinedData);
+    error_func("Post Process Shader not created.", user_defined_data);
     return;
   }
   if (screen.fbo) {

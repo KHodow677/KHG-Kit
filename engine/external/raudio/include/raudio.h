@@ -149,7 +149,7 @@ void SetMasterVolume(float volume);                             // Set master vo
 // Wave/Sound loading/unloading functions
 Wave LoadWave(const char *fileName);                            // Load wave data from file
 Sound LoadSound(const char *fileName);                          // Load sound from file
-Sound LoadSoundFromWave(Wave wave);                             // Load sound from wave data
+Sound load_sound_from_wave(Wave wave);                             // Load sound from wave data
 void UpdateSound(Sound sound, const void *data, int samplesCount);// Update sound buffer with new data
 void UnloadWave(Wave wave);                                     // Unload wave data
 void UnloadSound(Sound sound);                                  // Unload sound

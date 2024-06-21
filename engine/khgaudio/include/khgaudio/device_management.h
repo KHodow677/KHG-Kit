@@ -1,11 +1,10 @@
 #pragma once
 
 #ifndef __cplusplus
-// Boolean type
-    #if !defined(_STDBOOL_H)
-        typedef enum { false, true } bool;
-        #define _STDBOOL_H
-    #endif
+  #if !defined(_STDBOOL_H)
+    typedef enum { false, true } bool;
+    #define _STDBOOL_H
+  #endif
 #endif
 
 void init_audio_device(void);

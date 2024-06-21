@@ -1,11 +1,12 @@
 #include "khgaudio/audio_buffer.h"
+#include "khgutils/error_func.h"
 #include <stdlib.h>
 #include <string.h>
 
 audio_buffer *load_audio_buffer(ma_format format, ma_uint32 channels, ma_uint32 sample_rate, ma_uint32 size_in_frames, int usage) {
   audio_buffer *a_buffer = (audio_buffer *)calloc(1, sizeof(audio_buffer));
   if (a_buffer == NULL) {
-    TRACELOG(LOG_ERROR, "AUDIO: Failed to allocate memory for buffer");
+    error_func("Failed to allocate memory for buffer", user_defined_data);
     return NULL;
   }
   if (size_in_frames > 0) {
@@ -15,7 +16,7 @@ audio_buffer *load_audio_buffer(ma_format format, ma_uint32 channels, ma_uint32 
   converter_config.resampling.allowDynamicSampleRate = true;
   ma_result result = ma_data_converter_init(&converter_config, &a_buffer->converter);
   if (result != MA_SUCCESS) {
-    TRACELOG(LOG_ERROR, "AUDIO: Failed to create data conversion pipeline");
+    error_func("Failed to create data conversion pipeline", user_defined_data);
     free(a_buffer);
     return NULL;
   }
@@ -220,7 +221,6 @@ void init_audio_buffer_pool(void) {
   for (int i = 0; i < MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
     AUDIO.multi_channel.pool[i] = load_audio_buffer(AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, 0, AUDIO_BUFFER_USAGE_STATIC);
   }
-  TRACELOG(LOG_INFO, "AUDIO: Multichannel pool size: %i", MAX_AUDIO_BUFFER_POOL_CHANNELS);
 }
 
 void close_audio_buffer_pool(void) {

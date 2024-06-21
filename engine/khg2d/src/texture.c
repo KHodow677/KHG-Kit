@@ -2,6 +2,7 @@
 
 #include "khg2d/texture.h"
 #include "khg2d/utils.h"
+#include "khgutils/error_func.h"
 #include <string.h>
 
 const unsigned char getOld(const unsigned char *decodedImage, int width, int x, int y, int c) {
@@ -155,7 +156,7 @@ void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipM
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
 		strcat(c + strlen(c), fileName);
-    errorFunc(c, userDefinedData);
+    error_func(c, user_defined_data);
 		return;
   }
   fseek(file, 0, SEEK_END);
@@ -178,7 +179,7 @@ void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSiz
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
 		strcat(c + strlen(c), fileName);
-    errorFunc(c, userDefinedData);
+    error_func(c, user_defined_data);
 		return;
   }
   fseek(file, 0, SEEK_END);

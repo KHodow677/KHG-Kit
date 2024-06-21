@@ -28,7 +28,6 @@ static vec4 colorGray = { (float)0x7F / 255.0f, (float)0x7F / 255.0f, (float)0x7
 static vec4 colorTransparent = { 0, 0, 0, 0 };
 
 extern bool hasInitialized;
-extern void *userDefinedData;
 extern shader defaultShader;
 extern camera defaultCamera;
 extern texture white1pxSquareTexture;
@@ -39,11 +38,6 @@ extern char *defaultVertexShader;
 extern char *defaultFragmentShader;
 extern char *defaultVertexPostProcessShader;
 
-void defaultErrorFunc(const char *msg, void *userDefinedData);
-void setUserDefinedData(void *data);
-typedef void (*errorFuncType)(const char *, void *);
-errorFuncType setErrorFuncCallback(errorFuncType newFunc);
-static errorFuncType errorFunc = defaultErrorFunc;
 float positionToScreenCoordsX(const float position, float w);
 float positionToScreenCoordsY(const float position, float h);
 vec2 convertPoint(const camera *c, const vec2 *p, float windowW, float windowH);

@@ -716,7 +716,7 @@ Sound LoadSound(const char *fileName)
 {
     Wave wave = LoadWave(fileName);
 
-    Sound sound = LoadSoundFromWave(wave);
+    Sound sound = load_sound_from_wave(wave);
 
     UnloadWave(wave);       // Sound is loaded, we can unload wave
 
@@ -725,7 +725,7 @@ Sound LoadSound(const char *fileName)
 
 // Load sound from wave data
 // NOTE: Wave data must be unallocated manually
-Sound LoadSoundFromWave(Wave wave)
+Sound load_sound_from_wave(Wave wave)
 {
     Sound sound = { 0 };
 

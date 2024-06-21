@@ -2,12 +2,13 @@
 #include "khgaudio/audio_frame.h"
 #include "khgaudio/callbacks.h"
 #include "khgaudio/utils.h"
+#include "khgutils/error_func.h"
 #include <string.h>
 
 void on_log(ma_context *context, ma_device *device, ma_uint32 log_level, const char *message) {
   (void)context;
   (void)device;
-  TRACELOG(LOG_ERROR, "miniaudio: %s", message);
+  error_func("Miniaudio error", user_defined_data);
 }
 
 void on_send_audio_data_to_device(ma_device *device, void *frames_out, const void *frames_input, ma_uint32 frame_count) {

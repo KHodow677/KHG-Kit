@@ -1,7 +1,7 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 
+#include "khgutils/error_func.h"
 #include "khg2d/font.h"
-#include "khg2d/utils.h"
 #include <string.h>
 
 stbtt_aligned_quad fontGetGlyphQuad(const font f, const char c) {
@@ -70,7 +70,7 @@ void createFromFile(font *f, const char *file) {
     char c[300] = {0};
     strcat(c, "error opening: ");
     strcat(c + strlen(c), file);
-    errorFunc(c, userDefinedData);
+    error_func(c, user_defined_data);
     return;
   }
   fseek(fileFont, 0, SEEK_END);

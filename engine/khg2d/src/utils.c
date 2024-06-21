@@ -1,8 +1,9 @@
-#include "khgmath/math.h"
-#include "khgmath/vec4.h"
 #include "khg2d/renderer2d.h"
 #include "khg2d/shader.h"
 #include "khg2d/utils.h"
+#include "khgmath/math.h"
+#include "khgmath/vec4.h"
+#include "khgutils/error_func.h"
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -11,7 +12,6 @@
 #undef max
 
 bool hasInitialized = false;
-void *userDefinedData = 0;
 shader defaultShader = { 0 };
 camera defaultCamera = { 0 };
 texture white1pxSquareTexture = { 0 };
@@ -19,20 +19,6 @@ texture white1pxSquareTexture = { 0 };
 char *defaultVertexShader = "";
 char *defaultFragmentShader = "";
 char *defaultVertexPostProcessShader = "";
-
-void defaultErrorFunc(const char *msg, void *userDefinedData) {
-  printf("KHG2D error: %s\n", msg);
-}
-
-void setUserDefinedData(void *data) {
-  userDefinedData = data;
-}
-
-errorFuncType setErrorFuncCallback(errorFuncType newFunc) {
-  errorFuncType a = errorFunc;
-  errorFunc = newFunc;
-  return a;
-}
 
 float positionToScreenCoordsX(const float position, float w) {
   return (position / w) * 2 - 1;
@@ -64,7 +50,7 @@ GLuint loadShader(const char *source, GLenum shaderType) {
     char *message = malloc(l);
     glGetShaderInfoLog(id, l, &l, message);
     message[l - 1] = 0;
-    errorFunc(message, userDefinedData);
+    error_func(message, user_defined_data);
     free(message);
   }
   return id;
@@ -117,7 +103,7 @@ void validateProgram(GLuint id) {
     glGetProgramiv(id, GL_INFO_LOG_LENGTH, &l);
     char *message = malloc(l);
     glGetProgramInfoLog(id, l, &l, message);
-    errorFunc(message, userDefinedData);
+    error_func(message, user_defined_data);
     free(message);
   }
   glValidateProgram(id);
@@ -150,8 +136,7 @@ shader createShaderFromFile(const char *filePath) {
   shader emptyShader;
   if (!file) {
       char e[256];
-      snprintf(e, sizeof(e), "error opening: %s", filePath);
-      errorFunc(e, userDefinedData);
+      error_func(e, user_defined_data);
       emptyShader.id = 0;
       emptyShader.u_sampler = 0;
       return emptyShader;
@@ -162,8 +147,7 @@ shader createShaderFromFile(const char *filePath) {
   char *fileData = (char *)malloc(fileSize + 1);
   if (fileData == NULL) {
       char e[256];
-      snprintf(e, sizeof(e), "memory allocation failed for: %s", filePath);
-      errorFunc(e, userDefinedData);
+      error_func(e, user_defined_data);
       fclose(file);
       emptyShader.id = 0;
       emptyShader.u_sampler = 0;
@@ -186,8 +170,7 @@ shader createPostProcessShaderFromFile(const char *filePath) {
   shader emptyShader;
   if (!file) {
     char e[256];
-    snprintf(e, sizeof(e), "error opening: %s", filePath);
-    errorFunc(e, userDefinedData);
+    error_func(e, user_defined_data);
     emptyShader.id = 0;
     emptyShader.u_sampler = 0;
     return emptyShader;
@@ -195,11 +178,10 @@ shader createPostProcessShaderFromFile(const char *filePath) {
   fseek(file, 0, SEEK_END);
   long fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  char *fileData = (char *)malloc(fileSize + 1); // null terminated
+  char *fileData = (char *)malloc(fileSize + 1);
   if (fileData == NULL) {
     char e[256];
-    snprintf(e, sizeof(e), "memory allocation failed for: %s", filePath);
-    errorFunc(e, userDefinedData);
+    error_func(e, user_defined_data);
     fclose(file);
     emptyShader.id = 0;
     emptyShader.u_sampler = 0;

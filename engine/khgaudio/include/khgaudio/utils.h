@@ -1,20 +1,12 @@
 #pragma once
 
-#define SUPPORT_FILEFORMAT_WAV
-#define SUPPORT_FILEFORMAT_OGG
-#define SUPPORT_FILEFORMAT_FLAC
-#define SUPPORT_FILEFORMAT_MP3
-#define SUPPORT_FILEFORMAT_XM
-#define SUPPORT_FILEFORMAT_MOD
-
 #include "miniaudio/miniaudio.h"
 
 #ifndef __cplusplus
-// Boolean type
-    #if !defined(_STDBOOL_H)
-        typedef enum { false, true } bool;
-        #define _STDBOOL_H
-    #endif
+  #if !defined(_STDBOOL_H)
+    typedef enum { false, true } bool;
+    #define _STDBOOL_H
+  #endif
 #endif
 
 #define AUDIO_DEVICE_FORMAT ma_format_f32
@@ -22,7 +14,6 @@
 #define AUDIO_DEVICE_SAMPLE_RATE 44100
 #define MAX_AUDIO_BUFFER_POOL_CHANNELS 16
 #define DEFAULT_AUDIO_BUFFER_SIZE 4096
-#define TRACELOG(level, ...) (void)0
 
 typedef struct {
   unsigned int sample_count;
