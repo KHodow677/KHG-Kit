@@ -9,7 +9,7 @@
 #include <string.h>
 
 void internalFlush(renderer2d *r2d, bool shouldClear) {
-  const int size = cvector_size(r2d->spriteTextures);
+  const int size = vector_size(r2d->spriteTextures);
   unsigned int id = r2d->spriteTextures[0].id;
   enableGLNecessaryFeatures();
   if (!hasInitialized) {
@@ -29,7 +29,7 @@ void internalFlush(renderer2d *r2d, bool shouldClear) {
     }
     return;
   }
-  if (cvector_empty(r2d->spriteTextures)) {
+  if (vector_empty(r2d->spriteTextures)) {
     return; 
   }
   glViewport(0, 0, r2d->windowW, r2d->windowH);
@@ -37,11 +37,11 @@ void internalFlush(renderer2d *r2d, bool shouldClear) {
   glUseProgram(r2d->currentShader.id);
   glUniform1i(r2d->currentShader.u_sampler, 0);
   glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[quadPositions]);
-  glBufferData(GL_ARRAY_BUFFER, cvector_size(r2d->spritePositions) * sizeof(vec2), r2d->spritePositions, GL_STREAM_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vector_size(r2d->spritePositions) * sizeof(vec2), r2d->spritePositions, GL_STREAM_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[quadColors]);
-  glBufferData(GL_ARRAY_BUFFER, cvector_size(r2d->spriteColors) * sizeof(vec4), r2d->spriteColors, GL_STREAM_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vector_size(r2d->spriteColors) * sizeof(vec4), r2d->spriteColors, GL_STREAM_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, r2d->buffers[texturePositions]);
-  glBufferData(GL_ARRAY_BUFFER, cvector_size(r2d->texturePositions) * sizeof(vec2), r2d->texturePositions, GL_STREAM_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vector_size(r2d->texturePositions) * sizeof(vec2), r2d->texturePositions, GL_STREAM_DRAW);
   bindTexture(&r2d->spriteTextures[0], 0);
   int pos = 0;
   for (int i = 1; i < size; i++) {
@@ -99,10 +99,10 @@ void createRenderer2d(renderer2d *r2d, GLuint fbo, size_t quadCount) {
   r2d->texturePositions = NULL;
   r2d->spriteTextures = NULL;
   clearDrawData(r2d);
-  cvector_reserve(r2d->spritePositions, quadCount * 6);
-  cvector_reserve(r2d->spriteColors, quadCount * 6);
-  cvector_reserve(r2d->texturePositions, quadCount * 6);
-  cvector_reserve(r2d->spriteTextures, quadCount);
+  vector_reserve(r2d->spritePositions, quadCount * 6);
+  vector_reserve(r2d->spriteColors, quadCount * 6);
+  vector_reserve(r2d->texturePositions, quadCount * 6);
+  vector_reserve(r2d->spriteTextures, quadCount);
   resetShaderAndCamera(r2d);
   glGenVertexArrays(1, &r2d->vao);
   glBindVertexArray(r2d->vao);
@@ -125,39 +125,39 @@ void cleanupRenderer2d(renderer2d *r2d) {
   cleanupFramebuffer(&r2d->postProcessFbo1);
   cleanupFramebuffer(&r2d->postProcessFbo2);
   r2d->internalPostProcessFlip = 0;
-  cvector_free(r2d->spritePositions);
-  cvector_free(r2d->spriteColors);
-  cvector_free(r2d->texturePositions);
-  cvector_free(r2d->spriteTextures);
+  vector_free(r2d->spritePositions);
+  vector_free(r2d->spriteColors);
+  vector_free(r2d->texturePositions);
+  vector_free(r2d->spriteTextures);
 }
 
 void pushShader(renderer2d *r2d, shader s) {
-  cvector_push_back(r2d->shaderPushPop, s);
+  vector_push_back(r2d->shaderPushPop, s);
   r2d->currentShader = s;
 }
 
 void popShader(renderer2d *r2d) {
-  if (cvector_empty(r2d->shaderPushPop)) {
+  if (vector_empty(r2d->shaderPushPop)) {
     errorFunc("Pop on an empty stack on popShader", userDefinedData);
   }
   else {
-    r2d->currentShader = *cvector_back(r2d->shaderPushPop);
-    cvector_pop_back(r2d->shaderPushPop);
+    r2d->currentShader = *vector_back(r2d->shaderPushPop);
+    vector_pop_back(r2d->shaderPushPop);
   }
 }
 
 void pushCamera(renderer2d *r2d, camera c) {
-  cvector_push_back(r2d->cameraPushPop, c);
+  vector_push_back(r2d->cameraPushPop, c);
   r2d->currentCamera = c;
 }
 
 void popCamera(renderer2d *r2d) {
-  if (cvector_empty(r2d->cameraPushPop)) {
+  if (vector_empty(r2d->cameraPushPop)) {
     errorFunc("Pop on an empty stack on popCamera", userDefinedData);
   }
   else {
-    r2d->currentCamera = *cvector_back(r2d->cameraPushPop);
-    cvector_pop_back(r2d->cameraPushPop);
+    r2d->currentCamera = *vector_back(r2d->cameraPushPop);
+    vector_pop_back(r2d->cameraPushPop);
   }
 }
 
@@ -212,10 +212,10 @@ vec4 pixToScreen(renderer2d *r2d, const vec4 *transform) {
 }
 
 void clearDrawData(renderer2d *r2d) {
-  cvector_clear(r2d->spritePositions);
-  cvector_clear(r2d->spriteColors);
-  cvector_clear(r2d->texturePositions);
-  cvector_clear(r2d->spriteTextures);
+  vector_clear(r2d->spritePositions);
+  vector_clear(r2d->spriteColors);
+  vector_clear(r2d->texturePositions);
+  vector_clear(r2d->spriteTextures);
 }
 
 vec2 getTextSize(renderer2d *r2d, const char *text, const font font, const float size, const float spacing, const float line_space) {
@@ -497,31 +497,31 @@ void renderRectangleTextureAbsRotation(renderer2d *r2d, const vec4 transform, co
   v2.y = positionToScreenCoordsY(v2.y, (float)r2d->windowH);
   v3.y = positionToScreenCoordsY(v3.y, (float)r2d->windowH);
   v4.y = positionToScreenCoordsY(v4.y, (float)r2d->windowH);
-  cvector_push_back(r2d->spritePositions, v1);
-  cvector_push_back(r2d->spritePositions, v2);
-  cvector_push_back(r2d->spritePositions, v4);
-  cvector_push_back(r2d->spritePositions, v2);
-  cvector_push_back(r2d->spritePositions, v3);
-  cvector_push_back(r2d->spritePositions, v4);
-  cvector_push_back(r2d->spriteColors, colors[0]);
-  cvector_push_back(r2d->spriteColors, colors[1]);
-  cvector_push_back(r2d->spriteColors, colors[3]);
-  cvector_push_back(r2d->spriteColors, colors[1]);
-  cvector_push_back(r2d->spriteColors, colors[2]);
-  cvector_push_back(r2d->spriteColors, colors[3]);
+  vector_push_back(r2d->spritePositions, v1);
+  vector_push_back(r2d->spritePositions, v2);
+  vector_push_back(r2d->spritePositions, v4);
+  vector_push_back(r2d->spritePositions, v2);
+  vector_push_back(r2d->spritePositions, v3);
+  vector_push_back(r2d->spritePositions, v4);
+  vector_push_back(r2d->spriteColors, colors[0]);
+  vector_push_back(r2d->spriteColors, colors[1]);
+  vector_push_back(r2d->spriteColors, colors[3]);
+  vector_push_back(r2d->spriteColors, colors[1]);
+  vector_push_back(r2d->spriteColors, colors[2]);
+  vector_push_back(r2d->spriteColors, colors[3]);
   vec2 tPos = { textureCoords.x, textureCoords.y };
-  cvector_push_back(r2d->texturePositions, tPos);
+  vector_push_back(r2d->texturePositions, tPos);
   tPos = (vec2){ textureCoords.x, textureCoords.w };
-  cvector_push_back(r2d->texturePositions, tPos);
+  vector_push_back(r2d->texturePositions, tPos);
   tPos = (vec2){ textureCoords.z, textureCoords.y };
-  cvector_push_back(r2d->texturePositions, tPos);
+  vector_push_back(r2d->texturePositions, tPos);
   tPos = (vec2){ textureCoords.x, textureCoords.w };
-  cvector_push_back(r2d->texturePositions, tPos);
+  vector_push_back(r2d->texturePositions, tPos);
   tPos = (vec2){ textureCoords.z, textureCoords.w };
-  cvector_push_back(r2d->texturePositions, tPos);
+  vector_push_back(r2d->texturePositions, tPos);
   tPos = (vec2){ textureCoords.z, textureCoords.y };
-  cvector_push_back(r2d->texturePositions, tPos);
-  cvector_push_back(r2d->spriteTextures, textureCopy);
+  vector_push_back(r2d->texturePositions, tPos);
+  vector_push_back(r2d->spriteTextures, textureCopy);
 }
 
 void renderRectangle(renderer2d *r2d, const vec4 transform, const vec4 colors[4], const vec2 origin, const float rotationDegrees) {
@@ -775,8 +775,8 @@ void renderTextureToEntireScreen(renderer2d *r2d, texture t, framebuffer screen)
   glBindVertexArray(0);
 }
 
-void flushPostProcess(renderer2d *r2d, const cvector(shader) *postProcess, framebuffer frameBuffer, bool shouldClear) {
-  if (cvector_empty(*postProcess)) {
+void flushPostProcess(renderer2d *r2d, const vector(shader) *postProcess, framebuffer frameBuffer, bool shouldClear) {
+  if (vector_empty(*postProcess)) {
     if (shouldClear) {
       clearDrawData(r2d);
       return;
@@ -792,15 +792,15 @@ void flushPostProcess(renderer2d *r2d, const cvector(shader) *postProcess, frame
   postProcessOverTexture(r2d, postProcess, r2d->postProcessFbo1.texture, frameBuffer);
 }
 
-void postProcessOverTexture(renderer2d *r2d, const cvector(shader) *postProcess, texture in, framebuffer fb) {
+void postProcessOverTexture(renderer2d *r2d, const vector(shader) *postProcess, texture in, framebuffer fb) {
   int i;
-  if (cvector_empty(*postProcess)) {
+  if (vector_empty(*postProcess)) {
     return;
   }
   if (!r2d->postProcessFbo1.fbo) { 
     createFramebuffer(&r2d->postProcessFbo1, 0, 0);
   }
-  if (!r2d->postProcessFbo2.fbo && cvector_size(*postProcess) > 1) {
+  if (!r2d->postProcessFbo2.fbo && vector_size(*postProcess) > 1) {
     createFramebuffer(&r2d->postProcessFbo2, 0, 0);
   }
   if (r2d->internalPostProcessFlip == 0) {
@@ -813,7 +813,7 @@ void postProcessOverTexture(renderer2d *r2d, const cvector(shader) *postProcess,
     resizeFramebuffer(&r2d->postProcessFbo2, r2d->windowW, r2d->windowH);
     clearFramebuffer(&r2d->postProcessFbo2);
   }
-  for (i = 0; i < cvector_size(*postProcess); i++) {
+  for (i = 0; i < vector_size(*postProcess); i++) {
     framebuffer output;
     texture input;
     if (r2d->internalPostProcessFlip == 0) {
@@ -827,7 +827,7 @@ void postProcessOverTexture(renderer2d *r2d, const cvector(shader) *postProcess,
     if (i == 0) {
       input = in;
     }
-    if (i == cvector_size(*postProcess) - 1) {
+    if (i == vector_size(*postProcess) - 1) {
       output = fb;
     }
     clearFramebuffer(&output);

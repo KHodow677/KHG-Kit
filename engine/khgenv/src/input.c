@@ -2,116 +2,116 @@
 #include "khgenv/gameScripting.h"
 #include <string.h>
 
-button keyboard[BUTTONS_COUNT];
-button leftMouse;
-button rightMouse;
+key_button keyboard[BUTTONS_COUNT];
+key_button left_mouse;
+key_button right_mouse;
 
-controllerButtons cButtons;
-char ** typedInput;
+controller_buttons c_buttons;
+char ** typed_input;
 
-void merge(button *b, const button *bOther) {
-  b->pressed |= bOther->pressed;
-  b->released |= bOther->released;
-  b->held |= bOther->held;
+void merge(key_button *b, const key_button *b_other) {
+  b->pressed |= b_other->pressed;
+  b->released |= b_other->released;
+  b->held |= b_other->held;
 }
 
-void resetButtonToZero(button *b) {
+void reset_button_to_zero(key_button *b) {
   b->pressed = 0;
   b->held = 0;
   b->released = 0;
 }
 
-void setAllToZero(controllerButtons *c) {
-  button buttons[GLFW_GAMEPAD_BUTTON_LAST + 1];
-  vec2 zeroVec2 = { 0.0f, 0.0f };
-  *c->ConButtons = *buttons;
-  c->ConLT = 0.0f;
-  c->ConRT = 0.0f;
-  c->ConLStick = zeroVec2;
-  c->ConRStick = zeroVec2;
+void set_all_to_zero(controller_buttons *c) {
+  key_button buttons[GLFW_GAMEPAD_BUTTON_LAST + 1];
+  vec2 zero_vec2 = { 0.0f, 0.0f };
+  *c->con_buttons = *buttons;
+  c->con_lt = 0.0f;
+  c->con_rt = 0.0f;
+  c->con_l_stick = zero_vec2;
+  c->con_r_stick = zero_vec2;
 }
 
-int isButtonHeld(int key) {
-  if (key < KeyA || key >= BUTTONS_COUNT) {
+int is_button_held(int key) {
+  if (key < key_A || key >= BUTTONS_COUNT) {
     return 0;
   }
   return keyboard[key].held;
 }
 
-int isButtonPressedOn(int key) {
-  if (key < KeyA || key >= BUTTONS_COUNT) {
+int is_button_pressed_on(int key) {
+  if (key < key_A || key >= BUTTONS_COUNT) {
     return 0;
   }
   return keyboard[key].pressed;
 }
 
-int isButtonReleased(int key) {
-  if (key < KeyA || key >= BUTTONS_COUNT) {
+int is_button_released(int key) {
+  if (key < key_A || key >= BUTTONS_COUNT) {
     return 0;
   }
   return keyboard[key].released;
 }
 
-int isButtonTyped(int key) {
-  if (key < KeyA || key >= BUTTONS_COUNT) {
+int is_button_typed(int key) {
+  if (key < key_A || key >= BUTTONS_COUNT) {
     return 0;
   }
   return keyboard[key].typed;
 }
 
-int isLMousePressed() {
-  return leftMouse.pressed;
+int is_left_mouse_pressed() {
+  return left_mouse.pressed;
 }
 
-int isRMousePressed() {
-  return rightMouse.pressed;
+int is_right_mouse_pressed() {
+  return right_mouse.pressed;
 }
 
-int isLMouseReleased() {
-  return leftMouse.released;
+int is_left_mouse_released() {
+  return left_mouse.released;
 }
 
-int isRMouseReleased() {
-  return rightMouse.released;
+int is_right_mouse_released() {
+  return right_mouse.released;
 }
 
-int isLMouseHeld() {
-  return leftMouse.held;
+int is_left_mouse_held() {
+  return left_mouse.held;
 }
 
-int isRMouseHeld() {
-  return rightMouse.held;
+int is_right_mouse_held() {
+  return right_mouse.held;
 }
 
-controllerButtons getControllerButtons() {
+controller_buttons get_controller_buttons() {
   if (isFocused()) {
-    return cButtons;
+    return c_buttons;
   }
-  controllerButtons c;
-  setAllToZero(&c);
+  controller_buttons c;
+  set_all_to_zero(&c);
   return c;
 }
 
-char **getTypedInput() {
-  return typedInput;
+char **get_typed_input() {
+  return typed_input;
 }
 
-void setButtonState(int button, int newState) {
-  processEventButton(&keyboard[button], newState);
+void set_button_state(int button, int new_state) {
+  process_event_button(&keyboard[button], new_state);
 }
 
-void setLeftMouseState(int newState) {
-  processEventButton(&leftMouse, newState);
+void set_left_mouse_state(int new_state) {
+  process_event_button(&left_mouse, new_state);
 }
-void setRightMouseState(int newState) {
-  processEventButton(&rightMouse, newState);
-}
-
-void processEventButton(button *b, bool newState) {
-  b->newState = newState;
+void set_right_mouse_state(int new_state) {
+  process_event_button(&right_mouse, new_state);
 }
 
-void updateButton(button *b, float deltaTime) {
+void process_event_button(key_button *b, bool new_state) {
+  b->newState = new_state;
+}
+
+void update_button(key_button *b, float delta_time) {
   if (b->newState == 1) {
     if (b->held) {
       b->pressed = false;
@@ -136,7 +136,7 @@ void updateButton(button *b, float deltaTime) {
     b->typedTime = 0.48f;
   }
   else if (b->held) {
-    b->typedTime -= deltaTime;
+    b->typedTime -= delta_time;
     if (b->typedTime < 0.0f) {
       b->typedTime += 0.07f;
       b->typed = true;
@@ -152,51 +152,51 @@ void updateButton(button *b, float deltaTime) {
   b->newState = -1;
 }
 
-void updateAllButtons(float deltaTime) {
+void update_all_buttons(float delta_time) {
 	for (int i = 0; i < BUTTONS_COUNT; i++) {
-		updateButton(&keyboard[i], deltaTime);
+		update_button(&keyboard[i], delta_time);
 	}
-	updateButton(&leftMouse, deltaTime);
-	updateButton(&rightMouse, deltaTime);
+	update_button(&left_mouse, delta_time);
+	update_button(&right_mouse, delta_time);
 	for(int i=0; i<=GLFW_JOYSTICK_LAST; i++) {
 		if(glfwJoystickPresent(i) && glfwJoystickIsGamepad(i)) {
 			GLFWgamepadstate state;
 			if (glfwGetGamepadState(i, &state)) {
 				for (int b = 0; b <= GLFW_GAMEPAD_BUTTON_LAST; b++) {
           if(state.buttons[b] == GLFW_PRESS) {
-						processEventButton(&cButtons.ConButtons[b], 1);
+						process_event_button(&c_buttons.con_buttons[b], 1);
 					}
           else if (state.buttons[b] == GLFW_RELEASE) {
-						processEventButton(&cButtons.ConButtons[b], 0);
+						process_event_button(&c_buttons.con_buttons[b], 0);
 					}
-					updateButton(&cButtons.ConButtons[b], deltaTime);
+					update_button(&c_buttons.con_buttons[b], delta_time);
 				}
-				cButtons.ConLT = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
-				cButtons.ConRT = state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
-				cButtons.ConLStick.x = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
-				cButtons.ConLStick.y = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
-				cButtons.ConRStick.x = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
-				cButtons.ConRStick.y = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+				c_buttons.con_rt = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
+				c_buttons.con_lt = state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
+				c_buttons.con_l_stick.x = state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+				c_buttons.con_l_stick.y = state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+				c_buttons.con_r_stick.x = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+				c_buttons.con_r_stick.y = state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
 				break;
 			}
 		}
 	}
 }
 
-void resetInputsToZero() {
-  resetTypedInput();
+void reset_inputs_to_zero() {
+  reset_typed_input();
   for (int i = 0; i < BUTTONS_COUNT; i++) {
-    resetButtonToZero(&keyboard[i]);
+    reset_button_to_zero(&keyboard[i]);
   }
-  resetButtonToZero(&leftMouse);
-  resetButtonToZero(&rightMouse);
-  setAllToZero(&cButtons);
+  reset_button_to_zero(&left_mouse);
+  reset_button_to_zero(&right_mouse);
+  set_all_to_zero(&c_buttons);
 }
 
-void addToTypedInput(char c) {
-  strcat(*typedInput, &c);
+void add_to_typed_input(char c) {
+  strcat(*typed_input, &c);
 }
 
-void resetTypedInput() {
-  memset(&typedInput, 0, sizeof(typedInput));
+void reset_typed_input() {
+  memset(&typed_input, 0, sizeof(typed_input));
 }

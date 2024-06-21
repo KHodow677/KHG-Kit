@@ -2,7 +2,7 @@
 
 #include "khgmath/vec2.h"
 #include "khgmath/vec4.h"
-#include "khgutils/cvector.h"
+#include "khgutils/vector.h"
 #include "camera.h"
 #include "font.h"
 #include "framebuffer.h"
@@ -14,14 +14,14 @@ typedef struct {
   GLuint defaultFbo;
   GLuint buffers[bufferSize];
   GLuint vao;
-  cvector(vec2) spritePositions;
-  cvector(vec4) spriteColors;
-  cvector(vec2) texturePositions;
-  cvector(texture) spriteTextures;
+  vector(vec2) spritePositions;
+  vector(vec4) spriteColors;
+  vector(vec2) texturePositions;
+  vector(texture) spriteTextures;
   shader currentShader;
-  cvector(shader) shaderPushPop;
+  vector(shader) shaderPushPop;
   camera currentCamera;
-  cvector(camera) cameraPushPop;
+  vector(camera) cameraPushPop;
   int windowW;
   int windowH;
   framebuffer postProcessFbo1;
@@ -65,6 +65,6 @@ void flush(renderer2d *r2d, bool shouldClear);
 void flushFbo(renderer2d *r2d, framebuffer frameBuffer, bool shouldClear);
 void renderFrameBufferToEntireScreen(renderer2d *r2d, framebuffer fbo, framebuffer screen);
 void renderTextureToEntireScreen(renderer2d *r2d, texture t, framebuffer screen);
-void flushPostProcess(renderer2d *r2d, const cvector(shader) *postProcess, framebuffer frameBuffer, bool clearDrawData);
-void postProcessOverTexture(renderer2d *r2d, const cvector(shader) *postProcess, texture in, framebuffer framebuffer);
+void flushPostProcess(renderer2d *r2d, const vector(shader) *postProcess, framebuffer frameBuffer, bool clearDrawData);
+void postProcessOverTexture(renderer2d *r2d, const vector(shader) *postProcess, texture in, framebuffer framebuffer);
 void enableGLNecessaryFeatures(void);

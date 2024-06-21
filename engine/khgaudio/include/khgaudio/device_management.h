@@ -8,8 +8,8 @@
     #endif
 #endif
 
-void initAudioDevice(void);
-void closeAudioDevice(void);
-void isAudioDeviceReady(void);
-void setMasterVolume(float volume);
+void init_audio_device(void);
+void close_audio_device(void);
+bool is_audio_device_ready(void);
+void set_master_volume(float volume);
 

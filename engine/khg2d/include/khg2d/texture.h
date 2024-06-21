@@ -2,7 +2,7 @@
 
 #include "khgmath/vec2.h"
 #include "khgutils/bool.h"
-#include "khgutils/cvector.h"
+#include "khgutils/vector.h"
 #include "glad/glad.h"
 #include "stb_image/stb_image.h"
 
@@ -18,7 +18,7 @@ void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_f
 void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipMaps);
 void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSize, bool pixelated, bool useMipMaps);
 size_t getMemorySize(texture *t, int mipLevel, vec2 *outSize);
-cvector(unsigned char) readtextureData(texture *t, void *buffer, int mipLevel);
+vector(unsigned char) readtextureData(texture *t, void *buffer, int mipLevel);
 unsigned char *readtextureDataToCharArray(texture *t, int mipLevel, vec2 *outSize);
 void bindTexture(texture *t, const unsigned int sample);
 void unbindTexture(texture *t);

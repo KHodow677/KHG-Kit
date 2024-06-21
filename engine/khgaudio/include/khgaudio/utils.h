@@ -1,3 +1,5 @@
+#pragma once
+
 #define SUPPORT_FILEFORMAT_WAV
 #define SUPPORT_FILEFORMAT_OGG
 #define SUPPORT_FILEFORMAT_FLAC
@@ -23,16 +25,16 @@
 #define TRACELOG(level, ...) (void)0
 
 typedef struct {
-  unsigned int sampleCount;
-  unsigned int sampleRate;
-  unsigned int sampleSize;
+  unsigned int sample_count;
+  unsigned int sample_rate;
+  unsigned int sample_size;
   unsigned int channels;
   void *data;
 } wave;
 
-typedef struct audioBuffer audioBuffer;
+typedef struct audio_buffer audio_buffer;
 
-struct audioBuffer {
+struct audio_buffer {
   ma_data_converter converter;
   float volume;
   float pitch;
@@ -40,33 +42,33 @@ struct audioBuffer {
   bool paused;
   bool looping;
   int usage;
-  bool isSubBufferProcessed[2];
-  unsigned int sizeInFrames;
-  unsigned int frameCursorPos;
-  unsigned int totalFramesProcessed;
+  bool is_sub_buffer_processed[2];
+  unsigned int size_in_frames;
+  unsigned int frame_cursor_pos;
+  unsigned int total_frames_processed;
   unsigned char *data;
-  audioBuffer *next;
-  audioBuffer *prev;
+  audio_buffer *next;
+  audio_buffer *prev;
 };
 
 typedef struct {
-  unsigned int sampleRate;
-  unsigned int sampleSize;
+  unsigned int sample_rate;
+  unsigned int sample_size;
   unsigned int channels;
-  audioBuffer *buffer;
-} audioStream;
+  audio_buffer *buffer;
+} audio_stream;
 
 typedef struct {
-  unsigned int sampleCount;
-  audioStream stream;
+  unsigned int sample_count;
+  audio_stream stream;
 } sound;
 
 typedef struct {
-  int ctxType;
-  void *ctxData;
+  int ctx_type;
+  void *ctx_data;
   bool looping;
-  unsigned int sampleCount;
-  audioStream stream;
+  unsigned int sample_count;
+  audio_stream stream;
 } music;
 
 typedef struct {
@@ -74,19 +76,19 @@ typedef struct {
     ma_context context;
     ma_device device;
     ma_mutex lock;
-    bool isReady;
+    bool is_ready;
   } system;
   struct {
-    audioBuffer *first;
-    audioBuffer *last;
-    int defaultSize;
+    audio_buffer *first;
+    audio_buffer *last;
+    int default_size;
   } buffer;
   struct {
-    audioBuffer *pool[MAX_AUDIO_BUFFER_POOL_CHANNELS];
-    unsigned int poolCounter;
+    audio_buffer *pool[MAX_AUDIO_BUFFER_POOL_CHANNELS];
+    unsigned int pool_counter;
     unsigned int channels[MAX_AUDIO_BUFFER_POOL_CHANNELS];
-  } multiChannel;
-} audioData;
+  } multi_channel;
+} audio_data;
 
 typedef enum {
   MUSIC_AUDIO_WAV = 0,
@@ -95,7 +97,7 @@ typedef enum {
   MUSIC_AUDIO_MP3,
   MUSIC_MODULE_XM,
   MUSIC_MODULE_MOD
-} musicContextType;
+} music_context_type;
 
 typedef enum {
   LOG_ALL,
@@ -106,11 +108,11 @@ typedef enum {
   LOG_ERROR,
   LOG_FATAL,
   LOG_NONE
-} traceLogType;
+} trace_log_type;
 
 typedef enum {
   AUDIO_BUFFER_USAGE_STATIC = 0,
   AUDIO_BUFFER_USAGE_STREAM
-} AudioBufferUsage;
+} audio_buffer_usage;
 
-extern audioData AUDIO;
+extern audio_data AUDIO;

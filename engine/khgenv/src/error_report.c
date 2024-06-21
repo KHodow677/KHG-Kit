@@ -1,8 +1,8 @@
-#include "khgenv/errorReport.h"
+#include "khgenv/error_report.h"
 #include "glad/glad.h"
 #include <stdio.h>
 
-void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char *message, const void *userParam) {
+void GLAPIENTRY gl_debug_output(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char *message, const void *user_param) {
   if (id == 131169 || id == 131185 || id == 131218 || id == 131204 || id == 131222) {
     return;
   }
@@ -79,9 +79,9 @@ void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenu
   printf("\n\n");
 }
 
-void enableReportGLErrors() {
+void enable_report_GL_errors() {
   glEnable(GL_DEBUG_OUTPUT);
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-  glDebugMessageCallback(glDebugOutput, NULL);
+  glDebugMessageCallback(gl_debug_output, NULL);
   glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 }

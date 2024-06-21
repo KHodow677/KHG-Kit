@@ -1,6 +1,6 @@
 #include "khg2d/renderer2d.h"
 #include "khg2d/utils.h"
-#include "khgenv/errorReport.h"
+#include "khgenv/error_report.h"
 #include "khgenv/gameScripting.h"
 #include "khgenv/input.h"
 #include "khgenv/other.h"
@@ -27,19 +27,19 @@ bool gameLogic(float deltaTime) {
   glViewport(0, 0, w, h);
   glClear(GL_COLOR_BUFFER_BIT);
   updateWindowMetrics(&renderer, w, h);
-  if (isButtonHeld(KeyLeft)) {
+  if (is_button_held(key_left)) {
     gData.rectPos.x -= deltaTime * 100;
   }
-  if (isButtonHeld(KeyRight)) {
+  if (is_button_held(key_right)) {
     gData.rectPos.x += deltaTime * 100;
   }
-  if (isButtonHeld(KeyUp)) {
+  if (is_button_held(key_up)) {
     gData.rectPos.y -= deltaTime * 100;
   }
-  if (isButtonHeld(KeyDown)) {
+  if (is_button_held(key_down)) {
     gData.rectPos.y += deltaTime * 100;
   }
-  if (isButtonPressedOn(KeyEscape)) {
+  if (is_button_pressed_on(key_escape)) {
     return false;
   }
   vec2 min = { 0.0f, 0.0f };
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 	glfwSetCursorPosCallback(wind, cursorPositionCallback);
 	glfwSetCharCallback(wind, characterCallback);
   gladLoadGLLoader((GLADloadproc)(glfwGetProcAddress));
-  enableReportGLErrors();
+  enable_report_GL_errors();
   init();
   if (!initGame()) {
     return 0;
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
 				lastW = w;
 				lastH = h;
 				glfwGetWindowPos(wind, &lastPosX, &lastPosY);
-				GLFWmonitor *monitor = getCurrentMonitor(wind);
+				GLFWmonitor *monitor = get_current_monitor(wind);
 				const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 				glfwSetWindowMonitor(wind, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 				currentFullScreen = 1;
@@ -113,8 +113,8 @@ int main(int argc, char **argv) {
 			}
 		}
     mouseMovedFlag = 0;
-    updateAllButtons(deltaTime);
-    resetTypedInput();
+    update_all_buttons(deltaTime);
+    reset_typed_input();
 		glfwSwapBuffers(wind);
 		glfwPollEvents();
   }

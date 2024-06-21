@@ -95,7 +95,7 @@ bool readEntireFile(const char *name, void *buffer, size_t size) {
 
 void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
   if ((action == GLFW_REPEAT || action == GLFW_PRESS) && key == GLFW_KEY_BACKSPACE) {
-    addToTypedInput(8);
+    add_to_typed_input(8);
 	}
   bool state = 0;
   if(action == GLFW_PRESS) {
@@ -109,39 +109,39 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
 	}
   if(key >= GLFW_KEY_A && key <= GLFW_KEY_Z) {
 		int index = key - GLFW_KEY_A;
-		setButtonState(KeyA + index, state);
+		set_button_state(key_A + index, state);
 	}
   else if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
 		int index = key - GLFW_KEY_0;
-		setButtonState(KeyNR0 + index, state);
+		set_button_state(key_0 + index, state);
 	}
   else {
     if (key == GLFW_KEY_SPACE) {
-      setButtonState(KeySpace, state);
+      set_button_state(key_space, state);
     }
     else if (key == GLFW_KEY_ENTER) {
-      setButtonState(KeyEnter, state);
+      set_button_state(key_enter, state);
     }
     else if (key == GLFW_KEY_ESCAPE) {
-      setButtonState(KeyEscape, state);
+      set_button_state(key_escape, state);
     }
     else if (key == GLFW_KEY_UP) {
-      setButtonState(KeyUp, state);
+      set_button_state(key_up, state);
     }
     else if (key == GLFW_KEY_DOWN) {
-      setButtonState(KeyDown, state);
+      set_button_state(key_down, state);
     }
     else if (key == GLFW_KEY_LEFT) {
-      setButtonState(KeyLeft, state);
+      set_button_state(key_left, state);
     }
     else if (key == GLFW_KEY_RIGHT) {
-      setButtonState(KeyRight, state);
+      set_button_state(key_right, state);
     }
     else if (key == GLFW_KEY_LEFT_CONTROL) {
-      setButtonState(KeyLeftCtrl, state);
+      set_button_state(key_left_ctrl, state);
     }
     else if (key == GLFW_KEY_TAB) {
-      setButtonState(KeyTab, state);
+      set_button_state(key_tab, state);
     }
   }
 }
@@ -158,10 +158,10 @@ void mouseCallback(GLFWwindow *window, int key, int action, int mods) {
     return;
   }
   if (key == GLFW_MOUSE_BUTTON_LEFT) {
-    setLeftMouseState(state);
+    set_left_mouse_state(state);
   }
   else if (key == GLFW_MOUSE_BUTTON_RIGHT) {
-    setRightMouseState(state);
+    set_right_mouse_state(state);
   }
 }
 
@@ -171,12 +171,12 @@ void windowFocusCallback(GLFWwindow *window, int focused) {
   }
   else {
     windowFocus = 0;
-    resetInputsToZero();
+    reset_inputs_to_zero();
   }
 }
 
 void windowSizeCallback(GLFWwindow *window, int x, int y) {
-  resetInputsToZero();
+  reset_inputs_to_zero();
 }
 
 void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos) {
@@ -185,7 +185,7 @@ void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos) {
 
 void characterCallback(GLFWwindow *window, unsigned int codepoint) {
 	if (codepoint < 127) {
-		addToTypedInput(codepoint);
+		add_to_typed_input(codepoint);
 	}
 }
 

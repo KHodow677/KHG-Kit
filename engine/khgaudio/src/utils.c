@@ -1,5 +1,5 @@
 #include "khgaudio/utils.h"
 
-audioData AUDIO = {.buffer.defaultSize = DEFAULT_AUDIO_BUFFER_SIZE};
+audio_data AUDIO = {.buffer.default_size = DEFAULT_AUDIO_BUFFER_SIZE};
 
 

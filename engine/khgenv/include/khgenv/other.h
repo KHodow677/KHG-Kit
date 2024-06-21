@@ -2,4 +2,4 @@
 
 #include "GLFW/glfw3.h"
 
-GLFWmonitor *getCurrentMonitor(GLFWwindow *window);
+GLFWmonitor *get_current_monitor(GLFWwindow *window);
