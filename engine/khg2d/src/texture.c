@@ -5,23 +5,23 @@
 #include "khgutils/error_func.h"
 #include <string.h>
 
-const unsigned char getOld(const unsigned char *decodedImage, int width, int x, int y, int c) {
+const unsigned char get_old(const unsigned char *decodedImage, int width, int x, int y, int c) {
   return decodedImage[4 * (x + (y * width)) + c];
 }
 
-const unsigned char getNew(const unsigned char *newData, int newW, int x, int y, int c) {
+const unsigned char get_new(const unsigned char *newData, int newW, int x, int y, int c) {
   return newData[4 * (x + (y * newW)) + c];
 }
 
-void changeOld(unsigned char *decodedImage, int width, int x1, int y, int c1, int x2, int y2, int c2) {
-  decodedImage[4 * (x1 + (y * width)) + c1] = getOld(decodedImage, width, x2, y, c2);
+void change_old(unsigned char *decodedImage, int width, int x1, int y, int c1, int x2, int y2, int c2) {
+  decodedImage[4 * (x1 + (y * width)) + c1] = get_old(decodedImage, width, x2, y, c2);
 }
 
-void changeNew(unsigned char *newData, int newW, int x1, int y, int c1, int x2, int y2, int c2) {
-  newData[4 * (x1 + (y * newW)) + c1] = getNew(newData, newW, x2, y, c2);
+void change_new(unsigned char *newData, int newW, int x1, int y, int c1, int x2, int y2, int c2) {
+  newData[4 * (x1 + (y * newW)) + c1] = get_new(newData, newW, x2, y, c2);
 }
 
-vec2 getTextureSize(texture *t) {
+vec2 get_texture_size(texture *t) {
   	vec2 s;
 		glBindTexture(GL_TEXTURE_2D, t->id);
 		glGetTexLevelParameterfv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &s.x);
@@ -29,13 +29,13 @@ vec2 getTextureSize(texture *t) {
 		return s;
 }
 
-void createFromBuffer(texture *t, const char *image_data, const int width, const int height, bool pixelated, bool useMipMaps) {
+void create_from_buffer(texture *t, const char *image_data, const int width, const int height, bool pixelated, bool use_mip_maps) {
   	GLuint id = 0;
 		glActiveTexture(GL_TEXTURE0);
 		glGenTextures(1, &id);
 		glBindTexture(GL_TEXTURE_2D, id);
 		if (pixelated) {
-			if (useMipMaps) {
+			if (use_mip_maps) {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 			}
 			else {
@@ -44,7 +44,7 @@ void createFromBuffer(texture *t, const char *image_data, const int width, const
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
 		else {
-			if (useMipMaps) {
+			if (use_mip_maps) {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			}
 			else {
@@ -59,185 +59,185 @@ void createFromBuffer(texture *t, const char *image_data, const int width, const
 		t->id = id;
 }
 
-void create1PxSquare(texture *t, const char *b) {
+void create_1_px_square(texture *t, const char *b) {
   if (b == NULL) {
     const unsigned char buff[] = { 0xff, 0xff, 0xff, 0xff };
-    createFromBuffer(t, (char *)buff, 1, 1, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
+    create_from_buffer(t, (char *)buff, 1, 1, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
   }
   else {
-    createFromBuffer(t, b, 1, 1, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
+    create_from_buffer(t, b, 1, 1, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
   }
 }
 
-void createFromFileData(texture *t, const unsigned char *image_file_data, const size_t image_file_size, bool pixelated, bool useMipMaps) {
+void create_from_file_data(texture *t, const unsigned char *image_file_data, const size_t image_file_size, bool pixelated, bool use_mip_maps) {
   int width = 0;
   int height = 0;
   int channels = 0; 
-  const unsigned char * decodedImage;
+  const unsigned char * decoded_image;
   stbi_set_flip_vertically_on_load(true);
-  decodedImage = stbi_load_from_memory(image_file_data, (int)image_file_size, &width, &height, &channels, 4);
-  createFromBuffer(t, (const char*)decodedImage, width, height, pixelated, useMipMaps);
-  stbi_image_free((void *)decodedImage);
+  decoded_image = stbi_load_from_memory(image_file_data, (int)image_file_size, &width, &height, &channels, 4);
+  create_from_buffer(t, (const char*)decoded_image, width, height, pixelated, use_mip_maps);
+  stbi_image_free((void *)decoded_image);
 }
 
-void createFromFileDataWithPixelPadding(texture *t, const unsigned char *image_file_data, const size_t image_file_size, int blockSize, bool pixelated, bool useMipMaps) {
+void create_from_file_data_with_pixel_padding(texture *t, const unsigned char *image_file_data, const size_t image_file_size, int block_size, bool pixelated, bool use_mip_maps) {
  	int width = 0, height = 0, channels = 0;
   stbi_set_flip_vertically_on_load(true);
-  const unsigned char *decodedImage = stbi_load_from_memory(image_file_data, (int)image_file_size, &width, &height, &channels, 4);
-  int newW = width + ((width * 2) / blockSize);
-  int newH = height + ((height * 2) / blockSize);
-  unsigned char *newData = malloc(newW * newH * 4);
-  int newDataCursor = 0;
-  int dataCursor = 0;
-  for (int y = 0; y < newH; y++) {
-    int yNo = 0;
-    if ((y == 0 || y == newH - 1 || ((y) % (blockSize + 2)) == 0 || ((y + 1) % (blockSize + 2)) == 0)) {
-      yNo = 1;
+  const unsigned char *decoded_image = stbi_load_from_memory(image_file_data, (int)image_file_size, &width, &height, &channels, 4);
+  int new_w = width + ((width * 2) / block_size);
+  int new_h = height + ((height * 2) / block_size);
+  unsigned char *new_data = malloc(new_w * new_h * 4);
+  int new_data_cursor = 0;
+  int data_cursor = 0;
+  for (int y = 0; y < new_h; y++) {
+    int y_no = 0;
+    if ((y == 0 || y == new_h - 1 || ((y) % (block_size + 2)) == 0 || ((y + 1) % (block_size + 2)) == 0)) {
+      y_no = 1;
     }
-    for (int x = 0; x < newW; x++) {
-      if (yNo || ((x == 0 || x == newW - 1 || (x % (blockSize + 2)) == 0 || ((x + 1) % (blockSize + 2)) == 0))) {
-        newData[newDataCursor++] = 0;
-        newData[newDataCursor++] = 0;
-        newData[newDataCursor++] = 0;
-        newData[newDataCursor++] = 0;
+    for (int x = 0; x < new_w; x++) {
+      if (y_no || ((x == 0 || x == new_w - 1 || (x % (block_size + 2)) == 0 || ((x + 1) % (block_size + 2)) == 0))) {
+        new_data[new_data_cursor++] = 0;
+        new_data[new_data_cursor++] = 0;
+        new_data[new_data_cursor++] = 0;
+        new_data[new_data_cursor++] = 0;
       } 
       else {
-        newData[newDataCursor++] = decodedImage[dataCursor++];
-        newData[newDataCursor++] = decodedImage[dataCursor++];
-        newData[newDataCursor++] = decodedImage[dataCursor++];
-        newData[newDataCursor++] = decodedImage[dataCursor++];
+        new_data[new_data_cursor++] = decoded_image[data_cursor++];
+        new_data[new_data_cursor++] = decoded_image[data_cursor++];
+        new_data[new_data_cursor++] = decoded_image[data_cursor++];
+        new_data[new_data_cursor++] = decoded_image[data_cursor++];
       }
     }
   }
-  for (int x = 1; x < newW - 1; x++) {
-    if (x == 1 || (x % (blockSize + 2)) == 1) {
-      for (int y = 0; y < newH; y++) { 
-        changeNew(newData, newW, x - 1, y, 0, x, y, 0);
-        changeNew(newData, newW, x - 1, y, 1, x, y, 1);
-        changeNew(newData, newW, x - 1, y, 2, x, y, 2);
-        changeNew(newData, newW, x - 1, y, 3, x, y, 3);
+  for (int x = 1; x < new_w - 1; x++) {
+    if (x == 1 || (x % (block_size + 2)) == 1) {
+      for (int y = 0; y < new_h; y++) { 
+        change_new(new_data, new_w, x - 1, y, 0, x, y, 0);
+        change_new(new_data, new_w, x - 1, y, 1, x, y, 1);
+        change_new(new_data, new_w, x - 1, y, 2, x, y, 2);
+        change_new(new_data, new_w, x - 1, y, 3, x, y, 3);
       }
     } 
-    else if (x == newW - 2 || (x % (blockSize + 2)) == blockSize) {
-      for (int y = 0; y < newH; y++) {  
-        changeNew(newData, newW, x + 1, y, 0, x, y, 0);
-        changeNew(newData, newW, x + 1, y, 1, x, y, 1);
-        changeNew(newData, newW, x + 1, y, 2, x, y, 2);
-        changeNew(newData, newW, x + 1, y, 3, x, y, 3);
+    else if (x == new_w - 2 || (x % (block_size + 2)) == block_size) {
+      for (int y = 0; y < new_h; y++) {  
+        change_new(new_data, new_w, x + 1, y, 0, x, y, 0);
+        change_new(new_data, new_w, x + 1, y, 1, x, y, 1);
+        change_new(new_data, new_w, x + 1, y, 2, x, y, 2);
+        change_new(new_data, new_w, x + 1, y, 3, x, y, 3);
       }
     }
   }
-  for (int y = 1; y < newH - 1; y++) {
-    if (y == 1 || (y % (blockSize + 2)) == 1) {
-      for (int x = 0; x < newW; x++) {
-        changeNew(newData, newW, x, y - 1, 0, x, y, 0);
-        changeNew(newData, newW, x, y - 1, 1, x, y, 1);
-        changeNew(newData, newW, x, y - 1, 2, x, y, 2);
-        changeNew(newData, newW, x, y - 1, 3, x, y, 3);
+  for (int y = 1; y < new_h - 1; y++) {
+    if (y == 1 || (y % (block_size + 2)) == 1) {
+      for (int x = 0; x < new_w; x++) {
+        change_new(new_data, new_w, x, y - 1, 0, x, y, 0);
+        change_new(new_data, new_w, x, y - 1, 1, x, y, 1);
+        change_new(new_data, new_w, x, y - 1, 2, x, y, 2);
+        change_new(new_data, new_w, x, y - 1, 3, x, y, 3);
       }
     } 
-    else if (y == newH - 2 || (y % (blockSize + 2)) == blockSize) {
-      for (int x = 0; x < newW; x++) {
-        changeNew(newData, newW, x, y + 1, 0, x, y, 0);
-        changeNew(newData, newW, x, y + 1, 1, x, y, 1);
-        changeNew(newData, newW, x, y + 1, 2, x, y, 2);
-        changeNew(newData, newW, x, y + 1, 3, x, y, 3);
+    else if (y == new_h - 2 || (y % (block_size + 2)) == block_size) {
+      for (int x = 0; x < new_w; x++) {
+        change_new(new_data, new_w, x, y + 1, 0, x, y, 0);
+        change_new(new_data, new_w, x, y + 1, 1, x, y, 1);
+        change_new(new_data, new_w, x, y + 1, 2, x, y, 2);
+        change_new(new_data, new_w, x, y + 1, 3, x, y, 3);
       }
     }
   }
-  createFromBuffer(t, (const char*)newData, newW, newH, pixelated, useMipMaps);
-  stbi_image_free((void *)decodedImage);
-  free(newData);
+  create_from_buffer(t, (const char*)new_data, new_w, new_h, pixelated, use_mip_maps);
+  stbi_image_free((void *)decoded_image);
+  free(new_data);
 }
 
-void loadFromFile(texture *t, const char *fileName, bool pixelated, bool useMipMaps) {
-  FILE *file = fopen(fileName, "rb");
+void load_from_file(texture *t, const char *file_name, bool pixelated, bool use_mip_maps) {
+  FILE *file = fopen(file_name, "rb");
   if (!file) {
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
-		strcat(c + strlen(c), fileName);
+		strcat(c + strlen(c), file_name);
     error_func(c, user_defined_data);
 		return;
   }
   fseek(file, 0, SEEK_END);
-  long fileSize = ftell(file);
+  long file_size = ftell(file);
   fseek(file, 0, SEEK_SET);
-  unsigned char *fileData = (unsigned char *)malloc(fileSize);
-  if (fileData == NULL) {
+  unsigned char *file_data = (unsigned char *)malloc(file_size);
+  if (file_data == NULL) {
     fclose(file);
     return;
   }
-  fread(fileData, 1, fileSize, file);
+  fread(file_data, 1, file_size, file);
   fclose(file);
-  createFromFileData(t, fileData, fileSize, pixelated, useMipMaps);
-  free(fileData);
+  create_from_file_data(t, file_data, file_size, pixelated, use_mip_maps);
+  free(file_data);
 }
 
-void loadFromFileWithPixelPadding(texture *t, const char *fileName, int blockSize, bool pixelated, bool useMipMaps) {
-  FILE *file = fopen(fileName, "rb");
+void load_from_file_with_pixel_padding(texture *t, const char *file_name, int block_size, bool pixelated, bool use_mip_maps) {
+  FILE *file = fopen(file_name, "rb");
   if (!file) {
     char c[300] = { 0 };
 		strcat(c, "error openning: ");
-		strcat(c + strlen(c), fileName);
+		strcat(c + strlen(c), file_name);
     error_func(c, user_defined_data);
 		return;
   }
   fseek(file, 0, SEEK_END);
-  long fileSize = ftell(file);
+  long file_size = ftell(file);
   fseek(file, 0, SEEK_SET);
-  unsigned char *fileData = (unsigned char *)malloc(fileSize);
-  if (fileData == NULL) {
+  unsigned char *file_data = (unsigned char *)malloc(file_size);
+  if (file_data == NULL) {
     fclose(file);
     return;
   }
-  fread(fileData, 1, fileSize, file);
+  fread(file_data, 1, file_size, file);
   fclose(file);
-  createFromFileDataWithPixelPadding(t, fileData, fileSize, blockSize, pixelated, useMipMaps);
-  free(fileData);
+  create_from_file_data_with_pixel_padding(t, file_data, file_size, block_size, pixelated, use_mip_maps);
+  free(file_data);
 }
 
-size_t getMemorySize(texture *t, int mipLevel, vec2 *outSize) {
+size_t get_memory_size(texture *t, int mip_level, vec2 *out_size) {
   vec2 stub = { 0 };
   glBindTexture(GL_TEXTURE_2D, t->id);
-  if (!outSize) {
-    outSize = &stub;
+  if (!out_size) {
+    out_size = &stub;
   }
-  glGetTexLevelParameterfv(GL_TEXTURE_2D, mipLevel, GL_TEXTURE_WIDTH, &outSize->x);
-  glGetTexLevelParameterfv(GL_TEXTURE_2D, mipLevel, GL_TEXTURE_HEIGHT, &outSize->y);
+  glGetTexLevelParameterfv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_WIDTH, &out_size->x);
+  glGetTexLevelParameterfv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_HEIGHT, &out_size->y);
   glBindTexture(GL_TEXTURE_2D, 0);
-  return outSize->x * outSize->y * 4;
+  return out_size->x * out_size->y * 4;
 }
 
-void readTextureData(texture *t, void *buffer, int mipLevel) {
+void read_texture_data(texture *t, void *buffer, int mip_level) {
   glBindTexture(GL_TEXTURE_2D, t->id);
-  glGetTexImage(GL_TEXTURE_2D, mipLevel, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+  glGetTexImage(GL_TEXTURE_2D, mip_level, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 }
 
-vector(unsigned char) readTextureDataToCharArray(texture *t, int mipLevel, vec2 *outSize) {
+vector(unsigned char) read_texture_data_to_char_array(texture *t, int mip_level, vec2 *out_size) {
   vec2 stub = { 0 };
   vector(unsigned char) data = NULL;
   glBindTexture(GL_TEXTURE_2D, t->id);
-  if (!outSize) {
-    outSize = &stub;
+  if (!out_size) {
+    out_size = &stub;
   }
-  glGetTexLevelParameterfv(GL_TEXTURE_2D, mipLevel, GL_TEXTURE_WIDTH, &outSize->x);
-  glGetTexLevelParameterfv(GL_TEXTURE_2D, mipLevel, GL_TEXTURE_HEIGHT, &outSize->y);
-  vector_resize(data, outSize->x * outSize->y * 4, ' ');
-  glGetTexImage(GL_TEXTURE_2D, mipLevel, GL_RGBA, GL_UNSIGNED_BYTE, data);
+  glGetTexLevelParameterfv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_WIDTH, &out_size->x);
+  glGetTexLevelParameterfv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_HEIGHT, &out_size->y);
+  vector_resize(data, out_size->x * out_size->y * 4, ' ');
+  glGetTexImage(GL_TEXTURE_2D, mip_level, GL_RGBA, GL_UNSIGNED_BYTE, data);
   glBindTexture(GL_TEXTURE_2D, 0);
   return data;
 }
 
-void bindTexture(texture *t, const unsigned int sample) {
+void bind_texture(texture *t, const unsigned int sample) {
   glActiveTexture(GL_TEXTURE0 + sample);
   glBindTexture(GL_TEXTURE_2D, t->id);
 }
 
-void unbindTexture(texture *t) {
+void unbind_texture(texture *t) {
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void cleanupTexture(texture *t) {
+void cleanup_texture(texture *t) {
   glDeleteTextures(1, &t->id);
   memset(t, 0, sizeof(texture));
 }

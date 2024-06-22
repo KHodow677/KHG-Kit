@@ -1,6 +1,6 @@
 typedef enum {
-  quadPositions,
-  quadColors,
-  texturePositions,
-  bufferSize
-} renderer2DBufferType;
+  quad_positions,
+  quad_colors,
+  texture_positions,
+  buffer_size
+} renderer_2d_buffer_type;

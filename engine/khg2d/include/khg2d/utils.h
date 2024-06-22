@@ -6,50 +6,46 @@
 #include "shader.h"
 #include "texture.h"
 
-#define KHG2D_USE_OPENGL_130 false
-
 #define KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED false
 #define KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS true
 
-#define KHG2D_OPNEGL_SHADER_VERSION "#version 330"
-#define KHG2D_OPNEGL_SHADER_PRECISION "precision highp float;"
+static vec4 color_red = { 1, 0, 0, 1 };
+static vec4 color_green = { 0, 1, 0, 1 };
+static vec4 color_blue = { 0, 0, 1, 1 };
+static vec4 color_black = { 0, 0, 0, 1 };
+static vec4 color_white = { 1, 1, 1, 1 };
+static vec4 color_yellow = { 1, 1, 0, 1 };
+static vec4 color_magenta = { 1, 0, 1, 1 };
+static vec4 color_turquoise = { 0, 1, 1, 1 };
+static vec4 color_orange = { 1, (float)0x7F / 255.0f, 0, 1 };
+static vec4 color_purple = { 101.0f / 255.0f, 29.0f / 255.0f, 173.0f / 255.0f, 1 };
+static vec4 color_gray = { (float)0x7F / 255.0f, (float)0x7F / 255.0f, (float)0x7F / 255.0f, 1 };
+static vec4 color_transparent = { 0, 0, 0, 0 };
 
-static vec4 colorRed = { 1, 0, 0, 1 };
-static vec4 colorGreen = { 0, 1, 0, 1 };
-static vec4 colorBlue = { 0, 0, 1, 1 };
-static vec4 colorBlack = { 0, 0, 0, 1 };
-static vec4 colorWhite = { 1, 1, 1, 1 };
-static vec4 colorYellow = { 1, 1, 0, 1 };
-static vec4 colorMagenta = { 1, 0, 1, 1 };
-static vec4 colorTurqoise = { 0, 1, 1, 1 };
-static vec4 colorOrange = { 1, (float)0x7F / 255.0f, 0, 1 };
-static vec4 colorPurple = { 101.0f / 255.0f, 29.0f / 255.0f, 173.0f / 255.0f, 1 };
-static vec4 colorGray = { (float)0x7F / 255.0f, (float)0x7F / 255.0f, (float)0x7F / 255.0f, 1 };
-static vec4 colorTransparent = { 0, 0, 0, 0 };
+extern bool has_initialized;
+extern shader default_shader;
+extern camera default_camera;
+extern texture white_1_px_square_texture;
 
-extern bool hasInitialized;
-extern shader defaultShader;
-extern camera defaultCamera;
-extern texture white1pxSquareTexture;
+static vec4 default_texture_coords = { 0, 1, 1, 0 };
 
-static vec4 defaultTextureCoords = { 0, 1, 1, 0 };
+extern char *default_vertex_shader;
+extern char *default_fragment_shader;
+extern char *default_vertex_post_process_shader;
 
-extern char *defaultVertexShader;
-extern char *defaultFragmentShader;
-extern char *defaultVertexPostProcessShader;
-
-float positionToScreenCoordsX(const float position, float w);
-float positionToScreenCoordsY(const float position, float h);
-vec2 convertPoint(const camera *c, const vec2 *p, float windowW, float windowH);
-GLuint loadShader(const char *source, GLenum shaderType);
+float position_to_screen_coords_x(const float position, float w);
+float position_to_screen_coords_y(const float position, float h);
+vec2 convert_point(const camera *c, const vec2 *p, float window_w, float window_h);
+GLuint load_shader(const char *source, GLenum shader_type);
 void init(void);
 void cleanup(void);
-vec2 rotateAroundPoint(vec2 vec, vec2 point, const float degrees);
-vec2 scaleAroundPoint(vec2 vec, vec2 point, float scale);
-camera createCamera(void);
-shader createShader(const char *vertex, const char *fragment);
-shader createShaderFromFile(const char *filePath);
-shader createShaderDefaultVertex(const char *fragment);
-shader createPostProcessShaderFromFile(const char *filePath);
-shader createPostProcessShader(const char *fragment);
-char *loadFileContents(char const *path);
+vec2 rotate_around_point(vec2 vec, vec2 point, const float degrees);
+vec2 scale_around_point(vec2 vec, vec2 point, float scale);
+camera create_camera(void);
+shader create_shader(const char *vertex, const char *fragment);
+shader create_shader_from_file(const char *file_path);
+shader create_shader_default_vertex(const char *fragment);
+shader create_post_process_shader_from_file(const char *file_path);
+shader create_post_process_shader(const char *fragment);
+void clean_texture_coordinates(int t_size_x, int t_size_y, int x, int y, int size_x, int size_y, int s1, int s2, int s3, int s4, vec4 *outer, vec4 *inner);
+char *load_file_contents(char const *path);

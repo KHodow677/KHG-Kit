@@ -7,7 +7,7 @@ typedef struct {
   texture texture;
 } framebuffer;
 
-void createFramebuffer(framebuffer *fb, unsigned int w, unsigned int h);
-void resizeFramebuffer(framebuffer *fb, unsigned int w, unsigned int h);
-void cleanupFramebuffer(framebuffer *fb);
-void clearFramebuffer(framebuffer *fb);
+void create_framebuffer(framebuffer *fb, unsigned int w, unsigned int h);
+void resize_framebuffer(framebuffer *fb, unsigned int w, unsigned int h);
+void cleanup_framebuffer(framebuffer *fb);
+void clear_framebuffer(framebuffer *fb);

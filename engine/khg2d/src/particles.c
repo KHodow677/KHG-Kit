@@ -4,9 +4,9 @@
 #include <math.h>
 #include <stdlib.h>
 
-shader defaultParticleShader = { 0 };
-char *defaultParticleVertexShader = "";
-char *defaultParticleFragmentShader = "";
+shader default_particle_shader = { 0 };
+char *default_particle_vertex_shader = "";
+char *default_particle_fragment_shader = "";
 
 void swap(float *a, float *b) {
   float temp = *a;
@@ -29,259 +29,258 @@ float interpolate(float a, float b, float perc) {
   return a * perc + b * (1 - perc);
 }
 
-void initKhg2dParticleSystem(void) {
-  defaultParticleVertexShader = loadFileContents("./res/shaders/defaultParticleVertexShader.vert");
-  defaultParticleFragmentShader = loadFileContents("./res/shaders/defaultParticleFragmentShader.frag");
-  defaultParticleShader = createShader(defaultParticleVertexShader, defaultParticleFragmentShader);
+void init_khg2d_particle_system(void) {
+  default_particle_vertex_shader = load_file_contents("./res/shaders/defaultParticleVertexShader.vert");
+  default_particle_fragment_shader = load_file_contents("./res/shaders/defaultParticleFragmentShader.frag");
+  default_particle_shader = create_shader(default_particle_vertex_shader, default_particle_fragment_shader);
 }
 
-void cleanupKhg2dParticleSystem(void){
-  glDeleteShader(defaultParticleShader.id);
+void cleanup_khg2d_particle_system(void){
+  glDeleteShader(default_particle_shader.id);
 }
 
-void initParticleSystem(particleSystem *ps, int size) {
-	cleanupParticleSystem(ps);
+void init_particle_system(particle_system *ps, int size) {
+	cleanup_particle_system(ps);
 	size += 4 - (size % 4);
 	ps->size = size;
-	int size32Aligned = size + (4 - (size % 4));
-  ps->posX = (float *)malloc(size32Aligned * sizeof(float));
-  ps->posY = (float *)malloc(size32Aligned * sizeof(float));
-  ps->directionX = (float *)malloc(size32Aligned * sizeof(float));
-  ps->directionY = (float *)malloc(size32Aligned * sizeof(float));
-  ps->rotation = (float *)malloc(size32Aligned * sizeof(float));
-  ps->sizeXY = (float *)malloc(size32Aligned * sizeof(float));
-  ps->dragX = (float *)malloc(size32Aligned * sizeof(float));
-  ps->dragY = (float *)malloc(size32Aligned * sizeof(float));
-  ps->duration = (float *)malloc(size32Aligned * sizeof(float));
-  ps->durationTotal = (float *)malloc(size32Aligned * sizeof(float));
+	int size_32_aligned = size + (4 - (size % 4));
+  ps->pos_x = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->pos_y = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->direction_x = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->direction_y = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->rotation = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->size_xy = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->drag_x = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->drag_y = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->duration = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->duration_total = (float *)malloc(size_32_aligned * sizeof(float));
   ps->color = (vec4 *)malloc(size * sizeof(vec4));
-  ps->rotationSpeed = (float *)malloc(size32Aligned * sizeof(float));
-  ps->rotationDrag = (float *)malloc(size32Aligned * sizeof(float));
-  ps->deathRattle = (particleSettings **)malloc(size32Aligned * sizeof(particleSettings *));
-  ps->thisParticleSettings = (particleSettings **)malloc(size32Aligned * sizeof(particleSettings *));
-  ps->emitParticle = (particleSettings **)malloc(size32Aligned * sizeof(particleSettings *));
-  ps->transitionType = (char *)malloc(size32Aligned * sizeof(char));
-  ps->textures = (texture **)malloc(size32Aligned * sizeof(texture *));
-  ps->emitTime = (float *)malloc(size32Aligned * sizeof(float));
+  ps->rotation_speed = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->rotation_drag = (float *)malloc(size_32_aligned * sizeof(float));
+  ps->death_rattle = (particle_settings **)malloc(size_32_aligned * sizeof(particle_settings *));
+  ps->this_particle_settings = (particle_settings **)malloc(size_32_aligned * sizeof(particle_settings *));
+  ps->emit_particle = (particle_settings **)malloc(size_32_aligned * sizeof(particle_settings *));
+  ps->transition_type = (char *)malloc(size_32_aligned * sizeof(char));
+  ps->textures = (texture **)malloc(size_32_aligned * sizeof(texture *));
+  ps->emit_time = (float *)malloc(size_32_aligned * sizeof(float));
 	for (int i = 0; i < size; i++) {
 	  ps->duration[i] = 0;
-		ps->sizeXY[i] = 0;
-		ps->deathRattle[i] = 0;
+		ps->size_xy[i] = 0;
+		ps->death_rattle[i] = 0;
 		ps->textures[i] = NULL;
-		ps->thisParticleSettings[i] = NULL;
-		ps->emitParticle[i] = NULL;
+		ps->this_particle_settings[i] = NULL;
+		ps->emit_particle[i] = NULL;
 	}
-	createFramebuffer(&ps->fb, 100, 100);
+	create_framebuffer(&ps->fb, 100, 100);
 }
 
-void cleanupParticleSystem(particleSystem *ps) {
-  free(ps->posX);
-  free(ps->posY);
-  free(ps->directionX);
-  free(ps->directionY);
+void cleanup_particle_system(particle_system *ps) {
+  free(ps->pos_x);
+  free(ps->pos_y);
+  free(ps->direction_x);
+  free(ps->direction_y);
   free(ps->rotation);
-  free(ps->sizeXY);
-  free(ps->dragX);
-  free(ps->dragY);
+  free(ps->size_xy);
+  free(ps->drag_x);
+  free(ps->drag_y);
   free(ps->duration);
-  free(ps->durationTotal);
+  free(ps->duration_total);
   free(ps->color);
-  free(ps->rotationSpeed);
-  free(ps->rotationDrag);
-  free(ps->emitTime);
-  free(ps->transitionType);
-  free(ps->deathRattle);
-  free(ps->thisParticleSettings);
-  free(ps->emitParticle);
+  free(ps->rotation_speed);
+  free(ps->rotation_drag);
+  free(ps->emit_time);
+  free(ps->transition_type);
+  free(ps->death_rattle);
+  free(ps->this_particle_settings);
+  free(ps->emit_particle);
   free(ps->textures);
-	ps->posX = 0;
-	ps->posY = 0;
-	ps->directionX = 0;
-	ps->directionY = 0;
+	ps->pos_x = 0;
+	ps->pos_y = 0;
+	ps->direction_x = 0;
+	ps->direction_y = 0;
 	ps->rotation = 0;
-	ps->sizeXY = 0;
-	ps->dragX = 0;
-	ps->dragY = 0;
+	ps->size_xy = 0;
+	ps->drag_x = 0;
+	ps->drag_y = 0;
 	ps->duration = 0;
-	ps->durationTotal = 0;
+	ps->duration_total = 0;
 	ps->color = 0;
-	ps->rotationSpeed = 0;
-	ps->rotationDrag = 0;
-	ps->emitTime = 0;
-	ps->transitionType = 0;
-	ps->deathRattle = 0;
-	ps->thisParticleSettings = 0;
-	ps->emitParticle = 0;
+	ps->rotation_speed = 0;
+	ps->rotation_drag = 0;
+	ps->emit_time = 0;
+	ps->transition_type = 0;
+	ps->death_rattle = 0;
+	ps->this_particle_settings = 0;
+	ps->emit_particle = 0;
 	ps->textures = 0;
 	ps->size = 0;
-  cleanupFramebuffer(&ps->fb);
+  cleanup_framebuffer(&ps->fb);
 }
 
-void emitParticleWave(particleSystem *ps, particleSettings *pSettings, vec2 pos) {
-  int recreatedParticlesThisFrame = 0;
+void emit_particle_wave(particle_system *ps, particle_settings *p_settings, vec2 pos) {
+  int recreated_particles_this_frame = 0;
   for (int i = 0; i < ps->size; i++) {
-    if (recreatedParticlesThisFrame < pSettings->onCreateCount && ps->sizeXY[i] == 0) {
-      ps->duration[i] = randParticleSystem(pSettings->particleLifeTime);
-      ps->durationTotal[i] = ps->duration[i];
-      ps->posX[i] = pos.x + randParticleSystem(pSettings->positionX);
-      ps->posY[i] = pos.y + randParticleSystem(pSettings->positionY);
-      ps->directionX[i] = randParticleSystem(pSettings->directionX);
-      ps->directionY[i] = randParticleSystem(pSettings->directionY);
-      ps->rotation[i] = randParticleSystem(pSettings->rotation);
-      ps->sizeXY[i] = randParticleSystem(pSettings->createAppearance.size);
-      ps->dragX[i] = randParticleSystem(pSettings->dragX);
-      ps->dragY[i] = randParticleSystem(pSettings->dragY);
-      ps->color[i].x = randParticleSystem((vec2){ pSettings->createAppearance.color1.x, pSettings->createAppearance.color2.x });
-      ps->color[i].y = randParticleSystem((vec2){ pSettings->createAppearance.color1.y, pSettings->createAppearance.color2.y });
-      ps->color[i].z = randParticleSystem((vec2){ pSettings->createAppearance.color1.z, pSettings->createAppearance.color2.z });
-      ps->color[i].w = randParticleSystem((vec2){ pSettings->createAppearance.color1.w, pSettings->createAppearance.color2.w });
-      ps->rotationSpeed[i] = randParticleSystem(pSettings->rotationSpeed);
-      ps->rotationDrag[i] = randParticleSystem(pSettings->rotationDrag);
-      ps->textures[i] = pSettings->texturePtr;
-      ps->deathRattle[i] = pSettings->deathRattle;
-      ps->transitionType[i] = pSettings->transitionType;
-      ps->thisParticleSettings[i] = pSettings;
-      ps->emitParticle[i] = pSettings->subEmitParticle;
-      ps->emitTime[i] = randParticleSystem(ps->thisParticleSettings[i]->subEmitParticleTime);
-      recreatedParticlesThisFrame++;
+    if (recreated_particles_this_frame < p_settings->on_create_count && ps->size_xy[i] == 0) {
+      ps->duration[i] = randParticleSystem(p_settings->particle_life_time);
+      ps->duration_total[i] = ps->duration[i];
+      ps->pos_x[i] = pos.x + randParticleSystem(p_settings->position_x);
+      ps->pos_y[i] = pos.y + randParticleSystem(p_settings->position_y);
+      ps->direction_x[i] = randParticleSystem(p_settings->direction_x);
+      ps->direction_y[i] = randParticleSystem(p_settings->direction_y);
+      ps->rotation[i] = randParticleSystem(p_settings->rotation);
+      ps->size_xy[i] = randParticleSystem(p_settings->create_appearance.size);
+      ps->drag_x[i] = randParticleSystem(p_settings->drag_x);
+      ps->drag_y[i] = randParticleSystem(p_settings->drag_y);
+      ps->color[i].x = randParticleSystem((vec2){ p_settings->create_appearance.color_1.x, p_settings->create_appearance.color_2.x });
+      ps->color[i].y = randParticleSystem((vec2){ p_settings->create_appearance.color_1.y, p_settings->create_appearance.color_2.y });
+      ps->color[i].z = randParticleSystem((vec2){ p_settings->create_appearance.color_1.z, p_settings->create_appearance.color_2.z });
+      ps->color[i].w = randParticleSystem((vec2){ p_settings->create_appearance.color_1.w, p_settings->create_appearance.color_2.w });
+      ps->rotation_speed[i] = randParticleSystem(p_settings->rotation_speed);
+      ps->rotation_drag[i] = randParticleSystem(p_settings->rotation_drag);
+      ps->textures[i] = p_settings->texture_ptr;
+      ps->death_rattle[i] = p_settings->death_rattle;
+      ps->transition_type[i] = p_settings->transition_type;
+      ps->this_particle_settings[i] = p_settings;
+      ps->emit_particle[i] = p_settings->sub_emit_particle;
+      ps->emit_time[i] = randParticleSystem(ps->this_particle_settings[i]->sub_emit_particle_time);
+      recreated_particles_this_frame++;
     }
   }
 }
 
-void applyMovement(particleSystem *ps, float deltaTime) {
-  int i;
-  for (i = 0; i < ps->size; i++) {
+void apply_movement(particle_system *ps, float delta_time) {
+  for (int i = 0; i < ps->size; i++) {
     if (ps->duration[i] > 0) {
-      ps->duration[i] -= deltaTime;
+      ps->duration[i] -= delta_time;
     }
-    if (ps->emitTime[i] > 0 && ps->emitParticle[i]) {
-      ps->emitTime[i] -= deltaTime;
+    if (ps->emit_time[i] > 0 && ps->emit_particle[i]) {
+      ps->emit_time[i] -= delta_time;
     }
     if (ps->duration[i] <= 0) {
-      if (ps->deathRattle[i] != NULL && ps->deathRattle[i]->onCreateCount) {
-        emitParticleWave(ps, ps->deathRattle[i], (vec2){ ps->posX[i], ps->posY[i] });
+      if (ps->death_rattle[i] != NULL && ps->death_rattle[i]->on_create_count) {
+        emit_particle_wave(ps, ps->death_rattle[i], (vec2){ ps->pos_x[i], ps->pos_y[i] });
       }
-      ps->deathRattle[i] = NULL;
+      ps->death_rattle[i] = NULL;
       ps->duration[i] = 0;
-      ps->sizeXY[i] = 0;
-      ps->emitParticle[i] = NULL;
+      ps->size_xy[i] = 0;
+      ps->emit_particle[i] = NULL;
     }
-    else if (ps->emitTime[i] <= 0 && ps->emitParticle[i]) {
-      ps->emitTime[i] = randParticleSystem(ps->thisParticleSettings[i]->subEmitParticleTime);
-      emitParticleWave(ps, ps->emitParticle[i], (vec2){ ps->posX[i], ps->posY[i] });
+    else if (ps->emit_time[i] <= 0 && ps->emit_particle[i]) {
+      ps->emit_time[i] = randParticleSystem(ps->this_particle_settings[i]->sub_emit_particle_time);
+      emit_particle_wave(ps, ps->emit_particle[i], (vec2){ ps->pos_x[i], ps->pos_y[i] });
     }
   }
-	for (i = 0; i < ps->size; i++) {
-		ps->posX[i] += deltaTime * ps->directionX[i];
+	for (int i = 0; i < ps->size; i++) {
+		ps->pos_x[i] += delta_time * ps->direction_x[i];
 	}
-	for (i = 0; i < ps->size; i++) {
-		ps->posY[i] += deltaTime * ps->directionY[i];
+	for (int i = 0; i < ps->size; i++) {
+		ps->pos_y[i] += delta_time * ps->direction_y[i];
 	}
-	for (i = 0; i < ps->size; i++) {
-		ps->rotation[i] += deltaTime * ps->rotationSpeed[i];
+	for (int i = 0; i < ps->size; i++) {
+		ps->rotation[i] += delta_time * ps->rotation_speed[i];
 	}
 }
 
-void draw(particleSystem *ps, renderer2d *r2d) {
-  unsigned int w = r2d->windowW;
-  unsigned int h = r2d->windowH;
-  camera cam = r2d->currentCamera;
-  if (ps->postProcessing) {
-    vec2 texSize;
+void draw(particle_system *ps, renderer_2d *r2d) {
+  unsigned int w = r2d->window_w;
+  unsigned int h = r2d->window_h;
+  camera cam = r2d->current_camera;
+  if (ps->post_processing) {
+    vec2 tex_size;
     flush(r2d, true);
-    texSize = getTextureSize(&ps->fb.texture);
-    if (texSize.x != (w / ps->pixelateFactor) || texSize.y != (w / ps->pixelateFactor)) {
-      resizeFramebuffer(&ps->fb, w / ps->pixelateFactor, h / ps->pixelateFactor);
+    tex_size = get_texture_size(&ps->fb.texture);
+    if (tex_size.x != (w / ps->pixelate_factor) || tex_size.y != (w / ps->pixelate_factor)) {
+      resize_framebuffer(&ps->fb, w / ps->pixelate_factor, h / ps->pixelate_factor);
     }
-    updateWindowMetrics(r2d, w / ps->pixelateFactor, h / ps->pixelateFactor);
+    update_window_metrics(r2d, w / ps->pixelate_factor, h / ps->pixelate_factor);
   }
   for (int i = 0; i < ps->size; i++) {
     vec4 pos, c, p;
-    if (ps->sizeXY[i] == 0) {
+    if (ps->size_xy[i] == 0) {
       continue;
     }
-    float lifePerc = ps->duration[i] / ps->durationTotal[i];
-    switch (ps->transitionType[i]) {
+    float life_perc = ps->duration[i] / ps->duration_total[i];
+    switch (ps->transition_type[i]) {
       case none:
-        lifePerc = 1;
+        life_perc = 1;
         break;
       case linear:
         break;
       case curve:
-        lifePerc *= lifePerc;
+        life_perc *= life_perc;
         break;
-      case abruptCurve:
-        lifePerc *= lifePerc * lifePerc;
+      case abrupt_curve:
+        life_perc *= life_perc * life_perc;
         break;
       case wave:
-        lifePerc = (cos(lifePerc * 5.0f * PI) * lifePerc + lifePerc) * 2.0f;
+        life_perc = (cos(life_perc * 5.0f * PI) * life_perc + life_perc) * 2.0f;
         break;
-      case wave2:
-        lifePerc = cos(lifePerc * 5.0f * PI) * sqrt(lifePerc) * 0.9f * 0.1f;
+      case wave_2:
+        life_perc = cos(life_perc * 5.0f * PI) * sqrt(life_perc) * 0.9f * 0.1f;
         break;
   		case delay:
-		    lifePerc = (cos(lifePerc * PI * 2) * sin(lifePerc * lifePerc)) / 2.f;
+		    life_perc = (cos(life_perc * PI * 2) * sin(life_perc * life_perc)) / 2.f;
         break;
-      case delay2:
-        lifePerc = atan(2 * lifePerc * lifePerc * lifePerc * PI) / 2.f;
+      case delay_2:
+        life_perc = atan(2 * life_perc * life_perc * life_perc * PI) / 2.f;
         break;
 		  default:
         break;
     }
-    if (ps->thisParticleSettings[i]) {
+    if (ps->this_particle_settings[i]) {
       pos = (vec4){ 
-        ps->posX[i], 
-        ps->posY[i], 
-        interpolate(ps->sizeXY[i], ps->thisParticleSettings[i]->createAppearance.size.x, lifePerc),
+        ps->pos_x[i], 
+        ps->pos_y[i], 
+        interpolate(ps->size_xy[i], ps->this_particle_settings[i]->create_appearance.size.x, life_perc),
         pos.z 
       };
       c = (vec4){
-        interpolate(ps->color[i].x, ps->thisParticleSettings[i]->createAppearance.color1.x, lifePerc),
-        interpolate(ps->color[i].y, ps->thisParticleSettings[i]->createAppearance.color1.y, lifePerc),
-        interpolate(ps->color[i].z, ps->thisParticleSettings[i]->createAppearance.color1.z, lifePerc),
-        interpolate(ps->color[i].w, ps->thisParticleSettings[i]->createAppearance.color1.w, lifePerc)
+        interpolate(ps->color[i].x, ps->this_particle_settings[i]->create_appearance.color_1.x, life_perc),
+        interpolate(ps->color[i].y, ps->this_particle_settings[i]->create_appearance.color_1.y, life_perc),
+        interpolate(ps->color[i].z, ps->this_particle_settings[i]->create_appearance.color_1.z, life_perc),
+        interpolate(ps->color[i].w, ps->this_particle_settings[i]->create_appearance.color_1.w, life_perc)
       };
     }
     else {
-      pos = (vec4){ ps->posX[i], ps->posY[i], ps->sizeXY[i], pos.z };
+      pos = (vec4){ ps->pos_x[i], ps->pos_y[i], ps->size_xy[i], pos.z };
       c = (vec4) { ps->color[i].x, ps->color[i].y, ps->color[i].z, ps->color[i].w };
     }
-    if (ps->postProcessing) {
-      r2d->currentCamera = cam;
-      p = vec4MultiplyNumOnVec4(1.0f / ps->pixelateFactor, &pos);
-      p.x -= r2d->currentCamera.position.x / ps->pixelateFactor;
-      p.y -= r2d->currentCamera.position.y / ps->pixelateFactor;
-      r2d->currentCamera.position = (vec2){ 0.0f, 0.0f };
+    if (ps->post_processing) {
+      r2d->current_camera = cam;
+      p = vec4_multiply_num_on_vec4(1.0f / ps->pixelate_factor, &pos);
+      p.x -= r2d->current_camera.position.x / ps->pixelate_factor;
+      p.y -= r2d->current_camera.position.y / ps->pixelate_factor;
+      r2d->current_camera.position = (vec2){ 0.0f, 0.0f };
     }
     else {
       p = pos;
     }
     if (ps->textures[i] != NULL) {
       vec2 origin = { 0.0f, 0.0f };
-      vec4 cData[4] = { c, c, c, c };
-      renderRectangleTexture(r2d, p, *ps->textures[i], cData, origin, ps->rotation[i], defaultTextureCoords);
+      vec4 c_data[4] = { c, c, c, c };
+      render_rectangle_texture(r2d, p, *ps->textures[i], c_data, origin, ps->rotation[i], default_texture_coords);
     }
     else {
       vec2 origin = { 0.0f, 0.0f };
-      vec4 cData[4] = { c, c, c, c };
-      renderRectangle(r2d, p, cData, origin, ps->rotation[i]);
+      vec4 c_data[4] = { c, c, c, c };
+      render_rectangle(r2d, p, c_data, origin, ps->rotation[i]);
     }
-    if (ps->postProcessing) {
+    if (ps->post_processing) {
       vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-      vec4 cData[4] = { color, color, color, color };
+      vec4 c_data[4] = { color, color, color, color };
       vec2 origin = { 0.0f, 0.0f };
-      clearFramebuffer(&ps->fb);
-      flushFbo(r2d, ps->fb, true);
-      updateWindowMetrics(r2d, w, h);
-      setDefault(&r2d->currentCamera);
-      shader s = r2d->currentShader;
+      clear_framebuffer(&ps->fb);
+      flush_fbo(r2d, ps->fb, true);
+      update_window_metrics(r2d, w, h);
+      set_default(&r2d->current_camera);
+      shader s = r2d->current_shader;
       vec4 transform = { 0.0f, 0.0f, w, h };
-      renderRectangleTexture(r2d, transform, ps->fb.texture, cData, origin, 0.0f, defaultTextureCoords);
-      setShader(r2d, defaultParticleShader);
+      render_rectangle_texture(r2d, transform, ps->fb.texture, c_data, origin, 0.0f, default_texture_coords);
+      set_shader(r2d, default_particle_shader);
       flush(r2d, true);
-      setShader(r2d, s);
+      set_shader(r2d, s);
     }
-    r2d->currentCamera = cam;
+    r2d->current_camera = cam;
   }
 }
 

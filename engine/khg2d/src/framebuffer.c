@@ -1,7 +1,7 @@
 #include "khg2d/framebuffer.h"
 #include <string.h>
 
-void createFramebuffer(framebuffer *fb, unsigned int w, unsigned int h) {
+void create_framebuffer(framebuffer *fb, unsigned int w, unsigned int h) {
   glGenFramebuffers(1, &fb->fbo);
   glBindFramebuffer(GL_FRAMEBUFFER, fb->fbo);
   glGenTextures(1, &fb->texture.id);
@@ -14,12 +14,12 @@ void createFramebuffer(framebuffer *fb, unsigned int w, unsigned int h) {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void resizeFramebuffer(framebuffer *fb, unsigned int w, unsigned int h) {
+void resize_framebuffer(framebuffer *fb, unsigned int w, unsigned int h) {
   glBindTexture(GL_TEXTURE_2D, fb->texture.id);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 }
 
-void cleanupFramebuffer(framebuffer *fb) {
+void cleanup_framebuffer(framebuffer *fb) {
   if (fb->fbo) {
     glDeleteFramebuffers(1, &fb->fbo);
     fb->fbo = 0;
@@ -30,7 +30,7 @@ void cleanupFramebuffer(framebuffer *fb) {
   }
 }
 
-void clearFramebuffer(framebuffer *fb) {
+void clear_framebuffer(framebuffer *fb) {
   glBindFramebuffer(GL_FRAMEBUFFER, fb->fbo);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

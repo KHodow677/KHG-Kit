@@ -1,5 +1,5 @@
 #include "khgenv/input.h"
-#include "khgenv/gameScripting.h"
+#include "khgenv/game_scripting.h"
 #include <string.h>
 
 key_button keyboard[BUTTONS_COUNT];
@@ -84,7 +84,7 @@ int is_right_mouse_held() {
 }
 
 controller_buttons get_controller_buttons() {
-  if (isFocused()) {
+  if (is_focused()) {
     return c_buttons;
   }
   controller_buttons c;

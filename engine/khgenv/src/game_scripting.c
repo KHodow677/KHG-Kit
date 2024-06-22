@@ -1,61 +1,61 @@
-#include "khgenv/gameScripting.h"
+#include "khgenv/game_scripting.h"
 #include "khgenv/input.h"
 #include "GLFW/glfw3.h"
 #include <stdio.h>
 
-bool currentFullScreen = 0;
-bool fullScreen = 0;
-int windowFocus = 1;
-int mouseMovedFlag = 0;
+bool current_full_screen = 0;
+bool full_screen = 0;
+int window_focus = 1;
+int mouse_moved_flag = 0;
 GLFWwindow *wind = 0;
 
-void setRelMousePosition(int x, int y) {
+void set_rel_mouse_position(int x, int y) {
   glfwSetCursorPos(wind, x, y);
 }
 
-bool isFullScreen() {
-  return fullScreen;
+bool is_full_screen() {
+  return full_screen;
 }
 
 void setFullscreen(bool f) {
-  fullScreen = f;
+  full_screen = f;
 }
 
-vec2 getWindowSize() {
+vec2 get_window_size() {
   int x = 0, y = 0;
   glfwGetWindowSize(wind, &x, &y);
   return (vec2){ x, y };
 }
 
-int getWindowSizeX() {
-  return getWindowSize().x;
+int get_window_size_x() {
+  return get_window_size().x;
 }
 
-int getWindowSizeY() {
-  return getWindowSize().y;
+int get_window_size_y() {
+  return get_window_size().y;
 }
 
-vec2 getFramebufferSize() {
+vec2 get_framebuffer_size() {
   int x = 0, y = 0;
   glfwGetFramebufferSize(wind, &x, &y);
   return (vec2){ x, y };
 }
 
-int getFrameBufferSizeX() {
-  return getFramebufferSize().x;
+int get_framebuffer_size_x() {
+  return get_framebuffer_size().x;
 }
 
-int getFrameBufferSizeY() {
-  return getFramebufferSize().y;
+int get_framebuffer_size_y() {
+  return get_framebuffer_size().y;
 }
 
-vec2 getRelMousePosition() {
+vec2 get_rel_mouse_position() {
   double x = 0, y = 0;
   glfwGetCursorPos(wind, &x, &y);
   return (vec2){ x, y };
 }
 
-void showMouse(bool show) {
+void show_mouse(bool show) {
   if(show) {
     glfwSetInputMode(wind, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
   }
@@ -64,15 +64,15 @@ void showMouse(bool show) {
   }
 }
 
-bool isFocused() {
-  return windowFocus;
+bool is_focused() {
+  return window_focus;
 }
 
-bool mouseMoved() {
-  return mouseMovedFlag;
+bool mouse_moved() {
+  return mouse_moved_flag;
 }
 
-bool writeEntireFile(const char *name, void *buffer, size_t size) {
+bool write_entire_file(const char *name, void *buffer, size_t size) {
   FILE *f = fopen(name, "wb");
   if (f == NULL) {
     return 0;
@@ -83,7 +83,7 @@ bool writeEntireFile(const char *name, void *buffer, size_t size) {
 }
 
 
-bool readEntireFile(const char *name, void *buffer, size_t size) {
+bool read_entire_file(const char *name, void *buffer, size_t size) {
   FILE *f = fopen(name, "rb");
   if (f == NULL) {
       return 0;
@@ -93,7 +93,7 @@ bool readEntireFile(const char *name, void *buffer, size_t size) {
   return read == size;
 }
 
-void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
   if ((action == GLFW_REPEAT || action == GLFW_PRESS) && key == GLFW_KEY_BACKSPACE) {
     add_to_typed_input(8);
 	}
@@ -146,7 +146,7 @@ void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods
   }
 }
 
-void mouseCallback(GLFWwindow *window, int key, int action, int mods) {
+void mouse_callback(GLFWwindow *window, int key, int action, int mods) {
   bool state = 0;
   if (action == GLFW_PRESS) {
     state = 1;
@@ -165,25 +165,25 @@ void mouseCallback(GLFWwindow *window, int key, int action, int mods) {
   }
 }
 
-void windowFocusCallback(GLFWwindow *window, int focused) {
+void window_focus_callback(GLFWwindow *window, int focused) {
   if (focused) {
-    windowFocus = 1;
+    window_focus = 1;
   }
   else {
-    windowFocus = 0;
+    window_focus = 0;
     reset_inputs_to_zero();
   }
 }
 
-void windowSizeCallback(GLFWwindow *window, int x, int y) {
+void window_size_callback(GLFWwindow *window, int x, int y) {
   reset_inputs_to_zero();
 }
 
-void cursorPositionCallback(GLFWwindow *window, double xpos, double ypos) {
-	mouseMovedFlag = 1;
+void cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
+	mouse_moved_flag = 1;
 }
 
-void characterCallback(GLFWwindow *window, unsigned int codepoint) {
+void character_callback(GLFWwindow *window, unsigned int codepoint) {
 	if (codepoint < 127) {
 		add_to_typed_input(codepoint);
 	}

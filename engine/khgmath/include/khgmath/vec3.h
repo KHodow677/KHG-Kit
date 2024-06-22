@@ -6,13 +6,13 @@ typedef struct vec3 {
   float z;
 } vec3;
 
-vec3 vec3CreateSameValue(float value);
-vec3 vec3CreateFromValues(float x, float y, float z);
-vec3 vec3Add(vec3 *vec3_a, vec3 *vec3_b);
-vec3 vec3Subtract(vec3 *vec3_a, vec3 *vec3_b);
-vec3 vec3Negate(vec3 *vec3_a);
-vec3 vec3MultiplyNumOnVec3(float num, vec3 *vec3_a);
-vec3 vec3Normalize(vec3 *vec3_a);
-vec3 vec3Cross(vec3 *vec3_a, vec3 *vec3_b);
-float vec3Dot(vec3 *vec3_a, vec3 *vec3_b);
+vec3 vec3_create_same_value(float value);
+vec3 vec3_create_from_values(float x, float y, float z);
+vec3 vec3_add(vec3 *vec3_a, vec3 *vec3_b);
+vec3 vec3_subtract(vec3 *vec3_a, vec3 *vec3_b);
+vec3 vec3_negate(vec3 *vec3_a);
+vec3 vec3_multiply_num_on_vec3(float num, vec3 *vec3_a);
+vec3 vec3_normalize(vec3 *vec3_a);
+vec3 vec3_cross(vec3 *vec3_a, vec3 *vec3_b);
+float vec3_dot(vec3 *vec3_a, vec3 *vec3_b);
 

@@ -7,5 +7,5 @@ typedef struct {
   int u_sampler;
 } shader;
 
-void bindShader(shader *s);
-void clearShader(shader *s);
+void bind_shader(shader *s);
+void clear_shader(shader *s);

@@ -4,10 +4,10 @@
 #include "khgutils/bool.h"
 
 typedef struct {
-  int xCount;
-	int yCount;
-} textureAtlas;
+  int x_count;
+	int y_count;
+} texture_atlas;
 
-vec4 computeTextureAtlas(int xCount, int yCount, int x, int y, bool flip);
-vec4 computeTextureAtlasWithPadding(int mapXsize, int mapYsize, int xCount, int yCount, int x, int y, bool flip);
-vec4 getTextureAtlas(textureAtlas *ta, int x, int y, bool flip);
+vec4 compute_texture_atlas(int x_count, int y_count, int x, int y, bool flip);
+vec4 compute_texture_atlas_with_padding(int map_x_size, int map_y_size, int x_count, int y_count, int x, int y, bool flip);
+vec4 get_texture_atlas(texture_atlas *ta, int x, int y, bool flip);

@@ -8,5 +8,5 @@ typedef struct {
   float zoom;
 } camera;
 
-void setDefault(camera *c);
+void set_default(camera *c);
 void follow(camera *c, vec2 pos, float speed, float min, float max, float w, float h);
