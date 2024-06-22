@@ -14,8 +14,8 @@ void on_log(ma_context *context, ma_device *device, ma_uint32 log_level, const c
 void on_send_audio_data_to_device(ma_device *device, void *frames_out, const void *frames_input, ma_uint32 frame_count) {
   (void)device;
   memset(frames_out, 0, frame_count * device->playback.channels * ma_get_bytes_per_sample(device->playback.format));
-  ma_mutex_lock(&AUDIO.system.lock);
-  for (audio_buffer *a_buffer = AUDIO.buffer.first; a_buffer != NULL; a_buffer = a_buffer->next) {
+  ma_mutex_lock(&audio.system.lock);
+  for (audio_buffer *a_buffer = audio.buffer.first; a_buffer != NULL; a_buffer = a_buffer->next) {
     if (!a_buffer->playing || a_buffer->paused) {
       continue;
     }
@@ -33,7 +33,7 @@ void on_send_audio_data_to_device(ma_device *device, void *frames_out, const voi
         }
         ma_uint32 frames_just_read = read_audio_buffer_frames_in_mixing_format(a_buffer, temp_buffer, frames_to_read_right_now);
         if (frames_just_read > 0) {
-          float *frames_out = (float *)frames_out + (frames_read * AUDIO.system.device.playback.channels);
+          float *frames_out = (float *)frames_out + (frames_read * audio.system.device.playback.channels);
           float *frames_in  = temp_buffer;
           mix_audio_frames(frames_out, frames_in, frames_just_read, a_buffer->volume);
           frames_to_read -= frames_just_read;
@@ -57,5 +57,5 @@ void on_send_audio_data_to_device(ma_device *device, void *frames_out, const voi
       if (frames_to_read > 0) break;
     }
   }
-  ma_mutex_unlock(&AUDIO.system.lock);
+  ma_mutex_unlock(&audio.system.lock);
 }

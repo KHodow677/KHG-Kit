@@ -1,5 +1,5 @@
 #include "khgaudio/audio_buffer.h"
-#include "khgaudio/loading.h"
+#include "khgaudio/sound_loading.h"
 #include "khgaudio/utils.h"
 #include "dr_libs/dr_flac.h"
 #include "dr_libs/dr_mp3.h"

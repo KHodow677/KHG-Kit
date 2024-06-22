@@ -106,4 +106,4 @@ typedef enum {
   AUDIO_BUFFER_USAGE_STREAM
 } audio_buffer_usage;
 
-extern audio_data AUDIO;
+extern audio_data audio;

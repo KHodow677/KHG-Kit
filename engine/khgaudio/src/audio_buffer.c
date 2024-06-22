@@ -100,35 +100,35 @@ void set_audio_buffer_pitch(audio_buffer *b, float pitch) {
 }
 
 void track_audio_buffer(audio_buffer *b) {
-  ma_mutex_lock(&AUDIO.system.lock);
-  if (AUDIO.buffer.first == NULL) {
-    AUDIO.buffer.first = b;
+  ma_mutex_lock(&audio.system.lock);
+  if (audio.buffer.first == NULL) {
+    audio.buffer.first = b;
   }
   else {
-    AUDIO.buffer.last->next = b;
-    b->prev = AUDIO.buffer.last;
+    audio.buffer.last->next = b;
+    b->prev = audio.buffer.last;
   }
-  AUDIO.buffer.last = b;
-  ma_mutex_unlock(&AUDIO.system.lock);
+  audio.buffer.last = b;
+  ma_mutex_unlock(&audio.system.lock);
 }
 
 void untrack_audio_buffer(audio_buffer *b) {
-  ma_mutex_lock(&AUDIO.system.lock);
+  ma_mutex_lock(&audio.system.lock);
   if (b->prev == NULL) {
-    AUDIO.buffer.first = b->next;
+    audio.buffer.first = b->next;
   }
   else {
     b->prev->next = b->next;
   }
   if (b->next == NULL) {
-    AUDIO.buffer.last = b->prev;
+    audio.buffer.last = b->prev;
   }
   else {
     b->next->prev = b->prev;
   }
   b->prev = NULL;
   b->next = NULL;
-  ma_mutex_unlock(&AUDIO.system.lock);
+  ma_mutex_unlock(&audio.system.lock);
 }
 
 ma_uint32 read_audio_buffer_frames_in_internal_format(audio_buffer *b, void *frames_out, ma_uint32 frame_count) {
@@ -219,12 +219,12 @@ ma_uint32 read_audio_buffer_frames_in_mixing_format(audio_buffer *b, float *fram
 
 void init_audio_buffer_pool(void) {
   for (int i = 0; i < MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    AUDIO.multi_channel.pool[i] = load_audio_buffer(AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, 0, AUDIO_BUFFER_USAGE_STATIC);
+    audio.multi_channel.pool[i] = load_audio_buffer(AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, 0, AUDIO_BUFFER_USAGE_STATIC);
   }
 }
 
 void close_audio_buffer_pool(void) {
   for (int i = 0; i < MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    free(AUDIO.multi_channel.pool[i]);
+    free(audio.multi_channel.pool[i]);
   }
 }

@@ -9,7 +9,7 @@
 void init_audio_device(void) {
   ma_context_config ctx_config = ma_context_config_init();
   ctx_config.logCallback = on_log;
-  ma_result result = ma_context_init(NULL, 0, &ctx_config, &AUDIO.system.context);
+  ma_result result = ma_context_init(NULL, 0, &ctx_config, &audio.system.context);
   if (result != MA_SUCCESS) {
     error_func("Failed to initialize context", user_defined_data);
     return;
@@ -24,28 +24,28 @@ void init_audio_device(void) {
   config.sampleRate = AUDIO_DEVICE_SAMPLE_RATE;
   config.dataCallback = on_send_audio_data_to_device;
   config.pUserData = NULL;
-  result = ma_device_init(&AUDIO.system.context, &config, &AUDIO.system.device);
+  result = ma_device_init(&audio.system.context, &config, &audio.system.device);
   if (result != MA_SUCCESS) {
     error_func("Failed to initialize playback device", user_defined_data);
-    ma_context_uninit(&AUDIO.system.context);
+    ma_context_uninit(&audio.system.context);
     return;
   }
-  result = ma_device_start(&AUDIO.system.device);
+  result = ma_device_start(&audio.system.device);
   if (result != MA_SUCCESS) {
     error_func("Failed to start playback device", user_defined_data);
-    ma_device_uninit(&AUDIO.system.device);
-    ma_context_uninit(&AUDIO.system.context);
+    ma_device_uninit(&audio.system.device);
+    ma_context_uninit(&audio.system.context);
     return;
   }
   init_audio_buffer_pool();
-  AUDIO.system.is_ready = true;
+  audio.system.is_ready = true;
 }
 
 void close_audio_device(void) {
-  if (AUDIO.system.is_ready) {
-    ma_mutex_uninit(&AUDIO.system.lock);
-    ma_device_uninit(&AUDIO.system.device);
-    ma_context_uninit(&AUDIO.system.context);
+  if (audio.system.is_ready) {
+    ma_mutex_uninit(&audio.system.lock);
+    ma_device_uninit(&audio.system.device);
+    ma_context_uninit(&audio.system.context);
     close_audio_buffer_pool();
   }
   else {
@@ -54,9 +54,9 @@ void close_audio_device(void) {
 }
 
 bool is_audio_device_ready(void) {
-  return AUDIO.system.is_ready;
+  return audio.system.is_ready;
 }
 
 void set_master_volume(float volume) {
-  ma_device_set_master_volume(&AUDIO.system.device, volume);
+  ma_device_set_master_volume(&audio.system.device, volume);
 }

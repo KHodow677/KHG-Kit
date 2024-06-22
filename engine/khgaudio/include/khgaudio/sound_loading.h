@@ -3,6 +3,7 @@
 bool is_file_extension(const char *file_name, const char *ext);
 unsigned char *load_file_data(const char *fileName, unsigned int *bytesRead);
 void save_file_data(const char *file_name, void *data, unsigned int bytes_to_write);
+void save_file_text(const char *file_name, char *text);
 wave load_WAV(const char *fileName);
 wave load_OGG(const char *file_name);
 wave load_FLAC(const char *file_name);
