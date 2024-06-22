@@ -238,13 +238,7 @@ typedef struct jar_mod_tracker_buffer_state_
     tracker_state * track_state_buf;
 }jar_mod_tracker_buffer_state;
 
-#ifndef __cplusplus
-// Boolean type
-    #if !defined(_STDBOOL_H)
-        typedef enum { false, true } bool;
-        #define _STDBOOL_H
-    #endif
-#endif
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {

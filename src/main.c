@@ -1,10 +1,10 @@
-#include "khg2d/renderer2d.h"
-#include "khg2d/utils.h"
-#include "khgenv/error_report.h"
-#include "khgenv/game_scripting.h"
-#include "khgenv/input.h"
-#include "khgenv/other.h"
-#include "khgmath/vec2.h"
+#include "khg_2d/renderer_2d.h"
+#include "khg_2d/utils.h"
+#include "khg_env/error_report.h"
+#include "khg_env/game_scripting.h"
+#include "khg_env/input.h"
+#include "khg_env/other.h"
+#include "khg_math/vec2.h"
 #include "GLFW/glfw3.h"
 #include <time.h>
 

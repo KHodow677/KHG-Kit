@@ -23,11 +23,12 @@ add_subdirectory(engine/external/miniaudio)
 add_subdirectory(engine/external/stb_image)
 add_subdirectory(engine/external/stb_truetype)
 add_subdirectory(engine/external/stb_vorbis)
-add_subdirectory(engine/khgaudio)
-add_subdirectory(engine/khgmath)
-add_subdirectory(engine/khgutils)
-add_subdirectory(engine/khg2d)
-add_subdirectory(engine/khgenv)
+add_subdirectory(engine/khg_audio)
+add_subdirectory(engine/khg_math)
+add_subdirectory(engine/khg_utils)
+add_subdirectory(engine/khg_2d)
+add_subdirectory(engine/khg_ui)
+add_subdirectory(engine/khg_env)
 
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 
@@ -60,4 +61,4 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/gameLayer/")
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/platform/")
 
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype khgaudio khgmath khgutils khg2d khgenv)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype khg_audio khg_math khg_utils khg_2d khg_ui khg_env)

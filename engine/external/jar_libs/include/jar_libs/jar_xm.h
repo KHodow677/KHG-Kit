@@ -71,13 +71,7 @@
 struct jar_xm_context_s;
 typedef struct jar_xm_context_s jar_xm_context_t;
 
-#ifndef __cplusplus
-// Boolean type
-    #if !defined(_STDBOOL_H)
-        typedef enum { false, true } bool;
-        #define _STDBOOL_H
-    #endif
-#endif
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" { 
