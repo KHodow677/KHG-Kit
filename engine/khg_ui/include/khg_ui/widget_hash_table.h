@@ -19,4 +19,4 @@ widget_hash_entry *create_widget_entry(char **key, widget value);
 void insert_widget(widget_hash_table *table, char **key, widget value);
 widget *retrieve_widget(widget_hash_table *table, char **key);
 void delete_widget(widget_hash_table *table, char **key);
-
+void iterate_widget_table(widget_hash_table *table, void (*func)(char **key, widget value));

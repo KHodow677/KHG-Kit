@@ -70,4 +70,12 @@ void delete_widget(widget_hash_table *table, char **key) {
   free(entry);
 }
 
-
+void iterate_widget_table(widget_hash_table *table, void (*func)(char **key, widget value)) {
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    widget_hash_entry *entry = table->entries[i];
+    while (entry != NULL) {
+      func(entry->key, entry->value);
+      entry = entry->next;
+    }
+  }
+}

@@ -11,7 +11,7 @@ menu_stack_hash_table *create_menu_stack_table() {
   return table;
 }
 
-menu_stack_hash_entry *create_menu_stack_entry(char **key, vector(char **) value) {
+menu_stack_hash_entry *create_menu_stack_entry(int key, vector(char **) value) {
   menu_stack_hash_entry *entry = (menu_stack_hash_entry *)malloc(sizeof(menu_stack_hash_entry));
   entry->key = key;
   entry->value = value;
@@ -19,8 +19,8 @@ menu_stack_hash_entry *create_menu_stack_entry(char **key, vector(char **) value
   return entry;
 }
 
-void insert_menu_stack(menu_stack_hash_table *table, char **key, vector(char **) value) {
-  unsigned long index = hash_function(key);
+void insert_menu_stack(menu_stack_hash_table *table, int key, vector(char **) value) {
+  unsigned long index = hash_function_int(&key);
   menu_stack_hash_entry *entry = table->entries[index];
   if (entry == NULL) {
     table->entries[index] = create_menu_stack_entry(key, value);
@@ -28,7 +28,7 @@ void insert_menu_stack(menu_stack_hash_table *table, char **key, vector(char **)
   }
   menu_stack_hash_entry *prev = NULL;
   while (entry != NULL) {
-    if (compare_keys(entry->key, key)) {
+    if (compare_keys_int(&entry->key, &key)) {
       entry->value = value;
       return;
     }
@@ -38,23 +38,35 @@ void insert_menu_stack(menu_stack_hash_table *table, char **key, vector(char **)
   prev->next = create_menu_stack_entry(key, value);
 }
 
-vector(char **) *retrieve_menu_stack(menu_stack_hash_table *table, char **key) {
-  unsigned long index = hash_function(key);
+vector(char **) retrieve_menu_stack(menu_stack_hash_table *table, int key) {
+  unsigned long index = hash_function_int(&key);
   menu_stack_hash_entry *entry = table->entries[index];
   while (entry != NULL) {
-    if (compare_keys(entry->key, key)) {
-      return &entry->value;
+    if (compare_keys_int(&entry->key, &key)) {
+      return entry->value;
     }
     entry = entry->next;
   }
   return NULL;
 }
 
-void delete_menu_stack(menu_stack_hash_table *table, char **key) {
-  unsigned long index = hash_function(key);
+menu_stack_hash_entry *retrieve_menu_stack_entry(menu_stack_hash_table *table, int key) {
+  unsigned long index = hash_function_int(&key);
+  menu_stack_hash_entry *entry = table->entries[index];
+  while (entry != NULL) {
+    if (compare_keys_int(&entry->key, &key)) {
+      return entry;
+    }
+    entry = entry->next;
+  }
+  return NULL;
+}
+
+void delete_menu_stack(menu_stack_hash_table *table, int key) {
+  unsigned long index = hash_function_int(&key);
   menu_stack_hash_entry *entry = table->entries[index];
   menu_stack_hash_entry *prev = NULL;
-  while (entry != NULL && !compare_keys(entry->key, key)) {
+  while (entry != NULL && !compare_keys_int(&entry->key, &key)) {
     prev = entry;
     entry = entry->next;
   }
@@ -70,4 +82,14 @@ void delete_menu_stack(menu_stack_hash_table *table, char **key) {
   free(entry);
 }
 
-
+menu_stack_hash_entry *get_end_menu_stack_entry(menu_stack_hash_table *table) {
+  menu_stack_hash_entry *last_entry = NULL;
+  for (int i = 0; i < TABLE_SIZE; i++) {
+    menu_stack_hash_entry *entry = table->entries[i];
+    while (entry != NULL) {
+      last_entry = entry;
+      entry = entry->next;
+    }
+  }
+  return last_entry;
+}
