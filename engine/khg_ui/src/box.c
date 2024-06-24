@@ -103,6 +103,7 @@ box *y_dimension_pixels(box *b, int dim) {
 box *x_dimension_percentage(box *b, float p) {
   b->dimensions_state = 0;
   b->dimensions.z = p * width;
+  return b;
 }
 
 box *y_dimension_percentage(box *b, float p) {

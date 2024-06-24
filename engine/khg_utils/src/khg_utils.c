@@ -16,4 +16,3 @@ error_func_type set_error_func_callback(error_func_type newFunc) {
   error_func = newFunc;
   return a;
 }
-

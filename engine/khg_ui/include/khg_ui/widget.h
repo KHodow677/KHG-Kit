@@ -24,8 +24,8 @@ typedef enum {
 } widget_type;
 
 typedef struct {
-  char **text_2;
-  char **text_3;
+  char *text_2;
+  char *text_3;
   int type;
   bool just_created;
   bool enabled;
@@ -52,9 +52,4 @@ typedef struct {
   persistent_data pd;
   size_t text_size;
 } widget;
-
-typedef struct {
-  char **first;
-  widget second;
-} widget_pair;
 

@@ -3,9 +3,10 @@
 #include "khg_2d/font.h"
 #include "khg_2d/renderer_2d.h"
 #include "khg_2d/texture.h"
+#include "khg_math/vec4.h"
 #include "khg_ui/data.h"
-#include "khg_ui/menu_stack_hash_table.h"
-#include "khg_ui/widget_hash_table.h"
+#include "khg_ui/widget.h"
+#include "khg_utils/hashtable.h"
 
 extern int x_padd;
 extern int y_padd;
@@ -16,15 +17,42 @@ extern float timer;
 extern int current_id;
 extern bool id_was_set;
 
+extern float press_down_size;
+extern float shadow_size;
+extern float outline_size;
+extern float text_fit;
+
+extern float non_minimize_text_size;
+extern float minimize_ratio;
+
+extern float button_fit;
+
+extern float in_size_y;
+extern float in_size_x;
+extern float main_in_size_x;
+extern float main_in_size_y;
+extern float padding_columns;
+
+typedef struct {
+  char *first;
+  widget second;
+} widget_pair;
+
+typedef struct {
+  vec4 first;
+  float second;
+} column_pair;
+
 typedef struct {
   aligned_settings a_settings;
-  vector(widget_pair) widget_vector;
-  widget_hash_table widgets;
-  menu_stack_hash_table all_menu_stacks;
-  char **id_str;
-  char **current_text_box;
+  vector(widget_pair) widgets_vector;
+  hash_table widgets;
+  hash_table all_menu_stacks;
+  char *id_str;
+  char *current_text_box;
 } renderer_ui;
 
-void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, const char **typed_input, float delta_time);
+vec4 compute_pos(renderer_ui *rui, renderer_2d *r2d, int elements_height, float *advance_size_y);
+void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, const char *typed_input, float delta_time);
 bool renderer_ui_button(renderer_ui *rui, char **name, const vec4 colors, const texture tex);
 
