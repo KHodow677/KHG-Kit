@@ -1,7 +1,11 @@
 #include "khg_ui/renderer_ui.h"
 #include "khg_2d/camera.h"
+#include "khg_2d/renderer_2d.h"
+#include "khg_2d/utils.h"
+#include "khg_math/vec2.h"
 #include "khg_ui/data.h"
 #include "khg_ui/widget.h"
+#include "khg_utils/error_func.h"
 #include "khg_utils/hashtable.h"
 #include "khg_utils/vector.h"
 #include <string.h>
@@ -52,6 +56,56 @@ vec4 compute_pos(renderer_ui *rui, renderer_2d *r2d, int elements_height, float 
   };
   *advance_size_y = (padd_size_y * 2 + size_y) * main_in_size_y;
   return computed_pos;
+}
+
+float determine_text_size(renderer_2d *r2d, char *str, font *f, vec4 transform, bool minimize) {
+  char *new_str = strdup(str);
+  float size = text_fit;
+  vec2 s = get_text_size(r2d, new_str, *f, size, 4, 3);
+  float ratio_x = transform.z / s.x;
+  float ratio_y = transform.w / s.y;
+  if (!(ratio_x > 1 && ratio_y > 1)) {
+    if (ratio_x < ratio_y) {
+      size *= ratio_x;
+    }
+    else {
+      size *= ratio_y;
+    }
+  }
+  if (minimize) {
+    size *= minimize_ratio;
+  }
+  else {
+    size *= non_minimize_text_size;
+  }
+  return size;
+}
+
+vec4 determine_text_pos(renderer_2d *r2d, char *str, font *f, vec4 transform, bool no_texture, bool minimize) {
+  char *new_str = strdup(str);
+  float new_s = determine_text_size(r2d, new_str, f, transform, true);
+  vec2 s = get_text_size(r2d, new_str, *f, new_s, 4, 3);
+  vec2 pos = { transform.x, transform.y };
+  pos.x += transform.z / 2.f;
+  pos.y += transform.w / 2.f;
+  s = vec2_multiply_num_on_vec2(1.0f / 2.0f, &s);
+  pos.x -= s.x;
+  pos.y -= s.y;
+
+  return (vec4){ pos.x, pos.y, s.x, s.y };
+}
+
+void draw_button(renderer_ui *rui, renderer_2d *r2d, font *f, vector(column_pair) columns, int current_column, char *first, widget *w) {
+  vec4 transform_drawn = columns[current_column].first;
+  vec4 aabb_transform = columns[current_column].first;
+  bool hovered = 0;
+  bool clicked = 0;
+  vec4 text_color = color_white;
+  if (w->color.w <= 0.01f) {
+    vec4 p = determine_text_pos(r2d, first, f, transform_drawn, true, true);
+    aabb_transform = p;
+  }
+  //TODO//
 }
 
 void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, const char *typed_input, float delta_time) {
@@ -172,5 +226,27 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   input.mouse_held = mouse_held;
   input.mouse_released = mouse_released;
   input.escape_released = escape_released;
-
+  for (int i = 0; i < vector_size(widgets_copy); i++) {
+    widget_pair pair = widgets_copy[i];
+    widget *find = ht_lookup(&rui->widgets, pair.first);
+    if (find == NULL) {
+      pair.second.used_this_frame = true;
+      pair.second.just_created = true;
+      ht_insert(&rui->widgets, &pair.first, &pair.second);
+    }
+    else {
+      if (find->type != pair.second.type) {
+        error_func("Reupdated a widget with a different type", user_defined_data);
+      }
+      if (find->used_this_frame == true) {
+        error_func("Used a widget name more than once", user_defined_data);
+      }
+      persistent_data pd = find->pd;
+      *find = pair.second;
+      find->just_created = false;
+      find->pd = pd;
+      find->used_this_frame = true;
+    }
+    widget *w = ht_lookup(&rui->widgets, pair.first);
+  }
 }
