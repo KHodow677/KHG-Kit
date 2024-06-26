@@ -52,7 +52,5 @@ typedef struct {
   char *current_text_box;
 } renderer_ui;
 
-vec4 compute_pos(renderer_ui *rui, renderer_2d *r2d, int elements_height, float *advance_size_y);
 void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, const char *typed_input, float delta_time);
-bool renderer_ui_button(renderer_ui *rui, char **name, const vec4 colors, const texture tex);
 
