@@ -12,6 +12,7 @@
 #include "khg_utils/hashtable.h"
 #include "khg_utils/vector.h"
 #include <math.h>
+#include <stdlib.h>
 #include <string.h>
 
 int x_padd = 0;
@@ -206,6 +207,10 @@ vec4 compute_pos(renderer_ui *rui, renderer_2d *r2d, int elements_height, float 
   return computed_pos;
 }
 
+vec4 compute_texture_new_position(vec4 transform, texture t) {
+  //TODO//
+}
+
 float determine_text_size(renderer_2d *r2d, char *str, font *f, vec4 transform, bool minimize) {
   char *new_str = strdup(str);
   float size = text_fit;
@@ -239,7 +244,6 @@ vec4 determine_text_pos(renderer_2d *r2d, char *str, font *f, vec4 transform, bo
   s = vec2_multiply_num_on_vec2(1.0f / 2.0f, &s);
   pos.x -= s.x;
   pos.y -= s.y;
-
   return (vec4){ pos.x, pos.y, s.x, s.y };
 }
 
@@ -291,6 +295,12 @@ void render_fancy_box(renderer_2d *r2d, vec4 transform, vec4 color, texture t, b
   }
 }
 
+void render_texture_ui (renderer_2d *r2d, vec4 transform, texture t, vec4 c, vec4 texture_coordinates) {
+  vec4 new_pos = compute_texture_new_position(transform, t);
+  vec4 colors[4] = { c, c, c, c };
+  render_rectangle_texture(r2d, new_pos, t, colors, (vec2) { 0.0f, 0.0f }, 0.0f, default_texture_coords);
+}
+
 void render_text_ui(renderer_2d *r2d, char *str, font *f, vec4 transform, vec4 color, bool no_texture, bool minimize, bool align_left) {
   char *new_str = get_string(str);
   float new_s = determine_text_size(r2d, new_str, f, transform, minimize);
@@ -306,7 +316,7 @@ void render_text_ui(renderer_2d *r2d, char *str, font *f, vec4 transform, vec4 c
   }
 }
 
-void draw_button(renderer_ui *rui, renderer_2d *r2d, font *f, vector(column_pair) columns, int current_column, char *first, widget *w, input_data input) {
+bool draw_button(renderer_ui *rui, renderer_2d *r2d, font *f, vector(column_pair) columns, int current_column, char *first, widget *w, input_data input) {
   vec4 transform_drawn = columns[current_column].first;
   vec4 aabb_transform = columns[current_column].first;
   bool hovered = 0;
@@ -336,15 +346,20 @@ void draw_button(renderer_ui *rui, renderer_2d *r2d, font *f, vector(column_pair
     w->return_from_update = false;
   }
   render_fancy_box(r2d, transform_drawn, w->color, w->texture, hovered, clicked);
-  if (w->color.a <= 0.01f || w->texture.id == 0) {
+  if (w->color.w <= 0.01f || w->texture.id == 0) {
     render_text_ui(r2d, first, f, transform_drawn, text_color, true, !hovered, false);
   }
   else {
     render_text_ui(r2d, first, f, transform_drawn, text_color, false, !hovered, false);
   }
+  return w->return_from_update;
 }
 
-void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, const char *typed_input, float delta_time) {
+bool is_in_button(const vec2 *p, const vec4 *box) {
+	return(p->x >= box->x && p->x <= box->x + box->z && p->y >= box->y && p->y <= box->y + box->w);
+}
+
+void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, char *typed_input, float delta_time) {
   if (!id_was_set) {
     return;
   }
@@ -484,6 +499,119 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
       find->used_this_frame = true;
     }
     widget *w = ht_lookup(&rui->widgets, pair.first);
-    //TODO//
+    switch (w->type) {
+      case widget_button: {
+        draw_button(rui, r2d, f, columns, current_column, pair.first, w, input);
+        break;
+      }
+      case widget_toggle: {
+        vec4 transform_drawn;
+        transform_drawn = columns[current_column].first;
+        bool hovered = 0;
+        bool clicked = 0;
+        vec4 toggle_transform = transform_drawn;
+        vec4 text_transform = transform_drawn;
+        text_transform.z -= toggle_transform.w;
+        toggle_transform.z = toggle_transform.w;
+        vec4 p = determine_text_pos(r2d, pair.first, f, text_transform, true, true);
+        toggle_transform.x = p.x + p.z;
+        vec4 aabb_box = p;
+        aabb_box.z += toggle_transform.z;
+        aabb_box.y = min(toggle_transform.y, text_transform.y);
+        aabb_box.w = max(toggle_transform.w, text_transform.w);
+        if (aabb(aabb_box, input.mouse_pos)) {
+          hovered = true;
+          if (input.mouse_held) {
+            clicked = true;
+            text_transform.y += transform_drawn.w * press_down_size;
+            toggle_transform.y += transform_drawn.w *press_down_size;
+          }
+        }
+        if (input.mouse_released && aabb(aabb_box, input.mouse_pos)) {
+          *(bool *)(w->pointer) = !(*(bool *)(w->pointer));
+        }
+        w->return_from_update = *(bool *)(w->pointer);
+        render_fancy_box(r2d, toggle_transform, w->color_2, w->texture, hovered, clicked);
+        char * text = get_string(pair.first);
+        if (w->return_from_update) {
+          strcat(text, ": ON");
+        }
+        else {
+          strcat(text, ": OFF");
+        }
+        if (hovered) {
+          render_text_ui(r2d, text, f, text_transform, step_color_down(color_white, 0.8f), true, false, false); 
+        }
+        else {
+          render_text_ui(r2d, text, f, text_transform, color_white, true, true, false); 
+        }
+        break;
+      }
+      case widget_text: {
+        render_text_ui(r2d, pair.first, f, columns[current_column].first, pair.second.color, true, true, false);
+        break;
+      }
+      case widget_text_input: {
+        char *text = (char *)pair.second.pointer;
+        size_t n = pair.second.text_size;
+        int pos = strlen(text);
+        bool enabled = pair.second.enabled;
+        vec4 transform = columns[current_column].first;
+        bool hovered = 0;
+        bool clicked = 0;
+        if (pair.second.only_one_enabled && pair.second.enabled) {
+          if (is_in_button(&mouse_pos, &transform)) {
+            hovered = true;
+            if (mouse_click || mouse_held) {
+              rui->current_text_box = pair.first;
+              clicked = true;
+            }
+          }
+          if (pair.first != rui->current_text_box) {
+            enabled = 0;
+          }
+        }
+        if (enabled) {
+          for (char *i = typed_input; *i != '\0'; i++) {
+            if (*i == 8) {
+              if (pos > 0) {
+                pos--;
+                text[pos] = 0;
+              }
+            }
+            else if (*i == '\n') {
+              
+            }
+            else {
+              if (pos < n -1) {
+                text[pos] = *i;
+                pos++;
+                text[pos] = 0;
+              }
+            }
+          }
+        }
+        if (pair.second.texture.id != 0) {
+          render_fancy_box(r2d, transform, pair.second.color, w->texture, hovered, clicked);
+        }
+        char *text_copy = strdup(text);
+        if (pair.second.display_text) {
+          text_copy = strcat(get_string(pair.first), text_copy);
+        }
+        if (enabled) {
+          if ((int)timer % 2) {
+            strcat(text_copy, "|");
+          }
+        }
+        render_text_ui(r2d, text_copy, f, transform, color_white, true, !hovered, false);
+        break;
+      }
+      case widget_begin_menu: {
+        if (draw_button(rui, r2d, f, columns, current_column, pair.first, w, input)) {
+          vector_push_back(current_menu_stack, pair.first);
+        }
+        break;
+      }
+    }
   }
 }
