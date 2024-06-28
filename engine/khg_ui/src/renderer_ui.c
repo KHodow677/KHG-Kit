@@ -1,6 +1,7 @@
 #include "khg_ui/renderer_ui.h"
 #include "khg_2d/camera.h"
 #include "khg_2d/renderer_2d.h"
+#include "khg_2d/texture.h"
 #include "khg_2d/utils.h"
 #include "khg_math/minmax.h"
 #include "khg_math/vec2.h"
@@ -208,7 +209,36 @@ vec4 compute_pos(renderer_ui *rui, renderer_2d *r2d, int elements_height, float 
 }
 
 vec4 compute_texture_new_position(vec4 transform, texture t) {
-  //TODO//
+  vec2 t_size = get_texture_size(&t);
+  if (t_size.y == 0) {
+    vec4 vec = { 0 };
+    return vec;
+  }
+  if (transform.w == 0) {
+    vec4 vec = { 0 };
+    return vec;
+  }
+  float aspect_ratio = t_size.x / (float)t_size.y;
+  float box_aspect_ratio = transform.z / transform.w;
+  if (aspect_ratio < box_aspect_ratio) {
+    vec2 new_size = { 0 };
+    new_size.y = transform.w;
+    new_size.x = aspect_ratio * new_size.y;
+    vec4 new_pos = { transform.x, transform.y, new_size.x, new_size.y };
+    new_pos.x += (transform.z - new_size.x) / 2.0f;
+    return new_pos;
+  }
+  else if (aspect_ratio > box_aspect_ratio) {
+    vec2 new_size = { 0 };
+    new_size.x = transform.z;
+    new_size.y = new_size.x / aspect_ratio;
+    vec4 new_pos = { transform.x, transform.y, new_size.x, new_size.y };
+    new_pos.y += (transform.w - new_size.y) / 2.0f;
+    return new_pos;
+  }
+  else {
+    return transform;
+  }
 }
 
 float determine_text_size(renderer_2d *r2d, char *str, font *f, vec4 transform, bool minimize) {
@@ -612,6 +642,36 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         break;
       }
+      case widget_texture: {
+        render_texture_ui(r2d, columns[current_column].first, pair.second.texture, pair.second.color, pair.second.texture_coords);
+        break;
+      }
+      case widget_button_with_texture: {
+        bool hovered = false;
+        bool clicked = false;
+        vec4 transform_drawn = compute_texture_new_position(columns[current_column].first, pair.second.texture);
+        vec4 aabb_pos = transform_drawn;
+        vec4 color = pair.second.color;
+        if (aabb(aabb_pos, input.mouse_pos)) {
+          hovered = true;
+          if (input.mouse_held) {
+            clicked = true;
+            transform_drawn.y += transform_drawn.w * press_down_size;
+          }
+        }
+        if (hovered) {
+          color = step_color_down(color, 0.8f);
+        }
+        if (input.mouse_released && aabb(aabb_pos, input.mouse_pos)) {
+          w->return_from_update = true;
+        }
+        else {
+          w->return_from_update = false;
+        }
+        render_texture_ui(r2d, transform_drawn, pair.second.texture, color, pair.second.texture_coords);
+        break;
+      }
+      //TODO//
     }
   }
 }

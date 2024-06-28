@@ -38,6 +38,7 @@ typedef struct {
   vec4 color_3;
   texture texture;
   texture texture_over;
+  vec4 texture_coords;
   bool return_from_update;
   bool custom_widget_used;
   void *pointer;
