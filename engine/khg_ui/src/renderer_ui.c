@@ -405,7 +405,7 @@ void render_slider_int(renderer_2d *r2d, vec4 transform, int *value, int min, in
   }
   vec4 bar_transform = { transform.x + bar_indent, transform.y + (transform.w - bar_size) / 2.0f, transform.z - bar_indent * 2.0f, bar_size };
   vec4 bullet_transform = { bar_transform.x, bar_transform.y + (bar_size - bullet_size) / 2.0f, bullet_size / 2.0f, bullet_size };
-  bullet_transform.x += max(min((*value - min) / (max - min), 1.0f), 0.0f) * (bar_transform.z - bullet_transform.z);
+  bullet_transform.x += max(min((*value - min) / (float)(max - min), 1.0f), 0.0f) * (bar_transform.z - bullet_transform.z);
   render_fancy_box(r2d, bar_transform, bar_c, bar_t, 0, 0);
   bool hovered = false;
   bool clicked = false;
@@ -768,8 +768,8 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           break;
         }
         vec4 computed_pos = columns[current_column].first;
-        vec4 text_transform = { computed_pos.x, computed_pos.y, computed_pos.z / 2, computed_pos.w };
-        vec4 slider_transform = { computed_pos.x + computed_pos.z / 2, computed_pos.y, computed_pos.z / 2, computed_pos.w };
+        vec4 text_transform = { computed_pos.x, computed_pos.y, computed_pos.z / 2.0f, computed_pos.w };
+        vec4 slider_transform = { computed_pos.x + computed_pos.z / 2.0f, computed_pos.y, computed_pos.z / 2.0f, computed_pos.w };
         if (LOOK_SLIDER) {
           text_transform = computed_pos;
           slider_transform = computed_pos;
@@ -832,7 +832,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         vec4 computed_pos = columns[current_column].first;
         vec4 text_transform = { computed_pos.x, computed_pos.y, computed_pos.z / 2.0f, computed_pos.w };
-        vec4 slider_transform = { computed_pos.x, computed_pos.z / 2.0f, computed_pos.y, computed_pos.z / 2.0f, computed_pos.w };
+        vec4 slider_transform = { computed_pos.x + computed_pos.z / 2.0f, computed_pos.y, computed_pos.z / 2.0f, computed_pos.w };
         if (LOOK_SLIDER) {
           text_transform = computed_pos;
           slider_transform = computed_pos;

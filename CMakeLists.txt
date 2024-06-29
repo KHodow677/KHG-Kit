@@ -15,6 +15,7 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
+add_subdirectory(engine/external/unity)
 add_subdirectory(engine/external/glfw)
 add_subdirectory(engine/external/glad)
 add_subdirectory(engine/external/dr_libs)
@@ -61,4 +62,4 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/gameLayer/")
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/platform/")
 
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glfw glad stb_image stb_truetype khg_audio khg_math khg_utils khg_2d khg_ui khg_env)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity glfw glad stb_image stb_truetype khg_audio khg_math khg_utils khg_2d khg_ui khg_env)
