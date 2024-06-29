@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 static bool LOOK_SLIDER = 1;
 
@@ -860,8 +861,145 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         pair.second.clicked = aabb(pair.second.return_transform, mouse_pos) && mouse_held;
         break;
       }
-
-      //TODO//
+      case widget_options_toggle: {
+        vec4 transform_drawn = columns[current_column].first;
+        vec4 aabb_transform = columns[current_column].first;
+        bool hovered = 0;
+        bool clicked = 0;
+        vec4 text_color = pair.second.color;
+        size_t *index = (size_t *)pair.second.pointer;
+        size_t stub = 0;
+        if (!index) {
+          index = &stub;
+          error_func("NULL passed as an index for widget_toggle_options", user_defined_data);
+        }
+        if (w->color.w <= 0.01f) {
+          vec4 p = determine_text_pos(r2d, pair.first, f, transform_drawn, true, true);
+          aabb_transform = p;
+        }
+        int max_size = 1;
+        int text_2_size = sizeof(pair.second.text_2);
+        text_2_size /= sizeof(char *);
+        for (int i = 0; i < text_2_size; i++) {
+          char c = pair.second.text_2[i];
+          if (c == '|') {
+            max_size++;
+          }
+        }
+        if (text_2_size == 0) {
+          max_size = 0;
+        }
+        if (*index > max_size - 1) {
+          *index = 0;
+        }
+        if (pair.second.pointer2) {
+          text_color = ((vec4 *)pair.second.pointer2)[*index];
+        }
+        if (aabb(aabb_transform, input.mouse_pos)) {
+          hovered = true;
+          if (input.mouse_held) {
+            clicked = true;
+            transform_drawn.y += transform_drawn.w * press_down_size;
+          }
+        }
+        if (hovered && w->color.w < 0.01f) {
+          text_color = step_color_down(text_color, 0.8f);
+        }
+        if (input.mouse_released && aabb(text_color, input.mouse_pos)) {
+          w->return_from_update = true;
+          (*index)++;
+        }
+        else {
+          w->return_from_update = false;
+        }
+        render_fancy_box(r2d, transform_drawn, w->color, w->texture, hovered, clicked);
+        char *final_text;
+        if (pair.second.display_text) {
+          final_text = pair.first;
+        }
+        int current_increment = 0;
+        for (int i = 0; i < text_2_size; i++) {
+          if (current_increment == *index) {
+            char c = pair.second.text_2[i];
+            if (c == '|') {
+              break;
+            }
+            final_text += c;
+          }
+          char c = pair.second.text_2[i];
+          if (c == '|') {
+            current_increment++;
+          }
+        }
+        if ((w->color.w <= 0.01f || pair.second.texture.id == 0)) {
+          render_text_ui(r2d, final_text, f, transform_drawn, text_color, true, !hovered, false);
+        }
+        else {
+          render_text_ui(r2d, final_text, f, transform_drawn, text_color, false, !hovered, false);
+        }
+        int text_3_size = sizeof(pair.second.text_2);
+        text_3_size /= sizeof(char *);
+        if (pair.second.text_3 != 0 && hovered) {
+          vec4 transform = transform_drawn;
+          transform.x += transform.z * 0.1f;
+          transform.y += transform.w * 1.1f;
+          int lines = 1;
+          for (int i = 0; i < text_3_size; i++) {
+            char c = pair.second.text_3[i];
+            if (c == '\n' || c == '\v') {
+              lines++;
+            }
+          }
+          transform.w *= lines;
+          render_fancy_box(r2d, transform, step_color_down(w->color_2, 0.8f), w->texture, 0, 0);
+          transform.x += transform.z * 0.1f;
+          transform.y += transform.w * 0.1f;
+          transform.z *= 0.9f;
+          transform.w *= 0.9f;
+          transform.w /= lines;
+          int ind = 0;
+          char *copy = "";
+          for (int l = 1; l <=lines;) {
+            if (pair.second.text_3[ind] == '\n' || pair.second.text_3[ind] == '\v') {
+              render_text_ui(r2d, copy, f, transform, pair.second.color, 0, true, true);
+              l++;
+              copy = "";
+              transform.y += transform.w;
+            }
+            else {
+              copy += pair.second.text_3[ind];
+            }
+            ind++;
+            if (ind >= text_3_size) {
+              break;
+            }
+          }
+          render_text_ui(r2d, copy, f, transform, pair.second.color, 0, true, true);
+        }
+        break;
+      }
+    }
+    w->just_created = false;
+    w->last_frame_data = input;
+    columns[current_column].first.y += columns[current_column].second;
+  }
+  hash_table widgets2;
+  ht_reserve(&widgets2, rui->widgets.size);
+  for (int i = 0; i < rui->widgets.size; i++) {
+    widget *k = (widget *)rui->widgets.nodes[i]->key;
+    widget *w = (widget *)rui->widgets.nodes[i]->value;
+    if (w->used_this_frame) {
+      w->used_this_frame = false;
+      ht_insert(&widgets2, k, w);
     }
   }
+  rui->widgets = widgets2;
+  r2d->current_camera = c;
+  vector_clear(rui->widgets_vector);
+  int id_str_size = sizeof(rui->id_str);
+  id_str_size /= sizeof(char *);
+  if (id_str_size != 0) {
+    error_func("More pushes than pops", user_defined_data);
+  }
+  rui->id_str = "";
 }
