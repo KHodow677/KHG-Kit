@@ -1003,3 +1003,22 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   }
   rui->id_str = "";
 }
+
+bool button_ui(renderer_ui *rui, char *name, const vec4 color, const texture t) {
+  strcat(name, rui->id_str);
+  widget w = { 0 };
+  w.type = widget_button;
+  w.color = color;
+  w.texture = t;
+  w.used_this_frame = true;
+  w.just_created = true;
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  if (find != NULL) {
+    return find->second.return_from_update;
+  }
+  else {
+    return false;
+  }
+}

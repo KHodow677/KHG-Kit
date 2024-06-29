@@ -53,4 +53,4 @@ typedef struct {
 } renderer_ui;
 
 void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, char *typed_input, float delta_time);
-
+bool button_ui(renderer_ui *rui, char *name, const vec4 color, const texture t);
