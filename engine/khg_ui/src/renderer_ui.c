@@ -3,6 +3,7 @@
 #include "khg_2d/renderer_2d.h"
 #include "khg_2d/texture.h"
 #include "khg_2d/utils.h"
+#include "khg_math/math.h"
 #include "khg_math/minmax.h"
 #include "khg_math/vec2.h"
 #include "khg_math/vec3.h"
@@ -13,8 +14,11 @@
 #include "khg_utils/hashtable.h"
 #include "khg_utils/vector.h"
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static bool LOOK_SLIDER = 1;
 
 int x_padd = 0;
 int y_padd = 0;
@@ -346,6 +350,94 @@ void render_text_ui(renderer_2d *r2d, char *str, font *f, vec4 transform, vec4 c
   }
 }
 
+void render_slider_float(renderer_2d *r2d, vec4 transform, float *value, float min, float max, bool *slider_being_dragged, texture bar_t, vec4 bar_c, texture ball_t, vec4 ball_c, input_data *input) {
+  float bar_size = 7.0f;
+  float bar_indent = 16.0f;
+  float bullet_size = 14.0f;
+  if (LOOK_SLIDER) {
+    bar_size = transform.w;
+    bar_indent = 0;
+    bullet_size = transform.w;
+  }
+  vec4 bar_transform = { transform.x + bar_indent, transform.y + (transform.w - bar_size) / 2.0f, transform.z - bar_indent * 2.0f, bar_size };
+  vec4 bullet_transform = { bar_transform.x, bar_transform.y + (bar_size - bullet_size) / 2.0f, bullet_size / 2.0f, bullet_size };
+  bullet_transform.x += max(min((*value - min) / (max - min), 1.0f), 0.0f) * (bar_transform.z - bullet_transform.z);
+  render_fancy_box(r2d, bar_transform, bar_c, bar_t, 0, 0);
+  bool hovered = false;
+  bool clicked = false;
+  if (slider_being_dragged && input->mouse_held) {
+    hovered = true;
+    clicked = true; 
+  }
+  else {
+    if (aabb(bar_transform, input->mouse_pos)) {
+      hovered = true;
+      if (input->mouse_click) {
+        clicked = true;
+      }
+    }
+  }
+  if (clicked) {
+    *slider_being_dragged = true;
+    float ball_size_half = bullet_transform.z / 2.0f;
+    int begin = bar_transform.x + ball_size_half;
+    int end = bar_transform.x + bar_transform.z - ball_size_half;
+    int mouse_x = input->mouse_pos.x;
+    float mouse_val = (mouse_x - (float)begin) / (end - (float)begin);
+    mouse_val = clampf(mouse_val, 0.0f, 1.0f);
+    mouse_val += min;
+    *value = mouse_val;
+  }
+  else {
+    *slider_being_dragged = false;
+  }
+  render_fancy_box(r2d, bullet_transform, ball_c, ball_t, hovered, clicked);
+}
+
+void render_slider_int(renderer_2d *r2d, vec4 transform, int *value, int min, int max, bool *slider_being_dragged, texture bar_t, vec4 bar_c, texture ball_t, vec4 ball_c, input_data *input) {
+  float bar_size = 7.0f;
+  float bar_indent = 16.0f;
+  float bullet_size = 14.0f;
+  if (LOOK_SLIDER) {
+    bar_size = transform.w;
+    bar_indent = 0;
+    bullet_size = transform.w;
+  }
+  vec4 bar_transform = { transform.x + bar_indent, transform.y + (transform.w - bar_size) / 2.0f, transform.z - bar_indent * 2.0f, bar_size };
+  vec4 bullet_transform = { bar_transform.x, bar_transform.y + (bar_size - bullet_size) / 2.0f, bullet_size / 2.0f, bullet_size };
+  bullet_transform.x += max(min((*value - min) / (max - min), 1.0f), 0.0f) * (bar_transform.z - bullet_transform.z);
+  render_fancy_box(r2d, bar_transform, bar_c, bar_t, 0, 0);
+  bool hovered = false;
+  bool clicked = false;
+  if (slider_being_dragged && input->mouse_held) {
+    hovered = true;
+    clicked = true; 
+  }
+  else {
+    if (aabb(bar_transform, input->mouse_pos)) {
+      hovered = true;
+      if (input->mouse_click) {
+        clicked = true;
+      }
+    }
+  }
+  if (clicked) {
+    *slider_being_dragged = true;
+    float ball_size_half = bullet_transform.z / 2.0f;
+    int begin = bar_transform.x + ball_size_half;
+    int end = bar_transform.x + bar_transform.z - ball_size_half;
+    int mouse_x = input->mouse_pos.x;
+    float mouse_val = (mouse_x - (float)begin) / (end - (float)begin);
+    mouse_val = clampf(mouse_val, 0.0f, 1.0f);
+    mouse_val += min;
+    *value = mouse_val;
+  }
+  else {
+    *slider_being_dragged = false;
+  }
+  render_fancy_box(r2d, bullet_transform, ball_c, ball_t, hovered, clicked);
+}
+
 bool draw_button(renderer_ui *rui, renderer_2d *r2d, font *f, vector(column_pair) columns, int current_column, char *first, widget *w, input_data input) {
   vec4 transform_drawn = columns[current_column].first;
   vec4 aabb_transform = columns[current_column].first;
@@ -671,6 +763,104 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         render_texture_ui(r2d, transform_drawn, pair.second.texture, color, pair.second.texture_coords);
         break;
       }
+      case widget_slider_float_w: {
+        if (pair.second.max <= pair.second.min) {
+          break;
+        }
+        vec4 computed_pos = columns[current_column].first;
+        vec4 text_transform = { computed_pos.x, computed_pos.y, computed_pos.z / 2, computed_pos.w };
+        vec4 slider_transform = { computed_pos.x + computed_pos.z / 2, computed_pos.y, computed_pos.z / 2, computed_pos.w };
+        if (LOOK_SLIDER) {
+          text_transform = computed_pos;
+          slider_transform = computed_pos;
+        }
+        float *value = (float *)pair.second.pointer;
+        if (!value) {
+          break;
+        }
+        *value = min(*value, pair.second.max);
+        *value = max(*value, pair.second.min);
+        char *text = pair.first;
+        char buffer[50];
+        snprintf(buffer, sizeof(buffer), "%0.2f", *value);
+        text = get_string(text);
+        strcat(text, ": ");
+        strcat(text, buffer);
+        render_slider_float(r2d, slider_transform, value, pair.second.min, pair.second.max, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color, pair.second.texture_over, pair.second.color_2, &input);
+        render_text_ui(r2d, text, f, text_transform, pair.second.color_3, true, true, false);
+        break;
+      }
+      case widget_color_picker_w: {
+        vec4 computed_pos = columns[current_column].first;
+        vec4 text_transform = { computed_pos.x, computed_pos.y, computed_pos.z / 4, computed_pos.w };
+        vec4 transform_1 = { computed_pos.x + (computed_pos.z / 4.0f) * 1.0f, computed_pos.y, computed_pos.z / 4.0f, computed_pos.w };
+        vec4 transform_2 = { computed_pos.x + (computed_pos.z / 4.0f) * 2.0f, computed_pos.y, computed_pos.z / 4.0f, computed_pos.w };
+        vec4 transform_3 = { computed_pos.x + (computed_pos.z / 4.0f) * 3.0f, computed_pos.y, computed_pos.z / 4.0f, computed_pos.w };
+        float *value;
+        value = (float *)pair.second.pointer;
+        if (!value) { 
+          break;
+        }
+        vec4 color = { value[0], value[1], value[2], 1 };
+        if (pair.second.color.w) {
+          render_fancy_box(r2d, text_transform, color, pair.second.texture, false, false);
+          render_text_ui(r2d, pair.first, f, text_transform, pair.second.color, true, true, false);
+        }
+        else {
+          render_text_ui(r2d, pair.first, f, text_transform, color, true, true, false);
+        }
+        if (pair.second.color_2.w) {
+          render_slider_float(r2d, transform_1, value + 0, 0, 1, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color_2, pair.second.texture_over, (vec4){ 1.0f, 0.0f, 0.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_2, value + 1, 0, 1, &pair.second.pd.slider_being_dragged_2, pair.second.texture, pair.second.color_2, pair.second.texture_over, (vec4){ 0.0f, 1.0f, 0.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_3, value + 2, 0, 1, &pair.second.pd.slider_being_dragged_3, pair.second.texture, pair.second.color_2, pair.second.texture_over, (vec4){ 0.0f, 0.0f, 1.0f, 1.0f }, &input);
+        }
+        else {
+          render_slider_float(r2d, transform_1, value + 0, 0, 1, &pair.second.pd.slider_being_dragged, pair.second.texture, (vec4){ 1.0f, 0.0f, 0.0f, 1.0f }, pair.second.texture_over, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_2, value + 1, 0, 1, &pair.second.pd.slider_being_dragged_2, pair.second.texture, (vec4){ 0.0f, 1.0f, 0.0f, 1.0f }, pair.second.texture_over, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_3, value + 2, 0, 1, &pair.second.pd.slider_being_dragged_3, pair.second.texture, (vec4){ 0.0f, 0.0f, 1.0f, 1.0f }, pair.second.texture_over, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, &input);
+        }
+        break;
+      }
+      case widget_new_column_w: {
+        current_column++;
+        columns[current_column].first.y -= columns[current_column].second;
+        break;
+      }
+      case widget_slider_int_w: {
+        if (pair.second.max_int <= pair.second.min_int) {
+          break;
+        }
+        vec4 computed_pos = columns[current_column].first;
+        vec4 text_transform = { computed_pos.x, computed_pos.y, computed_pos.z / 2.0f, computed_pos.w };
+        vec4 slider_transform = { computed_pos.x, computed_pos.z / 2.0f, computed_pos.y, computed_pos.z / 2.0f, computed_pos.w };
+        if (LOOK_SLIDER) {
+          text_transform = computed_pos;
+          slider_transform = computed_pos;
+        }
+        int *value = (int *)pair.second.pointer;
+        if (!value) {
+          break;
+        }
+        *value = min(*value, pair.second.max_int);
+        *value = max(*value, pair.second.min_int);
+        char *text = pair.first;
+        char buffer[50];
+        snprintf(buffer, sizeof(buffer), "%i", *value);
+        text = get_string(text);
+        strcat(text, ": ");
+        strcat(text, buffer);
+        render_slider_int(r2d, slider_transform, value, pair.second.min_int, pair.second.max_int, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color, pair.second.texture_over, pair.second.color_2, &input);
+        render_text_ui(r2d, text, f, text_transform, pair.second.color_3, true, true, false);
+        break;
+      }
+      case widget_custom: {
+        pair.second.return_transform = columns[current_column].first;
+        pair.second.custom_widget_used = true;
+        pair.second.hovered = aabb(pair.second.return_transform, mouse_pos);
+        pair.second.clicked = aabb(pair.second.return_transform, mouse_pos) && mouse_held;
+        break;
+      }
+
       //TODO//
     }
   }

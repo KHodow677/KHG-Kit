@@ -4,4 +4,5 @@
 
 float radians(float degrees);
 float degrees(float radians);
-
+int clamp(int value, int min, int max);
+float clampf(float value, float min, float max);
