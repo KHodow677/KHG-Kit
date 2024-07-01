@@ -1022,3 +1022,120 @@ bool button_ui(renderer_ui *rui, char *name, const vec4 color, const texture t) 
     return false;
   }
 }
+
+void texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec4 texture_coods) {
+  widget w = { 0 };
+  w.type = widget_texture;
+  w.texture = t;
+  w.color = color;
+  w.texture_coords = texture_coods;
+  w.used_this_frame = true;
+  w.just_created = true;
+  char *name = "##$texture";
+  char buffer[50];
+  snprintf(buffer, sizeof(buffer), "%i", id);
+  strcat(name, buffer);
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+}
+
+bool button_with_texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec4 texture_coords) {
+  widget w = { 0 };
+  w.type = widget_button_with_texture;
+  w.texture = t;
+  w.color = color;
+  w.texture_coords = texture_coords;
+  w.used_this_frame = true;
+  w.just_created = true;
+  char *name = "##$textureWithId:";
+  char buffer[50];
+  snprintf(buffer, sizeof(buffer), "%i", id);
+  strcat(name, buffer);
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  if (find != NULL) {
+    return find->second.return_from_update;
+  }
+  else {
+    return false;
+  }
+}
+
+bool toggle_ui(renderer_ui *rui, char *name, const vec4 color, bool *toggle, const texture t, const texture over_texture) {
+  strcat(name, rui->id_str);
+  widget w = { 0 };
+  w.type = widget_toggle;
+  w.color = color;
+  w.texture = t;
+  w.texture_over = over_texture;
+  w.used_this_frame = true;
+  w.just_created = true;
+  w.pointer = toggle;
+  widget_pair wp = { name, w }; 
+  vector_push_back(rui->widgets_vector, wp);
+  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  if (find != NULL) {
+    return find->second.return_from_update;
+  }
+  else {
+    return false;
+  }
+}
+
+bool toggle_button_ui(renderer_ui *rui, char *name, const vec4 text_color, bool *toggle, const texture t, const vec4 button_color) {
+  strcat(name, rui->id_str);
+  widget w = { 0 };
+  w.type = widget_toggle_button;
+  w.color = text_color;
+  w.color_2 = button_color;
+  w.texture = t;
+  w.used_this_frame = true;
+  w.just_created = true;
+  w.pointer = toggle;
+  widget_pair wp = { name, w }; 
+  vector_push_back(rui->widgets_vector, wp);
+  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  if (find != NULL) {
+    return find->second.return_from_update;
+  }
+  else {
+    return false;
+  }
+}
+
+bool custom_widget_ui(renderer_ui *rui, int id, vec4 *transform, bool *hovered, bool *clicked) {
+  char *name = "##$customWidgetWithID:";
+  char buffer[50];
+  snprintf(buffer, sizeof(buffer), "%i", id);
+  strcat(name, buffer);
+  widget w = { 0 };
+  w.type = widget_custom;
+  w.pointer = transform;
+  widget_pair wp = { name, w }; 
+  vector_push_back(rui->widgets_vector, wp);
+  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  if (find != NULL) {
+    *transform = find->second.return_transform;
+    if (hovered) {
+      *hovered = find->second.hovered;
+      *clicked = find->second.clicked;
+    }
+    return find->second.custom_widget_used;
+  }
+  else {
+    memset(transform, 0, sizeof(vec4));
+    return false;
+  }
+}
+
+void text_ui(renderer_ui *rui, char *name, const vec4 color) {
+  strcat(name, rui->id_str);
+  widget w = { 0 };
+  w.type = widget_text;
+  w.color = color;
+  w.used_this_frame = true;
+  w.just_created = true;
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+}

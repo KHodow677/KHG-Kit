@@ -54,3 +54,10 @@ typedef struct {
 
 void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, char *typed_input, float delta_time);
 bool button_ui(renderer_ui *rui, char *name, const vec4 color, const texture t);
+void texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec4 texture_coods);
+bool button_with_texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec4 texture_coords);
+bool toggle_ui(renderer_ui *rui, char *name, const vec4 color, bool *toggle, const texture t, const texture over_texture);
+bool toggle_button_ui(renderer_ui *rui, char *name, const vec4 text_color, bool *toggle, const texture t, const vec4 button_color);
+bool custom_widget_ui(renderer_ui *rui, int id, vec4 *transform, bool *hovered, bool *clicked);
+void text_ui(renderer_ui *rui, char *name, const vec4 color);
+
