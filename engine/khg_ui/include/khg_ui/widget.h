@@ -42,7 +42,7 @@ typedef struct {
   bool return_from_update;
   bool custom_widget_used;
   void *pointer;
-  void *pointer2;
+  void *pointer_2;
   bool clicked;
   bool hovered;
   float min;

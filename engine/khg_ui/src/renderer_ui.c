@@ -46,6 +46,19 @@ float main_in_size_x = 0.9f;
 float main_in_size_y = 0.9f;
 float padding_columns = 0.9f;
 
+int hash(const char *s) {
+  unsigned int h = 0;
+  int pos = 0;
+  int size = strlen(s);
+  for (int a = 0; a < size; a++) {
+    char i = s[a];
+    h += i * pos;
+    pos += 1;
+    pos %= 10;
+  }
+  return h;
+}
+
 bool aabb(vec4 transform, vec2 point) {
   if (point.x >= transform.x && point.y >= transform.y && point.x <= transform.x + transform.z && point.y <= transform.y + transform.w) {
     return true;
@@ -280,6 +293,27 @@ vec4 determine_text_pos(renderer_2d *r2d, char *str, font *f, vec4 transform, bo
   pos.x -= s.x;
   pos.y -= s.y;
   return (vec4){ pos.x, pos.y, s.x, s.y };
+}
+
+void push_id_internal(renderer_ui *r, int id) {
+  strcat(r->id_str, "#");
+  push_id_ui(r, id);
+}
+
+void pop_id_internal(renderer_ui *r) {
+  pop_id_ui(r);
+  int size = strlen(r->id_str);
+  if (size == 0) {
+    error_func("More pops than pushes", user_defined_data);
+    return;
+  }
+  else {
+    if (r->id_str[size - 1] == '#') {
+      error_func("Inconsistent usage of begin end push pop", user_defined_data);
+      return;
+    }
+    r->id_str[size - 1] = '\0';
+  }
 }
 
 void render_fancy_box(renderer_2d *r2d, vec4 transform, vec4 color, texture t, bool hovered, bool clicked) {
@@ -878,8 +912,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           aabb_transform = p;
         }
         int max_size = 1;
-        int text_2_size = sizeof(pair.second.text_2);
-        text_2_size /= sizeof(char *);
+        int text_2_size = strlen(pair.second.text_2);
         for (int i = 0; i < text_2_size; i++) {
           char c = pair.second.text_2[i];
           if (c == '|') {
@@ -892,8 +925,8 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         if (*index > max_size - 1) {
           *index = 0;
         }
-        if (pair.second.pointer2) {
-          text_color = ((vec4 *)pair.second.pointer2)[*index];
+        if (pair.second.pointer_2) {
+          text_color = ((vec4 *)pair.second.pointer_2)[*index];
         }
         if (aabb(aabb_transform, input.mouse_pos)) {
           hovered = true;
@@ -937,8 +970,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         else {
           render_text_ui(r2d, final_text, f, transform_drawn, text_color, false, !hovered, false);
         }
-        int text_3_size = sizeof(pair.second.text_2);
-        text_3_size /= sizeof(char *);
+        int text_3_size = strlen(pair.second.text_3);
         if (pair.second.text_3 != 0 && hovered) {
           vec4 transform = transform_drawn;
           transform.x += transform.z * 0.1f;
@@ -996,8 +1028,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   rui->widgets = widgets2;
   r2d->current_camera = c;
   vector_clear(rui->widgets_vector);
-  int id_str_size = sizeof(rui->id_str);
-  id_str_size /= sizeof(char *);
+  int id_str_size = strlen(rui->id_str);
   if (id_str_size != 0) {
     error_func("More pushes than pops", user_defined_data);
   }
@@ -1138,4 +1169,169 @@ void text_ui(renderer_ui *rui, char *name, const vec4 color) {
   w.just_created = true;
   widget_pair wp = { name, w };
   vector_push_back(rui->widgets_vector, wp);
+}
+
+void input_text_ui(renderer_ui *rui, char *name, char *text, size_t text_size_with_null_char, vec4 color, const texture t, bool only_one_enabled, bool display_text, bool enabled) {
+  strcat(name, rui->id_str);
+  widget w = { 0 };
+  w.type = widget_text_input;
+  w.pointer = text;
+  w.color = color;
+  w.text_size = text_size_with_null_char;
+  w.texture = t;
+  w.used_this_frame = true;
+  w.just_created = true;
+  w.enabled = enabled;
+  w.display_text = display_text;
+  w.only_one_enabled = only_one_enabled;
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+}
+
+void slider_float_ui(renderer_ui *rui, char *name, float *value, float min, float max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
+  strcat(name, rui->id_str);
+  widget w = { 0 };
+  w.type = widget_slider_float_w;
+  w.pointer = value;
+  w.used_this_frame = true;
+  w.just_created = true;
+  w.min = min;
+  w.max = max;
+  w.color = slider_color;
+  w.color_2 = ball_color;
+  w.color_3 = text_color;
+  w.texture = slider_texture;
+  w.texture_over = ball_texture;
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+}
+
+void slider_int_ui(renderer_ui *rui, char *name, int *value, int min, int max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
+  strcat(name, rui->id_str);
+  widget w = { 0 };
+  w.type = widget_slider_int_w;
+  w.pointer = value;
+  w.used_this_frame = true;
+  w.just_created = true;
+  w.min_int = min;
+  w.max_int = max;
+  w.color = slider_color;
+  w.color_2 = ball_color;
+  w.color_3 = text_color;
+  w.texture = slider_texture;
+  w.texture_over = ball_texture;
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp); 
+}
+
+void color_picker_ui(renderer_ui *rui, char *name, float *color_3_component, texture slider_texture, texture ball_texture, vec4 color, vec4 color_2) {
+  widget w = { 0 };
+  w.type = widget_color_picker_w;
+  w.pointer = color_3_component;
+  w.texture = slider_texture;
+  w.texture_over = ball_texture;
+  w.color = color;
+  w.color_2 = color_2;
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+}
+
+void toggle_options_ui(renderer_ui *rui, char *name, char *options_separated_by_bars, size_t *current_index, bool show_text, vec4 text_color, vec4 *options_color, texture t, vec4 texture_color, char *tooltip) {
+  widget w = { 0 };
+  w.type = widget_options_toggle;
+  w.text_2 = options_separated_by_bars;
+  w.pointer = current_index;
+  w.display_text = show_text;
+  w.color = text_color;
+  w.texture = t;
+  w.color_2 = texture_color;
+  w.pointer_2 = options_color;
+  w.text_3 = tooltip;
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+}
+
+void new_column_ui(renderer_ui *rui, int id) {
+  widget w = { 0 };
+  w.type = widget_new_column_w;
+  char *name = "##$column";
+  char buffer[50];
+  snprintf(buffer, sizeof(buffer), "%i", id);
+  strcat(name, buffer);
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+}
+
+void push_id_ui(renderer_ui *rui, int id) {
+  char a = *(((char*)&id) + 0);
+  char b = *(((char*)&id) + 1);
+  char c = *(((char*)&id) + 2);
+  char d = *(((char*)&id) + 3);
+  strcat(rui->id_str, "#");
+  strcat(rui->id_str, "#");
+  strcat(rui->id_str, &a);
+  strcat(rui->id_str, &b);
+  strcat(rui->id_str, &c);
+  strcat(rui->id_str, &d);
+}
+
+void pop_id_ui(renderer_ui *rui) {
+  size_t len = strlen(rui->id_str);
+  if (len < 6) {
+    error_func("More pops than pushes", user_defined_data);
+    return;
+  }
+  for (int i = 0; i < 6; i++) {
+    if (len > 0) {
+      rui->id_str[len - 1] = '\0';
+      len--;
+    }
+  }
+}
+
+void begin_menu_ui(renderer_ui *rui, char * name, const vec4 color, const texture t) {
+  widget w = { 0 };
+  w.type = widget_begin_menu;
+  w.color = color;
+  w.texture = t;
+  w.used_this_frame = true;
+  w.just_created = true;
+  widget_pair wp = { name, w };
+  vector_push_back(rui->widgets_vector, wp);
+  push_id_internal(rui, hash(name));
+}
+
+void end_menu_ui(renderer_ui *rui) {
+  widget w = { 0 };
+  w.type = widget_end_menu;
+  w.used_this_frame = true;
+  w.just_created = true;
+  widget_pair wp = { "", w };
+  vector_push_back(rui->widgets_vector, wp);
+  pop_id_internal(rui);
+}
+
+void begin_ui(renderer_ui *rui, int id) {
+  rui->a_settings = (aligned_settings){ 0 };
+  if (!id_was_set) {
+    id_was_set = true;
+    current_id = id;
+  }
+  else {
+    if (current_id == id) {
+      error_func("Did not call render_frame or more than one begin", user_defined_data);
+    }
+    else {
+      error_func("More than one begin", user_defined_data);
+    }
+  }
+  push_id_internal(rui, id);
+}
+
+void end_ui(renderer_ui *rui) {
+  pop_id_internal(rui);
+}
+
+void set_align_mode_fixed_size_widgets_ui(renderer_ui *rui, vec2 size) {
+  rui->a_settings.widget_size = size;
 }
