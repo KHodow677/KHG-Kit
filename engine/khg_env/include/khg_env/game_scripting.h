@@ -13,6 +13,7 @@ extern GLFWwindow *wind;
 bool init_game();
 bool game_logic(float delta_time);
 void close_game();
+int run_game();
 void set_rel_mouse_position(int x, int y);
 bool is_full_screen();
 bool set_full_screen(bool f);
