@@ -1,6 +1,5 @@
 #include "khg_env/input.h"
 #include "khg_env/game_scripting.h"
-#include <stdio.h>
 #include <string.h>
 
 key_button keyboard[BUTTONS_COUNT];
@@ -93,7 +92,7 @@ controller_buttons get_controller_buttons() {
   return c;
 }
 
-char **get_typed_input() {
+char *get_typed_input() {
   return typed_input;
 }
 

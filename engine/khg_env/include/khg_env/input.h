@@ -65,7 +65,7 @@ int is_right_mouse_released();
 int is_left_mouse_held();
 int is_right_mouse_held();
 controller_buttons get_controller_buttons();
-char **get_typed_input();
+char *get_typed_input();
 void set_button_state(int button, int newState);
 void set_left_mouse_state(int newState);
 void set_right_mouse_state(int newState);
