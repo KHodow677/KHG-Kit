@@ -296,7 +296,10 @@ vec4 determine_text_pos(renderer_2d *r2d, char *str, font *f, vec4 transform, bo
 }
 
 void push_id_internal(renderer_ui *r, int id) {
-  strcat(r->id_str, "#");
+  char buffer[strlen(r->id_str)];
+  strcpy(buffer, r->id_str);
+  strcat(buffer, "#");
+  r->id_str = buffer;
   push_id_ui(r, id);
 }
 
@@ -1136,7 +1139,7 @@ bool toggle_button_ui(renderer_ui *rui, char *name, const vec4 text_color, bool 
 }
 
 bool custom_widget_ui(renderer_ui *rui, int id, vec4 *transform, bool *hovered, bool *clicked) {
-  char *name = "##$customWidgetWithID:";
+  char name[] = "##$customWidgetWithID:";
   char buffer[50];
   snprintf(buffer, sizeof(buffer), "%i", id);
   strcat(name, buffer);
@@ -1189,7 +1192,12 @@ void input_text_ui(renderer_ui *rui, char *name, char *text, size_t text_size_wi
 }
 
 void slider_float_ui(renderer_ui *rui, char *name, float *value, float min, float max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
-  strcat(name, rui->id_str);
+  char name_buffer[strlen(name)]; 
+  char buffer[strlen(rui->id_str)];
+  strcpy(name_buffer, name);
+  strcpy(buffer, rui->id_str);
+  strcat(name_buffer, buffer);
+  name = name_buffer;
   widget w = { 0 };
   w.type = widget_slider_float_w;
   w.pointer = value;
@@ -1207,7 +1215,12 @@ void slider_float_ui(renderer_ui *rui, char *name, float *value, float min, floa
 }
 
 void slider_int_ui(renderer_ui *rui, char *name, int *value, int min, int max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
-  strcat(name, rui->id_str);
+  char name_buffer[strlen(name)]; 
+  char buffer[strlen(rui->id_str)];
+  strcpy(name_buffer, name);
+  strcpy(buffer, rui->id_str);
+  strcat(name_buffer, buffer);
+  name = name_buffer;
   widget w = { 0 };
   w.type = widget_slider_int_w;
   w.pointer = value;
@@ -1313,6 +1326,9 @@ void end_menu_ui(renderer_ui *rui) {
 
 void begin_ui(renderer_ui *rui, int id) {
   rui->a_settings = (aligned_settings){ 0 };
+  rui->id_str = "";
+  ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(char *)), 100);
+  ht_setup(&rui->widgets, sizeof(char *), sizeof(widget_pair), 100);
   if (!id_was_set) {
     id_was_set = true;
     current_id = id;
