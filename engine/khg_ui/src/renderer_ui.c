@@ -544,10 +544,12 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
       w->custom_widget_used = false;
     }
   }
-  vector(widget_pair) widgets_copy;
+  vector(widget_pair) widgets_copy = NULL;
   vector_reserve(widgets_copy, vector_size(rui->widgets_vector));
   vector(char *) current_menu_stack_copy;
-  vector_copy(current_menu_stack, current_menu_stack_copy);
+  if (!vector_empty(current_menu_stack)) {
+    vector_copy(current_menu_stack, current_menu_stack_copy);
+  }
   vector(char *) menu_stack;
   char *next_menu = "";
   bool should_ignore = false;
@@ -558,6 +560,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   }
   int next_stack_size_to_look = 0;
   int next_stack_size_to_look_min = 0;
+  int size = vector_size(rui->widgets_vector);
   for (int i = 0; i < vector_size(rui->widgets_vector); i++) {
     widget_pair w = rui->widgets_vector[i];
     if (w.second.type == widget_begin_menu) {
@@ -581,7 +584,9 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
       continue;
     }
     if (w.second.type == widget_end_menu) {
-      w.first = strcat("##$", (char *)vector_back(menu_stack));
+      char *str = "##$";
+      strcat(str, (char *)vector_back(menu_stack));
+      w.first = str;
       vector_pop_back(menu_stack);
       if (next_stack_size_to_look == vector_size(menu_stack)) {
         should_ignore = false;
@@ -596,7 +601,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
     }
     vector_push_back(widgets_copy, w);
   }
-  vector(column_pair) columns;
+  vector(column_pair) columns = NULL;
   int widgets_count_until_new_column_w = 0;
   for (int i = 0; i < vector_size(widgets_copy); i++) {
     if (widgets_copy[i].second.type == widget_new_column_w) {
@@ -658,7 +663,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
       find->pd = pd;
       find->used_this_frame = true;
     }
-    widget *w = ht_lookup(&rui->widgets, pair.first);
+    widget *w = (widget *)ht_lookup(&rui->widgets, &pair.first);
     switch (w->type) {
       case widget_button: {
         draw_button(rui, r2d, f, columns, current_column, pair.first, w, input);
@@ -818,10 +823,11 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         *value = min(*value, pair.second.max);
         *value = max(*value, pair.second.min);
-        char *text = pair.first;
+        char *text_raw = get_string(pair.first);
+        char text[strlen(text_raw)];
+        strcpy(text, pair.first);
         char buffer[50];
         snprintf(buffer, sizeof(buffer), "%0.2f", *value);
-        text = get_string(text);
         strcat(text, ": ");
         strcat(text, buffer);
         render_slider_float(r2d, slider_transform, value, pair.second.min, pair.second.max, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color, pair.second.texture_over, pair.second.color_2, &input);
@@ -881,10 +887,11 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         *value = min(*value, pair.second.max_int);
         *value = max(*value, pair.second.min_int);
-        char *text = pair.first;
+        char *text_raw = get_string(pair.first);
+        char text[strlen(text_raw)];
+        strcpy(text, pair.first);
         char buffer[50];
         snprintf(buffer, sizeof(buffer), "%i", *value);
-        text = get_string(text);
         strcat(text, ": ");
         strcat(text, buffer);
         render_slider_int(r2d, slider_transform, value, pair.second.min_int, pair.second.max_int, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color, pair.second.texture_over, pair.second.color_2, &input);
@@ -1018,6 +1025,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
     w->last_frame_data = input;
     columns[current_column].first.y += columns[current_column].second;
   }
+  printf("Hi\n");
   hash_table widgets2;
   ht_reserve(&widgets2, rui->widgets.size);
   for (int i = 0; i < rui->widgets.size; i++) {
@@ -1032,6 +1040,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   r2d->current_camera = c;
   vector_clear(rui->widgets_vector);
   int id_str_size = strlen(rui->id_str);
+  printf("%i\n", id_str_size);
   if (id_str_size != 0) {
     error_func("More pushes than pops", user_defined_data);
   }
@@ -1192,12 +1201,13 @@ void input_text_ui(renderer_ui *rui, char *name, char *text, size_t text_size_wi
 }
 
 void slider_float_ui(renderer_ui *rui, char *name, float *value, float min, float max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
-  char name_buffer[strlen(name)]; 
-  char buffer[strlen(rui->id_str)];
+  size_t name_len = strlen(name) + strlen(rui->id_str) + 1;
+  char * name_buffer = (char *)malloc(name_len);
+  if (name_buffer == NULL) {
+    return;
+  }
   strcpy(name_buffer, name);
-  strcpy(buffer, rui->id_str);
-  strcat(name_buffer, buffer);
-  name = name_buffer;
+  strcat(name_buffer, rui->id_str);
   widget w = { 0 };
   w.type = widget_slider_float_w;
   w.pointer = value;
@@ -1210,17 +1220,18 @@ void slider_float_ui(renderer_ui *rui, char *name, float *value, float min, floa
   w.color_3 = text_color;
   w.texture = slider_texture;
   w.texture_over = ball_texture;
-  widget_pair wp = { name, w };
+  widget_pair wp = { name_buffer, w };
   vector_push_back(rui->widgets_vector, wp);
 }
 
 void slider_int_ui(renderer_ui *rui, char *name, int *value, int min, int max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
-  char name_buffer[strlen(name)]; 
-  char buffer[strlen(rui->id_str)];
+  size_t name_len = strlen(name) + strlen(rui->id_str) + 1;
+  char * name_buffer = (char *)malloc(name_len);
+  if (name_buffer == NULL) {
+    return;
+  }
   strcpy(name_buffer, name);
-  strcpy(buffer, rui->id_str);
-  strcat(name_buffer, buffer);
-  name = name_buffer;
+  strcat(name_buffer, rui->id_str);
   widget w = { 0 };
   w.type = widget_slider_int_w;
   w.pointer = value;
@@ -1233,7 +1244,7 @@ void slider_int_ui(renderer_ui *rui, char *name, int *value, int min, int max, v
   w.color_3 = text_color;
   w.texture = slider_texture;
   w.texture_over = ball_texture;
-  widget_pair wp = { name, w };
+  widget_pair wp = { name_buffer, w };
   vector_push_back(rui->widgets_vector, wp); 
 }
 

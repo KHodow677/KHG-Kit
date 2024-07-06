@@ -38,6 +38,7 @@ void render_1() {
   vec4 custom_transform = { 0.0f, 0.0f, 20.0f, 20.0f };
   bool clicked = 0;
   bool hovered = 0;
+  /*
   if (custom_widget_ui(&rui, 23, &custom_transform, &hovered, &clicked)) {
     if (clicked) {
       vec4 colors[4] = { color_blue, color_blue, color_blue, color_blue };
@@ -52,6 +53,7 @@ void render_1() {
       render_rectangle(&r2d, custom_transform, colors, (vec2){ 0.0f, 0.0f }, 0.0f);
     }
   }
+*/
   end_ui(&rui);
 }
 
