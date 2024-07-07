@@ -5,7 +5,7 @@
 #define _STRING_MAX_CAPACITY (size_t)-1
 
 string _string_create(){
-  _string* str = (_string*)malloc(sizeof(_string) + 1);
+  _string *str = (_string*)malloc(sizeof(_string) + 1);
   if(str == NULL) {
     return NULL;
   }
@@ -21,7 +21,7 @@ string _string_create_from_string(string _str){
   if(!_string_calc_capacity(&cap, len + 1)) {
     return NULL;
   }
-  _string* str = (_string *)malloc(sizeof(_string) + cap);
+  _string *str = (_string *)malloc(sizeof(_string) + cap);
   if(str == NULL) {
     return NULL;
   }
@@ -49,7 +49,7 @@ _string *_string_struct(string _str){
   return ((_string*)_str) - 1;
 }
 
-_string *_string_realloc(_string* _str, size_t _data_size){
+_string *_string_realloc(_string *_str, size_t _data_size){
   if(_str == NULL) {
     return NULL;
   }
@@ -127,7 +127,7 @@ int _string_inc(string *_str, size_t _count){
     if(!_string_calc_capacity(&new_cap, new_len + 1)) {
       return 0;
     }
-    _string* new_str = _string_realloc(str, new_cap);
+    _string *new_str = _string_realloc(str, new_cap);
     if(new_str == NULL) {
       return 0;
     }
@@ -143,7 +143,7 @@ char _string_get(string _str, size_t _index){
   if(_str == NULL) {
     return '\0';
   }
-  _string* str = _string_struct(_str);
+  _string *str = _string_struct(_str);
   if(_index >= str->len) {
     return '\0';
   }
@@ -154,7 +154,7 @@ int _string_set(string _str, size_t _index, char _chr){
   if(_str == NULL || _chr == '\0') {
     return 0;
   }
-  _string* str = _string_struct(_str);
+  _string *str = _string_struct(_str);
   if(_index >= str->len) {
     return 0;
   }
@@ -197,7 +197,7 @@ int _string_add_char(string *_dst, char _chr){
   if(_chr == '\0') {
     return 0;
   }
-  _string* str = _string_struct(*_dst);
+  _string *str = _string_struct(*_dst);
   if(!_string_inc(_dst, 1)) {
     return 0;
   }
@@ -207,14 +207,14 @@ int _string_add_char(string *_dst, char _chr){
   return 1;
 }
 
-int _string_insert(string* _dst, size_t _index, char* _src){
+int _string_insert(string *_dst, size_t _index, char *_src){
   if(_dst == NULL) {
     return 0;
   }
   if((*_dst) == NULL) {
     return 0;
   }
-  _string* str = _string_struct(*_dst);
+  _string *str = _string_struct(*_dst);
   if(_index > str->len) {
     return 0;
   }
@@ -238,7 +238,7 @@ int _string_insert(string* _dst, size_t _index, char* _src){
   return 1;
 }
 
-int _string_insert_char(string* _dst, size_t _index, char _chr){
+int _string_insert_char(string *_dst, size_t _index, char _chr){
   if(_dst == NULL) {
     return 0;
   }
@@ -248,7 +248,7 @@ int _string_insert_char(string* _dst, size_t _index, char _chr){
   if(_chr == '\0') {
     return 0;
   }
-  _string* str = _string_struct(*_dst);
+  _string *str = _string_struct(*_dst);
   if(_index > str->len) {
     return 0;
   }
@@ -265,14 +265,14 @@ int _string_insert_char(string* _dst, size_t _index, char _chr){
   return 1;
 }
 
-int _string_delete(string* _str, size_t _index, size_t _num_chars){
+int _string_delete(string *_str, size_t _index, size_t _num_chars){
   if(_str == NULL || _num_chars == 0) {
     return 0;
   }
   if((*_str) == NULL) {
     return 0;
   }
-  _string* str = _string_struct(*_str);
+  _string *str = _string_struct(*_str);
   if(_index >= str->len) {
     return 0;
   }
@@ -292,7 +292,7 @@ int _string_delete(string* _str, size_t _index, size_t _num_chars){
     memmove(str->data + _index, str->data + _index + _num_chars, str->len - (_index + _num_chars));
   }
   if(old_cap != new_cap){
-    _string* new_str = _string_realloc(str, new_cap);
+    _string *new_str = _string_realloc(str, new_cap);
     if(new_str == NULL) {
       return 0;
     }
@@ -305,18 +305,18 @@ int _string_delete(string* _str, size_t _index, size_t _num_chars){
   return 1;
 }
 
-int _string_clear(string* _str){
+int _string_clear(string *_str){
   if(_str == NULL) {
     return 0;
   }
   if((*_str) == NULL) {
     return 0;
   }
-  _string* str = _string_struct(*_str);
+  _string *str = _string_struct(*_str);
   if(str->cap <= 1) {
     return 1;
   }
-  _string* new_str = _string_realloc(str, 1);
+  _string *new_str = _string_realloc(str, 1);
   if(new_str == NULL) {
     return 0;
   }
@@ -331,7 +331,7 @@ int _string_reverse(string _str){
   if(_str == NULL) {
     return 0;
   }
-  _string* str = _string_struct(_str);
+  _string *str = _string_struct(_str);
   size_t middle = (str->len / 2) + ((str->len & 0x1) == 1);
   char temp;
   for(size_t i = 0; i < middle; ++i){
@@ -346,7 +346,7 @@ int _string_fill(string _str, char _chr){
   if(_str == NULL || _chr == '\0') {
     return 0;
   }
-  _string* str = _string_struct(_str);
+  _string *str = _string_struct(_str);
   for(size_t i = 0; i < str->len; ++i) {
     _str[i] = _chr;
   }
@@ -357,7 +357,7 @@ int _string_fill_range(string _str, size_t _index, size_t _num_chars, char _chr)
   if(_str == NULL || _chr == '\0') {
     return 0;
   }
-  _string* str = _string_struct(_str);
+  _string *str = _string_struct(_str);
   for(size_t i = _index; i < _index + _num_chars; ++i){
     _str[i] = _chr;
     if(i >= str->len - 1) break;
@@ -369,8 +369,8 @@ string _string_clone(string _str){
   if(_str == NULL) {
     return NULL;
   }
-  _string* str = _string_struct(_str);
-  _string* new_str = (_string*)malloc(sizeof(_string) + str->cap);
+  _string *str = _string_struct(_str);
+  _string *new_str = (_string*)malloc(sizeof(_string) + str->cap);
   if(new_str == NULL) {
     return NULL;
   }
@@ -386,14 +386,14 @@ string _string_substr(string _str, size_t _index, size_t _num_chars){
   if(_str == NULL || _num_chars == 0) {
     return NULL;
   }
-  _string* str = _string_struct(_str);
+  _string *str = _string_struct(_str);
   if(_index >= str->len) {
     return NULL;
   }
   if(str->len - _index < _num_chars) {
     _num_chars = (str->len - _index);
   }
-  _string* substr = (_string*)malloc(sizeof(_string) + _num_chars + 1);
+  _string *substr = (_string*)malloc(sizeof(_string) + _num_chars + 1);
   if(substr == NULL) {
     return NULL;
   }
@@ -406,11 +406,11 @@ string _string_substr(string _str, size_t _index, size_t _num_chars){
   return (string)(&substr->data);
 }
 
-int _string_find_from(string _str, char* _substr, size_t _index){
+int _string_find_from(string _str, char *_substr, size_t _index){
   if(_str == NULL || _substr == NULL) {
     return -1;
   }
-  _string* str = _string_struct(_str);
+  _string *str = _string_struct(_str);
   size_t sub_len = strlen(_substr);
   if(sub_len == 0 || _index >= str->len) {
     return -1;
@@ -432,7 +432,7 @@ int _string_find_char_from(string _str, char _chr, size_t _index){
   if(_str == NULL || _chr == '\0') {
     return -1;
   }
-  _string* str = _string_struct(_str);
+  _string *str = _string_struct(_str);
   for(size_t i = _index; i < str->len; ++i){
     if(_str[i] == _chr) {
       return i;
@@ -441,148 +441,163 @@ int _string_find_char_from(string _str, char _chr, size_t _index){
   return -1;
 }
 
-int _string_replace(string* _str, char* _substr, char* _new_substr, int _first){
-    if(_str == NULL || _substr == NULL) return 0;
-    if((*_str) == NULL || (*_substr) == '\0') return 0;
-
-    size_t sub_len = strlen(_substr);
-    size_t new_sub_len = _new_substr == NULL ? 0 : strlen(_new_substr);
-
-    size_t count = _string_count(*_str, _substr);
-    if(count == 0) return 1;
-
-    if(_first) count = 1;
-
-    _string* str = _string_struct(*_str);
-
-    size_t old_len = str->len;
-    size_t new_len = old_len - (count * sub_len) + (count * new_sub_len);
-
-    if(new_len > str->len){
-        _string* new_str = _string_realloc(str, new_len + 1);
-        if(new_str == NULL) return 0;
-
-        str = new_str;
-        str->cap = new_len + 1;
-    }
-
-    str->len = str->len;
-
-    size_t offset = 0;
-    size_t index;
-    int pos;
-    while((pos = _string_find_from(str->data, _substr, offset)) >= 0){
-        index = (size_t)pos;
-        memmove(str->data + index + new_sub_len, str->data + index + sub_len, str->len - (index + sub_len) + 1);
-        str->len = str->len - sub_len + new_sub_len;
-
-        for(size_t i = 0; i < new_sub_len; ++i) str->data[index + i] = _new_substr[i];
-
-        offset = index + new_sub_len;
-        if(_first) break;
-    }
-
-    if(str->len < old_len){
-        _string* new_str = _string_realloc(str, new_len + 1);
-        if(new_str == NULL) return 0;
-
-        str = new_str;
-        str->cap = new_len + 1;
-    }
-
-    *_str = (string)(&str->data);
-
+int _string_replace(string *_str, char *_substr, char *_new_substr, int _first){
+  if(_str == NULL || _substr == NULL) {
+    return 0;
+  }
+  if((*_str) == NULL || (*_substr) == '\0') {
+    return 0;
+  }
+  size_t sub_len = strlen(_substr);
+  size_t new_sub_len = _new_substr == NULL ? 0 : strlen(_new_substr);
+  size_t count = _string_count(*_str, _substr);
+  if(count == 0) {
     return 1;
+  }
+  if(_first) {
+    count = 1;
+  }
+  _string *str = _string_struct(*_str);
+  size_t old_len = str->len;
+  size_t new_len = old_len - (count  *sub_len) + (count  *new_sub_len);
+  if(new_len > str->len){
+    _string *new_str = _string_realloc(str, new_len + 1);
+    if(new_str == NULL) {
+      return 0;
+    }
+    str = new_str;
+    str->cap = new_len + 1;
+  }
+  str->len = str->len;
+  size_t offset = 0;
+  size_t index;
+  int pos;
+  while((pos = _string_find_from(str->data, _substr, offset)) >= 0){
+    index = (size_t)pos;
+    memmove(str->data + index + new_sub_len, str->data + index + sub_len, str->len - (index + sub_len) + 1);
+    str->len = str->len - sub_len + new_sub_len;
+    for(size_t i = 0; i < new_sub_len; ++i) {
+      str->data[index + i] = _new_substr[i];
+    }
+    offset = index + new_sub_len;
+    if(_first) {
+      break;
+    }
+  }
+  if(str->len < old_len){
+    _string *new_str = _string_realloc(str, new_len + 1);
+    if(new_str == NULL) {
+      return 0;
+    }
+    str = new_str;
+    str->cap = new_len + 1;
+  }
+  *_str = (string)(&str->data);
+  return 1;
 }
 
-size_t _string_count(string _str, char* _substr){
-    if(_str == NULL || _substr == NULL) return 0;
-
-    _string* str = _string_struct(_str);
-    size_t sub_len = strlen(_substr);
-
-    if(sub_len == 0) return 0;
-
-    size_t count = 0;
-
-    for(size_t i = 0; i < str->len; ++i){
-        for(size_t j = 0; j < sub_len; ++j){
-            if(_str[i + j] != _substr[j]) break;
-            if(j == sub_len - 1) ++count;
-        }
+size_t _string_count(string _str, char *_substr){
+  if(_str == NULL || _substr == NULL) {
+    return 0;
+  }
+  _string *str = _string_struct(_str);
+  size_t sub_len = strlen(_substr);
+  if(sub_len == 0) {
+    return 0;
+  }
+  size_t count = 0;
+  for(size_t i = 0; i < str->len; ++i){
+    for(size_t j = 0; j < sub_len; ++j){
+      if(_str[i + j] != _substr[j]) {
+        break;
+      }
+      if(j == sub_len - 1) {
+        ++count;
+      }
     }
-
-    return count;
+  }
+  return count;
 }
 
 size_t _string_count_char(string _str, char _chr){
-    if(_str == NULL || _chr == '\0') return 0;
-    _string* str = _string_struct(_str);
-
-    size_t count = 0;
-    for(size_t i = 0; i < str->len; ++i){
-        if(_str[i] == _chr) ++count;
+  if(_str == NULL || _chr == '\0') {
+    return 0;
+  }
+  _string *str = _string_struct(_str);
+  size_t count = 0;
+  for(size_t i = 0; i < str->len; ++i){
+    if(_str[i] == _chr) {
+      ++count;
     }
-
-    return count;
+  }
+  return count;
 }
 
-int _string_resize(string* _str, size_t _num_chars){
-    if(_str == NULL) return 0;
-    if((*_str) == NULL) return 0;
-
-    _string* str = _string_struct(*_str);
-
-    if(str->len == _num_chars) return 1;
-
-    size_t new_cap = 0;
-    if(!_string_calc_capacity(&new_cap, _num_chars + 1)) return 0; //Overflow.
-
-    if(new_cap != str->cap){
-        _string* new_str = _string_realloc(str, new_cap);
-        if(new_str == NULL) return 0;
-
-        str = new_str;
-        *_str = (string)(&str->data);
+int _string_resize(string *_str, size_t _num_chars){
+  if(_str == NULL) {
+    return 0;
+  }
+  if((*_str) == NULL) {
+    return 0;
+  }
+  _string *str = _string_struct(*_str);
+  if(str->len == _num_chars) {
+    return 1;
+  }
+  size_t new_cap = 0;
+  if(!_string_calc_capacity(&new_cap, _num_chars + 1)) {
+    return 0;
+  }
+  if(new_cap != str->cap){
+    _string *new_str = _string_realloc(str, new_cap);
+    if(new_str == NULL) {
+      return 0;
     }
-
-    str->cap = new_cap;
-    str->len = _num_chars;
-    str->data[_num_chars] = '\0';
-
-    return 1;
+    str = new_str;
+    *_str = (string)(&str->data);
+  }
+  str->cap = new_cap;
+  str->len = _num_chars;
+  str->data[_num_chars] = '\0';
+  return 1;
 }
 
-int _string_reserve(string* _str, size_t _num_chars){
-    if(_str == NULL) return 0;
-    if((*_str) == NULL) return 0;
-
-    _string* str = _string_struct(*_str);
-
-    if(str->cap >= _num_chars + 1) return 1;
-
-    _string* new_str = _string_realloc(str, _num_chars + 1);
-    if(new_str == NULL) return 0;
-
-    new_str->cap = _num_chars + 1;
-    *_str = (string)(&new_str->data);
-
+int _string_reserve(string *_str, size_t _num_chars){
+  if(_str == NULL) {
+    return 0;
+  }
+  if((*_str) == NULL) {
+    return 0;
+  }
+  _string *str = _string_struct(*_str);
+  if(str->cap >= _num_chars + 1) {
     return 1;
+  }
+  _string *new_str = _string_realloc(str, _num_chars + 1);
+  if(new_str == NULL) {
+    return 0;
+  }
+  new_str->cap = _num_chars + 1;
+  *_str = (string)(&new_str->data);
+  return 1;
 }
 
-int _string_shrink(string* _str){
-    if(_str == NULL) return 0;
-    if((*_str) == NULL) return 0;
-
-    _string* str = _string_struct(*_str);
-
-    if(str->cap == str->len + 1) return 1;
-
-    _string* new_str = _string_realloc(str, str->len + 1);
-    if(new_str == NULL) return 0;
-
-    new_str->cap = new_str->len + 1;
-    *_str = (string)(&new_str->data);
-
+int _string_shrink(string *_str){
+  if(_str == NULL) {
+    return 0;
+  }
+  if((*_str) == NULL) {
+    return 0;
+  }
+  _string *str = _string_struct(*_str);
+  if(str->cap == str->len + 1) {
     return 1;
+  }
+  _string *new_str = _string_realloc(str, str->len + 1);
+  if(new_str == NULL) {
+    return 0;
+  }
+  new_str->cap = new_str->len + 1;
+  *_str = (string)(&new_str->data);
+  return 1;
 }

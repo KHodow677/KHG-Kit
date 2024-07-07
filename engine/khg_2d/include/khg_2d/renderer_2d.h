@@ -8,6 +8,7 @@
 #include "khg_2d/texture.h"
 #include "khg_math/vec2.h"
 #include "khg_math/vec4.h"
+#include "khg_utils/string.h"
 #include "khg_utils/vector.h"
 
 typedef struct {
@@ -41,12 +42,12 @@ vec4 pix_to_screen(renderer_2d *r2d, const vec4 *transform);
 void clear_draw_data(renderer_2d *r2d);
 vec2 get_text_size(renderer_2d *r2d, const char *text, const font font, const float size, const float spacing, const float line_space);
 void render_text(renderer_2d *r2d, vec2 position, const char *text, const font f, const vec4 color, const float size, const float spacing, const float line_space, bool show_in_center, const vec4 shadow_color, const vec4 light_color);
-float determine_text_rescale_fit_smaller(renderer_2d *r2d, const char **str, font *f, vec4 transform, float max_size);
-float determine_text_rescale_fit_bigger(renderer_2d *r2d, const char **str, font *f, vec4 transform, float min_size);
-float determine_text_rescale_fit(renderer_2d *r2d, const char **str, font *f, vec4 transform);
-int wrap(renderer_2d *r2d, const char **in, font *f, float base_size, float max_dimension, char **out_res);
-void render_text_wrapped(renderer_2d *r2d, const char *text, font f, vec4 text_pos, vec4 color, float base_size, float spacing, float line_spacing, bool show_in_center, vec4 shadow_color, vec4 light_color);
-vec2 get_text_size_wrapped(renderer_2d *r2d, const char *text, font f, float max_text_length, float base_size, float spacing, float line_spacing);
+float determine_text_rescale_fit_smaller(renderer_2d *r2d, const string *str, font *f, vec4 transform, float max_size);
+float determine_text_rescale_fit_bigger(renderer_2d *r2d, const string *str, font *f, vec4 transform, float min_size);
+float determine_text_rescale_fit(renderer_2d *r2d, const string *str, font *f, vec4 transform);
+int wrap(renderer_2d *r2d, const string *in, font *f, float base_size, float max_dimension, string *out_res);
+void render_text_wrapped(renderer_2d *r2d, const string *text, font f, vec4 text_pos, vec4 color, float base_size, float spacing, float line_spacing, bool show_in_center, vec4 shadow_color, vec4 light_color);
+vec2 get_text_size_wrapped(renderer_2d *r2d, const string *text, font f, float max_text_length, float base_size, float spacing, float line_spacing);
 void render_rectangle_texture(renderer_2d *r2d, const vec4 transforms, const texture texture, const vec4 colors[4], const vec2 origin, const float rotation_degrees, const vec4 texture_coords);
 void render_rectangle_texture_abs_rotation(renderer_2d *r2d, const vec4 transforms, const texture texture, const vec4 colors[4], const vec2 origin, const float rotation_degrees, const vec4 texture_coords);
 void render_rectangle(renderer_2d *r2d, const vec4 transforms, const vec4 colors[4], const vec2 origin, const float rotation_degrees);

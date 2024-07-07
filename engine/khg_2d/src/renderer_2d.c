@@ -5,6 +5,7 @@
 #include "khg_math/mat3.h"
 #include "khg_utils/error_func.h"
 #include "glad/glad.h"
+#include "khg_utils/string.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -325,7 +326,7 @@ void render_text(renderer_2d *r2d, vec2 position, const char *text, const font f
   }
 }
 
-float determine_text_rescale_fit_smaller(renderer_2d *r2d, const char **str, font *f, vec4 transform, float max_size) {
+float determine_text_rescale_fit_smaller(renderer_2d *r2d, const string *str, font *f, vec4 transform, float max_size) {
   vec2 s = get_text_size(r2d, *str, *f, max_size, 4, 3);
   float ratio_x = transform.z / s.x;
   float ratio_y = transform.w / s.y;
@@ -342,7 +343,7 @@ float determine_text_rescale_fit_smaller(renderer_2d *r2d, const char **str, fon
   }
 }
 
-float determine_text_rescale_fit_bigger(renderer_2d *r2d, const char **str, font *f, vec4 transform, float min_size) {
+float determine_text_rescale_fit_bigger(renderer_2d *r2d, const string *str, font *f, vec4 transform, float min_size) {
   vec2 s = get_text_size(r2d, *str, *f, min_size, 4, 3);
   float ratio_x = transform.z / s.x;
   float ratio_y = transform.w / s.y;
@@ -357,7 +358,7 @@ float determine_text_rescale_fit_bigger(renderer_2d *r2d, const char **str, font
   return min_size; 
 }
 
-float determine_text_rescale_fit(renderer_2d *r2d, const char **str, font *f, vec4 transform) {
+float determine_text_rescale_fit(renderer_2d *r2d, const string *str, font *f, vec4 transform) {
   float ret = 1.0f;
   vec2 s = get_text_size(r2d, *str, *f, ret, 4, 3);
   float ratio_x = transform.z / s.x;
@@ -381,32 +382,46 @@ float determine_text_rescale_fit(renderer_2d *r2d, const char **str, font *f, ve
   return ret;
 }
 
-int wrap(renderer_2d *r2d, const char **in, font *f, float base_size, float max_dimension, char **out_res) {
-  char *word = "";
-  char *current_line = "";
+int wrap(renderer_2d *r2d, const string *in, font *f, float base_size, float max_dimension, string *out_res) {
+  if (out_res) {
+    *out_res = "";
+    str_reserve(*out_res, str_size(*in) + 10);
+  }
+  string word = str_create();
+  string current_line = str_create();
   bool wrap = 0;
   bool new_line = 1;
   int new_line_counter = 0;
-  if (out_res) {
-    *out_res = "";
-    *out_res = (char *)malloc(strlen(*in) + 10);
-  }
-  current_line = (char *)malloc(strlen(*in) + 10);
-  for (int i = 0; i < strlen(*in); i++) {
-    strcat(word, in[i]);
-    strcat(current_line, in[i]);
+  str_reserve(current_line, str_size(*in) + 10);
+  for (int i = 0; i < str_size(*in); i++) {
+    str_add(word, in[i]);
+    str_add(current_line, in[i]);
     if (*in[i] == ' ') {
       if (wrap) {
         if (out_res) {
-          strcat(*out_res, "\n");
+          str_add(*out_res, "\n");
+          str_clear(current_line);
         }
         new_line_counter++;
       }
-      current_line = "";
       if (out_res) {
-        strcat(*out_res, word);
+        str_add(*out_res, word);
       }
-      word = "";
+      str_clear(word);
+      wrap = 0;
+      new_line = true;
+    }
+    else if (*in[i] == '\n') {
+      if (wrap) {
+        if (out_res) {
+          str_add(*out_res, "\n");
+        }
+      }
+      str_clear(current_line);
+      if (out_res) {
+        str_add(*out_res, word);
+      }
+      str_clear(word);
       wrap = 0;
       new_line = true;
     }
@@ -422,27 +437,31 @@ int wrap(renderer_2d *r2d, const char **in, font *f, float base_size, float max_
   }
   if (wrap) {
     if (out_res) {
-      strcat(*out_res, "\n");
+      str_add(*out_res, "\n");
       new_line_counter++;
     }
   }
   if (out_res) {
-    strcat(*out_res, word);
+    str_add(*out_res, word);
   }
+  str_free(word);
+  str_free(current_line);
   return new_line_counter + 1;
 }
 
-void render_text_wrapped(renderer_2d *r2d, const char *text, font f, vec4 text_pos, vec4 color, float base_size, float spacing, float line_spacing, bool show_in_center, vec4 shadow_color, vec4 light_color) {
-  char *new_text;
+void render_text_wrapped(renderer_2d *r2d, const string *text, font f, vec4 text_pos, vec4 color, float base_size, float spacing, float line_spacing, bool show_in_center, vec4 shadow_color, vec4 light_color) {
+  string new_text = str_create();
   vec2 text_position = { text_pos.x, text_pos.y };
-  wrap(r2d, &text, &f, base_size, text_pos.z, &new_text);
+  wrap(r2d, text, &f, base_size, text_pos.z, &new_text);
   render_text(r2d, text_position, new_text, f, color, base_size, spacing, line_spacing, show_in_center, shadow_color, light_color);
+  str_free(new_text);
 }
 
-vec2 get_text_size_wrapped(renderer_2d *r2d, const char *text, font f, float max_text_length, float base_size, float spacing, float line_spacing) {
-  char *new_text;
-  wrap(r2d, &text, &f, base_size, max_text_length, &new_text);
+vec2 get_text_size_wrapped(renderer_2d *r2d, const string *text, font f, float max_text_length, float base_size, float spacing, float line_spacing) {
+  string new_text = str_create();
+  wrap(r2d, text, &f, base_size, max_text_length, &new_text);
   vec2 rez = get_text_size(r2d, new_text, f, base_size, spacing, line_spacing);
+  str_free(new_text);
   return rez;
 }
 

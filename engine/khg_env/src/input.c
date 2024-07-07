@@ -1,5 +1,6 @@
 #include "khg_env/input.h"
 #include "khg_env/game_scripting.h"
+#include "khg_utils/string.h"
 #include <string.h>
 
 key_button keyboard[BUTTONS_COUNT];
@@ -7,7 +8,7 @@ key_button left_mouse;
 key_button right_mouse;
 
 controller_buttons c_buttons;
-char *typed_input = "";
+string typed_input = NULL;
 
 void merge(key_button *b, const key_button *b_other) {
   b->pressed |= b_other->pressed;
@@ -194,12 +195,20 @@ void reset_inputs_to_zero() {
 }
 
 void add_to_typed_input(char c) {
-  char buffer[strlen(typed_input)];
-  strcpy(buffer, typed_input);
-  strcat(buffer, &c);
-  typed_input = buffer;
+  if (typed_input == NULL) {
+    return;
+  }
+  str_add(typed_input, &c);
 }
 
 void reset_typed_input() {
-  typed_input = "";
+  if (typed_input == NULL) {
+    typed_input = str_create();
+  }
+  str_clear(typed_input);
 }
+
+void free_typed_input() {
+  str_free(typed_input);
+}
+

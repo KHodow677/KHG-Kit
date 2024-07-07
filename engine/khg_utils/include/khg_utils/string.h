@@ -2,7 +2,7 @@
 
 #include "stdlib.h"
 
-typedef char *string;
+typedef char* string;
 
 typedef struct {
   size_t cap;
@@ -13,35 +13,35 @@ typedef struct {
 string _string_create();
 string _string_create_from_string(string _str);
 int _string_free(string _str);
-_string* _string_struct(string _str);
-_string* _string_realloc(_string* _str, size_t _data_size);
-int _string_calc_capacity(size_t* _cap, size_t _dest);
+_string *_string_struct(string _str);
+_string *_string_realloc(_string *_str, size_t _data_size);
+int _string_calc_capacity(size_t *_cap, size_t _dest);
 size_t _string_length(string _str);
 size_t _string_capacity(string _str);
 int _string_empty(string _str);
 int _string_compare(string str1, string str2);
-int _string_inc(string* _str, size_t _count);
+int _string_inc(string *_str, size_t _count);
 char _string_get(string _str, size_t _index);
 int _string_set(string _str, size_t _index, char _chr);
-int _string_add(string* _dst, char* _src);
-int _string_add_char(string* _dst, char _chr);
-int _string_insert(string* _dst, size_t _index, char* _src);
-int _string_insert_char(string* _dst, size_t _index, char _chr);
-int _string_delete(string* _str, size_t _index, size_t _num_chars);
-int _string_clear(string* _str);
+int _string_add(string *_dst, char *_src);
+int _string_add_char(string *_dst, char _chr);
+int _string_insert(string *_dst, size_t _index, char *_src);
+int _string_insert_char(string *_dst, size_t _index, char _chr);
+int _string_delete(string *_str, size_t _index, size_t _num_chars);
+int _string_clear(string *_str);
 int _string_reverse(string _str);
 int _string_fill(string _str, char _chr);
 int _string_fill_range(string _str, size_t _index, size_t _num_chars, char _chr);
 string _string_substr(string _str, size_t _index, size_t _num_chars);
 string _string_clone(string _str);
-int _string_find_from(string _str, char* _substr, size_t _index);
+int _string_find_from(string _str, char *_substr, size_t _index);
 int _string_find_char_from(string _str, char _chr, size_t _index);
-int _string_replace(string* _str, char* _substr, char* _new_substr, int _first);
-size_t _string_count(string _str, char* _substr);
+int _string_replace(string *_str, char *_substr, char *_new_substr, int _first);
+size_t _string_count(string _str, char *_substr);
 size_t _string_count_char(string _str, char _chr);
-int _string_resize(string* _str, size_t _num_chars);
-int _string_reserve(string* _str, size_t _num_chars);
-int _string_shrink(string* _str);
+int _string_resize(string *_str, size_t _num_chars);
+int _string_reserve(string *_str, size_t _num_chars);
+int _string_shrink(string *_str);
 
 #define str_create() _string_create()
 #define str_create_from_str(str) _string_create_from_string(str)
