@@ -7,13 +7,16 @@
 #include "GLFW/glfw3.h"
 #include "khg_env/other.h"
 #include <stdio.h>
-#include <time.h>
 
 bool current_full_screen = 0;
 bool full_screen = 0;
 int window_focus = 1;
 int mouse_moved_flag = 0;
 GLFWwindow *wind = 0;
+
+float get_elapsed_time() {
+  return (float)glfwGetTime();
+}
 
 int run_game() {
   glfwInit();
@@ -35,14 +38,12 @@ int run_game() {
   if (!init_game()) {
     return 0;
   }
-  struct timespec start, stop;
+  float start_time = get_elapsed_time();
   float delta_time, augmented_delta_time;
-
-  clock_gettime(CLOCK_REALTIME, &stop);
   while (!glfwWindowShouldClose(wind)) {
-    clock_gettime(CLOCK_REALTIME, &start);
-    delta_time = (start.tv_sec - stop.tv_sec) + (start.tv_nsec - stop.tv_nsec) / 1000000000.0;
-    clock_gettime(CLOCK_REALTIME, &stop);
+    float current_time = get_elapsed_time();
+    delta_time = current_time - start_time;
+    start_time = current_time;
     augmented_delta_time = delta_time;
     if (augmented_delta_time > 1.0f / 10.0f) {
       augmented_delta_time = 1.0f / 10.0f;
