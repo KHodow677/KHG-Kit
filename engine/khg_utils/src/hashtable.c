@@ -128,7 +128,7 @@ int ht_contains(hash_table* table, void* key) {
 	return HT_NOT_FOUND;
 }
 
-void* ht_lookup(hash_table* table, void* key) {
+void *ht_lookup(hash_table* table, void* key) {
 	ht_node* node;
 	size_t index;
 	assert(table != NULL);
@@ -144,7 +144,7 @@ void* ht_lookup(hash_table* table, void* key) {
 	return NULL;
 }
 
-const void* ht_const_lookup(const hash_table* table, void* key) {
+const void *ht_const_lookup(const hash_table* table, void* key) {
 	const ht_node* node;
 	size_t index;
 	assert(table != NULL);
@@ -268,8 +268,7 @@ bool _ht_should_shrink(hash_table* table) {
 	return table->size == table->capacity * HT_SHRINK_THRESHOLD;
 }
 
-ht_node*
-_ht_create_node(hash_table* table, void* key, void* value, ht_node* next) {
+ht_node *_ht_create_node(hash_table* table, void* key, void* value, ht_node* next) {
 	ht_node* node;
 	assert(table != NULL);
 	assert(key != NULL);

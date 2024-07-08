@@ -12,12 +12,12 @@
 #include "khg_ui/widget.h"
 #include "khg_utils/error_func.h"
 #include "khg_utils/hashtable.h"
+#include "khg_utils/string.h"
 #include "khg_utils/vector.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 
 static bool LOOK_SLIDER = 1;
 
@@ -68,24 +68,12 @@ bool aabb(vec4 transform, vec2 point) {
   }
 }
 
-char *get_string(char *s) {
-  char *f = strstr(s, "##");
-  if (f != NULL) {
-    size_t len = f - s;
-    char *result = (char *)malloc(len + 1);
-    if (result != NULL) {
-      strncpy(result, s, len);
-      result[len] = '\0';
-    }
-    return result;
+string get_string(string s) {
+  int f = str_find(s, "##");
+  if (f != -1) {
+    s = str_substr(s, 0, f);
   }
-  else {
-    char *result = (char *)malloc(strlen(s) + 1);
-    if (result != NULL) {
-      strcpy(result, s);
-    }
-    return result;
-  }
+  return s;
 }
 
 vec3 hsv_color(vec3 rgb) {
@@ -259,8 +247,8 @@ vec4 compute_texture_new_position(vec4 transform, texture t) {
   }
 }
 
-float determine_text_size(renderer_2d *r2d, char *str, font *f, vec4 transform, bool minimize) {
-  char *new_str = strdup(str);
+float determine_text_size(renderer_2d *r2d, string *str, font *f, vec4 transform, bool minimize) {
+  string new_str = get_string(*str);
   float size = text_fit;
   vec2 s = get_text_size(r2d, new_str, *f, size, 4, 3);
   float ratio_x = transform.z / s.x;
@@ -279,12 +267,13 @@ float determine_text_size(renderer_2d *r2d, char *str, font *f, vec4 transform, 
   else {
     size *= non_minimize_text_size;
   }
+  str_free(new_str);
   return size;
 }
 
-vec4 determine_text_pos(renderer_2d *r2d, char *str, font *f, vec4 transform, bool no_texture, bool minimize) {
-  char *new_str = strdup(str);
-  float new_s = determine_text_size(r2d, new_str, f, transform, true);
+vec4 determine_text_pos(renderer_2d *r2d, string *str, font *f, vec4 transform, bool no_texture, bool minimize) {
+  string new_str = get_string(*str);
+  float new_s = determine_text_size(r2d, &new_str, f, transform, true);
   vec2 s = get_text_size(r2d, new_str, *f, new_s, 4, 3);
   vec2 pos = { transform.x, transform.y };
   pos.x += transform.z / 2.f;
@@ -292,30 +281,27 @@ vec4 determine_text_pos(renderer_2d *r2d, char *str, font *f, vec4 transform, bo
   s = vec2_multiply_num_on_vec2(1.0f / 2.0f, &s);
   pos.x -= s.x;
   pos.y -= s.y;
+  str_free(new_str);
   return (vec4){ pos.x, pos.y, s.x, s.y };
 }
 
 void push_id_internal(renderer_ui *r, int id) {
-  char buffer[strlen(r->id_str)];
-  strcpy(buffer, r->id_str);
-  strcat(buffer, "#");
-  r->id_str = buffer;
+  str_add_char(r->id_str, '#');
   push_id_ui(r, id);
 }
 
 void pop_id_internal(renderer_ui *r) {
   pop_id_ui(r);
-  int size = strlen(r->id_str);
-  if (size == 0) {
+  if (str_empty(r->id_str)) {
     error_func("More pops than pushes", user_defined_data);
     return;
   }
   else {
-    if (r->id_str[size - 1] == '#') {
+    if (r->id_str[str_size(r->id_str) - 1] == '#') {
       error_func("Inconsistent usage of begin end push pop", user_defined_data);
       return;
     }
-    r->id_str[size - 1] = '\0';
+    str_set(r->id_str, str_size(r->id_str) - 1, '\0');
   }
 }
 
@@ -373,9 +359,9 @@ void render_texture_ui (renderer_2d *r2d, vec4 transform, texture t, vec4 c, vec
   render_rectangle_texture(r2d, new_pos, t, colors, (vec2) { 0.0f, 0.0f }, 0.0f, default_texture_coords);
 }
 
-void render_text_ui(renderer_2d *r2d, char *str, font *f, vec4 transform, vec4 color, bool no_texture, bool minimize, bool align_left) {
-  char *new_str = get_string(str);
-  float new_s = determine_text_size(r2d, new_str, f, transform, minimize);
+void render_text_ui(renderer_2d *r2d, string *str, font *f, vec4 transform, vec4 color, bool no_texture, bool minimize, bool align_left) {
+  string new_str = get_string(*str);
+  float new_s = determine_text_size(r2d, &new_str, f, transform, minimize);
   vec2 pos = { transform.x, transform.y };
   if (!align_left) {
     pos.x += transform.z / 2.0f;
@@ -476,14 +462,14 @@ void render_slider_int(renderer_2d *r2d, vec4 transform, int *value, int min, in
   render_fancy_box(r2d, bullet_transform, ball_c, ball_t, hovered, clicked);
 }
 
-bool draw_button(renderer_ui *rui, renderer_2d *r2d, font *f, vector(column_pair) columns, int current_column, char *first, widget *w, input_data input) {
+bool draw_button(renderer_ui *rui, renderer_2d *r2d, font *f, vector(column_pair) columns, int current_column, string first, widget *w, input_data input) {
   vec4 transform_drawn = columns[current_column].first;
   vec4 aabb_transform = columns[current_column].first;
   bool hovered = 0;
   bool clicked = 0;
   vec4 text_color = color_white;
   if (w->color.w <= 0.01f) {
-    vec4 p = determine_text_pos(r2d, first, f, transform_drawn, true, true);
+    vec4 p = determine_text_pos(r2d, &first, f, transform_drawn, true, true);
     aabb_transform = p;
   }
   if (aabb(aabb_transform, input.mouse_pos)) {
@@ -507,10 +493,10 @@ bool draw_button(renderer_ui *rui, renderer_2d *r2d, font *f, vector(column_pair
   }
   render_fancy_box(r2d, transform_drawn, w->color, w->texture, hovered, clicked);
   if (w->color.w <= 0.01f || w->texture.id == 0) {
-    render_text_ui(r2d, first, f, transform_drawn, text_color, true, !hovered, false);
+    render_text_ui(r2d, &first, f, transform_drawn, text_color, true, !hovered, false);
   }
   else {
-    render_text_ui(r2d, first, f, transform_drawn, text_color, false, !hovered, false);
+    render_text_ui(r2d, &first, f, transform_drawn, text_color, false, !hovered, false);
   }
   return w->return_from_update;
 }
@@ -519,16 +505,16 @@ bool is_in_button(const vec2 *p, const vec4 *box) {
 	return(p->x >= box->x && p->x <= box->x + box->z && p->y >= box->y && p->y <= box->y + box->w);
 }
 
-void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, char *typed_input, float delta_time) {
+void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, string *typed_input, float delta_time) {
   if (!id_was_set) {
     return;
   }
-  vector(char *) iter_menu_stack = ht_lookup(&rui->all_menu_stacks, &current_id);
+  vector(string) iter_menu_stack = *(vector(string) *)ht_lookup(&rui->all_menu_stacks, &current_id);
   if (iter_menu_stack == NULL) {
-    vector(char *) new_menu_stack;
+    vector(string) new_menu_stack;
     ht_insert(&rui->all_menu_stacks, &current_id, &new_menu_stack);
   }
-  vector(char *) current_menu_stack = ht_lookup(&rui->all_menu_stacks, &current_id);
+  vector(string) current_menu_stack = *(vector(string) *)ht_lookup(&rui->all_menu_stacks, &current_id);
   id_was_set = 0;
   current_id = 0;
   if (escape_released && !vector_empty(current_menu_stack)) {
@@ -546,28 +532,27 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   }
   vector(widget_pair) widgets_copy = NULL;
   vector_reserve(widgets_copy, vector_size(rui->widgets_vector));
-  vector(char *) current_menu_stack_copy;
+  vector(string) current_menu_stack_copy;
   if (!vector_empty(current_menu_stack)) {
     vector_copy(current_menu_stack, current_menu_stack_copy);
   }
   vector(char *) menu_stack;
-  char *next_menu = "";
+  string next_menu = str_create();
   bool should_ignore = false;
   if (!vector_empty(current_menu_stack_copy)) {
-    next_menu = (char *) vector_front(current_menu_stack_copy);
+    next_menu = str_clone(*vector_front(current_menu_stack_copy));
     vector_erase(current_menu_stack_copy, 0);
     should_ignore = true;
   }
   int next_stack_size_to_look = 0;
   int next_stack_size_to_look_min = 0;
-  int size = vector_size(rui->widgets_vector);
   for (int i = 0; i < vector_size(rui->widgets_vector); i++) {
     widget_pair w = rui->widgets_vector[i];
     if (w.second.type == widget_begin_menu) {
       vector_push_back(menu_stack, w.first);
       if (w.first == next_menu) {
         if (!vector_empty(current_menu_stack_copy)) {
-          next_menu = (char *) vector_front(current_menu_stack_copy);
+          next_menu = str_clone(*vector_front(current_menu_stack_copy));
           vector_erase(current_menu_stack_copy, 0);
           should_ignore = true;
         }
@@ -584,9 +569,9 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
       continue;
     }
     if (w.second.type == widget_end_menu) {
-      char *str = "##$";
-      strcat(str, (char *)vector_back(menu_stack));
-      w.first = str;
+      str_clear(w.first);
+      str_add(w.first, "##$");
+      str_add(w.first, *vector_back(menu_stack));
       vector_pop_back(menu_stack);
       if (next_stack_size_to_look == vector_size(menu_stack)) {
         should_ignore = false;
@@ -670,15 +655,65 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         break;
       }
       case widget_toggle: {
-        vec4 transform_drawn;
-        transform_drawn = columns[current_column].first;
+        vec4 transform_drawn = columns[current_column].first;
         bool hovered = 0;
         bool clicked = 0;
         vec4 toggle_transform = transform_drawn;
         vec4 text_transform = transform_drawn;
         text_transform.z -= toggle_transform.w;
         toggle_transform.z = toggle_transform.w;
-        vec4 p = determine_text_pos(r2d, pair.first, f, text_transform, true, true);
+        vec4 p = determine_text_pos(r2d, &pair.first, f, text_transform, true, true);
+        toggle_transform.x = p.x + p.z;
+        vec4 aabb_box = p;
+        aabb_box.z += toggle_transform.z;
+        aabb_box.y = min(toggle_transform.y, text_transform.y);
+        aabb_box.w = max(toggle_transform.w, text_transform.w);
+        if (aabb(aabb_box, input.mouse_pos)) {
+          hovered = true;
+          if (input.mouse_held) {
+            clicked = true;
+            text_transform.y += transform_drawn.w * press_down_size;
+            toggle_transform.y += transform_drawn.w *press_down_size;
+          }
+        }
+        if (input.mouse_released && aabb(aabb_box, input.mouse_pos)) {
+          *(bool *)(w->pointer) = !(*(bool *)(w->pointer));
+        }
+        w->return_from_update = *(bool *)(w->pointer);
+        if (hovered) {
+          render_text_ui(r2d, &pair.first, f, text_transform, step_color_down(color_white, 0.8f), true, false, false);
+        }
+        else {
+          render_text_ui(r2d, &pair.first, f, text_transform, color_white, true, true, false);
+        }
+        if (w->return_from_update) {
+          vec4 small = toggle_transform;
+          small.z *= button_fit;
+          small.w *= button_fit;
+          small.x += toggle_transform.z * (1.0f - button_fit) / 2.0f;
+          small.y += toggle_transform.w * (1.0f - button_fit) / 2.0f;
+          render_fancy_box(r2d, toggle_transform, w->color, w->texture, hovered, clicked);
+          if (w->texture_over.id) {
+            render_fancy_box(r2d, toggle_transform, color_white, w->texture_over, false, false);
+          }
+          else {
+            render_fancy_box(r2d, small, w->color, w->texture_over, false, false);
+          }
+        }
+        else {
+          render_fancy_box(r2d, toggle_transform, w->color, w->texture, hovered, clicked);
+        }
+        break;
+      }
+      case widget_toggle_button: {
+        vec4 transform_drawn = columns[current_column].first;
+        bool hovered = 0;
+        bool clicked = 0;
+        vec4 toggle_transform = transform_drawn;
+        vec4 text_transform = transform_drawn;
+        text_transform.z -= toggle_transform.w;
+        toggle_transform.z = toggle_transform.w;
+        vec4 p = determine_text_pos(r2d, &pair.first, f, text_transform, true, true);
         toggle_transform.x = p.x + p.z;
         vec4 aabb_box = p;
         aabb_box.z += toggle_transform.z;
@@ -697,23 +732,23 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         w->return_from_update = *(bool *)(w->pointer);
         render_fancy_box(r2d, toggle_transform, w->color_2, w->texture, hovered, clicked);
-        char * text = get_string(pair.first);
+        string text = get_string(pair.first);
         if (w->return_from_update) {
-          strcat(text, ": ON");
+          str_add(text, ": ON");
         }
         else {
-          strcat(text, ": OFF");
+          str_add(text, ": OFF");
         }
         if (hovered) {
-          render_text_ui(r2d, text, f, text_transform, step_color_down(color_white, 0.8f), true, false, false); 
+          render_text_ui(r2d, &text, f, text_transform, step_color_down(color_white, 0.8f), true, false, false); 
         }
         else {
-          render_text_ui(r2d, text, f, text_transform, color_white, true, true, false); 
+          render_text_ui(r2d, &text, f, text_transform, color_white, true, true, false); 
         }
         break;
       }
       case widget_text: {
-        render_text_ui(r2d, pair.first, f, columns[current_column].first, pair.second.color, true, true, false);
+        render_text_ui(r2d, &pair.first, f, columns[current_column].first, pair.second.color, true, true, false);
         break;
       }
       case widget_text_input: {
@@ -737,7 +772,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           }
         }
         if (enabled) {
-          for (char *i = typed_input; *i != '\0'; i++) {
+          for (char *i = *typed_input; *i != '\0'; i++) {
             if (*i == 8) {
               if (pos > 0) {
                 pos--;
@@ -759,16 +794,20 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         if (pair.second.texture.id != 0) {
           render_fancy_box(r2d, transform, pair.second.color, w->texture, hovered, clicked);
         }
-        char *text_copy = strdup(text);
+        string text_copy = str_clone(text);
         if (pair.second.display_text) {
-          text_copy = strcat(get_string(pair.first), text_copy);
+          string temp = str_create();
+          str_add(temp, get_string(pair.first));
+          str_add(temp, text_copy);
+          str_add(text_copy, temp);
+          str_free(temp);
         }
         if (enabled) {
           if ((int)timer % 2) {
-            strcat(text_copy, "|");
+            str_add(text_copy, "|");
           }
         }
-        render_text_ui(r2d, text_copy, f, transform, color_white, true, !hovered, false);
+        render_text_ui(r2d, &text_copy, f, transform, color_white, true, !hovered, false);
         break;
       }
       case widget_begin_menu: {
@@ -823,15 +862,18 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         *value = min(*value, pair.second.max);
         *value = max(*value, pair.second.min);
-        char *text_raw = get_string(pair.first);
-        char text[strlen(text_raw)];
-        strcpy(text, pair.first);
-        char buffer[50];
-        snprintf(buffer, sizeof(buffer), "%0.2f", *value);
-        strcat(text, ": ");
-        strcat(text, buffer);
+        string text = str_clone(pair.first);
+        char s[50];
+        snprintf(s, sizeof(s), "%0.2f", *value);
+        string temp = str_create();
+        str_add(temp, get_string(text));
+        str_add(temp, ": ");
+        str_add(temp, s);
+        str_add(text, temp);
+        str_free(temp);
         render_slider_float(r2d, slider_transform, value, pair.second.min, pair.second.max, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color, pair.second.texture_over, pair.second.color_2, &input);
-        render_text_ui(r2d, text, f, text_transform, pair.second.color_3, true, true, false);
+        render_text_ui(r2d, &text, f, text_transform, pair.second.color_3, true, true, false);
+        str_free(text);
         break;
       }
       case widget_color_picker_w: {
@@ -848,10 +890,10 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         vec4 color = { value[0], value[1], value[2], 1 };
         if (pair.second.color.w) {
           render_fancy_box(r2d, text_transform, color, pair.second.texture, false, false);
-          render_text_ui(r2d, pair.first, f, text_transform, pair.second.color, true, true, false);
+          render_text_ui(r2d, &pair.first, f, text_transform, pair.second.color, true, true, false);
         }
         else {
-          render_text_ui(r2d, pair.first, f, text_transform, color, true, true, false);
+          render_text_ui(r2d, &pair.first, f, text_transform, color, true, true, false);
         }
         if (pair.second.color_2.w) {
           render_slider_float(r2d, transform_1, value + 0, 0, 1, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color_2, pair.second.texture_over, (vec4){ 1.0f, 0.0f, 0.0f, 1.0f }, &input);
@@ -887,15 +929,18 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         *value = min(*value, pair.second.max_int);
         *value = max(*value, pair.second.min_int);
-        char *text_raw = get_string(pair.first);
-        char text[strlen(text_raw)];
-        strcpy(text, pair.first);
-        char buffer[50];
-        snprintf(buffer, sizeof(buffer), "%i", *value);
-        strcat(text, ": ");
-        strcat(text, buffer);
+        string text = str_clone(pair.first);
+        char s[50];
+        snprintf(s, sizeof(s), "%i", *value);
+        string temp = str_create();
+        str_add(temp, get_string(text));
+        str_add(temp, ": ");
+        str_add(temp, s);
+        str_add(text, temp);
+        str_free(temp);
         render_slider_int(r2d, slider_transform, value, pair.second.min_int, pair.second.max_int, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color, pair.second.texture_over, pair.second.color_2, &input);
-        render_text_ui(r2d, text, f, text_transform, pair.second.color_3, true, true, false);
+        render_text_ui(r2d, &text, f, text_transform, pair.second.color_3, true, true, false);
+        str_free(text);
         break;
       }
       case widget_custom: {
@@ -918,7 +963,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           error_func("NULL passed as an index for widget_toggle_options", user_defined_data);
         }
         if (w->color.w <= 0.01f) {
-          vec4 p = determine_text_pos(r2d, pair.first, f, transform_drawn, true, true);
+          vec4 p = determine_text_pos(r2d, &pair.first, f, transform_drawn, true, true);
           aabb_transform = p;
         }
         int max_size = 1;
@@ -956,9 +1001,9 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           w->return_from_update = false;
         }
         render_fancy_box(r2d, transform_drawn, w->color, w->texture, hovered, clicked);
-        char *final_text;
+        string final_text = str_create();
         if (pair.second.display_text) {
-          final_text = pair.first;
+          final_text = str_clone(pair.first);
         }
         int current_increment = 0;
         for (int i = 0; i < text_2_size; i++) {
@@ -967,7 +1012,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
             if (c == '|') {
               break;
             }
-            final_text += c;
+            str_add_char(final_text, c);
           }
           char c = pair.second.text_2[i];
           if (c == '|') {
@@ -975,10 +1020,10 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           }
         }
         if ((w->color.w <= 0.01f || pair.second.texture.id == 0)) {
-          render_text_ui(r2d, final_text, f, transform_drawn, text_color, true, !hovered, false);
+          render_text_ui(r2d, &final_text, f, transform_drawn, text_color, true, !hovered, false);
         }
         else {
-          render_text_ui(r2d, final_text, f, transform_drawn, text_color, false, !hovered, false);
+          render_text_ui(r2d, &final_text, f, transform_drawn, text_color, false, !hovered, false);
         }
         int text_3_size = strlen(pair.second.text_3);
         if (pair.second.text_3 != 0 && hovered) {
@@ -1000,24 +1045,26 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           transform.w *= 0.9f;
           transform.w /= lines;
           int ind = 0;
-          char *copy = "";
+          string copy = str_create();
           for (int l = 1; l <=lines;) {
             if (pair.second.text_3[ind] == '\n' || pair.second.text_3[ind] == '\v') {
-              render_text_ui(r2d, copy, f, transform, pair.second.color, 0, true, true);
+              render_text_ui(r2d, &copy, f, transform, pair.second.color, 0, true, true);
               l++;
-              copy = "";
+              str_clear(copy);
               transform.y += transform.w;
             }
             else {
-              copy += pair.second.text_3[ind];
+              str_add_char(copy, pair.second.text_3[ind]);
             }
             ind++;
             if (ind >= text_3_size) {
               break;
             }
           }
-          render_text_ui(r2d, copy, f, transform, pair.second.color, 0, true, true);
+          render_text_ui(r2d, &copy, f, transform, pair.second.color, 0, true, true);
+          str_free(copy);
         }
+        str_free(final_text);
         break;
       }
     }
@@ -1025,7 +1072,6 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
     w->last_frame_data = input;
     columns[current_column].first.y += columns[current_column].second;
   }
-  printf("Hi\n");
   hash_table widgets2;
   ht_reserve(&widgets2, rui->widgets.size);
   for (int i = 0; i < rui->widgets.size; i++) {
@@ -1039,16 +1085,16 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   rui->widgets = widgets2;
   r2d->current_camera = c;
   vector_clear(rui->widgets_vector);
-  int id_str_size = strlen(rui->id_str);
-  printf("%i\n", id_str_size);
+  int id_str_size = str_size(rui->id_str);
   if (id_str_size != 0) {
     error_func("More pushes than pops", user_defined_data);
   }
-  rui->id_str = "";
+  str_clear(rui->id_str);
+  str_free(next_menu);
 }
 
-bool button_ui(renderer_ui *rui, char *name, const vec4 color, const texture t) {
-  strcat(name, rui->id_str);
+bool button_ui(renderer_ui *rui, string name, const vec4 color, const texture t) {
+  str_add(name, rui->id_str);
   widget w = { 0 };
   w.type = widget_button;
   w.color = color;
@@ -1074,12 +1120,13 @@ void texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec4 texture_co
   w.texture_coords = texture_coods;
   w.used_this_frame = true;
   w.just_created = true;
-  char *name = "##$texture";
+  string name = str_create_from_str("##$texture");
   char buffer[50];
   snprintf(buffer, sizeof(buffer), "%i", id);
-  strcat(name, buffer);
+  str_add(name, buffer);
   widget_pair wp = { name, w };
   vector_push_back(rui->widgets_vector, wp);
+  str_free(name);
 }
 
 bool button_with_texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec4 texture_coords) {
@@ -1090,13 +1137,14 @@ bool button_with_texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec
   w.texture_coords = texture_coords;
   w.used_this_frame = true;
   w.just_created = true;
-  char *name = "##$textureWithId:";
+  string name = str_create_from_str("##$textureWithId:");
   char buffer[50];
   snprintf(buffer, sizeof(buffer), "%i", id);
-  strcat(name, buffer);
+  str_add(name, buffer);
   widget_pair wp = { name, w };
   vector_push_back(rui->widgets_vector, wp);
   widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  str_free(name);
   if (find != NULL) {
     return find->second.return_from_update;
   }
@@ -1105,8 +1153,8 @@ bool button_with_texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec
   }
 }
 
-bool toggle_ui(renderer_ui *rui, char *name, const vec4 color, bool *toggle, const texture t, const texture over_texture) {
-  strcat(name, rui->id_str);
+bool toggle_ui(renderer_ui *rui, string name, const vec4 color, bool *toggle, const texture t, const texture over_texture) {
+  str_add(name, rui->id_str);
   widget w = { 0 };
   w.type = widget_toggle;
   w.color = color;
@@ -1126,8 +1174,8 @@ bool toggle_ui(renderer_ui *rui, char *name, const vec4 color, bool *toggle, con
   }
 }
 
-bool toggle_button_ui(renderer_ui *rui, char *name, const vec4 text_color, bool *toggle, const texture t, const vec4 button_color) {
-  strcat(name, rui->id_str);
+bool toggle_button_ui(renderer_ui *rui, string name, const vec4 text_color, bool *toggle, const texture t, const vec4 button_color) {
+  str_add(name, rui->id_str);
   widget w = { 0 };
   w.type = widget_toggle_button;
   w.color = text_color;
@@ -1148,16 +1196,17 @@ bool toggle_button_ui(renderer_ui *rui, char *name, const vec4 text_color, bool 
 }
 
 bool custom_widget_ui(renderer_ui *rui, int id, vec4 *transform, bool *hovered, bool *clicked) {
-  char name[] = "##$customWidgetWithID:";
+  string name = str_create_from_str("##$customWidgetWithID:");
   char buffer[50];
   snprintf(buffer, sizeof(buffer), "%i", id);
-  strcat(name, buffer);
+  str_add(name, buffer);
   widget w = { 0 };
   w.type = widget_custom;
   w.pointer = transform;
   widget_pair wp = { name, w }; 
   vector_push_back(rui->widgets_vector, wp);
   widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  str_free(name);
   if (find != NULL) {
     *transform = find->second.return_transform;
     if (hovered) {
@@ -1172,8 +1221,8 @@ bool custom_widget_ui(renderer_ui *rui, int id, vec4 *transform, bool *hovered, 
   }
 }
 
-void text_ui(renderer_ui *rui, char *name, const vec4 color) {
-  strcat(name, rui->id_str);
+void text_ui(renderer_ui *rui, string name, const vec4 color) {
+  str_add(name, rui->id_str);
   widget w = { 0 };
   w.type = widget_text;
   w.color = color;
@@ -1183,8 +1232,8 @@ void text_ui(renderer_ui *rui, char *name, const vec4 color) {
   vector_push_back(rui->widgets_vector, wp);
 }
 
-void input_text_ui(renderer_ui *rui, char *name, char *text, size_t text_size_with_null_char, vec4 color, const texture t, bool only_one_enabled, bool display_text, bool enabled) {
-  strcat(name, rui->id_str);
+void input_text_ui(renderer_ui *rui, string name, char *text, size_t text_size_with_null_char, vec4 color, const texture t, bool only_one_enabled, bool display_text, bool enabled) {
+  str_add(name, rui->id_str);
   widget w = { 0 };
   w.type = widget_text_input;
   w.pointer = text;
@@ -1200,14 +1249,8 @@ void input_text_ui(renderer_ui *rui, char *name, char *text, size_t text_size_wi
   vector_push_back(rui->widgets_vector, wp);
 }
 
-void slider_float_ui(renderer_ui *rui, char *name, float *value, float min, float max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
-  size_t name_len = strlen(name) + strlen(rui->id_str) + 1;
-  char * name_buffer = (char *)malloc(name_len);
-  if (name_buffer == NULL) {
-    return;
-  }
-  strcpy(name_buffer, name);
-  strcat(name_buffer, rui->id_str);
+void slider_float_ui(renderer_ui *rui, string name, float *value, float min, float max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
+  str_add(name, rui->id_str);
   widget w = { 0 };
   w.type = widget_slider_float_w;
   w.pointer = value;
@@ -1220,18 +1263,12 @@ void slider_float_ui(renderer_ui *rui, char *name, float *value, float min, floa
   w.color_3 = text_color;
   w.texture = slider_texture;
   w.texture_over = ball_texture;
-  widget_pair wp = { name_buffer, w };
+  widget_pair wp = { name, w };
   vector_push_back(rui->widgets_vector, wp);
 }
 
-void slider_int_ui(renderer_ui *rui, char *name, int *value, int min, int max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
-  size_t name_len = strlen(name) + strlen(rui->id_str) + 1;
-  char * name_buffer = (char *)malloc(name_len);
-  if (name_buffer == NULL) {
-    return;
-  }
-  strcpy(name_buffer, name);
-  strcat(name_buffer, rui->id_str);
+void slider_int_ui(renderer_ui *rui, string name, int *value, int min, int max, vec4 text_color, texture slider_texture, vec4 slider_color, texture ball_texture, vec4 ball_color) {
+  str_add(name, rui->id_str);
   widget w = { 0 };
   w.type = widget_slider_int_w;
   w.pointer = value;
@@ -1244,11 +1281,11 @@ void slider_int_ui(renderer_ui *rui, char *name, int *value, int min, int max, v
   w.color_3 = text_color;
   w.texture = slider_texture;
   w.texture_over = ball_texture;
-  widget_pair wp = { name_buffer, w };
+  widget_pair wp = { name, w };
   vector_push_back(rui->widgets_vector, wp); 
 }
 
-void color_picker_ui(renderer_ui *rui, char *name, float *color_3_component, texture slider_texture, texture ball_texture, vec4 color, vec4 color_2) {
+void color_picker_ui(renderer_ui *rui, string name, float *color_3_component, texture slider_texture, texture ball_texture, vec4 color, vec4 color_2) {
   widget w = { 0 };
   w.type = widget_color_picker_w;
   w.pointer = color_3_component;
@@ -1260,7 +1297,7 @@ void color_picker_ui(renderer_ui *rui, char *name, float *color_3_component, tex
   vector_push_back(rui->widgets_vector, wp);
 }
 
-void toggle_options_ui(renderer_ui *rui, char *name, char *options_separated_by_bars, size_t *current_index, bool show_text, vec4 text_color, vec4 *options_color, texture t, vec4 texture_color, char *tooltip) {
+void toggle_options_ui(renderer_ui *rui, string name, string options_separated_by_bars, size_t *current_index, bool show_text, vec4 text_color, vec4 *options_color, texture t, vec4 texture_color, char *tooltip) {
   widget w = { 0 };
   w.type = widget_options_toggle;
   w.text_2 = options_separated_by_bars;
@@ -1278,12 +1315,13 @@ void toggle_options_ui(renderer_ui *rui, char *name, char *options_separated_by_
 void new_column_ui(renderer_ui *rui, int id) {
   widget w = { 0 };
   w.type = widget_new_column_w;
-  char *name = "##$column";
+  string name = str_create_from_str("##$column");
   char buffer[50];
   snprintf(buffer, sizeof(buffer), "%i", id);
-  strcat(name, buffer);
+  str_add(name, buffer);
   widget_pair wp = { name, w };
   vector_push_back(rui->widgets_vector, wp);
+  str_free(name);
 }
 
 void push_id_ui(renderer_ui *rui, int id) {
@@ -1291,29 +1329,23 @@ void push_id_ui(renderer_ui *rui, int id) {
   char b = *(((char*)&id) + 1);
   char c = *(((char*)&id) + 2);
   char d = *(((char*)&id) + 3);
-  strcat(rui->id_str, "#");
-  strcat(rui->id_str, "#");
-  strcat(rui->id_str, &a);
-  strcat(rui->id_str, &b);
-  strcat(rui->id_str, &c);
-  strcat(rui->id_str, &d);
+  str_add_char(rui->id_str, '#');
+  str_add_char(rui->id_str, '#');
+  str_add_char(rui->id_str, a);
+  str_add_char(rui->id_str, b);
+  str_add_char(rui->id_str, c);
+  str_add_char(rui->id_str, d);
 }
 
 void pop_id_ui(renderer_ui *rui) {
-  size_t len = strlen(rui->id_str);
-  if (len < 6) {
+  if (str_size(rui->id_str) < 6) {
     error_func("More pops than pushes", user_defined_data);
     return;
   }
-  for (int i = 0; i < 6; i++) {
-    if (len > 0) {
-      rui->id_str[len - 1] = '\0';
-      len--;
-    }
-  }
+  str_delete(rui->id_str, str_size(rui->id_str) - 6, 6);
 }
 
-void begin_menu_ui(renderer_ui *rui, char * name, const vec4 color, const texture t) {
+void begin_menu_ui(renderer_ui *rui, string name, const vec4 color, const texture t) {
   widget w = { 0 };
   w.type = widget_begin_menu;
   w.color = color;

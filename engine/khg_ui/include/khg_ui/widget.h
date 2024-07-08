@@ -3,6 +3,7 @@
 #include "khg_2d/texture.h"
 #include "khg_math/vec4.h"
 #include "khg_ui/data.h"
+#include "khg_utils/string.h"
 
 typedef enum {
   none = 0,
@@ -24,8 +25,8 @@ typedef enum {
 } widget_type;
 
 typedef struct {
-  char *text_2;
-  char *text_3;
+  string text_2;
+  string text_3;
   int type;
   bool just_created;
   bool enabled;

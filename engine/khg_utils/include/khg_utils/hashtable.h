@@ -84,7 +84,7 @@ bool _ht_equal(const hash_table *table, void *first_key, void *second_key);
 bool _ht_should_grow(hash_table *table);
 bool _ht_should_shrink(hash_table *table);
 
-ht_node* _ht_create_node(hash_table *table, void *key, void *value, ht_node *next);
+ht_node *_ht_create_node(hash_table *table, void *key, void *value, ht_node *next);
 int _ht_push_front(hash_table *table, size_t index, void *key, void *value);
 void _ht_destroy_node(ht_node *node);
 
