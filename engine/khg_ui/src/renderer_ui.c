@@ -509,16 +509,16 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   if (!id_was_set) {
     return;
   }
-  vector(string) iter_menu_stack = *(vector(string) *)ht_lookup(&rui->all_menu_stacks, &current_id);
+  vector(string) *iter_menu_stack = ht_lookup(&rui->all_menu_stacks, &current_id);
   if (iter_menu_stack == NULL) {
     vector(string) new_menu_stack;
     ht_insert(&rui->all_menu_stacks, &current_id, &new_menu_stack);
   }
-  vector(string) current_menu_stack = *(vector(string) *)ht_lookup(&rui->all_menu_stacks, &current_id);
+  vector(string) *current_menu_stack = ht_lookup(&rui->all_menu_stacks, &current_id);
   id_was_set = 0;
   current_id = 0;
-  if (escape_released && !vector_empty(current_menu_stack)) {
-    vector_pop_back(current_menu_stack);
+  if (escape_released && !vector_empty(*current_menu_stack)) {
+    vector_pop_back(*current_menu_stack);
   }
   timer += delta_time * 2;
   if (timer >= 2.0f) {
@@ -533,8 +533,8 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   vector(widget_pair) widgets_copy = NULL;
   vector_reserve(widgets_copy, vector_size(rui->widgets_vector));
   vector(string) current_menu_stack_copy;
-  if (!vector_empty(current_menu_stack)) {
-    vector_copy(current_menu_stack, current_menu_stack_copy);
+  if (!vector_empty(*current_menu_stack)) {
+    vector_copy(*current_menu_stack, current_menu_stack_copy);
   }
   vector(char *) menu_stack;
   string next_menu = str_create();
@@ -548,6 +548,8 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   int next_stack_size_to_look_min = 0;
   for (int i = 0; i < vector_size(rui->widgets_vector); i++) {
     widget_pair w = rui->widgets_vector[i];
+    printf("%s\n", w.first);
+    printf("%i\n", w.second.type);
     if (w.second.type == widget_begin_menu) {
       vector_push_back(menu_stack, w.first);
       if (w.first == next_menu) {
@@ -812,7 +814,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
       }
       case widget_begin_menu: {
         if (draw_button(rui, r2d, f, columns, current_column, pair.first, w, input)) {
-          vector_push_back(current_menu_stack, pair.first);
+          vector_push_back(*current_menu_stack, pair.first);
         }
         break;
       }
@@ -1371,7 +1373,7 @@ void begin_ui(renderer_ui *rui, int id) {
   rui->a_settings = (aligned_settings){ 0 };
   rui->id_str = str_create();
   rui->current_text_box = str_create();
-  ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(char *)), 100);
+  ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(string)), 100);
   ht_setup(&rui->widgets, sizeof(char *), sizeof(widget_pair), 100);
   if (!id_was_set) {
     id_was_set = true;
