@@ -1,6 +1,7 @@
 #pragma once
 
 #include "khg_math/vec2.h"
+#include "khg_utils/string.h"
 #include "GLFW/glfw3.h"
 #include <stdbool.h>
 
@@ -22,7 +23,7 @@ typedef struct {
     key_up, key_down, key_left, key_right,
     key_left_ctrl, key_tab,
     BUTTONS_COUNT,
-  };
+  } key_type;
 } key_button;
 
 void merge(key_button *b, const key_button *b_other);
@@ -45,7 +46,7 @@ typedef struct {
     con_right = GLFW_GAMEPAD_BUTTON_DPAD_RIGHT,  
     con_down = GLFW_GAMEPAD_BUTTON_DPAD_DOWN, 
     con_left = GLFW_GAMEPAD_BUTTON_DPAD_LEFT,  
-  };
+  } con_type;
   key_button con_buttons[GLFW_GAMEPAD_BUTTON_LAST + 1];
   float con_lt;
   float con_rt;
@@ -65,7 +66,7 @@ int is_right_mouse_released();
 int is_left_mouse_held();
 int is_right_mouse_held();
 controller_buttons get_controller_buttons();
-char *get_typed_input();
+string *get_typed_input();
 void set_button_state(int button, int newState);
 void set_left_mouse_state(int newState);
 void set_right_mouse_state(int newState);

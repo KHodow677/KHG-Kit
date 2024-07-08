@@ -93,8 +93,8 @@ controller_buttons get_controller_buttons() {
   return c;
 }
 
-char *get_typed_input() {
-  return typed_input;
+string *get_typed_input() {
+  return &typed_input;
 }
 
 void set_button_state(int button, int new_state) {
