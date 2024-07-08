@@ -18,15 +18,16 @@ vec4 font_get_glyph_texture_doords(const font f, const char c) {
 }
 
 void create_from_TTF(font *f, const unsigned char *ttf_data, const size_t ttf_data_size) {
-  stbtt_pack_context stbtt_context;
-  f->size = (vec2){ 2000.0f, 2000.0f };
-  f->max_height = 0,
+  f->size.x = 2000;
+  f->size.y = 2000;
+  f->max_height = 0;
   f->packed_chars_buffer_size = ('~' - ' ');
-  size_t font_monochrome_buffer_size = f->size.x * f->size.y;
-  size_t font_rgba_buffer_size = f->size.x * f->size.y * 4;
+  const size_t font_monochrome_buffer_size = f->size.x * f->size.y;
+  const size_t font_rgba_buffer_size = f->size.x * f->size.y * 4;
   unsigned char *font_monochrome_buffer = (unsigned char *)malloc(font_monochrome_buffer_size);
   unsigned char *font_rgba_buffer = (unsigned char *)malloc(font_rgba_buffer_size);
-  f->packed_chars_buffer = malloc(f->packed_chars_buffer_size);
+  f->packed_chars_buffer = malloc(f->packed_chars_buffer_size * sizeof(stbtt_aligned_quad));
+  stbtt_pack_context stbtt_context;
   stbtt_PackBegin(&stbtt_context, font_monochrome_buffer, f->size.x, f->size.y, 0, 2, NULL);
   stbtt_PackSetOversampling(&stbtt_context, 2, 2);
   stbtt_PackFontRange(&stbtt_context, ttf_data, 0, 65, ' ', '~' - ' ', f->packed_chars_buffer);
@@ -35,9 +36,10 @@ void create_from_TTF(font *f, const unsigned char *ttf_data, const size_t ttf_da
     font_rgba_buffer[(i * 4)] = font_monochrome_buffer[i];
     font_rgba_buffer[(i * 4) + 1] = font_monochrome_buffer[i];
     font_rgba_buffer[(i * 4) + 2] = font_monochrome_buffer[i];
+
     if (font_monochrome_buffer[i] > 1) {
       font_rgba_buffer[(i * 4) + 3] = 255;
-    }
+    } 
     else {
       font_rgba_buffer[(i * 4) + 3] = 0;
     }
@@ -52,7 +54,7 @@ void create_from_TTF(font *f, const unsigned char *ttf_data, const size_t ttf_da
   free(font_monochrome_buffer);
   free(font_rgba_buffer);
   for (char c = ' '; c <= '~'; c++) {
-    const stbtt_aligned_quad q =  font_get_glyph_quad(*f, c);
+    const stbtt_aligned_quad q = font_get_glyph_quad(*f, c);
     const float m = q.y1 - q.y0;
     if (m > f->max_height && m < 1.e+8f) {
       f->max_height = m;
@@ -61,26 +63,26 @@ void create_from_TTF(font *f, const unsigned char *ttf_data, const size_t ttf_da
 }
 
 void create_from_file(font *f, const char *file) {
-  FILE *file_font = fopen(file, "rb");
-  if (!file_font) {
-    char c[300] = {0};
-    strcat(c, "error opening: ");
-    strcat(c + strlen(c), file);
-    error_func(c, user_defined_data);
-    return;
-  }
-  fseek(file_font, 0, SEEK_END);
-  long file_size = ftell(file_font);
-  fseek(file_font, 0, SEEK_SET);
-  unsigned char *file_data = (unsigned char *)malloc(file_size);
-  if (file_data == NULL) {
+    FILE *file_font = fopen(file, "rb");
+    if (file_font == NULL) {
+        char c[300] = {0};
+        snprintf(c, sizeof(c), "error opening: %s", file);
+        error_func(c, user_defined_data);
+        return;
+    }
+    int file_size;
+    fseek(file_font, 0, SEEK_END);
+    file_size = ftell(file_font);
+    fseek(file_font, 0, SEEK_SET);
+    unsigned char *file_data = (unsigned char *)malloc(file_size);
+    if (file_data == NULL) {
+        fclose(file_font);
+        return;
+    }
+    fread(file_data, 1, file_size, file_font);
     fclose(file_font);
-    return;
-  }
-  fread(file_data, 1, file_size, file_font);
-  fclose(file_font);
-  create_from_TTF(f, file_data, file_size);
-  free(file_data);
+    create_from_TTF(f, file_data, file_size);
+    free(file_data);
 }
 
 void cleanup_font(font *f) {
