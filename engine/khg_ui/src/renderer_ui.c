@@ -1369,7 +1369,8 @@ void end_menu_ui(renderer_ui *rui) {
 
 void begin_ui(renderer_ui *rui, int id) {
   rui->a_settings = (aligned_settings){ 0 };
-  rui->id_str = "";
+  rui->id_str = str_create();
+  rui->current_text_box = str_create();
   ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(char *)), 100);
   ht_setup(&rui->widgets, sizeof(char *), sizeof(widget_pair), 100);
   if (!id_was_set) {
@@ -1389,6 +1390,8 @@ void begin_ui(renderer_ui *rui, int id) {
 
 void end_ui(renderer_ui *rui) {
   pop_id_internal(rui);
+  str_free(rui->id_str);
+  str_free(rui->current_text_box);
 }
 
 void set_align_mode_fixed_size_widgets_ui(renderer_ui *rui, vec2 size) {

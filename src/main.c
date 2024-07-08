@@ -4,8 +4,8 @@
 #include "khg_2d/utils.h"
 #include "khg_env/game_scripting.h"
 #include "khg_env/input.h"
-#include "khg_math/vec2.h"
 #include "khg_ui/renderer_ui.h"
+#include "khg_utils/string.h"
 
 struct game_data {
 } g_data;
@@ -33,8 +33,10 @@ void render_1() {
   begin_ui(&rui, 6996);
   static float value = 0;
   static int value_int = 0;
-  slider_float_ui(&rui, "Slider example", &value, -2, 5, color_white, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f });
-  slider_int_ui(&rui, "Slider example int", &value_int, -2, 5, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f });
+  string slider_f_name = str_create_from_str("Slider Example");
+  string slider_i_name = str_create_from_str("Slider Int Example");
+  slider_float_ui(&rui, slider_f_name, &value, -2, 5, color_white, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f });
+  slider_int_ui(&rui, slider_i_name, &value_int, -2, 5, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f });
   vec4 custom_transform = { 0.0f, 0.0f, 20.0f, 20.0f };
   bool clicked = 0;
   bool hovered = 0;
