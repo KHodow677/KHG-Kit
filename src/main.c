@@ -6,6 +6,7 @@
 #include "khg_env/input.h"
 #include "khg_ui/renderer_ui.h"
 #include "khg_utils/string.h"
+#include <stdio.h>
 
 struct game_data {
 } g_data;
@@ -15,6 +16,8 @@ font f;
 texture t;
 texture terraria_texture;
 texture logo_texture;
+string slider_f_name;
+string slider_i_name;
 
 bool init_game() {
   init();
@@ -33,8 +36,6 @@ void render_1() {
   begin_ui(&rui, 6996);
   static float value = 0;
   static int value_int = 0;
-  string slider_f_name = str_create_from_str("Slider Example");
-  string slider_i_name = str_create_from_str("Slider Int Example");
   slider_float_ui(&rui, slider_f_name, &value, -2, 5, color_white, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f });
   slider_int_ui(&rui, slider_i_name, &value_int, -2, 5, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f }, t, (vec4){ 1.0f, 1.0f, 1.0f, 1.0f });
   vec4 custom_transform = { 0.0f, 0.0f, 20.0f, 20.0f };
@@ -81,5 +82,7 @@ void close_game() {
 }
 
 int main(int argc, char **argv) {
+  slider_f_name = str_create_from_str("Slider Example");
+  slider_i_name = str_create_from_str("Slider Int Example");
   return run_game();
 }

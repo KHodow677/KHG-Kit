@@ -18,24 +18,20 @@ vec4 font_get_glyph_texture_doords(const font f, const char c) {
 }
 
 void create_from_TTF(font *f, const unsigned char *ttf_data, const size_t ttf_data_size) {
-  size_t font_monochrome_buffer_size, font_rgba_buffer_size;
-  unsigned char *font_monochrome_buffer, *font_rgba_buffer;
   stbtt_pack_context stbtt_context;
-  int i;
-  char c;
   f->size = (vec2){ 2000.0f, 2000.0f };
   f->max_height = 0,
   f->packed_chars_buffer_size = ('~' - ' ');
-  font_monochrome_buffer_size = f->size.x * f->size.y;
-  font_rgba_buffer_size = f->size.x * f->size.y * 4;
-  font_monochrome_buffer = (unsigned char *)malloc(font_monochrome_buffer_size);
-  font_rgba_buffer = (unsigned char *)malloc(font_rgba_buffer_size);
+  size_t font_monochrome_buffer_size = f->size.x * f->size.y;
+  size_t font_rgba_buffer_size = f->size.x * f->size.y * 4;
+  unsigned char *font_monochrome_buffer = (unsigned char *)malloc(font_monochrome_buffer_size);
+  unsigned char *font_rgba_buffer = (unsigned char *)malloc(font_rgba_buffer_size);
   f->packed_chars_buffer = malloc(f->packed_chars_buffer_size);
   stbtt_PackBegin(&stbtt_context, font_monochrome_buffer, f->size.x, f->size.y, 0, 2, NULL);
   stbtt_PackSetOversampling(&stbtt_context, 2, 2);
   stbtt_PackFontRange(&stbtt_context, ttf_data, 0, 65, ' ', '~' - ' ', f->packed_chars_buffer);
   stbtt_PackEnd(&stbtt_context);
-  for (i = 0; i < font_monochrome_buffer_size; i++) {
+  for (int i = 0; i < font_monochrome_buffer_size; i++) {
     font_rgba_buffer[(i * 4)] = font_monochrome_buffer[i];
     font_rgba_buffer[(i * 4) + 1] = font_monochrome_buffer[i];
     font_rgba_buffer[(i * 4) + 2] = font_monochrome_buffer[i];
@@ -55,7 +51,7 @@ void create_from_TTF(font *f, const unsigned char *ttf_data, const size_t ttf_da
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   free(font_monochrome_buffer);
   free(font_rgba_buffer);
-  for (c = ' '; c <= '~'; c++) {
+  for (char c = ' '; c <= '~'; c++) {
     const stbtt_aligned_quad q =  font_get_glyph_quad(*f, c);
     const float m = q.y1 - q.y0;
     if (m > f->max_height && m < 1.e+8f) {
