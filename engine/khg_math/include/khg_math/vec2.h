@@ -14,4 +14,7 @@ vec2 vec2_multiply_num_on_vec2(float num, vec2 *vec2_a);
 vec2 vec2_normalize(vec2 *vec2_a);
 float vec2_dot(vec2 *vec2_a, vec2 *vec2_b);
 vec2 vec2_clamp(vec2 *vec2_a, vec2 *min, vec2 *max);
-
+vec2 vec2_cross(float v, vec2 *vec2_a);
+float vec2_cross_vec2(vec2 *vec2_a, vec2 *vec2_b);
+float vec2_len_sqr(vec2 *vec2_a);
+float vec2_dist_sqr(vec2 *vec2_a, vec2 *vec2_b);

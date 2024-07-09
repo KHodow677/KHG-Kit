@@ -1,7 +1,11 @@
 #pragma once
 
+#include "khg_math/mat2.h"
+#include "khg_math/minmax.h"
 #include "khg_math/vec2.h"
+#include <pthread.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #define KHGPHYDEF extern
 
@@ -16,15 +20,28 @@
 
 #define KHGPHY_PI 3.14159265358979323846
 #define KHGPHY_DEG2RAD (KHGPHY_PI / 180.0f)
+#define KHGPHY_FLT_MAX 3.402823466e+38f
+#define KHGPHY_EPSILON 0.000001f
+#define KHGPHY_K 1.0f / 3.0f
+#define KHGPHY_VECTOR_0 (vec2) { 0.0f, 0.0f }
+
+#if defined(_WIN32)
+  int __stdcall QueryPerformanceCounter(unsigned long long int *lpPerformanceCount);
+  int __stdcall QueryPerformanceFrequency(unsigned long long int *lpFrequency);
+#elif defined(__linux__)
+  #if _POSIX_C_SOURCE < 199309L
+    #undef _POSIX_C_SOURCE
+    #define _POSIX_C_SOURCE 199309L
+  #endif
+  #include <sys/time.h>
+#elif defined(__APPLE__)
+  #include <mach/mach_time.h>
+#elif defined(EMSCRIPTEN)
+  #include <emscripten.h>
+#endif
 
 typedef enum physics_shape_type { PHYSICS_CIRCLE, PHYSICS_POLYGON } physics_shape_type;
 typedef struct physics_body_data *physics_body;
-typedef struct mat_2 {
-  float m00;
-  float m01;
-  float m10;
-  float m11;
-} mat_2;
 
 typedef struct polygon_data {
   unsigned int vertex_count;
@@ -36,7 +53,7 @@ typedef struct physics_shape {
   physics_shape_type type;
   physics_body body;
   float radius;
-  mat_2 transform;
+  mat2 transform;
   polygon_data vertex_data;
 } physics_shape;
 
@@ -74,3 +91,19 @@ typedef struct physics_manifold_data {
   float dynamic_friction;
   float static_friction;
 } physics_manifold_data, *physics_manifold;
+
+static pthread_t physics_thread_id;
+static unsigned int used_memory = 0;
+static volatile bool physics_thread_enabled = false;
+static double base_time = 0.0;
+static double start_time = 0.0;
+static double delta_time = 1.0/60.0/10.0 * 1000;
+static double current_time = 0.0;
+static uint64_t frequency = 0;
+static double accumulator = 0.0;
+static unsigned int steps_count = 0;
+static vec2 gravity_force = { 0.0f, 9.81f };
+static physics_body bodies[KHGPHY_MAX_BODIES];
+static unsigned int physics_bodies_count = 0;
+static physics_manifold contacts[KHGPHY_MAX_MANIFOLDS];
+static unsigned int physics_manifolds_count = 0;
