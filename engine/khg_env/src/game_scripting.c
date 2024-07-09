@@ -14,8 +14,44 @@ int window_focus = 1;
 int mouse_moved_flag = 0;
 GLFWwindow *wind = 0;
 
-float get_elapsed_time() {
-  return (float)glfwGetTime();
+static uint64_t get_time_count(void) {
+  uint64_t value = 0;
+  #if defined(_WIN32)
+    QueryPerformanceCounter((unsigned long long int *) &value);
+  #elif defined(__linux__)
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    value = (uint64_t)now.tv_sec * (uint64_t) 1000000000 + (uint64_t)now.tv_nsec;
+  #elif defined(__APPLE__)
+    value = mach_absolute_time();
+  #elif defined(EMSCRIPTEN)
+    value = emscripten_get_now();
+  #endif
+  return value;
+}
+
+static double get_current_time(void) {
+  return (double)(get_time_count() - base_time) / frequency * 1000;
+}
+
+static void init_timer(void) {
+  srand(time(NULL));
+  #if defined(_WIN32)
+    QueryPerformanceFrequency((unsigned long long int *) &frequency);
+  #elif defined(__linux__)
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) == 0) {
+      frequency = 1000000000;
+    }
+  #elif defined(__APPLE__)
+    mach_timebase_info_data_t timebase;
+    mach_timebase_info(&timebase);
+    frequency = (timebase.denom * 1e9) / timebase.numer;
+  #elif defined(EMSCRIPTEN)
+    frequency = 1000;
+  #endif
+  base_time = get_time_count();
+  start_time = get_current_time();
 }
 
 int run_game() {
@@ -38,12 +74,13 @@ int run_game() {
   if (!init_game()) {
     return 0;
   }
-  float start_time = get_elapsed_time();
+  init_timer();
+  float s_time = get_current_time();
   float delta_time, augmented_delta_time;
   while (!glfwWindowShouldClose(wind)) {
-    float current_time = get_elapsed_time();
-    delta_time = current_time - start_time;
-    start_time = current_time;
+    float current_time = get_current_time();
+    delta_time = current_time - s_time;
+    s_time = current_time;
     augmented_delta_time = delta_time;
     if (augmented_delta_time > 1.0f / 10.0f) {
       augmented_delta_time = 1.0f / 10.0f;

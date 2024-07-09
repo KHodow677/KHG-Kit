@@ -1,14 +1,36 @@
 #pragma once
 
 #include "khg_math/vec2.h"
-#include <stdbool.h>
 #include "GLFW/glfw3.h"
+#include <math.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <time.h>
+
+#if defined(_WIN32)
+  int __stdcall QueryPerformanceCounter(unsigned long long int *lpPerformanceCount);
+  int __stdcall QueryPerformanceFrequency(unsigned long long int *lpFrequency);
+#elif defined(__linux__)
+  #if _POSIX_C_SOURCE < 199309L
+    #undef _POSIX_C_SOURCE
+    #define _POSIX_C_SOURCE 199309L
+  #endif
+  #include <sys/time.h>
+#elif defined(__APPLE__)
+  #include <mach/mach_time.h>
+#elif defined(EMSCRIPTEN)
+  #include <emscripten.h>
+#endif
 
 extern bool current_full_screen;
 extern bool full_screen;
 extern int window_focus;
 extern int mouse_moved_flag;
 extern GLFWwindow *wind;
+static uint64_t frequency = 0;
+static double base_time = 0.0f;
+static double start_time = 0.0f;
 
 bool init_game();
 bool game_logic(float delta_time);
