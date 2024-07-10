@@ -75,4 +75,5 @@ void end_menu_ui(renderer_ui *rui);
 void begin_ui(renderer_ui *rui, int id);
 void end_ui(renderer_ui *rui);
 void set_align_mode_fixed_size_widgets_ui(renderer_ui *rui, vec2 size);
+void create_renderer_ui(renderer_ui *rui);
 

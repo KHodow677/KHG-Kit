@@ -247,8 +247,17 @@ vec4 compute_texture_new_position(vec4 transform, texture t) {
   }
 }
 
+void filter_widgets(void *key, void *value, hash_table *table) {
+  string *k = key;
+  widget *w = value;
+  if (w->used_this_frame) {
+    w->used_this_frame = false;
+    ht_insert(table, k, w);
+  }
+}
+
 float determine_text_size(renderer_2d *r2d, string *str, font *f, vec4 transform, bool minimize) {
-  string new_str = get_string(*str);
+  string new_str = str_create_from_str(get_string(*str));
   float size = text_fit;
   vec2 s = get_text_size(r2d, new_str, *f, size, 4, 3);
   float ratio_x = transform.z / s.x;
@@ -272,7 +281,7 @@ float determine_text_size(renderer_2d *r2d, string *str, font *f, vec4 transform
 }
 
 vec4 determine_text_pos(renderer_2d *r2d, string *str, font *f, vec4 transform, bool no_texture, bool minimize) {
-  string new_str = get_string(*str);
+  string new_str = str_create_from_str(get_string(*str));
   float new_s = determine_text_size(r2d, &new_str, f, transform, true);
   vec2 s = get_text_size(r2d, new_str, *f, new_s, 4, 3);
   vec2 pos = { transform.x, transform.y };
@@ -297,11 +306,13 @@ void pop_id_internal(renderer_ui *r) {
     return;
   }
   else {
+    /*
     if (r->id_str[str_size(r->id_str) - 1] == '#') {
       error_func("Inconsistent usage of begin end push pop", user_defined_data);
       return;
     }
-    str_set(r->id_str, str_size(r->id_str) - 1, '\0');
+    */
+    str_delete(r->id_str, str_size(r->id_str) - 1, 1);
   }
 }
 
@@ -548,8 +559,6 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   int next_stack_size_to_look_min = 0;
   for (int i = 0; i < vector_size(rui->widgets_vector); i++) {
     widget_pair w = rui->widgets_vector[i];
-    printf("%s\n", w.first);
-    printf("%i\n", w.second.type);
     if (w.second.type == widget_begin_menu) {
       vector_push_back(menu_stack, w.first);
       if (w.first == next_menu) {
@@ -864,7 +873,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         *value = min(*value, pair.second.max);
         *value = max(*value, pair.second.min);
-        string text = str_clone(pair.first);
+        string text = str_create_from_str(pair.first);
         char s[50];
         snprintf(s, sizeof(s), "%0.2f", *value);
         string temp = str_create();
@@ -1075,23 +1084,17 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
     columns[current_column].first.y += columns[current_column].second;
   }
   hash_table widgets2;
+  ht_setup(&widgets2, sizeof(string), sizeof(widget), rui->widgets.size);
   ht_reserve(&widgets2, rui->widgets.size);
-  for (int i = 0; i < rui->widgets.size; i++) {
-    widget *k = (widget *)rui->widgets.nodes[i]->key;
-    widget *w = (widget *)rui->widgets.nodes[i]->value;
-    if (w->used_this_frame) {
-      w->used_this_frame = false;
-      ht_insert(&widgets2, k, w);
-    }
-  }
+  ht_iterate_with_new_ht(&rui->widgets, filter_widgets, &widgets2);
   rui->widgets = widgets2;
   r2d->current_camera = c;
   vector_clear(rui->widgets_vector);
-  int id_str_size = str_size(rui->id_str);
-  if (id_str_size != 0) {
+  if (!str_empty(rui->id_str)) {
     error_func("More pushes than pops", user_defined_data);
   }
   str_clear(rui->id_str);
+  ht_destroy(&widgets2);
   str_free(next_menu);
 }
 
@@ -1327,10 +1330,10 @@ void new_column_ui(renderer_ui *rui, int id) {
 }
 
 void push_id_ui(renderer_ui *rui, int id) {
-  char a = *(((char*)&id) + 0);
-  char b = *(((char*)&id) + 1);
-  char c = *(((char*)&id) + 2);
-  char d = *(((char*)&id) + 3);
+  char a = (char)(id / 1000 + 'a');
+  char b = (char)((id / 100) % 10 + 'a');
+  char c = (char)((id / 10) % 10 + 'a');
+  char d = (char)(id % 10 + 'a');
   str_add_char(rui->id_str, '#');
   str_add_char(rui->id_str, '#');
   str_add_char(rui->id_str, a);
@@ -1370,11 +1373,6 @@ void end_menu_ui(renderer_ui *rui) {
 }
 
 void begin_ui(renderer_ui *rui, int id) {
-  rui->a_settings = (aligned_settings){ 0 };
-  rui->id_str = str_create();
-  rui->current_text_box = str_create();
-  ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(string)), 100);
-  ht_setup(&rui->widgets, sizeof(char *), sizeof(widget_pair), 100);
   if (!id_was_set) {
     id_was_set = true;
     current_id = id;
@@ -1392,10 +1390,17 @@ void begin_ui(renderer_ui *rui, int id) {
 
 void end_ui(renderer_ui *rui) {
   pop_id_internal(rui);
-  str_free(rui->id_str);
-  str_free(rui->current_text_box);
 }
 
 void set_align_mode_fixed_size_widgets_ui(renderer_ui *rui, vec2 size) {
   rui->a_settings.widget_size = size;
 }
+
+void create_renderer_ui(renderer_ui *rui) {
+  rui->a_settings = (aligned_settings){ 0 };
+  rui->id_str = str_create();
+  rui->current_text_box = str_create();
+  ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(string)), 100);
+  ht_setup(&rui->widgets, sizeof(char *), sizeof(widget_pair), 100);
+}
+

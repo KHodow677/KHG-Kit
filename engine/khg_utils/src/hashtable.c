@@ -220,6 +220,28 @@ int ht_reserve(hash_table* table, size_t minimum_capacity) {
 	return HT_SUCCESS;
 }
 
+void ht_iterate(hash_table *table, void (*func)(void *key, void *value)) {
+  size_t i;
+  ht_node *node;
+  if (!ht_is_initialized(table)) return;
+  for (i = 0; i < table->capacity; ++i) {
+    for (node = table->nodes[i]; node; node = node->next) {
+      func(node->key, node->value);
+    }
+  }
+}
+
+void ht_iterate_with_new_ht(hash_table *table, void (*func)(void *key, void *value, hash_table *new_table), hash_table *new_table) {
+  size_t i;
+  ht_node *node;
+  if (!ht_is_initialized(table)) return;
+  for (i = 0; i < table->capacity; ++i) {
+    for (node = table->nodes[i]; node; node = node->next) {
+      func(node->key, node->value, new_table);
+    }
+  }
+}
+
 void _ht_int_swap(size_t* first, size_t* second) {
 	size_t temp = *first;
 	*first = *second;

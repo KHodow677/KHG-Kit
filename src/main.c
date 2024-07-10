@@ -6,7 +6,6 @@
 #include "khg_env/input.h"
 #include "khg_ui/renderer_ui.h"
 #include "khg_utils/string.h"
-#include <stdio.h>
 
 struct game_data {
 } g_data;
@@ -22,10 +21,13 @@ string slider_i_name;
 bool init_game() {
   init();
   create_renderer_2d(&r2d, 0, 1000);
+  create_renderer_ui(&rui);
   create_from_file(&f, "./res/assets/fonts/ANDYB.TTF");
   load_from_file(&t, "./res/assets/mc/beacon_button_default.png", true, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
   load_from_file(&terraria_texture, "./res/assets/terraria.png", KHG2D_DEFAULT_TEXTURE_LOAD_MODE_PIXELATED, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
   load_from_file(&logo_texture, "./res/assets/tick.png", true, KHG2D_DEFAULT_TEXTURE_LOAD_MODE_USE_MIPMAPS);
+  slider_f_name = str_create_from_str("Slider Example");
+  slider_i_name = str_create_from_str("Slider Int Example");
   if (!read_entire_file("./res/g_data.txt", &g_data, sizeof(g_data))) {
     g_data = (struct game_data){};
   }
@@ -79,10 +81,10 @@ bool game_logic(float delta_time) {
 void close_game() {
   write_entire_file("./res/g_data.txt", &g_data, sizeof(g_data));
   cleanup_renderer_2d(&r2d);
+  str_free(rui.id_str);
+  str_free(rui.current_text_box);
 }
 
 int main(int argc, char **argv) {
-  slider_f_name = str_create_from_str("Slider Example");
-  slider_i_name = str_create_from_str("Slider Int Example");
   return run_game();
 }

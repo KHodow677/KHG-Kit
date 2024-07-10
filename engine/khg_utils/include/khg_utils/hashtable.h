@@ -30,64 +30,48 @@ struct ht_node {
 	ht_node *next;
 	void *key;
 	void *value;
-
 };
 
 typedef struct {
 	size_t size;
 	size_t threshold;
 	size_t capacity;
-
 	size_t key_size;
 	size_t value_size;
-
 	comparison_t compare;
 	hash_t hash;
-
 	ht_node **nodes;
-
 } hash_table;
 
 int ht_setup(hash_table* table, size_t key_size, size_t value_size, size_t capacity);
-
 int ht_copy(hash_table *first, hash_table *second);
 int ht_move(hash_table *first, hash_table *second);
 int ht_swap(hash_table *first, hash_table *second);
-
 int ht_destroy(hash_table *table);
-
 int ht_insert(hash_table *table, void *key, void *value);
-
 int ht_contains(hash_table *table, void *key);
 void *ht_lookup(hash_table *table, void *key);
 const void *ht_const_lookup(const hash_table *table, void *key);
-
 #define HT_LOOKUP_AS(type, table_pointer, key_pointer) (*(type*)ht_lookup((table_pointer), (key_pointer)))
-
 int ht_erase(hash_table *table, void *key);
 int ht_clear(hash_table *table);
-
 int ht_is_empty(hash_table *table);
 bool ht_is_initialized(hash_table *table);
-
 int ht_reserve(hash_table *table, size_t minimum_capacity);
+void ht_iterate(hash_table *table, void (*func)(void *key, void *value));
+void ht_iterate_with_new_ht(hash_table *table, void (*func)(void *key, void *value, hash_table *new_table), hash_table *new_table);
 
 void _ht_int_swap(size_t *first, size_t *second);
 void _ht_pointer_swap(void **first, void **second);
-
 size_t _ht_default_hash(void *key, size_t key_size);
 int _ht_default_compare(void *first_key, void *second_key, size_t key_size);
-
 size_t _ht_hash(const hash_table *table, void *key);
 bool _ht_equal(const hash_table *table, void *first_key, void *second_key);
-
 bool _ht_should_grow(hash_table *table);
 bool _ht_should_shrink(hash_table *table);
-
 ht_node *_ht_create_node(hash_table *table, void *key, void *value, ht_node *next);
 int _ht_push_front(hash_table *table, size_t index, void *key, void *value);
 void _ht_destroy_node(ht_node *node);
-
 int _ht_adjust_capacity(hash_table *table);
 int _ht_allocate(hash_table *table, size_t capacity);
 int _ht_resize(hash_table *table, size_t new_capacity);
