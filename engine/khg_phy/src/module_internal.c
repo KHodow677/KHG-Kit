@@ -426,3 +426,106 @@ static void integrate_physics_forces(physics_body body) {
     body->angular_velocity += body->torque * body->inverse_inertia * (delta_time / 2.0);
   }
 }
+
+static void initialize_physics_manifolds(physics_manifold manifold) {
+  physics_body body_a = manifold->body_a;
+  physics_body body_b = manifold->body_b;
+  if ((body_a == NULL) || (body_b == NULL)) {
+    return;
+  }
+  manifold->restitution = sqrtf(body_a->restitution * body_b->restitution);
+  manifold->static_friction = sqrtf(body_a->static_friction * body_b->static_friction);
+  manifold->dynamic_friction = sqrtf(body_a->dynamic_friction * body_b->dynamic_friction);
+  for (int i = 0; i < manifold->contacts_count; i++) {
+    vec2 radius_a = vec2_subtract(&manifold->contacts[i], &body_a->position);
+    vec2 radius_b = vec2_subtract(&manifold->contacts[i], &body_b->position);
+    vec2 cross_a = vec2_cross(body_a->angular_velocity, &radius_a);
+    vec2 cross_b = vec2_cross(body_b->angular_velocity, &radius_b);
+    vec2 radius_v = { 0.0f, 0.0f };
+    radius_v.x = body_b->velocity.x + cross_b.x - body_a->velocity.x - cross_a.x;
+    radius_v.y = body_b->velocity.y + cross_b.y - body_a->velocity.y - cross_a.y;
+    vec2 gravity_val = (vec2){ gravity_force.x * delta_time / 1000, gravity_force.y * delta_time / 1000 };
+    if (vec2_len_sqr(&radius_v) < (vec2_len_sqr(&gravity_val) + KHGPHY_EPSILON)) {
+      manifold->restitution = 0;
+    }
+  }
+}
+
+static void integrate_physics_inpulses(physics_manifold manifold) {
+  physics_body body_a = manifold->body_a;
+  physics_body body_b = manifold->body_b;
+  if ((body_a == NULL) || (body_b == NULL)) {
+    return;
+  }
+  if (fabs(body_a->inverse_mass + body_b->inverse_mass) <= KHGPHY_EPSILON) {
+    body_a->velocity = KHGPHY_VECTOR_0;
+    body_b->velocity = KHGPHY_VECTOR_0;
+    return;
+  }
+  for (int i = 0; i < manifold->contacts_count; i++) {
+    vec2 radius_a = vec2_subtract(&manifold->contacts[i], &body_a->position);
+    vec2 radius_b = vec2_subtract(&manifold->contacts[i], &body_b->position);
+    vec2 radius_v = { 0.0f, 0.0f };
+    radius_v.x = body_b->velocity.x + vec2_cross(body_b->angular_velocity, &radius_b).x - body_a->velocity.x - vec2_cross(body_a->angular_velocity, &radius_a).x;
+    radius_v.y = body_b->velocity.y + vec2_cross(body_b->angular_velocity, &radius_b).y - body_a->velocity.y - vec2_cross(body_a->angular_velocity, &radius_a).y;
+    float contact_velocity = vec2_dot(&radius_v, &manifold->normal);
+    if (contact_velocity > 0.0f) {
+      return;
+    }
+    float ra_cross_n = vec2_cross_vec2(&radius_a, &manifold->normal);
+    float rb_cross_n = vec2_cross_vec2(&radius_b, &manifold->normal);
+    float inverse_mass_sum = body_a->inverse_mass + body_b->inverse_mass + (ra_cross_n * ra_cross_n) * body_a->inverse_inertia + (rb_cross_n * rb_cross_n) * body_b->inverse_inertia;
+    float impulse = -(1.0f + manifold->restitution) * contact_velocity;
+    impulse /= inverse_mass_sum;
+    impulse /= (float)manifold->contacts_count;
+    vec2 impulse_v = { manifold->normal.x * impulse, manifold->normal.y * impulse };
+    if (body_a->enabled) {
+      body_a->velocity.x += body_a->inverse_mass * (-impulse_v.x);
+      body_a->velocity.y += body_a->inverse_mass * (-impulse_v.y);
+      if (!body_a->freeze_orient) {
+        vec2 impulse_vec2 = { -impulse_v.x, -impulse_v.y };
+        body_a->angular_velocity += body_a->inverse_inertia * vec2_cross_vec2(&radius_a, &impulse_vec2);
+      }
+    }
+    if (body_b->enabled) {
+      body_b->velocity.x += body_b->inverse_mass * (impulse_v.x);
+      body_b->velocity.y += body_b->inverse_mass * (impulse_v.y);
+      if (!body_b->freeze_orient) {
+        body_b->angular_velocity += body_b->inverse_inertia * vec2_cross_vec2(&radius_b, &impulse_v);
+      }
+    }
+    radius_v.x = body_b->velocity.x + vec2_cross(body_b->angular_velocity, &radius_b).x - body_a->velocity.x - vec2_cross(body_a->angular_velocity, &radius_a).x;
+    radius_v.y = body_b->velocity.y + vec2_cross(body_b->angular_velocity, &radius_b).y - body_a->velocity.y - vec2_cross(body_a->angular_velocity, &radius_a).y;
+    vec2 tangent = { radius_v.x + (manifold->normal.x * vec2_dot(&radius_v, &manifold->normal)), radius_v.y - (manifold->normal.y * vec2_dot(&radius_v, &manifold->normal)) };
+    tangent = vec2_normalize(&tangent);
+    float impulse_tangent = -vec2_dot(&radius_v, &tangent);
+    impulse_tangent /= inverse_mass_sum;
+    impulse_tangent /= (float)manifold->contacts_count;
+    float abs_impulse_tangent = fabs(impulse_tangent);
+    if (abs_impulse_tangent <= KHGPHY_EPSILON) {
+      return;
+    }
+    vec2 tangent_impulse = { 0.0f, 0.0f };
+    if (abs_impulse_tangent < impulse * manifold->static_friction) {
+      tangent_impulse = (vec2){ tangent.x * impulse_tangent, tangent.y * impulse_tangent };
+    }
+    else {
+      tangent_impulse = (vec2){ tangent.x * impulse * manifold->dynamic_friction, tangent.y * -impulse * manifold->dynamic_friction };
+    }
+    if (body_a->enabled) {
+      body_a->velocity.x += body_a->inverse_mass * (-tangent_impulse.x);
+      body_a->velocity.y += body_a->inverse_mass * (-tangent_impulse.y);
+      if (!body_a->freeze_orient) {
+        vec2 tangent_impulse_vec2 = { -tangent_impulse.x, -tangent_impulse.y };
+        body_a->angular_velocity += body_a->inverse_inertia * vec2_cross_vec2(&radius_a, &tangent_impulse_vec2);
+      }
+    }
+    if (body_b->enabled) {
+      body_b->velocity.x += body_b->inverse_mass * (tangent_impulse.x);
+      body_b->velocity.y += body_b->inverse_mass * (tangent_impulse.y);
+      if (!body_b->freeze_orient) {
+        body_b->angular_velocity += body_b->inverse_inertia * vec2_cross_vec2(&radius_b, &tangent_impulse);
+      }
+    }
+  }
+}
