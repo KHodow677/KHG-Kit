@@ -2,6 +2,7 @@
 
 static int find_available_body_index(void);
 static polygon_data create_random_polygon(float radius, int sides);
+static polygon_data create_rectangle_polygon(vec2 pos, vec2 size);
 static void *physics_loop(void *arg);
 static void physics_step(void);
 static int find_available_manifold_index(void);

@@ -48,6 +48,22 @@ static polygon_data create_random_polygon(float radius, int sides) {
   return data;
 }
 
+static polygon_data create_rectangle_polygon(vec2 pos, vec2 size) {
+  polygon_data data = { 0 };
+  data.vertex_count = 4;
+  data.positions[0] = (vec2){ pos.x + size.x / 2, pos.y - size.y / 2};
+  data.positions[1] = (vec2){ pos.x + size.x / 2, pos.y + size.y / 2};
+  data.positions[2] = (vec2){ pos.x - size.x / 2, pos.y + size.y / 2};
+  data.positions[3] = (vec2){ pos.x - size.x / 2, pos.y - size.y / 2};
+  for (int i = 0; i < data.vertex_count; i++) {
+    int next_index = (((i + 1) < data.vertex_count) ? (i + 1) : 0);
+    vec2 face = vec2_subtract(&data.positions[next_index], &data.positions[i]);
+    data.normals[i] = (vec2){ face.y, -face.x };
+    data.normals[i] = vec2_normalize(&data.normals[i]);
+  }
+  return data;
+}
+
 static void *physics_loop(void *arg) {
   physics_thread_enabled = true;
   while (physics_thread_enabled) {
