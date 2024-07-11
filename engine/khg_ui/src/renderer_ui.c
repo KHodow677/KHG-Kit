@@ -11,7 +11,7 @@
 #include "khg_ui/data.h"
 #include "khg_ui/widget.h"
 #include "khg_utils/error_func.h"
-#include "khg_utils/hashtable.h"
+#include "khg_utils/hashmap.h"
 #include "khg_utils/string.h"
 #include "khg_utils/vector.h"
 #include <math.h>
@@ -45,6 +45,18 @@ float in_size_x = 0.8f;
 float main_in_size_x = 0.9f;
 float main_in_size_y = 0.9f;
 float padding_columns = 0.9f;
+
+int intcmp(int a, int b) {
+  if (a == b) {
+    return 0;
+  }
+  else if (a < b) {
+    return -1;
+  } 
+  else {
+    return 1;
+  }
+}
 
 int hash(const char *s) {
   unsigned int h = 0;
@@ -244,23 +256,6 @@ vec4 compute_texture_new_position(vec4 transform, texture t) {
   }
   else {
     return transform;
-  }
-}
-
-void toggle_widgets(void *key, void *value) {
-  printf("Hello\n");
-  //widget *w = value;
-  //if (w->type == widget_custom) {
-    //w->custom_widget_used = false;
-  //}
-}
-
-void filter_widgets(void *key, void *value, hash_table *table) {
-  string *k = key;
-  widget *w = value;
-  if (w->used_this_frame) {
-    w->used_this_frame = false;
-    ht_insert(table, k, w);
   }
 }
 
@@ -519,19 +514,15 @@ bool is_in_button(const vec2 *p, const vec4 *box) {
 }
 
 void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, string *typed_input, float delta_time) {
-  if (!vector_empty(rui->widget_keys)) {
-    printf("%s\n", *rui->widget_keys[0]);
-  }
   if (!id_was_set) {
     return;
   }
-  vector(string) *iter_menu_stack = ht_lookup(&rui->all_menu_stacks, &current_id);
+  vector(string) *iter_menu_stack = hashmap_get(&rui->all_menu_stacks, &current_id);
   if (iter_menu_stack == NULL) {
     vector(string) new_menu_stack;
-    ht_insert(&rui->all_menu_stacks, &current_id, &new_menu_stack);
-    vector_push_back(rui->all_menu_stack_keys, &current_id);
+    hashmap_put(&rui->all_menu_stacks, &current_id, &new_menu_stack);
   }
-  vector(string) *current_menu_stack = ht_lookup(&rui->all_menu_stacks, &current_id);
+  vector(string) *current_menu_stack = hashmap_get(&rui->all_menu_stacks, &current_id);
   id_was_set = 0;
   current_id = 0;
   if (escape_released && !vector_empty(*current_menu_stack)) {
@@ -541,15 +532,8 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   if (timer >= 2.0f) {
     timer -= 2;
   }
-  printf("1. %zu\n", rui->widgets.size);
-  printf("1. %zu\n", vector_size(rui->widget_keys));
-  for (int i = 0; i < vector_size(rui->widget_keys); i++) {
-    string s = *rui->widget_keys[i];
-    printf("%s\n", s);
-    widget *w = ht_lookup(&rui->widgets, *rui->widget_keys[i]);
-    if (w == NULL) {
-      printf("Hi\n");
-    }
+  widget *w;
+  hashmap_foreach_data(w, &rui->widgets) {
     if (w->type == widget_custom) {
       w->custom_widget_used = false;
     }
@@ -653,13 +637,11 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   input.escape_released = escape_released;
   for (int i = 0; i < vector_size(widgets_copy); i++) {
     widget_pair pair = widgets_copy[i];
-    widget *find = ht_lookup(&rui->widgets, pair.first);
+    widget *find = hashmap_get(&rui->widgets, pair.first);
     if (find == NULL) {
       pair.second.used_this_frame = true;
       pair.second.just_created = true;
-      string key = str_create_from_str(pair.first);
-      ht_insert(&rui->widgets, &key, &pair.second);
-      vector_push_back(rui->widget_keys, &key);
+      hashmap_put(&rui->widgets, pair.first, &pair.second);
     }
     else {
       if (find->type != pair.second.type) {
@@ -674,7 +656,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
       find->pd = pd;
       find->used_this_frame = true;
     }
-    widget *w = (widget *)ht_lookup(&rui->widgets, &pair.first);
+    widget *w = hashmap_get(&rui->widgets, pair.first);
     switch (w->type) {
       case widget_button: {
         draw_button(rui, r2d, f, columns, current_column, pair.first, w, input);
@@ -1098,17 +1080,15 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
     w->last_frame_data = input;
     columns[current_column].first.y += columns[current_column].second;
   }
-  printf("2. %zu\n", rui->widgets.size);
-  printf("2. %zu\n", vector_size(rui->widget_keys));
-  for (int i = 0; i < vector_size(rui->widget_keys); i++) {
-    widget *w = ht_lookup(&rui->widgets, rui->widget_keys[i]);
+  string *s;
+  widget *w;
+  void *v;
+  hashmap_foreach_safe(s, w, &rui->widgets, v) {
     if (w->used_this_frame) {
       w->used_this_frame = false;
     }
     else {
-      ht_erase(&rui->widgets, rui->widget_keys[i]);
-      vector_erase(rui->widget_keys, i);
-      i--;
+      hashmap_remove(&rui->widgets, *s);
     }
   }
   r2d->current_camera = c;
@@ -1130,9 +1110,9 @@ bool button_ui(renderer_ui *rui, string name, const vec4 color, const texture t)
   w.just_created = true;
   widget_pair wp = { name, w };
   vector_push_back(rui->widgets_vector, wp);
-  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  widget *find = hashmap_get(&rui->widgets, name);
   if (find != NULL) {
-    return find->second.return_from_update;
+    return find->return_from_update;
   }
   else {
     return false;
@@ -1170,10 +1150,10 @@ bool button_with_texture_ui(renderer_ui *rui, int id, texture t, vec4 color, vec
   str_add(name, buffer);
   widget_pair wp = { name, w };
   vector_push_back(rui->widgets_vector, wp);
-  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  widget *find = hashmap_get(&rui->widgets, name);
   str_free(name);
   if (find != NULL) {
-    return find->second.return_from_update;
+    return find->return_from_update;
   }
   else {
     return false;
@@ -1192,9 +1172,9 @@ bool toggle_ui(renderer_ui *rui, string name, const vec4 color, bool *toggle, co
   w.pointer = toggle;
   widget_pair wp = { name, w }; 
   vector_push_back(rui->widgets_vector, wp);
-  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  widget *find = hashmap_get(&rui->widgets, name);
   if (find != NULL) {
-    return find->second.return_from_update;
+    return find->return_from_update;
   }
   else {
     return false;
@@ -1213,9 +1193,9 @@ bool toggle_button_ui(renderer_ui *rui, string name, const vec4 text_color, bool
   w.pointer = toggle;
   widget_pair wp = { name, w }; 
   vector_push_back(rui->widgets_vector, wp);
-  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  widget *find = hashmap_get(&rui->widgets, name);
   if (find != NULL) {
-    return find->second.return_from_update;
+    return find->return_from_update;
   }
   else {
     return false;
@@ -1232,15 +1212,15 @@ bool custom_widget_ui(renderer_ui *rui, int id, vec4 *transform, bool *hovered, 
   w.pointer = transform;
   widget_pair wp = { name, w }; 
   vector_push_back(rui->widgets_vector, wp);
-  widget_pair *find = (widget_pair *)ht_lookup(&rui->widgets, name);
+  widget *find = hashmap_get(&rui->widgets, name);
   str_free(name);
   if (find != NULL) {
-    *transform = find->second.return_transform;
+    *transform = find->return_transform;
     if (hovered) {
-      *hovered = find->second.hovered;
-      *clicked = find->second.clicked;
+      *hovered = find->hovered;
+      *clicked = find->clicked;
     }
-    return find->second.custom_widget_used;
+    return find->custom_widget_used;
   }
   else {
     memset(transform, 0, sizeof(vec4));
@@ -1422,14 +1402,14 @@ void set_align_mode_fixed_size_widgets_ui(renderer_ui *rui, vec2 size) {
 void create_renderer_ui(renderer_ui *rui) {
   rui->id_str = str_create();
   rui->current_text_box = str_create();
-  ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(string)), 20);
-  ht_setup(&rui->widgets, sizeof(char *), sizeof(widget_pair), 20);
+  hashmap_init(&rui->all_menu_stacks, hashmap_hash_default, intcmp);
+  hashmap_init(&rui->widgets, hashmap_hash_string, strcmp);
 }
 
 void cleanup_renderer_ui(renderer_ui *rui) {
   str_free(rui->id_str);
   str_free(rui->current_text_box);
-  ht_destroy(&rui->all_menu_stacks);
-  ht_destroy(&rui->widgets);
+  hashmap_cleanup(&rui->all_menu_stacks);
+  hashmap_cleanup(&rui->widgets);
 }
 

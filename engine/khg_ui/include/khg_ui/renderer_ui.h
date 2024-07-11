@@ -6,9 +6,8 @@
 #include "khg_math/vec4.h"
 #include "khg_ui/data.h"
 #include "khg_ui/widget.h"
-#include "khg_utils/hashtable.h"
+#include "khg_utils/hashmap.h"
 #include "khg_utils/string.h"
-#include <stdlib.h>
 
 extern int x_padd;
 extern int y_padd;
@@ -48,12 +47,10 @@ typedef struct {
 typedef struct {
   aligned_settings a_settings;
   vector(widget_pair) widgets_vector;
-  hash_table widgets;
-  hash_table all_menu_stacks;
+  HASHMAP(char, widget) widgets;
+  HASHMAP(int, vector(string)) all_menu_stacks;
   string id_str;
   string current_text_box;
-  vector(string *) widget_keys;
-  vector(int *) all_menu_stack_keys;
 } renderer_ui;
 
 void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, string *typed_input, float delta_time);
