@@ -247,6 +247,14 @@ vec4 compute_texture_new_position(vec4 transform, texture t) {
   }
 }
 
+void toggle_widgets(void *key, void *value) {
+  printf("Hello\n");
+  //widget *w = value;
+  //if (w->type == widget_custom) {
+    //w->custom_widget_used = false;
+  //}
+}
+
 void filter_widgets(void *key, void *value, hash_table *table) {
   string *k = key;
   widget *w = value;
@@ -306,12 +314,6 @@ void pop_id_internal(renderer_ui *r) {
     return;
   }
   else {
-    /*
-    if (r->id_str[str_size(r->id_str) - 1] == '#') {
-      error_func("Inconsistent usage of begin end push pop", user_defined_data);
-      return;
-    }
-    */
     str_delete(r->id_str, str_size(r->id_str) - 1, 1);
   }
 }
@@ -517,6 +519,9 @@ bool is_in_button(const vec2 *p, const vec4 *box) {
 }
 
 void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, string *typed_input, float delta_time) {
+  if (!vector_empty(rui->widget_keys)) {
+    printf("%s\n", *rui->widget_keys[0]);
+  }
   if (!id_was_set) {
     return;
   }
@@ -524,6 +529,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   if (iter_menu_stack == NULL) {
     vector(string) new_menu_stack;
     ht_insert(&rui->all_menu_stacks, &current_id, &new_menu_stack);
+    vector_push_back(rui->all_menu_stack_keys, &current_id);
   }
   vector(string) *current_menu_stack = ht_lookup(&rui->all_menu_stacks, &current_id);
   id_was_set = 0;
@@ -535,8 +541,15 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   if (timer >= 2.0f) {
     timer -= 2;
   }
-  for (ht_node *i = rui->widgets.nodes[0]; i; i = i->next) {
-    widget *w = i->value;
+  printf("1. %zu\n", rui->widgets.size);
+  printf("1. %zu\n", vector_size(rui->widget_keys));
+  for (int i = 0; i < vector_size(rui->widget_keys); i++) {
+    string s = *rui->widget_keys[i];
+    printf("%s\n", s);
+    widget *w = ht_lookup(&rui->widgets, *rui->widget_keys[i]);
+    if (w == NULL) {
+      printf("Hi\n");
+    }
     if (w->type == widget_custom) {
       w->custom_widget_used = false;
     }
@@ -545,12 +558,12 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   vector_reserve(widgets_copy, vector_size(rui->widgets_vector));
   vector(string) current_menu_stack_copy;
   if (!vector_empty(*current_menu_stack)) {
-    vector_copy(*current_menu_stack, current_menu_stack_copy);
+    vector_copy(current_menu_stack, current_menu_stack_copy);
   }
   vector(char *) menu_stack;
   string next_menu = str_create();
   bool should_ignore = false;
-  if (!vector_empty(current_menu_stack_copy)) {
+  if (!vector_empty(current_menu_stack)) {
     next_menu = str_clone(*vector_front(current_menu_stack_copy));
     vector_erase(current_menu_stack_copy, 0);
     should_ignore = true;
@@ -644,7 +657,9 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
     if (find == NULL) {
       pair.second.used_this_frame = true;
       pair.second.just_created = true;
-      ht_insert(&rui->widgets, &pair.first, &pair.second);
+      string key = str_create_from_str(pair.first);
+      ht_insert(&rui->widgets, &key, &pair.second);
+      vector_push_back(rui->widget_keys, &key);
     }
     else {
       if (find->type != pair.second.type) {
@@ -1083,18 +1098,25 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
     w->last_frame_data = input;
     columns[current_column].first.y += columns[current_column].second;
   }
-  hash_table widgets2;
-  ht_setup(&widgets2, sizeof(string), sizeof(widget), rui->widgets.size);
-  ht_reserve(&widgets2, rui->widgets.size);
-  ht_iterate_with_new_ht(&rui->widgets, filter_widgets, &widgets2);
-  rui->widgets = widgets2;
+  printf("2. %zu\n", rui->widgets.size);
+  printf("2. %zu\n", vector_size(rui->widget_keys));
+  for (int i = 0; i < vector_size(rui->widget_keys); i++) {
+    widget *w = ht_lookup(&rui->widgets, rui->widget_keys[i]);
+    if (w->used_this_frame) {
+      w->used_this_frame = false;
+    }
+    else {
+      ht_erase(&rui->widgets, rui->widget_keys[i]);
+      vector_erase(rui->widget_keys, i);
+      i--;
+    }
+  }
   r2d->current_camera = c;
   vector_clear(rui->widgets_vector);
   if (!str_empty(rui->id_str)) {
     error_func("More pushes than pops", user_defined_data);
   }
   str_clear(rui->id_str);
-  ht_destroy(&widgets2);
   str_free(next_menu);
 }
 
@@ -1373,6 +1395,7 @@ void end_menu_ui(renderer_ui *rui) {
 }
 
 void begin_ui(renderer_ui *rui, int id) {
+  rui->a_settings = (aligned_settings){ 0 };
   if (!id_was_set) {
     id_was_set = true;
     current_id = id;
@@ -1397,10 +1420,16 @@ void set_align_mode_fixed_size_widgets_ui(renderer_ui *rui, vec2 size) {
 }
 
 void create_renderer_ui(renderer_ui *rui) {
-  rui->a_settings = (aligned_settings){ 0 };
   rui->id_str = str_create();
   rui->current_text_box = str_create();
-  ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(string)), 100);
-  ht_setup(&rui->widgets, sizeof(char *), sizeof(widget_pair), 100);
+  ht_setup(&rui->all_menu_stacks, sizeof(int), sizeof(vector(string)), 20);
+  ht_setup(&rui->widgets, sizeof(char *), sizeof(widget_pair), 20);
+}
+
+void cleanup_renderer_ui(renderer_ui *rui) {
+  str_free(rui->id_str);
+  str_free(rui->current_text_box);
+  ht_destroy(&rui->all_menu_stacks);
+  ht_destroy(&rui->widgets);
 }
 

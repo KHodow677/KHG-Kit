@@ -6,6 +6,7 @@
 #include "khg_env/input.h"
 #include "khg_ui/renderer_ui.h"
 #include "khg_utils/string.h"
+#include "khg_utils/vector.h"
 
 struct game_data {
 } g_data;
@@ -67,6 +68,11 @@ void render_2() {
 }
 
 bool game_logic(float delta_time) {
+  printf("%zu\n", vector_size(rui.widget_keys));
+  if (!vector_empty(rui.widget_keys)) {
+    printf("He\n");
+    printf("%s\n", *rui.widget_keys[0]);
+  }
   int w = 0, h = 0;
   w = get_window_size_x();
   h = get_window_size_y();
@@ -74,12 +80,14 @@ bool game_logic(float delta_time) {
   clear_screen(&r2d, (vec4){ 0.2f, 0.2f, 0.3f, 1.0f });
   render_1();
   render_frame(&rui, &r2d, &f, get_rel_mouse_position(), is_left_mouse_pressed(), is_left_mouse_held(), is_left_mouse_released(), is_button_released(key_escape), get_typed_input(), delta_time);
+  printf("%s\n", *rui.widget_keys[0]);
   flush(&r2d, true);
   return true;
 }
 
 void close_game() {
   write_entire_file("./res/g_data.txt", &g_data, sizeof(g_data));
+  cleanup_renderer_ui(&rui);
   cleanup_renderer_2d(&r2d);
   str_free(rui.id_str);
   str_free(rui.current_text_box);

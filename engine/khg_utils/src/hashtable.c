@@ -1,373 +1,416 @@
-#include <assert.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
-#include <stdio.h>
-#include "khg_utils/hashtable.h"
+#include <ctype.h>
+#include <assert.h>
+#include <errno.h>
 
-int ht_setup(hash_table* table, size_t key_size, size_t value_size, size_t capacity) {
-	assert(table != NULL);
-	if (table == NULL) return HT_ERROR;
-	if (capacity < HT_MINIMUM_CAPACITY) {
-		capacity = HT_MINIMUM_CAPACITY;
-	}
-	if (_ht_allocate(table, capacity) == HT_ERROR) {
-		return HT_ERROR;
-	}
-	table->key_size = key_size;
-	table->value_size = value_size;
-	table->hash = _ht_default_hash;
-	table->compare = _ht_default_compare;
-	table->size = 0;
-	return HT_SUCCESS;
+#include "khg_utils/hashmap.h"
+
+#define HASHMAP_SIZE_MIN 32
+#define HASHMAP_SIZE_DEFAULT 128
+#define HASHMAP_SIZE_MOD(map, val) ((val) & ((map)->table_size - 1))
+
+#define HASHMAP_PROBE_NEXT(map, index) HASHMAP_SIZE_MOD(map, (index) + 1)
+
+struct hashmap_entry {
+  void *key;
+  void *data;
+};
+
+static inline size_t hashmap_calc_table_size(const struct hashmap_base *hb, size_t size) {
+  size_t table_size;
+  table_size = size + (size / 3);
+  if (table_size < hb->table_size_init) {
+      table_size = hb->table_size_init;
+  } 
+  else {
+    table_size = 1 << ((sizeof(unsigned long) << 3) - __builtin_clzl(table_size - 1));
+  }
+  return table_size;
 }
 
-int ht_copy(hash_table* first, hash_table* second) {
-	size_t chain;
-	ht_node* node;
-	assert(first != NULL);
-	assert(ht_is_initialized(second));
-	if (first == NULL) return HT_ERROR;
-	if (!ht_is_initialized(second)) return HT_ERROR;
-	if (_ht_allocate(first, second->capacity) == HT_ERROR) {
-		return HT_ERROR;
-	}
-	first->key_size = second->key_size;
-	first->value_size = second->value_size;
-	first->hash = second->hash;
-	first->compare = second->compare;
-	first->size = second->size;
-	for (chain = 0; chain < second->capacity; ++chain) {
-		for (node = second->nodes[chain]; node; node = node->next) {
-			if (_ht_push_front(first, chain, node->key, node->value) == HT_ERROR) {
-				return HT_ERROR;
-			}
-		}
-	}
-	return HT_SUCCESS;
+static inline size_t hashmap_calc_index(const struct hashmap_base *hb, const void *key) {
+    size_t index = hb->hash(key);
+    index = hashmap_hash_default(&index, sizeof(index));
+    return HASHMAP_SIZE_MOD(hb, index);
 }
 
-int ht_move(hash_table* first, hash_table* second) {
-	assert(first != NULL);
-	assert(ht_is_initialized(second));
-	if (first == NULL) return HT_ERROR;
-	if (!ht_is_initialized(second)) return HT_ERROR;
-	*first = *second;
-	second->nodes = NULL;
-	return HT_SUCCESS;
+static struct hashmap_entry *hashmap_entry_get_populated(const struct hashmap_base *hb, const struct hashmap_entry *entry) {
+  if (hb->size > 0) {
+    for (; entry < &hb->table[hb->table_size]; ++entry) {
+      if (entry->key) {
+          return (struct hashmap_entry *)entry;
+      }
+    }
+  }
+  return NULL;
 }
 
-int ht_swap(hash_table* first, hash_table* second) {
-	assert(ht_is_initialized(first));
-	assert(ht_is_initialized(second));
-	if (!ht_is_initialized(first)) return HT_ERROR;
-	if (!ht_is_initialized(second)) return HT_ERROR;
-	_ht_int_swap(&first->key_size, &second->key_size);
-	_ht_int_swap(&first->value_size, &second->value_size);
-	_ht_int_swap(&first->size, &second->size);
-	_ht_pointer_swap((void**)&first->hash, (void**)&second->hash);
-	_ht_pointer_swap((void**)&first->compare, (void**)&second->compare);
-	_ht_pointer_swap((void**)&first->nodes, (void**)&second->nodes);
-	return HT_SUCCESS;
-}
-
-int ht_destroy(hash_table* table) {
-	ht_node* node;
-	ht_node* next;
-	size_t chain;
-	assert(ht_is_initialized(table));
-	if (!ht_is_initialized(table)) return HT_ERROR;
-	for (chain = 0; chain < table->capacity; ++chain) {
-		node = table->nodes[chain];
-		while (node) {
-			next = node->next;
-			_ht_destroy_node(node);
-			node = next;
-		}
-	}
-	free(table->nodes);
-	return HT_SUCCESS;
-}
-
-int ht_insert(hash_table* table, void* key, void* value) {
-	size_t index;
-	ht_node* node;
-	assert(ht_is_initialized(table));
-	assert(key != NULL);
-	if (!ht_is_initialized(table)) return HT_ERROR;
-	if (key == NULL) return HT_ERROR;
-	if (_ht_should_grow(table)) {
-		_ht_adjust_capacity(table);
-	}
-	index = _ht_hash(table, key);
-	for (node = table->nodes[index]; node; node = node->next) {
-		if (_ht_equal(table, key, node->key)) {
-			memcpy(node->value, value, table->value_size);
-			return HT_UPDATED;
-		}
-	}
-	if (_ht_push_front(table, index, key, value) == HT_ERROR) {
-		return HT_ERROR;
-	}
-	++table->size;
-	return HT_INSERTED;
-}
-
-int ht_contains(hash_table* table, void* key) {
-	size_t index;
-	ht_node* node;
-	assert(ht_is_initialized(table));
-	assert(key != NULL);
-	if (!ht_is_initialized(table)) return HT_ERROR;
-	if (key == NULL) return HT_ERROR;
-	index = _ht_hash(table, key);
-	for (node = table->nodes[index]; node; node = node->next) {
-		if (_ht_equal(table, key, node->key)) {
-			return HT_FOUND;
-		}
-	}
-	return HT_NOT_FOUND;
-}
-
-void *ht_lookup(hash_table* table, void* key) {
-	ht_node* node;
-	size_t index;
-	assert(table != NULL);
-	assert(key != NULL);
-	if (table == NULL) return NULL;
-	if (key == NULL) return NULL;
-	index = _ht_hash(table, key);
-	for (node = table->nodes[index]; node; node = node->next) {
-		if (_ht_equal(table, key, node->key)) {
-			return node->value;
-		}
-	}
-	return NULL;
-}
-
-const void *ht_const_lookup(const hash_table* table, void* key) {
-	const ht_node* node;
-	size_t index;
-	assert(table != NULL);
-	assert(key != NULL);
-	if (table == NULL) return NULL;
-	if (key == NULL) return NULL;
-	index = _ht_hash(table, key);
-	for (node = table->nodes[index]; node; node = node->next) {
-		if (_ht_equal(table, key, node->key)) {
-			return node->value;
-		}
-	}
-	return NULL;
-}
-
-int ht_erase(hash_table* table, void* key) {
-	ht_node* node;
-	ht_node* previous;
-	size_t index;
-	assert(table != NULL);
-	assert(key != NULL);
-	if (table == NULL) return HT_ERROR;
-	if (key == NULL) return HT_ERROR;
-	index = _ht_hash(table, key);
-	node = table->nodes[index];
-	for (previous = NULL; node; previous = node, node = node->next) {
-		if (_ht_equal(table, key, node->key)) {
-			if (previous) {
-				previous->next = node->next;
-			} else {
-				table->nodes[index] = node->next;
-			}
-			_ht_destroy_node(node);
-			--table->size;
-			if (_ht_should_shrink(table)) {
-				if (_ht_adjust_capacity(table) == HT_ERROR) {
-					return HT_ERROR;
-				}
-			}
-			return HT_SUCCESS;
-		}
-	}
-	return HT_NOT_FOUND;
-}
-
-int ht_clear(hash_table* table) {
-	assert(table != NULL);
-	assert(table->nodes != NULL);
-	if (table == NULL) return HT_ERROR;
-	if (table->nodes == NULL) return HT_ERROR;
-	ht_destroy(table);
-	_ht_allocate(table, HT_MINIMUM_CAPACITY);
-	table->size = 0;
-	return HT_SUCCESS;
-}
-
-int ht_is_empty(hash_table* table) {
-	assert(table != NULL);
-	if (table == NULL) return HT_ERROR;
-	return table->size == 0;
-}
-
-bool ht_is_initialized(hash_table* table) {
-	return table != NULL && table->nodes != NULL;
-}
-
-int ht_reserve(hash_table* table, size_t minimum_capacity) {
-	assert(ht_is_initialized(table));
-	if (!ht_is_initialized(table)) return HT_ERROR;
-	if (minimum_capacity > table->threshold) {
-		return _ht_resize(table, minimum_capacity / HT_LOAD_FACTOR);
-	}
-	return HT_SUCCESS;
-}
-
-void ht_iterate(hash_table *table, void (*func)(void *key, void *value)) {
+static struct hashmap_entry *hashmap_entry_find(const struct hashmap_base *hb, const void *key, bool find_empty) {
   size_t i;
-  ht_node *node;
-  if (!ht_is_initialized(table)) return;
-  for (i = 0; i < table->capacity; ++i) {
-    for (node = table->nodes[i]; node; node = node->next) {
-      func(node->key, node->value);
+  size_t index;
+  struct hashmap_entry *entry;
+  index = hashmap_calc_index(hb, key);
+  for (i = 0; i < hb->table_size; ++i) {
+    entry = &hb->table[index];
+    if (!entry->key) {
+      if (find_empty) {
+        return entry;
+      }
+      return NULL;
+    }
+    if (hb->compare(key, entry->key) == 0) {
+      return entry;
+    }
+    index = HASHMAP_PROBE_NEXT(hb, index);
+  }
+  return NULL;
+}
+
+static void hashmap_entry_remove(struct hashmap_base *hb, struct hashmap_entry *removed_entry) {
+  size_t i;
+  size_t index;
+  size_t entry_index;
+  size_t removed_index = (removed_entry - hb->table);
+  struct hashmap_entry *entry;
+  if (hb->key_free) {
+      hb->key_free(removed_entry->key);
+  }
+  --hb->size;
+  index = HASHMAP_PROBE_NEXT(hb, removed_index);
+  for (i = 0; i < hb->size; ++i) {
+    entry = &hb->table[index];
+    if (!entry->key) {
+      break;
+    }
+    entry_index = hashmap_calc_index(hb, entry->key);
+    if (HASHMAP_SIZE_MOD(hb, index - entry_index) > HASHMAP_SIZE_MOD(hb, removed_index - entry_index)) {
+      *removed_entry = *entry;
+      removed_index = index;
+      removed_entry = entry;
+    }
+    index = HASHMAP_PROBE_NEXT(hb, index);
+  }
+  memset(removed_entry, 0, sizeof(*removed_entry));
+}
+
+static int hashmap_rehash(struct hashmap_base *hb, size_t table_size) {
+  size_t old_size;
+  struct hashmap_entry *old_table;
+  struct hashmap_entry *new_table;
+  struct hashmap_entry *entry;
+  struct hashmap_entry *new_entry;
+  assert((table_size & (table_size - 1)) == 0);
+  assert(table_size >= hb->size);
+  new_table = (struct hashmap_entry *)calloc(table_size, sizeof(struct hashmap_entry));
+  if (!new_table) {
+    return -ENOMEM;
+  }
+  old_size = hb->table_size;
+  old_table = hb->table;
+  hb->table_size = table_size;
+  hb->table = new_table;
+  if (!old_table) {
+    return 0;
+  }
+  for (entry = old_table; entry < &old_table[old_size]; ++entry) {
+    if (!entry->key) {
+      continue;
+    }
+    new_entry = hashmap_entry_find(hb, entry->key, true);
+    assert(new_entry != NULL);
+    *new_entry = *entry;
+  }
+  free(old_table);
+  return 0;
+}
+
+static void hashmap_free_keys(struct hashmap_base *hb) {
+  struct hashmap_entry *entry;
+  if (!hb->key_free || hb->size == 0) {
+    return;
+  }
+  for (entry = hb->table; entry < &hb->table[hb->table_size]; ++entry) {
+    if (entry->key) {
+      hb->key_free(entry->key);
     }
   }
 }
 
-void ht_iterate_with_new_ht(hash_table *table, void (*func)(void *key, void *value, hash_table *new_table), hash_table *new_table) {
-  size_t i;
-  ht_node *node;
-  if (!ht_is_initialized(table)) return;
-  for (i = 0; i < table->capacity; ++i) {
-    for (node = table->nodes[i]; node; node = node->next) {
-      func(node->key, node->value, new_table);
+void hashmap_base_init(struct hashmap_base *hb, size_t (*hash_func)(const void *), int (*compare_func)(const void *, const void *)) {
+  assert(hash_func != NULL);
+  assert(compare_func != NULL);
+  memset(hb, 0, sizeof(*hb));
+  hb->table_size_init = HASHMAP_SIZE_DEFAULT;
+  hb->hash = hash_func;
+  hb->compare = compare_func;
+}
+
+void hashmap_base_cleanup(struct hashmap_base *hb) {
+  if (!hb) {
+    return;
+  }
+  hashmap_free_keys(hb);
+  free(hb->table);
+  memset(hb, 0, sizeof(*hb));
+}
+
+void hashmap_base_set_key_alloc_funcs(struct hashmap_base *hb, void *(*key_dup_func)(const void *), void (*key_free_func)(void *)) {
+  hb->key_dup = key_dup_func;
+  hb->key_free = key_free_func;
+}
+
+int hashmap_base_reserve(struct hashmap_base *hb, size_t capacity) {
+  size_t old_size_init;
+  int r = 0;
+  old_size_init = hb->table_size_init;
+  hb->table_size_init = HASHMAP_SIZE_MIN;
+  hb->table_size_init = hashmap_calc_table_size(hb, capacity);
+  if (hb->table_size_init > hb->table_size) {
+    r = hashmap_rehash(hb, hb->table_size_init);
+    if (r < 0) {
+      hb->table_size_init = old_size_init;
     }
   }
+  return r;
 }
 
-void _ht_int_swap(size_t* first, size_t* second) {
-	size_t temp = *first;
-	*first = *second;
-	*second = temp;
+int hashmap_base_put(struct hashmap_base *hb, const void *key, void *data) {
+  struct hashmap_entry *entry;
+  size_t table_size;
+  int r = 0;
+  if (!key || !data) {
+    return -EINVAL;
+  }
+  table_size = hashmap_calc_table_size(hb, hb->size);
+  if (table_size > hb->table_size) {
+    r = hashmap_rehash(hb, table_size);
+  }
+  entry = hashmap_entry_find(hb, key, true);
+  if (!entry) {
+    if (r < 0) {
+      return r;
+    }
+    return -EADDRNOTAVAIL;
+  }
+  if (entry->key) {
+    return -EEXIST;
+  }
+  if (hb->key_dup) {
+    entry->key = hb->key_dup(key);
+    if (!entry->key) {
+      return -ENOMEM;
+    }
+  } 
+  else {
+    entry->key = (void *)key;
+  }
+  entry->data = data;
+  ++hb->size;
+  return 0;
 }
 
-void _ht_pointer_swap(void** first, void** second) {
-	void* temp = *first;
-	*first = *second;
-	*second = temp;
+void *hashmap_base_get(const struct hashmap_base *hb, const void *key) {
+  struct hashmap_entry *entry;
+  if (!key) {
+    return NULL;
+  }
+  entry = hashmap_entry_find(hb, key, false);
+  if (!entry) {
+    return NULL;
+  }
+  return entry->data;
 }
 
-int _ht_default_compare(void* first_key, void* second_key, size_t key_size) {
-	return memcmp(first_key, second_key, key_size);
+void *hashmap_base_remove(struct hashmap_base *hb, const void *key) {
+  struct hashmap_entry *entry;
+  void *data;
+  if (!key) {
+    return NULL;
+  }
+  entry = hashmap_entry_find(hb, key, false);
+  if (!entry) {
+    return NULL;
+  }
+  data = entry->data;
+  hashmap_entry_remove(hb, entry);
+  return data;
 }
 
-size_t _ht_default_hash(void* raw_key, size_t key_size) {
-	size_t byte;
-	size_t hash = 5381;
-	char* key = raw_key;
-	for (byte = 0; byte < key_size; ++byte) {
-		hash = ((hash << 5) + hash) ^ key[byte];
-	}
-	return hash;
+void hashmap_base_clear(struct hashmap_base *hb) {
+  hashmap_free_keys(hb);
+  hb->size = 0;
+  memset(hb->table, 0, sizeof(struct hashmap_entry) * hb->table_size);
 }
 
-size_t _ht_hash(const hash_table* table, void* key) {
-#ifdef HT_USING_POWER_OF_TWO
-	return table->hash(key, table->key_size) & table->capacity;
-#else
-	return table->hash(key, table->key_size) % table->capacity;
-#endif
+void hashmap_base_reset(struct hashmap_base *hb) {
+  struct hashmap_entry *new_table;
+  hashmap_free_keys(hb);
+  hb->size = 0;
+  if (hb->table_size != hb->table_size_init) {
+    new_table = (struct hashmap_entry *)realloc(hb->table, sizeof(struct hashmap_entry) * hb->table_size_init);
+    if (new_table) {
+      hb->table = new_table;
+      hb->table_size = hb->table_size_init;
+    }
+  }
+  memset(hb->table, 0, sizeof(struct hashmap_entry) * hb->table_size);
 }
 
-bool _ht_equal(const hash_table* table, void* first_key, void* second_key) {
-	return table->compare(first_key, second_key, table->key_size) == 0;
+struct hashmap_entry *hashmap_base_iter(const struct hashmap_base *hb, const struct hashmap_entry *pos) {
+  if (!pos) {
+    pos = hb->table;
+  }
+  return hashmap_entry_get_populated(hb, pos);
 }
 
-bool _ht_should_grow(hash_table* table) {
-	assert(table->size <= table->capacity);
-	return table->size == table->capacity;
+bool hashmap_base_iter_valid(const struct hashmap_base *hb, const struct hashmap_entry *iter) {
+  return hb && iter && iter->key && iter >= hb->table && iter < &hb->table[hb->table_size];
 }
 
-bool _ht_should_shrink(hash_table* table) {
-	assert(table->size <= table->capacity);
-	return table->size == table->capacity * HT_SHRINK_THRESHOLD;
+bool hashmap_base_iter_next(const struct hashmap_base *hb, struct hashmap_entry **iter) {
+  if (!*iter) {
+    return false;
+  }
+  return (*iter = hashmap_entry_get_populated(hb, *iter + 1)) != NULL;
 }
 
-ht_node *_ht_create_node(hash_table* table, void* key, void* value, ht_node* next) {
-	ht_node* node;
-	assert(table != NULL);
-	assert(key != NULL);
-	assert(value != NULL);
-	if ((node = malloc(sizeof *node)) == NULL) {
-		return NULL;
-	}
-	if ((node->key = malloc(table->key_size)) == NULL) {
-		return NULL;
-	}
-	if ((node->value = malloc(table->value_size)) == NULL) {
-		return NULL;
-	}
-	memcpy(node->key, key, table->key_size);
-	memcpy(node->value, value, table->value_size);
-	node->next = next;
-	return node;
+bool hashmap_base_iter_remove(struct hashmap_base *hb, struct hashmap_entry **iter) {
+  if (!*iter) {
+    return false;
+  }
+  if ((*iter)->key) {
+    hashmap_entry_remove(hb, *iter);
+  }
+  return (*iter = hashmap_entry_get_populated(hb, *iter)) != NULL;
 }
 
-int _ht_push_front(hash_table* table, size_t index, void* key, void* value) {
-	table->nodes[index] = _ht_create_node(table, key, value, table->nodes[index]);
-	return table->nodes[index] == NULL ? HT_ERROR : HT_SUCCESS;
+const void *hashmap_base_iter_get_key(const struct hashmap_entry *iter) {
+  if (!iter) {
+    return NULL;
+  }
+  return (const void *)iter->key;
 }
 
-void _ht_destroy_node(ht_node* node) {
-	assert(node != NULL);
-	free(node->key);
-	free(node->value);
-	free(node);
+void *hashmap_base_iter_get_data(const struct hashmap_entry *iter) {
+  if (!iter) {
+    return NULL;
+  }
+  return iter->data;
 }
 
-int _ht_adjust_capacity(hash_table* table) {
-	return _ht_resize(table, table->size * HT_GROWTH_FACTOR);
+int hashmap_base_iter_set_data(struct hashmap_entry *iter, void *data) {
+  if (!iter) {
+    return -EFAULT;
+  }
+  if (!data) {
+    return -EINVAL;
+  }
+  iter->data = data;
+  return 0;
 }
 
-int _ht_allocate(hash_table* table, size_t capacity) {
-	if ((table->nodes = malloc(capacity * sizeof(ht_node*))) == NULL) {
-		return HT_ERROR;
-	}
-	memset(table->nodes, 0, capacity * sizeof(ht_node*));
-	table->capacity = capacity;
-	table->threshold = capacity * HT_LOAD_FACTOR;
-	return HT_SUCCESS;
+double hashmap_base_load_factor(const struct hashmap_base *hb) {
+  if (!hb->table_size) {
+    return 0;
+  }
+  return (double)hb->size / hb->table_size;
 }
 
-int _ht_resize(hash_table* table, size_t new_capacity) {
-	ht_node** old;
-	size_t old_capacity;
-	if (new_capacity < HT_MINIMUM_CAPACITY) {
-		if (table->capacity > HT_MINIMUM_CAPACITY) {
-			new_capacity = HT_MINIMUM_CAPACITY;
-		} else {
-			return HT_SUCCESS;
-		}
-	}
-	old = table->nodes;
-	old_capacity = table->capacity;
-	if (_ht_allocate(table, new_capacity) == HT_ERROR) {
-		return HT_ERROR;
-	}
-	_ht_rehash(table, old, old_capacity);
-	free(old);
-	return HT_SUCCESS;
+size_t hashmap_base_collisions(const struct hashmap_base *hb, const void *key) {
+  size_t i;
+  size_t index;
+  struct hashmap_entry *entry;
+  if (!key) {
+    return 0;
+  }
+  index = hashmap_calc_index(hb, key);
+  for (i = 0; i < hb->table_size; ++i) {
+    entry = &hb->table[index];
+    if (!entry->key) {
+      return 0;
+    }
+    if (hb->compare(key, entry->key) == 0) {
+      break;
+    }
+    index = HASHMAP_PROBE_NEXT(hb, index);
+  }
+  return i;
 }
 
-void _ht_rehash(hash_table* table, ht_node** old, size_t old_capacity) {
-	ht_node* node;
-	ht_node* next;
-	size_t new_index;
-	size_t chain;
-	for (chain = 0; chain < old_capacity; ++chain) {
-		for (node = old[chain]; node;) {
-			next = node->next;
-			new_index = _ht_hash(table, node->key);
-			node->next = table->nodes[new_index];
-			table->nodes[new_index] = node;
-			node = next;
-		}
-	}
+double hashmap_base_collisions_mean(const struct hashmap_base *hb) {
+  struct hashmap_entry *entry;
+  size_t total_collisions = 0;
+  if (!hb->size) {
+    return 0;
+  }
+  for (entry = hb->table; entry < &hb->table[hb->table_size]; ++entry) {
+    if (!entry->key) {
+      continue;
+    }
+    total_collisions += hashmap_base_collisions(hb, entry->key);
+  }
+  return (double)total_collisions / hb->size;
 }
+
+double hashmap_base_collisions_variance(const struct hashmap_base *hb) {
+  struct hashmap_entry *entry;
+  double mean_collisions;
+  double variance;
+  double total_variance = 0;
+  if (!hb->size) {
+    return 0;
+  }
+  mean_collisions = hashmap_base_collisions_mean(hb);
+  for (entry = hb->table; entry < &hb->table[hb->table_size]; ++entry) {
+    if (!entry->key) {
+      continue;
+    }
+    variance = (double)hashmap_base_collisions(hb, entry->key) - mean_collisions;
+    total_variance += variance * variance;
+  }
+  return total_variance / hb->size;
+}
+
+size_t hashmap_hash_default(const void *data, size_t len) {
+  const uint8_t *byte = (const uint8_t *)data;
+  size_t hash = 0;
+  for (size_t i = 0; i < len; ++i) {
+    hash += *byte++;
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+  }
+  hash += (hash << 3);
+  hash ^= (hash >> 11);
+  hash += (hash << 15);
+  return hash;
+}
+
+size_t hashmap_hash_string(const char *key) {
+  size_t hash = 0;
+  for (; *key; ++key) {
+    hash += *key;
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+  }
+  hash += (hash << 3);
+  hash ^= (hash >> 11);
+  hash += (hash << 15);
+  return hash;
+}
+
+size_t hashmap_hash_string_i(const char *key) {
+  size_t hash = 0;
+  for (; *key; ++key) {
+    hash += tolower(*key);
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+  }
+  hash += (hash << 3);
+  hash ^= (hash >> 11);
+  hash += (hash << 15);
+  return hash;
+}
+

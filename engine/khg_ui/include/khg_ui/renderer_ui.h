@@ -52,6 +52,8 @@ typedef struct {
   hash_table all_menu_stacks;
   string id_str;
   string current_text_box;
+  vector(string *) widget_keys;
+  vector(int *) all_menu_stack_keys;
 } renderer_ui;
 
 void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, bool mouse_click, bool mouse_held, bool mouse_released, bool escape_released, string *typed_input, float delta_time);
@@ -76,4 +78,5 @@ void begin_ui(renderer_ui *rui, int id);
 void end_ui(renderer_ui *rui);
 void set_align_mode_fixed_size_widgets_ui(renderer_ui *rui, vec2 size);
 void create_renderer_ui(renderer_ui *rui);
+void cleanup_renderer_ui(renderer_ui *rui);
 
