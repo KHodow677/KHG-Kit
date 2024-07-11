@@ -35,9 +35,26 @@ vec2 vec2_normalize(vec2 *vec2_a) {
 }
 
 float vec2_dot(vec2 *vec2_a, vec2 *vec2_b) {
-  return (vec2_a->x * vec2_b->x) + (vec2_a->y * vec2_b->y);
+  return (vec2_a->x * vec2_b->y) - (vec2_a->y * vec2_b->x);
 }
 
 vec2 vec2_clamp(vec2 *vec2_a, vec2 *min, vec2 *max) {
   return (vec2){ fmaxf(min->x, fminf(vec2_a->x, max->x)), fmaxf(min->y, fminf(vec2_a->y, max->y)) };
+}
+
+vec2 vec2_cross(float v, vec2 *vec2_a) {
+  return (vec2){ -v * vec2_a->y, v * vec2_a->x };
+}
+
+float vec2_cross_vec2(vec2 *vec2_a, vec2 *vec2_b) {
+  return (vec2_a->x * vec2_b->y - vec2_a->y * vec2_b->x);
+}
+
+float vec2_len_sqr(vec2 *vec2_a) {
+  return (vec2_a->x * vec2_a->x + vec2_a->y * vec2_a->y);
+}
+
+float vec2_dist_sqr(vec2 *vec2_a, vec2 *vec2_b) {
+  vec2 dir = vec2_subtract(vec2_a, vec2_b);
+  return vec2_dot(&dir, &dir);
 }

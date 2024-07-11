@@ -3,6 +3,21 @@
 #include <math.h>
 #include <stdlib.h>
 
+static vec2 get_support(physics_shape shape, vec2 dir) {
+  float bestProjection = -KHGPHY_FLT_MAX;
+  vec2 bestVertex = { 0.0f, 0.0f };
+  polygon_data data = shape.vertex_data;
+  for (int i = 0; i < data.vertex_count; i++) {
+    vec2 vertex = data.positions[i];
+    float projection = MathDot(vertex, dir);
+    if (projection > bestProjection) {
+      bestVertex = vertex;
+      bestProjection = projection;
+    }
+  }
+  return bestVertex;
+}
+
 static int find_available_body_index(void) {
   int index = -1;
   for (int i = 0; i < KHGPHY_MAX_BODIES; i++) {
@@ -528,4 +543,160 @@ static void integrate_physics_inpulses(physics_manifold manifold) {
       }
     }
   }
+}
+
+static void integrate_physics_velocity(physics_body body) {
+  if ((body == NULL) || !body->enabled) {
+    return;
+  }
+  body->position.x += body->velocity.x * delta_time;
+  body->position.y += body->velocity.y * delta_time;
+  if (!body->freeze_orient) {
+    body->orient += body->angular_velocity * delta_time;
+  }
+  mat2_set(&body->shape.transform, body->orient);
+  integrate_physics_forces(body);
+}
+
+static void correct_physics_positions(physics_manifold manifold) {
+  physics_body body_a = manifold->body_a;
+  physics_body body_b = manifold->body_b;
+  if ((body_a == NULL) || (body_b == NULL)) {
+    return;
+  }
+  vec2 correction = { 0.f, 0.f };
+  correction.x = (max(manifold->penetration - KHGPHY_PENETRATION_ALLOWANCE, 0.0f) / (body_a->inverse_mass + body_b->inverse_mass)) * manifold->normal.x * KHGPHY_PENETRATION_CORRECTION;
+  correction.y = (max(manifold->penetration - KHGPHY_PENETRATION_ALLOWANCE, 0.0f) / (body_a->inverse_mass + body_b->inverse_mass)) * manifold->normal.y * KHGPHY_PENETRATION_CORRECTION;
+  if (body_a->enabled) {
+    body_a->position.x -= correction.x * body_a->inverse_mass;
+    body_a->position.y -= correction.y * body_a->inverse_mass;
+  }
+  if (body_b->enabled) {
+    body_b->position.x += correction.x * body_b->inverse_mass;
+    body_b->position.y += correction.y * body_b->inverse_mass;
+  }
+}
+
+static float find_axis_least_penetration(int *face_index, physics_shape shape_a, physics_shape shape_b) {
+  float best_distance = -KHGPHY_FLT_MAX;
+  int best_index = 0;
+  polygon_data data_a = shape_a.vertex_data;
+  for (int i = 0; i < data_a.vertex_count; i++) {
+    vec2 normal = data_a.normals[i];
+    vec2 trans_normal = mat2_multiply_vec2(&shape_a.transform, &normal);
+    mat2 bu_t = mat2_transpose(&shape_b.transform);
+    vec2 support = get_support(shape_b, (vec2){ -normal.x, -normal.y });
+    vec2 vertex = data_a.positions[i];
+    vertex = mat2_multiply_vec2(&shape_a.transform, &vertex);
+    vertex = vec2_add(&vertex, &shape_a.body->position);
+    vertex = vec2_subtract(&vertex, &shape_b.body->position);
+    vertex = mat2_multiply_vec2(&bu_t, &vertex);
+    vec2 support_diff = vec2_subtract(&support, &vertex);
+    float distance = vec2_dot(&normal, &support_diff);
+    if (distance > best_distance) {
+      best_distance = distance;
+      best_index = i;
+    }
+  }
+  *face_index = best_index;
+  return best_distance;
+}
+
+static void find_incident_face(vec2 *v0, vec2 *v1, physics_shape ref, physics_shape inc, int index) {
+  polygon_data ref_data = ref.vertex_data;
+  polygon_data inc_data = ref.vertex_data;
+  vec2 reference_normal = ref_data.normals[index];
+  reference_normal = mat2_multiply_vec2(&ref.transform, &reference_normal);
+  mat2 inc_transform_t = mat2_transpose(&inc.transform);
+  reference_normal = mat2_multiply_vec2(&inc_transform_t, &reference_normal);
+  int incident_face = 0;
+  float min_dot = KHGPHY_FLT_MAX;
+  for (int i = 0; i < inc_data.vertex_count; i++) {
+    float dot = vec2_dot(&reference_normal, &inc_data.normals[i]);
+    if (dot < min_dot) {
+      min_dot = dot;
+      incident_face = i;
+    }
+  }
+  *v0 = mat2_multiply_vec2(&inc.transform, &inc_data.positions[incident_face]);
+  *v0 = vec2_add(v0, &inc.body->position);
+  incident_face = (((incident_face + 1) < inc_data.vertex_count) ? (incident_face + 1) : 0);
+  *v1 = mat2_multiply_vec2(&inc.transform, &inc_data.positions[incident_face]);
+  *v1 = vec2_add(v1, &inc.body->position);
+}
+
+static int clip(vec2 normal, float clip, vec2 *face_a, vec2 *face_b) {
+  int sp = 0;
+  vec2 out[2] = { *face_a, *face_b };
+  float distance_a = vec2_dot(&normal, face_a) - clip;
+  float distance_b = vec2_dot(&normal, face_b) - clip;
+  if (distance_a <= 0.0f) {
+    out[sp++] = *face_a;
+  }
+  if (distance_b <= 0.0f) {
+    out[sp++] = *face_b;
+  }
+  if ((distance_a * distance_b) < 0.0f) {
+    float alpha = distance_a / (distance_a - distance_b);
+    out[sp] = *face_a;
+    vec2 delta = vec2_subtract(face_b, face_a);
+    delta.x *= alpha;
+    delta.y *= alpha;
+    out[sp] = vec2_add(&out[sp], &delta);
+    sp++;
+  }
+  *face_a = out[0];
+  *face_b = out[1];
+  return sp;
+}
+
+static bool bias_greater_than(float value_a, float value_b) {
+  return (value_a >= (value_b * 0.95f + value_a * 0.01f));
+}
+
+static vec2 triangle_barycenter(vec2 v1, vec2 v2, vec2 v3) {
+  vec2 result = { 0.0f, 0.f };
+  result.x = (v1.x + v2.x + v3.x) / 3;
+  result.y = (v1.y + v2.y + v3.y) / 3;
+  return result;
+}
+
+static void init_timer(void) {
+  srand(time(NULL));
+  #if defined(_WIN32)
+    QueryPerformanceFrequency((unsigned long long int *) &frequency);
+  #elif defined(__linux__)
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now) == 0) {
+      frequency = 1000000000;
+    }
+  #elif defined(__APPLE__)
+    mach_timebase_info_data_t timebase;
+    mach_timebase_info(&timebase);
+    frequency = (timebase.denom * 1e9) / timebase.numer;
+  #elif defined(EMSCRIPTEN)
+    frequency = 1000;
+  #endif
+  base_time = get_time_count();
+  start_time = get_current_time();
+}
+
+static uint64_t get_time_count(void) {
+  uint64_t value = 0;
+  #if defined(_WIN32)
+    QueryPerformanceCounter((unsigned long long int *) &value);
+  #elif defined(__linux__)
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    value = (uint64_t)now.tv_sec * (uint64_t) 1000000000 + (uint64_t)now.tv_nsec;
+  #elif defined(__APPLE__)
+    value = mach_absolute_time();
+  #elif defined(EMSCRIPTEN)
+    value = emscripten_get_now();
+  #endif
+  return value;
+}
+
+static double get_current_time(void) {
+  return (double)(get_time_count() - base_time) / frequency * 1000;
 }
