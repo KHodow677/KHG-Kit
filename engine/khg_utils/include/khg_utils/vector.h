@@ -30,7 +30,7 @@ struct Vector {
     MemoryPoolVector *pool;
 };
 
-Vector* vector_create(size_t itemSize);
+Vector* vector_create(size_t itemSize, size_t capacity);
 
 bool vector_is_equal(const Vector* vec1, const Vector* vec2);
 bool vector_is_less(const Vector* vec1, const Vector* vec2);

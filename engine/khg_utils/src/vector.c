@@ -97,7 +97,7 @@ static void memory_pool_destroy(MemoryPoolVector *pool) {
     free(pool); // Free the pool structure itself
 }
 
-Vector* vector_create(size_t itemSize) {
+Vector* vector_create(size_t itemSize, size_t capacity) {
     Vector* vec = (Vector*)malloc(sizeof(Vector));
 
     if (!vec){
@@ -110,8 +110,7 @@ Vector* vector_create(size_t itemSize) {
     vec->size = 0;
     vec->capacitySize = 32; // Initial capacity
     vec->itemSize = itemSize;
-    
-    size_t initialPoolSize = 100000;
+    size_t initialPoolSize = capacity;
     vec->pool = memory_pool_create(initialPoolSize);
     if (!vec->pool) {
         free(vec);

@@ -212,7 +212,7 @@ void read_texture_data(texture *t, void *buffer, int mip_level) {
 
 Vector read_texture_data_to_char_array(texture *t, int mip_level, vec2 *out_size) {
   vec2 stub = { 0 };
-  Vector *data = vector_create(sizeof(unsigned char));
+  Vector *data = vector_create(sizeof(unsigned char), sizeof(unsigned char) * 1000000);
   glBindTexture(GL_TEXTURE_2D, t->id);
   if (!out_size) {
     out_size = &stub;

@@ -97,16 +97,12 @@ void create_renderer_2d(renderer_2d *r2d, GLuint fbo, size_t quad_count) {
 		error_func("Library not initialized. Have you forgotten to call gl2d::init() ?", user_defined_data);
   }
   r2d->default_fbo = fbo;
-  r2d->sprite_positions = vector_create(sizeof(vec2));
-  r2d->sprite_colors = vector_create(sizeof(vec4));
-  r2d->texture_positions = vector_create(sizeof(vec2));
-  r2d->sprite_textures = vector_create(sizeof(texture));
-  r2d->shader_push_pop = vector_create(sizeof(shader));
-  r2d->camera_push_pop = vector_create(sizeof(camera));
-  vector_reserve(r2d->sprite_positions, quad_count * 6);
-  vector_reserve(r2d->sprite_colors, quad_count * 6);
-  vector_reserve(r2d->texture_positions, quad_count * 6);
-  vector_reserve(r2d->sprite_textures, quad_count);
+  r2d->sprite_positions = vector_create(sizeof(vec2), sizeof(vec2) * quad_count * 6);
+  r2d->sprite_colors = vector_create(sizeof(vec4), sizeof(vec4) * quad_count * 6);
+  r2d->texture_positions = vector_create(sizeof(vec2), sizeof(vec2) * quad_count * 6);
+  r2d->sprite_textures = vector_create(sizeof(texture), sizeof(texture) * quad_count);
+  r2d->shader_push_pop = vector_create(sizeof(shader), sizeof(shader) * 1000);
+  r2d->camera_push_pop = vector_create(sizeof(camera), sizeof(camera) * 1000);
   clear_draw_data(r2d);
   reset_shader_and_camera(r2d);
   glGenVertexArrays(1, &r2d->vao);
