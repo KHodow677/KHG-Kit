@@ -24,7 +24,7 @@
 #define KHGPHY_K 1.0f / 3.0f
 #define KHGPHY_VECTOR_0 (vec2) { 0.0f, 0.0f }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(_WIN64)
   int __stdcall QueryPerformanceCounter(unsigned long long int *lpPerformanceCount);
   int __stdcall QueryPerformanceFrequency(unsigned long long int *lpFrequency);
 #elif defined(__linux__)

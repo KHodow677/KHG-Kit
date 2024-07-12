@@ -4,8 +4,8 @@
  * @class Vector
 */
 
-#include "vector.h"
-#include "../fmt/fmt.h"
+#include "khg_utils/vector.h"
+#include "khg_utils/fmt.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -68,6 +68,22 @@ static void *memory_pool_allocate(MemoryPoolVector *pool, size_t size) {
     pool->used += size;
 
     return mem;
+}
+
+static void memory_pool_deallocate(MemoryPoolVector *pool, size_t size) {
+    if (!pool) {
+        #ifdef VECTOR_LOGGING_ENABLE
+            fmt_fprintf(stderr, "Error: Memory pool is not initialized.\n");
+        #endif 
+        return;
+    }
+    if (size == 0) {
+        #ifdef VECTOR_LOGGING_ENABLE
+            fmt_fprintf(stderr, "Error: Cannot deallocate zero size.\n");
+        #endif
+        return;
+    }
+    pool->used -= size;
 }
 
 static void memory_pool_destroy(MemoryPoolVector *pool) {
@@ -652,21 +668,9 @@ void vector_clear(Vector *vec) {
         #endif 
         return; // Handle the error as per your application's needs
     }
-
-    vec->size = 0;
-    // Optionally reduce capacity. Choose an appropriate size for your use case.
-    size_t reducedCapacity = 4; // Or some other small size
-    if (vec->capacitySize > reducedCapacity) {
-        void *newItems = memory_pool_allocate(vec->pool, reducedCapacity * vec->itemSize);
-        if (newItems != NULL || reducedCapacity == 0) {
-            vec->items = newItems;
-            vec->capacitySize = reducedCapacity;
-        } 
-        else {
-            #ifdef VECTOR_LOGGING_ENABLE
-                fmt_fprintf(stderr, "Error: Cannot reallocate the Vector in vector_clear.\n");
-            #endif 
-        }
+    if (vec->size != 0) {
+        memory_pool_deallocate(vec->pool, vec->itemSize * vec->size);
+        vec->size = 0;
     }
 }
 

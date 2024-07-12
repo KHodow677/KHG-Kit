@@ -8,7 +8,7 @@ key_button left_mouse;
 key_button right_mouse;
 
 controller_buttons c_buttons;
-string typed_input = NULL;
+String *typed_input = NULL;
 
 void merge(key_button *b, const key_button *b_other) {
   b->pressed |= b_other->pressed;
@@ -93,8 +93,8 @@ controller_buttons get_controller_buttons() {
   return c;
 }
 
-string *get_typed_input() {
-  return &typed_input;
+String *get_typed_input() {
+  return typed_input;
 }
 
 void set_button_state(int button, int new_state) {
@@ -198,17 +198,20 @@ void add_to_typed_input(char c) {
   if (typed_input == NULL) {
     return;
   }
-  str_add(typed_input, &c);
+  string_push_back(typed_input, c);
 }
 
 void reset_typed_input() {
   if (typed_input == NULL) {
-    typed_input = str_create();
+    typed_input = string_create("");
   }
-  str_clear(typed_input);
+  if (string_length(typed_input) == 0) {
+    return;
+  }
+  string_clear(typed_input);
 }
 
 void free_typed_input() {
-  str_free(typed_input);
+  string_deallocate(typed_input);
 }
 

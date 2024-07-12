@@ -681,7 +681,7 @@ vec2 triangle_barycenter(vec2 v1, vec2 v2, vec2 v3) {
 
 uint64_t get_time_count(void) {
   uint64_t value = 0;
-  #if defined(_WIN32)
+  #if defined(_WIN32) || defined(_WIN64)
     QueryPerformanceCounter((unsigned long long int *) &value);
   #elif defined(__linux__)
     struct timespec now;

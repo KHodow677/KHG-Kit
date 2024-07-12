@@ -2,9 +2,9 @@
 #include <string.h>
 #include <wchar.h>
 #include <ctype.h>
-#include "../encoding/encoding.h"
-#include "../string/string.h"
-#include "fmt.h"
+#include "khg_utils/encoding.h"
+#include "khg_utils/string.h"
+#include "khg_utils/fmt.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>

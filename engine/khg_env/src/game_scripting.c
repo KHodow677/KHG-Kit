@@ -36,7 +36,7 @@ static double get_current_time(void) {
 
 static void init_timer(void) {
   srand(time(NULL));
-  #if defined(_WIN32)
+  #if defined(_WIN32) || defined(_WIN64)
     QueryPerformanceFrequency((unsigned long long int *) &frequency);
   #elif defined(__linux__)
     struct timespec now;

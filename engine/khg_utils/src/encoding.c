@@ -4,8 +4,7 @@
  * @class Encoding
 */
 
-#include "encoding.h"
-// #include "../fmt/fmt.h"
+#include "khg_utils/encoding.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

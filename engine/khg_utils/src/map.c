@@ -4,8 +4,8 @@
  * @class Map
 */
 
-#include "map.h"
-#include "../fmt/fmt.h"
+#include "khg_utils/map.h"
+#include "khg_utils/fmt.h"
 #include <stdlib.h>
 #include <string.h>
 

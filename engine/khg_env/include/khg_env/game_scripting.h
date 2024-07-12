@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(_WIN64)
   int __stdcall QueryPerformanceCounter(unsigned long long int *lpPerformanceCount);
   int __stdcall QueryPerformanceFrequency(unsigned long long int *lpFrequency);
 #elif defined(__linux__)

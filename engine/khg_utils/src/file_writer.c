@@ -9,9 +9,9 @@
 #include <errno.h>
 #endif 
 
-#include "file_writer.h"
-#include "../encoding/encoding.h"
-#include "../string/string.h"
+#include "khg_utils/file_writer.h"
+#include "khg_utils/encoding.h"
+#include "khg_utils/string.h"
 #include <stdlib.h>
 #include <string.h>
 
