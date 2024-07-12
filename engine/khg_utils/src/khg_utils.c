@@ -4,7 +4,7 @@
 void *user_defined_data = 0;
 
 void default_error_func(const char *msg, void *userDefinedData) {
-  printf("KHG error: %s\n", msg);
+  printf("KHG Error: %s\n", msg);
 }
 
 void set_user_defined_data(void *data) {

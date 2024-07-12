@@ -786,7 +786,7 @@ void render_texture_to_entire_screen(renderer_2d *r2d, texture t, framebuffer sc
   glBindVertexArray(0);
 }
 
-void flush_post_process(renderer_2d *r2d, Vector *post_process, framebuffer fb, bool should_clear) {
+void flush_post_process(renderer_2d *r2d, vector *post_process, framebuffer fb, bool should_clear) {
   if (vector_is_empty(post_process)) {
     if (should_clear) {
       clear_draw_data(r2d);
@@ -803,7 +803,7 @@ void flush_post_process(renderer_2d *r2d, Vector *post_process, framebuffer fb, 
   post_process_over_texture(r2d, post_process, r2d->post_process_fbo_1.texture, fb);
 }
 
-void post_process_over_texture(renderer_2d *r2d, Vector *post_process, texture in, framebuffer fb) {
+void post_process_over_texture(renderer_2d *r2d, vector *post_process, texture in, framebuffer fb) {
   if (vector_is_empty(post_process)) {
     return;
   }

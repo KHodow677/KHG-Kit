@@ -19,7 +19,7 @@ void load_from_file(texture *t, const char *file_name, bool pixelated, bool use_
 void load_from_file_with_pixel_padding(texture *t, const char *file_name, int block_size, bool pixelated, bool use_mip_maps);
 size_t get_memory_size(texture *t, int mip_level, vec2 *out_size);
 void read_texture_data(texture *t, void *buffer, int mip_level);
-Vector read_texture_data_to_char_array(texture *t, int mip_level, vec2 *out_size);
+vector read_texture_data_to_char_array(texture *t, int mip_level, vec2 *out_size);
 void bind_texture(texture *t, const unsigned int sample);
 void unbind_texture(texture *t);
 void cleanup_texture(texture *t);
