@@ -1,78 +1,147 @@
-#pragma once
+/**
+ * @author Amin Tahmasebi
+ * @date 2023 
+ * @class String
+*/
 
-#include "stdlib.h"
 
-typedef char* string;
+#ifndef STRING_H_
+#define STRING_H_
 
-typedef struct {
-  size_t cap;
-  size_t len;
-  char data[];
-} _string;
+#include <stddef.h>
+#include <stdbool.h>
 
-string _string_create();
-string _string_create_from_string(string _str);
-int _string_free(string _str);
-_string *_string_struct(string _str);
-_string *_string_realloc(_string *_str, size_t _data_size);
-int _string_calc_capacity(size_t *_cap, size_t _dest);
-size_t _string_length(string _str);
-size_t _string_capacity(string _str);
-int _string_empty(string _str);
-int _string_compare(string str1, string str2);
-int _string_inc(string *_str, size_t _count);
-char _string_get(string _str, size_t _index);
-int _string_set(string _str, size_t _index, char _chr);
-int _string_add(string *_dst, char *_src);
-int _string_add_char(string *_dst, char _chr);
-int _string_insert(string *_dst, size_t _index, char *_src);
-int _string_insert_char(string *_dst, size_t _index, char _chr);
-int _string_delete(string *_str, size_t _index, size_t _num_chars);
-int _string_clear(string *_str);
-int _string_reverse(string _str);
-int _string_fill(string _str, char _chr);
-int _string_fill_range(string _str, size_t _index, size_t _num_chars, char _chr);
-string _string_substr(string _str, size_t _index, size_t _num_chars);
-string _string_clone(string _str);
-int _string_find_from(string _str, char *_substr, size_t _index);
-int _string_find_char_from(string _str, char _chr, size_t _index);
-int _string_replace(string *_str, char *_substr, char *_new_substr, int _first);
-size_t _string_count(string _str, char *_substr);
-size_t _string_count_char(string _str, char _chr);
-int _string_resize(string *_str, size_t _num_chars);
-int _string_reserve(string *_str, size_t _num_chars);
-int _string_shrink(string *_str);
+extern const char* STRING_ASCII_LETTERS;
+extern const char* STRING_ASCII_LOWERCASE;
+extern const char* STRING_ASCII_UPPERCASE;
+extern const char* STRING_DIGITS;
+extern const char* STRING_HEXDIGITS;
+extern const char* STRING_WHITESPACE;
+extern const char* STRING_PUNCTUATION;
 
-#define str_create() _string_create()
-#define str_create_from_str(str) _string_create_from_string(str)
-#define str_free(str) _string_free(str)
-#define str_length(str) _string_length(str)
-#define str_size(str) _string_length(str)
-#define str_capacity(str) _string_capacity(str)
-#define str_empty(str) _string_empty(str)
-#define str_compare(str1, str2) _string_compare(str1, str2)
-#define str_get(str, index) _string_get(str, index)
-#define str_set(str, index, chr) _string_set(str, index, chr)
-#define str_add(dst, src) _string_add(&dst, src)
-#define str_add_char(dst, chr) _string_add_char(&dst, chr)
-#define str_insert(dst, index, src) _string_insert(&dst, index, src)
-#define str_insert_char(dst, index, chr) _string_insert_char(&dst, index, chr)
-#define str_delete(str, index, num_chars) _string_delete(&str, index, num_chars)
-#define str_clear(str) _string_clear(&str)
-#define str_reverse(str) _string_reverse(str)
-#define str_fill(str, chr) _string_fill(str, chr)
-#define str_fill_range(str, index, num_chars, chr) _string_fill_range(str, index, num_chars, chr)
-#define str_clone(str) _string_clone(str)
-#define str_substr(str, index, num_chars) _string_substr(str, index, num_chars)
-#define str_find(str, substr) _string_find_from(str, substr, 0)
-#define str_find_char(str, chr) _string_find_char_from(str, chr, 0)
-#define str_find_from(str, substr, index) _string_find_from(str, substr, index)
-#define str_find_char_from(str, chr, index) _string_find_char_from(str, chr, index)
-#define str_replace_all(str, substr, new_substr) _string_replace(&str, substr, new_substr, 0)
-#define str_replace_first(str, substr, new_substr) _string_replace(&str, substr, new_substr, 1)
-#define str_count(str, substr) _string_count(str, substr)
-#define str_count_char(str, chr) _string_count_char(str, chr)
-#define str_resize(str, num_chars) _string_resize(&str, num_chars)
-#define str_reserve(str, num_chars) _string_reserve(&str, num_chars)
-#define str_shrink(str) _string_shrink(&str)
+typedef struct String String;
+typedef struct MemoryPoolString {
+    void *pool;        // Pointer to the memory pool
+    size_t poolSize;   // Total size of the pool
+    size_t used;       // Memory used so far
+} MemoryPoolString;
 
+struct String 
+{
+    char* dataStr;
+    size_t size;
+    size_t capacitySize;
+    MemoryPoolString* pool;
+};
+
+char string_at(String* str, size_t index);
+float string_to_float(String *str);
+double string_to_double(String* str);
+wchar_t* string_to_unicode(const char* str);
+
+String* string_create(const char* initialStr);
+String* string_create_with_pool(size_t size);
+String* string_substr(String* str, size_t pos, size_t len);
+String** string_split(String *str, const char *delimiter, int *count);
+String* string_join(String **strings, int count, const char *delimiter);
+String* string_from_int(int value);
+String* string_from_float(float value);
+String* string_from_double(double value);
+String** string_tokenize(String* str, const char* delimiters, int* count);
+String* string_from_unicode(const wchar_t* wstr);
+String** string_create_from_initializer(size_t count, ...);
+String* string_to_hex(String *str);
+String* string_from_hex(String *hexStr);
+String* string_base64_encode(const String *input);
+String* string_base64_decode(const String* input);
+String* string_repeat(const String* str, size_t count);
+String* string_join_variadic(size_t count, ...); // Where ... are String* arguments
+
+bool string_is_equal(String* str1, String* str2);
+bool string_is_less(String* str1, String* str2);
+bool string_is_greater(String* str1, String* str2);
+bool string_is_less_or_equal(String* str1, String* str2);
+bool string_is_greater_or_equal(String* str1, String* str2);
+bool string_is_not_equal(String* str1, String* str2);
+bool string_is_alpha(String* str);
+bool string_is_digit(String* str);
+bool string_is_lower(String* str);
+bool string_is_upper(String* str);
+bool string_empty(String* str);
+bool string_contains(String* str, const char* substr);
+bool string_set_pool_size(String* str, size_t newSize);
+bool string_starts_with(const String* str, const char* substr);
+bool string_ends_with(const String* str, const char* substr);
+bool string_to_bool_from_cstr(const char* boolstr);
+
+int string_compare(const String* str1, const String* str2);
+int string_find(String* str, const char* buffer, size_t pos);
+int string_rfind(String* str, const char* buffer, size_t pos);
+int string_find_first_of(String* str, const char* buffer, size_t pos);
+int string_find_last_of(String* str, const char* buffer, size_t pos);
+int string_find_first_not_of(String* str, const char* buffer, size_t pos);
+int string_find_last_not_of(String* str, const char* buffer, size_t pos);
+int string_compare_ignore_case(String* str1, String* str2);
+int string_to_int(String *str);
+int string_strcmp(const char* str1, const char* str2);
+
+void string_reverse(String* str);
+void string_resize(String* str, size_t newSize);
+void string_shrink_to_fit(String* str);
+void string_append(String* str, const char* strItem);
+void string_push_back(String* str, const char chItem); 
+void string_assign(String* str, const char* newStr);
+void string_insert(String* str, size_t pos, const char* strItem);
+void string_erase(String* str, size_t pos, size_t len);
+void string_replace(String* str1, const char* oldStr, const char* newStr);
+void string_swap(String* str1, String* str2);
+void string_pop_back(String* str);
+void string_deallocate(String* str);
+void string_clear(String* str);
+
+char* string_to_upper(String* str);
+char* string_to_lower(String* str);
+char* string_begin(String* str);
+char* string_end(String* str);
+char* string_rbegin(String* str);
+char* string_rend(String* str);
+char* string_back(String* str);
+char* string_front(String* str);
+char* string_strdup(const char* s);
+char* string_from_int_cstr(int value);
+
+size_t string_length_cstr(const char* str);
+size_t string_length_utf8(const char* str);
+size_t string_length(String* str);
+size_t string_capacity(String* str);
+size_t string_max_size(String* str);
+size_t string_copy(String* str, char* buffer, size_t pos, size_t len);
+size_t string_count(String* str, const char* substr);
+size_t string_utf8_char_len(char c);
+
+const char* string_data(String* str);
+const char* string_c_str(const String* str);
+const char* string_cbegin(String* str);
+const char* string_cend(String* str);
+const char* string_crbegin(String* str);
+const char* string_crend(String* str);
+
+void string_deallocate(String *str);
+void string_concatenate(String *str1, const String *str2);
+void string_trim_left(String *str);
+void string_trim_right(String *str);
+void string_trim(String *str);
+void string_replace_all(String *str, const char *oldStr, const char *newStr);
+void string_pad_left(String *str, size_t totalLength, char padChar);
+void string_pad_right(String *str, size_t totalLength, char padChar);
+void string_trim_characters(String* str, const char* chars);
+void string_shuffle(String* str);
+void string_to_title(String* str);
+void string_to_capitalize(String* str);
+void string_to_casefold(String* str);
+void string_format(String* str, const char* format, ...);
+void string_remove(String* str, const char* substr);
+void string_remove_range(String* str, size_t startPos, size_t endPos);
+void string_swap_case(String* str);
+
+#endif 

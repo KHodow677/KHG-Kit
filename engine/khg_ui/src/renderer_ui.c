@@ -11,7 +11,7 @@
 #include "khg_ui/data.h"
 #include "khg_ui/widget.h"
 #include "khg_utils/error_func.h"
-#include "khg_utils/hashmap.h"
+#include "khg_utils/map.h"
 #include "khg_utils/string.h"
 #include "khg_utils/vector.h"
 #include <math.h>
@@ -46,16 +46,14 @@ float main_in_size_x = 0.9f;
 float main_in_size_y = 0.9f;
 float padding_columns = 0.9f;
 
-int intcmp(int a, int b) {
-  if (a == b) {
-    return 0;
-  }
-  else if (a < b) {
-    return -1;
-  } 
-  else {
-    return 1;
-  }
+vector(string) new_menu_stack;
+
+int compare_ints(const KeyType a, const KeyType b) {
+  return *(const int*)a - *(const int*)b;
+}
+
+int compare_strs(const KeyType a, const KeyType b) {
+  return str_compare((string) a, (string) b);
 }
 
 int hash(const char *s) {
@@ -519,7 +517,6 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   }
   vector(string) *iter_menu_stack = hashmap_get(&rui->all_menu_stacks, &current_id);
   if (iter_menu_stack == NULL) {
-    vector(string) new_menu_stack;
     hashmap_put(&rui->all_menu_stacks, &current_id, &new_menu_stack);
   }
   vector(string) *current_menu_stack = hashmap_get(&rui->all_menu_stacks, &current_id);
@@ -532,23 +529,21 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   if (timer >= 2.0f) {
     timer -= 2;
   }
-  widget *w;
-  hashmap_foreach_data(w, &rui->widgets) {
-    if (w->type == widget_custom) {
-      w->custom_widget_used = false;
+  widget *w1;
+  hashmap_foreach_data(w1, &rui->widgets) {
+    if (w1->type == widget_custom) {
+      w1->custom_widget_used = false;
     }
   }
   vector(widget_pair) widgets_copy = NULL;
   vector_reserve(widgets_copy, vector_size(rui->widgets_vector));
-  vector(string) current_menu_stack_copy;
-  if (!vector_empty(*current_menu_stack)) {
-    vector_copy(current_menu_stack, current_menu_stack_copy);
-  }
-  vector(char *) menu_stack;
+  vector(string) current_menu_stack_copy = *current_menu_stack;
+  vector(char *) menu_stack = NULL;
   string next_menu = str_create();
   bool should_ignore = false;
-  if (!vector_empty(current_menu_stack)) {
-    next_menu = str_clone(*vector_front(current_menu_stack_copy));
+  if (!vector_empty(current_menu_stack_copy)) {
+    string first = *vector_front(current_menu_stack_copy);
+    next_menu = str_clone(first);
     vector_erase(current_menu_stack_copy, 0);
     should_ignore = true;
   }
@@ -635,31 +630,34 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
   input.mouse_held = mouse_held;
   input.mouse_released = mouse_released;
   input.escape_released = escape_released;
+  printf("Hello\n");
   for (int i = 0; i < vector_size(widgets_copy); i++) {
-    widget_pair pair = widgets_copy[i];
-    widget *find = hashmap_get(&rui->widgets, pair.first);
+    int h = hashmap_size(&rui->widgets);
+    printf("HTable Size: %i\n", h);
+    widget *find = hashmap_get(&rui->widgets, widgets_copy[i].first);
+    printf("Hey\n");
     if (find == NULL) {
-      pair.second.used_this_frame = true;
-      pair.second.just_created = true;
-      hashmap_put(&rui->widgets, pair.first, &pair.second);
+      widgets_copy[i].second.used_this_frame = true;
+      widgets_copy[i].second.just_created = true;
+      hashmap_put(&rui->widgets, widgets_copy[i].first, &widgets_copy[i].second);
     }
     else {
-      if (find->type != pair.second.type) {
+      if (find->type != widgets_copy[i].second.type) {
         error_func("Reupdated a widget with a different type", user_defined_data);
       }
       if (find->used_this_frame == true) {
         error_func("Used a widget name more than once", user_defined_data);
       }
       persistent_data pd = find->pd;
-      *find = pair.second;
+      *find = widgets_copy[i].second;
       find->just_created = false;
       find->pd = pd;
       find->used_this_frame = true;
     }
-    widget *w = hashmap_get(&rui->widgets, pair.first);
+    widget *w = hashmap_get(&rui->widgets, widgets_copy[i].first);
     switch (w->type) {
       case widget_button: {
-        draw_button(rui, r2d, f, columns, current_column, pair.first, w, input);
+        draw_button(rui, r2d, f, columns, current_column, widgets_copy[i].first, w, input);
         break;
       }
       case widget_toggle: {
@@ -670,7 +668,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         vec4 text_transform = transform_drawn;
         text_transform.z -= toggle_transform.w;
         toggle_transform.z = toggle_transform.w;
-        vec4 p = determine_text_pos(r2d, &pair.first, f, text_transform, true, true);
+        vec4 p = determine_text_pos(r2d, &widgets_copy[i].first, f, text_transform, true, true);
         toggle_transform.x = p.x + p.z;
         vec4 aabb_box = p;
         aabb_box.z += toggle_transform.z;
@@ -689,10 +687,10 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         w->return_from_update = *(bool *)(w->pointer);
         if (hovered) {
-          render_text_ui(r2d, &pair.first, f, text_transform, step_color_down(color_white, 0.8f), true, false, false);
+          render_text_ui(r2d, &widgets_copy[i].first, f, text_transform, step_color_down(color_white, 0.8f), true, false, false);
         }
         else {
-          render_text_ui(r2d, &pair.first, f, text_transform, color_white, true, true, false);
+          render_text_ui(r2d, &widgets_copy[i].first, f, text_transform, color_white, true, true, false);
         }
         if (w->return_from_update) {
           vec4 small = toggle_transform;
@@ -721,7 +719,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         vec4 text_transform = transform_drawn;
         text_transform.z -= toggle_transform.w;
         toggle_transform.z = toggle_transform.w;
-        vec4 p = determine_text_pos(r2d, &pair.first, f, text_transform, true, true);
+        vec4 p = determine_text_pos(r2d, &widgets_copy[i].first, f, text_transform, true, true);
         toggle_transform.x = p.x + p.z;
         vec4 aabb_box = p;
         aabb_box.z += toggle_transform.z;
@@ -740,7 +738,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         w->return_from_update = *(bool *)(w->pointer);
         render_fancy_box(r2d, toggle_transform, w->color_2, w->texture, hovered, clicked);
-        string text = get_string(pair.first);
+        string text = get_string(widgets_copy[i].first);
         if (w->return_from_update) {
           str_add(text, ": ON");
         }
@@ -756,26 +754,26 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         break;
       }
       case widget_text: {
-        render_text_ui(r2d, &pair.first, f, columns[current_column].first, pair.second.color, true, true, false);
+        render_text_ui(r2d, &widgets_copy[i].first, f, columns[current_column].first, widgets_copy[i].second.color, true, true, false);
         break;
       }
       case widget_text_input: {
-        char *text = (char *)pair.second.pointer;
-        size_t n = pair.second.text_size;
+        char *text = (char *)widgets_copy[i].second.pointer;
+        size_t n = widgets_copy[i].second.text_size;
         int pos = strlen(text);
-        bool enabled = pair.second.enabled;
+        bool enabled = widgets_copy[i].second.enabled;
         vec4 transform = columns[current_column].first;
         bool hovered = 0;
         bool clicked = 0;
-        if (pair.second.only_one_enabled && pair.second.enabled) {
+        if (widgets_copy[i].second.only_one_enabled && widgets_copy[i].second.enabled) {
           if (is_in_button(&mouse_pos, &transform)) {
             hovered = true;
             if (mouse_click || mouse_held) {
-              rui->current_text_box = pair.first;
+              rui->current_text_box = widgets_copy[i].first;
               clicked = true;
             }
           }
-          if (pair.first != rui->current_text_box) {
+          if (widgets_copy[i].first != rui->current_text_box) {
             enabled = 0;
           }
         }
@@ -799,13 +797,13 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
             }
           }
         }
-        if (pair.second.texture.id != 0) {
-          render_fancy_box(r2d, transform, pair.second.color, w->texture, hovered, clicked);
+        if (widgets_copy[i].second.texture.id != 0) {
+          render_fancy_box(r2d, transform, widgets_copy[i].second.color, w->texture, hovered, clicked);
         }
         string text_copy = str_clone(text);
-        if (pair.second.display_text) {
+        if (widgets_copy[i].second.display_text) {
           string temp = str_create();
-          str_add(temp, get_string(pair.first));
+          str_add(temp, get_string(widgets_copy[i].first));
           str_add(temp, text_copy);
           str_add(text_copy, temp);
           str_free(temp);
@@ -819,21 +817,21 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         break;
       }
       case widget_begin_menu: {
-        if (draw_button(rui, r2d, f, columns, current_column, pair.first, w, input)) {
-          vector_push_back(*current_menu_stack, pair.first);
+        if (draw_button(rui, r2d, f, columns, current_column, widgets_copy[i].first, w, input)) {
+          vector_push_back(*current_menu_stack, widgets_copy[i].first);
         }
         break;
       }
       case widget_texture: {
-        render_texture_ui(r2d, columns[current_column].first, pair.second.texture, pair.second.color, pair.second.texture_coords);
+        render_texture_ui(r2d, columns[current_column].first, widgets_copy[i].second.texture, widgets_copy[i].second.color, widgets_copy[i].second.texture_coords);
         break;
       }
       case widget_button_with_texture: {
         bool hovered = false;
         bool clicked = false;
-        vec4 transform_drawn = compute_texture_new_position(columns[current_column].first, pair.second.texture);
+        vec4 transform_drawn = compute_texture_new_position(columns[current_column].first, widgets_copy[i].second.texture);
         vec4 aabb_pos = transform_drawn;
-        vec4 color = pair.second.color;
+        vec4 color = widgets_copy[i].second.color;
         if (aabb(aabb_pos, input.mouse_pos)) {
           hovered = true;
           if (input.mouse_held) {
@@ -850,11 +848,11 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         else {
           w->return_from_update = false;
         }
-        render_texture_ui(r2d, transform_drawn, pair.second.texture, color, pair.second.texture_coords);
+        render_texture_ui(r2d, transform_drawn, widgets_copy[i].second.texture, color, widgets_copy[i].second.texture_coords);
         break;
       }
       case widget_slider_float_w: {
-        if (pair.second.max <= pair.second.min) {
+        if (widgets_copy[i].second.max <= widgets_copy[i].second.min) {
           break;
         }
         vec4 computed_pos = columns[current_column].first;
@@ -864,13 +862,13 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           text_transform = computed_pos;
           slider_transform = computed_pos;
         }
-        float *value = (float *)pair.second.pointer;
+        float *value = (float *)widgets_copy[i].second.pointer;
         if (!value) {
           break;
         }
-        *value = min(*value, pair.second.max);
-        *value = max(*value, pair.second.min);
-        string text = str_create_from_str(pair.first);
+        *value = min(*value, widgets_copy[i].second.max);
+        *value = max(*value, widgets_copy[i].second.min);
+        string text = str_create_from_str(widgets_copy[i].first);
         char s[50];
         snprintf(s, sizeof(s), "%0.2f", *value);
         string temp = str_create();
@@ -879,8 +877,8 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         str_add(temp, s);
         str_add(text, temp);
         str_free(temp);
-        render_slider_float(r2d, slider_transform, value, pair.second.min, pair.second.max, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color, pair.second.texture_over, pair.second.color_2, &input);
-        render_text_ui(r2d, &text, f, text_transform, pair.second.color_3, true, true, false);
+        render_slider_float(r2d, slider_transform, value, widgets_copy[i].second.min, widgets_copy[i].second.max, &widgets_copy[i].second.pd.slider_being_dragged, widgets_copy[i].second.texture, widgets_copy[i].second.color, widgets_copy[i].second.texture_over, widgets_copy[i].second.color_2, &input);
+        render_text_ui(r2d, &text, f, text_transform, widgets_copy[i].second.color_3, true, true, false);
         str_free(text);
         break;
       }
@@ -891,27 +889,27 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         vec4 transform_2 = { computed_pos.x + (computed_pos.z / 4.0f) * 2.0f, computed_pos.y, computed_pos.z / 4.0f, computed_pos.w };
         vec4 transform_3 = { computed_pos.x + (computed_pos.z / 4.0f) * 3.0f, computed_pos.y, computed_pos.z / 4.0f, computed_pos.w };
         float *value;
-        value = (float *)pair.second.pointer;
+        value = (float *)widgets_copy[i].second.pointer;
         if (!value) { 
           break;
         }
         vec4 color = { value[0], value[1], value[2], 1 };
-        if (pair.second.color.w) {
-          render_fancy_box(r2d, text_transform, color, pair.second.texture, false, false);
-          render_text_ui(r2d, &pair.first, f, text_transform, pair.second.color, true, true, false);
+        if (widgets_copy[i].second.color.w) {
+          render_fancy_box(r2d, text_transform, color, widgets_copy[i].second.texture, false, false);
+          render_text_ui(r2d, &widgets_copy[i].first, f, text_transform, widgets_copy[i].second.color, true, true, false);
         }
         else {
-          render_text_ui(r2d, &pair.first, f, text_transform, color, true, true, false);
+          render_text_ui(r2d, &widgets_copy[i].first, f, text_transform, color, true, true, false);
         }
-        if (pair.second.color_2.w) {
-          render_slider_float(r2d, transform_1, value + 0, 0, 1, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color_2, pair.second.texture_over, (vec4){ 1.0f, 0.0f, 0.0f, 1.0f }, &input);
-          render_slider_float(r2d, transform_2, value + 1, 0, 1, &pair.second.pd.slider_being_dragged_2, pair.second.texture, pair.second.color_2, pair.second.texture_over, (vec4){ 0.0f, 1.0f, 0.0f, 1.0f }, &input);
-          render_slider_float(r2d, transform_3, value + 2, 0, 1, &pair.second.pd.slider_being_dragged_3, pair.second.texture, pair.second.color_2, pair.second.texture_over, (vec4){ 0.0f, 0.0f, 1.0f, 1.0f }, &input);
+        if (widgets_copy[i].second.color_2.w) {
+          render_slider_float(r2d, transform_1, value + 0, 0, 1, &widgets_copy[i].second.pd.slider_being_dragged, widgets_copy[i].second.texture, widgets_copy[i].second.color_2, widgets_copy[i].second.texture_over, (vec4){ 1.0f, 0.0f, 0.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_2, value + 1, 0, 1, &widgets_copy[i].second.pd.slider_being_dragged_2, widgets_copy[i].second.texture, widgets_copy[i].second.color_2, widgets_copy[i].second.texture_over, (vec4){ 0.0f, 1.0f, 0.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_3, value + 2, 0, 1, &widgets_copy[i].second.pd.slider_being_dragged_3, widgets_copy[i].second.texture, widgets_copy[i].second.color_2, widgets_copy[i].second.texture_over, (vec4){ 0.0f, 0.0f, 1.0f, 1.0f }, &input);
         }
         else {
-          render_slider_float(r2d, transform_1, value + 0, 0, 1, &pair.second.pd.slider_being_dragged, pair.second.texture, (vec4){ 1.0f, 0.0f, 0.0f, 1.0f }, pair.second.texture_over, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, &input);
-          render_slider_float(r2d, transform_2, value + 1, 0, 1, &pair.second.pd.slider_being_dragged_2, pair.second.texture, (vec4){ 0.0f, 1.0f, 0.0f, 1.0f }, pair.second.texture_over, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, &input);
-          render_slider_float(r2d, transform_3, value + 2, 0, 1, &pair.second.pd.slider_being_dragged_3, pair.second.texture, (vec4){ 0.0f, 0.0f, 1.0f, 1.0f }, pair.second.texture_over, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_1, value + 0, 0, 1, &widgets_copy[i].second.pd.slider_being_dragged, widgets_copy[i].second.texture, (vec4){ 1.0f, 0.0f, 0.0f, 1.0f }, widgets_copy[i].second.texture_over, (vec4) { 1.0f, 0.0f, 0.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_2, value + 1, 0, 1, &widgets_copy[i].second.pd.slider_being_dragged_2, widgets_copy[i].second.texture, (vec4){ 0.0f, 1.0f, 0.0f, 1.0f }, widgets_copy[i].second.texture_over, (vec4) { 0.0f, 1.0f, 0.0f, 1.0f }, &input);
+          render_slider_float(r2d, transform_3, value + 2, 0, 1, &widgets_copy[i].second.pd.slider_being_dragged_3, widgets_copy[i].second.texture, (vec4){ 0.0f, 0.0f, 1.0f, 1.0f }, widgets_copy[i].second.texture_over, (vec4) { 0.0f, 0.0f, 1.0f, 1.0f }, &input);
         }
         break;
       }
@@ -921,7 +919,7 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         break;
       }
       case widget_slider_int_w: {
-        if (pair.second.max_int <= pair.second.min_int) {
+        if (widgets_copy[i].second.max_int <= widgets_copy[i].second.min_int) {
           break;
         }
         vec4 computed_pos = columns[current_column].first;
@@ -931,13 +929,13 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           text_transform = computed_pos;
           slider_transform = computed_pos;
         }
-        int *value = (int *)pair.second.pointer;
+        int *value = (int *)widgets_copy[i].second.pointer;
         if (!value) {
           break;
         }
-        *value = min(*value, pair.second.max_int);
-        *value = max(*value, pair.second.min_int);
-        string text = str_clone(pair.first);
+        *value = min(*value, widgets_copy[i].second.max_int);
+        *value = max(*value, widgets_copy[i].second.min_int);
+        string text = str_clone(widgets_copy[i].first);
         char s[50];
         snprintf(s, sizeof(s), "%i", *value);
         string temp = str_create();
@@ -946,16 +944,16 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         str_add(temp, s);
         str_add(text, temp);
         str_free(temp);
-        render_slider_int(r2d, slider_transform, value, pair.second.min_int, pair.second.max_int, &pair.second.pd.slider_being_dragged, pair.second.texture, pair.second.color, pair.second.texture_over, pair.second.color_2, &input);
-        render_text_ui(r2d, &text, f, text_transform, pair.second.color_3, true, true, false);
+        render_slider_int(r2d, slider_transform, value, widgets_copy[i].second.min_int, widgets_copy[i].second.max_int, &widgets_copy[i].second.pd.slider_being_dragged, widgets_copy[i].second.texture, widgets_copy[i].second.color, widgets_copy[i].second.texture_over, widgets_copy[i].second.color_2, &input);
+        render_text_ui(r2d, &text, f, text_transform, widgets_copy[i].second.color_3, true, true, false);
         str_free(text);
         break;
       }
       case widget_custom: {
-        pair.second.return_transform = columns[current_column].first;
-        pair.second.custom_widget_used = true;
-        pair.second.hovered = aabb(pair.second.return_transform, mouse_pos);
-        pair.second.clicked = aabb(pair.second.return_transform, mouse_pos) && mouse_held;
+        widgets_copy[i].second.return_transform = columns[current_column].first;
+        widgets_copy[i].second.custom_widget_used = true;
+        widgets_copy[i].second.hovered = aabb(widgets_copy[i].second.return_transform, mouse_pos);
+        widgets_copy[i].second.clicked = aabb(widgets_copy[i].second.return_transform, mouse_pos) && mouse_held;
         break;
       }
       case widget_options_toggle: {
@@ -963,21 +961,21 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         vec4 aabb_transform = columns[current_column].first;
         bool hovered = 0;
         bool clicked = 0;
-        vec4 text_color = pair.second.color;
-        size_t *index = (size_t *)pair.second.pointer;
+        vec4 text_color = widgets_copy[i].second.color;
+        size_t *index = (size_t *)widgets_copy[i].second.pointer;
         size_t stub = 0;
         if (!index) {
           index = &stub;
           error_func("NULL passed as an index for widget_toggle_options", user_defined_data);
         }
         if (w->color.w <= 0.01f) {
-          vec4 p = determine_text_pos(r2d, &pair.first, f, transform_drawn, true, true);
+          vec4 p = determine_text_pos(r2d, &widgets_copy[i].first, f, transform_drawn, true, true);
           aabb_transform = p;
         }
         int max_size = 1;
-        int text_2_size = strlen(pair.second.text_2);
+        int text_2_size = strlen(widgets_copy[i].second.text_2);
         for (int i = 0; i < text_2_size; i++) {
-          char c = pair.second.text_2[i];
+          char c = widgets_copy[i].second.text_2[i];
           if (c == '|') {
             max_size++;
           }
@@ -988,8 +986,8 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         if (*index > max_size - 1) {
           *index = 0;
         }
-        if (pair.second.pointer_2) {
-          text_color = ((vec4 *)pair.second.pointer_2)[*index];
+        if (widgets_copy[i].second.pointer_2) {
+          text_color = ((vec4 *)widgets_copy[i].second.pointer_2)[*index];
         }
         if (aabb(aabb_transform, input.mouse_pos)) {
           hovered = true;
@@ -1010,37 +1008,37 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
         }
         render_fancy_box(r2d, transform_drawn, w->color, w->texture, hovered, clicked);
         string final_text = str_create();
-        if (pair.second.display_text) {
-          final_text = str_clone(pair.first);
+        if (widgets_copy[i].second.display_text) {
+          final_text = str_clone(widgets_copy[i].first);
         }
         int current_increment = 0;
         for (int i = 0; i < text_2_size; i++) {
           if (current_increment == *index) {
-            char c = pair.second.text_2[i];
+            char c = widgets_copy[i].second.text_2[i];
             if (c == '|') {
               break;
             }
             str_add_char(final_text, c);
           }
-          char c = pair.second.text_2[i];
+          char c = widgets_copy[i].second.text_2[i];
           if (c == '|') {
             current_increment++;
           }
         }
-        if ((w->color.w <= 0.01f || pair.second.texture.id == 0)) {
+        if ((w->color.w <= 0.01f || widgets_copy[i].second.texture.id == 0)) {
           render_text_ui(r2d, &final_text, f, transform_drawn, text_color, true, !hovered, false);
         }
         else {
           render_text_ui(r2d, &final_text, f, transform_drawn, text_color, false, !hovered, false);
         }
-        int text_3_size = strlen(pair.second.text_3);
-        if (pair.second.text_3 != 0 && hovered) {
+        int text_3_size = strlen(widgets_copy[i].second.text_3);
+        if (widgets_copy[i].second.text_3 != 0 && hovered) {
           vec4 transform = transform_drawn;
           transform.x += transform.z * 0.1f;
           transform.y += transform.w * 1.1f;
           int lines = 1;
           for (int i = 0; i < text_3_size; i++) {
-            char c = pair.second.text_3[i];
+            char c = widgets_copy[i].second.text_3[i];
             if (c == '\n' || c == '\v') {
               lines++;
             }
@@ -1055,21 +1053,21 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
           int ind = 0;
           string copy = str_create();
           for (int l = 1; l <=lines;) {
-            if (pair.second.text_3[ind] == '\n' || pair.second.text_3[ind] == '\v') {
-              render_text_ui(r2d, &copy, f, transform, pair.second.color, 0, true, true);
+            if (widgets_copy[i].second.text_3[ind] == '\n' || widgets_copy[i].second.text_3[ind] == '\v') {
+              render_text_ui(r2d, &copy, f, transform, widgets_copy[i].second.color, 0, true, true);
               l++;
               str_clear(copy);
               transform.y += transform.w;
             }
             else {
-              str_add_char(copy, pair.second.text_3[ind]);
+              str_add_char(copy, widgets_copy[i].second.text_3[ind]);
             }
             ind++;
             if (ind >= text_3_size) {
               break;
             }
           }
-          render_text_ui(r2d, &copy, f, transform, pair.second.color, 0, true, true);
+          render_text_ui(r2d, &copy, f, transform, widgets_copy[i].second.color, 0, true, true);
           str_free(copy);
         }
         str_free(final_text);
@@ -1080,15 +1078,15 @@ void render_frame(renderer_ui *rui, renderer_2d *r2d, font *f, vec2 mouse_pos, b
     w->last_frame_data = input;
     columns[current_column].first.y += columns[current_column].second;
   }
-  string *s;
-  widget *w;
+  const char *s;
+  widget *w2;
   void *v;
-  hashmap_foreach_safe(s, w, &rui->widgets, v) {
-    if (w->used_this_frame) {
-      w->used_this_frame = false;
+  hashmap_foreach_safe(s, w2, &rui->widgets, v) {
+    if (w2->used_this_frame) {
+      w2->used_this_frame = false;
     }
     else {
-      hashmap_remove(&rui->widgets, *s);
+      hashmap_remove(&rui->widgets, s);
     }
   }
   r2d->current_camera = c;
@@ -1402,7 +1400,9 @@ void set_align_mode_fixed_size_widgets_ui(renderer_ui *rui, vec2 size) {
 void create_renderer_ui(renderer_ui *rui) {
   rui->id_str = str_create();
   rui->current_text_box = str_create();
-  hashmap_init(&rui->all_menu_stacks, hashmap_hash_default, intcmp);
+  rui->all_menu_stacks = map_create(compare_ints, int_deallocator, int_deallocator)
+
+  hashmap_init(&rui->all_menu_stacks, hashmap_hash_int, intcmp);
   hashmap_init(&rui->widgets, hashmap_hash_string, strcmp);
 }
 

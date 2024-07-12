@@ -7,6 +7,7 @@
 #include "khg_ui/data.h"
 #include "khg_ui/widget.h"
 #include "khg_utils/hashmap.h"
+#include "khg_utils/map.h"
 #include "khg_utils/string.h"
 
 extern int x_padd;
@@ -33,6 +34,7 @@ extern float in_size_x;
 extern float main_in_size_x;
 extern float main_in_size_y;
 extern float padding_columns;
+extern vector(string) new_menu_stack;
 
 typedef struct {
   string first;
@@ -47,8 +49,8 @@ typedef struct {
 typedef struct {
   aligned_settings a_settings;
   vector(widget_pair) widgets_vector;
-  HASHMAP(char, widget) widgets;
-  HASHMAP(int, vector(string)) all_menu_stacks;
+  Map* widgets;
+  Map* all_menu_stacks;
   string id_str;
   string current_text_box;
 } renderer_ui;

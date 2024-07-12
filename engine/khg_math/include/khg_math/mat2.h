@@ -11,5 +11,5 @@ typedef struct mat2 {
 
 mat2 mat2_radians(float radians);
 void mat2_set(mat2 *matrix, float radians);
-inline mat2 mat2_transpose(mat2 *matrix);
-inline vec2 mat2_multiply_vec2(mat2 *matrix, vec2 *vector);
+mat2 mat2_transpose(mat2 *matrix);
+vec2 mat2_multiply_vec2(mat2 *matrix, vec2 *vector);

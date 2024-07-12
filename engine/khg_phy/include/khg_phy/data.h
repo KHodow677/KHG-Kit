@@ -1,12 +1,10 @@
 #pragma once
 
 #include "khg_math/mat2.h"
-#include "khg_math/minmax.h"
 #include "khg_math/vec2.h"
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
 
 #define KHGPHYDEF extern
 

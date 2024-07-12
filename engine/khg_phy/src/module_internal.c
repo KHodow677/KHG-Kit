@@ -1,15 +1,17 @@
+#include "khg_math/minmax.h"
 #include "khg_phy/module.h"
 #include "khg_phy/module_internal.h"
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
-static vec2 get_support(physics_shape shape, vec2 dir) {
+vec2 get_support(physics_shape shape, vec2 dir) {
   float bestProjection = -KHGPHY_FLT_MAX;
   vec2 bestVertex = { 0.0f, 0.0f };
   polygon_data data = shape.vertex_data;
   for (int i = 0; i < data.vertex_count; i++) {
     vec2 vertex = data.positions[i];
-    float projection = MathDot(vertex, dir);
+    float projection = vec2_dot(&vertex, &dir);
     if (projection > bestProjection) {
       bestVertex = vertex;
       bestProjection = projection;
@@ -18,7 +20,7 @@ static vec2 get_support(physics_shape shape, vec2 dir) {
   return bestVertex;
 }
 
-static int find_available_body_index(void) {
+int find_available_body_index(void) {
   int index = -1;
   for (int i = 0; i < KHGPHY_MAX_BODIES; i++) {
     int current_id = i;
@@ -36,7 +38,7 @@ static int find_available_body_index(void) {
   return index;
 }
 
-static polygon_data create_random_polygon(float radius, int sides) {
+polygon_data create_random_polygon(float radius, int sides) {
   polygon_data data = { 0 };
   data.vertex_count = sides;
   for (int i = 0; i < data.vertex_count; i++) {
@@ -48,7 +50,7 @@ static polygon_data create_random_polygon(float radius, int sides) {
   return data;
 }
 
-static polygon_data create_rectangle_polygon(vec2 pos, vec2 size) {
+polygon_data create_rectangle_polygon(vec2 pos, vec2 size) {
   polygon_data data = { 0 };
   data.vertex_count = 4;
   data.positions[0] = (vec2){ pos.x + size.x / 2, pos.y - size.y / 2};
@@ -64,7 +66,7 @@ static polygon_data create_rectangle_polygon(vec2 pos, vec2 size) {
   return data;
 }
 
-static void *physics_loop(void *arg) {
+void *physics_loop(void *arg) {
   physics_thread_enabled = true;
   while (physics_thread_enabled) {
     run_physics_step();
@@ -72,7 +74,7 @@ static void *physics_loop(void *arg) {
   return NULL;
 }
 
-static void physics_step(void) {
+void physics_step(void) {
   steps_count++;
   for (int i = physics_manifolds_count; i >= 0; i--) {
     physics_manifold manifold = contacts[i];
@@ -145,7 +147,7 @@ static void physics_step(void) {
   }
 }
 
-static int find_available_manifold_index(void) {
+int find_available_manifold_index(void) {
   int index = -1;
   for (int i = 0; i < KHGPHY_MAX_MANIFOLDS; i++) {
     int current_id = i;
@@ -163,7 +165,7 @@ static int find_available_manifold_index(void) {
   return index;
 }
 
-static physics_manifold create_physics_manifold(physics_body a, physics_body b) {
+physics_manifold create_physics_manifold(physics_body a, physics_body b) {
   physics_manifold new_manifold = (physics_manifold)malloc(sizeof(physics_manifold_data));
   used_memory += sizeof(physics_manifold_data);
   int new_id = find_available_manifold_index();
@@ -185,7 +187,7 @@ static physics_manifold create_physics_manifold(physics_body a, physics_body b) 
   return new_manifold;
 }
 
-static void destroy_physics_manifold(physics_manifold manifold) {
+void destroy_physics_manifold(physics_manifold manifold) {
   if (manifold != NULL) {
     int id = manifold->id;
     int index = -1;
@@ -210,7 +212,7 @@ static void destroy_physics_manifold(physics_manifold manifold) {
   }
 }
 
-static void solve_physics_manifold(physics_manifold manifold) {
+void solve_physics_manifold(physics_manifold manifold) {
   switch (manifold->body_a->shape.type) {
     case PHYSICS_CIRCLE:
       switch (manifold->body_b->shape.type) {
@@ -242,7 +244,7 @@ static void solve_physics_manifold(physics_manifold manifold) {
   }
 }
 
-static void solve_circle_to_circle(physics_manifold manifold) {
+void solve_circle_to_circle(physics_manifold manifold) {
   physics_body body_a = manifold->body_a;
   physics_body body_b = manifold->body_b;
   if ((body_a == NULL) || (body_b == NULL)) {
@@ -272,7 +274,7 @@ static void solve_circle_to_circle(physics_manifold manifold) {
   }
 }
 
-static void solve_circle_to_polygon(physics_manifold manifold) {
+void solve_circle_to_polygon(physics_manifold manifold) {
   physics_body body_a = manifold->body_a;
   physics_body body_b = manifold->body_b;
   if ((body_a == NULL) || (body_b == NULL)) {
@@ -281,7 +283,7 @@ static void solve_circle_to_polygon(physics_manifold manifold) {
   solve_different_shapes(manifold, body_a, body_b);
 }
 
-static void solve_polygon_to_circle(physics_manifold manifold) {
+void solve_polygon_to_circle(physics_manifold manifold) {
   physics_body body_a = manifold->body_a;
   physics_body body_b = manifold->body_b;
   if ((body_a == NULL) || (body_b == NULL)) {
@@ -292,7 +294,7 @@ static void solve_polygon_to_circle(physics_manifold manifold) {
   manifold->normal.y *= -1.0f;
 }
 
-static void solve_different_shapes(physics_manifold manifold, physics_body body_a, physics_body body_b) {
+void solve_different_shapes(physics_manifold manifold, physics_body body_a, physics_body body_b) {
   manifold->contacts_count = 0;
   vec2 center = body_a->position;
   mat2 transposed_mat = mat2_transpose(&body_b->shape.transform);
@@ -368,7 +370,7 @@ static void solve_different_shapes(physics_manifold manifold, physics_body body_
   }
 }
 
-static void solve_polygon_to_polygon(physics_manifold manifold) {
+void solve_polygon_to_polygon(physics_manifold manifold) {
   if ((manifold->body_a == NULL) || (manifold->body_b == NULL)) {
     return;
   }
@@ -443,7 +445,7 @@ static void solve_polygon_to_polygon(physics_manifold manifold) {
   manifold->contacts_count = current_point;
 }
 
-static void integrate_physics_forces(physics_body body) {
+void integrate_physics_forces(physics_body body) {
   if ((body == NULL) || (body->inverse_mass == 0.0f) || !body->enabled) {
     return;
   }
@@ -458,7 +460,7 @@ static void integrate_physics_forces(physics_body body) {
   }
 }
 
-static void initialize_physics_manifolds(physics_manifold manifold) {
+void initialize_physics_manifolds(physics_manifold manifold) {
   physics_body body_a = manifold->body_a;
   physics_body body_b = manifold->body_b;
   if ((body_a == NULL) || (body_b == NULL)) {
@@ -482,7 +484,7 @@ static void initialize_physics_manifolds(physics_manifold manifold) {
   }
 }
 
-static void integrate_physics_inpulses(physics_manifold manifold) {
+void integrate_physics_inpulses(physics_manifold manifold) {
   physics_body body_a = manifold->body_a;
   physics_body body_b = manifold->body_b;
   if ((body_a == NULL) || (body_b == NULL)) {
@@ -561,7 +563,7 @@ static void integrate_physics_inpulses(physics_manifold manifold) {
   }
 }
 
-static void integrate_physics_velocity(physics_body body) {
+void integrate_physics_velocity(physics_body body) {
   if ((body == NULL) || !body->enabled) {
     return;
   }
@@ -574,7 +576,7 @@ static void integrate_physics_velocity(physics_body body) {
   integrate_physics_forces(body);
 }
 
-static void correct_physics_positions(physics_manifold manifold) {
+void correct_physics_positions(physics_manifold manifold) {
   physics_body body_a = manifold->body_a;
   physics_body body_b = manifold->body_b;
   if ((body_a == NULL) || (body_b == NULL)) {
@@ -593,7 +595,7 @@ static void correct_physics_positions(physics_manifold manifold) {
   }
 }
 
-static float find_axis_least_penetration(int *face_index, physics_shape shape_a, physics_shape shape_b) {
+float find_axis_least_penetration(int *face_index, physics_shape shape_a, physics_shape shape_b) {
   float best_distance = -KHGPHY_FLT_MAX;
   int best_index = 0;
   polygon_data data_a = shape_a.vertex_data;
@@ -618,7 +620,7 @@ static float find_axis_least_penetration(int *face_index, physics_shape shape_a,
   return best_distance;
 }
 
-static void find_incident_face(vec2 *v0, vec2 *v1, physics_shape ref, physics_shape inc, int index) {
+void find_incident_face(vec2 *v0, vec2 *v1, physics_shape ref, physics_shape inc, int index) {
   polygon_data ref_data = ref.vertex_data;
   polygon_data inc_data = ref.vertex_data;
   vec2 reference_normal = ref_data.normals[index];
@@ -641,7 +643,7 @@ static void find_incident_face(vec2 *v0, vec2 *v1, physics_shape ref, physics_sh
   *v1 = vec2_add(v1, &inc.body->position);
 }
 
-static int clip(vec2 normal, float clip, vec2 *face_a, vec2 *face_b) {
+int clip(vec2 normal, float clip, vec2 *face_a, vec2 *face_b) {
   int sp = 0;
   vec2 out[2] = { *face_a, *face_b };
   float distance_a = vec2_dot(&normal, face_a) - clip;
@@ -666,38 +668,18 @@ static int clip(vec2 normal, float clip, vec2 *face_a, vec2 *face_b) {
   return sp;
 }
 
-static bool bias_greater_than(float value_a, float value_b) {
+bool bias_greater_than(float value_a, float value_b) {
   return (value_a >= (value_b * 0.95f + value_a * 0.01f));
 }
 
-static vec2 triangle_barycenter(vec2 v1, vec2 v2, vec2 v3) {
+vec2 triangle_barycenter(vec2 v1, vec2 v2, vec2 v3) {
   vec2 result = { 0.0f, 0.f };
   result.x = (v1.x + v2.x + v3.x) / 3;
   result.y = (v1.y + v2.y + v3.y) / 3;
   return result;
 }
 
-static void init_timer(void) {
-  srand(time(NULL));
-  #if defined(_WIN32)
-    QueryPerformanceFrequency((unsigned long long int *) &frequency);
-  #elif defined(__linux__)
-    struct timespec now;
-    if (clock_gettime(CLOCK_MONOTONIC, &now) == 0) {
-      frequency = 1000000000;
-    }
-  #elif defined(__APPLE__)
-    mach_timebase_info_data_t timebase;
-    mach_timebase_info(&timebase);
-    frequency = (timebase.denom * 1e9) / timebase.numer;
-  #elif defined(EMSCRIPTEN)
-    frequency = 1000;
-  #endif
-  base_time = get_time_count();
-  start_time = get_current_time();
-}
-
-static uint64_t get_time_count(void) {
+uint64_t get_time_count(void) {
   uint64_t value = 0;
   #if defined(_WIN32)
     QueryPerformanceCounter((unsigned long long int *) &value);
@@ -713,6 +695,6 @@ static uint64_t get_time_count(void) {
   return value;
 }
 
-static double get_current_time(void) {
+double get_current_time(void) {
   return (double)(get_time_count() - base_time) / frequency * 1000;
 }

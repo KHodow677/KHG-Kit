@@ -103,7 +103,7 @@ KHGPHYDEF physics_body create_physics_body_rectangle(vec2 pos, float width, floa
     }
     center.x *= 1.0f / area;
     center.y *= 1.0f / area;
-    for (int i = 0; i < new_body; i++) {
+    for (int i = 0; i < new_body->shape.vertex_data.vertex_count; i++) {
       new_body->shape.vertex_data.positions[i].x -= center.x;
       new_body->shape.vertex_data.positions[i].y -= center.y;
     }
@@ -323,15 +323,17 @@ KHGPHYDEF vec2 get_physics_shape_vertex(physics_body body, int vertex) {
   vec2 position = { 0.0f, 0.0f };
   if (body != NULL) {
     switch (body->shape.type) {
-      case PHYSICS_CIRCLE:
+      case PHYSICS_CIRCLE: {
         position.x = body->position.x + cosf(360.0f / KHGPHY_CIRCLE_VERTICES * vertex * KHGPHY_DEG2RAD) * body->shape.radius;
         position.y = body->position.y + cosf(360.0f / KHGPHY_CIRCLE_VERTICES * vertex * KHGPHY_DEG2RAD) * body->shape.radius;
         break;
-      case PHYSICS_POLYGON:
+      }
+      case PHYSICS_POLYGON: {
         polygon_data vertex_data = body->shape.vertex_data;
         vec2 trans_vec = mat2_multiply_vec2(&body->shape.transform, &vertex_data.positions[vertex]);
         position = vec2_add(&body->position, &trans_vec);
         break;
+      }
       default:
         break;
     }

@@ -6,6 +6,7 @@
 #include "khg_utils/error_func.h"
 #include "glad/glad.h"
 #include "khg_utils/string.h"
+#include "khg_utils/vector.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -96,15 +97,17 @@ void create_renderer_2d(renderer_2d *r2d, GLuint fbo, size_t quad_count) {
 		error_func("Library not initialized. Have you forgotten to call gl2d::init() ?", user_defined_data);
   }
   r2d->default_fbo = fbo;
-  r2d->sprite_positions = NULL;
-  r2d->sprite_colors = NULL;
-  r2d->texture_positions = NULL;
-  r2d->sprite_textures = NULL;
+  r2d->sprite_positions = *vector_create(sizeof(vec2));
+  r2d->sprite_colors = *vector_create(sizeof(vec4));
+  r2d->texture_positions = *vector_create(sizeof(vec2));
+  r2d->sprite_textures = *vector_create(sizeof(texture));
+  r2d->shader_push_pop = *vector_create(sizeof(shader));
+  r2d->camera_push_pop = *vector_create(sizeof(camera));
   clear_draw_data(r2d);
-  vector_reserve(r2d->sprite_positions, quad_count * 6);
-  vector_reserve(r2d->sprite_colors, quad_count * 6);
-  vector_reserve(r2d->texture_positions, quad_count * 6);
-  vector_reserve(r2d->sprite_textures, quad_count);
+  vector_reserve(&r2d->sprite_positions, quad_count * 6);
+  vector_reserve(&r2d->sprite_colors, quad_count * 6);
+  vector_reserve(&r2d->texture_positions, quad_count * 6);
+  vector_reserve(&r2d->sprite_textures, quad_count);
   reset_shader_and_camera(r2d);
   glGenVertexArrays(1, &r2d->vao);
   glBindVertexArray(r2d->vao);
@@ -127,39 +130,39 @@ void cleanup_renderer_2d(renderer_2d *r2d) {
   cleanup_framebuffer(&r2d->post_process_fbo_1);
   cleanup_framebuffer(&r2d->post_process_fbo_2);
   r2d->internal_post_process_flip = 0;
-  vector_free(r2d->sprite_positions);
-  vector_free(r2d->sprite_colors);
-  vector_free(r2d->texture_positions);
-  vector_free(r2d->sprite_textures);
+  vector_deallocate(&r2d->sprite_positions);
+  vector_deallocate(&r2d->sprite_colors);
+  vector_deallocate(&r2d->texture_positions);
+  vector_deallocate(&r2d->sprite_textures);
 }
 
 void push_shader(renderer_2d *r2d, shader s) {
-  vector_push_back(r2d->shader_push_pop, s);
+  vector_push_back(&r2d->shader_push_pop, &s);
   r2d->current_shader = s;
 }
 
 void pop_shader(renderer_2d *r2d) {
-  if (vector_empty(r2d->shader_push_pop)) {
+  if (vector_is_empty(&r2d->shader_push_pop)) {
     error_func("Pop on an empty stack on popShader", user_defined_data);
   }
   else {
-    r2d->current_shader = *vector_back(r2d->shader_push_pop);
-    vector_pop_back(r2d->shader_push_pop);
+    r2d->current_shader = *(shader *)vector_back(&r2d->shader_push_pop);
+    vector_pop_back(&r2d->shader_push_pop);
   }
 }
 
 void push_camera(renderer_2d *r2d, camera c) {
-  vector_push_back(r2d->camera_push_pop, c);
+  vector_push_back(&r2d->camera_push_pop, &c);
   r2d->current_camera = c;
 }
 
 void pop_camera(renderer_2d *r2d) {
-  if (vector_empty(r2d->camera_push_pop)) {
+  if (vector_is_empty(&r2d->camera_push_pop)) {
     error_func("Pop on an empty stack on popCamera", user_defined_data);
   }
   else {
-    r2d->current_camera = *vector_back(r2d->camera_push_pop);
-    vector_pop_back(r2d->camera_push_pop);
+    r2d->current_camera = *(camera *)vector_back(&r2d->camera_push_pop);
+    vector_pop_back(&r2d->camera_push_pop);
   }
 }
 
@@ -214,10 +217,10 @@ vec4 pix_to_screen(renderer_2d *r2d, const vec4 *transform) {
 }
 
 void clear_draw_data(renderer_2d *r2d) {
-  vector_clear(r2d->sprite_positions);
-  vector_clear(r2d->sprite_colors);
-  vector_clear(r2d->texture_positions);
-  vector_clear(r2d->sprite_textures);
+  vector_clear(&r2d->sprite_positions);
+  vector_clear(&r2d->sprite_colors);
+  vector_clear(&r2d->texture_positions);
+  vector_clear(&r2d->sprite_textures);
 }
 
 vec2 get_text_size(renderer_2d *r2d, const char *text, const font font, const float size, const float spacing, const float line_space) {
@@ -326,7 +329,7 @@ void render_text(renderer_2d *r2d, vec2 position, const char *text, const font f
   }
 }
 
-float determine_text_rescale_fit_smaller(renderer_2d *r2d, const string *str, font *f, vec4 transform, float max_size) {
+float determine_text_rescale_fit_smaller(renderer_2d *r2d, const String *str, font *f, vec4 transform, float max_size) {
   vec2 s = get_text_size(r2d, *str, *f, max_size, 4, 3);
   float ratio_x = transform.z / s.x;
   float ratio_y = transform.w / s.y;

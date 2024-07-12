@@ -17,10 +17,10 @@ void mat2_set(mat2 *matrix, float radians) {
   matrix->m11 = cos;
 }
 
-inline mat2 mat2_transpose(mat2 *matrix) {
+mat2 mat2_transpose(mat2 *matrix) {
   return (mat2){ matrix->m00, matrix->m10, matrix->m01, matrix->m11 };
 }
  
-inline vec2 mat2_multiply_vec2(mat2 *matrix, vec2 *vector) {
+vec2 mat2_multiply_vec2(mat2 *matrix, vec2 *vector) {
   return (vec2){ matrix->m00 * vector->x + matrix->m01 * vector->y, matrix->m10 * vector->x + matrix->m11 * vector->y };
 }

@@ -1,3 +1,4 @@
+#include "khg_utils/vector.h"
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "khg_2d/texture.h"
@@ -209,19 +210,19 @@ void read_texture_data(texture *t, void *buffer, int mip_level) {
   glGetTexImage(GL_TEXTURE_2D, mip_level, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 }
 
-vector(unsigned char) read_texture_data_to_char_array(texture *t, int mip_level, vec2 *out_size) {
+Vector read_texture_data_to_char_array(texture *t, int mip_level, vec2 *out_size) {
   vec2 stub = { 0 };
-  vector(unsigned char) data = NULL;
+  Vector *data = vector_create(sizeof(unsigned char));
   glBindTexture(GL_TEXTURE_2D, t->id);
   if (!out_size) {
     out_size = &stub;
   }
   glGetTexLevelParameterfv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_WIDTH, &out_size->x);
   glGetTexLevelParameterfv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_HEIGHT, &out_size->y);
-  vector_resize(data, out_size->x * out_size->y * 4, ' ');
+  vector_resize(data, out_size->x * out_size->y * 4);
   glGetTexImage(GL_TEXTURE_2D, mip_level, GL_RGBA, GL_UNSIGNED_BYTE, data);
   glBindTexture(GL_TEXTURE_2D, 0);
-  return data;
+  return *data;
 }
 
 void bind_texture(texture *t, const unsigned int sample) {
