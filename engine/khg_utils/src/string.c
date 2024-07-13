@@ -1506,80 +1506,74 @@ String *string_join_variadic(size_t count, ...) {
   return result;
 }
 
-void string_trim_characters(String* str, const char* chars) {
-    if (str == NULL) {
-        fprintf(stderr, "Error: The String object is NULL in string_trim_characters.\n");
-        return;
-    }
-    if (str->dataStr == NULL) {
-        fprintf(stderr, "Error: The dataStr of String object is NULL in string_trim_characters.\n");
-        return;
-    }
-    if (chars == NULL) {
-        fprintf(stderr, "Error: The chars parameter is NULL in string_trim_characters.\n");
-        return;
-    }
-    char* start = str->dataStr;
-    char* end = str->dataStr + str->size - 1;
-
-    while (start <= end && strchr(chars, *start)) { 
-        start++;
-    }
-    while (end > start && strchr(chars, *end)) { 
-        end--;
-    }
-    size_t newLength = end - start + 1;
-
-    memmove(str->dataStr, start, newLength);
-    str->dataStr[newLength] = '\0';
-    str->size = newLength;
+void string_trim_characters(String *str, const char *chars) {
+  if (str == NULL) {
+    error_func("The String object is NULL in string_trim_characters", user_defined_data);
+    return;
+  }
+  if (str->dataStr == NULL) {
+    error_func("The dataStr of String object is NULL in string_trim_characters", user_defined_data);
+    return;
+  }
+  if (chars == NULL) {
+    error_func("The chars parameter is NULL in string_trim_characters", user_defined_data);
+    return;
+  }
+  char *start = str->dataStr;
+  char *end = str->dataStr + str->size - 1;
+  while (start <= end && strchr(chars, *start)) { 
+    start++;
+  }
+  while (end > start && strchr(chars, *end)) { 
+    end--;
+  }
+  size_t newLength = end - start + 1;
+  memmove(str->dataStr, start, newLength);
+  str->dataStr[newLength] = '\0';
+  str->size = newLength;
 }
 
-void string_shuffle(String* str){
-    if (str == NULL) {
-        fprintf(stderr, "Error: The String object is NULL in string_shuffle.\n");
-        return;
-    }
-    if (str->dataStr == NULL) {
-        fprintf(stderr, "Error: The dataStr of String object is NULL in string_shuffle.\n");
-        return;
-    }
-
-    srand(time(NULL)); 
-    size_t length = strlen(str->dataStr);
-    for (size_t i = length - 1; i > 0; i--) {
-        size_t j = rand() % (i + 1);
-
-        // Swap characters at positions i and j
-        char temp = str->dataStr[i];
-        str->dataStr[i] = str->dataStr[j];
-        str->dataStr[j] = temp;
-    }
+void string_shuffle(String *str){
+  if (str == NULL) {
+    error_func("The String object is NULL in string_shuffle", user_defined_data);
+    return;
+  }
+  if (str->dataStr == NULL) {
+    error_func("The dataStr of String object is NULL in string_shuffle", user_defined_data);
+    return;
+  }
+  srand(time(NULL)); 
+  size_t length = strlen(str->dataStr);
+  for (size_t i = length - 1; i > 0; i--) {
+    size_t j = rand() % (i + 1);
+    char temp = str->dataStr[i];
+    str->dataStr[i] = str->dataStr[j];
+    str->dataStr[j] = temp;
+  }
 }
 
-void string_to_title(String* str) {
-    if (str == NULL) {
-        fprintf(stderr, "Error: The String object is NULL in string_to_title.\n");
-        return;
+void string_to_title(String *str) {
+  if (str == NULL) {
+    error_func("The String object is NULL in string_to_title", user_defined_data);
+    return;
+  }
+  if (str->dataStr == NULL) {
+    error_func("The dataStr of String object is NULL in string_to_title", user_defined_data);
+    return;
+  }
+  bool capitalize = true;
+  for (size_t i = 0; i < str->size; i++) {
+    if (capitalize && isalpha(str->dataStr[i])) {
+      str->dataStr[i] = toupper(str->dataStr[i]);
+      capitalize = false;
+    } 
+    else if (!isalpha(str->dataStr[i])) {
+      capitalize = true;
+    } 
+    else {
+      str->dataStr[i] = tolower(str->dataStr[i]);
     }
-    if (str->dataStr == NULL) {
-        fprintf(stderr, "Error: The dataStr of String object is NULL in string_to_title.\n");
-        return;
-    }
-
-    bool capitalize = true;
-    for (size_t i = 0; i < str->size; i++) {
-        if (capitalize && isalpha(str->dataStr[i])) {
-            str->dataStr[i] = toupper(str->dataStr[i]);
-            capitalize = false;
-        } 
-        else if (!isalpha(str->dataStr[i])) {
-            capitalize = true;
-        } 
-        else {
-            str->dataStr[i] = tolower(str->dataStr[i]);
-        }
-    }
+  }
 }
 
 void string_to_capitalize(String* str) {
