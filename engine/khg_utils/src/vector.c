@@ -1,5 +1,4 @@
 #include "khg_utils/error_func.h"
-#include "khg_utils/fmt.h"
 #include "khg_utils/vector.h"
 #include <stdlib.h>
 #include <string.h>
@@ -402,7 +401,7 @@ void *vector_rbegin(vector *vec) {
 
 void *vector_rend(vector *vec) {
   if (!vec) {
-    error_func(stderr, "Error: Vector is NULL in vector_rend.\n");
+    error_func("Vector is NULL in vector_rend", user_defined_data);
     return NULL;
   }
   return (void *)((char *)vec->items - vec->itemSize);
@@ -422,11 +421,11 @@ const void *vector_cbegin(vector *vec) {
 
 const void *vector_cend(vector *vec) {
   if (!vec) {
-    error_func(stderr, "Error: Vector is NULL in vector_cend.\n");
+    error_func("Vector is NULL in vector_cend", user_defined_data);
     return NULL;
   }
   if (vec->size == 0) {
-    error_func(stderr, "Error: Vector is empty in vector_end.\n");
+    error_func("Vector is empty in vector_end", user_defined_data);
     return NULL;
   }
   return (const void *)((char *)vec->items + (vec->size * vec->itemSize));
@@ -438,7 +437,7 @@ const void *vector_crbegin(vector *vec) {
     return NULL;
   }
   if (vec->size == 0) {
-    error_func(stderr, "Error: Vector is empty in vector_crbegin.\n");
+    error_func("Vector is empty in vector_crbegin", user_defined_data);
     return NULL;
   }
   return (const void *)((char *)vec->items + (vec->size - 1) * vec->itemSize);
@@ -446,7 +445,7 @@ const void *vector_crbegin(vector *vec) {
 
 const void *vector_crend(vector *vec) {
   if (vec == NULL) {
-    error_func(stderr, "Error: Vector is NULL in vector_crend.\n");
+    error_func("Vector is NULL in vector_crend", user_defined_data);
     return NULL;
   } 
   return (const void *)((char *)vec->items - vec->itemSize);
@@ -510,11 +509,11 @@ void *vector_front(vector *vec) {
 
 void *vector_back(vector *vec) {
   if (!vec) {
-    error_func(stderr, "Error: Vector is NULL in vector_back.\n");
+    error_func("Vector is NULL in vector_back", user_defined_data);
     return NULL;
   }
   if (vec->size == 0) {
-    error_func(stderr, "Error: Vector is empty in vector_back.\n");
+    error_func("Vector is empty in vector_back", user_defined_data);
     return NULL;
   }
   return (char *)vec->items + (vec->size - 1) * vec->itemSize;
@@ -522,7 +521,7 @@ void *vector_back(vector *vec) {
 
 void *vector_data(vector *vec) {
   if (!vec) {
-    error_func(stderr, "Error: Vector is NULL in vector_data.\n");
+    error_func("Vector is NULL in vector_data", user_defined_data);
     return NULL;
   }
   return vec->items;
