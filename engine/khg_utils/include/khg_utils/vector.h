@@ -44,20 +44,20 @@ void vector_assign(vector *vec, size_t pos, void *item);
 void vector_emplace(vector *vec, size_t pos, void *item, size_t itemSize);
 void vector_deallocate(vector *vec);
 
-const void* vector_cbegin(vector *vec);
-const void* vector_cend(vector *vec);
-const void* vector_crbegin(vector *vec);
-const void* vector_crend(vector *vec);
+const void *vector_cbegin(vector *vec);
+const void *vector_cend(vector *vec);
+const void *vector_crbegin(vector *vec);
+const void *vector_crend(vector *vec);
 
-void* vector_begin(vector *vec);
-void* vector_end(vector *vec);
-void* vector_pop_back(vector *vec);
-void* vector_front(vector *vec);
-void* vector_back(vector *vec);
-void* vector_data(vector *vec);
-void* vector_at(const vector *vec, size_t pos);
-void* vector_rbegin(vector *vec);
-void* vector_rend(vector *vec);
+void *vector_begin(vector *vec);
+void *vector_end(vector *vec);
+void *vector_pop_back(vector *vec);
+void *vector_front(vector *vec);
+void *vector_back(vector *vec);
+void *vector_data(vector *vec);
+void *vector_at(const vector *vec, size_t pos);
+void *vector_rbegin(vector *vec);
+void *vector_rend(vector *vec);
 
 size_t vector_size(const vector *vec);
 size_t vector_capacity(vector *vec);

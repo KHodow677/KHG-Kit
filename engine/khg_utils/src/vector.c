@@ -68,7 +68,7 @@ static void memory_pool_destroy(MemoryPoolVector *pool) {
 }
 
 vector *vector_create(size_t itemSize, size_t capacity) {
-  vector *vec = (vector*)malloc(sizeof(vector));
+  vector *vec = (vector *)malloc(sizeof(vector));
   if (!vec){
     error_func("Can not allocate memory for vector structure", user_defined_data);
     exit(-1);
