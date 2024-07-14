@@ -8,7 +8,7 @@ key_button left_mouse;
 key_button right_mouse;
 
 controller_buttons c_buttons;
-String *typed_input = NULL;
+string *typed_input = NULL;
 
 void merge(key_button *b, const key_button *b_other) {
   b->pressed |= b_other->pressed;
@@ -93,7 +93,7 @@ controller_buttons get_controller_buttons() {
   return c;
 }
 
-String *get_typed_input() {
+string *get_typed_input() {
   return typed_input;
 }
 

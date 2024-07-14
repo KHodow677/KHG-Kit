@@ -3,16 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-static MemoryPoolVector *memory_pool_create(size_t size);
-static void *memory_pool_allocate(MemoryPoolVector *pool, size_t size);
-static void memory_pool_destroy(MemoryPoolVector *pool);
+static memory_pool_vector *memory_pool_create(size_t size);
+static void *memory_pool_allocate(memory_pool_vector *pool, size_t size);
+static void memory_pool_destroy(memory_pool_vector *pool);
 
-static MemoryPoolVector *memory_pool_create(size_t size) {
+static memory_pool_vector *memory_pool_create(size_t size) {
   if (size == 0) {
     error_func("Memory pool size cannot be zero", user_defined_data);
     return NULL;
   }
-  MemoryPoolVector *pool = malloc(sizeof(MemoryPoolVector));
+  memory_pool_vector *pool = malloc(sizeof(memory_pool_vector));
   if (!pool) {
     error_func("Failed to allocate memory for MemoryPoolVector structure", user_defined_data);
     return NULL;
@@ -28,7 +28,7 @@ static MemoryPoolVector *memory_pool_create(size_t size) {
   return pool;
 }
 
-static void *memory_pool_allocate(MemoryPoolVector *pool, size_t size) {
+static void *memory_pool_allocate(memory_pool_vector *pool, size_t size) {
   if (!pool) {
     error_func("Memory pool is not initialized", user_defined_data);
     return NULL;
@@ -46,7 +46,7 @@ static void *memory_pool_allocate(MemoryPoolVector *pool, size_t size) {
   return mem;
 }
 
-static void memory_pool_deallocate(MemoryPoolVector *pool, size_t size) {
+static void memory_pool_deallocate(memory_pool_vector *pool, size_t size) {
   if (!pool) {
     error_func("Memory pool is not initialized", user_defined_data);
     return;
@@ -58,7 +58,7 @@ static void memory_pool_deallocate(MemoryPoolVector *pool, size_t size) {
   pool->used -= size;
 }
 
-static void memory_pool_destroy(MemoryPoolVector *pool) {
+static void memory_pool_destroy(memory_pool_vector *pool) {
   if (!pool) {
     error_func("Attempted to destroy a non-initialized memory pool", user_defined_data);
     return;

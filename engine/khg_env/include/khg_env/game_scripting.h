@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
 
 #if defined(_WIN32) || defined(_WIN64)
   int __stdcall QueryPerformanceCounter(unsigned long long int *lpPerformanceCount);

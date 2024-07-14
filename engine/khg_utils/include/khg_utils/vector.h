@@ -7,18 +7,18 @@
 
 typedef struct vector vector;
 
-typedef struct MemoryPoolVector {
+typedef struct memory_pool_vector {
   void *pool;
   size_t poolSize;
   size_t used;
-} MemoryPoolVector;
+} memory_pool_vector;
 
 struct vector {
   void *items;
   size_t size;
   size_t capacitySize;
   size_t itemSize;
-  MemoryPoolVector *pool;
+  memory_pool_vector *pool;
 };
 
 vector *vector_create(size_t itemSize, size_t capacity);

@@ -7,6 +7,7 @@
 #include "GLFW/glfw3.h"
 #include "khg_env/other.h"
 #include <stdio.h>
+#include <time.h>
 
 bool current_full_screen = 0;
 bool full_screen = 0;
@@ -75,10 +76,12 @@ int run_game() {
     return 0;
   }
   init_timer();
-  float s_time = get_current_time();
+  float s_time = glfwGetTime();
+  // float s_time = get_current_time();
   float delta_time, augmented_delta_time;
   while (!glfwWindowShouldClose(wind)) {
-    float current_time = get_current_time();
+    float current_time = glfwGetTime();
+    //float current_time = get_current_time();
     delta_time = current_time - s_time;
     s_time = current_time;
     augmented_delta_time = delta_time;
