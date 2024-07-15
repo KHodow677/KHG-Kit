@@ -1,6 +1,5 @@
 #include "khg_utils/string.h"
 #include "khg_utils/error_func.h"
-#include "khg_utils/fmt.h"
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
