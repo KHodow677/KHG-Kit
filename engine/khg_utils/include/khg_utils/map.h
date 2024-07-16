@@ -3,72 +3,72 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef struct Map Map;
-typedef struct MapNode MapNode;
+typedef struct map map;
+typedef struct map_node map_node;
 
-typedef void *KeyType;
-typedef void *ValueType;
+typedef void *key_type;
+typedef void *value_type;
 
-typedef int (*CompareFuncMap)(const KeyType, const KeyType);
-typedef void (*ValueDeallocFunc)(void *);
+typedef int (*compare_func_map)(const key_type, const key_type);
+typedef void (*value_dealloc_func)(void *);
 
-struct MapNode {
+struct map_node {
   void *key;
   void *value;
-  struct MapNode *left;
-  struct MapNode *right;
-  struct MapNode *parent;
+  map_node *left;
+  map_node *right;
+  map_node *parent;
   int color;
 };
 
-typedef struct MapEntry {
-  KeyType key;
-  ValueType value;
-} MapEntry;
+typedef struct map_entry {
+  key_type key;
+  value_type value;
+} map_entry;
 
-typedef struct MapIterator {
-  MapNode *node;
-} MapIterator;
+typedef struct map_iterator {
+  map_node *node;
+} map_iterator;
 
-typedef struct MapIteratorPair {
-  MapIterator first;
-  MapIterator second;
-} MapIteratorPair;
+typedef struct map_iterator_pair {
+  map_iterator first;
+  map_iterator second;
+} map_iterator_pair;
 
-CompareFuncMap map_key_comp(const Map* map);
-MapIteratorPair map_equal_range(const Map* map, KeyType key);
-KeyType map_node_get_key(MapNode* node);
+compare_func_map map_key_comp(const map* map);
+map_iterator_pair map_equal_range(const map* map, key_type key);
+key_type map_node_get_key(map_node* node);
 
-Map *map_create(CompareFuncMap comp, ValueDeallocFunc deallocKey, ValueDeallocFunc deallocValue);
-Map *map_copy(const Map* src);
+map *map_create(compare_func_map comp, value_dealloc_func deallocKey, value_dealloc_func deallocValue);
+map *map_copy(const map* src);
 
-void map_deallocate(Map *map);
-void map_iterator_increment(MapIterator *it);
-void map_iterator_decrement(MapIterator *it);
-void map_swap(Map *map1, Map *map2);
-void map_clear(Map* map);
+void map_deallocate(map *map);
+void map_iterator_increment(map_iterator *it);
+void map_iterator_decrement(map_iterator *it);
+void map_swap(map *map1, map *map2);
+void map_clear(map* map);
 
-MapIterator map_begin(const Map *map);
-MapIterator map_end(const Map *map);
-MapIterator map_rbegin(const Map *map);
-MapIterator map_rend(const Map *map);
-MapIterator map_cbegin(const Map *map);
-MapIterator map_cend(const Map *map);
-MapIterator map_crbegin(const Map *map);
-MapIterator map_crend(const Map *map);
-MapIterator map_lower_bound(const Map *map, KeyType key);
-MapIterator map_upper_bound(const Map *map, KeyType key);
-MapIterator map_find(const Map *map, KeyType key);
+map_iterator map_begin(const map *map);
+map_iterator map_end(const map *map);
+map_iterator map_rbegin(const map *map);
+map_iterator map_rend(const map *map);
+map_iterator map_cbegin(const map *map);
+map_iterator map_cend(const map *map);
+map_iterator map_crbegin(const map *map);
+map_iterator map_crend(const map *map);
+map_iterator map_lower_bound(const map *map, key_type key);
+map_iterator map_upper_bound(const map *map, key_type key);
+map_iterator map_find(const map *map, key_type key);
 
-size_t map_size(const Map *map);
-size_t map_max_size(const Map *map);
-size_t map_count(const Map *map, KeyType key);
+size_t map_size(const map *map);
+size_t map_max_size(const map *map);
+size_t map_count(const map *map, key_type key);
 
-ValueType map_at(const Map* map, KeyType key);
-ValueType map_node_get_value(MapNode* node);
+value_type map_at(const map* map, key_type key);
+value_type map_node_get_value(map_node* node);
 
-bool map_insert(Map *map, KeyType key, ValueType value);
-bool map_erase(Map *map, KeyType key);
-bool map_emplace(Map *map, KeyType key, ValueType value);
-bool map_emplace_hint(Map *map, MapIterator hint, KeyType key, ValueType value);
-bool map_empty(const Map *map);
+bool map_insert(map *map, key_type key, value_type value);
+bool map_erase(map *map, key_type key);
+bool map_emplace(map *map, key_type key, value_type value);
+bool map_emplace_hint(map *map, map_iterator hint, key_type key, value_type value);
+bool map_empty(const map *map);
