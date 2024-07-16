@@ -1,7 +1,7 @@
 #pragma once
+
 #include "khg_2d/renderer_2d.h"
 #include "khg_2d/texture.h"
-#include "khg_2d/utils.h"
 #include "khg_math/vec2.h"
 #include "khg_math/vec4.h"
 #include "khg_utils/map.h"
@@ -10,6 +10,7 @@
 
 typedef struct frame frame;
 typedef struct box box;
+typedef struct widget widget;
 typedef struct renderer_ui renderer_ui;
 
 extern float press_down_size;
@@ -41,49 +42,49 @@ struct box {
   char dimension_state;
 };
 
+struct widget {
+  string *text2;
+  string *text3;
+  int type;
+  bool just_created;
+  bool enabled;
+  bool display_text;
+  bool only_one_enabled;
+  bool used_this_frame;
+  vec4 colors;
+  vec4 colors2;
+  vec4 colors3;
+  texture t;
+  texture t_over;
+  vec4 texture_coords;
+  bool return_from_update;
+  bool custom_widget_used;
+  void *pointerl;
+  void *pointer2;
+  bool clicked;
+  bool hovered;
+  float min;
+  float max;
+  int minInt;
+  int maxInt;
+  vec4 returnTransform;
+  struct input_data {
+    vec2 mouse_pos;
+    bool mouse_click;
+    bool mouse_held;
+    bool mouse_released;
+    bool escape_released;
+  } last_frame_data;
+  struct persistent_data {
+    bool slider_being_dragged;
+    bool slider_being_dragged2;
+    bool slider_being_dragged3;
+  } pd;
+  size_t text_size;
+};
+
 struct renderer_ui {
   struct internal {
-    struct input_data {
-      vec2 mouse_pos;
-      bool mouse_click;
-      bool mouse_held;
-      bool mouse_released;
-      bool escape_released;
-    };
-    struct widget {
-      string *text2;
-      string *text3;
-      int type;
-      bool just_created;
-      bool enabled;
-      bool display_text;
-      bool only_one_enabled;
-      bool used_this_frame;
-      input_data last_frame_data;
-      vec4 colors;
-      vec4 colors2;
-      vec4 colors3;
-      texture t;
-      texture t_over;
-      vec4 texture_coords;
-      bool return_from_update;
-      bool custom_widget_used;
-      void *pointerl;
-      void *pointer2;
-      bool clicked;
-      bool hovered;
-      float min;
-      float max;
-      int minInt;
-      int maxInt;
-      vec4 returnTransform;
-      struct persistent_data {
-        bool slider_being_dragged;
-        bool slider_being_dragged2;
-        bool slider_being_dragged3;
-      } pd;
-      size_t text_size;
-    };
     struct align_settings {
       vec2 widget_size;
     } a_settings;
@@ -117,7 +118,7 @@ void begin_ui(renderer_ui *rui, int id);
 void end_ui(renderer_ui *rui);
 void set_align_mode_fixed_size_widgets(renderer_ui *rui, vec2 size);
 
-frame *create_frame_1_ui(frame *other) {
+frame *create_frame_from_ui(frame *other) {
   frame *new_frame = (frame *)malloc(sizeof(frame));
   new_frame->last_w = other->last_w;
   new_frame->last_h = other->last_h;
@@ -125,9 +126,10 @@ frame *create_frame_1_ui(frame *other) {
   new_frame->last_y = other->last_y;
   new_frame->loaded = other->loaded;
   free(other);
+  return new_frame;
 }
 
-frame *create_frame_3_ui(vec4 size);
+frame *create_frame_ui(vec4 size);
 void cleanup_frame(frame *f);
 
 box *x_distance_pixels(box *b, int dist);
@@ -142,8 +144,9 @@ box *x_right(box *b, int dist);
 box *y_bottom(box *b, int dist);
 box *x_dimension_pixels(box *b, int dim);
 box *y_dimension_pixels(box *b, int dim);
-box *x_dimension_pixels(box *b, float p);
-box *y_dimension_pixels(box *b, float p);
+box *x_dimension_percentage(box *b, float p);
+box *y_dimension_percentage(box *b, float p);
 box *x_aspect_ratio(box *b, float r);
 box *y_aspect_ratio(box *b, float r);
 bool box_in_button_ui(const vec2 *p, const vec4 *box);
+

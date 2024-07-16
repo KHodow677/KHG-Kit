@@ -5,7 +5,6 @@
 #include "khg_env/game_scripting.h"
 #include "khg_env/input.h"
 #include "khg_math/vec2.h"
-#include "khg_utils/string.h"
 
 struct game_data {
   vec2 rect_pos;

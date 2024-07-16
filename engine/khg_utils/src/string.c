@@ -1,10 +1,11 @@
 #include "khg_utils/string.h"
 #include "khg_utils/error_func.h"
+#include <ctype.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <ctype.h>
-#include <stdarg.h>
 #include <time.h>
 #include <wchar.h>
 
@@ -1017,7 +1018,7 @@ string **string_split(string *str, const char *delimiter, int *count) {
   while (token != NULL && index < num_splits) {
     splits[index] = string_create(token);
     if (splits[index] == NULL) {
-      fprintf(stderr, "Error: Failed to create string in string_split.\n");
+      error_func("Failed to create string in string_split", user_defined_data);
       for (size_t i = 0; i < index; i++) {
         string_deallocate(splits[i]);
       }
