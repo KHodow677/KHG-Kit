@@ -203,327 +203,290 @@ int postgres_get_affected_rows(Postgres *pg, PostgresResult *pgRes) {
   }
 }
 
-void postgres_print_result(PostgresResult* pgRes) {
-    if (pgRes && pgRes->result) {
-        int nFields = PQnfields(pgRes->result);
-        int nRows = PQntuples(pgRes->result);
-        int widths[nFields];
-
-        for (int i = 0; i < nFields; i++) {
-            widths[i] = string_length_cstr(PQfname(pgRes->result, i));
-
-            for (int j = 0; j < nRows; j++) {
-                int len = string_length_cstr(PQgetvalue(pgRes->result, j, i));
-                if (len > widths[i]) {
-                    widths[i] = len;
-                }
-            }
+void postgres_print_result(PostgresResult *pgRes) {
+  if (pgRes && pgRes->result) {
+    int nFields = PQnfields(pgRes->result);
+    int nRows = PQntuples(pgRes->result);
+    int widths[nFields];
+    for (int i = 0; i < nFields; i++) {
+      widths[i] = string_length_cstr(PQfname(pgRes->result, i));
+      for (int j = 0; j < nRows; j++) {
+        int len = string_length_cstr(PQgetvalue(pgRes->result, j, i));
+        if (len > widths[i]) {
+          widths[i] = len;
         }
-
-        print_line(nFields, widths);
-
-        for (int i = 0; i < nFields; i++) {
-            fmt_printf("| %-*s ", widths[i], PQfname(pgRes->result, i));
-        }
-        fmt_printf("|\n");
-
-        print_line(nFields, widths);
-
-        for (int i = 0; i < nRows; i++) {
-            for (int j = 0; j < nFields; j++) {
-                fmt_printf("| %-*s ", widths[j], PQgetvalue(pgRes->result, i, j));
-            }
-            fmt_printf("|\n");
-        }
-        print_line(nFields, widths);
-    } 
-    else {
-        fmt_fprintf(stderr, "Error: pgRes or pgRes->result is null.\n");
+      }
     }
+    print_line(nFields, widths);
+    for (int i = 0; i < nFields; i++) {
+      printf("| %-*s ", widths[i], PQfname(pgRes->result, i));
+    }
+    printf("|\n");
+    print_line(nFields, widths);
+    for (int i = 0; i < nRows; i++) {
+      for (int j = 0; j < nFields; j++) {
+        printf("| %-*s ", widths[j], PQgetvalue(pgRes->result, i, j));
+      }
+      printf("|\n");
+    }
+    print_line(nFields, widths);
+  } 
+  else {
+    error_func("PgRes or pgRes->result is null", user_defined_data);
+  }
 }
 
-int postgres_get_table_row_count(Postgres* pg, const char* tableName) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection is null.\n");
-        return -1;
-    }
-    else if (tableName == NULL) {
-        fmt_fprintf(stderr, "Error: tableName is null.\n");
-        return -1;
-    }
-
-    char query[CON_INFO_SIZE];
-    snprintf(query, sizeof(query), "SELECT COUNT(*) from %s", tableName);
-
-    PostgresResult* pgRes = postgres_query(pg, query);
-
-    if (PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
-        int rowCount = atoi(PQgetvalue(pgRes->result, 0, 0));
-        postgres_clear_result(pgRes);
-
-        return rowCount;
-    }
-    else {
-        fmt_fprintf(stderr, "Error: Quert failed %s\n", postgres_get_last_error(pg));
-        postgres_clear_result(pgRes);
-
-        return -1;
-    }
+int postgres_get_table_row_count(Postgres *pg, const char *tableName) {
+  if (pg->connection == NULL) {
+    error_func("Postgres connection is null", user_defined_data);
+    return -1;
+  }
+  else if (tableName == NULL) {
+    error_func("TableName is null", user_defined_data);
+    return -1;
+  }
+  char query[CON_INFO_SIZE];
+  snprintf(query, sizeof(query), "SELECT COUNT(*) from %s", tableName);
+  PostgresResult *pgRes = postgres_query(pg, query);
+  if (PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
+    int rowCount = atoi(PQgetvalue(pgRes->result, 0, 0));
+    postgres_clear_result(pgRes);
+    return rowCount;
+  }
+  else {
+    error_func("Quert failed", user_defined_data);
+    postgres_clear_result(pgRes);
+    return -1;
+  }
 }
 
-bool postgres_table_exists(Postgres* pg, const char* tableName) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection is null.\n");
-        return -1;
-    }
-    else if (tableName == NULL) {
-        fmt_fprintf(stderr, "Error: tableName is null.\n");
-        return -1;
-    }
-
-    char query[CON_INFO_SIZE * 2];
-    snprintf(query, sizeof(query), 
-        "SELECT EXISTS ("
-        "SELECT FROM information_schema.tables "
-        "WHERE table_schema = 'public' "
-        "AND table_name = '%s'"
-        ")", tableName);
-
-    PostgresResult* pgRes = postgres_query(pg, query);
-
-    if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
-        // `t` represents the boolean value true in PostgreSQL when checking for existence
-        bool exists = strcmp(PQgetvalue(pgRes->result, 0, 0), "t") == 0;
-        postgres_clear_result(pgRes);
-
-        return exists;
-    }
-    else {
-        fmt_fprintf(stderr, "Error: Query failed %s.\n", postgres_get_last_error(pg));
-        postgres_clear_result(pgRes);
-
-        return false;
-    }
+bool postgres_table_exists(Postgres *pg, const char *tableName) {
+  if (pg->connection == NULL) {
+    error_func("Postgres connection is null", user_defined_data);
+    return -1;
+  }
+  else if (tableName == NULL) {
+    error_func("TableName is null", user_defined_data);
+    return -1;
+  }
+  char query[CON_INFO_SIZE * 2];
+  snprintf(query, sizeof(query), 
+    "SELECT EXISTS ("
+    "SELECT FROM information_schema.tables "
+    "WHERE table_schema = 'public' "
+    "AND table_name = '%s'"
+    ")", tableName);
+  PostgresResult *pgRes = postgres_query(pg, query);
+  if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
+    bool exists = strcmp(PQgetvalue(pgRes->result, 0, 0), "t") == 0;
+    postgres_clear_result(pgRes);
+    return exists;
+  }
+  else {
+    error_func("Query failed", user_defined_data);
+    postgres_clear_result(pgRes);
+    return false;
+  }
 }
 
 PostgresResult* postgres_list_tables(Postgres* pg) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection is null.\n");
-        return NULL;       
+  if (pg->connection == NULL) {
+    error_func("Postgres connection is null", user_defined_data);
+    return NULL;       
+  }
+  const char* query = 
+    "SELECT table_name "
+    "FROM information_schema.tables "
+    "WHERE table_schema = 'public' "
+    "ORDER BY table_name;";
+  PostgresResult *pgRes = postgres_query(pg, query);
+  if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
+    return pgRes;
+  }
+  else {
+    error_func("Query failed", user_defined_data);
+    if (pgRes) {
+      postgres_clear_result(pgRes);
     }
-    
-    
-    const char* query = 
-        "SELECT table_name "
-        "FROM information_schema.tables "
-        "WHERE table_schema = 'public' "
-        "ORDER BY table_name;";
-    PostgresResult* pgRes = postgres_query(pg, query);
-
-    if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
-        return pgRes;
-    }
-    else {
-        fmt_fprintf(stderr, "Error: Query failed %s.\n", postgres_get_last_error(pg));
-        if (pgRes) {
-            postgres_clear_result(pgRes);
-        }
-        return NULL;
-    }
+    return NULL;
+  }
 }
 
-PostgresResult* postgres_get_table_schema(Postgres* pg, const char* tableName) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection is null.\n");
-        return NULL;
-    } 
-    else if (tableName == NULL) {
-        fmt_fprintf(stderr, "Error: tableName is null.\n");
-        return NULL;
+PostgresResult *postgres_get_table_schema(Postgres *pg, const char *tableName) {
+  if (pg->connection == NULL) {
+    error_func("Postgres connection is null", user_defined_data);
+    return NULL;
+  } 
+  else if (tableName == NULL) {
+    error_func("TableName is null", user_defined_data);
+    return NULL;
+  }
+  char query[CON_INFO_SIZE * 2];
+  snprintf(query, sizeof(query), 
+    "SELECT column_name, data_type "
+    "FROM information_schema.columns "
+    "WHERE table_schema = 'public' "
+    "AND table_name = '%s';", tableName);
+  PostgresResult *pgRes = postgres_query(pg, query);
+  if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
+    return pgRes;
+  } 
+  else {
+    error_func("Query failed", user_defined_data);
+    if (pgRes) {
+      postgres_clear_result(pgRes);
     }
-
-    char query[CON_INFO_SIZE * 2];
-    snprintf(query, sizeof(query), 
-        "SELECT column_name, data_type "
-        "FROM information_schema.columns "
-        "WHERE table_schema = 'public' "
-        "AND table_name = '%s';", tableName);
-
-    PostgresResult* pgRes = postgres_query(pg, query);
-
-    if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
-        return pgRes;
-    } 
-    else {
-        fmt_fprintf(stderr, "Error: Query failed %s.\n", postgres_get_last_error(pg));
-        if (pgRes) {
-            postgres_clear_result(pgRes);
-        }
-        return NULL;
-    }
+    return NULL;
+  }
 }
 
-bool postgres_execute_prepared(Postgres* pg, const char* stmtName, const char* query, int nParams, const char* const* paramValues) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection is null.\n");
-        return false;
-    } 
-    else if (stmtName == NULL || query == NULL || paramValues == NULL) {
-        fmt_fprintf(stderr, "Error: statement name, query, or parameters are null.\n");
-        return false;
-    }
-
-    PGresult* res = PQprepare(pg->connection, stmtName, query, nParams, NULL);
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        fmt_fprintf(stderr, "Error: Statement preparation failed %s\n", PQerrorMessage(pg->connection));
-        PQclear(res);
-        return false;
-    }
+bool postgres_execute_prepared(Postgres *pg, const char *stmtName, const char *query, int nParams, const char *const *paramValues) {
+  if (pg->connection == NULL) {
+    error_func("Postgres connection is null", user_defined_data);
+    return false;
+  } 
+  else if (stmtName == NULL || query == NULL || paramValues == NULL) {
+    error_func("Statement name, query, or parameters are null", user_defined_data);
+    return false;
+  }
+  PGresult *res = PQprepare(pg->connection, stmtName, query, nParams, NULL);
+  if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+    error_func("Statement preparation failed", user_defined_data);
     PQclear(res);
-
-    res = PQexecPrepared(pg->connection, stmtName, nParams, paramValues, NULL, NULL, 0);
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        fmt_fprintf(stderr, "Error: Statement execution failed %s\n", PQerrorMessage(pg->connection));
-        PQclear(res);
-        return false;
-    }
-
+    return false;
+  }
+  PQclear(res);
+  res = PQexecPrepared(pg->connection, stmtName, nParams, paramValues, NULL, NULL, 0);
+  if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+    error_func("Statement execution failed", user_defined_data);
     PQclear(res);
-    return true;
+    return false;
+  }
+  PQclear(res);
+  return true;
 }
 
-PostgresResult* postgres_get_table_columns(Postgres* pg, const char* tableName) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection object is null.\n");
-        return NULL;
+PostgresResult *postgres_get_table_columns(Postgres *pg, const char *tableName) {
+  if (pg->connection == NULL) {
+    error_func(stderr, "Error: postgres connection object is null.\n");
+    return NULL;
+  }
+  else if (tableName == NULL) {
+    error_func(stderr, "Error: tableName is null.\n");
+    return NULL;
+  }
+  char query[CON_INFO_SIZE * 2];
+  snprintf(query, sizeof(query), 
+    "SELECT column_name "
+    "FROM information_schema.columns "
+    "WHERE table_schema = 'public' "
+    "AND table_name = '%s';", tableName);
+  PostgresResult *pgRes = postgres_query(pg, query);
+  if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
+    return pgRes;
+  } 
+  else {
+    error_func("Query failed", user_defined_data);
+    if (pgRes) {
+      postgres_clear_result(pgRes);
     }
-    else if (tableName == NULL) {
-        fmt_fprintf(stderr, "Error: tableName is null.\n");
-        return NULL;
-    }
-
-    char query[CON_INFO_SIZE * 2];
-    snprintf(query, sizeof(query), 
-        "SELECT column_name "
-        "FROM information_schema.columns "
-        "WHERE table_schema = 'public' "
-        "AND table_name = '%s';", tableName);
-
-    PostgresResult* pgRes = postgres_query(pg, query);
-
-    if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
-        return pgRes;
-    } 
-    else {
-        fmt_fprintf(stderr, "Error: Query failed %s.\n", postgres_get_last_error(pg));
-        if (pgRes) {
-            postgres_clear_result(pgRes);
-        }
-        return NULL;
-    }
+    return NULL;
+  }
 }
 
-PostgresResult* postgres_get_table_primary_keys(Postgres* pg, const char* tableName) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection is null.\n");
-        return NULL;
-    } 
-    else if (tableName == NULL) {
-        fmt_fprintf(stderr, "Error: tableName is null.\n");
-        return NULL;
+PostgresResult *postgres_get_table_primary_keys(Postgres *pg, const char *tableName) {
+  if (pg->connection == NULL) {
+    error_func("Postgres connection is null", user_defined_data);
+    return NULL;
+  } 
+  else if (tableName == NULL) {
+    error_func("TableName is null", user_defined_data);
+    return NULL;
+  }
+  char query[CON_INFO_SIZE * 2];
+  snprintf(query, sizeof(query), 
+    "SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type "
+    "FROM pg_index i "
+    "JOIN pg_attribute a ON a.attrelid = i.indrelid "
+    "AND a.attnum = ANY(i.indkey) "
+    "WHERE i.indrelid = '%s'::regclass "
+    "AND i.indisprimary;", tableName);
+  PostgresResult *pgRes = postgres_query(pg, query);
+  if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
+    return pgRes;
+  } 
+  else {
+    error_func("Query failed", user_defined_data);
+    if (pgRes) {
+      postgres_clear_result(pgRes);
     }
-
-    char query[CON_INFO_SIZE * 2];
-    snprintf(query, sizeof(query), 
-        "SELECT a.attname, format_type(a.atttypid, a.atttypmod) AS data_type "
-        "FROM pg_index i "
-        "JOIN pg_attribute a ON a.attrelid = i.indrelid "
-        "AND a.attnum = ANY(i.indkey) "
-        "WHERE i.indrelid = '%s'::regclass "
-        "AND i.indisprimary;", tableName);
-
-    PostgresResult* pgRes = postgres_query(pg, query);
-
-    if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
-        return pgRes;
-    } 
-    else {
-        fmt_fprintf(stderr, "Error: Query failed %s.\n", postgres_get_last_error(pg));
-        if (pgRes) {
-            postgres_clear_result(pgRes);
-        }
-        return NULL;
-    }
+    return NULL;
+  }
 }
 
-PostgresResult* postgres_get_table_foreign_keys(Postgres* pg, const char* tableName) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection is null.\n");
-        return NULL;
-    } 
-    else if (tableName == NULL) {
-        fmt_fprintf(stderr, "Error: tableName is null.\n");
-        return NULL;
+PostgresResult *postgres_get_table_foreign_keys(Postgres *pg, const char *tableName) {
+  if (pg->connection == NULL) {
+      fmt_fprintf(stderr, "Error: postgres connection is null.\n");
+      return NULL;
+  } 
+  else if (tableName == NULL) {
+      fmt_fprintf(stderr, "Error: tableName is null.\n");
+      return NULL;
+  }
+
+  char query[CON_INFO_SIZE * 4];
+  snprintf(query, sizeof(query),
+    "SELECT "
+    "    tc.constraint_name, "
+    "    kcu.column_name, "
+    "    ccu.table_name AS foreign_table_name, "
+    "    ccu.column_name AS foreign_column_name "
+    "FROM "
+    "    information_schema.table_constraints AS tc "
+    "    JOIN information_schema.key_column_usage AS kcu "
+    "      ON tc.constraint_name = kcu.constraint_name "
+    "      AND tc.table_schema = kcu.table_schema "
+    "    JOIN information_schema.constraint_column_usage AS ccu "
+    "      ON ccu.constraint_name = tc.constraint_name "
+    "WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name='%s';", tableName);
+  PostgresResult *pgRes = postgres_query(pg, query);
+  if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
+    return pgRes;
+  } 
+  else {
+    error_func("Query failed", user_defined_data);
+    if (pgRes) {
+      postgres_clear_result(pgRes);
     }
-
-    char query[CON_INFO_SIZE * 4];
-    snprintf(query, sizeof(query),
-        "SELECT "
-        "    tc.constraint_name, "
-        "    kcu.column_name, "
-        "    ccu.table_name AS foreign_table_name, "
-        "    ccu.column_name AS foreign_column_name "
-        "FROM "
-        "    information_schema.table_constraints AS tc "
-        "    JOIN information_schema.key_column_usage AS kcu "
-        "      ON tc.constraint_name = kcu.constraint_name "
-        "      AND tc.table_schema = kcu.table_schema "
-        "    JOIN information_schema.constraint_column_usage AS ccu "
-        "      ON ccu.constraint_name = tc.constraint_name "
-        "WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name='%s';", tableName);
-
-    PostgresResult* pgRes = postgres_query(pg, query);
-
-    if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
-        return pgRes;
-    } 
-    else {
-        fmt_fprintf(stderr, "Error: Query failed %s.\n", postgres_get_last_error(pg));
-        if (pgRes) {
-            postgres_clear_result(pgRes);
-        }
-        return NULL;
-    }
+    return NULL;
+  }
 }
 
-PostgresResult* postgres_get_table_indexes(Postgres* pg, const char* tableName) {
-    if (pg->connection == NULL) {
-        fmt_fprintf(stderr, "Error: postgres connection is null.\n");
-        return NULL;
-    } 
-    else if (tableName == NULL) {
-        fmt_fprintf(stderr, "Error: tableName is null.\n");
-        return NULL;
+PostgresResult *postgres_get_table_indexes(Postgres *pg, const char *tableName) {
+  if (pg->connection == NULL) {
+    error_func("Postgres connection is null", user_defined_data);
+    return NULL;
+  } 
+  else if (tableName == NULL) {
+    error_func("TableName is null", user_defined_data);
+    return NULL;
+  }
+  char query[CON_INFO_SIZE * 4];
+  snprintf(query, sizeof(query),
+    "SELECT indexname, indexdef "
+    "FROM pg_indexes "
+    "WHERE tablename='%s';", tableName);
+  PostgresResult *pgRes = postgres_query(pg, query);
+  if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
+    return pgRes;
+  } 
+  else {
+    error_func("Query failed", user_defined_data);
+    if (pgRes) {
+      postgres_clear_result(pgRes);
     }
-
-    char query[CON_INFO_SIZE * 4];
-    snprintf(query, sizeof(query),
-        "SELECT indexname, indexdef "
-        "FROM pg_indexes "
-        "WHERE tablename='%s';", tableName);
-
-    PostgresResult* pgRes = postgres_query(pg, query);
-
-    if (pgRes && PQresultStatus(pgRes->result) == PGRES_TUPLES_OK) {
-        return pgRes;
-    } 
-    else {
-        fmt_fprintf(stderr, "Error: Query failed %s.\n", postgres_get_last_error(pg));
-        if (pgRes) {
-            postgres_clear_result(pgRes);
-        }
-        return NULL;
-    }
+    return NULL;
+  }
 }
 
 PostgresResult* postgres_get_table_size(Postgres* pg, const char* tableName) {
