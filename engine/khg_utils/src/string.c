@@ -1452,6 +1452,35 @@ string *string_base64_decode(const string *encodedStr) {
   return decodedStringObject;
 }
 
+void string_format(string *str, const char *format, ...) {
+  if (str == NULL) {
+    error_func("The String object is NULL in string_format", user_defined_data);
+    return;
+  }
+  if (format == NULL) {
+    error_func("The format string is NULL in string_format", user_defined_data);
+    return;
+  }
+  va_list args;
+  va_start(args, format);
+  int length = vsnprintf(NULL, 0, format, args);
+  if (length < 0) {
+    error_func("Vsnprintf failed in string_format", user_defined_data);
+    va_end(args);
+    return;
+  }
+  char* buffer = (char*)malloc(length + 1);
+  if (!buffer) {
+    error_func("Failed to allocate memory in string_format", user_defined_data);
+    va_end(args);
+    return;
+  }
+  vsnprintf(buffer, length + 1, format, args);
+  string_assign(str, buffer);
+  free(buffer);
+  va_end(args);
+}
+
 string *string_repeat(const string *str, size_t count) {
   if (str == NULL) {
     error_func("The String object is NULL in string_repeat", user_defined_data);

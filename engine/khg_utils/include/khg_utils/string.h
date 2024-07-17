@@ -130,6 +130,7 @@ void string_shuffle(string *str);
 void string_to_title(string *str);
 void string_to_capitalize(string *str);
 void string_to_casefold(string *str);
+void string_format(string *str, const char *format, ...);
 void string_remove(string *str, const char *substr);
 void string_remove_range(string *str, size_t startPos, size_t endPos);
 void string_swap_case(string *str);

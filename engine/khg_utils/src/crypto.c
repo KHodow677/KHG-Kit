@@ -15,7 +15,7 @@
 #define DES_BLOCK_SIZE 8
 #endif
 
-uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algorithm, size_t *outLength) {
+uint8_t* crypto_hash_data(const uint8_t *data, size_t length, hash_algorithm algorithm, size_t *outLength) {
   if (!outLength) {
     return NULL;
   }
@@ -25,49 +25,49 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
   const EVP_MD *md_type;
   unsigned char md_value[EVP_MAX_MD_SIZE];
   switch (algorithm) {
-    case CRYPTO_MD4:
+    case crypto_md4:
       md = (uint8_t *)malloc(MD4_DIGEST_LENGTH);
       if (md && MD4(data, length, md)) {
         *outLength = MD4_DIGEST_LENGTH;
       }
       break;
-    case CRYPTO_MD5:
+    case crypto_md5:
       md = (uint8_t *)malloc(MD5_DIGEST_LENGTH);
       if (md && MD5(data, length, md)) {
         *outLength = MD5_DIGEST_LENGTH;
       }
       break;
-    case CRYPTO_SHA1:
+    case crypto_sha1:
       md = (uint8_t *)malloc(SHA_DIGEST_LENGTH);
       if (md && SHA1(data, length, md)) {
         *outLength = SHA_DIGEST_LENGTH;
       }
       break;
-    case CRYPTO_SHA224:
+    case crypto_sha224:
       md = (uint8_t *)malloc(SHA224_DIGEST_LENGTH);
       if (md && SHA224(data, length, md)) {
         *outLength = SHA224_DIGEST_LENGTH;
       }
       break;
-    case CRYPTO_SHA256:
+    case crypto_sha256:
       md = (uint8_t *)malloc(SHA256_DIGEST_LENGTH);
       if (md && SHA256(data, length, md)) {
         *outLength = SHA256_DIGEST_LENGTH;
       }
       break;
-    case CRYPTO_SHA384:
+    case crypto_sha384:
       md = (uint8_t *)malloc(SHA384_DIGEST_LENGTH);
       if (md && SHA384(data, length, md)) {
         *outLength = SHA384_DIGEST_LENGTH;
       }
       break;
-    case CRYPTO_SHA512:
+    case crypto_sha512:
       md = (uint8_t *)malloc(SHA512_DIGEST_LENGTH);
       if (md && SHA512(data, length, md)) {
         *outLength = SHA512_DIGEST_LENGTH;
       }
       break;
-    case CRYPTO_SHA3_224:
+    case crypto_sha3_224:
       md_type = EVP_sha3_224();
       *outLength = SHA224_DIGEST_LENGTH;
       md = (uint8_t *)malloc(*outLength);
@@ -76,7 +76,7 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
         return NULL;
       }
       break;
-    case CRYPTO_SHA3_256:
+    case crypto_sha3_256:
       md_type = EVP_sha3_256();
       *outLength = SHA256_DIGEST_LENGTH;
       md = (uint8_t *)malloc(*outLength);
@@ -85,7 +85,7 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
         return NULL;
       }
       break;
-    case CRYPTO_SHA3_384:
+    case crypto_sha3_384:
       md_type = EVP_sha3_384();
       *outLength = SHA384_DIGEST_LENGTH;
       md = (uint8_t *)malloc(*outLength);
@@ -94,7 +94,7 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
         return NULL;
       }
       break;
-    case CRYPTO_SHA3_512:
+    case crypto_sha3_512:
       md_type = EVP_sha3_512();
       *outLength = SHA512_DIGEST_LENGTH;
       md = (uint8_t *)malloc(*outLength);
@@ -103,23 +103,23 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
         return NULL;
       }
       break;
-    case CRYPTO_SHAKE_128:
+    case crypto_shake_128:
       md_type = EVP_shake128();
       *outLength = 32;
       break;
-    case CRYPTO_SHAKE_256:
+    case crypto_shake_256:
       md_type = EVP_shake256();
       *outLength = 64;
       break;
-    case CRYPTO_BLAKE2B_512:
+    case crypto_blake2b_512:
       md_type = EVP_blake2b512();
       *outLength = 64;
       break;
-    case CRYPTO_BLAKE2S_256:
+    case crypto_blake2s_256:
       md_type = EVP_blake2s256();
       *outLength = 32;
       break;
-    case CRYPTO_MDC2:
+    case crypto_mdc2:
       *outLength = MDC2_DIGEST_LENGTH;
       md = (uint8_t *)malloc(*outLength);
       if (!md) {
@@ -132,11 +132,11 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
         return NULL;
       }
       break;
-    case CRYPTO_RIPEMD_160:
+    case crypto_ripemd_160:
       md_type = EVP_ripemd160();
       *outLength = RIPEMD160_DIGEST_LENGTH;
       break;
-    case CRYPTO_SHA512_224:
+    case crypto_sha512_224:
       md_type = EVP_sha512_224();
       *outLength = 28;
       break;
@@ -144,7 +144,7 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
       error_func("Unsupported Algorithm", user_defined_data);
       break;
   }
-  if (algorithm == CRYPTO_RIPEMD_160 || algorithm == CRYPTO_SHA512_224 || algorithm == CRYPTO_BLAKE2B_512 || algorithm == CRYPTO_BLAKE2S_256) {
+  if (algorithm == crypto_ripemd_160 || algorithm == crypto_sha512_224 || algorithm == crypto_blake2b_512 || algorithm == crypto_blake2s_256) {
     md = (uint8_t *)malloc(*outLength);
     if (!md) {
       error_func("Failed to allocate memory for hash", user_defined_data);
@@ -161,7 +161,7 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
     }
     EVP_MD_CTX_free(mdctx);
   }
-  else if (algorithm == CRYPTO_SHAKE_128 || algorithm == CRYPTO_SHAKE_256) {
+  else if (algorithm == crypto_shake_128 || algorithm == crypto_shake_256) {
     md = (uint8_t *)malloc(*outLength);
     if (!md) {
         perror("Failed to allocate memory for hash");
@@ -176,7 +176,7 @@ uint8_t* crypto_hash_data(const uint8_t *data, size_t length, HashAlgorithm algo
     }
     EVP_MD_CTX_free(mdctx);
   }
-  else if (algorithm >= CRYPTO_SHA3_224 && algorithm <= CRYPTO_SHA3_512) {
+  else if (algorithm >= crypto_sha3_224 && algorithm <= crypto_sha3_512) {
     if ((mdctx = EVP_MD_CTX_new()) == NULL) {
       error_func("Failed to create EVP_MD_CTX", user_defined_data);
       free(md);
@@ -204,7 +204,7 @@ void crypto_print_hash(const uint8_t *hash, size_t length) {
   }
 }
 
-void *crypto_des_encrypt(const uint8_t *plaintext, size_t len, const uint8_t *key, const uint8_t *iv, CryptoMode mode, size_t *out_len) {
+void *crypto_des_encrypt(const uint8_t *plaintext, size_t len, const uint8_t *key, const uint8_t *iv, crypto_mode mode, size_t *out_len) {
   if (!out_len || !key || !plaintext) {
     return NULL;
   }
@@ -236,18 +236,18 @@ void *crypto_des_encrypt(const uint8_t *plaintext, size_t len, const uint8_t *ke
     DES_cblock block;
     memcpy(block, padded_plaintext + i, DES_BLOCK_SIZE);
     switch (mode) {
-      case CRYPTO_MODE_ECB:
+      case crypto_mode_ecb:
         DES_ecb_encrypt(&block, (DES_cblock*)(ciphertext + i), &keysched, DES_ENCRYPT);
         break;
-      case CRYPTO_MODE_CBC:
+      case crypto_mode_cbc:
         DES_ncbc_encrypt(block, ciphertext + i, DES_BLOCK_SIZE, &keysched, &ivec, DES_ENCRYPT);
         break;
-      case CRYPTO_MODE_CFB:{
+      case crypto_mode_cfb:{
         DES_cblock ivec = {0};
         DES_cfb_encrypt(padded_plaintext, ciphertext, 8, padded_len, &keysched, &ivec, DES_ENCRYPT);
       }
       break;
-      case CRYPTO_MODE_OFB:
+      case crypto_mode_ofb:
         DES_ofb_encrypt(block, ciphertext + i, 8, DES_BLOCK_SIZE, &keysched, &ivec);
         break;
       default:
@@ -260,7 +260,7 @@ void *crypto_des_encrypt(const uint8_t *plaintext, size_t len, const uint8_t *ke
   return ciphertext;
 }
 
-void *crypto_des_decrypt(const uint8_t *ciphertext, size_t len, const uint8_t *key, const uint8_t *iv, CryptoMode mode, size_t *out_len) {
+void *crypto_des_decrypt(const uint8_t *ciphertext, size_t len, const uint8_t *key, const uint8_t *iv, crypto_mode mode, size_t *out_len) {
   if (!out_len || !key || !ciphertext) {
     return NULL;
   }
@@ -285,17 +285,17 @@ void *crypto_des_decrypt(const uint8_t *ciphertext, size_t len, const uint8_t *k
     DES_cblock block;
     memcpy(block, ciphertext + i, DES_BLOCK_SIZE);
     switch (mode) {
-      case CRYPTO_MODE_ECB:
+      case crypto_mode_ecb:
         DES_ecb_encrypt(&block, (DES_cblock*)(plaintext + i), &keysched, DES_DECRYPT);
         break;
-      case CRYPTO_MODE_CBC:
+      case crypto_mode_cbc:
         DES_ncbc_encrypt(block, plaintext + i, DES_BLOCK_SIZE, &keysched, &ivec, DES_DECRYPT);
         break;
-      case CRYPTO_MODE_CFB:{
+      case crypto_mode_cfb:{
         DES_cfb_encrypt(ciphertext, plaintext, 8, len, &keysched, &ivec, DES_ENCRYPT);
       }
       break;
-      case CRYPTO_MODE_OFB:
+      case crypto_mode_ofb:
         DES_ofb_encrypt(block, plaintext + i, 8, DES_BLOCK_SIZE, &keysched, &ivec);
         break;
       default:
