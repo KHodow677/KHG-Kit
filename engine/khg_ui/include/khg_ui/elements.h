@@ -35,17 +35,16 @@ typedef struct {
 } ui_slider;
 
 typedef enum {
-  ui_released = -1,
-  ui_idle = 0,
-  ui_hovered = 1,
-  ui_clicked = 2,
-  ui_held = 3
+  ui_clickable_released = -1,
+  ui_clickable_idle = 0,
+  ui_clickable_hovered = 1,
+  ui_clickable_clicked = 2,
+  ui_clickable_held = 3
 } ui_clickable_item_state;
 
 typedef struct {
   ui_color color, hover_color;
   ui_color text_color, hover_text_color;
-  ui_color border_color;
   ui_color border_color;
   float padding;
   float margin_left;
