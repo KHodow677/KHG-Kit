@@ -9,9 +9,9 @@ typedef struct {
 } ui_texture;
 
 typedef struct {
-  void *data;
+  void *cdata;
   void *font_info;
-  uint32_t text_width, tex_height;
+  uint32_t tex_width, tex_height;
   uint32_t line_gap_add, font_size;
   ui_texture bitmap;
   uint32_t num_glyphs;
@@ -53,5 +53,5 @@ void ui_free_texture(ui_texture *tex);
 ui_texture ui_load_texture_asset(const char *asset_name, const char *file_extension); 
 
 void ui_free_font(ui_font *font);
-ui_font lf_load_font_asset(const char *asset_name, const char *file_extension, uint32_t font_size);
+ui_font ui_load_font_asset(const char *asset_name, const char *file_extension, uint32_t font_size);
 
