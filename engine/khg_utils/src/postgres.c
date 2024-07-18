@@ -935,4 +935,3 @@ int postgres_request_cancle(Postgres *pg) {
   }
   return PQrequestCancel(pg->connection);
 }
-
