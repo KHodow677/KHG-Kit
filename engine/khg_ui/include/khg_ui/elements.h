@@ -1,7 +1,8 @@
 #pragma once
-#include "khg_math/vec2.h"
-#include "khg_math/vec4.h"
+
 #include "khg_ui/texture.h"
+#include "cglm/cglm.h"
+#include "cglm/struct.h"
 #include <wchar.h>
 
 typedef struct {
@@ -56,7 +57,7 @@ typedef struct {
 } ui_element_props;
 
 typedef struct {
-  vec2 pos, size;
+  vec2s pos, size;
 } ui_aabb;
 
 typedef struct {
@@ -64,7 +65,7 @@ typedef struct {
   ui_aabb aabb;
   ui_clickable_item_state interact_state;
   bool scrollable;
-  vec2 total_area;
+  vec2s total_area;
 } ui_div;
 
 typedef struct {
@@ -91,10 +92,10 @@ void ui_resize_display(uint32_t display_width, uint32_t display_height);
 }
 
 #define ui_div_begin_ex(pos, size, scrollable, scroll_ptr, scroll_velocity_ptr) ui_div_begin_loc(pos, size, scrollable, scroll_ptr, scroll_velocity_ptr, __FILE__, __LINE__);
-ui_div *ui_div_begin_loc(vec2 pos, vec2 size, bool scrollable, float *scroll, float *scroll_velocity, const char* file, int32_t line);
+ui_div *ui_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll, float *scroll_velocity, const char* file, int32_t line);
 void ui_div_end();
 
-ui_clickable_item_state ui_item_loc(vec2 size,  const char *file, int32_t line);
+ui_clickable_item_state ui_item_loc(vec2s size,  const char *file, int32_t line);
 #define ui_item(size) ui_item_loc(size, __FILE__, __LINE__)
 
 #define ui_button(text) ui_button_loc(text, __FILE__, __LINE__)
@@ -187,11 +188,11 @@ void ui_begin_loc(const char* file, int32_t line);
 void ui_end();
 void ui_next_line();
 
-vec2 ui_text_dimension(const char *str);
-vec2 ui_text_dimension_ex(const char *str, float wrap_point);
-vec2 ui_text_dimension_wide(const wchar_t *str);
-vec2 ui_text_dimension_wide_ex(const wchar_t *str, float wrap_point);
-vec2 ui_button_dimension(const char *text);
+vec2s ui_text_dimension(const char *str);
+vec2s ui_text_dimension_ex(const char *str, float wrap_point);
+vec2s ui_text_dimension_wide(const wchar_t *str);
+vec2s ui_text_dimension_wide_ex(const wchar_t *str, float wrap_point);
+vec2s ui_button_dimension(const char *text);
 
 float ui_get_text_end(const char *str, float start_x);
 void ui_text(const char *text);
@@ -215,20 +216,20 @@ uint32_t ui_get_display_height();
 void ui_push_font(ui_font *font);
 void ui_pop_font();
 
-ui_text_props ui_text_render(vec2 pos, const char *str, ui_font font, ui_color color, int32_t wrap_point, vec2 stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
-ui_text_props ui_text_render_wchar(vec2 pos, const wchar_t *str, ui_font font, ui_color color, int32_t wrap_point, vec2 stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
+ui_text_props ui_text_render(vec2s pos, const char *str, ui_font font, ui_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
+ui_text_props ui_text_render_wchar(vec2s pos, const wchar_t *str, ui_font font, ui_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
 
-void ui_rect_render(vec2 pos, vec2 size, ui_color color, ui_color border_color, float border_width, float corner_radius);
-void ui_image_render(vec2 pos, ui_color color, ui_texture tex, ui_color border_color, float border_width, float corner_radius);
+void ui_rect_render(vec2s pos, vec2s size, ui_color color, ui_color border_color, float border_width, float corner_radius);
+void ui_image_render(vec2s pos, ui_color color, ui_texture tex, ui_color border_color, float border_width, float corner_radius);
 
-bool ui_point_intersects_aabb(vec2 p, ui_aabb aabb);
+bool ui_point_intersects_aabb(vec2s p, ui_aabb aabb);
 bool ui_aabb_intersects_aabb(ui_aabb a, ui_aabb b);
 
 void ui_push_style_props(ui_element_props props);
 void ui_pop_style_props();
 
-bool ui_hovered(vec2 pos, vec2 size);
-bool ui_area_hovered(vec2 pos, vec2 size);
+bool ui_hovered(vec2s pos, vec2s size);
+bool ui_area_hovered(vec2s pos, vec2s size);
 
 void ui_set_image_color(ui_color color);
 void ui_unset_image_color();
@@ -249,9 +250,9 @@ void ui_pop_element_id();
 
 ui_color ui_color_brightness(ui_color color, float brightness);
 ui_color ui_color_alpha(ui_color color, uint8_t a);
-vec4 ui_color_to_zto(ui_color color);
+vec4s ui_color_to_zto(ui_color color);
 ui_color ui_color_from_hex(uint32_t hex);
-ui_color ui_color_from_zto(vec4 zto);
+ui_color ui_color_from_zto(vec4s zto);
 
 void ui_image(ui_texture tex);
 void ui_rect(float width, float height, ui_color color, float corner_radius);

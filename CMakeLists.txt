@@ -14,6 +14,7 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 add_subdirectory(engine/external/unity)
+add_subdirectory(engine/external/cglm)
 add_subdirectory(engine/external/glfw)
 add_subdirectory(engine/external/glad)
 add_subdirectory(engine/external/dr_libs)
@@ -59,7 +60,7 @@ elseif(UNIX)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address)
 endif()
 
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity glfw glad stb_image stb_image_resize stb_truetype stb_vorbis openssl postgresql libclipboard khg_audio khg_math khg_utils khg_2d khg_ui khg_env)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis openssl postgresql libclipboard khg_audio khg_math khg_utils khg_2d khg_ui khg_env)
 
 enable_testing()
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")
