@@ -9,7 +9,6 @@
 #include "openssl/ripemd.h"
 #include "openssl/mdc2.h"
 #include "openssl/des.h"
-#include "openssl/err.h"
 
 #ifndef DES_BLOCK_SIZE
 #define DES_BLOCK_SIZE 8
