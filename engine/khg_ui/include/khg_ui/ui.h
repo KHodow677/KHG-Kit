@@ -17,12 +17,3 @@
 
 void ui_init_glfw(uint32_t display_width, uint32_t display_height, void *glfw_window);
 void ui_terminate();
-ui_theme ui_default_theme();
-ui_theme ui_get_theme();
-void ui_set_theme(ui_theme theme);
-void ui_resize_display(uint32_t display_width, uint32_t display_height);
-
-#define ui_begin() ui_begin_loc(__FILE__, __LINE__)
-void ui_begin_loc(const char* file, int32_t line);
-void ui_end();
-void ui_next_line();

@@ -51,3 +51,9 @@ double ui_get_mouse_x_delta();
 double ui_get_mouse_y_delta();
 double ui_get_mouse_scroll_x();
 double ui_get_mouse_scroll_y();
+
+ui_cursor_pos_event ui_mouse_move_event_occur();
+ui_mouse_button_event ui_mouse_button_event_occur();
+ui_scroll_event ui_mouse_scroll_event_occur();
+ui_key_event ui_key_event_occur();
+ui_char_event ui_char_event_occur();
