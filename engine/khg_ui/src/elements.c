@@ -208,10 +208,58 @@ ui_clickable_item_state ui_item_loc(vec2s size, const char *file, int32_t line) 
   return item;
 }
 
-ui_clickable_item_state _lf_button_loc(const char *text, const char *file, int32_t line) {
+ui_clickable_item_state ui_button_loc(const char *text, const char *file, int32_t line) {
   return button_element_loc((void *)text, file, line, false);
 }
 
-ui_clickable_item_state _lf_button_wide_loc(const wchar_t *text, const char *file, int32_t line) {
+ui_clickable_item_state ui_button_wide_loc(const wchar_t *text, const char *file, int32_t line) {
   return button_element_loc((void *)text, file, line, true);
+}
+
+ui_clickable_item_state ui_image_button_loc(ui_texture img, const char *file, int32_t line) {
+  ui_element_props props = get_props_for(state.theme.button_props);
+  float padding = props.padding;
+  float margin_left = props.margin_left, margin_right = props.margin_right,
+  margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
+  ui_color color = props.color;
+  ui_color text_color = state.theme.button_props.text_color;
+  ui_font font = get_current_font();
+  next_line_on_overflow((vec2s){ img.width + padding * 2.0f, img.height + padding * 2.0f }, state.div_props.border_width);
+  state.pos_ptr.x += margin_left;
+  state.pos_ptr.y += margin_top;
+  ui_clickable_item_state ret = button(file, line, state.pos_ptr, (vec2s){ img.width + padding * 2, img.height + padding * 2 }, props, color, props.border_width, true, true);
+  ui_color imageColor = ui_white;
+  ui_image_render((vec2s){state.pos_ptr.x + padding, state.pos_ptr.y + padding}, imageColor, img, ui_no_color, 0, props.corner_radius);
+  state.pos_ptr.x += img.width + margin_right + padding * 2.0f;
+  state.pos_ptr.y -= margin_top;
+  return ret; 
+}
+
+ui_clickable_item_state ui_image_button_fixed_loc(ui_texture img, float width, float height, const char *file, int32_t line) {
+  ui_element_props props = get_props_for(state.theme.button_props);
+  float padding = props.padding;
+  float margin_left = props.margin_left, margin_right = props.margin_right,
+  margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
+  ui_color color = props.color;
+  ui_color text_color = state.theme.button_props.text_color;
+  ui_font font = get_current_font();
+  int32_t render_width = ((width == -1) ? img.width : width);
+  int32_t render_height = ((height == -1) ? img.height : height);
+  next_line_on_overflow((vec2s){ render_width + padding * 2.0f, render_height + padding * 2.0f }, state.div_props.border_width);
+  state.pos_ptr.x += margin_left;
+  state.pos_ptr.y += margin_top;
+  ui_clickable_item_state ret = button(file, line, state.pos_ptr, (vec2s){ render_width + padding * 2, render_height + padding * 2 }, props, color, props.border_width, true, true);
+  ui_color imageColor = ui_white; 
+  ui_image_render((vec2s){state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding}, imageColor, img, ui_no_color, 0, props.corner_radius);
+  state.pos_ptr.x += render_width + margin_right + padding * 2.0f;
+  state.pos_ptr.y -= margin_top;
+  return ret;
+}
+
+ui_clickable_item_state ui_button_fixed_loc(const char *text, float width, float height, const char *file, int32_t line) {
+  return button_fixed_element_loc((void*)text, width, height, file, line, false);
+}
+
+ui_clickable_item_state ui_button_fixed_loc_wide(const wchar_t *text, float width, float height, const char *file, int32_t line) {
+  return button_fixed_element_loc((void*)text, width, height, file, line, true);
 }
