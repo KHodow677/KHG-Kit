@@ -130,3 +130,88 @@ void ui_resize_display(uint32_t display_width, uint32_t display_height) {
   state.current_div.aabb.size.x = state.dsp_w;
   state.current_div.aabb.size.y = state.dsp_h;
 }
+
+ui_div *ui_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll, float *scroll_velocity, const char *file, int32_t line) {
+  bool hovered_div = ui_area_hovered(pos, size);
+  if(hovered_div) {
+    state.scroll_velocity_ptr = scroll_velocity;
+    state.scroll_ptr = scroll;
+  }
+  uint64_t id = DJB2_INIT;
+  id = djb2_hash(id, file, strlen(file));
+  id = djb2_hash(id, &line, sizeof(line));
+  if(state.element_id_stack != -1) {
+    id = djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
+  }
+  state.prev_pos_ptr = state.pos_ptr;
+  state.prev_font_stack = state.font_stack;
+  state.prev_line_height = state.current_line_height;
+  state.prev_div = state.current_div;
+  ui_element_props props = get_props_for(state.theme.div_props);
+  state.div_props = props;
+  ui_div div;
+  div.aabb = (ui_aabb){ .pos = pos, .size = size };
+  div.scrollable = scrollable;
+  div.id = id;
+  if(div.scrollable) {
+    if(*scroll > 0) {
+      *scroll = 0;
+    }
+    if(state.theme.div_smooth_scroll) {
+      *scroll += *scroll_velocity;
+      *scroll_velocity *= state.theme.div_scroll_velocity_deceleration;
+      if(*scroll_velocity > -0.1 && state.div_velocity_accelerating) {
+        *scroll_velocity = 0.0f;
+      }
+    }
+  }
+  state.pos_ptr = pos; 
+  state.current_div = div;
+  div.interact_state = div_container((vec2s){ pos.x - props.padding, pos.y - props.padding }, (vec2s){ size.x + props.padding * 2.0f, size.y + props.padding * 2.0f }, props, props.color, props.border_width, false, state.div_hoverable);
+  if(hovered_div) {
+    state.selected_div_tmp = div;
+  }
+  if(div.scrollable) {
+    ui_set_ptr_y(*scroll + props.border_width + props.corner_radius);
+  } 
+  else {
+    ui_set_ptr_y(props.border_width + props.corner_radius);
+  }
+  state.cull_start = (vec2s){ pos.x, pos.y + props.border_width };
+  state.cull_end = (vec2s){ pos.x + size.x - props.border_width, pos.y + size.y - props.border_width };
+  state.current_div = div;
+  state.current_line_height = 0;
+  state.font_stack = NULL;
+  return &state.current_div;
+}
+
+void ui_div_end() {
+  if(state.current_div.scrollable) {
+    draw_scrollbar_on(&state.selected_div_tmp);
+  }
+  state.pos_ptr = state.prev_pos_ptr;
+  state.font_stack = state.prev_font_stack;
+  state.current_line_height = state.prev_line_height;
+  state.current_div = state.prev_div;
+  state.cull_start = (vec2s){ -1, -1 };
+  state.cull_end = (vec2s){ -1, -1 };
+}
+
+ui_clickable_item_state ui_item_loc(vec2s size, const char *file, int32_t line) {
+  ui_element_props props = get_props_for(state.theme.button_props);
+  next_line_on_overflow((vec2s){ size.x + props.padding * 2.0f + props.margin_right + props.margin_left, size.y + props.padding * 2.0f + props.margin_bottom + props.margin_top }, state.div_props.border_width);
+  state.pos_ptr.x += props.margin_left;
+  state.pos_ptr.y += props.margin_top;
+  ui_clickable_item_state item = button(file, line, state.pos_ptr, size, props, props.color, props.border_width, false, true);
+  state.pos_ptr.x += size.x + props.margin_left + props.padding * 2.0f;
+  state.pos_ptr.y -= props.margin_top;
+  return item;
+}
+
+ui_clickable_item_state _lf_button_loc(const char *text, const char *file, int32_t line) {
+  return button_element_loc((void *)text, file, line, false);
+}
+
+ui_clickable_item_state _lf_button_wide_loc(const wchar_t *text, const char *file, int32_t line) {
+  return button_element_loc((void *)text, file, line, true);
+}

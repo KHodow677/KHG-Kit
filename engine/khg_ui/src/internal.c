@@ -1,5 +1,7 @@
 #include "khg_ui/internal.h"
 
+ui_state state;
+
 uint32_t shader_create(GLenum type, const char *src) {
   uint32_t shader = glCreateShader(type);
   glShaderSource(shader, 1, &src, NULL);
