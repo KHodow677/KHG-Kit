@@ -26,7 +26,7 @@
 #ifdef _WIN32
 #define HOMEDIR "USERPROFILE"
 #else
-#define HOMEDIR (char*)"HOME"
+#define HOMEDIR (char *)"HOME"
 #endif
 
 #define UI_STACK_INIT_CAP 4

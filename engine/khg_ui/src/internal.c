@@ -1,4 +1,6 @@
 #include "khg_ui/internal.h"
+#include "libclipboard/libclipboard.h"
+#include <stdio.h>
 
 ui_state state;
 
@@ -727,6 +729,7 @@ ui_font load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap_4bpp);
   glGenerateMipmap(GL_TEXTURE_2D);
+  free(buffer);
   free(bitmap);
   free(bitmap_4bpp);
   return font;

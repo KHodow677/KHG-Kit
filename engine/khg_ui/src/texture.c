@@ -1,5 +1,6 @@
 #include "khg_ui/internal.h"
 #include "khg_ui/texture.h"
+#include <unistd.h>
 
 ui_font ui_load_font(const char *filepath, uint32_t size) {
   return load_font(filepath, size, 1024, 1024, 0);
@@ -14,7 +15,7 @@ ui_texture ui_load_texture(const char *filepath, bool flip, ui_texture_filtering
   int width, height, channels;
   unsigned char *image = stbi_load(filepath, &width, &height, &channels, STBI_rgb_alpha);
   if (!image) {
-    error_func("Failed to load texture", user_defined_data);
+    error_func("Failed to load a texture", user_defined_data);
     return tex;
   }
   glGenTextures(1, &tex.id);
@@ -273,10 +274,12 @@ void ui_free_texture(ui_texture *tex) {
 }
 
 ui_texture ui_load_texture_asset(const char *asset_name, const char *file_extension) {
-  char asset_dir[strlen(getenv(HOMEDIR)) + strlen("/.asset")];
+  char cwd[PATH_MAX];
+  getcwd(cwd, sizeof(cwd));
+  char asset_dir[strlen(cwd) + strlen("/res")];
   memset(asset_dir, 0, sizeof(asset_dir));
-  strcat(asset_dir, getenv(HOMEDIR));
-  strcat(asset_dir, "/.asset");
+  strcat(asset_dir, cwd);
+  strcat(asset_dir, "/res");
   char path[strlen(asset_dir) + strlen("/assets/textures/") + strlen(asset_name) + strlen(".") + strlen(file_extension)];
   memset(path, 0, sizeof(path));
   strcat(path, asset_dir);
@@ -293,10 +296,12 @@ void ui_free_font(ui_font *font) {
 }
 
 ui_font ui_load_font_asset(const char *asset_name, const char *file_extension, uint32_t font_size) {
-  char asset_dir[strlen(getenv(HOMEDIR)) + strlen("/.asset")];
+  char cwd[PATH_MAX];
+  getcwd(cwd, sizeof(cwd));
+  char asset_dir[strlen(cwd) + strlen("/res")];
   memset(asset_dir, 0, sizeof(asset_dir));
-  strcat(asset_dir, getenv(HOMEDIR));
-  strcat(asset_dir, "/.asset");
+  strcat(asset_dir, cwd);
+  strcat(asset_dir, "/res");
   char path[strlen(asset_dir) + strlen("/assets/fonts/") + strlen(asset_name) + strlen(".") + strlen(file_extension)];
   memset(path, 0, sizeof(path));
   strcat(path, asset_dir);

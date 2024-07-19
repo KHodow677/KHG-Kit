@@ -10,6 +10,14 @@
 #ifndef _LIBCLIPBOARD_H_
 #define _LIBCLIPBOARD_H_
 
+#if defined (_WIN32) || defined (_WIN64)
+  #define LIBCLIPBOARD_BUILD_WIN32
+#elif defined(__linux__)
+  #define LIBCLIPBOARD_BUILD_X11
+#elif defined(__APPLE__)
+  #define LIBCLIPBOARD_BUILD_COCOA
+#endif
+
 #include "libclipboard/libclipboard-config.h"
 #include <stdbool.h>
 #include <stdint.h>

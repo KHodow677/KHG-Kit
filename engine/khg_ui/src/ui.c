@@ -1,5 +1,6 @@
 #include "khg_ui/internal.h"
 #include "khg_ui/ui.h"
+#include "libclipboard/libclipboard.h"
 
 void ui_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_window) {
   setlocale(LC_ALL, "");

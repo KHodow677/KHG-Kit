@@ -5,6 +5,7 @@
 #include "khg_utils/error_func.h"
 #include "cglm/affine.h"
 #include "cglm/mat4.h"
+#include "libclipboard/libclipboard.h"
 
 ui_theme ui_default_theme() {
   ui_theme theme = { 0 };
