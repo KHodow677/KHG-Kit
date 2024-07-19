@@ -87,4 +87,55 @@ double ui_get_mouse_scroll_y() {
   return state.input.mouse.yscroll_delta;
 }
 
+ui_cursor_pos_event ui_mouse_move_event_occur() {
+  return state.cp_ev;
+}
+
+ui_mouse_button_event ui_mouse_button_event_occur() {
+  return state.mb_ev;
+}
+
+ui_scroll_event ui_mouse_scroll_event_occur() {
+  return state.scr_ev;
+}
+
+ui_key_event ui_key_event_occur() {
+  return state.key_ev;
+}
+
+ui_char_event ui_char_event_occur() { 
+  return state.ch_ev;
+}
+
+void ui_set_cull_end_x(float x) {
+  state.cull_end.x = x; 
+}
+
+void ui_set_cull_end_y(float y) {
+  state.cull_end.y = y; 
+}
+
+void ui_set_cull_start_x(float x) {
+  state.cull_start.x = x;
+}
+
+void ui_set_cull_start_y(float y) {
+  state.cull_start.y = y;
+}
+
+void ui_unset_cull_start_x() {
+  state.cull_start.x = -1;
+}
+
+void ui_unset_cull_start_y() {
+  state.cull_start.y = -1;
+}
+
+void ui_unset_cull_end_x() {
+  state.cull_end.x = -1;
+}
+
+void ui_unset_cull_end_y() {
+  state.cull_end.y = -1;
+}
 

@@ -59,3 +59,12 @@ ui_scroll_event ui_mouse_scroll_event_occur(void);
 ui_key_event ui_key_event_occur(void);
 ui_char_event ui_char_event_occur(void);
 
+void ui_set_cull_start_x(float x);
+void ui_set_cull_start_y(float y);
+void ui_set_cull_end_x(float x);
+void ui_set_cull_end_y(float y);  
+void ui_unset_cull_start_x(void);
+void ui_unset_cull_start_y(void);
+void ui_unset_cull_end_x(void);
+void ui_unset_cull_end_y(void);
+

@@ -306,3 +306,4 @@ ui_font ui_load_font_asset(const char *asset_name, const char *file_extension, u
   strcat(path, file_extension);
   return ui_load_font(path, font_size);
 }
+

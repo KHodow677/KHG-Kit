@@ -162,7 +162,7 @@ void ui_dropdown_menu_loc_wide(const wchar_t **items, const wchar_t *placeholder
     .placeholder = (char *)placeholder_str,\
     .selected = false\
   };\
-  _ui_input_text_loc(&input, __FILE__, __LINE__);\
+  ui_input_text_loc(&input, __FILE__, __LINE__);\
 }\
 
 #define ui_input_text_inl(buffer, buffer_size) ui_input_text_inl_ex(buffer, buffer_size, (int32_t)(ui_get_current_div().aabb.size.x / 2), "")
@@ -231,15 +231,6 @@ void ui_pop_style_props(void);
 bool ui_hovered(vec2s pos, vec2s size);
 bool ui_area_hovered(vec2s pos, vec2s size);
 
-void ui_set_cull_start_x(float x);
-void ui_set_cull_start_y(float y);
-void ui_set_cull_end_x(float x);
-void ui_set_cull_end_y(float y);  
-void ui_unset_cull_start_x(void);
-void ui_unset_cull_start_y(void);
-void ui_unset_cull_end_x(void);
-void ui_unset_cull_end_y(void);
-
 void ui_set_image_color(ui_color color);
 void ui_unset_image_color(void);
 
@@ -265,8 +256,10 @@ ui_color ui_color_from_zto(vec4s zto);
 
 void ui_image(ui_texture tex);
 void ui_rect(float width, float height, ui_color color, float corner_radius);
-
 void ui_seperator(void);
-void ui_set_clipboard_text(const char* text);
+
+void ui_set_clipboard_text(const char *text);
 char* ui_get_clipboard_text(void);
+
 void ui_set_no_render(bool no_render);
+

@@ -44,3 +44,4 @@ void ui_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_wi
 void ui_terminate() {
   ui_free_font(&state.theme.font);
 }
+
