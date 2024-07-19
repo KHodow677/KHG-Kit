@@ -46,15 +46,16 @@ bool ui_mouse_button_went_down_on_div(uint32_t button);
 bool ui_mouse_button_is_released_on_div(uint32_t button);
 bool ui_mouse_button_changed_on_div(uint32_t button);
 
-double ui_get_mouse_x();
-double ui_get_mouse_y();
-double ui_get_mouse_x_delta();
-double ui_get_mouse_y_delta();
-double ui_get_mouse_scroll_x();
-double ui_get_mouse_scroll_y();
+double ui_get_mouse_x(void);
+double ui_get_mouse_y(void);
+double ui_get_mouse_x_delta(void);
+double ui_get_mouse_y_delta(void);
+double ui_get_mouse_scroll_x(void);
+double ui_get_mouse_scroll_y(void);
 
-ui_cursor_pos_event ui_mouse_move_event_occur();
-ui_mouse_button_event ui_mouse_button_event_occur();
-ui_scroll_event ui_mouse_scroll_event_occur();
-ui_key_event ui_key_event_occur();
-ui_char_event ui_char_event_occur();
+ui_cursor_pos_event ui_mouse_move_event_occur(void);
+ui_mouse_button_event ui_mouse_button_event_occur(void);
+ui_scroll_event ui_mouse_scroll_event_occur(void);
+ui_key_event ui_key_event_occur(void);
+ui_char_event ui_char_event_occur(void);
+

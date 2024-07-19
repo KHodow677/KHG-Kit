@@ -47,6 +47,9 @@
 
 #define DJB2_INIT 5381
 
+#define MAX(a, b) a > b ? a : b
+#define MIN(a, b) a < b ? a : b
+
 typedef struct {
   uint32_t id;
 } ui_shader;
@@ -156,10 +159,10 @@ extern ui_state state;
 extern uint32_t shader_create(GLenum type, const char *src);
 extern ui_shader shader_prg_create(const char *vert_src, const char *frag_src);
 extern void shader_set_mat(ui_shader prg, const char *name, mat4 mat); 
-extern void set_projection_matrix();
-extern void renderer_init();
-extern void renderer_flush();
-extern void renderer_begin();
+extern void set_projection_matrix(void);
+extern void renderer_init(void);
+extern void renderer_flush(void);
+extern void renderer_begin(void);
 
 extern ui_text_props text_render_simple(vec2s pos, const char *text, ui_font font, ui_color font_color, bool no_render);
 extern ui_text_props text_render_simple_wide(vec2s pos, const wchar_t *text, ui_font font, ui_color font_color, bool no_render);
@@ -172,7 +175,7 @@ extern void draw_scrollbar_on(ui_div *div);
 
 extern void input_field(ui_input_field *input, ui_input_field_type type, const char *file, int32_t line);
 ui_font load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, uint32_t tex_height, uint32_t line_gap_add);
-extern ui_font get_current_font(); 
+extern ui_font get_current_font(void); 
 extern ui_clickable_item_state button_element_loc(void *text, const char *file, int32_t line, bool wide);
 extern ui_clickable_item_state button_fixed_element_loc(void *text, float width, float height, const char *file, int32_t line, bool wide);
 extern ui_clickable_item_state checkbox_element_loc(void *text, bool *val, ui_color tick_color, ui_color tex_color, const char *file, int32_t line, bool wide);
@@ -193,8 +196,8 @@ extern void glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoff
 extern void glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos);
 extern void glfw_char_callback(GLFWwindow *window, uint32_t charcode);
 
-extern void update_input();
-extern void clear_events();
+extern void update_input(void);
+extern void clear_events(void);
 
 extern uint64_t djb2_hash(uint64_t hash, const void *buf, size_t size);
 
@@ -206,3 +209,4 @@ extern ui_element_props props_stack_peak(ui_props_stack *stack);
 extern bool props_stack_empty(ui_props_stack *stack);
 
 extern ui_element_props get_props_for(ui_element_props props);
+

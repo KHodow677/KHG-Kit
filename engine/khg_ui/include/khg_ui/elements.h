@@ -1,8 +1,7 @@
 #pragma once
 
 #include "khg_ui/texture.h"
-#include "cglm/cglm.h"
-#include "cglm/struct.h"
+#include "cglm/types-struct.h"
 #include <wchar.h>
 
 typedef struct {
@@ -30,6 +29,7 @@ typedef struct {
   int32_t handle_pos;
   bool init;
   float min, max;
+  bool held, selected;
   float width, height;
   uint32_t handle_size;
   ui_color handle_color;
@@ -80,8 +80,8 @@ typedef struct {
 
 typedef void (*ui_menu_item_callback)(uint32_t *);
 
-ui_theme ui_default_theme();
-ui_theme ui_get_theme();
+ui_theme ui_default_theme(void);
+ui_theme ui_get_theme(void);
 void ui_set_theme(ui_theme theme);
 void ui_resize_display(uint32_t display_width, uint32_t display_height);
 
@@ -93,7 +93,7 @@ void ui_resize_display(uint32_t display_width, uint32_t display_height);
 
 #define ui_div_begin_ex(pos, size, scrollable, scroll_ptr, scroll_velocity_ptr) ui_div_begin_loc(pos, size, scrollable, scroll_ptr, scroll_velocity_ptr, __FILE__, __LINE__);
 ui_div *ui_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll, float *scroll_velocity, const char* file, int32_t line);
-void ui_div_end();
+void ui_div_end(void);
 
 ui_clickable_item_state ui_item_loc(vec2s size,  const char *file, int32_t line);
 #define ui_item(size) ui_item_loc(size, __FILE__, __LINE__)
@@ -176,17 +176,17 @@ void ui_input_insert_char_idx(ui_input_field *input, char c, uint32_t idx);
 void ui_input_insert_str_idx(ui_input_field *input, const char *insert, uint32_t len, uint32_t idx);
 
 void ui_input_field_unselect_all(ui_input_field *input);
-bool ui_input_grabbed();
+bool ui_input_grabbed(void);
 
 void ui_div_grab(ui_div div);
-void ui_div_ungrab();
-bool ui_div_grabbed();
-ui_div ui_get_grabbed_div();
+void ui_div_ungrab(void);
+bool ui_div_grabbed(void);
+ui_div ui_get_grabbed_div(void);
 
 #define ui_begin() ui_begin_loc(__FILE__, __LINE__)
 void ui_begin_loc(const char* file, int32_t line);
-void ui_end();
-void ui_next_line();
+void ui_end(void);
+void ui_next_line(void);
 
 vec2s ui_text_dimension(const char *str);
 vec2s ui_text_dimension_ex(const char *str, float wrap_point);
@@ -199,22 +199,22 @@ void ui_text(const char *text);
 void ui_text_wide(const wchar_t *text);
 void ui_set_text_wrap(bool wrap);
 
-ui_div ui_get_current_div();
-ui_div ui_get_selected_div();
-ui_div *ui_get_current_div_ptr();
-ui_div *ui_get_selected_div_ptr();
+ui_div ui_get_current_div(void);
+ui_div ui_get_selected_div(void);
+ui_div *ui_get_current_div_ptr(void);
+ui_div *ui_get_selected_div_ptr(void);
 
 void ui_set_ptr_x(float x);
 void ui_set_ptr_y(float y);
 void ui_set_ptr_x_absolute(float x);
 void ui_set_ptr_y_absolute(float y);
-float ui_get_ptr_x();
-float ui_get_ptr_y();
-uint32_t ui_get_display_width();
-uint32_t ui_get_display_height();
+float ui_get_ptr_x(void);
+float ui_get_ptr_y(void);
+uint32_t ui_get_display_width(void);
+uint32_t ui_get_display_height(void);
 
 void ui_push_font(ui_font *font);
-void ui_pop_font();
+void ui_pop_font(void);
 
 ui_text_props ui_text_render(vec2s pos, const char *str, ui_font font, ui_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
 ui_text_props ui_text_render_wchar(vec2s pos, const wchar_t *str, ui_font font, ui_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
@@ -226,27 +226,36 @@ bool ui_point_intersects_aabb(vec2s p, ui_aabb aabb);
 bool ui_aabb_intersects_aabb(ui_aabb a, ui_aabb b);
 
 void ui_push_style_props(ui_element_props props);
-void ui_pop_style_props();
+void ui_pop_style_props(void);
 
 bool ui_hovered(vec2s pos, vec2s size);
 bool ui_area_hovered(vec2s pos, vec2s size);
 
+void ui_set_cull_start_x(float x);
+void ui_set_cull_start_y(float y);
+void ui_set_cull_end_x(float x);
+void ui_set_cull_end_y(float y);  
+void ui_unset_cull_start_x(void);
+void ui_unset_cull_start_y(void);
+void ui_unset_cull_end_x(void);
+void ui_unset_cull_end_y(void);
+
 void ui_set_image_color(ui_color color);
-void ui_unset_image_color();
+void ui_unset_image_color(void);
 
 void ui_set_current_div_scroll(float scroll); 
-float ui_get_current_div_scroll(); 
+float ui_get_current_div_scroll(void); 
 void ui_set_current_div_scroll_velocity(float scroll_velocity);
-float ui_get_current_div_scroll_velocity();
+float ui_get_current_div_scroll_velocity(void);
 
 void ui_set_line_height(uint32_t line_height);
-uint32_t ui_get_line_height();
+uint32_t ui_get_line_height(void);
 void ui_set_line_should_overflow(bool overflow);
 
 void ui_set_div_hoverable(bool hoverable);
 
 void ui_push_element_id(int64_t id);
-void ui_pop_element_id();
+void ui_pop_element_id(void);
 
 ui_color ui_color_brightness(ui_color color, float brightness);
 ui_color ui_color_alpha(ui_color color, uint8_t a);
@@ -257,7 +266,7 @@ ui_color ui_color_from_zto(vec4s zto);
 void ui_image(ui_texture tex);
 void ui_rect(float width, float height, ui_color color, float corner_radius);
 
-void ui_seperator();
+void ui_seperator(void);
 void ui_set_clipboard_text(const char* text);
-char* ui_get_clipboard_text();
+char* ui_get_clipboard_text(void);
 void ui_set_no_render(bool no_render);

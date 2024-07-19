@@ -935,12 +935,12 @@ int32_t menu_item_list_item_loc(void **items, uint32_t item_count, int32_t selec
     }
     ui_push_style_props(props);
     if(wide) {
-      if(_ui_button_wide_loc((const wchar_t*)items[i], file, line) == ui_clickable_clicked) {
+      if(ui_button_wide_loc((const wchar_t*)items[i], file, line) == ui_clickable_clicked) {
         clicked_item = i;  
       } 
     } 
     else {
-      if(_ui_button_loc((const char *)items[i], file, line) == ui_clickable_clicked) {
+      if(ui_button_loc((const char *)items[i], file, line) == ui_clickable_clicked) {
         clicked_item = i;  
       } 
     }
@@ -952,7 +952,7 @@ int32_t menu_item_list_item_loc(void **items, uint32_t item_count, int32_t selec
   return clicked_item;
 }
 
-static int32_t get_max_char_height_font(ui_font font) {
+int32_t get_max_char_height_font(ui_font font) {
   float fontScale = stbtt_ScaleForPixelHeight((stbtt_fontinfo *)font.font_info, font.font_size);
   int32_t xmin, ymin, xmax, ymax;
   int32_t codepoint = 'p';
@@ -1181,3 +1181,4 @@ bool props_stack_empty(ui_props_stack *stack) {
 ui_element_props get_props_for(ui_element_props props) {
   return (!props_stack_empty(&state.props_stack)) ? props_stack_peak(&state.props_stack) : props; 
 }
+
