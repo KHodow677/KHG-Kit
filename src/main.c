@@ -1,3 +1,4 @@
+#include "khg_ui/internal.h"
 #include "khg_ui/ui.h"
 #include "khg_ui/elements.h"
 #include "GLFW/glfw3.h"
@@ -14,6 +15,7 @@ int ui_testing() {
     glClear(GL_COLOR_BUFFER_BIT);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     ui_begin();
+    ui_image(state.tex_arrow_down);
     ui_text("Hello!");
     ui_end();
     glfwSwapBuffers(window);
