@@ -7,6 +7,7 @@
 typedef struct {
   uint32_t id;
   uint32_t width, height;
+  float angle;
 } ui_texture;
 
 typedef struct {

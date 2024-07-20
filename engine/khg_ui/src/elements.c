@@ -1,4 +1,5 @@
 #include "khg_ui/elements.h"
+#include "cglm/types.h"
 #include "khg_ui/texture.h"
 #include "khg_ui/internal.h"
 #include "khg_ui/ui.h"
@@ -6,6 +7,29 @@
 #include "cglm/affine.h"
 #include "cglm/mat4.h"
 #include "libclipboard/libclipboard.h"
+#include <stdint.h>
+#include <stdio.h>
+
+void compute_bounding_box(uint32_t width, uint32_t height, float angle, float* boundingWidth, float* boundingHeight) {
+  float cosA = cos(angle);
+  float sinA = sin(angle);
+  float w = width / 2.0;
+  float h = height / 2.0;
+  float x1 = w * cosA - h * sinA;
+  float y1 = w * sinA + h * cosA;
+  float x2 = w * cosA + h * sinA;
+  float y2 = w * sinA - h * cosA;
+  float x3 = -w * cosA - h * sinA;
+  float y3 = -w * sinA + h * cosA;
+  float x4 = -w * cosA + h * sinA;
+  float y4 = -w * sinA - h * cosA;
+  float xMin = fmin(fmin(x1, x2), fmin(x3, x4));
+  float xMax = fmax(fmax(x1, x2), fmax(x3, x4));
+  float yMin = fmin(fmin(y1, y2), fmin(y3, y4));
+  float yMax = fmax(fmax(y1, y2), fmax(y3, y4));
+  *boundingWidth = xMax - xMin;
+  *boundingHeight = yMax - yMin;
+}
 
 ui_theme ui_default_theme() {
   ui_theme theme = { 0 };
@@ -234,7 +258,7 @@ ui_clickable_item_state ui_image_button_loc(ui_texture img, const char *file, in
   state.pos_ptr.y += margin_top;
   ui_clickable_item_state ret = button(file, line, state.pos_ptr, (vec2s){ img.width + padding * 2, img.height + padding * 2 }, props, color, props.border_width, true, true);
   ui_color imageColor = ui_white;
-  ui_image_render((vec2s){state.pos_ptr.x + padding, state.pos_ptr.y + padding}, imageColor, img, ui_no_color, 0, props.corner_radius);
+  ui_image_render((vec2s){state.pos_ptr.x + padding, state.pos_ptr.y + padding}, imageColor, img, ui_no_color, 0, props.corner_radius, 0.0f);
   state.pos_ptr.x += img.width + margin_right + padding * 2.0f;
   state.pos_ptr.y -= margin_top;
   return ret; 
@@ -255,7 +279,7 @@ ui_clickable_item_state ui_image_button_fixed_loc(ui_texture img, float width, f
   state.pos_ptr.y += margin_top;
   ui_clickable_item_state ret = button(file, line, state.pos_ptr, (vec2s){ render_width + padding * 2, render_height + padding * 2 }, props, color, props.border_width, true, true);
   ui_color imageColor = ui_white; 
-  ui_image_render((vec2s){state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding}, imageColor, img, ui_no_color, 0, props.corner_radius);
+  ui_image_render((vec2s){state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding}, imageColor, img, ui_no_color, 0, props.corner_radius, 0.0f);
   state.pos_ptr.x += render_width + margin_right + padding * 2.0f;
   state.pos_ptr.y -= margin_top;
   return ret;
@@ -800,7 +824,7 @@ void ui_rect_render(vec2s pos, vec2s size, ui_color color, ui_color border_color
   state.render.index_count += 6;
 }
 
-void ui_image_render(vec2s pos, ui_color color, ui_texture tex, ui_color border_color, float border_width, float corner_radius) {
+void ui_image_render(vec2s pos, ui_color color, ui_texture tex, ui_color border_color, float border_width, float corner_radius, float rotation_angle) {
   if(!state.renderer_render) return;
   if(item_should_cull((ui_aabb){ .pos = pos, .size = (vec2s){ tex.width, tex.height } })) {
     return;
@@ -829,15 +853,17 @@ void ui_image_render(vec2s pos, ui_color color, ui_texture tex, ui_color border_
   }
   mat4 translate = GLM_MAT4_IDENTITY_INIT; 
   mat4 scale = GLM_MAT4_IDENTITY_INIT;
+  mat4 rotation = GLM_MAT4_IDENTITY_INIT;
   mat4 transform = GLM_MAT4_IDENTITY_INIT;
-  vec3s pos_xyz = (vec3s){pos.x, pos.y, 0.0f};
-  vec3 tex_size;
-  tex_size[0] = tex.width;
-  tex_size[1] = tex.height;
-  tex_size[2] = 0;
+  float accounted_x, accounted_y;
+  compute_bounding_box(pos.x, pos.y, rotation_angle, &accounted_x, &accounted_y);
+  vec3s pos_xyz = (vec3s){accounted_x, accounted_y, 0.0f};
+  vec3 tex_size = { tex.width, tex.height, 1.0f };
   glm_translate_make(translate, pos_xyz.raw);
   glm_scale_make(scale, tex_size);
-  glm_mat4_mul(translate,scale,transform);
+  glm_rotate_make(rotation, rotation_angle, (vec3){0.0f, 0.0f, 1.0f});
+  glm_mat4_mul(translate, rotation, transform);
+  glm_mat4_mul(transform, scale, transform);
   for(uint32_t i = 0; i < 4; i++) {
     if(state.render.vert_count >= MAX_RENDER_BATCH) {
       renderer_flush();
@@ -987,14 +1013,16 @@ ui_color ui_color_from_zto(vec4s zto) {
 }
 
 void ui_image(ui_texture tex) {
+  float w, h;
+  compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
   ui_element_props props = get_props_for(state.theme.image_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   ui_color color = props.color;
-  next_line_on_overflow((vec2s){ tex.width + margin_left + margin_right, tex.height + margin_top + margin_bottom }, state.div_props.border_width);
+  next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left; 
   state.pos_ptr.y += margin_top;
-  ui_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius);
-  state.pos_ptr.x += tex.width + margin_right;
+  ui_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle);
+  state.pos_ptr.x += w + margin_right;
   state.pos_ptr.y -= margin_top;
 }
 

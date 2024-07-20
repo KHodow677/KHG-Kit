@@ -220,7 +220,7 @@ ui_text_props ui_text_render(vec2s pos, const char *str, ui_font font, ui_color 
 ui_text_props ui_text_render_wchar(vec2s pos, const wchar_t *str, ui_font font, ui_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
 
 void ui_rect_render(vec2s pos, vec2s size, ui_color color, ui_color border_color, float border_width, float corner_radius);
-void ui_image_render(vec2s pos, ui_color color, ui_texture tex, ui_color border_color, float border_width, float corner_radius);
+void ui_image_render(vec2s pos, ui_color color, ui_texture tex, ui_color border_color, float border_width, float corner_radius, float rotation_angle);
 
 bool ui_point_intersects_aabb(vec2s p, ui_aabb aabb);
 bool ui_aabb_intersects_aabb(ui_aabb a, ui_aabb b);

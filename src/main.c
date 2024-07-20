@@ -3,6 +3,7 @@
 #include "khg_ui/elements.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include <stdint.h>
 #include <stdio.h>
 
 int ui_testing() {
@@ -10,11 +11,12 @@ int ui_testing() {
   GLFWwindow *window = glfwCreateWindow(800, 600, "Hello", NULL, NULL);
   glfwMakeContextCurrent(window);
   ui_init_glfw(800, 600, window);
-
+  float ang = 0.0f;
   while(!glfwWindowShouldClose(window)) {
     glClear(GL_COLOR_BUFFER_BIT);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     ui_begin();
+    state.tex_arrow_down.angle += 0.05f;
     ui_image(state.tex_arrow_down);
     ui_text("Hello!");
     ui_end();

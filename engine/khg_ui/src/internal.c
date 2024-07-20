@@ -831,7 +831,7 @@ ui_clickable_item_state checkbox_element_loc(void *text, bool *val, ui_color tic
     *val = !*val;
   }
   if(*val) {
-    ui_image_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, tex_color, (ui_texture){ .id = state.tex_tick.id, .width = (uint32_t)(checkbox_size), .height = (uint32_t)(checkbox_size)}, (ui_color){0.0f, 0.0f, 0.0f, 0.0f}, 0, props.corner_radius);
+    ui_image_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, tex_color, (ui_texture){ .id = state.tex_tick.id, .width = (uint32_t)(checkbox_size), .height = (uint32_t)(checkbox_size)}, (ui_color){0.0f, 0.0f, 0.0f, 0.0f}, 0, props.corner_radius, 0.0f);
   }
   state.pos_ptr.x += checkbox_size + props.padding * 2.0f + margin_right + ((wide) ? ui_text_dimension_wide((const wchar_t*)text).x : ui_text_dimension((const char*)text).x) + margin_right;
   state.pos_ptr.y -= margin_top;
@@ -866,7 +866,7 @@ void dropdown_menu_item_loc(void **items, void *placeholder, uint32_t item_count
     text_render_simple((vec2s){state.pos_ptr.x + padding, state.pos_ptr.y + padding}, (const char*)button_text, font, props.text_color, false);
   }
   vec2s image_size = (vec2s){20, 10};
-  ui_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (ui_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, ui_no_color, 0.0f, 0.0f);
+  ui_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (ui_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, ui_no_color, 0.0f, 0.0f, 0.0f);
   if(dropdown_button == ui_clickable_clicked) {
     *opened = !*opened;
   }
