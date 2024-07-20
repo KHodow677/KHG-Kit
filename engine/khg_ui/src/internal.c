@@ -1,4 +1,6 @@
 #include "khg_ui/internal.h"
+#include "khg_ui/elements.h"
+#include "khg_ui/ui.h"
 #include "libclipboard/libclipboard.h"
 #include <stdio.h>
 
@@ -1115,6 +1117,12 @@ void glfw_char_callback(GLFWwindow *window, uint32_t charcode) {
   (void)window;
   state.ch_ev.char_code = charcode;
   state.ch_ev.happened = true;
+}
+
+void glfw_window_size_callback(GLFWwindow *window, int width, int height) {
+  (void)window;
+  glViewport(0, 0, width, height);
+  ui_resize_display(width, height);
 }
 
 void update_input() {

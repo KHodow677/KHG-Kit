@@ -1,6 +1,8 @@
+#include "glad/glad.h"
 #include "khg_ui/internal.h"
 #include "khg_ui/ui.h"
 #include "libclipboard/libclipboard.h"
+#include <stdio.h>
 
 void ui_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_window) {
   setlocale(LC_ALL, "");
@@ -37,6 +39,7 @@ void ui_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_wi
   glfwSetScrollCallback((GLFWwindow *)state.window_handle, glfw_scroll_callback);
   glfwSetCursorPosCallback((GLFWwindow *)state.window_handle, glfw_cursor_callback);
   glfwSetCharCallback((GLFWwindow *)state.window_handle, glfw_char_callback);
+  glfwSetWindowSizeCallback((GLFWwindow *)state.window_handle, glfw_window_size_callback);
   renderer_init();
   state.tex_arrow_down = ui_load_texture_asset("arrow-down", "png");
   state.tex_tick = ui_load_texture_asset("tick", "png");

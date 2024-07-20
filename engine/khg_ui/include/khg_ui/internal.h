@@ -1,14 +1,13 @@
-#include "khg_ui/ui.h"
 #include "khg_ui/elements.h"
 #include "khg_ui/events.h"
 #include "khg_ui/texture.h"
 #include "khg_utils/error_func.h"
 #include "cglm/mat4.h"
 #include "cglm/types-struct.h"
-#include "glad/glad.h"
 #include "stb_image/stb_image.h"
 #include "stb_image_resize/stb_image_resize2.h"
 #include "stb_truetype/stb_truetype.h"
+#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "libclipboard/libclipboard.h"
 #include <locale.h>
@@ -195,6 +194,7 @@ extern void glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int a
 extern void glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 extern void glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos);
 extern void glfw_char_callback(GLFWwindow *window, uint32_t charcode);
+extern void glfw_window_size_callback(GLFWwindow *window, int width, int height);
 
 extern void update_input(void);
 extern void clear_events(void);
