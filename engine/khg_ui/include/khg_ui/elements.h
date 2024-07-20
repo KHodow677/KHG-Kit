@@ -219,7 +219,7 @@ void ui_pop_font(void);
 ui_text_props ui_text_render(vec2s pos, const char *str, ui_font font, ui_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
 ui_text_props ui_text_render_wchar(vec2s pos, const wchar_t *str, ui_font font, ui_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
 
-void ui_rect_render(vec2s pos, vec2s size, ui_color color, ui_color border_color, float border_width, float corner_radius);
+void ui_rect_render(vec2s pos, vec2s size, ui_color color, ui_color border_color, float border_width, float corner_radius, float rotation_angle);
 void ui_image_render(vec2s pos, ui_color color, ui_texture tex, ui_color border_color, float border_width, float corner_radius, float rotation_angle);
 
 bool ui_point_intersects_aabb(vec2s p, ui_aabb aabb);
@@ -254,8 +254,8 @@ vec4s ui_color_to_zto(ui_color color);
 ui_color ui_color_from_hex(uint32_t hex);
 ui_color ui_color_from_zto(vec4s zto);
 
-void ui_image(ui_texture tex);
-void ui_rect(float width, float height, ui_color color, float corner_radius);
+void ui_image(ui_texture tex, bool no_block);
+void ui_rect(float width, float height, ui_color color, float corner_radius, float angle, bool no_block);
 void ui_seperator(void);
 
 void ui_set_clipboard_text(const char *text);

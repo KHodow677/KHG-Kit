@@ -316,7 +316,7 @@ ui_clickable_item_state ui_slider_int_loc(ui_slider *slider, const char *file, i
   slider_props.border_width /= 2.0f;
   ui_clickable_item_state slider_state = button_ex(file, line, state.pos_ptr, (vec2s){ (float)slider_width, (float)slider_height }, slider_props, color, 0, false, false, (vec2s){ -1, handle_size });
   slider->handle_pos = map_vals(*(int32_t *)slider->val, slider->min, slider->max, handle_size / 2.0f, slider->width - handle_size / 2.0f) - (handle_size) / 2.0f;
-  ui_rect_render((vec2s){ state.pos_ptr.x + slider->handle_pos, state.pos_ptr.y - (handle_size) / 2.0f + slider_height / 2.0f }, (vec2s){ handle_size, handle_size }, props.text_color, props.border_color, props.border_width, slider->held ? props.corner_radius * 3.5f : props.corner_radius * 3.0f);
+  ui_rect_render((vec2s){ state.pos_ptr.x + slider->handle_pos, state.pos_ptr.y - (handle_size) / 2.0f + slider_height / 2.0f }, (vec2s){ handle_size, handle_size }, props.text_color, props.border_color, props.border_width, slider->held ? props.corner_radius * 3.5f : props.corner_radius * 3.0f, 0.0f);
   if(slider_state == ui_clickable_held || slider_state == ui_clickable_clicked) {
     slider->held = true;
   }
@@ -375,7 +375,7 @@ ui_clickable_item_state ui_progress_stripe_int_loc(ui_slider *slider, const char
   ui_push_element_id(1);
   ui_clickable_item_state handle = button(file, line, state.pos_ptr, (vec2s){(float)slider->handle_pos, (float)height}, props, props.text_color, 0, false, false);
   ui_pop_element_id();
-  ui_rect_render((vec2s){ state.pos_ptr.x + slider->handle_pos, state.pos_ptr.y - (float)height / 2.0f }, (vec2s){ (float)slider->height * 2, (float)slider->height * 2 }, props.text_color, (ui_color){0.0f, 0.0f, 0.0f, 0.0f}, 0, props.corner_radius);
+  ui_rect_render((vec2s){ state.pos_ptr.x + slider->handle_pos, state.pos_ptr.y - (float)height / 2.0f }, (vec2s){ (float)slider->height * 2, (float)slider->height * 2 }, props.text_color, (ui_color){0.0f, 0.0f, 0.0f, 0.0f}, 0, props.corner_radius, 0.0f);
   state.pos_ptr.x += slider->width + margin_right;
   state.pos_ptr.y -= margin_top;
   return bar;
@@ -543,7 +543,7 @@ void ui_text_wide(const wchar_t *text) {
   next_line_on_overflow((vec2s){ text_props.width + padding * 2.0f + margin_left + margin_right, text_props.height + padding * 2.0f + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left;
   state.pos_ptr.y += margin_top;
-  ui_rect_render(state.pos_ptr, (vec2s){ text_props.width + padding * 2.0f, text_props.height + padding * 2.0f }, props.color, props.border_color, props.border_width, props.corner_radius);
+  ui_rect_render(state.pos_ptr, (vec2s){ text_props.width + padding * 2.0f, text_props.height + padding * 2.0f }, props.color, props.border_color, props.border_width, props.corner_radius, 0.0f);
   ui_text_render_wchar((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, text, font, text_color, (state.text_wrap ? (state.current_div.aabb.size.x + state.current_div.aabb.pos.x) - margin_right - margin_left : -1), (vec2s){-1, -1}, false, false, -1, -1);
   state.pos_ptr.x += text_props.width + padding * 2.0f + margin_right + padding;
   state.pos_ptr.y -= margin_top;
@@ -756,7 +756,7 @@ ui_text_props ui_text_render_wchar(vec2s pos, const wchar_t *str, ui_font font, 
     }
     if (!culled && !no_render && state.renderer_render) {
       if (render_solid) {
-        ui_rect_render((vec2s){ x, y }, (vec2s){ last_x - x, get_max_char_height_font(font) }, color, ui_no_color, 0.0f, 0.0f);
+        ui_rect_render((vec2s){ x, y }, (vec2s){ last_x - x, get_max_char_height_font(font) }, color, ui_no_color, 0.0f, 0.0f, 0.0f);
       } else {
         renderer_add_glyph(q, max_descended_char_height, color, tex_index);
       }
@@ -775,7 +775,7 @@ ui_text_props ui_text_render_wchar(vec2s pos, const wchar_t *str, ui_font font, 
   return ret;
  }
 
-void ui_rect_render(vec2s pos, vec2s size, ui_color color, ui_color border_color, float border_width, float corner_radius) {
+void ui_rect_render(vec2s pos, vec2s size, ui_color color, ui_color border_color, float border_width, float corner_radius, float rotation_angle) {
   if(!state.renderer_render) return;
   if(item_should_cull((ui_aabb){ .pos = pos, .size = size })) {
     return;
@@ -783,14 +783,21 @@ void ui_rect_render(vec2s pos, vec2s size, ui_color color, ui_color border_color
   vec2s pos_initial = pos;
   pos = (vec2s){pos.x + size.x / 2.0f, pos.y + size.y / 2.0f};
   vec2s texcoords[4] = {(vec2s){ 1.0f, 1.0f }, (vec2s){ 1.0f, 0.0f }, (vec2s){ 0.0f, 0.0f }, (vec2s){ 0.0f, 1.0f } };
-  mat4 translate; 
-  mat4 scale;
-  mat4 transform;
-  vec3 pos_xyz = {(corner_radius != 0.0f ? (float)state.dsp_w / 2.0f : pos.x), (corner_radius != 0.0f ? (float)state.dsp_h / 2.0f : pos.y), 0.0f};
+  mat4 translate = GLM_MAT4_IDENTITY_INIT; 
+  mat4 scale = GLM_MAT4_IDENTITY_INIT;
+  mat4 rotation = GLM_MAT4_IDENTITY_INIT;
+  mat4 transform = GLM_MAT4_IDENTITY_INIT;
+  float accounted_x = pos.x, accounted_y = pos.y;
+  float accounted_corner_x, accounted_corner_y;
+  compute_bounding_box(pos.x, pos.y, rotation_angle, &accounted_x, &accounted_y);
+  compute_bounding_box((float)state.dsp_w / 2.0f, (float)state.dsp_h / 2.0f, rotation_angle, &accounted_corner_x, &accounted_corner_y);
+  vec3 pos_xyz = {(corner_radius != 0.0f ? accounted_corner_x : accounted_x), (corner_radius != 0.0f ? accounted_corner_y : accounted_y), 0.0f};
   vec3 size_xyz = {corner_radius != 0.0f ? state.dsp_w : size.x, corner_radius != 0.0f ? state.dsp_h : size.y, 0.0f};
   glm_translate_make(translate, pos_xyz);
   glm_scale_make(scale, size_xyz);
-  glm_mat4_mul(translate,scale,transform);
+  glm_rotate_make(rotation, rotation_angle, (vec3){0.0f, 0.0f, 1.0f});
+  glm_mat4_mul(translate, rotation, transform);
+  glm_mat4_mul(transform, scale, transform);
   for(uint32_t i = 0; i < 4; i++) {
     if(state.render.vert_count >= MAX_RENDER_BATCH) {
       renderer_flush();
@@ -1012,7 +1019,8 @@ ui_color ui_color_from_zto(vec4s zto) {
   return (ui_color){ (uint8_t)(zto.r * 255.0f), (uint8_t)(zto.g * 255.0f), (uint8_t)(zto.b * 255.0f), (uint8_t)(zto.a * 255.0f) };
 }
 
-void ui_image(ui_texture tex) {
+void ui_image(ui_texture tex, bool no_block) {
+  float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
   ui_element_props props = get_props_for(state.theme.image_props);
@@ -1024,12 +1032,23 @@ void ui_image(ui_texture tex) {
   ui_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle);
   state.pos_ptr.x += w + margin_right;
   state.pos_ptr.y -= margin_top;
+  if (no_block){
+    state.pos_ptr.x = init_x;
+    state.pos_ptr.y = init_y;
+  }
 }
 
-void ui_rect(float width, float height, ui_color color, float corner_radius) {
-  next_line_on_overflow((vec2s){ (float)width, (float)height }, state.div_props.border_width);
-  ui_rect_render(state.pos_ptr, (vec2s){(float)width, (float)height}, color, (ui_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius);
-  state.pos_ptr.x += width;
+void ui_rect(float width, float height, ui_color color, float corner_radius, float angle, bool no_block) {
+  float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
+  float w, h;
+  compute_bounding_box(width, height, angle, &w, &h);
+  next_line_on_overflow((vec2s){ w, h }, state.div_props.border_width);
+  ui_rect_render(state.pos_ptr, (vec2s){(float)width, (float)height}, color, (ui_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
+  state.pos_ptr.x += w;
+  if (no_block){
+    state.pos_ptr.x = init_x;
+    state.pos_ptr.y = init_y;
+  }
 }
 
 void ui_seperator() {
@@ -1039,7 +1058,7 @@ void ui_seperator() {
   state.pos_ptr.y += props.margin_top;
   const uint32_t seperator_height = 1;
   ui_set_line_height(props.margin_top + seperator_height + props.margin_bottom);
-  ui_rect_render(state.pos_ptr, (vec2s){ state.current_div.aabb.size.x - props.margin_left * 2.0f, seperator_height }, props.color, ui_no_color, 0, props.corner_radius);
+  ui_rect_render(state.pos_ptr, (vec2s){ state.current_div.aabb.size.x - props.margin_left * 2.0f, seperator_height }, props.color, ui_no_color, 0, props.corner_radius, 0.0f);
   state.pos_ptr.y -= props.margin_top;
   ui_next_line();
 }

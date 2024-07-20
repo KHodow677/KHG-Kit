@@ -295,7 +295,7 @@ ui_clickable_item_state button_ex(const char *file, int32_t line, vec2s pos, vec
   } 
   else if(state.active_element_id == id) {
     if(is_hovered && ui_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
-      ui_rect_render(pos, size, hover_color_rgb, props.border_color, border_width, props.corner_radius);
+      ui_rect_render(pos, size, hover_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
       state.active_element_id = 0;
       return ui_clickable_clicked;
     }
@@ -304,14 +304,14 @@ ui_clickable_item_state button_ex(const char *file, int32_t line, vec2s pos, vec
     state.active_element_id = 0;
   }
   if(is_hovered && ui_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT)) {
-    ui_rect_render(pos, size, held_color_rgb, props.border_color, border_width, props.corner_radius);
+    ui_rect_render(pos, size, held_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
     return ui_clickable_held;
   }
   if(is_hovered && (!ui_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && !ui_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT))) {
-    ui_rect_render(pos, size, hover_color ? hover_color_rgb : color, props.border_color, border_width, props.corner_radius);
+    ui_rect_render(pos, size, hover_color ? hover_color_rgb : color, props.border_color, border_width, props.corner_radius, 0.0f);
     return ui_clickable_held;
   }
-  ui_rect_render(pos, size, color, props.border_color, border_width, props.corner_radius);
+  ui_rect_render(pos, size, color, props.border_color, border_width, props.corner_radius, 0.0f);
   return ui_clickable_idle;
 }
 
@@ -324,18 +324,18 @@ ui_clickable_item_state div_container(vec2s pos, vec2s size, ui_element_props pr
 
   bool is_hovered = ui_hovered(pos, size);
   if(is_hovered && ui_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
-    ui_rect_render(pos, size, hover_color_rgb, props.border_color, border_width, props.corner_radius);
+    ui_rect_render(pos, size, hover_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
     return ui_clickable_clicked;
   }
   if(is_hovered && ui_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT)) {
-    ui_rect_render(pos, size, held_color_rgb, props.border_color, border_width, props.corner_radius);
+    ui_rect_render(pos, size, held_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
     return ui_clickable_held;
   }
   if(is_hovered && (!ui_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && !ui_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT))) {
-    ui_rect_render(pos, size, hover_color ? hover_color_rgb : color, props.border_color, border_width, props.corner_radius);
+    ui_rect_render(pos, size, hover_color ? hover_color_rgb : color, props.border_color, border_width, props.corner_radius, 0.0f);
     return ui_clickable_hovered;
   }
-  ui_rect_render(pos, size, color, props.border_color, border_width, props.corner_radius);
+  ui_rect_render(pos, size, color, props.border_color, border_width, props.corner_radius, 0.0f);
   return ui_clickable_idle;
 }
 
@@ -417,7 +417,7 @@ void draw_scrollbar_on(ui_div *div) {
       if (ui_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
         state.drag_state.is_dragging = false;
       }
-      ui_rect_render(scrollbar_area.pos, scrollbar_area.size, props.color, props.border_color, props.border_width, props.corner_radius);
+      ui_rect_render(scrollbar_area.pos, scrollbar_area.size, props.color, props.border_color, props.border_width, props.corner_radius, 0.0f);
     }
   }
 }
@@ -672,7 +672,7 @@ void input_field(ui_input_field *input, ui_input_field_type type, const char *fi
     ui_text_props selected_props =  ui_text_render((vec2s){state.pos_ptr.x + props.padding, ui_get_mouse_y() + props.padding}, selected_buf, font, ui_no_color, wrap_point, (vec2s){ -1, -1 }, true, false, -1, -1);
     vec2s cursor_pos = { (strlen(input->buf) > 0) ? selected_props.end_x : state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding + (selected_props.height - get_max_char_height_font(font)) }; 
     if(input->selection_start == -1 || input->selection_end == -1) {
-      ui_rect_render(cursor_pos, (vec2s){1, get_max_char_height_font(font)}, props.text_color, ui_no_color, 0.0f, 0.0f);
+      ui_rect_render(cursor_pos, (vec2s){1, get_max_char_height_font(font)}, props.text_color, ui_no_color, 0.0f, 0.0f, 0.0f);
     } 
     else {
       ui_text_render((vec2s){state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding}, input->buf, font, (ui_color){ 255, 255, 255, 80 }, wrap_point, (vec2s){ -1, -1 }, false, true, input->selection_start, input->selection_end);
@@ -887,7 +887,7 @@ void dropdown_menu_item_loc(void **items, void *placeholder, uint32_t item_count
       text_props.text_color = props.text_color;
       bool hovered = ui_hovered((vec2s){ state.pos_ptr.x + text_props.margin_left, state.pos_ptr.y + text_props.margin_top }, (vec2s){ width + props.padding * 2.0f, ui_get_theme().font.font_size });
       if(hovered) {
-        ui_rect_render(((vec2s){ state.pos_ptr.x, state.pos_ptr.y }), (vec2s){ width + props.padding * 2.0f, ui_get_theme().font.font_size + props.margin_top }, ui_color_brightness(div_props.color, 1.2f), ui_no_color, 0.0f, 0.0f);
+        ui_rect_render(((vec2s){ state.pos_ptr.x, state.pos_ptr.y }), (vec2s){ width + props.padding * 2.0f, ui_get_theme().font.font_size + props.margin_top }, ui_color_brightness(div_props.color, 1.2f), ui_no_color, 0.0f, 0.0f, 0.0f);
       }
       if(hovered && ui_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
         *selected_index = i;
