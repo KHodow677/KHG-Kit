@@ -37,16 +37,6 @@ typedef struct {
 
 #define ENET_CALLBACK __cdecl
 
-#ifdef ENET_DLL
-#ifdef ENET_BUILDING_LIB
-#define ENET_API __declspec( dllexport )
-#else
-#define ENET_API __declspec( dllimport )
-#endif /* ENET_BUILDING_LIB */
-#else /* !ENET_DLL */
-#define ENET_API extern
-#endif /* ENET_DLL */
-
 typedef fd_set ENetSocketSet;
 
 #define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO (& (sockset))

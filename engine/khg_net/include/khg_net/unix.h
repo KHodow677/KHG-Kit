@@ -31,8 +31,6 @@ typedef struct {
 
 #define ENET_CALLBACK
 
-#define ENET_API extern
-
 typedef fd_set ENetSocketSet;
 
 #define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO (& (sockset))

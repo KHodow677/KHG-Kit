@@ -1,4 +1,3 @@
-#define ENET_BUILDING_LIB 1
 #include "khg_net/net.h"
 
 static ENetCallbacks callbacks = { malloc, free, abort };
