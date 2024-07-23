@@ -2,8 +2,11 @@
 
 #include <stdlib.h>
 
+#if defined(_WIN32)
 #include "khg_net/win32.h"
+#elif defined(__linux__)
 #include "khg_net/unix.h"
+#endif
 
 #include "khg_net/types.h"
 #include "khg_net/protocol.h"
