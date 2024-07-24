@@ -1,5 +1,3 @@
-#pragma once
-
 #if defined(__linux__) || defined (__APPLE__)
 
 #include "khg_net/net.h"
