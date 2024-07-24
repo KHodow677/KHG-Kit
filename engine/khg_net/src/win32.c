@@ -10,11 +10,11 @@ static enet_uint32 timeBase = 0;
 int enet_initialize() {
   WORD versionRequested = MAKEWORD(1, 1);
   WSADATA wsaData;
-  if (WSAStartup (versionRequested, &wsaData)) {
+  if (WSAStartup(versionRequested, &wsaData)) {
     return -1;
   }
-  if (LOBYTE (wsaData.wVersion) != 1 || HIBYTE(wsaData.wVersion) != 1) {
-    WSACleanup ();
+  if (LOBYTE(wsaData.wVersion) != 1 || HIBYTE(wsaData.wVersion) != 1) {
+    WSACleanup();
     return -1;
   }
   timeBeginPeriod(1);
@@ -63,7 +63,7 @@ int enet_address_set_host(ENetAddress *address, const char *name) {
   struct hostent *hostEntry;
   hostEntry = gethostbyname(name);
   if (hostEntry == NULL || hostEntry->h_addrtype != AF_INET) {
-    return enet_address_set_host_ip (address, name);
+    return enet_address_set_host_ip(address, name);
   }
   address -> host = *(enet_uint32 *)hostEntry->h_addr_list[0];
   return 0;
@@ -92,7 +92,7 @@ int enet_address_get_host(const ENetAddress *address, char *name, size_t nameLen
     return enet_address_get_host_ip(address, name, nameLength);
   }
   else {
-    size_t hostLen = strlen (hostEntry->h_name);
+    size_t hostLen = strlen(hostEntry->h_name);
     if (hostLen >= nameLength) {
       return -1;
     }
@@ -198,7 +198,7 @@ int enet_socket_connect(ENetSocket socket, const ENetAddress *address) {
   sin.sin_port = ENET_HOST_TO_NET_16(address->port);
   sin.sin_addr.s_addr = address->host;
   result = connect(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in));
-  if (result == SOCKET_ERROR && WSAGetLastError () != WSAEWOULDBLOCK) {
+  if (result == SOCKET_ERROR && WSAGetLastError() != WSAEWOULDBLOCK) {
     return -1;
   }
   return 0;
@@ -225,7 +225,7 @@ int enet_socket_shutdown(ENetSocket socket, ENetSocketShutdown how) {
 
 void enet_socket_destroy(ENetSocket socket) {
   if (socket != INVALID_SOCKET) {
-    closesocket (socket);
+    closesocket(socket);
   }
 }
 
@@ -233,13 +233,13 @@ int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBu
   struct sockaddr_in sin;
   DWORD sentLength = 0;
   if (address != NULL) {
-    memset (&sin, 0, sizeof(struct sockaddr_in));
+    memset(&sin, 0, sizeof(struct sockaddr_in));
     sin.sin_family = AF_INET;
     sin.sin_port = ENET_HOST_TO_NET_16(address->port);
     sin.sin_addr.s_addr = address->host;
   }
   if (WSASendTo(socket, (LPWSABUF)buffers, (DWORD)bufferCount, &sentLength, 0, address != NULL ? (struct sockaddr *)&sin : NULL, address != NULL ? sizeof(struct sockaddr_in) : 0, NULL, NULL) == SOCKET_ERROR) {
-    if (WSAGetLastError () == WSAEWOULDBLOCK) {
+    if (WSAGetLastError() == WSAEWOULDBLOCK) {
       return 0;
     }
     return -1;
@@ -252,7 +252,7 @@ int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buf
   DWORD flags = 0, recvLength = 0;
   struct sockaddr_in sin;
   if (WSARecvFrom(socket, (LPWSABUF)buffers, (DWORD)bufferCount, &recvLength, &flags, address != NULL ? (struct sockaddr *)&sin : NULL, address != NULL ? &sinLength : NULL, NULL, NULL) == SOCKET_ERROR) {
-    switch (WSAGetLastError ()) {
+    switch (WSAGetLastError()) {
       case WSAEWOULDBLOCK:
       case WSAECONNRESET:
         return 0;

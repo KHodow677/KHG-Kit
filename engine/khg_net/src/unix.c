@@ -158,9 +158,9 @@ int enet_address_get_host(const ENetAddress *address, char *name, size_t nameLen
   sin.sin_family = AF_INET;
   sin.sin_port = ENET_HOST_TO_NET_16(address->port);
   sin.sin_addr.s_addr = address->host;
-  err = getnameinfo ((struct sockaddr *) & sin, sizeof (sin), name, nameLength, NULL, 0, NI_NAMEREQD);
+  err = getnameinfo((struct sockaddr *)&sin, sizeof(sin), name, nameLength, NULL, 0, NI_NAMEREQD);
   if (!err) {
-    if (name != NULL && nameLength > 0 && ! memchr (name, '\0', nameLength)) {
+    if (name != NULL && nameLength > 0 && !memchr(name, '\0', nameLength)) {
       return -1;
     }
     return 0;
@@ -190,7 +190,7 @@ int enet_address_get_host(const ENetAddress *address, char *name, size_t nameLen
     if (hostLen >= nameLength) {
       return -1;
     }
-    memcpy (name, hostEntry->h_name, hostLen + 1);
+    memcpy(name, hostEntry->h_name, hostLen + 1);
     return 0;
   }
 #endif
@@ -202,20 +202,20 @@ int enet_socket_bind(ENetSocket socket, const ENetAddress *address) {
   memset(&sin, 0, sizeof(struct sockaddr_in));
   sin.sin_family = AF_INET;
   if (address != NULL) {
-    sin.sin_port = ENET_HOST_TO_NET_16 (address -> port);
+    sin.sin_port = ENET_HOST_TO_NET_16(address -> port);
     sin.sin_addr.s_addr = address -> host;
   }
   else {
     sin.sin_port = 0;
     sin.sin_addr.s_addr = INADDR_ANY;
   }
-  return bind(socket, (struct sockaddr *) &sin, sizeof(struct sockaddr_in)); 
+  return bind(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in)); 
 }
 
 int enet_socket_get_address(ENetSocket socket, ENetAddress *address) { 
   struct sockaddr_in sin;
   socklen_t sinLength = sizeof(struct sockaddr_in);
-  if (getsockname (socket, (struct sockaddr *)&sin, &sinLength) == -1) {
+  if (getsockname(socket, (struct sockaddr *)&sin, &sinLength) == -1) {
     return -1;
   }
   address->host = (enet_uint32)sin.sin_addr.s_addr;
@@ -300,7 +300,7 @@ int enet_socket_get_option(ENetSocket socket, ENetSocketOption option, int *valu
 int enet_socket_connect(ENetSocket socket, const ENetAddress *address) {
   struct sockaddr_in sin;
   int result;
-  memset (&sin, 0, sizeof(struct sockaddr_in));
+  memset(&sin, 0, sizeof(struct sockaddr_in));
   sin.sin_family = AF_INET;
   sin.sin_port = ENET_HOST_TO_NET_16(address->port);
   sin.sin_addr.s_addr = address->host;
@@ -330,9 +330,9 @@ int enet_socket_shutdown(ENetSocket socket, ENetSocketShutdown how) {
   return shutdown(socket, (int) how);
 }
 
-void enet_socket_destroy (ENetSocket socket) {
+void enet_socket_destroy(ENetSocket socket) {
   if (socket != -1) {
-    close (socket);
+    close(socket);
   }
 }
 
@@ -340,7 +340,7 @@ int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBu
   struct msghdr msgHdr;
   struct sockaddr_in sin;
   int sentLength;
-  memset (& msgHdr, 0, sizeof (struct msghdr));
+  memset(&msgHdr, 0, sizeof(struct msghdr));
   if (address != NULL) {
     memset(&sin, 0, sizeof(struct sockaddr_in));
     sin.sin_family = AF_INET;
@@ -351,7 +351,7 @@ int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBu
   }
   msgHdr.msg_iov = (struct iovec *)buffers;
   msgHdr.msg_iovlen = bufferCount;
-  sentLength = sendmsg (socket, & msgHdr, MSG_NOSIGNAL);
+  sentLength = sendmsg(socket, &msgHdr, MSG_NOSIGNAL);
   if (sentLength == -1) {
     if (errno == EWOULDBLOCK) {
       return 0;
@@ -361,8 +361,7 @@ int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBu
   return sentLength;
 }
 
-
-int enet_socket_receive (ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) {
+int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) {
   struct msghdr msgHdr;
   struct sockaddr_in sin;
   int recvLength;
@@ -449,7 +448,7 @@ int enet_socket_wait(ENetSocket socket, enet_uint32 *condition, enet_uint32 time
   if (*condition & ENET_SOCKET_WAIT_RECEIVE) {
     FD_SET(socket, &readSet);
   }
-  selectCount = select (socket + 1, &readSet, &writeSet, NULL, &timeVal);
+  selectCount = select(socket + 1, &readSet, &writeSet, NULL, &timeVal);
   if (selectCount < 0) {
     if (errno == EINTR && *condition & ENET_SOCKET_WAIT_INTERRUPT) {
       *condition = ENET_SOCKET_WAIT_INTERRUPT;
@@ -461,10 +460,10 @@ int enet_socket_wait(ENetSocket socket, enet_uint32 *condition, enet_uint32 time
   if (selectCount == 0) {
     return 0;
   }
-  if (FD_ISSET (socket, & writeSet)) {
+  if (FD_ISSET(socket, & writeSet)) {
     *condition |= ENET_SOCKET_WAIT_SEND;
   }
-  if (FD_ISSET (socket, & readSet)) {
+  if (FD_ISSET(socket, & readSet)) {
     *condition |= ENET_SOCKET_WAIT_RECEIVE;
   }
   return 0;

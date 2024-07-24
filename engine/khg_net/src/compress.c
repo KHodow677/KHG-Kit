@@ -109,7 +109,7 @@ static enet_uint16 enet_symbol_rescale(ENetSymbol *symbol) {
     ENET_RANGE_CODER_OUTPUT(encodeLow >> 24); \
     encodeRange <<= 8; \
     encodeLow <<= 8; \
-  } \
+  }\
 }
 
 #define ENET_RANGE_CODER_FLUSH {\
@@ -120,7 +120,7 @@ static enet_uint16 enet_symbol_rescale(ENetSymbol *symbol) {
 }
 
 #define ENET_RANGE_CODER_FREE_SYMBOLS {\
-  if (nextSymbol >= sizeof (rangeCoder->symbols) / sizeof (ENetSymbol) - ENET_SUBCONTEXT_ORDER ) {\
+  if (nextSymbol >= sizeof (rangeCoder->symbols) / sizeof(ENetSymbol) - ENET_SUBCONTEXT_ORDER ) {\
     nextSymbol = 0;\
     ENET_CONTEXT_CREATE(root, ENET_CONTEXT_ESCAPE_MINIMUM, ENET_CONTEXT_SYMBOL_MINIMUM);\
     predicted = 0;\
@@ -141,7 +141,8 @@ static enet_uint16 enet_symbol_rescale(ENetSymbol *symbol) {
       if (value_ < node->value) {\
         node->under += update;\
         if (node->left) {\
-          node += node->left; continue;\
+          node += node->left;\
+          continue;\
         }\
         ENET_SYMBOL_CREATE(symbol_, value_, update); \
         node->left = symbol_ - node; \
@@ -236,7 +237,7 @@ size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, siz
       if (inBufferCount <= 0) {
         break;
       }
-      inData = (const enet_uint8 *) inBuffers->data;
+      inData = (const enet_uint8 *)inBuffers->data;
       inEnd = &inData[inBuffers->dataLength];
       inBuffers++;
       inBufferCount--;

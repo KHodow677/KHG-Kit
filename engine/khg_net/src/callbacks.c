@@ -3,7 +3,7 @@
 static ENetCallbacks callbacks = { malloc, free, abort };
 
 int enet_initialize_with_callbacks(ENetVersion version, const ENetCallbacks *inits) {
-  if (version < ENET_VERSION_CREATE (1, 3, 0)) {
+  if (version < ENET_VERSION_CREATE(1, 3, 0)) {
     return -1;
   }
   if (inits -> malloc != NULL || inits -> free != NULL) {

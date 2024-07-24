@@ -24,8 +24,8 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
     if (host->socket != ENET_SOCKET_NULL) {
       enet_socket_destroy(host->socket);
     }
-    enet_free (host->peers);
-    enet_free (host);
+    enet_free(host->peers);
+    enet_free(host);
     return NULL;
   }
   enet_socket_set_option(host->socket, ENET_SOCKOPT_NONBLOCK, 1);
@@ -137,7 +137,7 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
   currentPeer->channelCount = channelCount;
   currentPeer->state = ENET_PEER_STATE_CONNECTING;
   currentPeer->address = *address;
-  currentPeer->connectID = enet_host_random (host);
+  currentPeer->connectID = enet_host_random(host);
   currentPeer->mtu = host->mtu;
   if (host->outgoingBandwidth == 0) {
     currentPeer->windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
@@ -152,16 +152,15 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
     currentPeer->windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
   }
   for (channel = currentPeer->channels; channel < &currentPeer->channels[channelCount]; ++channel) {
-      channel->outgoingReliableSequenceNumber = 0;
-      channel->outgoingUnreliableSequenceNumber = 0;
-      channel->incomingReliableSequenceNumber = 0;
-      channel->incomingUnreliableSequenceNumber = 0;
-      enet_list_clear(&channel->incomingReliableCommands);
-      enet_list_clear(&channel->incomingUnreliableCommands);
-      channel->usedReliableWindows = 0;
-      memset(channel->reliableWindows, 0, sizeof (channel->reliableWindows));
+    channel->outgoingReliableSequenceNumber = 0;
+    channel->outgoingUnreliableSequenceNumber = 0;
+    channel->incomingReliableSequenceNumber = 0;
+    channel->incomingUnreliableSequenceNumber = 0;
+    enet_list_clear(&channel->incomingReliableCommands);
+    enet_list_clear(&channel->incomingUnreliableCommands);
+    channel->usedReliableWindows = 0;
+    memset(channel->reliableWindows, 0, sizeof (channel->reliableWindows));
   }
-      
   command.header.command = ENET_PROTOCOL_COMMAND_CONNECT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
   command.header.channelID = 0xFF;
   command.connect.outgoingPeerID = ENET_HOST_TO_NET_16(currentPeer->incomingPeerID);
@@ -206,7 +205,7 @@ void enet_host_compress(ENetHost *host, const ENetCompressor *compressor) {
   }
 }
 
-void enet_host_channel_limit (ENetHost *host, size_t channelLimit) {
+void enet_host_channel_limit(ENetHost *host, size_t channelLimit) {
   if (!channelLimit || channelLimit > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT) {
     channelLimit = ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT;
   }
@@ -216,13 +215,13 @@ void enet_host_channel_limit (ENetHost *host, size_t channelLimit) {
   host->channelLimit = channelLimit;
 }
 
-void enet_host_bandwidth_limit (ENetHost *host, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth) {
+void enet_host_bandwidth_limit(ENetHost *host, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth) {
   host->incomingBandwidth = incomingBandwidth;
   host->outgoingBandwidth = outgoingBandwidth;
   host->recalculateBandwidthLimits = 1;
 }
 
-void enet_host_bandwidth_throttle (ENetHost *host) {
+void enet_host_bandwidth_throttle(ENetHost *host) {
   enet_uint32 timeCurrent = enet_time_get();
   enet_uint32 elapsedTime = timeCurrent - host->bandwidthThrottleEpoch;
   enet_uint32 peersRemaining = (enet_uint32) host->connectedPeers;
@@ -305,7 +304,7 @@ void enet_host_bandwidth_throttle (ENetHost *host) {
   }
   if (host->recalculateBandwidthLimits) {
     host->recalculateBandwidthLimits = 0;
-    peersRemaining = (enet_uint32) host->connectedPeers;
+    peersRemaining = (enet_uint32)host->connectedPeers;
     bandwidth = host->incomingBandwidth;
     needsAdjustment = 1;
     if (bandwidth == 0) {
@@ -328,19 +327,18 @@ void enet_host_bandwidth_throttle (ENetHost *host) {
           bandwidth -= peer->outgoingBandwidth;
         }
       }
-
       for (peer = host->peers; peer < &host->peers[host->peerCount]; ++peer) {
         if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER) {
           continue;
         }
         command.header.command = ENET_PROTOCOL_COMMAND_BANDWIDTH_LIMIT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
         command.header.channelID = 0xFF;
-        command.bandwidthLimit.outgoingBandwidth = ENET_HOST_TO_NET_32 (host->outgoingBandwidth);
+        command.bandwidthLimit.outgoingBandwidth = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
         if (peer->incomingBandwidthThrottleEpoch == timeCurrent) {
-          command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32 (peer->outgoingBandwidth);
+          command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32(peer->outgoingBandwidth);
         }
         else {
-          command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32 (bandwidthLimit);
+          command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32(bandwidthLimit);
         }
         enet_peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
       } 
