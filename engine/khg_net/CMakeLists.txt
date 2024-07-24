@@ -87,8 +87,7 @@ source_group(source FILES ${SOURCE_FILES})
 add_library(khg_net ${INCLUDE_FILES} ${SOURCE_FILES})
 
 if (WIN32)
-    target_link_libraries(khg_net winmm ws2_32)
+  target_link_libraries(khg_net winmm ws2_32 khg_utl)
+else ()
+  target_link_libraries(khg_net PUBLIC khg_utl)
 endif()
-
-target_link_libraries(khg_net PUBLIC khg_utl)
-
