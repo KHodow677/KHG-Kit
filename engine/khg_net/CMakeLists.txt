@@ -90,3 +90,5 @@ if (WIN32)
     target_link_libraries(khg_net winmm ws2_32)
 endif()
 
+target_link_libraries(khg_net PUBLIC khg_utl)
+
