@@ -1,5 +1,7 @@
+#include "chat.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
+#include "khg_net/net.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdint.h>
@@ -28,7 +30,22 @@ int gfx_testing() {
   return 0;
 }
 
-int main(int argc, char **argv) {
-  return gfx_testing();
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
+    fprintf(stderr, "Usage: %s <server|client>\n", argv[0]);
+    return EXIT_FAILURE;
+  }
+  if (strcmp(argv[1], "server") == 0) {
+    printf("Starting chat server...\n");
+    return server_test();
+  } 
+  else if (strcmp(argv[1], "client") == 0) {
+    printf("Starting chat client...\n");
+    return client_test();
+  } 
+  else {
+    fprintf(stderr, "Unknown argument '%s'. Use 'server' or 'client'.\n", argv[1]);
+    return EXIT_FAILURE;
+  }
+  return EXIT_SUCCESS;
 }
-
