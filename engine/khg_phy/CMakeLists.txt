@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.5)
 
 project(khg_phy)
 
@@ -9,12 +9,12 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 endif()
 
 if(NOT MSVC)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
-  if(FORCE_CLANG_BLOCKS)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks")
+  add_compile_options(-Wno-nan-infinity-disabled)
+  add_compile_options(-std=gnu99 -ffast-math -Wall)
+
+  if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND FORCE_CLANG_BLOCKS)
+    add_compile_options(-fblocks)
   endif()
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -ffast-math")
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
 endif()
 
 file(GLOB khg_phy_source_files "src/*.c")
