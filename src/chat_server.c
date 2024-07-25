@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <signal.h>
+#include <string.h>
 
 #if defined(_WIN32)
 #include <windows.h>

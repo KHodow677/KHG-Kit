@@ -5,6 +5,8 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 
 ENetHost *start_client(ENetPeer **peer, const int timeout_seconds);
 void client_send_string(ENetPeer *peer, char *s);
@@ -24,7 +26,7 @@ int client_test() {
 	memset(buf, 0, sizeof buf);
 	int check;
 	do {
-		Sleep(1);
+    sleep(1);
 		const int k = nb_getch();
 		if (k == KEY_ENTER || k == '\r') {
 			if (strcmp(buf, "quit") == 0 || strcmp(buf, "exit") == 0) {
@@ -164,7 +166,7 @@ int find_servers(ServerInfo *server_infos, ENetAddress *addrs, int max_servers, 
 				sinfo_index++;
 			}
 		}
-		Sleep(1000);
+		sleep(1000);
 	}
 	if (enet_socket_shutdown(scanner, ENET_SOCKET_SHUTDOWN_READ_WRITE) != 0) {
 		fprintf(stderr, "Failed to shutdown listen socket\n");

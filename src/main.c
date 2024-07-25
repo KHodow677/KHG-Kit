@@ -1,11 +1,11 @@
 #include "chat.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
-#include "khg_net/net.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 int gfx_testing() {
   glfwInit();
