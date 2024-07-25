@@ -8,9 +8,14 @@ class controller(cmd.Cmd):
     self.db = db
     self.project = None
     self.prompt = "() -> "
+
+  def sort_by_keys(self, db):
+    sorted_dict = dict(sorted(db.items()))
+    return sorted_dict
   
   def entries_str(self):
     with io.StringIO() as s:
+      self.db = self.sort_by_keys(self.db)
       total = 0.0
       s.write("List of Timesheet Entries:\n")
       for (k, v) in self.db.items():
