@@ -1,6 +1,6 @@
 import datetime
 
-class time_entry(object):
+class project(object):
 
   def __init__(self):
     self.total_hours = 0.0
@@ -18,6 +18,7 @@ class time_entry(object):
     self.curr_hours += num_hours
 
   def sub_time(self, num_hours):
+    self.total_hours -= num_hours
     self.curr_hours -= num_hours
 
   def start_period(self):

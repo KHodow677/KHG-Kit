@@ -1,7 +1,7 @@
 import sys,os
 sys.path.append(os.getcwd())
 
-import ts.timesheet_cmd
+import ts.controller
 import os.path, sys, pickle
 
 def main(argv=None):
@@ -27,7 +27,7 @@ def main(argv=None):
     if resp == 'n':
       print("No DB, aborting")
       sys.exit(1)
-  cc = ts.timesheet_cmd.timesheet_cmd(db)
+  cc = ts.controller.controller(db)
   cc.cmdloop()
   print("Writing Database")
   with open(db_filename, 'wb') as db_file:
