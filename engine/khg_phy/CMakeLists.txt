@@ -2,12 +2,6 @@ cmake_minimum_required(VERSION 3.7)
 
 project(khg_phy)
 
-# to change the prefix, run cmake with the parameter:
-#   -D CMAKE_INSTALL_PREFIX=/my/prefix
-
-# to change the build type, run cmake with the parameter:
-#   -D CMAKE_BUILD_TYPE=<build-type>
-# run "cmake --help-variable CMAKE_BUILD_TYPE" for details
 if(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
@@ -31,35 +25,17 @@ endif()
 
 add_subdirectory(src)
 
-#file(GLOB_RECURSE sources "src/*.c")
-#target_sources(khg_phy PRIVATE "${sources}")
-#target_include_directories(khg_gfx PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-#target_link_libraries(khg_phy PUBLIC cglm glad glfw stb_image stb_image_resize stb_truetype libclipboard khg_utl)
-file(GLOB chipmunk_source_files "src/*.c")
-file(GLOB chipmunk_public_header "${chipmunk_SOURCE_DIR}/include/chipmunk/*.h")
-include_directories(${chipmunk_SOURCE_DIR}/include)
-
-# Chipmunk2D 7.0.3
-set(CHIPMUNK_VERSION_MAJOR 7)
-set(CHIPMUNK_VERSION_MINOR 0)
-set(CHIPMUNK_VERSION_PATCH 3)
-set(CHIPMUNK_VERSION "${CHIPMUNK_VERSION_MAJOR}.${CHIPMUNK_VERSION_MINOR}.${CHIPMUNK_VERSION_PATCH}")
-message("Configuring Chipmunk2D version ${CHIPMUNK_VERSION}")
+file(GLOB khg_phy_source_files "src/*.c")
+file(GLOB khg_phy_public_header "${khg_phy_SOURCE_DIR}/include/chipmunk/*.h")
+include_directories(${khg_phy_SOURCE_DIR}/include)
 
 if(BUILD_STATIC)
-  add_library(khg_phy STATIC
-    ${chipmunk_source_files}
-  )
-  # Tell MSVC to compile the code as C++.
+  add_library(khg_phy STATIC ${khg_phy_source_files})
   if(MSVC)
-    set_source_files_properties(${chipmunk_source_files} PROPERTIES LANGUAGE CXX)
-    set_target_properties(chipmunk_static PROPERTIES LINKER_LANGUAGE CXX)
+    set_source_files_properties(${khg_phy_source_files} PROPERTIES LANGUAGE CXX)
+    set_target_properties(khg_phy PROPERTIES LINKER_LANGUAGE CXX)
   endif(MSVC)
-  # Sets chipmunk_static to output "libchipmunk.a" not "libchipmunk_static.a"
   set_target_properties(khg_phy PROPERTIES OUTPUT_NAME khg_phy)
-  if(INSTALL_STATIC)
-    install(TARGETS khg_phy ARCHIVE DESTINATION ${LIB_INSTALL_DIR})
-  endif(INSTALL_STATIC)
 endif(BUILD_STATIC)
 
 
