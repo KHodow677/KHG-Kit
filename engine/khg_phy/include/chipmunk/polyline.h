@@ -1,9 +1,6 @@
-// Copyright 2013 Howling Moon Software. All rights reserved.
-// See http://chipmunk2d.net/legal.php for more information.
+#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "chipmunk/phy_types.h"
 
 // Polylines are just arrays of vertexes.
 // They are looped if the first vertex is equal to the last.
@@ -73,6 +70,3 @@ CP_EXPORT cpPolylineSet *cpPolylineConvexDecomposition(cpPolyline *line, cpFloat
 
 #define cpPolylineConvexDecomposition_BETA cpPolylineConvexDecomposition
 
-#ifdef __cplusplus
-}
-#endif

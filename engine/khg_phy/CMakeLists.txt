@@ -2,12 +2,6 @@ cmake_minimum_required(VERSION 3.7)
 
 project(khg_phy)
 
-if(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Release CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
-endif()
-
 option(BUILD_STATIC "Build as static library" ON)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
@@ -15,15 +9,13 @@ if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 endif()
 
 if(NOT MSVC)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99") # always use gnu99
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
   if(FORCE_CLANG_BLOCKS)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fblocks")
   endif()
-  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -ffast-math") # extend release-profile with fast-math
-  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall") # extend debug-profile with -Wall
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -ffast-math")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
 endif()
-
-add_subdirectory(src)
 
 file(GLOB khg_phy_source_files "src/*.c")
 file(GLOB khg_phy_public_header "${khg_phy_SOURCE_DIR}/include/chipmunk/*.h")
@@ -37,5 +29,3 @@ if(BUILD_STATIC)
   endif(MSVC)
   set_target_properties(khg_phy PROPERTIES OUTPUT_NAME khg_phy)
 endif(BUILD_STATIC)
-
-

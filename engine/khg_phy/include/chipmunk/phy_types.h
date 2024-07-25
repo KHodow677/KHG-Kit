@@ -1,26 +1,4 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-#ifndef CHIPMUNK_TYPES_H
-#define CHIPMUNK_TYPES_H
+#pragma once
 
 #include <stdint.h>
 #include <float.h>
@@ -265,4 +243,69 @@ typedef struct cpMat2x2 {
 	cpFloat a, b, c, d;
 } cpMat2x2;
 
+/// @defgroup misc Misc
+/// @{
+
+/// Allocated size for various Chipmunk buffers
+#ifndef CP_BUFFER_BYTES
+	#define CP_BUFFER_BYTES (32*1024)
+#endif
+
+#ifndef cpcalloc
+	/// Chipmunk calloc() alias.
+	#define cpcalloc calloc
+#endif
+
+#ifndef cprealloc
+	/// Chipmunk realloc() alias.
+	#define cprealloc realloc
+#endif
+
+#ifndef cpfree
+	/// Chipmunk free() alias.
+	#define cpfree free
+#endif
+
+typedef struct cpArray cpArray;
+typedef struct cpHashSet cpHashSet;
+
+typedef struct cpBody cpBody;
+
+typedef struct cpShape cpShape;
+typedef struct cpCircleShape cpCircleShape;
+typedef struct cpSegmentShape cpSegmentShape;
+typedef struct cpPolyShape cpPolyShape;
+
+typedef struct cpConstraint cpConstraint;
+typedef struct cpPinJoint cpPinJoint;
+typedef struct cpSlideJoint cpSlideJoint;
+typedef struct cpPivotJoint cpPivotJoint;
+typedef struct cpGrooveJoint cpGrooveJoint;
+typedef struct cpDampedSpring cpDampedSpring;
+typedef struct cpDampedRotarySpring cpDampedRotarySpring;
+typedef struct cpRotaryLimitJoint cpRotaryLimitJoint;
+typedef struct cpRatchetJoint cpRatchetJoint;
+typedef struct cpGearJoint cpGearJoint;
+typedef struct cpSimpleMotorJoint cpSimpleMotorJoint;
+
+typedef struct cpCollisionHandler cpCollisionHandler;
+typedef struct cpContactPointSet cpContactPointSet;
+typedef struct cpArbiter cpArbiter;
+
+typedef struct cpSpace cpSpace;
+
+#ifndef alloca
+	#ifdef _WIN32
+		#include <malloc.h>
+	#elif defined(__FreeBSD__)
+		/* already included in <stdlib.h> */
+	#else
+		#include <alloca.h>
+	#endif
+#endif
+
+#ifdef _WIN32
+	#define CP_EXPORT __declspec(dllexport)
+#else
+	#define CP_EXPORT
 #endif

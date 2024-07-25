@@ -1,4 +1,5 @@
-#include "chipmunk/cpRobust.h"
+#include "chipmunk/robust.h"
+#include "chipmunk/vect.h"
 
 
 cpBool

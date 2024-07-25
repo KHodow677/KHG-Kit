@@ -19,8 +19,8 @@
  * SOFTWARE.
  */
 
-#include "chipmunk/chipmunk_private.h"
-#include "chipmunk/chipmunk_unsafe.h"
+#include "chipmunk/phy_private.h"
+#include "chipmunk/phy_unsafe.h"
 
 cpPolyShape *
 cpPolyShapeAlloc(void)

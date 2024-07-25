@@ -216,8 +216,8 @@ int pthread_join(pthread_t thread, void **value_ptr)
 
 #endif
 
-#include "chipmunk/chipmunk_private.h"
-#include "chipmunk/cpHastySpace.h"
+#include "chipmunk/phy_private.h"
+#include "chipmunk/hasty_space.h"
 
 
 //MARK: ARM NEON Solver

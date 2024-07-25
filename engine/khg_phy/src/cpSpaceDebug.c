@@ -19,7 +19,7 @@
  * SOFTWARE.
  */
 
-#include "chipmunk/chipmunk_private.h"
+#include "chipmunk/phy_private.h"
 
 #ifndef CP_SPACE_DISABLE_DEBUG_API
 

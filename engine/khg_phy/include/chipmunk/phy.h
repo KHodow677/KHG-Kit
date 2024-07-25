@@ -25,21 +25,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#ifndef alloca
-	#ifdef _WIN32
-		#include <malloc.h>
-	#elif defined(__FreeBSD__)
-		/* already included in <stdlib.h> */
-	#else
-		#include <alloca.h>
-	#endif
-#endif
-
-#ifdef _WIN32
-	#define CP_EXPORT __declspec(dllexport)
-#else
-	#define CP_EXPORT
-#endif
+#include "chipmunk/phy_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,73 +43,21 @@ CP_EXPORT void cpMessage(const char *condition, const char *file, int line, int 
 // Hard assertions are used in situations where the program definitely will crash anyway, and the reason is inexpensive to detect.
 #define cpAssertHard(__condition__, ...) if(!(__condition__)){cpMessage(#__condition__, __FILE__, __LINE__, 1, 1, __VA_ARGS__); abort();}
 
-#include "chipmunk_types.h"
-	
-/// @defgroup misc Misc
-/// @{
 
-/// Allocated size for various Chipmunk buffers
-#ifndef CP_BUFFER_BYTES
-	#define CP_BUFFER_BYTES (32*1024)
-#endif
+#include "chipmunk/vect.h"
+#include "chipmunk/bb.h"
+#include "chipmunk/transform.h"
+#include "chipmunk/spatial_index.h"
 
-#ifndef cpcalloc
-	/// Chipmunk calloc() alias.
-	#define cpcalloc calloc
-#endif
+#include "chipmunk/arbiter.h"	
 
-#ifndef cprealloc
-	/// Chipmunk realloc() alias.
-	#define cprealloc realloc
-#endif
+#include "chipmunk/body.h"
+#include "chipmunk/shape.h"
+#include "chipmunk/poly_shape.h"
 
-#ifndef cpfree
-	/// Chipmunk free() alias.
-	#define cpfree free
-#endif
+#include "chipmunk/constraint.h"
 
-typedef struct cpArray cpArray;
-typedef struct cpHashSet cpHashSet;
-
-typedef struct cpBody cpBody;
-
-typedef struct cpShape cpShape;
-typedef struct cpCircleShape cpCircleShape;
-typedef struct cpSegmentShape cpSegmentShape;
-typedef struct cpPolyShape cpPolyShape;
-
-typedef struct cpConstraint cpConstraint;
-typedef struct cpPinJoint cpPinJoint;
-typedef struct cpSlideJoint cpSlideJoint;
-typedef struct cpPivotJoint cpPivotJoint;
-typedef struct cpGrooveJoint cpGrooveJoint;
-typedef struct cpDampedSpring cpDampedSpring;
-typedef struct cpDampedRotarySpring cpDampedRotarySpring;
-typedef struct cpRotaryLimitJoint cpRotaryLimitJoint;
-typedef struct cpRatchetJoint cpRatchetJoint;
-typedef struct cpGearJoint cpGearJoint;
-typedef struct cpSimpleMotorJoint cpSimpleMotorJoint;
-
-typedef struct cpCollisionHandler cpCollisionHandler;
-typedef struct cpContactPointSet cpContactPointSet;
-typedef struct cpArbiter cpArbiter;
-
-typedef struct cpSpace cpSpace;
-
-#include "cpVect.h"
-#include "cpBB.h"
-#include "cpTransform.h"
-#include "cpSpatialIndex.h"
-
-#include "cpArbiter.h"	
-
-#include "cpBody.h"
-#include "cpShape.h"
-#include "cpPolyShape.h"
-
-#include "cpConstraint.h"
-
-#include "cpSpace.h"
+#include "chipmunk/space.h"
 
 // Chipmunk 7.0.3
 #define CP_VERSION_MAJOR 7

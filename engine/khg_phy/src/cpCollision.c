@@ -22,8 +22,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "chipmunk/chipmunk_private.h"
-#include "chipmunk/cpRobust.h"
+#include "chipmunk/phy_private.h"
+#include "chipmunk/robust.h"
 
 #if DEBUG && 0
 #include "ChipmunkDemo.h"

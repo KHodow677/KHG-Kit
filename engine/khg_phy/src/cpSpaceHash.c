@@ -19,7 +19,7 @@
  * SOFTWARE.
  */
 
-#include "chipmunk/chipmunk_private.h"
+#include "chipmunk/phy_private.h"
 #include "prime.h"
 
 typedef struct cpSpaceHashBin cpSpaceHashBin;

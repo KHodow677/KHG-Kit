@@ -6,8 +6,8 @@
 #include <string.h>
 #include <math.h>
 
-#include "chipmunk/chipmunk_private.h"
-#include "chipmunk/cpPolyline.h"
+#include "chipmunk/phy_private.h"
+#include "chipmunk/polyline.h"
 
 
 static inline int Next(int i, int count){return (i+1)%count;}
