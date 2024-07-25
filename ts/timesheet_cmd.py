@@ -11,9 +11,13 @@ class timesheet_cmd(cmd.Cmd):
   
   def entries_str(self):
     with io.StringIO() as s:
+      total = 0.0
       s.write("List of Timesheet Entries:\n")
       for (k, v) in self.db.items():
-        s.write("\t{0}\n".format(k))
+        s.write("\t{0}\t\t{1} Hours\n".format(k, v.total_hours))
+        total += v.total_hours
+      s.write("\t{0}\t\t{1}\n".format("-----", "---------"))
+      s.write("\t{0}\t\t{1} Hours\n".format("TOTAL", total))
       return s.getvalue()
     
   def do_quit(self, line):
