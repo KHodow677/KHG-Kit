@@ -1,9 +1,10 @@
 #pragma once
 
+#if defined(_WIN32) || defined(_WIN64)
 #include "khg_net/win32.h"
+#else
 #include "khg_net/unix.h"
-
-#include <stdlib.h>
+#endif
 
 typedef struct _ENetCallbacks {
   void *(ENET_CALLBACK * malloc) (size_t size);

@@ -124,7 +124,7 @@ ENetHost *start_client(ENetPeer **peer, const int timeout_seconds) {
 
 int find_servers(ServerInfo *server_infos, ENetAddress *addrs, int max_servers, int timeout_seconds) {
 	ENetSocket scanner = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
-	if (scanner == ENET_SOCKET_NULL) {
+	if (scanner == NET_SOCKET_NULL) {
 		fprintf(stderr, "Failed to create socket\n");
 		return 0;
 	}

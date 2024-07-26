@@ -81,7 +81,7 @@ bool start_server(ENetLANServer *server) {
 		return false;
 	}
 	server->listen = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
-	if (server->listen == ENET_SOCKET_NULL) {
+	if (server->listen == NET_SOCKET_NULL) {
 		fprintf(stderr, "Failed to create socket\n");
 		return false;
 	}

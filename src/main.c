@@ -18,7 +18,7 @@ int gfx_testing() {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     gfx_begin();
     ang += 0.05f;
-    gfx_rect(100, 50, gfx_white, 0.0f, ang, false);
+    gfx_rect(100, 50, gfx_white, 0.0f, ang);
     gfx_text("Hello!");
     gfx_end();
     glfwSwapBuffers(window);

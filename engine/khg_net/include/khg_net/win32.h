@@ -17,12 +17,11 @@
 #endif
 #endif
 
-#include <stdlib.h>
 #include <winsock2.h>
 
 typedef SOCKET ENetSocket;
 
-#define ENET_SOCKET_NULL INVALID_SOCKET
+#define NET_SOCKET_NULL INVALID_SOCKET
 
 #define ENET_HOST_TO_NET_16(value) (htons (value))
 #define ENET_HOST_TO_NET_32(value) (htonl (value))

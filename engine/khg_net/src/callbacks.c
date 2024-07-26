@@ -1,4 +1,5 @@
 #include "khg_net/net.h"
+#include <stdlib.h>
 
 static ENetCallbacks callbacks = { malloc, free, abort };
 

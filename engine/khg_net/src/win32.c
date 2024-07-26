@@ -210,7 +210,7 @@ ENetSocket enet_socket_accept(ENetSocket socket, ENetAddress *address) {
   int sinLength = sizeof(struct sockaddr_in);
   result = accept(socket, address != NULL ? (struct sockaddr *)&sin : NULL, address != NULL ? &sinLength : NULL);
   if (result == INVALID_SOCKET) {
-    return ENET_SOCKET_NULL;
+    return NET_SOCKET_NULL;
   }
   if (address != NULL) {
     address->host = (enet_uint32)sin.sin_addr.s_addr;
