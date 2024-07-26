@@ -17,7 +17,7 @@ class controller(cmd.Cmd):
     with io.StringIO() as s:
       self.db = self.sort_by_keys(self.db)
       total = 0.0
-      s.write("List of Timesheet Entries:\n")
+      s.write("List of Timesheet Projects:\n")
       for (k, v) in self.db.items():
         s.write("\t{0}\t\t{1} Hours\n".format(k, round(v.total_hours, 2)))
         total += v.total_hours
