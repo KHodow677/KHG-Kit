@@ -30,7 +30,7 @@ typedef struct _ENetRangeCoder {
 } ENetRangeCoder;
 
 void *enet_range_coder_create(void) {
-  ENetRangeCoder *rangeCoder = (ENetRangeCoder *)enet_malloc(sizeof(ENetRangeCoder));
+  ENetRangeCoder *rangeCoder = (ENetRangeCoder *)net_malloc(sizeof(ENetRangeCoder));
   if (rangeCoder == NULL) {
     return NULL;
   }
@@ -42,7 +42,7 @@ void enet_range_coder_destroy(void *context) {
   if (rangeCoder == NULL) {
     return;
   }
-  enet_free(rangeCoder);
+  net_free(rangeCoder);
 }
 
 #define ENET_SYMBOL_CREATE(symbol, value_, count_) {\
@@ -210,7 +210,7 @@ static const ENetSymbol emptyContext = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 #endif
 
-size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit, enet_uint8 *outData, size_t outLimit) {
+size_t enet_range_coder_compress(void *context, const net_buffer *inBuffers, size_t inBufferCount, size_t inLimit, enet_uint8 *outData, size_t outLimit) {
   ENetRangeCoder *rangeCoder = (ENetRangeCoder *)context;
   enet_uint8 *outStart = outData, *outEnd = &outData[outLimit];
   const enet_uint8 *inData, *inEnd;

@@ -6,11 +6,11 @@
 #include "khg_net/unix.h"
 #endif
 
-typedef struct _ENetCallbacks {
-  void *(ENET_CALLBACK * malloc) (size_t size);
-  void (ENET_CALLBACK * free) (void * memory);
-  void (ENET_CALLBACK * no_memory) (void);
-} ENetCallbacks;
+typedef struct net_callbacks {
+  void *(NET_CALLBACK * malloc) (size_t size);
+  void (NET_CALLBACK * free) (void * memory);
+  void (NET_CALLBACK * no_memory) (void);
+} net_callbacks;
 
-extern void *enet_malloc(size_t);
-extern void enet_free(void *);
+extern void *net_malloc(size_t);
+extern void net_free(void *);

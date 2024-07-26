@@ -17,7 +17,7 @@
 
 typedef struct {
 	ENetHost *host;
-	ENetSocket listen;
+	net_socket listen;
 } ENetLANServer;
 
 volatile sig_atomic_t stop = 0;
@@ -114,15 +114,15 @@ bool start_server(ENetLANServer *server) {
 }
 
 void listen_for_clients(ENetLANServer *server) {
-	ENetSocketSet set;
-	ENET_SOCKETSET_EMPTY(set);
-	ENET_SOCKETSET_ADD(set, server->listen);
+	net_socket_set set;
+	net_socketset_empty(set);
+	net_socketset_add(set, server->listen);
 	if (enet_socketset_select(server->listen, &set, NULL, 0) <= 0) {
 		return;
 	}
 	ENetAddress recvaddr;
 	char buf;
-	ENetBuffer recvbuf;
+	net_buffer recvbuf;
 	recvbuf.data = &buf;
 	recvbuf.dataLength = 1;
 	const int recvlen = enet_socket_receive(server->listen, &recvaddr, &recvbuf, 1);

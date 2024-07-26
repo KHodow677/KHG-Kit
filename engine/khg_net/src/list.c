@@ -49,9 +49,9 @@ void enet_packet_destroy(ENetPacket *packet) {
     (*packet->freeCallback)(packet);
   }
   if (!(packet->flags & ENET_PACKET_FLAG_NO_ALLOCATE) && packet->data != NULL) {
-    enet_free(packet->data);
+    net_free(packet->data);
   }
-  enet_free(packet);
+  net_free(packet);
 }
 
 int enet_packet_resize(ENetPacket *packet, size_t dataLength) {
@@ -60,7 +60,7 @@ int enet_packet_resize(ENetPacket *packet, size_t dataLength) {
     packet->dataLength = dataLength;
     return 0;
   }
-  newData = (enet_uint8 *)enet_malloc(dataLength);
+  newData = (enet_uint8 *)net_malloc(dataLength);
   if (newData == NULL) {
     return -1;
   }
@@ -68,7 +68,7 @@ int enet_packet_resize(ENetPacket *packet, size_t dataLength) {
     if (packet -> dataLength > 0) {
       memcpy(newData, packet->data, packet->dataLength);
     }
-    enet_free(packet->data);
+    net_free(packet->data);
   }
   packet->data = newData;
   packet->dataLength = dataLength;
@@ -110,7 +110,7 @@ static const enet_uint32 crcTable[256] = {
   0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D
 };
 
-enet_uint32 enet_crc32(const ENetBuffer *buffers, size_t bufferCount) {
+enet_uint32 enet_crc32(const net_buffer *buffers, size_t bufferCount) {
   enet_uint32 crc = 0xFFFFFFFF;
   while (bufferCount -- > 0) {
     const enet_uint8 *data = (const enet_uint8 *)buffers->data, *dataEnd = &data[buffers->dataLength];
@@ -119,6 +119,6 @@ enet_uint32 enet_crc32(const ENetBuffer *buffers, size_t bufferCount) {
     }
     ++buffers;
   }
-  return ENET_HOST_TO_NET_32(~crc);
+  return net_host_to_net_32(~crc);
 }
 

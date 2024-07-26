@@ -8,14 +8,14 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
   if (peerCount > ENET_PROTOCOL_MAXIMUM_PEER_ID) {
     return NULL;
   }
-  host = (ENetHost *)enet_malloc(sizeof (ENetHost));
+  host = (ENetHost *)net_malloc(sizeof (ENetHost));
   if (host == NULL) {
     return NULL;
   }
   memset(host, 0, sizeof(ENetHost));
-  host->peers = (ENetPeer *)enet_malloc(peerCount * sizeof(ENetPeer));
+  host->peers = (ENetPeer *)net_malloc(peerCount * sizeof(ENetPeer));
   if (host->peers == NULL) {
-    enet_free(host);
+    net_free(host);
     return NULL;
   }
   memset (host->peers, 0, peerCount * sizeof (ENetPeer));
@@ -24,8 +24,8 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
     if (host->socket != NET_SOCKET_NULL) {
       enet_socket_destroy(host->socket);
     }
-    enet_free(host->peers);
-    enet_free(host);
+    net_free(host->peers);
+    net_free(host);
     return NULL;
   }
   enet_socket_set_option(host->socket, ENET_SOCKOPT_NONBLOCK, 1);
@@ -101,8 +101,8 @@ void enet_host_destroy(ENetHost *host) {
   if (host->compressor.context != NULL && host->compressor.destroy) {
     (*host->compressor.destroy) (host->compressor.context);
   }
-  enet_free(host->peers);
-  enet_free(host);
+  net_free(host->peers);
+  net_free(host);
 }
 
 enet_uint32 enet_host_random(ENetHost *host) {
@@ -130,7 +130,7 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
   if (currentPeer >= &host->peers[host->peerCount]) {
     return NULL;
   }
-  currentPeer->channels = (ENetChannel *)enet_malloc(channelCount * sizeof(ENetChannel));
+  currentPeer->channels = (ENetChannel *)net_malloc(channelCount * sizeof(ENetChannel));
   if (currentPeer->channels == NULL) {
     return NULL;
   }
@@ -163,19 +163,19 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
   }
   command.header.command = ENET_PROTOCOL_COMMAND_CONNECT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
   command.header.channelID = 0xFF;
-  command.connect.outgoingPeerID = ENET_HOST_TO_NET_16(currentPeer->incomingPeerID);
+  command.connect.outgoingPeerID = net_host_to_net_16(currentPeer->incomingPeerID);
   command.connect.incomingSessionID = currentPeer->incomingSessionID;
   command.connect.outgoingSessionID = currentPeer->outgoingSessionID;
-  command.connect.mtu = ENET_HOST_TO_NET_32(currentPeer->mtu);
-  command.connect.windowSize = ENET_HOST_TO_NET_32(currentPeer->windowSize);
-  command.connect.channelCount = ENET_HOST_TO_NET_32(channelCount);
-  command.connect.incomingBandwidth = ENET_HOST_TO_NET_32(host->incomingBandwidth);
-  command.connect.outgoingBandwidth = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
-  command.connect.packetThrottleInterval = ENET_HOST_TO_NET_32(currentPeer->packetThrottleInterval);
-  command.connect.packetThrottleAcceleration = ENET_HOST_TO_NET_32(currentPeer->packetThrottleAcceleration);
-  command.connect.packetThrottleDeceleration = ENET_HOST_TO_NET_32(currentPeer->packetThrottleDeceleration);
+  command.connect.mtu = net_host_to_net_32(currentPeer->mtu);
+  command.connect.windowSize = net_host_to_net_32(currentPeer->windowSize);
+  command.connect.channelCount = net_host_to_net_32(channelCount);
+  command.connect.incomingBandwidth = net_host_to_net_32(host->incomingBandwidth);
+  command.connect.outgoingBandwidth = net_host_to_net_32(host->outgoingBandwidth);
+  command.connect.packetThrottleInterval = net_host_to_net_32(currentPeer->packetThrottleInterval);
+  command.connect.packetThrottleAcceleration = net_host_to_net_32(currentPeer->packetThrottleAcceleration);
+  command.connect.packetThrottleDeceleration = net_host_to_net_32(currentPeer->packetThrottleDeceleration);
   command.connect.connectID = currentPeer->connectID;
-  command.connect.data = ENET_HOST_TO_NET_32(data);
+  command.connect.data = net_host_to_net_32(data);
   enet_peer_queue_outgoing_command(currentPeer, &command, NULL, 0, 0);
   return currentPeer;
 }
@@ -333,12 +333,12 @@ void enet_host_bandwidth_throttle(ENetHost *host) {
         }
         command.header.command = ENET_PROTOCOL_COMMAND_BANDWIDTH_LIMIT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
         command.header.channelID = 0xFF;
-        command.bandwidthLimit.outgoingBandwidth = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
+        command.bandwidthLimit.outgoingBandwidth = net_host_to_net_32(host->outgoingBandwidth);
         if (peer->incomingBandwidthThrottleEpoch == timeCurrent) {
-          command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32(peer->outgoingBandwidth);
+          command.bandwidthLimit.incomingBandwidth = net_host_to_net_32(peer->outgoingBandwidth);
         }
         else {
-          command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32(bandwidthLimit);
+          command.bandwidthLimit.incomingBandwidth = net_host_to_net_32(bandwidthLimit);
         }
         enet_peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
       } 

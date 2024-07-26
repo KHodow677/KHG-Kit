@@ -76,7 +76,7 @@ typedef enum _ENetPacketFlag {
    ENET_PACKET_FLAG_SENT = (1<<8)
 } ENetPacketFlag;
 
-typedef void (ENET_CALLBACK * ENetPacketFreeCallback) (struct _ENetPacket *);
+typedef void (NET_CALLBACK * ENetPacketFreeCallback) (struct _ENetPacket *);
 
 typedef struct _ENetPacket {
   size_t referenceCount;
@@ -245,17 +245,17 @@ typedef struct _ENetPeer {
 
 typedef struct _ENetCompressor {
   void *context;
-  size_t (ENET_CALLBACK * compress) (void * context, const ENetBuffer * inBuffers, size_t inBufferCount, size_t inLimit, enet_uint8 * outData, size_t outLimit);
-  size_t (ENET_CALLBACK * decompress) (void * context, const enet_uint8 * inData, size_t inLimit, enet_uint8 * outData, size_t outLimit);
-  void (ENET_CALLBACK * destroy) (void * context);
+  size_t (NET_CALLBACK * compress) (void * context, const net_buffer * inBuffers, size_t inBufferCount, size_t inLimit, enet_uint8 * outData, size_t outLimit);
+  size_t (NET_CALLBACK * decompress) (void * context, const enet_uint8 * inData, size_t inLimit, enet_uint8 * outData, size_t outLimit);
+  void (NET_CALLBACK * destroy) (void * context);
 } ENetCompressor;
 
-typedef enet_uint32 (ENET_CALLBACK * ENetChecksumCallback) (const ENetBuffer * buffers, size_t bufferCount);
+typedef enet_uint32 (NET_CALLBACK * ENetChecksumCallback) (const net_buffer * buffers, size_t bufferCount);
 
-typedef int (ENET_CALLBACK * ENetInterceptCallback) (struct _ENetHost * host, struct _ENetEvent * event);
+typedef int (NET_CALLBACK * ENetInterceptCallback) (struct _ENetHost * host, struct _ENetEvent * event);
  
 typedef struct _ENetHost {
-  ENetSocket socket;
+  net_socket socket;
   ENetAddress address;
   enet_uint32 incomingBandwidth;
   enet_uint32 outgoingBandwidth;
@@ -273,7 +273,7 @@ typedef struct _ENetHost {
   enet_uint16 headerFlags;
   ENetProtocol commands [ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS];
   size_t commandCount;
-  ENetBuffer buffers[ENET_BUFFER_MAXIMUM];
+  net_buffer buffers[ENET_BUFFER_MAXIMUM];
   size_t bufferCount;
   ENetChecksumCallback checksum;
   ENetCompressor compressor;
@@ -309,7 +309,7 @@ typedef struct _ENetEvent {
 } ENetEvent;
 
 extern int enet_initialize(void);
-extern int enet_initialize_with_callbacks(ENetVersion version, const ENetCallbacks *inits);
+extern int enet_initialize_with_callbacks(ENetVersion version, const net_callbacks *inits);
 extern void enet_deinitialize(void);
 
 extern ENetVersion enet_linked_version(void);
@@ -317,20 +317,20 @@ extern ENetVersion enet_linked_version(void);
 extern enet_uint32 enet_time_get(void);
 extern void enet_time_set(enet_uint32);
 
-extern ENetSocket enet_socket_create(ENetSocketType);
-extern int enet_socket_bind(ENetSocket, const ENetAddress *);
-extern int enet_socket_get_address(ENetSocket, ENetAddress *);
-extern int enet_socket_listen(ENetSocket, int);
-extern ENetSocket enet_socket_accept(ENetSocket, ENetAddress *);
-extern int enet_socket_connect(ENetSocket, const ENetAddress *);
-extern int enet_socket_send(ENetSocket, const ENetAddress *, const ENetBuffer *, size_t);
-extern int enet_socket_receive(ENetSocket, ENetAddress *, ENetBuffer *, size_t);
-extern int enet_socket_wait(ENetSocket, enet_uint32 *, enet_uint32);
-extern int enet_socket_set_option(ENetSocket, ENetSocketOption, int);
-extern int enet_socket_get_option(ENetSocket, ENetSocketOption, int *);
-extern int enet_socket_shutdown(ENetSocket, ENetSocketShutdown);
-extern void enet_socket_destroy(ENetSocket);
-extern int enet_socketset_select(ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
+extern net_socket enet_socket_create(ENetSocketType);
+extern int enet_socket_bind(net_socket, const ENetAddress *);
+extern int enet_socket_get_address(net_socket, ENetAddress *);
+extern int enet_socket_listen(net_socket, int);
+extern net_socket enet_socket_accept(net_socket, ENetAddress *);
+extern int enet_socket_connect(net_socket, const ENetAddress *);
+extern int enet_socket_send(net_socket, const ENetAddress *, const net_buffer *, size_t);
+extern int enet_socket_receive(net_socket, ENetAddress *, net_buffer *, size_t);
+extern int enet_socket_wait(net_socket, enet_uint32 *, enet_uint32);
+extern int enet_socket_set_option(net_socket, ENetSocketOption, int);
+extern int enet_socket_get_option(net_socket, ENetSocketOption, int *);
+extern int enet_socket_shutdown(net_socket, ENetSocketShutdown);
+extern void enet_socket_destroy(net_socket);
+extern int enet_socketset_select(net_socket, net_socket_set *, net_socket_set *, enet_uint32);
 
 extern int enet_address_set_host_ip(ENetAddress *address, const char *hostName);
 
@@ -341,7 +341,7 @@ extern int enet_address_get_host(const ENetAddress *address, char *hostName, siz
 extern ENetPacket *enet_packet_create(const void *, size_t, enet_uint32);
 extern void enet_packet_destroy(ENetPacket *);
 extern int enet_packet_resize(ENetPacket *, size_t);
-extern enet_uint32 enet_crc32(const ENetBuffer *, size_t);
+extern enet_uint32 enet_crc32(const net_buffer *, size_t);
                 
 extern ENetHost *enet_host_create(const ENetAddress *, size_t, size_t, enet_uint32, enet_uint32);
 extern void enet_host_destroy(ENetHost *);
@@ -382,7 +382,7 @@ extern void enet_peer_on_disconnect(ENetPeer *);
 
 extern void *enet_range_coder_create(void);
 extern void enet_range_coder_destroy(void *);
-extern size_t enet_range_coder_compress(void *, const ENetBuffer *, size_t, size_t, enet_uint8 *, size_t);
+extern size_t enet_range_coder_compress(void *, const net_buffer *, size_t, size_t, enet_uint8 *, size_t);
 extern size_t enet_range_coder_decompress(void *, const enet_uint8 *, size_t, enet_uint8 *, size_t);
    
 extern size_t enet_protocol_command_size(enet_uint8);

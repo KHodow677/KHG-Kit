@@ -2,7 +2,7 @@
 #include <string.h>
 
 ENetPacket *enet_packet_create(const void *data, size_t dataLength, enet_uint32 flags) {
-  ENetPacket *packet = (ENetPacket *)enet_malloc(sizeof(ENetPacket));
+  ENetPacket *packet = (ENetPacket *)net_malloc(sizeof(ENetPacket));
   if (packet == NULL) {
     return NULL;
   }
@@ -13,9 +13,9 @@ ENetPacket *enet_packet_create(const void *data, size_t dataLength, enet_uint32 
     packet->data = NULL;
   }
   else {
-    packet->data = (enet_uint8 *)enet_malloc(dataLength);
+    packet->data = (enet_uint8 *)net_malloc(dataLength);
     if (packet->data == NULL) {
-      enet_free(packet);
+      net_free(packet);
       return NULL;
     }
     if (data != NULL) {

@@ -23,24 +23,24 @@ typedef SOCKET ENetSocket;
 
 #define NET_SOCKET_NULL INVALID_SOCKET
 
-#define ENET_HOST_TO_NET_16(value) (htons (value))
-#define ENET_HOST_TO_NET_32(value) (htonl (value))
+#define net_host_to_net_16(value) (htons (value))
+#define net_host_to_net_32(value) (htonl (value))
 
-#define ENET_NET_TO_HOST_16(value) (ntohs (value))
-#define ENET_NET_TO_HOST_32(value) (ntohl (value))
+#define net_net_to_host_16(value) (ntohs (value))
+#define net_net_to_host_32(value) (ntohl (value))
 
 typedef struct {
   size_t dataLength;
   void *data;
-} ENetBuffer;
+} net_buffer;
 
 #define ENET_CALLBACK __cdecl
 
 typedef fd_set ENetSocketSet;
 
-#define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO (& (sockset))
-#define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET (socket, & (sockset))
-#define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLR (socket, & (sockset))
-#define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET (socket, & (sockset))
+#define net_socketset_empty(sockset) FD_ZERO (& (sockset))
+#define net_socketset_add(sockset, socket) FD_SET (socket, & (sockset))
+#define net_socketset_remove(sockset, socket) FD_CLR (socket, & (sockset))
+#define net_socketset_check(sockset, socket) FD_ISSET (socket, & (sockset))
 
 #endif

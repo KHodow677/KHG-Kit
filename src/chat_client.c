@@ -123,7 +123,7 @@ ENetHost *start_client(ENetPeer **peer, const int timeout_seconds) {
 }
 
 int find_servers(ServerInfo *server_infos, ENetAddress *addrs, int max_servers, int timeout_seconds) {
-	ENetSocket scanner = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
+	net_socket scanner = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
 	if (scanner == NET_SOCKET_NULL) {
 		fprintf(stderr, "Failed to create socket\n");
 		return 0;
@@ -136,7 +136,7 @@ int find_servers(ServerInfo *server_infos, ENetAddress *addrs, int max_servers, 
 	scanaddr.host = ENET_HOST_BROADCAST;
 	scanaddr.port = LISTEN_PORT;
 	char data = 42;
-	ENetBuffer sendbuf;
+	net_buffer sendbuf;
 	sendbuf.data = &data;
 	sendbuf.dataLength = 1;
 	if (enet_socket_send(scanner, &scanaddr, &sendbuf, 1) != (int)sendbuf.dataLength) {
@@ -146,11 +146,11 @@ int find_servers(ServerInfo *server_infos, ENetAddress *addrs, int max_servers, 
 	int sinfo_index = 0;
 	for (int i = 0; i < timeout_seconds && sinfo_index < max_servers; i++) {
 		printf("Scanning for server...\n");
-		ENetSocketSet set;
-		ENET_SOCKETSET_EMPTY(set);
-		ENET_SOCKETSET_ADD(set, scanner);
+		net_socket_set set;
+		net_socketset_empty(set);
+		net_socketset_add(set, scanner);
 		while (enet_socketset_select(scanner, &set, NULL, 0) > 0) {
-			ENetBuffer recvbuf;
+			net_buffer recvbuf;
 			recvbuf.data = &server_infos[sinfo_index];
 			recvbuf.dataLength = sizeof server_infos[0];
 			const int recvlen = enet_socket_receive(scanner, &addrs[sinfo_index], &recvbuf, 1);
