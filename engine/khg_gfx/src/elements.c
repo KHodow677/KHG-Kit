@@ -1021,7 +1021,21 @@ gfx_color gfx_color_from_zto(vec4s zto) {
   return (gfx_color){ (uint8_t)(zto.r * 255.0f), (uint8_t)(zto.g * 255.0f), (uint8_t)(zto.b * 255.0f), (uint8_t)(zto.a * 255.0f) };
 }
 
-void gfx_image(gfx_texture tex, bool no_block) {
+void gfx_image(gfx_texture tex) {
+  float w, h;
+  compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
+  gfx_element_props props = get_props_for(state.theme.image_props);
+  float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
+  gfx_color color = props.color;
+  next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
+  state.pos_ptr.x += margin_left; 
+  state.pos_ptr.y += margin_top;
+  gfx_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle);
+  state.pos_ptr.x += w + margin_right;
+  state.pos_ptr.y -= margin_top;
+}
+
+void gfx_image_no_block(gfx_texture tex) {
   float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
@@ -1034,23 +1048,27 @@ void gfx_image(gfx_texture tex, bool no_block) {
   gfx_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle);
   state.pos_ptr.x += w + margin_right;
   state.pos_ptr.y -= margin_top;
-  if (no_block){
-    state.pos_ptr.x = init_x;
-    state.pos_ptr.y = init_y;
-  }
+  state.pos_ptr.x = init_x;
+  state.pos_ptr.y = init_y;
 }
 
-void gfx_rect(float width, float height, gfx_color color, float corner_radius, float angle, bool no_block) {
+void gfx_rect(float width, float height, gfx_color color, float corner_radius, float angle) {
+  float w, h;
+  compute_bounding_box(width, height, angle, &w, &h);
+  next_line_on_overflow((vec2s){ w, h }, state.div_props.border_width);
+  gfx_rect_render(state.pos_ptr, (vec2s){(float)width, (float)height}, color, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
+  state.pos_ptr.x += w;
+}
+
+void gfx_rect_no_block(float width, float height, gfx_color color, float corner_radius, float angle) {
   float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(width, height, angle, &w, &h);
   next_line_on_overflow((vec2s){ w, h }, state.div_props.border_width);
   gfx_rect_render(state.pos_ptr, (vec2s){(float)width, (float)height}, color, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
   state.pos_ptr.x += w;
-  if (no_block){
-    state.pos_ptr.x = init_x;
-    state.pos_ptr.y = init_y;
-  }
+  state.pos_ptr.x = init_x;
+  state.pos_ptr.y = init_y;
 }
 
 void gfx_seperator() {

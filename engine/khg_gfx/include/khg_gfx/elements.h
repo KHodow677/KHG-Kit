@@ -254,8 +254,10 @@ vec4s gfx_color_to_zto(gfx_color color);
 gfx_color gfx_color_from_hex(uint32_t hex);
 gfx_color gfx_color_from_zto(vec4s zto);
 
-void gfx_image(gfx_texture tex, bool no_block);
-void gfx_rect(float width, float height, gfx_color color, float corner_radius, float angle, bool no_block);
+void gfx_image(gfx_texture tex);
+void gfx_image_no_block(gfx_texture tex);
+void gfx_rect(float width, float height, gfx_color color, float corner_radius, float angle);
+void gfx_rect_no_block(float width, float height, gfx_color color, float corner_radius, float angle);
 void gfx_seperator(void);
 
 void gfx_set_clipboard_text(const char *text);
