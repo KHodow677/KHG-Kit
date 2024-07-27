@@ -1,13 +1,13 @@
 #include "khg_net/net.h"
 #include <string.h>
 
-void enet_list_clear(ENetList *list) {
+void net_list_clear(net_list *list) {
   list->sentinel.next = &list->sentinel;
   list->sentinel.previous = &list->sentinel;
 }
 
-ENetListIterator enet_list_insert(ENetListIterator position, void *data) {
-  ENetListIterator result = (ENetListIterator)data;
+net_list_iterator net_list_insert(net_list_iterator position, void *data) {
+  net_list_iterator result = (net_list_iterator)data;
   result->previous = position->previous;
   result->next = position;
   result->previous->next = result;
@@ -15,14 +15,14 @@ ENetListIterator enet_list_insert(ENetListIterator position, void *data) {
   return result;
 }
 
-void *enet_list_remove(ENetListIterator position) {
+void *net_list_remove(net_list_iterator position) {
   position->previous->next = position->next;
   position->next->previous = position->previous;
   return position;
 }
 
-ENetListIterator enet_list_move(ENetListIterator position, void *dataFirst, void *dataLast) {
-  ENetListIterator first = (ENetListIterator)dataFirst, last = (ENetListIterator)dataLast;
+net_list_iterator net_list_move(net_list_iterator position, void *dataFirst, void *dataLast) {
+  net_list_iterator first = (net_list_iterator)dataFirst, last = (net_list_iterator)dataLast;
   first->previous->next = last->next;
   last->next->previous = first->previous;
   first->previous = position->previous;
@@ -32,10 +32,10 @@ ENetListIterator enet_list_move(ENetListIterator position, void *dataFirst, void
   return first;
 }
 
-size_t enet_list_size(ENetList *list) {
+size_t net_list_size(net_list *list) {
   size_t size = 0;
-  ENetListIterator position;
-  for (position = enet_list_begin(list); position != enet_list_end(list); position = enet_list_next(position)) {
+  net_list_iterator position;
+  for (position = net_list_begin(list); position != net_list_end(list); position = net_list_next(position)) {
     ++size;
   }
   return size;

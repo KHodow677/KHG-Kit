@@ -5,7 +5,7 @@
 ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit, enet_uint32 incomingBandwidth, enet_uint32 outgoingBandwidth) {
   ENetHost *host;
   ENetPeer *currentPeer;
-  if (peerCount > ENET_PROTOCOL_MAXIMUM_PEER_ID) {
+  if (peerCount > net_protocol_maximum_peer_id) {
     return NULL;
   }
   host = (ENetHost *)net_malloc(sizeof (ENetHost));
@@ -35,11 +35,11 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
   if (address != NULL && enet_socket_get_address(host->socket, &host->address) < 0) {
     host->address = *address;
   }
-  if (!channelLimit || channelLimit > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT) {
-    channelLimit = ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT;
+  if (!channelLimit || channelLimit > net_protocol_maximum_channel_count) {
+    channelLimit = net_protocol_maximum_channel_count;
   }
-  else if (channelLimit < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT) {
-    channelLimit = ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT;
+  else if (channelLimit < net_protocol_minimum_channel_count) {
+    channelLimit = net_protocol_minimum_channel_count;
   }
   host->randomSeed = (enet_uint32)(size_t)host;
   host->randomSeed += enet_host_random_seed();
@@ -65,7 +65,7 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
   host->totalQueued = 0;
   host->connectedPeers = 0;
   host->bandwidthLimitedPeers = 0;
-  host->duplicatePeers = ENET_PROTOCOL_MAXIMUM_PEER_ID;
+  host->duplicatePeers = net_protocol_maximum_peer_id;
   host->maximumPacketSize = ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE;
   host->maximumWaitingData = ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA;
   host->compressor.context = NULL;
@@ -73,17 +73,17 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
   host->compressor.decompress = NULL;
   host->compressor.destroy = NULL;
   host->intercept = NULL;
-  enet_list_clear(&host->dispatchQueue);
+  net_list_clear(&host->dispatchQueue);
   for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
     currentPeer->host = host;
     currentPeer->incomingPeerID = currentPeer - host->peers;
     currentPeer->outgoingSessionID = currentPeer->incomingSessionID = 0xFF;
     currentPeer->data = NULL;
-    enet_list_clear(&currentPeer->acknowledgements);
-    enet_list_clear(&currentPeer->sentReliableCommands);
-    enet_list_clear(&currentPeer->outgoingCommands);
-    enet_list_clear(&currentPeer->outgoingSendReliableCommands);
-    enet_list_clear(&currentPeer->dispatchedCommands);
+    net_list_clear(&currentPeer->acknowledgements);
+    net_list_clear(&currentPeer->sentReliableCommands);
+    net_list_clear(&currentPeer->outgoingCommands);
+    net_list_clear(&currentPeer->outgoingSendReliableCommands);
+    net_list_clear(&currentPeer->dispatchedCommands);
     enet_peer_reset(currentPeer);
   }
   return host;
@@ -116,11 +116,11 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
   ENetPeer *currentPeer;
   ENetChannel *channel;
   ENetProtocol command;
-  if (channelCount < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT) {
-    channelCount = ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT;
+  if (channelCount < net_protocol_minimum_channel_count) {
+    channelCount = net_protocol_minimum_channel_count;
   }
-  else if (channelCount > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT) {
-    channelCount = ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT;
+  else if (channelCount > net_protocol_maximum_channel_count) {
+    channelCount = net_protocol_maximum_channel_count;
   }
   for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer) {
     if (currentPeer->state == ENET_PEER_STATE_DISCONNECTED) {
@@ -140,24 +140,24 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
   currentPeer->connectID = enet_host_random(host);
   currentPeer->mtu = host->mtu;
   if (host->outgoingBandwidth == 0) {
-    currentPeer->windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    currentPeer->windowSize = net_protocol_maximum_window_size;
   }
   else {
-    currentPeer->windowSize = (host->outgoingBandwidth / ENET_PEER_WINDOW_SIZE_SCALE) * ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
+    currentPeer->windowSize = (host->outgoingBandwidth / ENET_PEER_WINDOW_SIZE_SCALE) * net_protocol_minimum_window_size;
   }
-  if (currentPeer->windowSize < ENET_PROTOCOL_MINIMUM_WINDOW_SIZE) {
-    currentPeer->windowSize = ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
+  if (currentPeer->windowSize < net_protocol_minimum_window_size) {
+    currentPeer->windowSize = net_protocol_minimum_window_size;
   }
-  else if (currentPeer->windowSize > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE) {
-    currentPeer->windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
+  else if (currentPeer->windowSize > net_protocol_maximum_window_size) {
+    currentPeer->windowSize = net_protocol_maximum_window_size;
   }
   for (channel = currentPeer->channels; channel < &currentPeer->channels[channelCount]; ++channel) {
     channel->outgoingReliableSequenceNumber = 0;
     channel->outgoingUnreliableSequenceNumber = 0;
     channel->incomingReliableSequenceNumber = 0;
     channel->incomingUnreliableSequenceNumber = 0;
-    enet_list_clear(&channel->incomingReliableCommands);
-    enet_list_clear(&channel->incomingUnreliableCommands);
+    net_list_clear(&channel->incomingReliableCommands);
+    net_list_clear(&channel->incomingUnreliableCommands);
     channel->usedReliableWindows = 0;
     memset(channel->reliableWindows, 0, sizeof (channel->reliableWindows));
   }
@@ -206,11 +206,11 @@ void enet_host_compress(ENetHost *host, const ENetCompressor *compressor) {
 }
 
 void enet_host_channel_limit(ENetHost *host, size_t channelLimit) {
-  if (!channelLimit || channelLimit > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT) {
-    channelLimit = ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT;
+  if (!channelLimit || channelLimit > net_protocol_maximum_channel_count) {
+    channelLimit = net_protocol_maximum_channel_count;
   }
-  else if (channelLimit < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT) {
-    channelLimit = ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT;
+  else if (channelLimit < net_protocol_minimum_channel_count) {
+    channelLimit = net_protocol_minimum_channel_count;
   }
   host->channelLimit = channelLimit;
 }

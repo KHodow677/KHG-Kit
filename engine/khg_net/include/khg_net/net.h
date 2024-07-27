@@ -88,13 +88,13 @@ typedef struct _ENetPacket {
 } ENetPacket;
 
 typedef struct _ENetAcknowledgement {
-  ENetListNode acknowledgementList;
+  net_list_node acknowledgementList;
   enet_uint32 sentTime;
   ENetProtocol command;
 } ENetAcknowledgement;
 
 typedef struct _ENetOutgoingCommand {
-  ENetListNode outgoingCommandList;
+  net_list_node outgoingCommandList;
   enet_uint16 reliableSequenceNumber;
   enet_uint16 unreliableSequenceNumber;
   enet_uint32 sentTime;
@@ -108,7 +108,7 @@ typedef struct _ENetOutgoingCommand {
 } ENetOutgoingCommand;
 
 typedef struct _ENetIncomingCommand {
-  ENetListNode incomingCommandList;
+  net_list_node incomingCommandList;
   enet_uint16 reliableSequenceNumber;
   enet_uint16 unreliableSequenceNumber;
   ENetProtocol command;
@@ -132,7 +132,7 @@ typedef enum _ENetPeerState {
 } ENetPeerState;
 
 #ifndef ENET_BUFFER_MAXIMUM
-#define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
+#define ENET_BUFFER_MAXIMUM (1 + 2 * net_protocol_maximum_packet_commands)
 #endif
 
 enum {
@@ -171,8 +171,8 @@ typedef struct _ENetChannel {
    enet_uint16 reliableWindows [ENET_PEER_RELIABLE_WINDOWS];
    enet_uint16 incomingReliableSequenceNumber;
    enet_uint16 incomingUnreliableSequenceNumber;
-   ENetList incomingReliableCommands;
-   ENetList incomingUnreliableCommands;
+   net_list incomingReliableCommands;
+   net_list incomingUnreliableCommands;
 } ENetChannel;
 
 typedef enum _ENetPeerFlag {
@@ -181,7 +181,7 @@ typedef enum _ENetPeerFlag {
 } ENetPeerFlag;
 
 typedef struct _ENetPeer { 
-  ENetListNode dispatchList;
+  net_list_node dispatchList;
   struct _ENetHost *host;
   enet_uint16 outgoingPeerID;
   enet_uint16 incomingPeerID;
@@ -229,11 +229,11 @@ typedef struct _ENetPeer {
   enet_uint32 windowSize;
   enet_uint32 reliableDataInTransit;
   enet_uint16 outgoingReliableSequenceNumber;
-  ENetList acknowledgements;
-  ENetList sentReliableCommands;
-  ENetList outgoingSendReliableCommands;
-  ENetList outgoingCommands;
-  ENetList dispatchedCommands;
+  net_list acknowledgements;
+  net_list sentReliableCommands;
+  net_list outgoingSendReliableCommands;
+  net_list outgoingCommands;
+  net_list dispatchedCommands;
   enet_uint16 flags;
   enet_uint16 reserved;
   enet_uint16 incomingUnsequencedGroup;
@@ -267,17 +267,17 @@ typedef struct _ENetHost {
   size_t peerCount;
   size_t channelLimit;
   enet_uint32 serviceTime;
-  ENetList dispatchQueue;
+  net_list dispatchQueue;
   enet_uint32 totalQueued;
   size_t packetSize;
   enet_uint16 headerFlags;
-  ENetProtocol commands [ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+  ENetProtocol commands[net_protocol_maximum_packet_commands];
   size_t commandCount;
   net_buffer buffers[ENET_BUFFER_MAXIMUM];
   size_t bufferCount;
   ENetChecksumCallback checksum;
   ENetCompressor compressor;
-  enet_uint8 packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
+  enet_uint8 packetData[2][net_protocol_maximum_mtu];
   ENetAddress receivedAddress;
   enet_uint8 *receivedData;
   size_t receivedDataLength;

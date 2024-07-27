@@ -54,9 +54,9 @@ int enet_peer_send(ENetPeer *peer, enet_uint8 channelID, ENetPacket *packet) {
     enet_uint32 fragmentCount = (packet->dataLength + fragmentLength - 1) / fragmentLength, fragmentNumber, fragmentOffset;
     enet_uint8 commandNumber;
     enet_uint16 startSequenceNumber; 
-    ENetList fragments;
+    net_list fragments;
     ENetOutgoingCommand *fragment;
-    if (fragmentCount > ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT) {
+    if (fragmentCount > net_protocol_maximum_fragment_count) {
       return -1;
     }
     if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT)) == ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT && channel->outgoingUnreliableSequenceNumber < 0xFFFF) {
@@ -67,15 +67,15 @@ int enet_peer_send(ENetPeer *peer, enet_uint8 channelID, ENetPacket *packet) {
       commandNumber = ENET_PROTOCOL_COMMAND_SEND_FRAGMENT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
       startSequenceNumber = net_host_to_net_16(channel->outgoingReliableSequenceNumber + 1);
     }
-    enet_list_clear(&fragments);
+    net_list_clear(&fragments);
     for (fragmentNumber = 0, fragmentOffset = 0; fragmentOffset < packet->dataLength; ++fragmentNumber, fragmentOffset += fragmentLength) {
       if (packet->dataLength - fragmentOffset < fragmentLength) {
         fragmentLength = packet->dataLength - fragmentOffset;
       }
       fragment = (ENetOutgoingCommand *)net_malloc(sizeof(ENetOutgoingCommand));
       if (fragment == NULL) {
-        while (! enet_list_empty (& fragments)) {
-          fragment = (ENetOutgoingCommand *)enet_list_remove(enet_list_begin(&fragments));
+        while (! net_list_empty (& fragments)) {
+          fragment = (ENetOutgoingCommand *)net_list_remove(net_list_begin(&fragments));
           net_free(fragment);
         }
         
@@ -92,11 +92,11 @@ int enet_peer_send(ENetPeer *peer, enet_uint8 channelID, ENetPacket *packet) {
       fragment->command.sendFragment.fragmentNumber = net_host_to_net_32(fragmentNumber);
       fragment->command.sendFragment.totalLength = net_host_to_net_32(packet->dataLength);
       fragment->command.sendFragment.fragmentOffset = net_net_to_host_32(fragmentOffset);
-      enet_list_insert(enet_list_end(&fragments), fragment);
+      net_list_insert(net_list_end(&fragments), fragment);
     }
     packet->referenceCount += fragmentNumber;
-    while (!enet_list_empty(& fragments)) {
-      fragment = (ENetOutgoingCommand *)enet_list_remove(enet_list_begin(&fragments));
+    while (!net_list_empty(& fragments)) {
+      fragment = (ENetOutgoingCommand *)net_list_remove(net_list_begin(&fragments));
       enet_peer_setup_outgoing_command(peer, fragment);
     }
     return 0;
@@ -123,10 +123,10 @@ int enet_peer_send(ENetPeer *peer, enet_uint8 channelID, ENetPacket *packet) {
 ENetPacket *enet_peer_receive (ENetPeer *peer, enet_uint8 *channelID) {
   ENetIncomingCommand *incomingCommand;
   ENetPacket *packet;
-  if (enet_list_empty (&peer->dispatchedCommands)) {
+  if (net_list_empty (&peer->dispatchedCommands)) {
     return NULL;
   }
-  incomingCommand = (ENetIncomingCommand *)enet_list_remove(enet_list_begin(&peer->dispatchedCommands));
+  incomingCommand = (ENetIncomingCommand *)net_list_remove(net_list_begin(&peer->dispatchedCommands));
   if (channelID != NULL) {
     *channelID = incomingCommand->command.header.channelID;
   }
@@ -140,10 +140,10 @@ ENetPacket *enet_peer_receive (ENetPeer *peer, enet_uint8 *channelID) {
   return packet;
 }
 
-static void enet_peer_reset_outgoing_commands(ENetList *queue) {
+static void enet_peer_reset_outgoing_commands(net_list *queue) {
   ENetOutgoingCommand *outgoingCommand;
-  while (!enet_list_empty(queue)) {
-    outgoingCommand = (ENetOutgoingCommand *)enet_list_remove(enet_list_begin(queue));
+  while (!net_list_empty(queue)) {
+    outgoingCommand = (ENetOutgoingCommand *)net_list_remove(net_list_begin(queue));
     if (outgoingCommand->packet != NULL) {
       --outgoingCommand->packet->referenceCount;
       if (outgoingCommand->packet->referenceCount == 0) {
@@ -154,15 +154,15 @@ static void enet_peer_reset_outgoing_commands(ENetList *queue) {
   }
 }
 
-static void enet_peer_remove_incoming_commands(ENetList *queue, ENetListIterator startCommand, ENetListIterator endCommand, ENetIncomingCommand *excludeCommand) {
-  ENetListIterator currentCommand;    
+static void enet_peer_remove_incoming_commands(net_list *queue, net_list_iterator startCommand, net_list_iterator endCommand, ENetIncomingCommand *excludeCommand) {
+  net_list_iterator currentCommand;    
   for (currentCommand = startCommand; currentCommand != endCommand; ) {
     ENetIncomingCommand *incomingCommand = (ENetIncomingCommand *)currentCommand;
-    currentCommand = enet_list_next(currentCommand);
+    currentCommand = net_list_next(currentCommand);
     if (incomingCommand == excludeCommand) {
       continue;
     }
-    enet_list_remove(&incomingCommand->incomingCommandList);
+    net_list_remove(&incomingCommand->incomingCommandList);
     if (incomingCommand->packet != NULL) {
       --incomingCommand->packet->referenceCount;
       if (incomingCommand->packet->referenceCount == 0) {
@@ -176,18 +176,18 @@ static void enet_peer_remove_incoming_commands(ENetList *queue, ENetListIterator
   }
 }
 
-static void enet_peer_reset_incoming_commands(ENetList *queue) {
-  enet_peer_remove_incoming_commands(queue, enet_list_begin(queue), enet_list_end(queue), NULL);
+static void enet_peer_reset_incoming_commands(net_list *queue) {
+  enet_peer_remove_incoming_commands(queue, net_list_begin(queue), net_list_end(queue), NULL);
 }
 
 void enet_peer_reset_queues(ENetPeer *peer) {
   ENetChannel *channel;
   if (peer->flags & ENET_PEER_FLAG_NEEDS_DISPATCH) {
-    enet_list_remove(&peer->dispatchList);
+    net_list_remove(&peer->dispatchList);
     peer->flags &= ~ENET_PEER_FLAG_NEEDS_DISPATCH;
   }
-  while (! enet_list_empty(&peer->acknowledgements)) {
-    net_free(enet_list_remove(enet_list_begin(&peer->acknowledgements)));
+  while (!net_list_empty(&peer->acknowledgements)) {
+    net_free(net_list_remove(net_list_begin(&peer->acknowledgements)));
   }
   enet_peer_reset_outgoing_commands(&peer->sentReliableCommands);
   enet_peer_reset_outgoing_commands(&peer->outgoingCommands);
@@ -224,7 +224,7 @@ void enet_peer_on_disconnect(ENetPeer *peer) {
 
 void enet_peer_reset(ENetPeer *peer) {
   enet_peer_on_disconnect(peer);
-  peer->outgoingPeerID = ENET_PROTOCOL_MAXIMUM_PEER_ID;
+  peer->outgoingPeerID = net_protocol_maximum_peer_id;
   peer->connectID = 0;
   peer->state = ENET_PEER_STATE_DISCONNECTED;
   peer->incomingBandwidth = 0;
@@ -262,7 +262,7 @@ void enet_peer_reset(ENetPeer *peer) {
   peer->mtu = peer->host->mtu;
   peer->reliableDataInTransit = 0;
   peer->outgoingReliableSequenceNumber = 0;
-  peer->windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
+  peer->windowSize = net_protocol_maximum_window_size;
   peer->incomingUnsequencedGroup = 0;
   peer->outgoingUnsequencedGroup = 0;
   peer->eventData = 0;
@@ -335,7 +335,7 @@ void enet_peer_disconnect(ENetPeer *peer, enet_uint32 data) {
 }
 
 int enet_peer_has_outgoing_commands(ENetPeer *peer) {
-  if (enet_list_empty(&peer->outgoingCommands) && enet_list_empty(&peer->outgoingSendReliableCommands) && enet_list_empty(&peer->sentReliableCommands)) {
+  if (net_list_empty(&peer->outgoingCommands) && net_list_empty(&peer->outgoingSendReliableCommands) && net_list_empty(&peer->sentReliableCommands)) {
     return 0;
   }
   return 1;
@@ -370,7 +370,7 @@ ENetAcknowledgement *enet_peer_queue_acknowledgement(ENetPeer *peer, const ENetP
   peer->outgoingDataTotal += sizeof (ENetProtocolAcknowledge);
   acknowledgement->sentTime = sentTime;
   acknowledgement->command = * command;
-  enet_list_insert(enet_list_end(&peer->acknowledgements), acknowledgement);
+  net_list_insert(net_list_end(&peer->acknowledgements), acknowledgement);
   return acknowledgement;
 }
 
@@ -418,9 +418,9 @@ void enet_peer_setup_outgoing_command(ENetPeer *peer, ENetOutgoingCommand *outgo
       break;
   }
   if ((outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) != 0 && outgoingCommand->packet != NULL)
-    enet_list_insert(enet_list_end(&peer->outgoingSendReliableCommands), outgoingCommand);
+    net_list_insert(net_list_end(&peer->outgoingSendReliableCommands), outgoingCommand);
   else {
-    enet_list_insert(enet_list_end(&peer->outgoingCommands), outgoingCommand);
+    net_list_insert(net_list_end(&peer->outgoingCommands), outgoingCommand);
   }
 }
 
@@ -441,8 +441,8 @@ ENetOutgoingCommand *enet_peer_queue_outgoing_command(ENetPeer *peer, const ENet
 }
 
 void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer *peer, ENetChannel *channel, ENetIncomingCommand *queuedCommand) {
-  ENetListIterator droppedCommand, startCommand, currentCommand;
-  for (droppedCommand = startCommand = currentCommand = enet_list_begin(&channel->incomingUnreliableCommands); currentCommand != enet_list_end(&channel->incomingUnreliableCommands); currentCommand = enet_list_next(currentCommand)) {
+  net_list_iterator droppedCommand, startCommand, currentCommand;
+  for (droppedCommand = startCommand = currentCommand = net_list_begin(&channel->incomingUnreliableCommands); currentCommand != net_list_end(&channel->incomingUnreliableCommands); currentCommand = net_list_next(currentCommand)) {
     ENetIncomingCommand *incomingCommand = (ENetIncomingCommand *)currentCommand;
     if ((incomingCommand->command.header.command & ENET_PROTOCOL_COMMAND_MASK) == ENET_PROTOCOL_COMMAND_SEND_UNSEQUENCED) {
       continue;
@@ -453,15 +453,15 @@ void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer *peer, ENetChannel
         continue;
       }
       if (startCommand != currentCommand) {
-        enet_list_move(enet_list_end(&peer->dispatchedCommands), startCommand, enet_list_previous(currentCommand));
+        net_list_move(net_list_end(&peer->dispatchedCommands), startCommand, net_list_previous(currentCommand));
         if (!(peer->flags & ENET_PEER_FLAG_NEEDS_DISPATCH)) {
-          enet_list_insert(enet_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+          net_list_insert(net_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
           peer->flags |= ENET_PEER_FLAG_NEEDS_DISPATCH;
         }
         droppedCommand = currentCommand;
       }
       else if (droppedCommand != currentCommand) {
-        droppedCommand = enet_list_previous(currentCommand);
+        droppedCommand = net_list_previous(currentCommand);
       }
     }
     else {
@@ -472,31 +472,31 @@ void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer *peer, ENetChannel
       if (reliableWindow >= currentWindow && reliableWindow < currentWindow + ENET_PEER_FREE_RELIABLE_WINDOWS - 1) {
         break;
       }
-      droppedCommand = enet_list_next(currentCommand);
+      droppedCommand = net_list_next(currentCommand);
       if (startCommand != currentCommand) {
-        enet_list_move(enet_list_end(&peer->dispatchedCommands), startCommand, enet_list_previous(currentCommand));
+        net_list_move(net_list_end(&peer->dispatchedCommands), startCommand, net_list_previous(currentCommand));
         if (!(peer->flags & ENET_PEER_FLAG_NEEDS_DISPATCH)) {
-          enet_list_insert(enet_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+          net_list_insert(net_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
           peer->flags |= ENET_PEER_FLAG_NEEDS_DISPATCH;
         }
       }
     }
-    startCommand = enet_list_next(currentCommand);
+    startCommand = net_list_next(currentCommand);
   }
   if (startCommand != currentCommand) {
-    enet_list_move(enet_list_end(&peer->dispatchedCommands), startCommand, enet_list_previous(currentCommand));
+    net_list_move(net_list_end(&peer->dispatchedCommands), startCommand, net_list_previous(currentCommand));
     if (!(peer->flags & ENET_PEER_FLAG_NEEDS_DISPATCH)) {
-      enet_list_insert(enet_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+      net_list_insert(net_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
       peer->flags |= ENET_PEER_FLAG_NEEDS_DISPATCH;
     }
     droppedCommand = currentCommand;
   }
-  enet_peer_remove_incoming_commands(&channel->incomingUnreliableCommands, enet_list_begin(&channel->incomingUnreliableCommands), droppedCommand, queuedCommand);
+  enet_peer_remove_incoming_commands(&channel->incomingUnreliableCommands, net_list_begin(&channel->incomingUnreliableCommands), droppedCommand, queuedCommand);
 }
 
 void enet_peer_dispatch_incoming_reliable_commands(ENetPeer *peer, ENetChannel *channel, ENetIncomingCommand *queuedCommand) {
-  ENetListIterator currentCommand;
-  for (currentCommand = enet_list_begin(&channel->incomingReliableCommands); currentCommand != enet_list_end(&channel->incomingReliableCommands); currentCommand = enet_list_next(currentCommand)) {
+  net_list_iterator currentCommand;
+  for (currentCommand = net_list_begin(&channel->incomingReliableCommands); currentCommand != net_list_end(&channel->incomingReliableCommands); currentCommand = net_list_next(currentCommand)) {
     ENetIncomingCommand *incomingCommand = (ENetIncomingCommand *)currentCommand;
     if (incomingCommand->fragmentsRemaining > 0 || incomingCommand->reliableSequenceNumber != (enet_uint16)(channel->incomingReliableSequenceNumber + 1)) {
       break;
@@ -506,16 +506,16 @@ void enet_peer_dispatch_incoming_reliable_commands(ENetPeer *peer, ENetChannel *
       channel->incomingReliableSequenceNumber += incomingCommand->fragmentCount - 1;
     }
   } 
-  if (currentCommand == enet_list_begin(&channel->incomingReliableCommands)) {
+  if (currentCommand == net_list_begin(&channel->incomingReliableCommands)) {
     return;
   }
   channel->incomingUnreliableSequenceNumber = 0;
-  enet_list_move(enet_list_end(&peer->dispatchedCommands), enet_list_begin(&channel->incomingReliableCommands), enet_list_previous(currentCommand));
+  net_list_move(net_list_end(&peer->dispatchedCommands), net_list_begin(&channel->incomingReliableCommands), net_list_previous(currentCommand));
   if (! (peer->flags & ENET_PEER_FLAG_NEEDS_DISPATCH)) {
-    enet_list_insert(enet_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+    net_list_insert(net_list_end(&peer->host->dispatchQueue), &peer->dispatchList);
     peer->flags |= ENET_PEER_FLAG_NEEDS_DISPATCH;
   }
-  if (!enet_list_empty(&channel->incomingUnreliableCommands)) {
+  if (!net_list_empty(&channel->incomingUnreliableCommands)) {
     enet_peer_dispatch_incoming_unreliable_commands(peer, channel, queuedCommand);
   }
 }
@@ -526,7 +526,7 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
   enet_uint32 unreliableSequenceNumber = 0, reliableSequenceNumber = 0;
   enet_uint16 reliableWindow, currentWindow;
   ENetIncomingCommand *incomingCommand;
-  ENetListIterator currentCommand;
+  net_list_iterator currentCommand;
   ENetPacket *packet = NULL;
   if (peer->state == ENET_PEER_STATE_DISCONNECT_LATER) {
     goto discardCommand;
@@ -548,7 +548,7 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
       if (reliableSequenceNumber == channel->incomingReliableSequenceNumber) {
         goto discardCommand;
       }
-      for (currentCommand = enet_list_previous(enet_list_end(&channel->incomingReliableCommands)); currentCommand != enet_list_end(&channel->incomingReliableCommands); currentCommand = enet_list_previous(currentCommand)) {
+      for (currentCommand = net_list_previous(net_list_end(&channel->incomingReliableCommands)); currentCommand != net_list_end(&channel->incomingReliableCommands); currentCommand = net_list_previous(currentCommand)) {
         incomingCommand = (ENetIncomingCommand *)currentCommand;
         if (reliableSequenceNumber >= channel->incomingReliableSequenceNumber) {
           if (incomingCommand->reliableSequenceNumber < channel->incomingReliableSequenceNumber) {
@@ -572,7 +572,7 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
       if (reliableSequenceNumber == channel->incomingReliableSequenceNumber && unreliableSequenceNumber <= channel->incomingUnreliableSequenceNumber) {
         goto discardCommand;
       }
-      for (currentCommand = enet_list_previous(enet_list_end(&channel->incomingUnreliableCommands)); currentCommand != enet_list_end(&channel->incomingUnreliableCommands); currentCommand = enet_list_previous(currentCommand)) {
+      for (currentCommand = net_list_previous(net_list_end(&channel->incomingUnreliableCommands)); currentCommand != net_list_end(&channel->incomingUnreliableCommands); currentCommand = net_list_previous(currentCommand)) {
         incomingCommand = (ENetIncomingCommand *)currentCommand;
         if ((command->header.command & ENET_PROTOCOL_COMMAND_MASK) == ENET_PROTOCOL_COMMAND_SEND_UNSEQUENCED) {
           continue;
@@ -600,7 +600,7 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
       }
       break;
     case ENET_PROTOCOL_COMMAND_SEND_UNSEQUENCED:
-      currentCommand = enet_list_end(&channel->incomingUnreliableCommands);
+      currentCommand = net_list_end(&channel->incomingUnreliableCommands);
       break;
     default:
       goto discardCommand;
@@ -624,7 +624,7 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
   incomingCommand->packet = packet;
   incomingCommand->fragments = NULL;
   if (fragmentCount > 0) { 
-    if (fragmentCount <= ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT) {
+    if (fragmentCount <= net_protocol_maximum_fragment_count) {
       incomingCommand->fragments = (enet_uint32 *)net_malloc((fragmentCount + 31) / 32 * sizeof(enet_uint32));
     }
     if (incomingCommand->fragments == NULL) {
@@ -637,7 +637,7 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
     ++packet->referenceCount;
     peer->totalWaitingData += packet->dataLength;
   }
-  enet_list_insert(enet_list_next(currentCommand), incomingCommand);
+  net_list_insert(net_list_next(currentCommand), incomingCommand);
   switch (command->header.command & ENET_PROTOCOL_COMMAND_MASK) {
     case ENET_PROTOCOL_COMMAND_SEND_FRAGMENT:
     case ENET_PROTOCOL_COMMAND_SEND_RELIABLE:

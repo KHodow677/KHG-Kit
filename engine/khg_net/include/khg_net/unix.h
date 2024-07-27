@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 #ifdef MSG_MAXIOVLEN
-#define ENET_BUFFER_MAXIMUM MSG_MAXIOVLEN
+#define NET_BUFFER_MAXIMUM MSG_MAXIOVLEN
 #endif
 
 typedef int net_socket;

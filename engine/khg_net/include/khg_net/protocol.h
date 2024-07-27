@@ -3,15 +3,15 @@
 #include "khg_net/types.h"
 
 enum {
-  ENET_PROTOCOL_MINIMUM_MTU             = 576,
-  ENET_PROTOCOL_MAXIMUM_MTU             = 4096,
-  ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS = 32,
-  ENET_PROTOCOL_MINIMUM_WINDOW_SIZE     = 4096,
-  ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE     = 65536,
-  ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT   = 1,
-  ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT   = 255,
-  ENET_PROTOCOL_MAXIMUM_PEER_ID         = 0xFFF,
-  ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT  = 1024 * 1024
+  net_protocol_minimum_mtu = 576,
+  net_protocol_maximum_mtu = 4096,
+  net_protocol_maximum_packet_commands = 32,
+  net_protocol_minimum_window_size = 4096,
+  net_protocol_maximum_window_size = 65536,
+  net_protocol_minimum_channel_count = 1,
+  net_protocol_maximum_channel_count = 255,
+  net_protocol_maximum_peer_id = 0xFFF,
+  net_protocol_maximum_fragment_count = 1024 * 1024
 };
 
 typedef enum _ENetProtocolCommand {

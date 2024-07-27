@@ -2,32 +2,32 @@
 
 #include <stdlib.h>
 
-typedef struct _ENetListNode {
-  struct _ENetListNode *next;
-  struct _ENetListNode *previous;
-} ENetListNode;
+typedef struct net_list_node {
+  struct net_list_node *next;
+  struct net_list_node *previous;
+} net_list_node;
 
-typedef ENetListNode * ENetListIterator;
+typedef net_list_node *net_list_iterator;
 
-typedef struct _ENetList {
-  ENetListNode sentinel;
-} ENetList;
+typedef struct net_list {
+  net_list_node sentinel;
+} net_list;
 
-extern void enet_list_clear(ENetList *);
+extern void net_list_clear(net_list *);
 
-extern ENetListIterator enet_list_insert(ENetListIterator, void *);
-extern void *enet_list_remove(ENetListIterator);
-extern ENetListIterator enet_list_move(ENetListIterator, void *, void *);
+extern net_list_iterator net_list_insert(net_list_iterator, void *);
+extern void *net_list_remove(net_list_iterator);
+extern net_list_iterator net_list_move(net_list_iterator, void *, void *);
 
-extern size_t enet_list_size(ENetList *);
+extern size_t net_list_size(net_list *);
 
-#define enet_list_begin(list) ((list) -> sentinel.next)
-#define enet_list_end(list) (& (list) -> sentinel)
+#define net_list_begin(list) ((list)->sentinel.next)
+#define net_list_end(list) (&(list)->sentinel)
 
-#define enet_list_empty(list) (enet_list_begin (list) == enet_list_end (list))
+#define net_list_empty(list) (net_list_begin(list) == net_list_end(list))
 
-#define enet_list_next(iterator) ((iterator) -> next)
-#define enet_list_previous(iterator) ((iterator) -> previous)
+#define net_list_next(iterator) ((iterator)->next)
+#define net_list_previous(iterator) ((iterator)->previous)
 
-#define enet_list_front(list) ((void *) (list) -> sentinel.next)
-#define enet_list_back(list) ((void *) (list) -> sentinel.previous)
+#define net_list_front(list) ((void *)(list)->sentinel.next)
+#define net_list_back(list) ((void *)(list)->sentinel.previous)
