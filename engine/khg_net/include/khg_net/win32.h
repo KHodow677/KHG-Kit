@@ -19,7 +19,7 @@
 
 #include <winsock2.h>
 
-typedef SOCKET ENetSocket;
+typedef SOCKET net_socket;
 
 #define NET_SOCKET_NULL INVALID_SOCKET
 
@@ -36,7 +36,7 @@ typedef struct {
 
 #define NET_CALLBACK __cdecl
 
-typedef fd_set ENetSocketSet;
+typedef fd_set net_socket_set;
 
 #define net_socketset_empty(sockset) FD_ZERO (& (sockset))
 #define net_socketset_add(sockset, socket) FD_SET (socket, & (sockset))
