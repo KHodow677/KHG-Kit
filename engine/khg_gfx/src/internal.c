@@ -1,9 +1,12 @@
+#include "stb_truetype/stb_truetype.h"
+
 #include "khg_gfx/internal.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/ui.h"
 #include "khg_utl/error_func.h"
 #include "cglm/mat4.h"
 #include "libclipboard/libclipboard.h"
+#include <stdio.h>
 #include <string.h>
 
 gfx_state state;

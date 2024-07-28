@@ -1,3 +1,6 @@
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "stb_truetype/stb_truetype.h"
+
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/internal.h"

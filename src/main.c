@@ -18,7 +18,7 @@ int gfx_testing() {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     gfx_begin();
     ang += 0.05f;
-    gfx_rect(100, 50, gfx_white, 0.0f, ang);
+    //gfx_rect(100, 50, gfx_white, 0.0f, ang);
     gfx_text("Hello!");
     gfx_end();
     glfwSwapBuffers(window);
@@ -31,6 +31,7 @@ int gfx_testing() {
 }
 
 int main(int argc, char *argv[]) {
+  return gfx_testing();
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <server|client>\n", argv[0]);
     return EXIT_FAILURE;
