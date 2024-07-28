@@ -1,7 +1,6 @@
-#include "stb_truetype/stb_truetype.h"
-
 #include "khg_gfx/internal.h"
 #include "khg_gfx/elements.h"
+#include "khg_gfx/font.h"
 #include "khg_gfx/ui.h"
 #include "khg_utl/error_func.h"
 #include "cglm/mat4.h"
@@ -690,58 +689,6 @@ void input_field(gfx_input_field *input, gfx_input_field_type type, const char *
   state.pos_ptr.y -= props.margin_top;
 }
 
-gfx_font load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, uint32_t tex_height,  uint32_t line_gap_add) {
-  gfx_font font = { 0 };
-  FILE *file = fopen(filepath, "rb");
-  if (file == NULL) {
-    error_func("Failed to open font file", user_defined_data);
-  }
-  fseek(file, 0, SEEK_END);
-  long fileSize = ftell(file);
-  fseek(file, 0, SEEK_SET);
-  uint8_t *buffer = (uint8_t *)malloc(fileSize);
-  size_t bytesRead = fread(buffer, 1, fileSize, file);
-  fclose(file); 
-  if (bytesRead != fileSize) {
-    error_func("Failed to read font file", user_defined_data);
-    free(buffer);
-    gfx_font emptyFont = { 0 };
-    return emptyFont;
-  }
-  font.font_info = malloc(sizeof(stbtt_fontinfo));
-  stbtt_InitFont((stbtt_fontinfo*)font.font_info, buffer, stbtt_GetFontOffsetForIndex(buffer, 0));
-  stbtt_fontinfo *fontinfo = (stbtt_fontinfo *)font.font_info;
-  int numglyphs = fontinfo->numGlyphs;
-  uint8_t *bitmap = (uint8_t *)malloc(tex_width * tex_height * sizeof(uint32_t));
-  uint8_t *bitmap_4bpp = (uint8_t *)malloc(tex_width * tex_height * 4 * sizeof(uint32_t));
-  font.cdata = malloc(sizeof(stbtt_bakedchar) * numglyphs);
-  font.tex_width = tex_width;
-  font.tex_height = tex_height;
-  font.line_gap_add = line_gap_add;
-  font.font_size = pixelsize;
-  font.num_glyphs = numglyphs;
-  stbtt_BakeFontBitmap(buffer, 0, pixelsize, bitmap, tex_width, tex_height, 32, numglyphs, (stbtt_bakedchar *)font.cdata);
-  uint32_t bitmap_index = 0;
-  for(uint32_t i = 0; i < (uint32_t)(tex_width * tex_height * 4); i++) {
-    bitmap_4bpp[i] = bitmap[bitmap_index];
-    if((i + 1) % 4 == 0) {
-      bitmap_index++;
-    }
-  }
-  glGenTextures(1, &font.bitmap.id);
-  glBindTexture(GL_TEXTURE_2D, font.bitmap.id);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap_4bpp);
-  glGenerateMipmap(GL_TEXTURE_2D);
-  free(buffer);
-  free(bitmap);
-  free(bitmap_4bpp);
-  return font;
-}
-
 gfx_font get_current_font() {
   return state.font_stack ? *state.font_stack : state.theme.font;
 }
@@ -960,14 +907,6 @@ int32_t menu_item_list_item_loc(void **items, uint32_t item_count, int32_t selec
   next_line_on_overflow((vec2s){element_width + margin_right, font.font_size + margin_top + margin_bottom}, state.div_props.border_width);
   state.pos_ptr.y -= margin_top;
   return clicked_item;
-}
-
-int32_t get_max_char_height_font(gfx_font font) {
-  float fontScale = stbtt_ScaleForPixelHeight((stbtt_fontinfo *)font.font_info, font.font_size);
-  int32_t xmin, ymin, xmax, ymax;
-  int32_t codepoint = 'p';
-  stbtt_GetCodepointBitmapBox((stbtt_fontinfo *)font.font_info, codepoint, fontScale, fontScale, &xmin, &ymin, &xmax, &ymax);
-  return ymax - ymin;
 }
 
 void remove_i_str(char *str, int32_t index) {

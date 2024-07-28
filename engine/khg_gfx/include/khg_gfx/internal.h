@@ -1,3 +1,5 @@
+#pragma once
+
 #include "khg_gfx/elements.h"
 #include "khg_gfx/events.h"
 #include "khg_gfx/texture.h"
