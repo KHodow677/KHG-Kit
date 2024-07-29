@@ -10,7 +10,7 @@
 void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_window) {
   setlocale(LC_ALL, "");
   if(!glfwInit()) {
-    error_func("Trying to initialize Leif with GLFW without initializing GLFW first", user_defined_data);
+    error_func("Trying to initialize gfx with GLFW without initializing GLFW first", user_defined_data);
     return;
   }
   if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {

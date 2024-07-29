@@ -5,13 +5,15 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+#else 
 #endif
+#include <unistd.h>
 
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_utl/error_func.h"
 #include <string.h>
-#include <unistd.h>
+
 
 gfx_font gfx_load_font(const char *filepath, uint32_t size) {
   return load_font(filepath, size, 1024, 1024, 0);
