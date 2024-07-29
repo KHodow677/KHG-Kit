@@ -1,4 +1,5 @@
 #include "gfx/inputs.h"
+#include "khg_utl/error_func.h"
 
 void glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action, int mods) {
   (void)window;
@@ -134,7 +135,7 @@ uint64_t djb2_hash(uint64_t hash, const void *buf, size_t size) {
 void props_stack_create(PropsStack *stack) {
   stack->data = (LfUIElementProps *)malloc(LF_STACK_INIT_CAP * sizeof(LfUIElementProps));
   if(!stack->data) {
-    LF_ERROR("Failed to allocate memory for stack data structure.\n");
+    error_func("Failed to allocate memory for stack data structure", user_defined_data);
   }
   stack->count = 0;
   stack->cap = LF_STACK_INIT_CAP;
@@ -143,7 +144,7 @@ void props_stack_create(PropsStack *stack) {
 void props_stack_resize(PropsStack *stack, uint32_t newcap) {
   LfUIElementProps *newdata = (LfUIElementProps *)realloc(stack->data, newcap * sizeof(LfUIElementProps));
   if(!newdata) {
-    LF_ERROR("Failed to reallocate memory for stack datastructure.");
+    error_func("Failed to reallocate memory for stack datastructure", user_defined_data);
   }
   stack->data = newdata;
   stack->cap = newcap;
@@ -157,7 +158,6 @@ void props_stack_push(PropsStack *stack, LfUIElementProps props) {
 }
 
 LfUIElementProps props_stack_pop(PropsStack *stack) {
-  LF_ASSERT(stack.count != 0, "Stack underflow on stack data structure!");
   LfUIElementProps val = stack->data[--stack->count];
   if(stack->count > 0 && stack->count == stack->cap / 4) {
     props_stack_resize(stack, stack->cap / 2);
@@ -166,7 +166,6 @@ LfUIElementProps props_stack_pop(PropsStack *stack) {
 }
 
 LfUIElementProps props_stack_peak(PropsStack *stack) {
-  LF_ASSERT(stack.count != 0, "Stack is empty on stack data structure!");
   return stack->data[stack->count - 1];
 }
 

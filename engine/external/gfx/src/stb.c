@@ -2,6 +2,7 @@
 #include "gfx/elements.h"
 #include "gfx/renderer.h"
 #include "glad/glad.h"
+#include "khg_utl/error_func.h"
 #include <wctype.h>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -66,7 +67,7 @@ LfFont load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, u
   LfFont font = {0};
   FILE *file = fopen(filepath, "rb");
   if (file == NULL) {
-    LF_ERROR("Failed to open font file '%s'\n", filepath);
+    error_func("Failed to open font file", user_defined_data);
   }
   fseek(file, 0, SEEK_END);
   long fileSize = ftell(file);
@@ -75,7 +76,7 @@ LfFont load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, u
   size_t bytesRead = fread(buffer, 1, fileSize, file);
   fclose(file); 
   if (bytesRead != fileSize) {
-    LF_ERROR("Failed to read font file '%s'\n", filepath);
+    error_func("Failed to read font file", user_defined_data);
     free(buffer);
     LfFont emptyFont = {0};
     return emptyFont;
@@ -122,7 +123,7 @@ LfTexture lf_load_texture(const char *filepath, bool flip, LfTextureFiltering fi
   int width, height, channels;
   unsigned char* image = stbi_load(filepath, &width, &height, &channels, STBI_rgb_alpha);
   if (!image) {
-    LF_ERROR("Failed to load texture at '%s'.", filepath);
+    error_func("Failed to load texture", user_defined_data);
     return tex;
   }
   glGenTextures(1, &tex.id);
@@ -181,7 +182,7 @@ LfTexture lf_load_texture_resized_factor(const char *filepath, bool flip, LfText
   int32_t width, height, channels;
   stbi_uc *data = lf_load_texture_data_resized_factor(filepath, wfactor, hfactor, &width, &height, &channels, flip);
   if(!data) {
-    LF_ERROR("Failed to load texture file at '%s'.", filepath);
+    error_func("Failed to load texture file", user_defined_data);
     return tex;
   }
   int32_t w = width * wfactor;

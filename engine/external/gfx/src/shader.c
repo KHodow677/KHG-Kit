@@ -1,4 +1,5 @@
 #include "gfx/shader.h"
+#include "khg_utl/error_func.h"
 
 uint32_t shader_create(GLenum type, const char *src) {
   uint32_t shader = glCreateShader(type);
@@ -7,16 +8,13 @@ uint32_t shader_create(GLenum type, const char *src) {
   int32_t compiled; 
   glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
   if(!compiled) {
-    LF_ERROR("Failed to compile %s shader.", type == GL_VERTEX_SHADER ? "vertex" : "fragment");
-    char info[512];
-    glGetShaderInfoLog(shader, 512, NULL, info);
-    LF_INFO("%s", info);
+    error_func("Failed to compile shader", user_defined_data);
     glDeleteShader(shader);
   }
   return shader;
 }
 
-LfShader shader_prg_create(const char* vert_src, const char* frag_src) {
+LfShader shader_prg_create(const char *vert_src, const char *frag_src) {
   uint32_t vertex_shader = shader_create(GL_VERTEX_SHADER, vert_src);
   uint32_t fragment_shader = shader_create(GL_FRAGMENT_SHADER, frag_src);
   LfShader prg;
@@ -27,10 +25,7 @@ LfShader shader_prg_create(const char* vert_src, const char* frag_src) {
   int32_t linked;
   glGetProgramiv(prg.id, GL_LINK_STATUS, &linked);
   if(!linked) {
-    LF_ERROR("Failed to link shader program.");
-    char info[512];
-    glGetProgramInfoLog(prg.id, 512, NULL, info);
-    LF_INFO("%s", info);
+    error_func("Failed to link shader program", user_defined_data);
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
     glDeleteProgram(prg.id);

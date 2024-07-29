@@ -1,59 +1,32 @@
 #pragma once
+
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <cglm/cglm.h>
 #include <cglm/struct.h>
 #include <libclipboard/libclipboard.h>
+#include <unistd.h>
 #include <wchar.h>
 
-#define LF_PRIMARY_ITEM_COLOR (LfColor){133, 138, 148, 255} 
-#define LF_SECONDARY_ITEM_COLOR (LfColor){96, 100, 107, 255}
-
-#define LF_NO_COLOR (LfColor){0, 0, 0, 0}
-#define LF_WHITE (LfColor){255, 255, 255, 255}
-#define LF_BLACK (LfColor){0, 0, 0, 255}
-#define LF_RED (LfColor){255, 0, 0, 255}
-#define LF_GREEN (LfColor){0, 255, 0, 255}
-#define LF_BLUE (LfColor){0, 0, 255, 255}
-
-#define LF_TRACE(...) { printf("Leif: [TRACE]: "); printf(__VA_ARGS__); printf("\n"); } 
-#ifdef LF_DEBUG
-#define LF_DEBUG(...) { printf("Leif: [DEBUG]: "); printf(__VA_ARGS__); printf("\n"); } 
-#else
-#define LF_DEBUG(...) 
-#endif // LF_DEBUG 
-#define LF_INFO(...) { printf("Leif: [INFO]: "); printf(__VA_ARGS__); printf("\n"); } 
-#define LF_WARN(...) { printf("Leif: [WARN]: "); printf(__VA_ARGS__); printf("\n"); } 
-#define LF_ERROR(...) { printf("[LEIF ERROR]: "); printf(__VA_ARGS__); printf("\n"); } 
-
-#ifdef _WIN32
-#define HOMEDIR "USERPROFILE"
-#else
-#define HOMEDIR (char*)"HOME"
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#else 
 #endif
 
-#ifndef GLFW_INCLUDE_NONE
-#define GLFW_INCLUDE_NONE
-#endif 
-#include <GLFW/glfw3.h>
+#define LF_PRIMARY_ITEM_COLOR (LfColor){ 133, 138, 148, 255 } 
+#define LF_SECONDARY_ITEM_COLOR (LfColor){ 96, 100, 107, 255 }
+
+#define LF_NO_COLOR (LfColor){ 0, 0, 0, 0 }
+#define LF_WHITE (LfColor){ 255, 255, 255, 255 }
+#define LF_BLACK (LfColor){ 0, 0, 0, 255 }
+#define LF_RED (LfColor){ 255, 0, 0, 255 }
+#define LF_GREEN (LfColor){ 0, 255, 0, 255 }
+#define LF_BLUE (LfColor){ 0, 0, 255, 255 }
 
 #define MAX(a, b) a > b ? a : b
 #define MIN(a, b) a < b ? a : b
-
-#ifdef _MSC_VER 
-#define D_BREAK __debugbreak
-#elif defined(__clang__) || defined(__GNUC__)
-#define D_BREAK __builtin_trap
-#else 
-#define D_BREAK
-#endif 
-
-#ifdef _DEBUG 
-#define LF_ASSERT(cond, ...) { if(cond) {} else { printf("[LEIF]: Assertion failed: '"); printf(__VA_ARGS__); printf("' in file '%s' on line %i.\n", __FILE__, __LINE__); D_BREAK(); }}
-#else 
-#define LF_ASSERT(cond, ...)
-#endif // _DEBUG
 
 #define LF_STACK_INIT_CAP 4
 
@@ -74,141 +47,129 @@
 #define DJB2_INIT 5381
 
 typedef struct {
-    uint8_t r, g, b, a;
+  uint8_t r, g, b, a;
 } LfColor;
 
-// --- Events ---
 typedef struct {
-    int32_t keycode;
-    bool happened, pressed;
+  int32_t keycode;
+  bool happened, pressed;
 } LfKeyEvent;
 
 typedef struct {
-    int32_t button_code;
-    bool happened, pressed;
+  int32_t button_code;
+  bool happened, pressed;
 } LfMouseButtonEvent;
 
 typedef struct {
-    int32_t x, y;
-    bool happened;
+  int32_t x, y;
+  bool happened;
 } LfCursorPosEvent;
 
 typedef struct {
-    int32_t xoffset, yoffset;
-    bool happened;
+  int32_t xoffset, yoffset;
+  bool happened;
 } LfScrollEvent;
 
 typedef struct {
-    int32_t charcode;
-    bool happened;
+  int32_t charcode;
+  bool happened;
 } LfCharEvent;
 
 typedef struct {
-    uint32_t id;
-    uint32_t width, height;
+  uint32_t id;
+  uint32_t width, height;
 } LfTexture;
 
 typedef struct {
-    void* cdata;
-    void* font_info;
-    uint32_t tex_width, tex_height;
-    uint32_t line_gap_add, font_size;
-    LfTexture bitmap;
-
-    uint32_t num_glyphs;
+  void *cdata;
+  void *font_info;
+  uint32_t tex_width, tex_height;
+  uint32_t line_gap_add, font_size;
+  LfTexture bitmap;
+  uint32_t num_glyphs;
 } LfFont;
 
 typedef enum {
-    LF_TEX_FILTER_LINEAR = 0,
-    LF_TEX_FILTER_NEAREST
+  LF_TEX_FILTER_LINEAR = 0,
+  LF_TEX_FILTER_NEAREST
 } LfTextureFiltering;
 
 typedef struct {
-    float width, height;
-    int32_t end_x, end_y;
-    uint32_t rendered_count;
+  float width, height;
+  int32_t end_x, end_y;
+  uint32_t rendered_count;
 } LfTextProps;
 
 typedef struct {
-    int32_t cursor_index, width, height, start_height;
-    char* buf;
-    uint32_t buf_size;
-    char* placeholder;
-    bool selected;
-
-    uint32_t max_chars;
-
-    int32_t selection_start, selection_end, 
-            mouse_selection_start, mouse_selection_end;
-    int32_t selection_dir, mouse_dir;
-
-    bool _init;
-
-    void (*char_callback)(char);
-    void (*insert_override_callback)(void*);
-    void (*key_callback)(void*);
-
-    bool retain_height;
+  int32_t cursor_index, width, height, start_height;
+  char *buf;
+  uint32_t buf_size;
+  char *placeholder;
+  bool selected;
+  uint32_t max_chars;
+  int32_t selection_start, selection_end, mouse_selection_start, mouse_selection_end;
+  int32_t selection_dir, mouse_dir;
+  bool _init;
+  void (*char_callback)(char);
+  void (*insert_override_callback)(void *);
+  void (*key_callback)(void*);
+  bool retain_height;
 } LfInputField;
 
 typedef struct {
-    void* val;
-    int32_t handle_pos;
-    bool _init;
-    float min, max;
-    bool held, selcted;
-    float width;
-    float height;
-    uint32_t handle_size;
-    LfColor handle_color;
+  void *val;
+  int32_t handle_pos;
+  bool _init;
+  float min, max;
+  bool held, selcted;
+  float width;
+  float height;
+  uint32_t handle_size;
+  LfColor handle_color;
 } LfSlider;
 
 typedef enum {
-    LF_RELEASED = -1,
-    LF_IDLE = 0,
-    LF_HOVERED = 1,
-    LF_CLICKED = 2,
-    LF_HELD = 3,
+  LF_RELEASED = -1,
+  LF_IDLE = 0,
+  LF_HOVERED = 1,
+  LF_CLICKED = 2,
+  LF_HELD = 3,
 } LfClickableItemState;
 
 
 typedef struct {
-    LfColor color, hover_color;
-    LfColor text_color, hover_text_color;
-    LfColor border_color;
-    float padding;
-    float margin_left;
-    float margin_right;
-    float margin_top;
-    float margin_bottom;
-    float border_width;
-    float corner_radius;
+  LfColor color, hover_color;
+  LfColor text_color, hover_text_color;
+  LfColor border_color;
+  float padding;
+  float margin_left;
+  float margin_right;
+  float margin_top;
+  float margin_bottom;
+  float border_width;
+  float corner_radius;
 } LfUIElementProps;
 
 typedef struct {
-    vec2s pos, size;
+  vec2s pos, size;
 } LfAABB;
 
 typedef struct {
-    LfUIElementProps button_props, div_props, text_props, image_props,
-                     inputfield_props, checkbox_props, slider_props, scrollbar_props;
-    LfFont font;
-    bool div_smooth_scroll;
-    float div_scroll_acceleration, div_scroll_max_velocity;
-    float div_scroll_amount_px;
-    float div_scroll_velocity_deceleration;
-
-    float scrollbar_width;
+  LfUIElementProps button_props, div_props, text_props, image_props, inputfield_props, checkbox_props, slider_props, scrollbar_props;
+  LfFont font;
+  bool div_smooth_scroll;
+  float div_scroll_acceleration, div_scroll_max_velocity;
+  float div_scroll_amount_px;
+  float div_scroll_velocity_deceleration;
+  float scrollbar_width;
 } LfTheme;
 
 typedef struct {
-    int64_t id;
-    LfAABB aabb;
-    LfClickableItemState interact_state;
-
-    bool scrollable;
-    
-    vec2s total_area;
+  int64_t id;
+  LfAABB aabb;
+  LfClickableItemState interact_state;
+  bool scrollable;
+  vec2s total_area;
 } LfDiv;
 
 typedef struct {
@@ -216,17 +177,17 @@ typedef struct {
 } LfShader;
 
 typedef struct {
-  vec2 pos; // 8 Bytes
-  vec4 border_color; // 16 Bytes
-  float border_width; // 4 Bytes 
-  vec4 color; // 16 Bytes
-  vec2 texcoord; // 8 Bytes
-  float tex_index; // 4 Bytes
-  vec2 scale; // 8 Bytes
-  vec2 pos_px; // 8 Bytes
-  float corner_radius; // 4 Bytes
-  vec2 min_coord, max_coord; // 16 Bytes
-} Vertex; // 88 Bytes per vertex
+  vec2 pos;
+  vec4 border_color;
+  float border_width;
+  vec4 color;
+  vec2 texcoord;
+  float tex_index;
+  vec2 scale;
+  vec2 pos_px;
+  float corner_radius;
+  vec2 min_coord, max_coord;
+} Vertex;
 
 typedef struct {
   bool keys[MAX_KEYS];
@@ -236,103 +197,75 @@ typedef struct {
 typedef struct {
   bool buttons_current[MAX_MOUSE_BUTTONS];
   bool buttons_last[MAX_MOUSE_BUTTONS];
-
   double xpos, ypos, xpos_last, ypos_last, xpos_delta, ypos_delta;
   bool first_mouse_press; 
   double xscroll_delta, yscroll_delta;
 } LfMouse;
 
 typedef struct {
-    bool is_dragging;
-    vec2s start_cursor_pos;
-    float start_scroll;
+  bool is_dragging;
+  vec2s start_cursor_pos;
+  float start_scroll;
 } DragState;
 
-// State of input 
 typedef struct {
   LfKeyboard keyboard;
   LfMouse mouse;
-
-  // List of callbacks (user defined)
   KEY_CALLBACK_t key_cbs[MAX_KEY_CALLBACKS];
   MOUSE_BUTTON_CALLBACK_t mouse_button_cbs[MAX_MOUSE_BTTUON_CALLBACKS];
   SCROLL_CALLBACK_t scroll_cbs[MAX_SCROLL_CALLBACKS];
   CURSOR_CALLBACK_t cursor_pos_cbs[MAX_CURSOR_POS_CALLBACKS];
-
   uint32_t key_cb_count, mouse_button_cb_count, scroll_cb_count, cursor_pos_cb_count;
 } InputState;
 
-// State of the batch renderer
 typedef struct {
   LfShader shader;
   uint32_t vao, vbo, ibo;
   uint32_t vert_count;
-  Vertex* verts;
+  Vertex *verts;
   vec4s vert_pos[4];
   LfTexture textures[MAX_TEX_COUNT_BATCH];
   uint32_t tex_index, tex_count,index_count;
 } RenderState;
 
 typedef struct {
-  LfUIElementProps* data;
+  LfUIElementProps *data;
   uint32_t count, cap;
 } PropsStack;
 
 typedef struct {
   bool init;
-
-  // Window
   uint32_t dsp_w, dsp_h;
-  void* window_handle;
-
+  void *window_handle;
   RenderState render;
   InputState input;
   LfTheme theme;
-
   LfDiv current_div, prev_div;
   int32_t current_line_height, prev_line_height;
   vec2s pos_ptr, prev_pos_ptr; 
-
-
-  // Pushable variables
-  LfFont* font_stack, *prev_font_stack;
+  LfFont *font_stack, *prev_font_stack;
   LfUIElementProps div_props, prev_props_stack;
   LfColor image_color_stack;
   int64_t element_id_stack;
-
   PropsStack props_stack;
-
-  // Event references 
   LfKeyEvent key_ev;
   LfMouseButtonEvent mb_ev;
   LfCursorPosEvent cp_ev;
   LfScrollEvent scr_ev;
   LfCharEvent ch_ev;
-
   vec2s cull_start, cull_end;
-
   LfTexture tex_arrow_down, tex_tick;
-
   bool text_wrap, line_overflow, div_hoverable, input_grabbed;
-
   uint64_t active_element_id;
-
-  float* scroll_velocity_ptr;
-  float* scroll_ptr;
-
+  float *scroll_velocity_ptr;
+  float *scroll_ptr;
   LfDiv selected_div, selected_div_tmp, scrollbar_div, grabbed_div;
-
   uint32_t drawcalls;
-
   bool entered_div;
-
   bool div_velocity_accelerating;
-
   float last_time, delta_time;
-  clipboard_c* clipboard;
-
+  clipboard_c *clipboard;
   bool renderer_render; 
-
   DragState drag_state;
 } LfState;
 
@@ -342,122 +275,74 @@ typedef enum {
   INPUT_TEXT
 } InputFieldType;
 
-// object to retrieve state data during runtime
 extern LfState state;
 
 typedef void (*LfMenuItemCallback)(uint32_t*);
 
 void lf_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_window);
-
 void lf_terminate();
-
 LfTheme lf_default_theme();
-
 LfTheme lf_get_theme();
-
 void lf_set_theme(LfTheme theme);
-
 void lf_resize_display(uint32_t display_width, uint32_t display_height);
 
 LfFont lf_load_font(const char* filepath, uint32_t size);
-
 LfFont lf_load_font_ex(const char* filepath, uint32_t size, uint32_t bitmap_w, uint32_t bitmap_h);
 
 LfTexture lf_load_texture(const char* filepath, bool flip, LfTextureFiltering filter);
-
 LfTexture lf_load_texture_resized(const char* filepath, bool flip, LfTextureFiltering filter, uint32_t w, uint32_t h);
-
 LfTexture lf_load_texture_resized_factor(const char* filepath, bool flip, LfTextureFiltering filter, float wfactor, float hfactor);
-
 LfTexture lf_load_texture_from_memory(const void* data, size_t size, bool flip, LfTextureFiltering filter);
-
 LfTexture lf_load_texture_from_memory_resized(const void* data, size_t size, bool flip, LfTextureFiltering filter, uint32_t w, uint32_t h);
-
 LfTexture lf_load_texture_from_memory_resized_factor(const void* data, size_t size, bool flip, LfTextureFiltering filter, float wfactor, float hfactor);
-
 LfTexture lf_load_texture_from_memory_resized_to_fit(const void* data, size_t size, bool flip, LfTextureFiltering filter, int32_t container_w, int32_t container_h);
-
 unsigned char* lf_load_texture_data(const char* filepath, int32_t* width, int32_t* height, int32_t* channels, bool flip);
-
 unsigned char* lf_load_texture_data_resized(const char* filepath, int32_t w, int32_t h, int32_t* channels, bool flip);
-
 unsigned char* lf_load_texture_data_resized_factor(const char* filepath, int32_t wfactor, int32_t hfactor, int32_t* width, int32_t* height, int32_t* channels, bool flip);
-
 unsigned char* lf_load_texture_data_from_memory(const void* data, size_t size, int32_t* width, int32_t* height, int32_t* channels, bool flip);
-
 unsigned char* lf_load_texture_data_from_memory_resized(const void* data, size_t size, int32_t* channels, int32_t* o_w, int32_t* o_h, bool flip, uint32_t w, uint32_t h);
-
-unsigned char* lf_load_texture_data_from_memory_resized_to_fit_ex(const void* data, size_t size, int32_t* o_width, int32_t* o_height, int32_t i_channels, 
-    int32_t i_width, int32_t i_height, bool flip, int32_t container_w, int32_t container_h);
-
-unsigned char* lf_load_texture_data_from_memory_resized_to_fit(const void* data, size_t size, int32_t* o_width, int32_t* o_height, int32_t* o_channels,
-    bool flip, int32_t container_w, int32_t container_h);
-
+unsigned char* lf_load_texture_data_from_memory_resized_to_fit_ex(const void* data, size_t size, int32_t* o_width, int32_t* o_height, int32_t i_channels, int32_t i_width, int32_t i_height, bool flip, int32_t container_w, int32_t container_h);
+unsigned char* lf_load_texture_data_from_memory_resized_to_fit(const void* data, size_t size, int32_t* o_width, int32_t* o_height, int32_t* o_channels, bool flip, int32_t container_w, int32_t container_h);
 unsigned char* lf_load_texture_data_from_memory_resized_factor(const void* data, size_t size, int32_t* width, int32_t* height, int32_t* channels, bool flip, float wfactor, float hfactor);
 
 void lf_create_texture_from_image_data(LfTextureFiltering filter, uint32_t* id, int32_t width, int32_t height, int32_t channels, unsigned char* data); 
-
 void lf_free_texture(LfTexture* tex);
-
 void lf_free_font(LfFont* font);
-
 LfFont lf_load_font_asset(const char* asset_name, const char* file_extension, uint32_t font_size);
-
 LfTexture lf_load_texture_asset(const char* asset_name, const char* file_extension); 
 
 void lf_add_key_callback(void* cb);
-
 void lf_add_mouse_button_callback(void* cb);
-
 void lf_add_scroll_callback(void* cb);
-
 void lf_add_cursor_pos_callback(void* cb);
 
 bool lf_key_went_down(uint32_t key);
-
 bool lf_key_is_down(uint32_t key);
-
 bool lf_key_is_released(uint32_t key);
-
 bool lf_key_changed(uint32_t key);
 
 bool lf_mouse_button_went_down(uint32_t button);
-
 bool lf_mouse_button_is_down(uint32_t button);
-
 bool lf_mouse_button_is_released(uint32_t button);
-
 bool lf_mouse_button_changed(uint32_t button);
-
 bool lf_mouse_button_went_down_on_div(uint32_t button);
-
 bool lf_mouse_button_is_released_on_div(uint32_t button);
-
 bool lf_mouse_button_changed_on_div(uint32_t button);
 
 double lf_get_mouse_x();
-
 double lf_get_mouse_y();
-
 double lf_get_mouse_x_delta();
-
 double lf_get_mouse_y_delta();
-
 double lf_get_mouse_scroll_x();
-
 double lf_get_mouse_scroll_y();
 
 #define lf_div_begin(pos, size, scrollable) {\
-    float scroll = 0.0f; \
-    float scroll_velocity = 0.0f; \
-    _lf_div_begin_loc(pos, size, scrollable, &scroll, &scroll_velocity, __FILE__, __LINE__);\
+  float scroll = 0.0f; \
+  float scroll_velocity = 0.0f; \
+  _lf_div_begin_loc(pos, size, scrollable, &scroll, &scroll_velocity, __FILE__, __LINE__);\
 }
-
 #define lf_div_begin_ex(pos, size, scrollable, scroll_ptr, scroll_velocity_ptr) _lf_div_begin_loc(pos, size, scrollable, scroll_ptr, scroll_velocity_ptr, __FILE__, __LINE__);
-
-LfDiv* _lf_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float* scroll, 
-        float* scroll_velocity, const char* file, int32_t line);
-
+LfDiv* _lf_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float* scroll, float* scroll_velocity, const char* file, int32_t line);
 void lf_div_end();
 
 LfClickableItemState _lf_item_loc(vec2s size,  const char* file, int32_t line);
@@ -551,164 +436,102 @@ void _lf_input_int_loc(LfInputField* input, const char* file, int32_t line);
 void _lf_input_float_loc(LfInputField* input, const char* file, int32_t line);
 
 void lf_input_insert_char_idx(LfInputField* input, char c, uint32_t idx);
-
 void lf_input_insert_str_idx(LfInputField* input, const char* insert, uint32_t len, uint32_t idx);
-
 void lf_input_field_unselect_all(LfInputField* input);
-
 bool lf_input_grabbed();
 
 void lf_div_grab(LfDiv div);
-
 void lf_div_ungrab();
-
 bool lf_div_grabbed();
-
 LfDiv lf_get_grabbed_div();
 
 #define lf_begin() _lf_begin_loc(__FILE__, __LINE__)
 void _lf_begin_loc(const char* file, int32_t line);
-
 void lf_end();
-
 void lf_next_line();
 
 vec2s lf_text_dimension(const char* str);
-
 vec2s lf_text_dimension_ex(const char* str, float wrap_point);
-
 vec2s lf_text_dimension_wide(const wchar_t* str);
-
 vec2s lf_text_dimension_wide_ex(const wchar_t* str, float wrap_point);
-
 vec2s lf_button_dimension(const char* text);
 
 float lf_get_text_end(const char* str, float start_x);
-
 void lf_text(const char* text);
-
 void lf_text_wide(const wchar_t* text);
-
 void lf_set_text_wrap(bool wrap);
 
 LfDiv lf_get_current_div();
-
 LfDiv lf_get_selected_div();
-
 LfDiv* lf_get_current_div_ptr();
-
 LfDiv* lf_get_selected_div_ptr();
 
 void lf_set_ptr_x(float x);
-
 void lf_set_ptr_y(float y);
-
 void lf_set_ptr_x_absolute(float x);
-
 void lf_set_ptr_y_absolute(float y);
-
 float lf_get_ptr_x();
-
 float lf_get_ptr_y();
-
 uint32_t lf_get_display_width();
-
 uint32_t lf_get_display_height();
 
 void lf_push_font(LfFont* font);
-
 void lf_pop_font();
 
-LfTextProps lf_text_render(vec2s pos, const char* str, LfFont font, LfColor color, 
-        int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
-
-LfTextProps lf_text_render_wchar(vec2s pos, const wchar_t* str, LfFont font, LfColor color, 
-                           int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
+LfTextProps lf_text_render(vec2s pos, const char* str, LfFont font, LfColor color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
+LfTextProps lf_text_render_wchar(vec2s pos, const wchar_t* str, LfFont font, LfColor color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
 
 void lf_rect_render(vec2s pos, vec2s size, LfColor color, LfColor border_color, float border_width, float corner_radius);
-
 void lf_image_render(vec2s pos, LfColor color, LfTexture tex, LfColor border_color, float border_width, float corner_radius);
 
 bool lf_point_intersects_aabb(vec2s p, LfAABB aabb);
-
 bool lf_aabb_intersects_aabb(LfAABB a, LfAABB b);
 
 void lf_push_style_props(LfUIElementProps props);
-
 void lf_pop_style_props();
 
 bool lf_hovered(vec2s pos, vec2s size);
-
 bool lf_area_hovered(vec2s pos, vec2s size);
 
 LfCursorPosEvent lf_mouse_move_event();
-
 LfMouseButtonEvent lf_mouse_button_event();
-
 LfScrollEvent lf_mouse_scroll_event();
-
 LfKeyEvent lf_key_event();
-
 LfCharEvent lf_char_event();
 
 void lf_set_cull_start_x(float x);
-
 void lf_set_cull_start_y(float y);
-
 void lf_set_cull_end_x(float x);
-
 void lf_set_cull_end_y(float y);  
-
 void lf_unset_cull_start_x();
-
 void lf_unset_cull_start_y();
-
 void lf_unset_cull_end_x();
-
 void lf_unset_cull_end_y();
 
 void lf_set_image_color(LfColor color);
-
 void lf_unset_image_color();
-
 void lf_set_current_div_scroll(float scroll); 
-
 float lf_get_current_div_scroll(); 
-
 void lf_set_current_div_scroll_velocity(float scroll_velocity);
-
 float lf_get_current_div_scroll_velocity();
 
 void lf_set_line_height(uint32_t line_height);
-
 uint32_t lf_get_line_height();
-
 void lf_set_line_should_overflow(bool overflow);
-
 void lf_set_div_hoverable(bool hoverable);
 
 void lf_push_element_id(int64_t id);
-
 void lf_pop_element_id();
 
 LfColor lf_color_brightness(LfColor color, float brightness);
-
 LfColor lf_color_alpha(LfColor color, uint8_t a);
-
 vec4s lf_color_to_zto(LfColor color);
-
 LfColor lf_color_from_hex(uint32_t hex);
-
 LfColor lf_color_from_zto(vec4s zto);
 
 void lf_image(LfTexture tex);
-
 void lf_rect(float width, float height, LfColor color, float corner_radius);
-
 void lf_seperator();
-
 void lf_set_clipboard_text(const char* text);
-
 char* lf_get_clipboard_text();
-
 void lf_set_no_render(bool no_render);
