@@ -3,6 +3,7 @@
 
 #include "khg_gfx/font.h"
 #include "khg_gfx/elements.h"
+#include "khg_gfx/internal.h"
 #include "khg_gfx/ui.h"
 #include "khg_utl/error_func.h"
 #include <stdio.h>
@@ -199,7 +200,7 @@ gfx_font load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap_4bpp);
   glGenerateMipmap(GL_TEXTURE_2D);
-  free(buffer);
+  font.buffer = buffer;
   free(bitmap);
   free(bitmap_4bpp);
   return font;

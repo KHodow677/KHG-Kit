@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
 
 typedef struct {
   uint32_t id;
@@ -13,6 +12,7 @@ typedef struct {
 typedef struct {
   void *cdata;
   void *font_info;
+  uint8_t *buffer;
   uint32_t tex_width, tex_height;
   uint32_t line_gap_add, font_size;
   gfx_texture bitmap;

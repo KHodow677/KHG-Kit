@@ -1,14 +1,12 @@
 #include "chat.h"
-// #include "khg_gfx/ui.h"
-// #include "khg_gfx/elements.h"
+#include "khg_gfx/ui.h"
+#include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "gfx/gfx.h"
-/* 
 int gfx_testing() {
   if (!glfwInit()) {
     return -1;
@@ -52,33 +50,12 @@ int gfx_testing() {
   glfwTerminate();
   return 0;
 }
-*/
-
-int leif_testing() {
-  glfwInit();
-  GLFWwindow *window = glfwCreateWindow(800, 600, "Hello", NULL, NULL);
-  glfwMakeContextCurrent(window);
-  lf_init_glfw(800, 600, window);
-  while(!glfwWindowShouldClose(window)) {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    lf_begin();
-    lf_text("Hello, Leif!");
-    lf_end();
-    glfwSwapBuffers(window);
-    glfwPollEvents();
-  }
-  lf_terminate();
-  glfwDestroyWindow(window);
-  glfwTerminate();
-  return 0;
-}
 
 int main(int argc, char *argv[]) {
-  return leif_testing();
+  return gfx_testing();
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <server|client>\n", argv[0]);
-    return EXIT_FAILURE;
+    return -1;
   }
   if (strcmp(argv[1], "server") == 0) {
     printf("Starting chat server...\n");
@@ -90,7 +67,7 @@ int main(int argc, char *argv[]) {
   } 
   else {
     fprintf(stderr, "Unknown argument '%s'. Use 'server' or 'client'.\n", argv[1]);
-    return EXIT_FAILURE;
+    return -1;
   }
-  return EXIT_SUCCESS;
+  return 0;
 }

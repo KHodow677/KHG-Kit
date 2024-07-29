@@ -1,7 +1,6 @@
 #pragma once
 
 #include "khg_gfx/elements.h"
-#include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "cglm/types-struct.h"
 #include <wchar.h>

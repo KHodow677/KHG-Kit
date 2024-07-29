@@ -319,6 +319,7 @@ gfx_texture gfx_load_texture_asset(const char *asset_name, const char *file_exte
 void gfx_free_font(gfx_font *font) {
   free(font->cdata);
   free(font->font_info);
+  free(font->buffer);
 }
 
 gfx_font gfx_load_font_asset(const char *asset_name, const char *file_extension, uint32_t font_size) {
