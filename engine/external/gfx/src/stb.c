@@ -72,7 +72,7 @@ LfFont load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, u
   fseek(file, 0, SEEK_END);
   long fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  uint8_t * buffer = (uint8_t *)malloc(fileSize);
+  uint8_t *buffer = (uint8_t *)malloc(fileSize);
   size_t bytesRead = fread(buffer, 1, fileSize, file);
   fclose(file); 
   if (bytesRead != fileSize) {
@@ -109,6 +109,7 @@ LfFont load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, u
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap_4bpp);
   glGenerateMipmap(GL_TEXTURE_2D);
+  free(buffer);
   free(bitmap);
   free(bitmap_4bpp);
   return font;

@@ -1,5 +1,6 @@
 #include "gfx/inputs.h"
 #include "khg_utl/error_func.h"
+#include <string.h>
 
 void glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action, int mods) {
   (void)window;

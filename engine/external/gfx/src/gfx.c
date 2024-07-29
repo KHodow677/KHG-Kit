@@ -9,7 +9,6 @@
 #include <cglm/types-struct.h>
 #include <time.h>
 #include <GLFW/glfw3.h>
-#include <wingdi.h>
 
 #include <locale.h>
 #include <stdbool.h>
