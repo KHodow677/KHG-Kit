@@ -1,7 +1,0 @@
-cmake_minimum_required(VERSION 3.5)
-project(gfx)
-add_library(gfx)
-file(GLOB_RECURSE sources "src/*.c")
-target_sources(gfx PRIVATE "${sources}")
-target_include_directories(gfx PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(gfx PUBLIC cglm glad glfw stb_image stb_image_resize stb_truetype libclipboard khg_utl)
