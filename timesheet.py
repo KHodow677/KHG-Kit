@@ -8,7 +8,7 @@ def main(argv=None):
   if argv is None:
     argv = sys.argv
   if len(argv) < 2:
-    db_filename = os.path.expanduser("./.timesheetdb")
+    db_filename = os.path.expanduser("./.timesheet")
   else:
     db_filename = argv[1]
   if os.path.exists(db_filename):

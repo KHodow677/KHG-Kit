@@ -93,4 +93,15 @@ class controller(cmd.Cmd):
     else:
       self.project.end_period()
     print("Added {0} Hours".format(self.project.total_hours - old_hours))
+
+  def do_remove(self, line):
+    name = line.strip().split()[0]
+    if name not in self.db:
+      print("No Such Project")
+      return
+    if self.project == self.db[name]:
+      self.project = None
+      self.prompt = "() -> "
+    del self.db[name]
+    print(f"Removed project '{name}' from database.")
  
