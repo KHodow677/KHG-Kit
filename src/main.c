@@ -1,4 +1,6 @@
 #include "chat.h"
+#include "khg_gfx/internal.h"
+#include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
@@ -7,7 +9,10 @@
 #include <stdio.h>
 #include <string.h>
 
-int gfx_testing() {
+float ang = 0.0f;
+gfx_texture body, top;
+
+int gfx_start() {
   if (!glfwInit()) {
     return -1;
   }
@@ -18,41 +23,25 @@ int gfx_testing() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(800, 600, window);
-  float ang = 0.0f;
-  const double target_fps = 60.0;
-  const double frame_duration = 1.0 / target_fps;
-  double last_time = glfwGetTime();
-  double elapsed_time;
-  while (!glfwWindowShouldClose(window)) {
-    double current_time = glfwGetTime();
-    elapsed_time = current_time - last_time;
-    if (elapsed_time >= frame_duration) {
-        last_time = current_time;
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        gfx_begin();
-        ang += 0.05f;
-        //gfx_rect(100, 50, gfx_white, 0.0f, ang);
-        gfx_text("Hello!");
-        gfx_end();
-        glfwSwapBuffers(window);
-        double frame_end_time = glfwGetTime();
-        double frame_render_duration = frame_end_time - current_time;
-        if (frame_render_duration < frame_duration) {
-          double sleep_duration = frame_duration - frame_render_duration;
-          glfwWaitEventsTimeout(sleep_duration);
-        }
-    }
-    glfwPollEvents();
-  }
-  gfx_terminate();
-  glfwDestroyWindow(window);
-  glfwTerminate();
-  return 0;
+  body = gfx_load_texture_asset("Tank-Body-Blue", "png");
+  top = gfx_load_texture_asset("Tank-Top-Blue", "png");
+  return gfx_loop_manager(window);
+}
+
+void gfx_loop() {
+  glClear(GL_COLOR_BUFFER_BIT);
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  gfx_begin();
+  ang += 0.05f;
+  //gfx_rect(100, 50, gfx_white, 0.0f, ang);
+  body.angle = ang;
+  gfx_image(body);
+  //gfx_image(top);
+  gfx_text("Hello!");
 }
 
 int main(int argc, char *argv[]) {
-  return gfx_testing();
+  return gfx_start();
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <server|client>\n", argv[0]);
     return -1;

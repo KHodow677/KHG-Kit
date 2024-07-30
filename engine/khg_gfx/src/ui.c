@@ -48,6 +48,33 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   state.tex_tick = gfx_load_texture_asset("tick", "png");
 }
 
+int gfx_loop_manager(GLFWwindow *window) {
+  const double target_fps = 60.0;
+  const double frame_duration = 1.0 / target_fps;
+  double last_time = glfwGetTime();
+  double elapsed_time;
+  while (!glfwWindowShouldClose(window)) {
+    double current_time = glfwGetTime();
+    elapsed_time = current_time - last_time;
+    if (elapsed_time >= frame_duration) {
+      last_time = current_time;
+      gfx_loop();
+      gfx_end();
+      glfwSwapBuffers(window);
+      double frame_end_time = glfwGetTime();
+      double frame_render_duration = frame_end_time - current_time;
+      if (frame_render_duration < frame_duration) {
+        double sleep_duration = frame_duration - frame_render_duration;
+        glfwWaitEventsTimeout(sleep_duration);
+      }
+    }
+    glfwPollEvents();
+  }
+  gfx_terminate();
+  glfwDestroyWindow(window);
+  glfwTerminate();
+}
+
 void gfx_terminate() {
   gfx_free_font(&state.theme.font);
 }
