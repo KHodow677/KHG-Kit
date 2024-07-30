@@ -1,4 +1,5 @@
 #include "khg_gfx/elements.h"
+#include "cglm/types-struct.h"
 #include "khg_gfx/font.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/internal.h"
@@ -13,24 +14,10 @@
 #include <stdio.h>
 
 void compute_bounding_box(uint32_t width, uint32_t height, float angle, float* boundingWidth, float* boundingHeight) {
-  float cosA = cos(angle);
-  float sinA = sin(angle);
-  float w = width / 2.0;
-  float h = height / 2.0;
-  float x1 = w * cosA - h * sinA;
-  float y1 = w * sinA + h * cosA;
-  float x2 = w * cosA + h * sinA;
-  float y2 = w * sinA - h * cosA;
-  float x3 = -w * cosA - h * sinA;
-  float y3 = -w * sinA + h * cosA;
-  float x4 = -w * cosA + h * sinA;
-  float y4 = -w * sinA - h * cosA;
-  float xMin = fmin(fmin(x1, x2), fmin(x3, x4));
-  float xMax = fmax(fmax(x1, x2), fmax(x3, x4));
-  float yMin = fmin(fmin(y1, y2), fmin(y3, y4));
-  float yMax = fmax(fmax(y1, y2), fmax(y3, y4));
-  *boundingWidth = xMax - xMin;
-  *boundingHeight = yMax - yMin;
+  float cosA = fabs(cos(angle));
+  float sinA = fabs(sin(angle));
+  *boundingWidth = width * cosA + height * sinA;
+  *boundingHeight = width * sinA + height * cosA;
 }
 
 gfx_theme gfx_default_theme() {
@@ -633,55 +620,52 @@ gfx_text_props gfx_text_render(vec2s pos, const char *str, gfx_font font, gfx_co
 }
 
 void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_color, float border_width, float corner_radius, float rotation_angle) {
-  if(!state.renderer_render) return;
-  if(item_should_cull((gfx_aabb){ .pos = pos, .size = size })) {
+  if (!state.renderer_render) return;
+  float boundingWidth, boundingHeight;
+  compute_bounding_box(size.x, size.y, rotation_angle, &boundingWidth, &boundingHeight);
+  if (item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ boundingWidth, boundingHeight } })) {
     return;
   }
   vec2s pos_initial = pos;
-  pos = (vec2s){pos.x + size.x / 2.0f, pos.y + size.y / 2.0f};
-  vec2s texcoords[4] = {(vec2s){ 1.0f, 1.0f }, (vec2s){ 1.0f, 0.0f }, (vec2s){ 0.0f, 0.0f }, (vec2s){ 0.0f, 1.0f } };
-  mat4 translate = GLM_MAT4_IDENTITY_INIT; 
+  vec2s rect_centered = (vec2s){ size.x / 2.0f, size.y / 2.0f };
+  vec2s pos_centered = (vec2s){ pos.x + rect_centered.x, pos.y + rect_centered.y };
+  vec2s texcoords[4] = { (vec2s){ 1.0f, 1.0f }, (vec2s){ 1.0f, 0.0f }, (vec2s){ 0.0f, 0.0f }, (vec2s){ 0.0f, 1.0f } };
+  mat4 translate = GLM_MAT4_IDENTITY_INIT;
   mat4 scale = GLM_MAT4_IDENTITY_INIT;
   mat4 rotation = GLM_MAT4_IDENTITY_INIT;
   mat4 transform = GLM_MAT4_IDENTITY_INIT;
-  float accounted_x = pos.x, accounted_y = pos.y;
-  float accounted_corner_x, accounted_corner_y;
-  compute_bounding_box(pos.x, pos.y, rotation_angle, &accounted_x, &accounted_y);
-  compute_bounding_box((float)state.dsp_w / 2.0f, (float)state.dsp_h / 2.0f, rotation_angle, &accounted_corner_x, &accounted_corner_y);
-  vec3 pos_xyz = {(corner_radius != 0.0f ? accounted_corner_x : accounted_x), (corner_radius != 0.0f ? accounted_corner_y : accounted_y), 0.0f};
-  vec3 size_xyz = {corner_radius != 0.0f ? state.dsp_w : size.x, corner_radius != 0.0f ? state.dsp_h : size.y, 0.0f};
-  glm_translate_make(translate, pos_xyz);
-  glm_scale_make(scale, size_xyz);
-  glm_rotate_make(rotation, rotation_angle, (vec3){0.0f, 0.0f, 1.0f});
-  glm_mat4_mul(translate, rotation, transform);
-  glm_mat4_mul(transform, scale, transform);
-  for(uint32_t i = 0; i < 4; i++) {
-    if(state.render.vert_count >= MAX_RENDER_BATCH) {
+  vec3s pos_xyz = (vec3s){ pos_centered.x, pos_centered.y, 0.0f };
+  glm_translate_make(translate, pos_xyz.raw);
+  glm_scale_make(scale, (vec3){ size.x, size.y, 1.0f });
+  glm_rotate_make(rotation, rotation_angle, (vec3){ 0.0f, 0.0f, 1.0f });
+  glm_mat4_mul(rotation, scale, transform);
+  glm_mat4_mul(translate, transform, transform);
+  for (uint32_t i = 0; i < 4; i++) {
+    if (state.render.vert_count >= MAX_RENDER_BATCH) {
       renderer_flush();
       renderer_begin();
     }
     vec4 result;
-    glm_mat4_mulv(transform, state.render.vert_pos[i].raw, result);
-    state.render.verts[state.render.vert_count].pos[0] = result[0];
-    state.render.verts[state.render.vert_count].pos[1] = result[1];
+    glm_mat4_mulv(transform, (vec4s){ state.render.vert_pos[i].x, state.render.vert_pos[i].y, 0.0f, 1.0f }.raw, result);
+    memcpy(state.render.verts[state.render.vert_count].pos, result, sizeof(vec2));
     vec4s border_color_zto = gfx_color_to_zto(border_color);
-    const vec4 border_color_arr = {border_color_zto.r, border_color_zto.g, border_color_zto.b, border_color_zto.a};
+    const vec4 border_color_arr = { border_color_zto.r, border_color_zto.g, border_color_zto.b, border_color_zto.a };
     memcpy(state.render.verts[state.render.vert_count].border_color, border_color_arr, sizeof(vec4));
-    state.render.verts[state.render.vert_count].border_width = border_width; 
+    state.render.verts[state.render.vert_count].border_width = border_width;
     vec4s color_zto = gfx_color_to_zto(color);
-    const vec4 color_arr = {color_zto.r, color_zto.g, color_zto.b, color_zto.a};
+    const vec4 color_arr = { color_zto.r, color_zto.g, color_zto.b, color_zto.a };
     memcpy(state.render.verts[state.render.vert_count].color, color_arr, sizeof(vec4));
-    const vec2 texcoord_arr = {texcoords[i].x, texcoords[i].y};
+    const vec2 texcoord_arr = { texcoords[i].x, texcoords[i].y };
     memcpy(state.render.verts[state.render.vert_count].texcoord, texcoord_arr, sizeof(vec2));
     state.render.verts[state.render.vert_count].tex_index = -1;
-    const vec2 scale_arr = {size.x, size.y};
+    const vec2 scale_arr = { size.x, size.y };
     memcpy(state.render.verts[state.render.vert_count].scale, scale_arr, sizeof(vec2));
-    const vec2 pos_px_arr = {(float)pos_initial.x, (float)pos_initial.y};
+    const vec2 pos_px_arr = { (float)pos_initial.x, (float)pos_initial.y };
     memcpy(state.render.verts[state.render.vert_count].pos_px, pos_px_arr, sizeof(vec2));
     state.render.verts[state.render.vert_count].corner_radius = corner_radius;
-    const vec2 cull_start_arr = {state.cull_start.x, state.cull_start.y};
+    const vec2 cull_start_arr = { state.cull_start.x, state.cull_start.y };
     memcpy(state.render.verts[state.render.vert_count].min_coord, cull_start_arr, sizeof(vec2));
-    const vec2 cull_end_arr = {state.cull_end.x, state.cull_end.y};
+    const vec2 cull_end_arr = { state.cull_end.x, state.cull_end.y };
     memcpy(state.render.verts[state.render.vert_count].max_coord, cull_end_arr, sizeof(vec2));
     state.render.vert_count++;
   }
@@ -689,47 +673,50 @@ void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_co
 }
 
 void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle) {
-  if(!state.renderer_render) return;
-  if(item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ tex.width, tex.height } })) {
+  if (!state.renderer_render) {
     return;
   }
-  if(state.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
+  float boundingWidth, boundingHeight;
+  compute_bounding_box(tex.width, tex.height, rotation_angle, &boundingWidth, &boundingHeight);
+  if (item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ boundingWidth, boundingHeight } })) {
+    return;
+  }
+  if (state.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
     renderer_flush();
     renderer_begin();
   }
   vec2s pos_initial = pos;
-  pos = (vec2s){pos.x + tex.width / 2.0f, pos.y + tex.height / 2.0f};
-  if(state.image_color_stack.a != 0.0) {
+  vec2s tex_centered = (vec2s){ tex.width / 2.0f, tex.height / 2.0f };
+  vec2s pos_centered = (vec2s){ pos.x + tex_centered.x, pos.y + tex_centered.y };
+  if (state.image_color_stack.a != 0.0) {
     color = state.image_color_stack;
   }
   vec2s texcoords[4] = { (vec2s){ 0.0f, 0.0f }, (vec2s){ 1.0f, 0.0f }, (vec2s){ 1.0f, 1.0f }, (vec2s){ 0.0f, 1.0f } };
   float tex_index = -1.0f;
-  for(uint32_t i = 0; i < state.render.tex_count; i++) {
-    if(tex.id == state.render.textures[i].id)  {
+  for (uint32_t i = 0; i < state.render.tex_count; i++) {
+    if (tex.id == state.render.textures[i].id) {
       tex_index = i;
       break;
     }
   }
-  if(tex_index == -1.0f) {
+  if (tex_index == -1.0f) {
     tex_index = (float)state.render.tex_index;
     state.render.textures[state.render.tex_count++] = tex;
     state.render.tex_index++;
   }
-  mat4 translate = GLM_MAT4_IDENTITY_INIT; 
+  mat4 translate = GLM_MAT4_IDENTITY_INIT;
   mat4 scale = GLM_MAT4_IDENTITY_INIT;
   mat4 rotation = GLM_MAT4_IDENTITY_INIT;
   mat4 transform = GLM_MAT4_IDENTITY_INIT;
-  float accounted_x, accounted_y;
-  compute_bounding_box(pos.x, pos.y, rotation_angle, &accounted_x, &accounted_y);
-  vec3s pos_xyz = (vec3s){accounted_x, accounted_y, 0.0f};
+  vec3s pos_xyz = (vec3s){ pos_centered.x, pos_centered.y, 0.0f };
   vec3 tex_size = { tex.width, tex.height, 1.0f };
   glm_translate_make(translate, pos_xyz.raw);
   glm_scale_make(scale, tex_size);
-  glm_rotate_make(rotation, rotation_angle, (vec3){0.0f, 0.0f, 1.0f});
-  glm_mat4_mul(translate, rotation, transform);
-  glm_mat4_mul(transform, scale, transform);
-  for(uint32_t i = 0; i < 4; i++) {
-    if(state.render.vert_count >= MAX_RENDER_BATCH) {
+  glm_rotate_make(rotation, rotation_angle, (vec3){ 0.0f, 0.0f, 1.0f });
+  glm_mat4_mul(rotation, scale, transform);
+  glm_mat4_mul(translate, transform, transform);
+  for (uint32_t i = 0; i < 4; i++) {
+    if (state.render.vert_count >= MAX_RENDER_BATCH) {
       renderer_flush();
       renderer_begin();
     }
@@ -737,26 +724,26 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
     glm_mat4_mulv(transform, state.render.vert_pos[i].raw, result);
     memcpy(state.render.verts[state.render.vert_count].pos, result, sizeof(vec2));
     vec4s border_color_zto = gfx_color_to_zto(border_color);
-    const vec4 border_color_arr = {border_color_zto.r, border_color_zto.g, border_color_zto.b, border_color_zto.a};
+    const vec4 border_color_arr = { border_color_zto.r, border_color_zto.g, border_color_zto.b, border_color_zto.a };
     memcpy(state.render.verts[state.render.vert_count].border_color, border_color_arr, sizeof(vec4));
-    state.render.verts[state.render.vert_count].border_width = border_width; 
+    state.render.verts[state.render.vert_count].border_width = border_width;
     vec4s color_zto = gfx_color_to_zto(color);
-    const vec4 color_arr = {color_zto.r, color_zto.g, color_zto.b, color_zto.a};
+    const vec4 color_arr = { color_zto.r, color_zto.g, color_zto.b, color_zto.a };
     memcpy(state.render.verts[state.render.vert_count].color, color_arr, sizeof(vec4));
-    const vec2 texcoord_arr = {texcoords[i].x, texcoords[i].y};
+    const vec2 texcoord_arr = { texcoords[i].x, texcoords[i].y };
     memcpy(state.render.verts[state.render.vert_count].texcoord, texcoord_arr, sizeof(vec2));
     state.render.verts[state.render.vert_count].tex_index = tex_index;
-    const vec2 scale_arr = {(float)tex.width, (float)tex.height};
+    const vec2 scale_arr = { (float)tex.width, (float)tex.height };
     memcpy(state.render.verts[state.render.vert_count].scale, scale_arr, sizeof(vec2));
-    vec2 pos_px_arr = {(float)pos_initial.x, (float)pos_initial.y};
+    vec2 pos_px_arr = { (float)pos_initial.x, (float)pos_initial.y };
     memcpy(state.render.verts[state.render.vert_count].pos_px, pos_px_arr, sizeof(vec2));
     state.render.verts[state.render.vert_count].corner_radius = corner_radius;
-    const vec2 cull_start_arr = {state.cull_start.x, state.cull_start.y};
+    const vec2 cull_start_arr = { state.cull_start.x, state.cull_start.y };
     memcpy(state.render.verts[state.render.vert_count].min_coord, cull_start_arr, sizeof(vec2));
-    const vec2 cull_end_arr = {state.cull_end.x, state.cull_end.y};
+    const vec2 cull_end_arr = { state.cull_end.x, state.cull_end.y };
     memcpy(state.render.verts[state.render.vert_count].max_coord, cull_end_arr, sizeof(vec2));
     state.render.vert_count++;
-  } 
+  }
   state.render.index_count += 6;
 }
 
@@ -890,7 +877,7 @@ void gfx_image(gfx_texture tex) {
   state.pos_ptr.y -= margin_top;
 }
 
-void gfx_image_no_block(gfx_texture tex) {
+void gfx_image_no_block(float x, float y, gfx_texture tex) {
   float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
@@ -900,7 +887,7 @@ void gfx_image_no_block(gfx_texture tex) {
   next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left; 
   state.pos_ptr.y += margin_top;
-  gfx_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle);
+  gfx_image_render((vec2s){ x - tex.width / 2.0f, y - tex.height / 2.0f}, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle);
   state.pos_ptr.x += w + margin_right;
   state.pos_ptr.y -= margin_top;
   state.pos_ptr.x = init_x;
@@ -915,12 +902,12 @@ void gfx_rect(float width, float height, gfx_color color, float corner_radius, f
   state.pos_ptr.x += w;
 }
 
-void gfx_rect_no_block(float width, float height, gfx_color color, float corner_radius, float angle) {
+void gfx_rect_no_block(float x, float y, float width, float height, gfx_color color, float corner_radius, float angle) {
   float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(width, height, angle, &w, &h);
   next_line_on_overflow((vec2s){ w, h }, state.div_props.border_width);
-  gfx_rect_render(state.pos_ptr, (vec2s){(float)width, (float)height}, color, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
+  gfx_rect_render((vec2s){ x - width / 2.0f, y - height / 2.0f}, (vec2s){(float)width, (float)height}, color, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
   state.pos_ptr.x += w;
   state.pos_ptr.x = init_x;
   state.pos_ptr.y = init_y;

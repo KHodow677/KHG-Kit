@@ -33,11 +33,11 @@ void gfx_loop() {
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   gfx_begin();
   ang += 0.05f;
-  //gfx_rect(100, 50, gfx_white, 0.0f, ang);
   body.angle = ang;
-  gfx_image(body);
-  //gfx_image(top);
+  gfx_rect_no_block(300.0f, 250.0f, 145, 184, gfx_white, 0.0f, ang);
+  gfx_image_no_block(200.0f, 150.0f, body);
   gfx_text("Hello!");
+  //gfx_image(top);
 }
 
 int main(int argc, char *argv[]) {
