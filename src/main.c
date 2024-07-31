@@ -1,8 +1,8 @@
 #include "chat.h"
-#include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
+#include "khg_utl/postgres.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdint.h>
@@ -41,7 +41,9 @@ void gfx_loop() {
 }
 
 int main(int argc, char *argv[]) {
-  return gfx_start();
+  printf("Hi\n");
+  postgres *pg = postgres_create();
+  return 0;
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <server|client>\n", argv[0]);
     return -1;

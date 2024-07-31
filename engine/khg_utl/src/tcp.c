@@ -5,7 +5,6 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
 
 #define TCP_INVALID_SOCKET (~(TcpSocket)0)
 
@@ -79,8 +78,8 @@ TcpStatus tcp_socket_create(TcpSocket *sock) {
     return TCP_ERR_SOCKET;
   }
 #if defined(_WIN32) || defined(_WIN64)
-  *socket = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
-  if (*socket == INVALID_SOCKET) {
+  *sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
+  if (*sock == TCP_INVALID_SOCKET) {
     error_func("Socket creation failed", user_defined_data);
     return TCP_ERR_SOCKET;
   }
