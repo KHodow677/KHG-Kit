@@ -34,11 +34,6 @@ add_subdirectory(engine/khg_net)
 add_subdirectory(engine/khg_aud)
 add_subdirectory(engine/khg_gfx)
 
-set(OPENSSL_LIBRARIES "ssl;crypto")
-set(POSTGRES_LIBRARIES "pq")
-set(GDI32_LIBRARIES "gdi32")
-set(WINMM_LIBRARIES "winmm")
-
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 
 add_executable("${CMAKE_PROJECT_NAME}")
@@ -66,7 +61,15 @@ elseif(UNIX)
 endif()
 
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis openssl postgresql libclipboard khg_phy khg_ecs khg_utl khg_net khg_aud khg_gfx)
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/libpq.dll.a")
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE 
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libcrypto.a"
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libcrypto.dll.a"
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libcryptohi.dll.a"
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libpq.dll.a"
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libssl.a"
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libssl.dll.a"
+  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libssl3.dll.a"
+)
 
 enable_testing()
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")
