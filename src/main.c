@@ -5,6 +5,7 @@
 #include "khg_utl/postgres.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,6 +44,9 @@ void gfx_loop() {
 int main(int argc, char *argv[]) {
   printf("Hi\n");
   postgres *pg = postgres_create();
+  postgres_init(pg, "mydatabase", "myuser", "mypassword", "localhost", "5432");
+  postgres_deallocate(pg);
+  free(pg);
   return 0;
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <server|client>\n", argv[0]);

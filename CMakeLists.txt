@@ -61,15 +61,15 @@ elseif(UNIX)
 endif()
 
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis openssl postgresql libclipboard khg_phy khg_ecs khg_utl khg_net khg_aud khg_gfx)
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE 
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libcrypto.a"
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libcrypto.dll.a"
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libcryptohi.dll.a"
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libpq.dll.a"
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libssl.a"
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libssl.dll.a"
-  "${CMAKE_CURRENT_SOURCE_DIR}/lib/libssl3.dll.a"
-)
+if(WIN32)
+  file(GLOB LIBRARIES "${CMAKE_SOURCE_DIR}/lib/*.a")
+  target_include_directories(executable PRIVATE ${LIBRARIES})
+else()
+  target_link_libraries(executable PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/libpq.so")
+  #find_package(PostgreSQL REQUIRED)
+  #target_include_directories(executable PRIVATE ${PostgreSQL_INCLUDE_DIRS})
+  #target_link_libraries(executable PRIVATE ${PostgreSQL_LIBRARIES})
+endif()
 
 enable_testing()
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")
