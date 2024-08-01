@@ -52,11 +52,11 @@ int main_test(int argc, char *argv[]) {
     printf("Please include database name: ./mini <db_name>\n");
     return 1;
   }
-  database *db = create_database(argv[1]);
+  database *db = dbm_create_database(argv[1]);
   char file_name[255];
   snprintf(file_name, 255, "%s.meta",db->name);
   if (file_exists(file_name)) {
-    read_files(&db);
+    dbm_read_files(&db);
   }
   char *query;
   size_t len;
@@ -65,10 +65,10 @@ int main_test(int argc, char *argv[]) {
     printf("%s=>", db->name);
     if ((read_in = getline(&query, &len, stdin)) != -1) {
       if (read_in <= 2) {
-        write_files(&db);
+        dbm_write_files(&db);
         return 0;
       }
-      interactive(&db, query);
+      dbm_interactive(&db, query);
     }
   }
 }

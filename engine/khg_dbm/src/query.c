@@ -98,7 +98,7 @@ size_t exc_create(database **db, ArgNode *arg_table, ArgNode *fields) {
   char *field_types;
   create_cols(fields, &field_names, &field_types);
   table *new_table = create_table(table_name, &field_names, &field_types);
-  db_insert_table(db, &new_table);
+  dbm_db_insert_table(db, &new_table);
   return 1;
 }
 

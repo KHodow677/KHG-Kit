@@ -9,11 +9,11 @@ typedef struct _QueryNode {
   struct _QueryNode *next;
 } QueryNode;
 
-QueryNode* add_queryNode(QueryNode **parent, rownode **child);
+QueryNode *add_queryNode(QueryNode **parent, rownode **child);
 
-table* get_table(database **db, ArgNode *arg_table);
+table *get_table(database **db, ArgNode *arg_table);
 
-QueryNode* exc_select(database **db, ArgNode *table, ArgNode *fields, ArgNode *condition);
+QueryNode *exc_select(database **db, ArgNode *table, ArgNode *fields, ArgNode *condition);
 size_t exc_delete(database **db, ArgNode *table, ArgNode *condition);
 void exc_insert(database **db, ArgNode *table, ArgNode *values);
 size_t exc_update(database **db, ArgNode *table, ArgNode *updates, ArgNode *condition);
