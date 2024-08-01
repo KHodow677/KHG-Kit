@@ -1,11 +1,3 @@
-//
-//  util.c
-//  MiniDB
-//
-//  Created by Anish Basu on 7/26/17.
-//  Copyright © 2017 Anish Basu. All rights reserved.
-//
-
 #include <stdlib.h>
 #include <string.h>
 #include "khg_dbm/util.h"
