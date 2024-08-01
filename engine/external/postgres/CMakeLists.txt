@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.5)
+project(postgres)
+
+add_library(postgres)
+target_sources(postgres PRIVATE "src/postgresql.c")
+target_include_directories(postgres PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+if(WIN32)
+  target_link_libraries(postgres PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/libpq.lib")
+  target_link_libraries(postgres PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/libpq.dll")
+else()
+  target_link_libraries(postgres PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/lib/libpq.so")
+endif()
