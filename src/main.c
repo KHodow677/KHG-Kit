@@ -1,8 +1,12 @@
+#define LIGHTMODBUS_SLAVE_FULL
+#define LIGHTMODBUS_DEBUG
+#define LIGHTMODBUS_IMPL
+
 #include "chat.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
-#include "khg_utl/postgres.h"
+#include "khg_tcp/stcp.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdlib.h>
@@ -41,13 +45,36 @@ void gfx_loop() {
   //gfx_image(top);
 }
 
+void process_error(stcp_error e, void* user_data)
+{
+	stcp_channel** channel = (stcp_channel**) user_data;
+
+	perror(stcp_error_to_string(e));
+	stcp_close_channel(*channel);
+	stcp_terminate();
+	exit(-1);
+}
+
+bool print_buffer(const char* buffer, int length, void* user_data)
+{
+	(void) user_data;
+	return fwrite(buffer, sizeof(char), length, stdout) == (size_t) length;
+}
+
 int main(int argc, char *argv[]) {
   printf("Hi\n");
-  postgres *pg = postgres_create();
-  postgres_init(pg, "mydatabase", "myuser", "mypassword", "localhost", "5432");
-  postgres_deallocate(pg);
-  free(pg);
-  return 0;
+	stcp_channel* channel = NULL;
+	stcp_set_error_callback(process_error, &channel);
+	stcp_initialize();
+
+	const char* request = "HEAD / HTTP/1.2\r\n\r\n";
+	channel = stcp_connect("www.google.com", "http");
+	stcp_send(channel, request, strlen(request), 500);
+	stcp_stream_receive(channel, print_buffer, NULL, 500);
+
+	stcp_close_channel(channel);
+	stcp_terminate();
+	return 0;
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <server|client>\n", argv[0]);
     return -1;
