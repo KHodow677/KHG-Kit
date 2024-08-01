@@ -31,7 +31,7 @@ def main(argv=None):
   cc.cmdloop()
   print("Writing Database")
   with open(db_filename, 'wb') as db_file:
-    db = pickle.dump(db, db_file)
+    db = pickle.dump(cc.db, db_file)
 
 if __name__ == "__main__":
   main()
