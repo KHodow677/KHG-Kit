@@ -23,12 +23,12 @@ int phy_test() {
   // These include the mass, position, velocity, angle, etc. of the object.
   // Then we attach collision shapes to the cpBody to give it a size and shape.
   
-  cpFloat radius = 5;
-  cpFloat mass = 1;
+  float radius = 5;
+  float mass = 1;
   
   // The moment of inertia is like mass for rotation
   // Use the cpMomentFor*() functions to help you approximate it.
-  cpFloat moment = cpMomentForCircle(mass, 0, radius, cpvzero);
+  float moment = cpMomentForCircle(mass, 0, radius, cpvzero);
   
   // The cpSpaceAdd*() functions return the thing that you are adding.
   // It's convenient to create and add an object in one line.
@@ -44,15 +44,11 @@ int phy_test() {
   // Now that it's all set up, we simulate all the objects in the space by
   // stepping forward through time in small increments called steps.
   // It is *highly* recommended to use a fixed size time step.
-  cpFloat timeStep = 1.0/60.0;
-  for(cpFloat time = 0; time < 2; time += timeStep){
+  float timeStep = 1.0/60.0;
+  for(float time = 0; time < 2; time += timeStep){
     cpVect pos = cpBodyGetPosition(ballBody);
     cpVect vel = cpBodyGetVelocity(ballBody);
-    printf(
-      "Time is %5.2f. ballBody is at (%5.2f, %5.2f). It's velocity is (%5.2f, %5.2f)\n",
-      time, pos.x, pos.y, vel.x, vel.y
-    );
-    
+    printf( "Time is %5.2f. ballBody is at (%5.2f, %5.2f). It's velocity is (%5.2f, %5.2f)\n", time, pos.x, pos.y, vel.x, vel.y);
     cpSpaceStep(space, timeStep);
   }
   
