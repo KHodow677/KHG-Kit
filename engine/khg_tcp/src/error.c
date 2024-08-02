@@ -7,8 +7,9 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <string.h>
 
 static stcp_error_callback_fn _error_callback = NULL;
 static void* _user_data = NULL;
@@ -131,8 +132,7 @@ const char* stcp_error_to_string(stcp_error err)
 	}
 }
 
-void stcp_print_error(stcp_error e)
-{
+void stcp_print_error(stcp_error e) {
 	fprintf(stderr, "STCP error: %s\n", stcp_error_to_string(e));
 }
 

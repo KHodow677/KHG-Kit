@@ -123,7 +123,7 @@ void stcp_raise_ssl_error(int err);
 const char* stcp_error_to_string(stcp_error err);
 
 // Print any and all errors
-void stcp_print_error();
+void stcp_print_error(stcp_error err);
 
 // Non-recoverable errors. Bypasses the debug callback
 void stcp_fail(stcp_error err, const char* file, int line);
