@@ -9,12 +9,12 @@ size_t rowlen(row **in_row) {
 }
 
 row *create_row(char *types) {
-  if(verify_types(types)) {
+  if(dbm_verify_types(types)) {
 		row *new_row = (row *)malloc(sizeof(row));
-		new_row->columns = (generic **)malloc(sizeof(generic *) * strlen(types));
+		new_row->columns = (dbm_generic **)malloc(sizeof(dbm_generic *) * strlen(types));
 		new_row->types = types;
 		for(int i = 0; i < rowlen(&new_row); i++) {
-			create_def_generic(&new_row->columns[i], get_type(new_row->types[i]));
+			dbm_create_def_generic(&new_row->columns[i], dbm_get_type(new_row->types[i]));
 		}
 		return new_row;
 	} 
@@ -23,32 +23,32 @@ row *create_row(char *types) {
 	}
 }
 
-i_type r_get_type(row **in_row, int index) {
+dbm_i r_get_type(row **in_row, int index) {
 	return (*in_row)->columns[index]->type;
 }
 
 int r_get_int(row **in_row, int index) {
-	return get_int(&(*in_row)->columns[index]);
+	return dbm_get_int(&(*in_row)->columns[index]);
 }
 
 void r_set_int(row **in_row, int index, int value) {
-	set_int(&(*in_row)->columns[index], &value);
+	dbm_set_int(&(*in_row)->columns[index], &value);
 }
 
 char r_get_char(row **in_row, int index) {
-	return get_char(&(*in_row)->columns[index]);
+	return dbm_get_char(&(*in_row)->columns[index]);
 }
 
 void r_set_char(row **in_row, int index, char value) {
-	set_int(&(*in_row)->columns[index], &value);
+	dbm_set_int(&(*in_row)->columns[index], &value);
 }
 
 char* r_get_str(row **in_row, int index) {
-	return get_str(&(*in_row)->columns[index]);
+	return dbm_get_str(&(*in_row)->columns[index]);
 }
 
 void r_set_str(row **in_row, int index, char *value) {
-	set_str(&(*in_row)->columns[index], value);
+	dbm_set_str(&(*in_row)->columns[index], value);
 }
 
 void print_row(row **in_row){

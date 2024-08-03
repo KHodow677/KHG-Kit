@@ -1,16 +1,17 @@
 #include "khg_aud/utils.h"
 
-void play_sound(sound s);
-void stop_sound(sound s);
-void pause_sound(sound s);
-void resume_sound(sound s);
-void play_sound_multi(sound s);
-void stop_sound_multi(void);
-int get_sounds_playing(void);
-bool is_sound_playing(sound s);
-void set_sound_volume(sound s, float volume);
-void set_sound_pitch(sound s, float pitch);
-void wave_format(wave *w, int sample_rate, int sample_size, int channels);
-wave wave_copy(wave w);
-void wave_crop(wave *w, int init_sample, int final_sample);
-float *get_wave_data(wave w);
+void aud_play_sound(aud_sound s);
+void aud_stop_sound(aud_sound s);
+void aud_pause_sound(aud_sound s);
+void aud_resume_sound(aud_sound s);
+void aud_play_sound_multi(aud_sound s);
+void aud_stop_sound_multi(void);
+int aud_get_sounds_playing(void);
+bool aud_is_sound_playing(aud_sound s);
+void aud_set_sound_volume(aud_sound s, float volume);
+void aud_set_sound_pitch(aud_sound s, float pitch);
+void aud_wave_format(aud_wave *w, int sample_rate, int sample_size, int channels);
+aud_wave aud_wave_copy(aud_wave w);
+void aud_wave_crop(aud_wave *w, int init_sample, int final_sample);
+float *aud_get_wave_data(aud_wave w);
+

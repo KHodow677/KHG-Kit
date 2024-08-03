@@ -52,7 +52,7 @@ int main_test(int argc, char *argv[]) {
     printf("Please include database name: ./mini <db_name>\n");
     return 1;
   }
-  database *db = dbm_create_database(argv[1]);
+  dbm_database *db = dbm_create_database(argv[1]);
   char file_name[255];
   snprintf(file_name, 255, "%s.meta",db->name);
   if (file_exists(file_name)) {

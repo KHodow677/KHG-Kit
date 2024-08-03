@@ -14,18 +14,18 @@ table *create_table(char *name, char ***field_names, char **field_types) {
   return new_table;
 }
 
-rownode *get_rows(table **in_table) {
+dbm_row_node *get_rows(table **in_table) {
   return (*in_table)->root;
 }
 
 void tbl_insert(table **in_table, row **new_row) {
   if((*in_table)->end == NULL){
-    rownode *new_rownode = create_rownode(new_row);
+    dbm_row_node *new_rownode = dbm_create_row_node(new_row);
     (*in_table)->root = new_rownode;
     (*in_table)->end = new_rownode;
   } 
   else {
-    (*in_table)->end = add_row(&(*in_table)->end, new_row);
+    (*in_table)->end = dbm_add_row(&(*in_table)->end, new_row);
   }
 }
 

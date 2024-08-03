@@ -1,19 +1,14 @@
 #include "khg_dbm/generics.h"
 #include "khg_dbm/util.h"
+#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-
-#ifndef BOOL_FLAGS
-#define BOOL_FLAGS
-#define false 0
-#define true 1
-#endif
 
 static int def_i = 0;
 static char def_c = 'a';
 static char* def_s = "";
 
-int is_type(generic **data, i_type type) {
+int dbm_is_type(dbm_generic **data, dbm_i type) {
   if ((*data)->type == type) {
 		return true;
 	} 
@@ -22,7 +17,7 @@ int is_type(generic **data, i_type type) {
 	}
 }
 
-int verify_types(char *types) {
+int dbm_verify_types(char *types) {
 	int result = true;
 	for (int i = 0; i < strlen(types); i++) {
 		if (types[i] != 'c' && types[i] != 's' && types[i] != 'i'){
@@ -32,7 +27,7 @@ int verify_types(char *types) {
 	return result;
 }
 
-int geneq(generic *gen_1, generic *gen_2) {
+int dbm_geneq(dbm_generic *gen_1, dbm_generic *gen_2) {
   if (gen_1->type == gen_2->type) {
     switch (gen_1->type){
       case int_t:
@@ -48,14 +43,14 @@ int geneq(generic *gen_1, generic *gen_2) {
   return 0;
 }
 
-char format_type(generic **data) {
-  if (is_type(data, int_t)) {
+char dbm_format_type(dbm_generic **data) {
+  if (dbm_is_type(data, int_t)) {
 		return 'i';
 	}
-  else if (is_type(data, str_t)) {
+  else if (dbm_is_type(data, str_t)) {
 		return 's';
 	}
-  else if (is_type(data, char_t)) {
+  else if (dbm_is_type(data, char_t)) {
 		return 'c';
 	} 
   else {
@@ -63,7 +58,7 @@ char format_type(generic **data) {
 	}
 }
 
-i_type get_type(char type) {
+dbm_i dbm_get_type(char type) {
 	if (type == 'i') {
 		return int_t;
 	}
@@ -76,80 +71,80 @@ i_type get_type(char type) {
 	return null_t;
 }
 
-void set_int(generic **g, void *value) {
+void dbm_set_int(dbm_generic **g, void *value) {
 	int *nval = (int *) value;
 	(*g)->value.int_v = *nval;
 }
 
-int get_int(generic **g) {
+int dbm_get_int(dbm_generic **g) {
 	return (*g)->value.int_v;
 }
 
-void set_char(generic **g, void *value) {
+void dbm_set_char(dbm_generic **g, void *value) {
 	char *nval = (char *) value;
 	(*g)->value.char_v = *nval;
 }
 
-char get_char(generic **g) {
+char dbm_get_char(dbm_generic **g) {
 	return (*g)->value.char_v;
 }
 
-void set_str(generic **g, void *value) {
+void dbm_set_str(dbm_generic **g, void *value) {
 	char* str_val = (char *) value;
 	(*g)->value.str_v = malloc(sizeof(char) * strlen(str_val));
 	strcpy((*g)->value.str_v, str_val);
 }
 
-char* get_str(generic **g) {
+char* dbm_get_str(dbm_generic **g) {
 	return (*g)->value.str_v;
 }
 
-void create_generic(generic **new_gen, i_type type, void *value) {
-	(*new_gen) = (generic *)malloc(sizeof(generic));
+void dbm_create_generic(dbm_generic **new_gen, dbm_i type, void *value) {
+	(*new_gen) = (dbm_generic *)malloc(sizeof(dbm_generic));
 	(*new_gen)->type = type;
 	switch (type) {
 		case int_t:
-			set_int(new_gen, value);
+			dbm_set_int(new_gen, value);
 			break;
 		case char_t:
-			set_char(new_gen, value);
+			dbm_set_char(new_gen, value);
 			break;
 		case str_t:
-			set_str(new_gen, value);
+			dbm_set_str(new_gen, value);
 			break;
 		default:
 			break;
 	}
 }
 
-void create_def_generic(generic **new_gen, i_type type) {
+void dbm_create_def_generic(dbm_generic **new_gen, dbm_i type) {
 	switch (type) {
 		case int_t:
-			create_generic(new_gen, type, &def_i);
+			dbm_create_generic(new_gen, type, &def_i);
 			break;
 		case char_t:
-			create_generic(new_gen, type, &def_c);
+			dbm_create_generic(new_gen, type, &def_c);
 			break;
 		case str_t:
-			create_generic(new_gen, type, def_s);
+			dbm_create_generic(new_gen, type, def_s);
 			break;
 		default:
 			break;
 	}
 }
 
-void create_generic_str(generic **new_gen, i_type type, char *initial_cond) {
+void dbm_create_generic_str(dbm_generic **new_gen, dbm_i type, char *initial_cond) {
   int i_val;
   switch (type) {
     case int_t:
       i_val = atoi(initial_cond);
-      create_generic(new_gen, type, &i_val);
+      dbm_create_generic(new_gen, type, &i_val);
       break;
     case char_t:
-      create_generic(new_gen, type, initial_cond + 1);
+      dbm_create_generic(new_gen, type, initial_cond + 1);
       break;
     case str_t:
-      create_generic(new_gen, type, initial_cond);
+      dbm_create_generic(new_gen, type, initial_cond);
       break;
     default:
       break;

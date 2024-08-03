@@ -13,8 +13,8 @@ char *Whitespace = "\t \n\r";
 char *Operator = "(=,)";
 char *Digits = "0123456789";
 
-Token *create_token(char *value, TokenType type) {
-  Token *new_tok = (Token *)malloc(sizeof(Token));
+dbm_token *dbm_create_token(char *value, dbm_token_type type) {
+  dbm_token *new_tok = (dbm_token *)malloc(sizeof(dbm_token));
   new_tok->value = malloc(strlen(value) * sizeof(char));
   strcpy(new_tok->value, value);
   new_tok->type = type;
@@ -22,11 +22,11 @@ Token *create_token(char *value, TokenType type) {
   return new_tok;
 }
 
-void add_token(Token **parent, Token **child) {
+void dbm_add_token(dbm_token **parent, dbm_token **child) {
   (*parent)->next = *child;
 }
 
-int is_any(char c, char *in_str) {
+int dbm_is_any(char c, char *in_str) {
   char *idx_ptr = strchr(in_str, c);
   if (idx_ptr) {
     return 1;
@@ -36,7 +36,7 @@ int is_any(char c, char *in_str) {
   }
 }
 
-off_t read_string(char *buf, char **payload, int *val_string) {
+off_t dbm_read_string(char *buf, char **payload, int *val_string) {
   off_t pos = 0;
   if (buf[pos] == '\'') {
     *val_string = 1;
@@ -53,10 +53,10 @@ off_t read_string(char *buf, char **payload, int *val_string) {
         }
     } 
     else {
-      if(is_any(buf[pos], Whitespace)) {
+      if(dbm_is_any(buf[pos], Whitespace)) {
         break;
       }
-      if(is_any(buf[pos], Operator)) {
+      if(dbm_is_any(buf[pos], Operator)) {
         break;
       }
     }
@@ -66,7 +66,7 @@ off_t read_string(char *buf, char **payload, int *val_string) {
   return pos;
 }
 
-int is_keyword(char *str){
+int dbm_is_keyword(char *str){
   for (int i = 0; i < sizeof(Keywords) / sizeof(char *); i++) {
     if (strcasecmp(str, Keywords[i]) == 0){
       return i;
@@ -75,7 +75,7 @@ int is_keyword(char *str){
   return -1;
 }
 
-int is_number(char *str){
+int dbm_is_number(char *str){
   if (strspn(str, Digits) == strlen(str)) {
     return 1;
   }
@@ -84,41 +84,41 @@ int is_number(char *str){
   }
 }
 
-Token *tokenize(char *query){
-  Token *root = NULL;
-  Token *it = NULL;
+dbm_token *dbm_tokenize(char *query){
+  dbm_token *root = NULL;
+  dbm_token *it = NULL;
   int is_value;
   char *str_payload;
   for (off_t pos = 0; pos < strlen(query);) {
-    if (is_any(query[pos], Whitespace)) {
+    if (dbm_is_any(query[pos], Whitespace)) {
       pos++;
     } 
     else {
-      Token *new_tok;
-      if (!is_any(*(query + pos), Operator)) {
-        pos+=read_string(query + pos, &str_payload, &is_value);
+      dbm_token *new_tok;
+      if (!dbm_is_any(*(query + pos), Operator)) {
+        pos+=dbm_read_string(query + pos, &str_payload, &is_value);
         if (!is_value) {
-          int keyword = is_keyword(str_payload);
+          int keyword = dbm_is_keyword(str_payload);
           if (keyword != -1){
-            new_tok = create_token(Keywords[keyword], KEYWORD);
+            new_tok = dbm_create_token(Keywords[keyword], KEYWORD);
           } 
           else {
-            if(is_number(str_payload)) {
-              new_tok = create_token(str_payload, VALUE);
+            if(dbm_is_number(str_payload)) {
+              new_tok = dbm_create_token(str_payload, VALUE);
             } 
             else {
-              new_tok = create_token(str_payload, IDENTIFIER);
+              new_tok = dbm_create_token(str_payload, IDENTIFIER);
             }
           }
         } 
         else {
-          new_tok = create_token(str_payload, VALUE);
+          new_tok = dbm_create_token(str_payload, VALUE);
         }
       } 
       else {
         str_payload = (char *) malloc(2 * sizeof(char));
         snprintf(str_payload, 2, "%c", *(query + pos));
-        new_tok = create_token(str_payload, OPERATOR);
+        new_tok = dbm_create_token(str_payload, OPERATOR);
         pos++;
       }
       if (root == NULL) {
@@ -126,7 +126,7 @@ Token *tokenize(char *query){
         it = new_tok;
       } 
       else {
-        add_token(&it, &new_tok);
+        dbm_add_token(&it, &new_tok);
         it = new_tok;
       }
     }

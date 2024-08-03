@@ -1,38 +1,38 @@
 #include <stdlib.h>
 #include <string.h>
-#include "khg_dbm/rownodes.h"
+#include "khg_dbm/row_nodes.h"
 
-rownode *create_rownode(row **row_val) {
-	rownode *new_node = (rownode *)malloc(sizeof(rownode));
+dbm_row_node *dbm_create_row_node(row **row_val) {
+	dbm_row_node *new_node = (dbm_row_node *)malloc(sizeof(dbm_row_node));
 	new_node->data = *row_val;
 	new_node->next = NULL;
 	return new_node;
 }
 
-void add_node(rownode **parent_node, rownode **child_node) {
+void dbm_add_node(dbm_row_node **parent_node, dbm_row_node **child_node) {
 	(*parent_node)->next = *child_node;
 }
 
-rownode *add_row(rownode **parent_node, row **new_row) {
-	rownode *new_node = create_rownode(new_row);
-	add_node(parent_node, &new_node);
+dbm_row_node *dbm_add_row(dbm_row_node **parent_node, row **new_row) {
+	dbm_row_node *new_node = dbm_create_row_node(new_row);
+	dbm_add_node(parent_node, &new_node);
   return new_node;
 }
 
-void print_rownodes(rownode *root) {
-	rownode *it = root;
+void dbm_print_row_nodes(dbm_row_node *root) {
+	dbm_row_node *it = root;
 	while(it!=NULL) {
 		print_row(&it->data);
 		it = it->next;
 	}
 }
 
-size_t pack_rownodes(rownode *root, char **buf) {
+size_t dbm_pack_row_nodes(dbm_row_node *root, char **buf) {
 	size_t row_sz = 0;
 	size_t pos = 0;
 	char *rownode_buf = malloc(sizeof(char));
 	char *row_buf;
-	rownode *it = root;
+	dbm_row_node *it = root;
 	while (it!=NULL) {
     if (it->data !=NULL) {
       row_sz = pack_row(&it->data, &row_buf);
@@ -49,12 +49,12 @@ size_t pack_rownodes(rownode *root, char **buf) {
 	return pos;
 }
 
-void unpack_rownodes(char *types, rownode **root, char **buf, size_t buf_sz) {
+void dbm_unpack_row_nodes(char *types, dbm_row_node **root, char **buf, size_t buf_sz) {
 	size_t pos = 0;
 	size_t row_sz = 0;
 	char *row_buf;
   *root = NULL;
-	rownode *it;
+	dbm_row_node *it;
 	while(pos < buf_sz) {
 		memcpy(&row_sz, (*buf) + pos, sizeof(size_t));
 		pos+= sizeof(size_t);
@@ -64,11 +64,11 @@ void unpack_rownodes(char *types, rownode **root, char **buf, size_t buf_sz) {
 		row* cur_row = unpack_row(types, &row_buf);
 		free(row_buf);
     if(*root == NULL) {
-			*root = create_rownode(&cur_row);
+			*root = dbm_create_row_node(&cur_row);
 			it = *root;
 		} 
     else {
-			add_row(&it, &cur_row);
+			dbm_add_row(&it, &cur_row);
 			it = it->next;
 		}
 	}

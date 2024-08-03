@@ -1,39 +1,38 @@
 #pragma once
 
-typedef enum _i_type {
+typedef enum dbm_i {
   int_t,
 	str_t,
 	char_t,
 	null_t
-} i_type;
+} dbm_i;
 
-typedef struct _generic {
-	i_type type;
+typedef struct dbm_generic {
+	dbm_i type;
 	union {
 		int int_v;
 		char *str_v;
 		char char_v;
 	} value;
-} generic;
+} dbm_generic;
 
-typedef struct _generic generic;
+extern int dbm_is_type(dbm_generic **data, dbm_i type);
+extern int dbm_verify_types(char *types);
+extern char dbm_format_type(dbm_generic **data);
+extern dbm_i dbm_get_type(char type);
 
-extern int is_type(generic **data, i_type type);
-extern int verify_types(char *types);
-extern char format_type(generic **data);
-extern i_type get_type(char type);
+int dbm_geneq(dbm_generic *gen_1, dbm_generic *gen_2);
 
-int geneq(generic *gen_1, generic *gen_2);
+extern void dbm_set_int(dbm_generic **g, void *value);
+extern int dbm_get_int(dbm_generic **g);
 
-extern void set_int(generic **g, void *value);
-extern int get_int(generic **g);
+extern void dbm_set_char(dbm_generic **g, void *value);
+extern char dbm_get_char(dbm_generic **g);
 
-extern void set_char(generic **g, void *value);
-extern char get_char(generic **g);
+extern void dbm_set_str(dbm_generic **g, void *value);
+extern char *dbm_get_str(dbm_generic **g);
 
-extern void set_str(generic **g, void *value);
-extern char *get_str(generic **g);
+extern void dbm_create_generic(dbm_generic **new_gen, dbm_i type, void *value);
+extern void dbm_create_def_generic(dbm_generic **new_gen, dbm_i type);
+extern void dbm_create_generic_str(dbm_generic **new_gen, dbm_i type, char *initial_cond);
 
-extern void create_generic(generic **new_gen, i_type type, void *value);
-extern void create_def_generic(generic **new_gen, i_type type);
-extern void create_generic_str(generic **new_gen, i_type type, char *initial_cond);

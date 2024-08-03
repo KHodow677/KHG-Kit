@@ -5,32 +5,32 @@
 #include <stdlib.h>
 #include <string.h>
 
-void play_sound(sound s) {
-  play_audio_buffer(s.stream.buffer);
+void aud_play_sound(aud_sound s) {
+  aud_play_audio_buffer(s.stream.buffer);
 }
 
-void stop_sound(sound s) {
-  stop_audio_buffer(s.stream.buffer);
+void aud_stop_sound(aud_sound s) {
+  aud_stop_audio_buffer(s.stream.buffer);
 }
 
-void pause_sound(sound s) {
-  pause_audio_buffer(s.stream.buffer);
+void aud_pause_sound(aud_sound s) {
+  aud_pause_audio_buffer(s.stream.buffer);
 }
 
-void resume_sound(sound s) {
-  resume_audio_buffer(s.stream.buffer);
+void aud_resume_sound(aud_sound s) {
+  aud_resume_audio_buffer(s.stream.buffer);
 }
 
-void play_sound_multi(sound s) {
+void aud_play_sound_multi(aud_sound s) {
   int index = -1;
   unsigned int old_age = 0;
   int old_index = -1;
-  for (int i = 0; i < MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
+  for (int i = 0; i < AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
     if (audio.multi_channel.channels[i] > old_age) {
       old_age = audio.multi_channel.channels[i];
       old_index = i;
     }
-    if (!is_audio_buffer_playing(audio.multi_channel.pool[i])) {
+    if (!aud_is_audio_buffer_playing(audio.multi_channel.pool[i])) {
       index = i;
       break;
     }
@@ -42,7 +42,7 @@ void play_sound_multi(sound s) {
       return;
     }
     index = old_index;
-    stop_audio_buffer(audio.multi_channel.pool[index]);
+    aud_stop_audio_buffer(audio.multi_channel.pool[index]);
   }
   audio.multi_channel.channels[index] = audio.multi_channel.pool_counter;
   audio.multi_channel.pool_counter++;
@@ -54,38 +54,38 @@ void play_sound_multi(sound s) {
   audio.multi_channel.pool[index]->is_sub_buffer_processed[1] = false;
   audio.multi_channel.pool[index]->size_in_frames = s.stream.buffer->size_in_frames;
   audio.multi_channel.pool[index]->data = s.stream.buffer->data;
-  play_audio_buffer(audio.multi_channel.pool[index]);
+  aud_play_audio_buffer(audio.multi_channel.pool[index]);
 }
 
-void stop_sound_multi(void) {
-  for (int i = 0; i < MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    stop_audio_buffer(audio.multi_channel.pool[i]);
+void aud_stop_sound_multi(void) {
+  for (int i = 0; i < AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
+    aud_stop_audio_buffer(audio.multi_channel.pool[i]);
   }
 }
 
-int get_sounds_playing(void) {
+int aud_get_sounds_playing(void) {
   int counter = 0;
-  for (int i = 0; i < MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    if (is_audio_buffer_playing(audio.multi_channel.pool[i])) {
+  for (int i = 0; i < AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
+    if (aud_is_audio_buffer_playing(audio.multi_channel.pool[i])) {
       counter++;
     }
   }
   return counter;
 }
 
-bool is_sound_playing(sound s) {
-  return is_audio_buffer_playing(s.stream.buffer);
+bool aud_is_sound_playing(aud_sound s) {
+  return aud_is_audio_buffer_playing(s.stream.buffer);
 }
 
-void set_sound_volume(sound s, float volume) {
-  set_audio_buffer_volume(s.stream.buffer, volume);
+void aud_set_sound_volume(aud_sound s, float volume) {
+  aud_set_audio_buffer_volume(s.stream.buffer, volume);
 }
 
-void set_sound_pitch(sound s, float pitch) {
-  set_audio_buffer_pitch(s.stream.buffer, pitch);
+void aud_set_sound_pitch(aud_sound s, float pitch) {
+  aud_set_audio_buffer_pitch(s.stream.buffer, pitch);
 }
 
-void wave_format(wave *w, int sample_rate, int sample_size, int channels) {
+void aud_wave_format(aud_wave *w, int sample_rate, int sample_size, int channels) {
   ma_format format_in  = ((w->sample_size == 8)? ma_format_u8 : ((w->sample_size == 16)? ma_format_s16 : ma_format_f32));
   ma_format format_out = ((sample_size == 8)? ma_format_u8 : ((sample_size == 16)? ma_format_s16 : ma_format_f32));
   ma_uint32 frame_count_in = w->sample_count;
@@ -108,8 +108,8 @@ void wave_format(wave *w, int sample_rate, int sample_size, int channels) {
   w->data = data;
 }
 
-wave wave_copy(wave w) {
-  wave newWave = { 0 };
+aud_wave aud_wave_copy(aud_wave w) {
+  aud_wave newWave = { 0 };
   newWave.data = malloc(w.sample_count * w.sample_size / 8 * w.channels);
   if (newWave.data != NULL) {
     memcpy(newWave.data, w.data, w.sample_count * w.channels * w.sample_size / 8);
@@ -121,7 +121,7 @@ wave wave_copy(wave w) {
   return newWave;
 }
 
-void wave_crop(wave *w, int init_sample, int final_sample) {
+void aud_wave_crop(aud_wave *w, int init_sample, int final_sample) {
   if ((init_sample >= 0) && (init_sample < final_sample) && (final_sample > 0) && ((unsigned int)final_sample < w->sample_count)) {
     int sample_count = final_sample - init_sample;
     void *data = malloc(sample_count * w->sample_size / 8 * w->channels);
@@ -134,7 +134,7 @@ void wave_crop(wave *w, int init_sample, int final_sample) {
   }
 }
 
-float *get_wave_data(wave w) {
+float *aud_get_wave_data(aud_wave w) {
   float *samples = (float *)malloc(w.sample_count * w.channels*sizeof(float));
   for (unsigned int i = 0; i < w.sample_count; i++) {
     for (unsigned int j = 0; j < w.channels; j++) {

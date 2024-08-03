@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-QueryNode *add_queryNode(QueryNode **parent, rownode **child) {
-  QueryNode *new_node = (QueryNode *)malloc(sizeof(QueryNode));
+dbm_query_node *dbm_add_query_node(dbm_query_node **parent, dbm_row_node **child) {
+  dbm_query_node *new_node = (dbm_query_node *)malloc(sizeof(dbm_query_node));
   new_node->data = *child;
   new_node->next = NULL;
   if (*parent == NULL) {
@@ -17,9 +17,9 @@ QueryNode *add_queryNode(QueryNode **parent, rownode **child) {
   return new_node;
 }
 
-table *get_table(database **db, ArgNode *arg_table) {
+table *dbm_get_table(dbm_database **db, dbm_arg_node *arg_table) {
   if (arg_table != NULL) {
-    for (tablenode *it = (*db)->root; it != NULL; it = it->next) {
+    for (dbm_tablenode *it = (*db)->root; it != NULL; it = it->next) {
       if (streq(it->name, arg_table->key) && it->table != NULL) {
         return it->table;
       }
@@ -37,25 +37,25 @@ int map_name_to_col(table **table, char *col) {
   return -1;
 }
 
-QueryNode *exc_select(database **db, ArgNode *arg_table, ArgNode *fields, ArgNode *condition) {
-  table *in_table = get_table(db, arg_table);
-  QueryNode *results = NULL;
-  QueryNode *last = NULL;
+dbm_query_node *dbm_exc_select(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *fields, dbm_arg_node *condition) {
+  table *in_table = dbm_get_table(db, arg_table);
+  dbm_query_node *results = NULL;
+  dbm_query_node *last = NULL;
   int col = map_name_to_col(&in_table, condition->key);
-  i_type type = get_type(in_table->field_types[col]);
-  generic *cond = (generic *)malloc(sizeof(generic));
-  create_generic_str(&cond, type, condition->value);
+  dbm_i type = dbm_get_type(in_table->field_types[col]);
+  dbm_generic *cond = (dbm_generic *)malloc(sizeof(dbm_generic));
+  dbm_create_generic_str(&cond, type, condition->value);
   if (in_table == NULL) {
     return NULL;
   }
-  for (rownode* it = in_table->root; it != NULL; it = it->next) {
+  for (dbm_row_node* it = in_table->root; it != NULL; it = it->next) {
     if (it->data != NULL) {
-      if(geneq(it->data->columns[col], cond)) {
+      if(dbm_geneq(it->data->columns[col], cond)) {
         if(last == NULL) {
-          last = add_queryNode(&results, &it);
+          last = dbm_add_query_node(&results, &it);
         } 
         else {
-          last = add_queryNode(&last, &it);
+          last = dbm_add_query_node(&last, &it);
         }
       }
     }
@@ -63,10 +63,10 @@ QueryNode *exc_select(database **db, ArgNode *arg_table, ArgNode *fields, ArgNod
   return results;
 }
 
-size_t create_cols(ArgNode *fields, char ***field_names, char **out_field_types) {
+size_t create_cols(dbm_arg_node *fields, char ***field_names, char **out_field_types) {
   char *field_types = (char *)malloc(255);
   off_t pos = 0;
-  for (ArgNode *it = fields; it != NULL; it = it->next) {
+  for (dbm_arg_node *it = fields; it != NULL; it = it->next) {
     if (streq(it->value, "int")) {
       field_types[pos] = 'i';
       pos++;
@@ -85,14 +85,14 @@ size_t create_cols(ArgNode *fields, char ***field_names, char **out_field_types)
   *out_field_types = field_types;
   *field_names = (char **)malloc(sizeof(char*) * pos);
   pos = 0;
-  for (ArgNode *it = fields; it != NULL; it = it->next) {
+  for (dbm_arg_node *it = fields; it != NULL; it = it->next) {
     (*field_names)[pos] = it->key;
     pos++;
   }
   return pos;
 }
 
-size_t exc_create(database **db, ArgNode *arg_table, ArgNode *fields) {
+size_t dbm_exc_create(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *fields) {
   char *table_name = arg_table->key;
   char **field_names;
   char *field_types;
@@ -102,16 +102,16 @@ size_t exc_create(database **db, ArgNode *arg_table, ArgNode *fields) {
   return 1;
 }
 
-size_t exc_update(database **db, ArgNode *arg_table, ArgNode *updates, ArgNode *condition) {
-  table *in_table = get_table(db, arg_table);
+size_t dbm_exc_update(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *updates, dbm_arg_node *condition) {
+  table *in_table = dbm_get_table(db, arg_table);
   if (in_table == NULL) {
     printf("Table doesn't exist");
     return 0;
   }
-  QueryNode *results = exc_select(db, arg_table, NULL, condition);
+  dbm_query_node *results = dbm_exc_select(db, arg_table, NULL, condition);
   size_t pos = 0;
-  for (QueryNode *it = results; it != NULL; it = it->next) {
-    for (ArgNode *arg = updates; arg != NULL; arg = arg->next) {
+  for (dbm_query_node *it = results; it != NULL; it = it->next) {
+    for (dbm_arg_node *arg = updates; arg != NULL; arg = arg->next) {
       int col = map_name_to_col(&in_table, arg->key);
       switch (r_get_type(&it->data->data, col)) {
         case int_t:
@@ -132,10 +132,10 @@ size_t exc_update(database **db, ArgNode *arg_table, ArgNode *updates, ArgNode *
   return pos;
 }
 
-size_t exc_delete(database **db, ArgNode *arg_table, ArgNode *condition) {
-  QueryNode *results = exc_select(db, arg_table, NULL, condition);
+size_t dbm_exc_delete(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *condition) {
+  dbm_query_node *results = dbm_exc_select(db, arg_table, NULL, condition);
   size_t pos = 0;
-  for (QueryNode *it = results; it != NULL; it = it->next){
+  for (dbm_query_node *it = results; it != NULL; it = it->next){
     free(it->data->data);
     it->data->data = NULL;
     pos++;
@@ -143,14 +143,14 @@ size_t exc_delete(database **db, ArgNode *arg_table, ArgNode *condition) {
   return pos;
 }
 
-void exc_insert(database **db, ArgNode *arg_table, ArgNode *values) {
-  table *in_table = get_table(db, arg_table);
+void dbm_exc_insert(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *values) {
+  table *in_table = dbm_get_table(db, arg_table);
   if (in_table == NULL) {
     printf("Table doesn't exist");
   }
   if (in_table != NULL) {
     row *new_row = create_row(in_table->field_types);
-    for (ArgNode *arg = values; arg != NULL; arg = arg->next){
+    for (dbm_arg_node *arg = values; arg != NULL; arg = arg->next){
       int col = map_name_to_col(&in_table, arg->key);
       switch (r_get_type(&new_row, col)) {
         case int_t:
@@ -170,9 +170,9 @@ void exc_insert(database **db, ArgNode *arg_table, ArgNode *values) {
   }
 }
 
-size_t exc_drop(database **db, ArgNode *arg_table) {
+size_t dbm_exc_drop(dbm_database **db, dbm_arg_node *arg_table) {
   if(arg_table != NULL) {
-    for(tablenode* it = (*db)->root; it != NULL; it = it->next) {
+    for(dbm_tablenode* it = (*db)->root; it != NULL; it = it->next) {
       if(streq(it->name, arg_table->key)) {
         free(it->table);
         it->table = NULL;
@@ -182,16 +182,16 @@ size_t exc_drop(database **db, ArgNode *arg_table) {
   return 0;
 }
 
-void print_queryNodes(QueryNode *root) {
+void dbm_print_query_nodes(dbm_query_node *root) {
   if(root != NULL) {
-    for(QueryNode *it = root; it != NULL; it = it->next) {
+    for(dbm_query_node *it = root; it != NULL; it = it->next) {
       print_row(&it->data->data);
     }
   }
 }
 
-void print_tbl_headers(database **db, ArgNode *arg_table) {
-  table *in_table = get_table(db, arg_table);
+void dbm_print_tbl_headers(dbm_database **db, dbm_arg_node *arg_table) {
+  table *in_table = dbm_get_table(db, arg_table);
   for(size_t i =0; i < strlen(in_table->field_types); i++) {
     printf("%s\t", in_table->field_names[i]);
   }

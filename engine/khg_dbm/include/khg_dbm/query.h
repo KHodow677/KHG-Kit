@@ -1,24 +1,25 @@
 #pragma once
 
-#include "khg_dbm/rownodes.h"
+#include "khg_dbm/row_nodes.h"
 #include "khg_dbm/parser.h"
 #include "khg_dbm/database.h"
 
-typedef struct _QueryNode {
-  rownode *data;
-  struct _QueryNode *next;
-} QueryNode;
+typedef struct dbm_query_node {
+  dbm_row_node *data;
+  struct dbm_query_node *next;
+} dbm_query_node;
 
-QueryNode *add_queryNode(QueryNode **parent, rownode **child);
+dbm_query_node *dbm_add_query_node(dbm_query_node **parent, dbm_row_node **child);
 
-table *get_table(database **db, ArgNode *arg_table);
+table *dbm_get_table(dbm_database **db, dbm_arg_node *arg_table);
 
-QueryNode *exc_select(database **db, ArgNode *table, ArgNode *fields, ArgNode *condition);
-size_t exc_delete(database **db, ArgNode *table, ArgNode *condition);
-void exc_insert(database **db, ArgNode *table, ArgNode *values);
-size_t exc_update(database **db, ArgNode *table, ArgNode *updates, ArgNode *condition);
-size_t exc_create(database **db, ArgNode *table, ArgNode *fields);
-size_t exc_drop(database **db, ArgNode *table);
+dbm_query_node *dbm_exc_select(dbm_database **db, dbm_arg_node *table, dbm_arg_node *fields, dbm_arg_node *condition);
+size_t dbm_exc_delete(dbm_database **db, dbm_arg_node *table, dbm_arg_node *condition);
+void dbm_exc_insert(dbm_database **db, dbm_arg_node *table, dbm_arg_node *values);
+size_t dbm_exc_update(dbm_database **db, dbm_arg_node *table, dbm_arg_node *updates, dbm_arg_node *condition);
+size_t dbm_exc_create(dbm_database **db, dbm_arg_node *table, dbm_arg_node *fields);
+size_t dbm_exc_drop(dbm_database **db, dbm_arg_node *table);
 
-void print_queryNodes(QueryNode *root);
-void print_tbl_headers(database **db, ArgNode *table);
+void dbm_print_query_nodes(dbm_query_node *root);
+void dbm_print_tbl_headers(dbm_database **db, dbm_arg_node *table);
+

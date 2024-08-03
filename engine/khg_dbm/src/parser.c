@@ -5,26 +5,26 @@
 #include "khg_dbm/query.h"
 #include "khg_dbm/parser.h"
 
-void dbm_print_args(ArgNode *args) {
-  for (ArgNode *it = args; it != NULL; it= it->next) {
+void dbm_print_args(dbm_arg_node *args) {
+  for (dbm_arg_node *it = args; it != NULL; it= it->next) {
     printf("%s: %s\n", it->key, it->value);
   }
 }
 
-void dbm_interactive(database **db, char *query) {
-  Token *query_tok = tokenize(query);
+void dbm_interactive(dbm_database **db, char *query) {
+  dbm_token *query_tok = dbm_tokenize(query);
   dbm_parse_query(db, query_tok);
 }
 
-void dbm_parse_select(database **db, Token *root) {
-  ArgNode *fields = dbm_parse_k_till(&root, "from");
-  ArgNode *table = dbm_parse_k_till(&root, "where");
-  ArgNode *conditions = dbm_parse_kv_till(&root, "\\EOF\\");
+void dbm_parse_select(dbm_database **db, dbm_token *root) {
+  dbm_arg_node *fields = dbm_parse_k_till(&root, "from");
+  dbm_arg_node *table = dbm_parse_k_till(&root, "where");
+  dbm_arg_node *conditions = dbm_parse_kv_till(&root, "\\EOF\\");
   if (table != NULL && fields != NULL && conditions != NULL) {
-    QueryNode *results = exc_select(db, table, fields, conditions);
+    dbm_query_node *results = dbm_exc_select(db, table, fields, conditions);
     if (results != NULL) {
-      print_tbl_headers(db, table);
-      print_queryNodes(results);
+      dbm_print_tbl_headers(db, table);
+      dbm_print_query_nodes(results);
     } 
     else {
       printf("------");
@@ -32,53 +32,53 @@ void dbm_parse_select(database **db, Token *root) {
   }
 }
 
-void dbm_parse_delete(database **db, Token *root) {
-  Token *expect_from = root->next;
-  ArgNode *table = NULL;
-  ArgNode *conditions = NULL;
+void dbm_parse_delete(dbm_database **db, dbm_token *root) {
+  dbm_token *expect_from = root->next;
+  dbm_arg_node *table = NULL;
+  dbm_arg_node *conditions = NULL;
   if (streq(expect_from->value, "from")) {
     table = dbm_parse_k_till(&expect_from, "where");
     conditions = dbm_parse_kv_till(&expect_from, "\\EOF\\");
   }
   if (table != NULL && conditions != NULL) {
-    exc_delete(db, table, conditions);
+    dbm_exc_delete(db, table, conditions);
   }
 }
 
-void dbm_parse_insert(database **db, Token *root) {
-  Token *iter = root->next;
-  ArgNode *table = dbm_parse_k_till(&iter, "(");
-  ArgNode *values = dbm_parse_kv_till(&iter, ")");
+void dbm_parse_insert(dbm_database **db, dbm_token *root) {
+  dbm_token *iter = root->next;
+  dbm_arg_node *table = dbm_parse_k_till(&iter, "(");
+  dbm_arg_node *values = dbm_parse_kv_till(&iter, ")");
   if (table != NULL && values != NULL) {
-    exc_insert(db, table, values);
+    dbm_exc_insert(db, table, values);
   }
 }
 
-void dbm_parse_update(database **db, Token *root) {
-  ArgNode *table = dbm_parse_k_till(&root, "set");
-  ArgNode *updates = dbm_parse_kv_till(&root, "where");
-  ArgNode *conditions = dbm_parse_kv_till(&root, "\\EOF\\");
+void dbm_parse_update(dbm_database **db, dbm_token *root) {
+  dbm_arg_node *table = dbm_parse_k_till(&root, "set");
+  dbm_arg_node *updates = dbm_parse_kv_till(&root, "where");
+  dbm_arg_node *conditions = dbm_parse_kv_till(&root, "\\EOF\\");
   if (table != NULL && updates != NULL && conditions != NULL) {
-    exc_update(db, table, updates, conditions);
+    dbm_exc_update(db, table, updates, conditions);
   }
 }
 
-void dbm_parse_create(database **db, Token *root) {
-  ArgNode *table = dbm_parse_k_till(&root, "fields");
-  ArgNode *fields = dbm_parse_kv_till(&root, "\\EOF\\");
+void dbm_parse_create(dbm_database **db, dbm_token *root) {
+  dbm_arg_node *table = dbm_parse_k_till(&root, "fields");
+  dbm_arg_node *fields = dbm_parse_kv_till(&root, "\\EOF\\");
   if (table != NULL && fields != NULL) {
-    exc_create(db, table, fields);
+    dbm_exc_create(db, table, fields);
   }
 }
 
-void dbm_parse_drop(database **db, Token *root) {
-  ArgNode *table = dbm_parse_k_till(&root, "\\EOF\\");
+void dbm_parse_drop(dbm_database **db, dbm_token *root) {
+  dbm_arg_node *table = dbm_parse_k_till(&root, "\\EOF\\");
   if (table != NULL) {
-    exc_drop(db, table);
+    dbm_exc_drop(db, table);
   }
 }
 
-void dbm_parse_query(database **db, Token *root) {
+void dbm_parse_query(dbm_database **db, dbm_token *root) {
   if(root->type == KEYWORD) {
     if (streq(root->value, "select")) {
       dbm_parse_select(db, root);
@@ -101,8 +101,8 @@ void dbm_parse_query(database **db, Token *root) {
   }
 }
 
-ArgNode *dbm_add_arg(ArgNode **parent, char *key, char *value) {
-  ArgNode *newArg = (ArgNode *)malloc(sizeof(ArgNode));
+dbm_arg_node *dbm_add_arg(dbm_arg_node **parent, char *key, char *value) {
+  dbm_arg_node *newArg = (dbm_arg_node *)malloc(sizeof(dbm_arg_node));
   mstrcpy(&newArg->key, &key);
   mstrcpy(&newArg->value, &value);
   if (*parent == NULL) {
@@ -115,10 +115,10 @@ ArgNode *dbm_add_arg(ArgNode **parent, char *key, char *value) {
   return newArg;
 }
 
-ArgNode *dbm_parse_k_till(Token **from, char *value) {
-  ArgNode *keys = NULL;
-  ArgNode *end = NULL;
-  Token *it = *from;
+dbm_arg_node *dbm_parse_k_till(dbm_token **from, char *value) {
+  dbm_arg_node *keys = NULL;
+  dbm_arg_node *end = NULL;
+  dbm_token *it = *from;
   for (; it != NULL && !streq(it->value, value); it = it->next) {
     if (it->type == IDENTIFIER) {
       if (keys == NULL) {
@@ -133,16 +133,16 @@ ArgNode *dbm_parse_k_till(Token **from, char *value) {
   return keys;
 }
 
-ArgNode *dbm_parse_kv_till(Token **from, char *value) {
-  ArgNode *keys = NULL;
-  ArgNode *end = NULL;
-  Token *it = *from;
+dbm_arg_node *dbm_parse_kv_till(dbm_token **from, char *value) {
+  dbm_arg_node *keys = NULL;
+  dbm_arg_node *end = NULL;
+  dbm_token *it = *from;
   for (; it != NULL && !streq(it->value, value); it = it->next) {
     if (it->type == IDENTIFIER) {
       char *key = it->value;
-      Token *op = it->next;
+      dbm_token *op = it->next;
       if (op != NULL && op->type == OPERATOR && streq(op->value, "=")) {
-        Token *tk_value = op->next;
+        dbm_token *tk_value = op->next;
         if (tk_value->type == VALUE) {
           it = tk_value;
           if (keys == NULL) {

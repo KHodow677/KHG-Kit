@@ -7,22 +7,23 @@ typedef struct _tablenode{
   char *name;
   table *table;
   struct _tablenode *next;
-} tablenode;
+} dbm_tablenode;
 
 typedef struct _database{
   char *name;
-  tablenode *root;
-  tablenode *end;
-} database;
+  dbm_tablenode *root;
+  dbm_tablenode *end;
+} dbm_database;
 
-database *dbm_create_database(char *name);
-size_t dbm_pack_db(database **db, char **buf);
-size_t dbm_unpack_db(database **db, char *buf);
-tablenode *dbm_add_tablenode(tablenode **parent, table **table);
-off_t dbm_write_tables(database **db, FILE *fp);
-off_t dbm_read_tables(database **db, FILE *fp);
-void dbm_read_rows(database **db, FILE *fp);
-off_t dbm_write_rows(database **db, FILE *fp);
-void dbm_write_files(database **db);
-void dbm_read_files(database **db);
-void dbm_db_insert_table(database **db, table **table);
+dbm_database *dbm_create_database(char *name);
+size_t dbm_pack_db(dbm_database **db, char **buf);
+size_t dbm_unpack_db(dbm_database **db, char *buf);
+dbm_tablenode *dbm_add_tablenode(dbm_tablenode **parent, table **table);
+off_t dbm_write_tables(dbm_database **db, FILE *fp);
+off_t dbm_read_tables(dbm_database **db, FILE *fp);
+void dbm_read_rows(dbm_database **db, FILE *fp);
+off_t dbm_write_rows(dbm_database **db, FILE *fp);
+void dbm_write_files(dbm_database **db);
+void dbm_read_files(dbm_database **db);
+void dbm_db_insert_table(dbm_database **db, table **table);
+

@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-bool is_file_extension(const char *file_name, const char *ext) {
+bool aud_is_file_extension(const char *file_name, const char *ext) {
     bool result = false;
     const char *fileext;
     if ((fileext = strrchr(file_name, '.')) != NULL) {
@@ -19,7 +19,7 @@ bool is_file_extension(const char *file_name, const char *ext) {
     return result;
 }
 
-unsigned char *load_file_data(const char *file_name, unsigned int *bytes_read) {
+unsigned char *aud_load_file_data(const char *file_name, unsigned int *bytes_read) {
   unsigned char *data = NULL;
   *bytes_read = 0;
   if (file_name != NULL) {
@@ -48,7 +48,7 @@ unsigned char *load_file_data(const char *file_name, unsigned int *bytes_read) {
   return data;
 }
 
-void save_file_data(const char *file_name, void *data, unsigned int bytes_to_write) {
+void aud_save_file_data(const char *file_name, void *data, unsigned int bytes_to_write) {
   if (file_name != NULL) {
     FILE *file = fopen(file_name, "wb");
     if (file != NULL) {
@@ -67,7 +67,7 @@ void save_file_data(const char *file_name, void *data, unsigned int bytes_to_wri
   }
 }
 
-void save_file_text(const char *file_name, char *text) {
+void aud_save_file_text(const char *file_name, char *text) {
   if (file_name != NULL) {
     FILE *file = fopen(file_name, "wt");
     if (file != NULL) {
@@ -86,10 +86,10 @@ void save_file_text(const char *file_name, char *text) {
   }
 }
 
-wave load_WAV(const char *file_name) {
-  wave w = { 0 };
+aud_wave aud_load_WAV(const char *file_name) {
+  aud_wave w = { 0 };
   unsigned int file_size = 0;
-  unsigned char *file_data = load_file_data(file_name, &file_size);
+  unsigned char *file_data = aud_load_file_data(file_name, &file_size);
   drwav wav = { 0 };
   bool success = drwav_init_memory(&wav, file_data, file_size, NULL);
   if (success) {
@@ -108,10 +108,10 @@ wave load_WAV(const char *file_name) {
   return w;
 }
 
-wave load_OGG(const char *file_name) {
-  wave w = { 0 };
+aud_wave aud_load_OGG(const char *file_name) {
+  aud_wave w = { 0 };
   unsigned int file_size = 0;
-  unsigned char *file_data = load_file_data(file_name, &file_size);
+  unsigned char *file_data = aud_load_file_data(file_name, &file_size);
   stb_vorbis *ogg_file = stb_vorbis_open_memory(file_data, file_size, NULL, NULL);
   if (ogg_file == NULL) {
     error_func("Failed to load OGG data", user_defined_data);
@@ -131,10 +131,10 @@ wave load_OGG(const char *file_name) {
   return w;
 }
 
-wave load_FLAC(const char *file_name) {
-  wave w = { 0 };
+aud_wave aud_load_FLAC(const char *file_name) {
+  aud_wave w = { 0 };
   unsigned int file_size = 0;
-  unsigned char *file_data = load_file_data(file_name, &file_size);
+  unsigned char *file_data = aud_load_file_data(file_name, &file_size);
   unsigned long long int total_sample_count = 0;
   w.data = drflac_open_memory_and_read_pcm_frames_s16(file_data, file_size, &w.channels, &w.sample_rate, (drflac_uint64 *)&total_sample_count);
   if (w.data == NULL) {
@@ -148,10 +148,10 @@ wave load_FLAC(const char *file_name) {
   return w;
 }
 
-wave load_MP3(const char *file_name) {
-  wave w = { 0 };
+aud_wave aud_load_MP3(const char *file_name) {
+  aud_wave w = { 0 };
   unsigned int file_size = 0;
-  unsigned char *file_data = load_file_data(file_name, &file_size);
+  unsigned char *file_data = aud_load_file_data(file_name, &file_size);
   unsigned long long int total_frame_count = 0;
   drmp3_config config = { 0 };
   w.data = drmp3_open_memory_and_read_f32(file_data, file_size, &config, (drmp3_uint64 *)&total_frame_count);
@@ -168,7 +168,7 @@ wave load_MP3(const char *file_name) {
   return w;
 }
 
-int save_WAV(wave w, const char *file_name) {
+int aud_save_WAV(aud_wave w, const char *file_name) {
   drwav wav = { 0 };
   drwav_data_format format = { 0 };
   format.container = drwav_container_riff;
@@ -182,19 +182,19 @@ int save_WAV(wave w, const char *file_name) {
   return true;
 }
 
-wave load_wave(const char *file_name) {
-  wave wave = { 0 };
-  if (is_file_extension(file_name, ".wav")) {
-    wave = load_WAV(file_name);
+aud_wave aud_load_wave(const char *file_name) {
+  aud_wave wave = { 0 };
+  if (aud_is_file_extension(file_name, ".wav")) {
+    wave = aud_load_WAV(file_name);
   }
-  else if (is_file_extension(file_name, ".ogg")) {
-    wave = load_OGG(file_name);
+  else if (aud_is_file_extension(file_name, ".ogg")) {
+    wave = aud_load_OGG(file_name);
   }
-  else if (is_file_extension(file_name, ".flac")) {
-    wave = load_FLAC(file_name);
+  else if (aud_is_file_extension(file_name, ".flac")) {
+    wave = aud_load_FLAC(file_name);
   }
-  else if (is_file_extension(file_name, ".mp3")) {
-    wave = load_MP3(file_name);
+  else if (aud_is_file_extension(file_name, ".mp3")) {
+    wave = aud_load_MP3(file_name);
   }
   else {
     error_func("File format not supported", user_defined_data);
@@ -202,63 +202,63 @@ wave load_wave(const char *file_name) {
   return wave;
 }
 
-sound load_sound(const char *file_name) {
-  wave w = load_wave(file_name);
-  sound s = load_sound_from_wave(w);
-  unload_wave(w);
+aud_sound aud_load_sound(const char *file_name) {
+  aud_wave w = aud_load_wave(file_name);
+  aud_sound s = aud_load_sound_from_wave(w);
+  aud_unload_wave(w);
   return s;
 }
 
-sound load_sound_from_wave(wave w) {
-  sound sound = { 0 };
+aud_sound aud_load_sound_from_wave(aud_wave w) {
+  aud_sound sound = { 0 };
   if (w.data != NULL) {
     ma_format format_in  = ((w.sample_size == 8)? ma_format_u8 : ((w.sample_size == 16)? ma_format_s16 : ma_format_f32));
     ma_uint32 frame_count_in = w.sample_count / w.channels;
-    ma_uint32 frame_count = (ma_uint32)ma_convert_frames(NULL, 0, AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, NULL, frame_count_in, format_in, w.channels, w.sample_rate);
+    ma_uint32 frame_count = (ma_uint32)ma_convert_frames(NULL, 0, AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, NULL, frame_count_in, format_in, w.channels, w.sample_rate);
     if (frame_count == 0) {
       error_func("Failed to get frame count for format conversion", user_defined_data);
     }
-    audio_buffer *audio_buffer = load_audio_buffer(AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, frame_count, AUDIO_BUFFER_USAGE_STATIC);
+    aud_audio_buffer *audio_buffer = aud_load_audio_buffer(AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, frame_count, AUD_AUDIO_BUFFER_USAGE_STATIC);
     if (audio_buffer == NULL) {
       error_func("Failed to create buffer", user_defined_data);
     }
-    frame_count = (ma_uint32)ma_convert_frames(audio_buffer->data, frame_count, AUDIO_DEVICE_FORMAT, AUDIO_DEVICE_CHANNELS, AUDIO_DEVICE_SAMPLE_RATE, w.data, frame_count_in, format_in, w.channels, w.sample_rate);
+    frame_count = (ma_uint32)ma_convert_frames(audio_buffer->data, frame_count, AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, w.data, frame_count_in, format_in, w.channels, w.sample_rate);
     if (frame_count == 0) {
       error_func("Failed format conversion", user_defined_data);
     }
-    sound.sample_count = frame_count*AUDIO_DEVICE_CHANNELS;
-    sound.stream.sample_rate = AUDIO_DEVICE_SAMPLE_RATE;
+    sound.sample_count = frame_count * AUD_AUDIO_DEVICE_CHANNELS;
+    sound.stream.sample_rate = AUD_AUDIO_DEVICE_SAMPLE_RATE;
     sound.stream.sample_size = 32;
-    sound.stream.channels = AUDIO_DEVICE_CHANNELS;
+    sound.stream.channels = AUD_AUDIO_DEVICE_CHANNELS;
     sound.stream.buffer = audio_buffer;
   }
   return sound;
 }
 
-void update_sound(sound s, const void *data, int samples_count) {
+void aud_update_sound(aud_sound s, const void *data, int samples_count) {
   if (s.stream.buffer != NULL) {
-    stop_audio_buffer(s.stream.buffer);
+    aud_stop_audio_buffer(s.stream.buffer);
     memcpy(s.stream.buffer->data, data, samples_count * ma_get_bytes_per_frame(s.stream.buffer->converter.config.formatIn, s.stream.buffer->converter.config.channelsIn));
   }
 }
 
-void unload_wave(wave w) {
+void aud_unload_wave(aud_wave w) {
   if (w.data != NULL) {
     free(w.data);
   }
 }
 
-void unload_sound(sound s) {
-  unload_audio_buffer(s.stream.buffer);
+void aud_unload_sound(aud_sound s) {
+  aud_unload_audio_buffer(s.stream.buffer);
 }
 
-void export_wave(wave w, const char *file_name) {
+void aud_export_wave(aud_wave w, const char *file_name) {
   bool success = false;
-  if (is_file_extension(file_name, ".wav")) {
-    success = save_WAV(w, file_name);
+  if (aud_is_file_extension(file_name, ".wav")) {
+    success = aud_save_WAV(w, file_name);
   }
-  if (is_file_extension(file_name, ".raw")) {
-    save_file_data(file_name, w.data, w.sample_count * w.channels * w.sample_size / 8);
+  if (aud_is_file_extension(file_name, ".raw")) {
+    aud_save_file_data(file_name, w.data, w.sample_count * w.channels * w.sample_size / 8);
     success = true;
   }
   if (!success) {
@@ -266,7 +266,7 @@ void export_wave(wave w, const char *file_name) {
   }
 }
 
-void export_wave_as_code(wave w, const char *file_name) {
+void aud_export_wave_as_code(aud_wave w, const char *file_name) {
   int text_bytes_per_line = 20;
   int wave_data_size = w.sample_count * w.channels * w.sample_size / 8;
   char *txt_data = (char *)calloc(6 * wave_data_size + 2000, sizeof(char));
@@ -283,6 +283,6 @@ void export_wave_as_code(wave w, const char *file_name) {
     bytes_count += sprintf(txt_data + bytes_count, ((i % text_bytes_per_line == 0)? "0x%x,\n" : "0x%x, "), ((unsigned char *)w.data)[i]);
   }
   bytes_count += sprintf(txt_data + bytes_count, "0x%x };\n", ((unsigned char *)w.data)[wave_data_size - 1]);
-  save_file_text(file_name, txt_data);
+  aud_save_file_text(file_name, txt_data);
   free(txt_data);
 }

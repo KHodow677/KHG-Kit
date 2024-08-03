@@ -3,11 +3,11 @@
 #include "miniaudio/miniaudio.h"
 #include <stdbool.h>
 
-#define AUDIO_DEVICE_FORMAT ma_format_f32
-#define AUDIO_DEVICE_CHANNELS 2
-#define AUDIO_DEVICE_SAMPLE_RATE 44100
-#define MAX_AUDIO_BUFFER_POOL_CHANNELS 16
-#define DEFAULT_AUDIO_BUFFER_SIZE 4096
+#define AUD_AUDIO_DEVICE_FORMAT ma_format_f32
+#define AUD_AUDIO_DEVICE_CHANNELS 2
+#define AUD_AUDIO_DEVICE_SAMPLE_RATE 44100
+#define AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS 16
+#define AUD_DEFAULT_AUDIO_BUFFER_SIZE 4096
 
 typedef struct {
   unsigned int sample_count;
@@ -15,11 +15,11 @@ typedef struct {
   unsigned int sample_size;
   unsigned int channels;
   void *data;
-} wave;
+} aud_wave;
 
-typedef struct audio_buffer audio_buffer;
+typedef struct aud_audio_buffer aud_audio_buffer;
 
-struct audio_buffer {
+struct aud_audio_buffer {
   ma_data_converter converter;
   float volume;
   float pitch;
@@ -32,29 +32,29 @@ struct audio_buffer {
   unsigned int frame_cursor_pos;
   unsigned int total_frames_processed;
   unsigned char *data;
-  audio_buffer *next;
-  audio_buffer *prev;
+  aud_audio_buffer *next;
+  aud_audio_buffer *prev;
 };
 
 typedef struct {
   unsigned int sample_rate;
   unsigned int sample_size;
   unsigned int channels;
-  audio_buffer *buffer;
-} audio_stream;
+  aud_audio_buffer *buffer;
+} aud_audio_stream;
 
 typedef struct {
   unsigned int sample_count;
-  audio_stream stream;
-} sound;
+  aud_audio_stream stream;
+} aud_sound;
 
 typedef struct {
   int ctx_type;
   void *ctx_data;
   bool looping;
   unsigned int sample_count;
-  audio_stream stream;
-} music;
+  aud_audio_stream stream;
+} aud_music;
 
 typedef struct {
   struct {
@@ -64,40 +64,29 @@ typedef struct {
     bool is_ready;
   } system;
   struct {
-    audio_buffer *first;
-    audio_buffer *last;
+    aud_audio_buffer *first;
+    aud_audio_buffer *last;
     int default_size;
   } buffer;
   struct {
-    audio_buffer *pool[MAX_AUDIO_BUFFER_POOL_CHANNELS];
+    aud_audio_buffer *pool[AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS];
     unsigned int pool_counter;
-    unsigned int channels[MAX_AUDIO_BUFFER_POOL_CHANNELS];
+    unsigned int channels[AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS];
   } multi_channel;
-} audio_data;
+} aud_audio_data;
 
 typedef enum {
-  MUSIC_AUDIO_WAV = 0,
-  MUSIC_AUDIO_OGG,
-  MUSIC_AUDIO_FLAC,
-  MUSIC_AUDIO_MP3,
-  MUSIC_MODULE_XM,
-  MUSIC_MODULE_MOD
-} music_context_type;
+  AUD_MUSIC_AUDIO_WAV = 0,
+  AUD_MUSIC_AUDIO_OGG,
+  AUD_MUSIC_AUDIO_FLAC,
+  AUD_MUSIC_AUDIO_MP3,
+  AUD_MUSIC_MODULE_XM,
+  AUD_MUSIC_MODULE_MOD
+} aud_music_context;
 
 typedef enum {
-  LOG_ALL,
-  LOG_TRACE,
-  LOG_DEBUG,
-  LOG_INFO,
-  LOG_WARNING,
-  LOG_ERROR,
-  LOG_FATAL,
-  LOG_NONE
-} trace_log_type;
+  AUD_AUDIO_BUFFER_USAGE_STATIC = 0,
+  AUD_AUDIO_BUFFER_USAGE_STREAM
+} aud_audio_buffer_usage;
 
-typedef enum {
-  AUDIO_BUFFER_USAGE_STATIC = 0,
-  AUDIO_BUFFER_USAGE_STREAM
-} audio_buffer_usage;
-
-extern audio_data audio;
+extern aud_audio_data audio;

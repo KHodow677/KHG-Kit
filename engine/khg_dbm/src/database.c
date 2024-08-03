@@ -4,27 +4,27 @@
 #include <string.h>
 #include <stdio.h>
 
-database *dbm_create_database(char *name) {
-  database *new_db = (database *)malloc(sizeof(database));
+dbm_database *dbm_create_database(char *name) {
+  dbm_database *new_db = (dbm_database *)malloc(sizeof(dbm_database));
   mstrcpy(&new_db->name, &name);
   new_db->root = NULL;
   new_db->end = NULL;
   return new_db;
 }
 
-size_t dbm_pack_db(database **db, char **buf) {
+size_t dbm_pack_db(dbm_database **db, char **buf) {
   return pack_string(*buf, (*db)->name);
 }
 
-size_t unpack_db(database **db, char *buf) {
+size_t dbm_unpack_db(dbm_database **db, char *buf) {
   char *tmp_name;
   size_t read = unpack_string(buf, &tmp_name);
   *db = dbm_create_database(tmp_name);
   return read;
 }
 
-tablenode *dbm_add_tablenode(tablenode **parent, table **table) {
-  tablenode *new_node = (tablenode *)malloc(sizeof(tablenode));
+dbm_tablenode *dbm_add_tablenode(dbm_tablenode **parent, table **table) {
+  dbm_tablenode *new_node = (dbm_tablenode *)malloc(sizeof(dbm_tablenode));
   new_node->name = (*table)->name;
   new_node->table = *table;
   new_node->next = NULL;
@@ -36,11 +36,11 @@ tablenode *dbm_add_tablenode(tablenode **parent, table **table) {
   return new_node;
 }
 
-off_t dbm_write_tables(database **db, FILE *fp) {
+off_t dbm_write_tables(dbm_database **db, FILE *fp) {
   off_t pos = 0;
   size_t size = 0;
   char *buf;
-  for (tablenode* it = (*db)->root; it != NULL; it = it->next) {
+  for (dbm_tablenode* it = (*db)->root; it != NULL; it = it->next) {
     if (it->table != NULL){
       size = pack_table(&it->table, it->table->row_begin, &buf);
       pos += size;
@@ -51,7 +51,7 @@ off_t dbm_write_tables(database **db, FILE *fp) {
   return pos;
 }
 
-off_t dbm_read_tables(database **db, FILE *fp) {
+off_t dbm_read_tables(dbm_database **db, FILE *fp) {
   off_t pos = 0;
   size_t size = 0;
   char *buf;
@@ -68,8 +68,8 @@ off_t dbm_read_tables(database **db, FILE *fp) {
   return pos;
 }
 
-void dbm_read_rows(database **db, FILE *fp) {
-  for(tablenode *it = (*db)->root; it != NULL; it = it->next) {
+void dbm_read_rows(dbm_database **db, FILE *fp) {
+  for(dbm_tablenode *it = (*db)->root; it != NULL; it = it->next) {
     size_t read_begin = it->table->row_begin;
     size_t read_end = 0;
     if (it->next == NULL) {
@@ -81,8 +81,8 @@ void dbm_read_rows(database **db, FILE *fp) {
     if (fseek(fp, read_begin, SEEK_SET) != -1) {
       char *buf;
       size_t buf_sz = read_buffer(fp, &buf, read_end - read_begin);
-      unpack_rownodes(it->table->field_types, &it->table->root, &buf, buf_sz);
-      for (rownode* i = it->table->root; i != NULL; i = i->next) {
+      dbm_unpack_row_nodes(it->table->field_types, &it->table->root, &buf, buf_sz);
+      for (dbm_row_node* i = it->table->root; i != NULL; i = i->next) {
         it->table->end = i;
       }
       free(buf);
@@ -90,13 +90,13 @@ void dbm_read_rows(database **db, FILE *fp) {
   }
 }
 
-off_t dbm_write_rows(database **db, FILE *fp) {
+off_t dbm_write_rows(dbm_database **db, FILE *fp) {
   off_t pos = 0;
   size_t size = 0;
   char *buf;
-  for (tablenode *it = (*db)->root; it != NULL; it = it->next) {
+  for (dbm_tablenode *it = (*db)->root; it != NULL; it = it->next) {
     if (it->table!= NULL) {
-      size = pack_rownodes(it->table->root, &buf);
+      size = dbm_pack_row_nodes(it->table->root, &buf);
       it->table->row_begin = pos;
       pos+= size;
       write_buffer(fp, buf, size);
@@ -106,7 +106,7 @@ off_t dbm_write_rows(database **db, FILE *fp) {
   return pos;
 }
 
-void dbm_write_files(database **db) {
+void dbm_write_files(dbm_database **db) {
   char file_name[255];
   snprintf(file_name, 255, "%s.db",(*db)->name);
   FILE *binary_file = fopen(file_name, "wb");
@@ -118,7 +118,7 @@ void dbm_write_files(database **db) {
   fclose(meta_file);
 }
 
-void read_files(database **db) {
+void dbm_read_files(dbm_database **db) {
   char file_name[255];
   snprintf(file_name, 255, "%s.meta",(*db)->name);
   FILE *meta_file = fopen(file_name, "rb");
@@ -130,7 +130,7 @@ void read_files(database **db) {
   fclose(binary_file);
 }
 
-void db_insert_table(database **db, table **table) {
+void dbm_db_insert_table(dbm_database **db, table **table) {
   if ((*db)->end != NULL) {
     (*db)->end = dbm_add_tablenode(&(*db)->end, table);
   } 
@@ -138,3 +138,4 @@ void db_insert_table(database **db, table **table) {
     (*db)->end = dbm_add_tablenode(&(*db)->root, table);
   }
 }
+
