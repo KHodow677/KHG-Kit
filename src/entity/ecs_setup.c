@@ -1,18 +1,14 @@
-#include "ecs_test.h"
+#include "ecs_setup.h"
 #include <stdio.h>
 
 ecs_id_t PosComp;
 ecs_id_t VelComp;
-ecs_id_t RectComp;
 
 ecs_id_t System1;
-ecs_id_t System2;
-ecs_id_t System3;
 
 void register_components(ecs_t *ecs) {
   PosComp = ecs_register_component(ecs, sizeof(pos_t), NULL, NULL);
   VelComp = ecs_register_component(ecs, sizeof(vel_t), NULL, NULL);
-  RectComp = ecs_register_component(ecs, sizeof(rect_t), NULL, NULL);
 }
 
 ecs_ret_t system_update(ecs_t *ecs, ecs_id_t *entities, int entity_count, ecs_dt_t dt, void *udata) {
@@ -28,20 +24,12 @@ ecs_ret_t system_update(ecs_t *ecs, ecs_id_t *entities, int entity_count, ecs_dt
 
 void register_systems(ecs_t *ecs) {
   System1 = ecs_register_system(ecs, system_update, NULL, NULL, NULL);
-  System2 = ecs_register_system(ecs, system_update, NULL, NULL, NULL);
-  System3 = ecs_register_system(ecs, system_update, NULL, NULL, NULL);
 
   ecs_require_component(ecs, System1, PosComp);
-  ecs_require_component(ecs, System2, PosComp);
-  ecs_require_component(ecs, System2, VelComp);
-
-  ecs_require_component(ecs, System3, PosComp);
-  ecs_require_component(ecs, System3, VelComp);
-  ecs_require_component(ecs, System3, RectComp);
 }
 
 
-int ecs_test() {
+int ecs_setup() {
   ecs_t *ecs = ecs_new(1024, NULL);
 
   register_components(ecs);
@@ -72,18 +60,11 @@ int ecs_test() {
 
   ecs_add(ecs, e3, PosComp, NULL);
   ecs_add(ecs, e3, VelComp, NULL);
-  ecs_add(ecs, e3, RectComp, NULL);
 
   printf("---------------------------------------------------------------\n");
 
   printf("Executing system 1\n");
   ecs_update_system(ecs, System1, 0.0f);
-
-  printf("Executing system 2\n");
-  ecs_update_system(ecs, System2, 0.0f);
-
-  printf("Executing system 3\n");
-  ecs_update_system(ecs, System3, 0.0f);
 
   printf("---------------------------------------------------------------\n");
 

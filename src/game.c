@@ -1,4 +1,5 @@
-#include "gfx_test.h"
+#include "game.h"
+#include "entity/ecs_setup.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/elements.h"
@@ -8,7 +9,7 @@
 float ang = 0.0f;
 gfx_texture body, top;
 
-int gfx_start() {
+int game_run() {
   if (!glfwInit()) {
     return -1;
   }
@@ -21,6 +22,7 @@ int gfx_start() {
   gfx_init_glfw(800, 600, window);
   body = gfx_load_texture_asset("Tank-Body-Blue", "png");
   top = gfx_load_texture_asset("Tank-Top-Blue", "png");
+  ecs_setup();
   return gfx_loop_manager(window);
 }
 
@@ -33,6 +35,6 @@ void gfx_loop() {
   gfx_rect_no_block(300.0f, 250.0f, 145, 184, gfx_white, 0.0f, ang);
   gfx_image_no_block(200.0f, 150.0f, body);
   gfx_text("Hello!");
-  //gfx_image(top);
+  gfx_image_no_block(200.0f, 150.0f, top);
 }
 
