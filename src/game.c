@@ -28,7 +28,8 @@ int game_run() {
 
 void gfx_loop() {
   glClear(GL_COLOR_BUFFER_BIT);
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  float gray_color = 35.0f / 255.0f;
+  glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
   ang += 0.05f;
   body.angle = ang;
