@@ -1,6 +1,7 @@
 #pragma once
 
 #include "khg_phy/phy_types.h"
+#include <math.h>
 
 /// @defgroup cpVect cpVect
 /// Chipmunk's 2D vector type along with a handy 2D vector math lib.
@@ -81,7 +82,7 @@ static inline cpVect cpvproject(const cpVect v1, const cpVect v2)
 /// Returns the unit length vector for the given angle (in radians).
 static inline cpVect cpvforangle(const cpFloat a)
 {
-	return cpv(cpfcos(a), cpfsin(a));
+	return cpv(cosf(a), sinf(a));
 }
 
 /// Returns the angular direction v is pointing in (in radians).
