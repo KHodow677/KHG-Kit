@@ -2,5 +2,4 @@
 
 int main(int argc, char *argv[]) {
   return game_run();
-  return 0;
 }

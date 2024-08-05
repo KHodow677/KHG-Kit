@@ -1,4 +1,5 @@
 #include "ecs_test.h"
+#include "khg_ecs/ecs.h"
 #include <stdio.h>
 
 ecs_id test_pos_comp;

@@ -1,10 +1,14 @@
 #include "game.h"
 #include "entity/ecs_setup.h"
+#include "physics/physics_setup.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/elements.h"
+#include "khg_phy/phy_types.h"
+#include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include <stdio.h>
 
 float ang = 0.0f;
 gfx_texture body, top;
@@ -22,8 +26,12 @@ int game_run() {
   gfx_init_glfw(800, 600, window);
   body = gfx_load_texture_asset("Tank-Body-Blue", "png");
   top = gfx_load_texture_asset("Tank-Top-Blue", "png");
-  ecs_setup();
-  return gfx_loop_manager(window);
+  cpVect gravity = cpv(0, 15);
+  cpSpace *space = physics_setup(&gravity);
+  ecs_setup(space);
+  int res = gfx_loop_manager(window);
+  physics_free(space);
+  return res;
 }
 
 void gfx_loop() {
