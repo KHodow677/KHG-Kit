@@ -17,29 +17,29 @@ static void renderer_add_glyph(stbtt_aligned_quad q, int32_t max_descended_char_
     (vec2s){ q.x1, q.y1 + max_descended_char_height },
     (vec2s){ q.x0, q.y1 + max_descended_char_height }
   }; 
-  for(uint32_t i = 0; i < 4; i++) {
+  for (uint32_t i = 0; i < 4; i++) {
     if(state.render.vert_count >= MAX_RENDER_BATCH) {
-      renderer_flush();
-      renderer_begin();
+      gfx_internal_renderer_flush();
+      gfx_internal_renderer_begin();
     }
-    const vec2 verts_arr = {verts[i].x, verts[i].y};
+    const vec2 verts_arr = { verts[i].x, verts[i].y };
     memcpy(state.render.verts[state.render.vert_count].pos, verts_arr, sizeof(vec2));
-    const vec4 border_color = {0, 0, 0, 0};
+    const vec4 border_color = { 0, 0, 0, 0 };
     memcpy(state.render.verts[state.render.vert_count].border_color, border_color, sizeof(vec4));
     state.render.verts[state.render.vert_count].border_width = 0;
     vec4s color_zto = gfx_color_to_zto(color);
-    const vec4 color_arr = {color_zto.r, color_zto.g, color_zto.b, color_zto.a};
+    const vec4 color_arr = { color_zto.r, color_zto.g, color_zto.b, color_zto.a };
     memcpy(state.render.verts[state.render.vert_count].color, color_arr, sizeof(vec4));
-    const vec2 texcoord_arr = {texcoords[i].x, texcoords[i].y};
+    const vec2 texcoord_arr = { texcoords[i].x, texcoords[i].y };
     memcpy(state.render.verts[state.render.vert_count].texcoord, texcoord_arr, sizeof(vec2));
     state.render.verts[state.render.vert_count].tex_index = tex_index;
-    const vec2 scale_arr = {0, 0};
+    const vec2 scale_arr = { 0, 0 };
     memcpy(state.render.verts[state.render.vert_count].scale, scale_arr, sizeof(vec2));
-    const vec2 pos_px_arr = {0, 0};
+    const vec2 pos_px_arr = { 0, 0 };
     memcpy(state.render.verts[state.render.vert_count].pos_px, pos_px_arr, sizeof(vec2));
     state.render.verts[state.render.vert_count].corner_radius = 0;
-    const vec2 cull_start_arr = {state.cull_start.x, state.cull_start.y};
-    const vec2 cull_end_arr = {state.cull_end.x, state.cull_end.y};
+    const vec2 cull_start_arr = { state.cull_start.x, state.cull_start.y };
+    const vec2 cull_end_arr = { state.cull_end.x, state.cull_end.y };
     memcpy(state.render.verts[state.render.vert_count].min_coord, cull_start_arr, sizeof(vec2));
     memcpy(state.render.verts[state.render.vert_count].max_coord, cull_end_arr, sizeof(vec2));
     state.render.vert_count++;
@@ -48,12 +48,12 @@ static void renderer_add_glyph(stbtt_aligned_quad q, int32_t max_descended_char_
 }
 
 gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font font, gfx_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index) {
-  bool culled = item_should_cull((gfx_aabb){ .pos = (vec2s){ pos.x, pos.y + get_current_font().font_size }, .size = (vec2s){ -1, -1 } });
+  bool culled = gfx_internal_item_should_cull((gfx_aabb){ .pos = (vec2s){ pos.x, pos.y + gfx_internal_get_current_font().font_size }, .size = (vec2s){ -1, -1 } });
   float tex_index = -1.0f;
   if (!culled && !no_render) {
     if (state.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
-      renderer_flush();
-      renderer_begin();
+      gfx_internal_renderer_flush();
+      gfx_internal_renderer_begin();
     }
     for (uint32_t i = 0; i < state.render.tex_count; i++) {
       if (state.render.textures[i].id == font.bitmap.id) {
@@ -128,7 +128,8 @@ gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font fon
       if (x >= stop_point.x && stop_point.x != -1 && y + get_max_char_height_font(font) >= stop_point.y && stop_point.y != -1) {
         break;
       }
-    } else {
+    } 
+    else {
       if (y + get_max_char_height_font(font) >= stop_point.y && stop_point.y != -1) {
         break;
       }
@@ -186,9 +187,9 @@ gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32
   font.num_glyphs = numglyphs;
   stbtt_BakeFontBitmap(buffer, 0, pixelsize, bitmap, tex_width, tex_height, 32, numglyphs, (stbtt_bakedchar *)font.cdata);
   uint32_t bitmap_index = 0;
-  for(uint32_t i = 0; i < (uint32_t)(tex_width * tex_height * 4); i++) {
+  for (uint32_t i = 0; i < (uint32_t)(tex_width * tex_height * 4); i++) {
     bitmap_4bpp[i] = bitmap[bitmap_index];
-    if((i + 1) % 4 == 0) {
+    if ((i + 1) % 4 == 0) {
       bitmap_index++;
     }
   }

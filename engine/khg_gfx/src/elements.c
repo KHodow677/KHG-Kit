@@ -144,21 +144,21 @@ void gfx_set_theme(gfx_theme theme) {
 void gfx_resize_display(uint32_t display_width, uint32_t display_height) {
   state.dsp_w = display_width;
   state.dsp_h = display_height;
-  set_projection_matrix();
+  gfx_internal_set_projection_matrix();
   state.current_div.aabb.size.x = state.dsp_w;
   state.current_div.aabb.size.y = state.dsp_h;
 }
 
 gfx_div *gfx_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll, float *scroll_velocity, const char *file, int32_t line) {
   bool hovered_div = gfx_area_hovered(pos, size);
-  if(hovered_div) {
+  if (hovered_div) {
     state.scroll_velocity_ptr = scroll_velocity;
     state.scroll_ptr = scroll;
   }
   uint64_t id = DJB2_INIT;
   id = djb2_hash(id, file, strlen(file));
   id = djb2_hash(id, &line, sizeof(line));
-  if(state.element_id_stack != -1) {
+  if (state.element_id_stack != -1) {
     id = djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
   }
   state.prev_pos_ptr = state.pos_ptr;
@@ -171,25 +171,25 @@ gfx_div *gfx_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll
   div.aabb = (gfx_aabb){ .pos = pos, .size = size };
   div.scrollable = scrollable;
   div.id = id;
-  if(div.scrollable) {
-    if(*scroll > 0) {
+  if (div.scrollable) {
+    if (*scroll > 0) {
       *scroll = 0;
     }
-    if(state.theme.div_smooth_scroll) {
+    if (state.theme.div_smooth_scroll) {
       *scroll += *scroll_velocity;
       *scroll_velocity *= state.theme.div_scroll_velocity_deceleration;
-      if(*scroll_velocity > -0.1 && state.div_velocity_accelerating) {
+      if (*scroll_velocity > -0.1 && state.div_velocity_accelerating) {
         *scroll_velocity = 0.0f;
       }
     }
   }
   state.pos_ptr = pos; 
   state.current_div = div;
-  div.interact_state = div_container((vec2s){ pos.x - props.padding, pos.y - props.padding }, (vec2s){ size.x + props.padding * 2.0f, size.y + props.padding * 2.0f }, props, props.color, props.border_width, false, state.div_hoverable);
-  if(hovered_div) {
+  div.interact_state = gfx_internal_div_container((vec2s){ pos.x - props.padding, pos.y - props.padding }, (vec2s){ size.x + props.padding * 2.0f, size.y + props.padding * 2.0f }, props, props.color, props.border_width, false, state.div_hoverable);
+  if (hovered_div) {
     state.selected_div_tmp = div;
   }
-  if(div.scrollable) {
+  if (div.scrollable) {
     gfx_set_ptr_y(*scroll + props.border_width + props.corner_radius);
   } 
   else {
@@ -204,8 +204,8 @@ gfx_div *gfx_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll
 }
 
 void gfx_div_end() {
-  if(state.current_div.scrollable) {
-    draw_scrollbar_on(&state.selected_div_tmp);
+  if (state.current_div.scrollable) {
+    gfx_internal_draw_scrollbar_on(&state.selected_div_tmp);
   }
   state.pos_ptr = state.prev_pos_ptr;
   state.font_stack = state.prev_font_stack;
@@ -217,21 +217,21 @@ void gfx_div_end() {
 
 gfx_clickable_item_state gfx_item_loc(vec2s size, const char *file, int32_t line) {
   gfx_element_props props = get_props_for(state.theme.button_props);
-  next_line_on_overflow((vec2s){ size.x + props.padding * 2.0f + props.margin_right + props.margin_left, size.y + props.padding * 2.0f + props.margin_bottom + props.margin_top }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ size.x + props.padding * 2.0f + props.margin_right + props.margin_left, size.y + props.padding * 2.0f + props.margin_bottom + props.margin_top }, state.div_props.border_width);
   state.pos_ptr.x += props.margin_left;
   state.pos_ptr.y += props.margin_top;
-  gfx_clickable_item_state item = button(file, line, state.pos_ptr, size, props, props.color, props.border_width, false, true);
+  gfx_clickable_item_state item = gfx_internal_button(file, line, state.pos_ptr, size, props, props.color, props.border_width, false, true);
   state.pos_ptr.x += size.x + props.margin_left + props.padding * 2.0f;
   state.pos_ptr.y -= props.margin_top;
   return item;
 }
 
 gfx_clickable_item_state gfx_button_loc(const char *text, const char *file, int32_t line) {
-  return button_element_loc((void *)text, file, line, false);
+  return gfx_internal_button_element_loc((void *)text, file, line, false);
 }
 
 gfx_clickable_item_state gfx_button_wide_loc(const wchar_t *text, const char *file, int32_t line) {
-  return button_element_loc((void *)text, file, line, true);
+  return gfx_internal_button_element_loc((void *)text, file, line, true);
 }
 
 gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file, int32_t line) {
@@ -241,13 +241,13 @@ gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file,
   margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
   gfx_color color = props.color;
   gfx_color text_color = state.theme.button_props.text_color;
-  gfx_font font = get_current_font();
-  next_line_on_overflow((vec2s){ img.width + padding * 2.0f, img.height + padding * 2.0f }, state.div_props.border_width);
+  gfx_font font = gfx_internal_get_current_font();
+  gfx_internal_next_line_on_overflow((vec2s){ img.width + padding * 2.0f, img.height + padding * 2.0f }, state.div_props.border_width);
   state.pos_ptr.x += margin_left;
   state.pos_ptr.y += margin_top;
-  gfx_clickable_item_state ret = button(file, line, state.pos_ptr, (vec2s){ img.width + padding * 2, img.height + padding * 2 }, props, color, props.border_width, true, true);
+  gfx_clickable_item_state ret = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ img.width + padding * 2, img.height + padding * 2 }, props, color, props.border_width, true, true);
   gfx_color imageColor = gfx_white;
-  gfx_image_render((vec2s){state.pos_ptr.x + padding, state.pos_ptr.y + padding}, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f);
+  gfx_image_render((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f);
   state.pos_ptr.x += img.width + margin_right + padding * 2.0f;
   state.pos_ptr.y -= margin_top;
   return ret; 
@@ -260,26 +260,26 @@ gfx_clickable_item_state gfx_image_button_fixed_loc(gfx_texture img, float width
   margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
   gfx_color color = props.color;
   gfx_color text_color = state.theme.button_props.text_color;
-  gfx_font font = get_current_font();
+  gfx_font font = gfx_internal_get_current_font();
   int32_t render_width = ((width == -1) ? img.width : width);
   int32_t render_height = ((height == -1) ? img.height : height);
-  next_line_on_overflow((vec2s){ render_width + padding * 2.0f, render_height + padding * 2.0f }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ render_width + padding * 2.0f, render_height + padding * 2.0f }, state.div_props.border_width);
   state.pos_ptr.x += margin_left;
   state.pos_ptr.y += margin_top;
-  gfx_clickable_item_state ret = button(file, line, state.pos_ptr, (vec2s){ render_width + padding * 2, render_height + padding * 2 }, props, color, props.border_width, true, true);
+  gfx_clickable_item_state ret = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ render_width + padding * 2, render_height + padding * 2 }, props, color, props.border_width, true, true);
   gfx_color imageColor = gfx_white; 
-  gfx_image_render((vec2s){state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding}, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f);
+  gfx_image_render((vec2s){ state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f);
   state.pos_ptr.x += render_width + margin_right + padding * 2.0f;
   state.pos_ptr.y -= margin_top;
   return ret;
 }
 
 gfx_clickable_item_state gfx_button_fixed_loc(const char *text, float width, float height, const char *file, int32_t line) {
-  return button_fixed_element_loc((void*)text, width, height, file, line, false);
+  return gfx_internal_button_fixed_element_loc((void*)text, width, height, file, line, false);
 }
 
 gfx_clickable_item_state gfx_button_fixed_loc_wide(const wchar_t *text, float width, float height, const char *file, int32_t line) {
-  return button_fixed_element_loc((void*)text, width, height, file, line, true);
+  return gfx_internal_button_fixed_element_loc((void*)text, width, height, file, line, true);
 }
 
 gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file, int32_t line) {
@@ -292,37 +292,37 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
   else {
     handle_size = (slider->height != 0) ? slider->height * 4.0f : 20.0f;
   }
-  if(slider->held) {
+  if (slider->held) {
     handle_size = (slider->height != 0) ? slider->height * 4.5f : 22.5f;
   }
   float slider_width = (slider->width != 0) ? slider->width : 200;
   float slider_height = (slider->height != 0) ? slider->height : handle_size / 2.0f;
   gfx_color color = props.color;
-  next_line_on_overflow((vec2s){ slider_width + margin_right + margin_left, handle_size + margin_bottom + margin_top }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ slider_width + margin_right + margin_left, handle_size + margin_bottom + margin_top }, state.div_props.border_width);
   state.pos_ptr.x += margin_left;
   state.pos_ptr.y += margin_top;
   gfx_element_props slider_props = props;
   slider_props.border_width /= 2.0f;
-  gfx_clickable_item_state slider_state = button_ex(file, line, state.pos_ptr, (vec2s){ (float)slider_width, (float)slider_height }, slider_props, color, 0, false, false, (vec2s){ -1, handle_size });
-  slider->handle_pos = map_vals(*(int32_t *)slider->val, slider->min, slider->max, handle_size / 2.0f, slider->width - handle_size / 2.0f) - (handle_size) / 2.0f;
+  gfx_clickable_item_state slider_state = gfx_internal_button_ex(file, line, state.pos_ptr, (vec2s){ (float)slider_width, (float)slider_height }, slider_props, color, 0, false, false, (vec2s){ -1, handle_size });
+  slider->handle_pos = gfx_internal_map_vals(*(int32_t *)slider->val, slider->min, slider->max, handle_size / 2.0f, slider->width - handle_size / 2.0f) - (handle_size) / 2.0f;
   gfx_rect_render((vec2s){ state.pos_ptr.x + slider->handle_pos, state.pos_ptr.y - (handle_size) / 2.0f + slider_height / 2.0f }, (vec2s){ handle_size, handle_size }, props.text_color, props.border_color, props.border_width, slider->held ? props.corner_radius * 3.5f : props.corner_radius * 3.0f, 0.0f);
-  if(slider_state == gfx_clickable_held || slider_state == gfx_clickable_clicked) {
+  if (slider_state == gfx_clickable_held || slider_state == gfx_clickable_clicked) {
     slider->held = true;
   }
-  if(slider->held && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
+  if (slider->held && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
     slider->held = false;
     slider_state = gfx_clickable_clicked;
   }
   if(slider->held) {
-    if(gfx_get_mouse_x() >= state.pos_ptr.x && gfx_get_mouse_x() <= state.pos_ptr.x + slider_width - handle_size) {
+    if (gfx_get_mouse_x() >= state.pos_ptr.x && gfx_get_mouse_x() <= state.pos_ptr.x + slider_width - handle_size) {
       slider->handle_pos = gfx_get_mouse_x() - state.pos_ptr.x;
-      *(int32_t *)slider->val = map_vals(state.pos_ptr.x + slider->handle_pos, state.pos_ptr.x,  state.pos_ptr.x + slider_width - handle_size, slider->min, slider->max);
+      *(int32_t *)slider->val = gfx_internal_map_vals(state.pos_ptr.x + slider->handle_pos, state.pos_ptr.x,  state.pos_ptr.x + slider_width - handle_size, slider->min, slider->max);
     }
-    else if(gfx_get_mouse_x() <= state.pos_ptr.x) {
+    else if (gfx_get_mouse_x() <= state.pos_ptr.x) {
       *(int32_t *)slider->val = slider->min;
       slider->handle_pos = 0;
     } 
-    else if(gfx_get_mouse_x() >= state.pos_ptr.x + slider_width - handle_size) {
+    else if (gfx_get_mouse_x() >= state.pos_ptr.x + slider_width - handle_size) {
       *(int32_t *)slider->val = slider->max;
       slider->handle_pos = slider_width - handle_size;
     }
@@ -337,13 +337,13 @@ gfx_clickable_item_state gfx_progress_bar_int_loc(float val, float min, float ma
   gfx_element_props props = get_props_for(state.theme.slider_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
   gfx_color color = props.color;
-  next_line_on_overflow((vec2s){ width + margin_right + margin_left, height + margin_bottom + margin_top }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ width + margin_right + margin_left, height + margin_bottom + margin_top }, state.div_props.border_width);
   state.pos_ptr.x += margin_left;
   state.pos_ptr.y += margin_top;
-  gfx_clickable_item_state bar = button(file, line, state.pos_ptr, (vec2s){ (float)width, (float)height },props, color, props.border_width, false, false);
-  float pos_x = map_vals(val, min, max, 0, width);
+  gfx_clickable_item_state bar = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ (float)width, (float)height },props, color, props.border_width, false, false);
+  float pos_x = gfx_internal_map_vals(val, min, max, 0, width);
   gfx_push_element_id(1);
-  gfx_clickable_item_state handle = button(file, line, state.pos_ptr, (vec2s){ (float)pos_x, (float)height }, props, props.text_color, 0, false, false);
+  gfx_clickable_item_state handle = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ (float)pos_x, (float)height }, props, props.text_color, 0, false, false);
   gfx_pop_element_id();
   state.pos_ptr.x += width + margin_right;
   state.pos_ptr.y -= margin_top;
@@ -354,15 +354,15 @@ gfx_clickable_item_state gfx_progress_stripe_int_loc(gfx_slider *slider, const c
   gfx_element_props props = get_props_for(state.theme.slider_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom =props.margin_bottom; 
   const float handle_size = 20;
-  const float height = (slider->height != 0) ? slider->height : handle_size / 2.0f; // px
+  const float height = (slider->height != 0) ? slider->height : handle_size / 2.0f;
   gfx_color color = props.color;
-  next_line_on_overflow((vec2s){ slider->width + margin_right + margin_left, slider->height + margin_bottom + margin_top }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ slider->width + margin_right + margin_left, slider->height + margin_bottom + margin_top }, state.div_props.border_width);
   state.pos_ptr.x += margin_left;
   state.pos_ptr.y += margin_top;
-  gfx_clickable_item_state bar = button(file, line, state.pos_ptr, (vec2s){ (float)slider->width, (float)height },props, color, props.border_width, false, false);
-  slider->handle_pos = map_vals(*(int32_t *)slider->val, slider->min, slider->max, 0, slider->width);
+  gfx_clickable_item_state bar = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ (float)slider->width, (float)height },props, color, props.border_width, false, false);
+  slider->handle_pos = gfx_internal_map_vals(*(int32_t *)slider->val, slider->min, slider->max, 0, slider->width);
   gfx_push_element_id(1);
-  gfx_clickable_item_state handle = button(file, line, state.pos_ptr, (vec2s){(float)slider->handle_pos, (float)height}, props, props.text_color, 0, false, false);
+  gfx_clickable_item_state handle = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ (float)slider->handle_pos, (float)height }, props, props.text_color, 0, false, false);
   gfx_pop_element_id();
   gfx_rect_render((vec2s){ state.pos_ptr.x + slider->handle_pos, state.pos_ptr.y - (float)height / 2.0f }, (vec2s){ (float)slider->height * 2, (float)slider->height * 2 }, props.text_color, (gfx_color){0.0f, 0.0f, 0.0f, 0.0f}, 0, props.corner_radius, 0.0f);
   state.pos_ptr.x += slider->width + margin_right;
@@ -371,51 +371,51 @@ gfx_clickable_item_state gfx_progress_stripe_int_loc(gfx_slider *slider, const c
 }
 
 gfx_clickable_item_state gfx_checkbox_loc(const char *text, bool *val, gfx_color tick_color, gfx_color tex_color, const char *file, int32_t line) { 
-  return checkbox_element_loc((void *)text, val, tick_color, tex_color, file, line, false);
+  return gfx_internal_checkbox_element_loc((void *)text, val, tick_color, tex_color, file, line, false);
 }
 
 gfx_clickable_item_state gfx_checkbox_wide_loc(const wchar_t *text, bool *val, gfx_color tick_color, gfx_color tex_color, const char* file, int32_t line) {
-  return checkbox_element_loc((void *)text, val, tick_color, tex_color, file, line, true);
+  return gfx_internal_checkbox_element_loc((void *)text, val, tick_color, tex_color, file, line, true);
 }
 
 int32_t gfx_menu_item_list_loc(const char ** items, uint32_t item_count, int32_t selected_index, gfx_menu_item_callback per_cb, bool vertical, const char *file, int32_t line) {
-  return menu_item_list_item_loc((void **)items, item_count, selected_index, per_cb, vertical, file, line, false);
+  return gfx_internal_menu_item_list_item_loc((void **)items, item_count, selected_index, per_cb, vertical, file, line, false);
 }
 
 int32_t gfx_menu_item_list_loc_wide(const wchar_t **items, uint32_t item_count, int32_t selected_index, gfx_menu_item_callback per_cb, bool vertical, const char *file, int32_t line) {
-  return menu_item_list_item_loc((void **)items, item_count, selected_index, per_cb, vertical, file, line, true);
+  return gfx_internal_menu_item_list_item_loc((void **)items, item_count, selected_index, per_cb, vertical, file, line, true);
 }
 
 void gfx_dropdown_menu_loc(const char **items, const char *placeholder, uint32_t item_count, float width, float height, int32_t *selected_index, bool *opened, const char *file, int32_t line) {
-  return dropdown_menu_item_loc((void **)items, (void *)placeholder, item_count, width, height, selected_index, opened, file, line, false);
+  return gfx_internal_dropdown_menu_item_loc((void **)items, (void *)placeholder, item_count, width, height, selected_index, opened, file, line, false);
 }
 
 void gfx_dropdown_menu_loc_wide(const wchar_t **items, const wchar_t *placeholder, uint32_t item_count, float width, float height, int32_t *selected_index, bool *opened, const char *file, int32_t line) {
-  return dropdown_menu_item_loc((void **)items, (void *)placeholder, item_count, width, height, selected_index, opened, file, line, true);
+  return gfx_internal_dropdown_menu_item_loc((void **)items, (void *)placeholder, item_count, width, height, selected_index, opened, file, line, true);
 }
 
 void gfx_input_text_loc(gfx_input_field* input, const char *file, int32_t line) {
-  input_field(input, INPUT_TEXT, file, line);
+  gfx_internal_input_field(input, INPUT_TEXT, file, line);
 }
 
 void gfx_input_int_loc(gfx_input_field *input, const char *file, int32_t line) {
-  input_field(input, INPUT_INT, file, line);
+  gfx_internal_input_field(input, INPUT_INT, file, line);
 }
 
 void gfx_input_float_loc(gfx_input_field *input, const char *file, int32_t line) {
-  input_field(input, INPUT_FLOAT, file, line);
+  gfx_internal_input_field(input, INPUT_FLOAT, file, line);
 }
 
 void gfx_input_insert_char_idx(gfx_input_field *input, char c, uint32_t idx) {
   gfx_input_field_unselect_all(input);
-  insert_i_str(input->buf, c, idx); 
+  gfx_internal_insert_i_str(input->buf, c, idx); 
 }
 
 void gfx_input_insert_str_idx(gfx_input_field *input, const char *insert, uint32_t len, uint32_t idx) {
-  if(len > input->buf_size || strlen(input->buf) + len > input->buf_size) {
+  if (len > input->buf_size || strlen(input->buf) + len > input->buf_size) {
     return;
   }
-  insert_str_str(input->buf, insert, idx);
+  gfx_internal_insert_str_str(input->buf, insert, idx);
   gfx_input_field_unselect_all(input); 
 }
 
@@ -448,9 +448,9 @@ gfx_div gfx_get_grabbed_div() {
 
 void gfx_begin_loc(const char *file, int32_t line) {
   state.pos_ptr = (vec2s){ 0.0f, 0.0f };
-  renderer_begin();
+  gfx_internal_renderer_begin();
   gfx_element_props props = get_props_for(state.theme.div_props);
-  props.color = (gfx_color){0, 0, 0, 0};
+  props.color = (gfx_color){ 0, 0, 0, 0 };
   gfx_push_style_props(props);
   gfx_div_begin(((vec2s){ 0.0f, 0.0f }), ((vec2s){ (float)state.dsp_w, (float)state.dsp_h }), true);
   gfx_pop_style_props();
@@ -461,7 +461,7 @@ void gfx_end() {
   state.selected_div = state.selected_div_tmp;
   update_input();
   clear_events();
-  renderer_flush();
+  gfx_internal_renderer_flush();
   state.drawcalls = 0;
 }
 
@@ -476,7 +476,7 @@ vec2s gfx_text_dimension(const char* str) {
 }
 
 vec2s gfx_text_dimension_ex(const char *str, float wrap_point) {
-  gfx_font font = get_current_font();
+  gfx_font font = gfx_internal_get_current_font();
   gfx_text_props props = gfx_text_render((vec2s){ 0.0f, 0.0f }, str, font, state.theme.text_props.text_color, wrap_point, (vec2s){ -1, -1 }, true, false, -1, -1);
   return (vec2s){ (float)props.width, (float)props.height };
 }
@@ -486,8 +486,8 @@ vec2s gfx_text_dimension_wide(const wchar_t *str) {
 }
 
 vec2s gfx_text_dimension_wide_ex(const wchar_t *str, float wrap_point) {
-  gfx_font font = get_current_font();
-  gfx_text_props props = gfx_text_render_wchar((vec2s){0.0f, 0.0f}, str, font, gfx_no_color, wrap_point, (vec2s){-1, -1}, true, false, -1, -1);
+  gfx_font font = gfx_internal_get_current_font();
+  gfx_text_props props = gfx_text_render_wchar((vec2s){ 0.0f, 0.0f }, str, font, gfx_no_color, wrap_point, (vec2s){ -1, -1 }, true, false, -1, -1);
   return (vec2s){ (float)props.width, (float)props.height };
 }
 
@@ -499,8 +499,8 @@ vec2s gfx_button_dimension(const char *text) {
 }
 
 float gfx_get_text_end(const char *str, float start_x) {
-  gfx_font font = get_current_font();
-  gfx_text_props props = text_render_simple((vec2s){ start_x, 0.0f }, str, font, state.theme.text_props.text_color, true);
+  gfx_font font = gfx_internal_get_current_font();
+  gfx_text_props props = gfx_internal_text_render_simple((vec2s){ start_x, 0.0f }, str, font, state.theme.text_props.text_color, true);
   return props.end_x;
 }
 
@@ -510,12 +510,12 @@ void gfx_text(const char *text) {
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   gfx_color text_color = props.text_color;
   gfx_color color = props.color;
-  gfx_font font = get_current_font();
+  gfx_font font = gfx_internal_get_current_font();
   gfx_text_props text_props = gfx_text_render(state.pos_ptr, text, font, text_color, state.text_wrap ? (state.current_div.aabb.size.x + state.current_div.aabb.pos.x) - margin_right - margin_left : -1, (vec2s){ -1, -1 }, true, false, -1, -1);
-  next_line_on_overflow((vec2s){ text_props.width + padding * 2.0f + margin_left + margin_right, text_props.height + padding * 2.0f + margin_top + margin_bottom }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ text_props.width + padding * 2.0f + margin_left + margin_right, text_props.height + padding * 2.0f + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left;
   state.pos_ptr.y += margin_top;
-  gfx_text_render((vec2s){state.pos_ptr.x + padding, state.pos_ptr.y + padding}, text, font, text_color, state.text_wrap ? (state.current_div.aabb.size.x + state.current_div.aabb.pos.x) - margin_right - margin_left : -1, (vec2s){ -1, -1 }, false, false, -1, -1);
+  gfx_text_render((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, text, font, text_color, state.text_wrap ? (state.current_div.aabb.size.x + state.current_div.aabb.pos.x) - margin_right - margin_left : -1, (vec2s){ -1, -1 }, false, false, -1, -1);
   state.pos_ptr.x += text_props.width + margin_right + padding;
   state.pos_ptr.y -= margin_top;
 }
@@ -527,9 +527,9 @@ void gfx_text_wide(const wchar_t *text) {
   margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   gfx_color text_color = props.text_color;
   gfx_color color = props.color;
-  gfx_font font = get_current_font();
+  gfx_font font = gfx_internal_get_current_font();
   gfx_text_props text_props = gfx_text_render_wchar(state.pos_ptr, text, font, text_color, (state.text_wrap ? (state.current_div.aabb.size.x + state.current_div.aabb.pos.x) - margin_right - margin_left : -1), (vec2s){-1, -1}, true, false, -1, -1);
-  next_line_on_overflow((vec2s){ text_props.width + padding * 2.0f + margin_left + margin_right, text_props.height + padding * 2.0f + margin_top + margin_bottom }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ text_props.width + padding * 2.0f + margin_left + margin_right, text_props.height + padding * 2.0f + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left;
   state.pos_ptr.y += margin_top;
   gfx_rect_render(state.pos_ptr, (vec2s){ text_props.width + padding * 2.0f, text_props.height + padding * 2.0f }, props.color, props.border_color, props.border_width, props.corner_radius, 0.0f);
@@ -623,7 +623,7 @@ void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_co
   if (!state.renderer_render) return;
   float boundingWidth, boundingHeight;
   compute_bounding_box(size.x, size.y, rotation_angle, &boundingWidth, &boundingHeight);
-  if (item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ boundingWidth, boundingHeight } })) {
+  if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ boundingWidth, boundingHeight } })) {
     return;
   }
   vec2s pos_initial = pos;
@@ -642,8 +642,8 @@ void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_co
   glm_mat4_mul(translate, transform, transform);
   for (uint32_t i = 0; i < 4; i++) {
     if (state.render.vert_count >= MAX_RENDER_BATCH) {
-      renderer_flush();
-      renderer_begin();
+      gfx_internal_renderer_flush();
+      gfx_internal_renderer_begin();
     }
     vec4 result;
     glm_mat4_mulv(transform, (vec4s){ state.render.vert_pos[i].x, state.render.vert_pos[i].y, 0.0f, 1.0f }.raw, result);
@@ -678,12 +678,12 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
   }
   float boundingWidth, boundingHeight;
   compute_bounding_box(tex.width, tex.height, rotation_angle, &boundingWidth, &boundingHeight);
-  if (item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ boundingWidth, boundingHeight } })) {
+  if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ boundingWidth, boundingHeight } })) {
     return;
   }
   if (state.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
-    renderer_flush();
-    renderer_begin();
+    gfx_internal_renderer_flush();
+    gfx_internal_renderer_begin();
   }
   vec2s pos_initial = pos;
   vec2s tex_centered = (vec2s){ tex.width / 2.0f, tex.height / 2.0f };
@@ -717,8 +717,8 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
   glm_mat4_mul(translate, transform, transform);
   for (uint32_t i = 0; i < 4; i++) {
     if (state.render.vert_count >= MAX_RENDER_BATCH) {
-      renderer_flush();
-      renderer_begin();
+      gfx_internal_renderer_flush();
+      gfx_internal_renderer_begin();
     }
     vec4 result;
     glm_mat4_mulv(transform, state.render.vert_pos[i].raw, result);
@@ -869,7 +869,7 @@ void gfx_image(gfx_texture tex) {
   gfx_element_props props = get_props_for(state.theme.image_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   gfx_color color = props.color;
-  next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left; 
   state.pos_ptr.y += margin_top;
   gfx_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle);
@@ -884,7 +884,7 @@ void gfx_image_no_block(float x, float y, gfx_texture tex) {
   gfx_element_props props = get_props_for(state.theme.image_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   gfx_color color = props.color;
-  next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
+  gfx_internal_next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left; 
   state.pos_ptr.y += margin_top;
   gfx_image_render((vec2s){ x - tex.width / 2.0f, y - tex.height / 2.0f}, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle);
@@ -897,8 +897,8 @@ void gfx_image_no_block(float x, float y, gfx_texture tex) {
 void gfx_rect(float width, float height, gfx_color color, float corner_radius, float angle) {
   float w, h;
   compute_bounding_box(width, height, angle, &w, &h);
-  next_line_on_overflow((vec2s){ w, h }, state.div_props.border_width);
-  gfx_rect_render(state.pos_ptr, (vec2s){(float)width, (float)height}, color, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
+  gfx_internal_next_line_on_overflow((vec2s){ w, h }, state.div_props.border_width);
+  gfx_rect_render(state.pos_ptr, (vec2s){ (float)width, (float)height }, color, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
   state.pos_ptr.x += w;
 }
 
@@ -906,8 +906,8 @@ void gfx_rect_no_block(float x, float y, float width, float height, gfx_color co
   float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(width, height, angle, &w, &h);
-  next_line_on_overflow((vec2s){ w, h }, state.div_props.border_width);
-  gfx_rect_render((vec2s){ x - width / 2.0f, y - height / 2.0f}, (vec2s){(float)width, (float)height}, color, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
+  gfx_internal_next_line_on_overflow((vec2s){ w, h }, state.div_props.border_width);
+  gfx_rect_render((vec2s){ x - width / 2.0f, y - height / 2.0f}, (vec2s){ (float)width, (float)height }, color, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, corner_radius, angle);
   state.pos_ptr.x += w;
   state.pos_ptr.x = init_x;
   state.pos_ptr.y = init_y;
@@ -936,4 +936,3 @@ char *gfx_get_clipboard_text() {
 void gfx_set_no_render(bool no_render) {
   state.renderer_render = !no_render;
 }
-

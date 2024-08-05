@@ -43,7 +43,7 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   glfwSetCursorPosCallback((GLFWwindow *)state.window_handle, glfw_cursor_callback);
   glfwSetCharCallback((GLFWwindow *)state.window_handle, glfw_char_callback);
   glfwSetWindowSizeCallback((GLFWwindow *)state.window_handle, glfw_window_size_callback);
-  renderer_init();
+  gfx_internal_renderer_init();
   state.tex_arrow_down = gfx_load_texture_asset("arrow-down", "png");
   state.tex_tick = gfx_load_texture_asset("tick", "png");
 }

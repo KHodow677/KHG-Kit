@@ -140,38 +140,37 @@ typedef enum {
 
 extern gfx_state state;
 
-extern uint32_t shader_create(GLenum type, const char *src);
-extern gfx_shader shader_prg_create(const char *vert_src, const char *frag_src);
-extern void shader_set_mat(gfx_shader prg, const char *name, mat4 mat); 
-extern void set_projection_matrix(void);
-extern void renderer_init(void);
-extern void renderer_flush(void);
-extern void renderer_begin(void);
+extern uint32_t gfx_internal_shader_create(GLenum type, const char *src);
+extern gfx_shader gfx_internal_shader_prg_create(const char *vert_src, const char *frag_src);
+extern void gfx_internal_shader_set_mat(gfx_shader prg, const char *name, mat4 mat); 
+extern void gfx_internal_set_projection_matrix(void);
+extern void gfx_internal_renderer_init(void);
+extern void gfx_internal_renderer_flush(void);
+extern void gfx_internal_renderer_begin(void);
 
-extern gfx_text_props text_render_simple(vec2s pos, const char *text, gfx_font font, gfx_color font_color, bool no_render);
-extern gfx_text_props text_render_simple_wide(vec2s pos, const wchar_t *text, gfx_font font, gfx_color font_color, bool no_render);
-extern gfx_clickable_item_state button_ex(const char *file, int32_t line, vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color, vec2s hitbox_override);
-extern gfx_clickable_item_state button(const char *file, int32_t line, vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color);
-extern gfx_clickable_item_state div_container(vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color);
-extern void next_line_on_overflow(vec2s size, float xoffset);
-extern bool item_should_cull(gfx_aabb item);
-extern void draw_scrollbar_on(gfx_div *div);
+extern gfx_text_props gfx_internal_text_render_simple(vec2s pos, const char *text, gfx_font font, gfx_color font_color, bool no_render);
+extern gfx_text_props gfx_internaltext_render_simple_wide(vec2s pos, const wchar_t *text, gfx_font font, gfx_color font_color, bool no_render);
+extern gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color, vec2s hitbox_override);
+extern gfx_clickable_item_state gfx_internal_button(const char *file, int32_t line, vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color);
+extern gfx_clickable_item_state gfx_internal_div_container(vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color);
+extern void gfx_internal_next_line_on_overflow(vec2s size, float xoffset);
+extern bool gfx_internal_item_should_cull(gfx_aabb item);
+extern void gfx_internal_draw_scrollbar_on(gfx_div *div);
 
-extern void input_field(gfx_input_field *input, gfx_input_field_type type, const char *file, int32_t line);
-extern gfx_font get_current_font(void); 
-extern gfx_clickable_item_state button_element_loc(void *text, const char *file, int32_t line, bool wide);
-extern gfx_clickable_item_state button_fixed_element_loc(void *text, float width, float height, const char *file, int32_t line, bool wide);
-extern gfx_clickable_item_state checkbox_element_loc(void *text, bool *val, gfx_color tick_color, gfx_color tex_color, const char *file, int32_t line, bool wide);
-extern void dropdown_menu_item_loc(void **items, void *placeholder, uint32_t item_count, float width, float height, int32_t *selected_index, bool *opened, const char *file, int32_t line, bool wide);
-extern int32_t menu_item_list_item_loc(void **items, uint32_t item_count, int32_t selected_index, gfx_menu_item_callback per_cb, bool vertical, const char *file, int32_t line, bool wide);
+extern void gfx_internal_input_field(gfx_input_field *input, gfx_input_field_type type, const char *file, int32_t line);
+extern gfx_font gfx_internal_get_current_font(void); 
+extern gfx_clickable_item_state gfx_internal_button_element_loc(void *text, const char *file, int32_t line, bool wide);
+extern gfx_clickable_item_state gfx_internal_button_fixed_element_loc(void *text, float width, float height, const char *file, int32_t line, bool wide);
+extern gfx_clickable_item_state gfx_internal_checkbox_element_loc(void *text, bool *val, gfx_color tick_color, gfx_color tex_color, const char *file, int32_t line, bool wide);
+extern void gfx_internal_dropdown_menu_item_loc(void **items, void *placeholder, uint32_t item_count, float width, float height, int32_t *selected_index, bool *opened, const char *file, int32_t line, bool wide);
+extern int32_t gfx_internal_menu_item_list_item_loc(void **items, uint32_t item_count, int32_t selected_index, gfx_menu_item_callback per_cb, bool vertical, const char *file, int32_t line, bool wide);
 
-extern int32_t get_max_char_height_font(gfx_font font);
-extern void remove_i_str(char *str, int32_t index);
-extern void remove_substr_str(char *str, int start_index, int end_index);
-extern void insert_i_str(char *str, char ch, int32_t index);
-extern void insert_str_str(char *source, const char *insert, int32_t index);
-extern void substr_str(const char *str, int start_index, int end_index, char *substring);
-extern int map_vals(int value, int from_min, int from_max, int to_min, int to_max);
+extern void gfx_internal_remove_i_str(char *str, int32_t index);
+extern void gfx_internal_remove_substr_str(char *str, int start_index, int end_index);
+extern void gfx_internal_insert_i_str(char *str, char ch, int32_t index);
+extern void gfx_internal_insert_str_str(char *source, const char *insert, int32_t index);
+extern void gfx_internal_substr_str(const char *str, int start_index, int end_index, char *substring);
+extern int gfx_internal_map_vals(int value, int from_min, int from_max, int to_min, int to_max);
 
 extern void glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action, int mods);
 extern void glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int action, int mods); 
