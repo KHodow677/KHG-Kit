@@ -2,7 +2,7 @@
 #ifndef SRC_NATIVE_TYPES_H_
 #define SRC_NATIVE_TYPES_H_
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 	typedef unsigned long long int socket_t;
 #else
 	typedef long long int socket_t;

@@ -1,7 +1,7 @@
 // error.c
 #include "khg_tcp/error.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 #include <winsock2.h>
 #endif
 

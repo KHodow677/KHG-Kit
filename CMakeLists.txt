@@ -59,7 +59,13 @@ elseif(UNIX)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address)
 endif()
 
+
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_dbm khg_phy khg_tcp khg_ecs khg_utl khg_aud khg_gfx)
+if (WIN32)
+  target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE Ws2_32)
+  target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE Mswsock)
+  target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE AdvApi32)
+endif()
 
 enable_testing()
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")

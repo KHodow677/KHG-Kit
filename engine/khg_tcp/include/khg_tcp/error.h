@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-#ifndef _WIN32
+#if !defined(_WIN32) || !defined(_WIN64)
 #include <errno.h>
 #endif
 
@@ -15,7 +15,7 @@ typedef enum stcp_error
 {
 	STCP_NO_ERROR			      = 0,
 
-#ifdef _WIN32 // Winsock errors. Range: 10000 + 4, 9, 13, 14, 22, 24, 35-71
+#if defined(_WIN32) || defined(_WIN64) // Winsock errors. Range: 10000 + 4, 9, 13, 14, 22, 24, 35-71
 	STCP_EINTR                    = 10004,
 	STCP_EBADF                    = 10009,
 	STCP_EACCES                   = 10013,

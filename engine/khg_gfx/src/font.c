@@ -154,7 +154,7 @@ gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font fon
   return ret;
  }
 
-gfx_font load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, uint32_t tex_height,  uint32_t line_gap_add) {
+gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, uint32_t tex_height,  uint32_t line_gap_add) {
   gfx_font font = { 0 };
   FILE *file = fopen(filepath, "rb");
   if (file == NULL) {

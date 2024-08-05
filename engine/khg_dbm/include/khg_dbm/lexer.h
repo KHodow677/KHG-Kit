@@ -2,8 +2,10 @@
 
 #include <stdio.h>
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
+#ifndef strcasecmp
 #define strcasecmp stricmp
+#endif
 #endif
 
 typedef enum { 

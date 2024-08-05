@@ -4,7 +4,7 @@ then
   rm -r build/res
   cp -r res build/res
   cd build
-  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   cmake --build .
 elif [ "$1" = "run" ]
 then

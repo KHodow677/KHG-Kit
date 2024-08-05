@@ -158,7 +158,6 @@ extern bool item_should_cull(gfx_aabb item);
 extern void draw_scrollbar_on(gfx_div *div);
 
 extern void input_field(gfx_input_field *input, gfx_input_field_type type, const char *file, int32_t line);
-gfx_font load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, uint32_t tex_height, uint32_t line_gap_add);
 extern gfx_font get_current_font(void); 
 extern gfx_clickable_item_state button_element_loc(void *text, const char *file, int32_t line, bool wide);
 extern gfx_clickable_item_state button_fixed_element_loc(void *text, float width, float height, const char *file, int32_t line, bool wide);

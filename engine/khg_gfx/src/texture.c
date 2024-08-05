@@ -7,20 +7,20 @@
 #include <windows.h>
 #else 
 #endif
-#include <unistd.h>
 
-#include "khg_gfx/internal.h"
+#include "khg_gfx/font.h"
 #include "khg_gfx/texture.h"
 #include "khg_utl/error_func.h"
+#include "glad/glad.h"
 #include <string.h>
-
+#include <unistd.h>
 
 gfx_font gfx_load_font(const char *filepath, uint32_t size) {
-  return load_font(filepath, size, 1024, 1024, 0);
+  return gfx_internal_load_font(filepath, size, 1024, 1024, 0);
 }
 
 gfx_font gfx_load_font_ex(const char *filepath, uint32_t size, uint32_t bitmap_w, uint32_t bitmap_h) {
-  return load_font(filepath, size, bitmap_w, bitmap_h, 0);
+  return gfx_internal_load_font(filepath, size, bitmap_w, bitmap_h, 0);
 }
 
 gfx_texture gfx_load_texture(const char *filepath, bool flip, gfx_texture_filtering filter) {
