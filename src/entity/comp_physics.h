@@ -4,10 +4,15 @@
 #include "khg_phy/phy_types.h"
 
 typedef struct {
-  ecs_id id;
-  float time;
   cpBody *body;
   cpShape *shape;
+  cpSpace *space;
+} physics_info;
+
+typedef struct {
+  ecs_id id;
+  float time;
+  physics_info info;
 } comp_physics;
 
 typedef struct {
@@ -15,11 +20,7 @@ typedef struct {
   ecs_ecs ecs;
 } sys_physics;
 
-typedef struct {
-  cpBody *body;
-  cpShape *shape;
-  cpSpace *space;
-} physics_info;
+extern ecs_id PHYSICS_COMPONENT_SIGNATURE;
 
 void comp_physics_setup(comp_physics *cp, cpSpace *space);
 void comp_physics_free(comp_physics *cp);
