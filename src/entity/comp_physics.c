@@ -1,6 +1,8 @@
 #include "comp_physics.h"
 #include "khg_ecs/ecs.h"
+#include "khg_phy/body.h"
 #include "khg_phy/phy.h"
+#include "khg_phy/phy_types.h"
 #include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT_SIGNATURE;
@@ -40,11 +42,7 @@ ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   for (int id = 0; id < entity_count; id++) {
     comp_physics *cp = ecs_get(ecs, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     cp->time += dt; 
-    cpVect pos = cpBodyGetPosition(info->body);
-    cpVect vel = cpBodyGetVelocity(info->body);
-    printf( "Time is %f. ballBody is at (%5.2f, %5.2f). It's velocity is (%5.2f, %5.2f)\n", cp->time, pos.x, pos.y, vel.x, vel.y);
     cpSpaceStep(info->space, dt);
   }
-  printf("\n");
   return 0;
 }

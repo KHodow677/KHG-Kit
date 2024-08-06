@@ -4,6 +4,7 @@
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/body.h"
+#include "khg_phy/phy_types.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -40,6 +41,8 @@ ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     comp_renderer *cr = ecs_get(ecs, entities[id], RENDERER_COMPONENT_SIGNATURE);
     comp_physics *cp = ecs_get(ecs, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     cpVect pos = cpBodyGetPosition(info->body);
+    cpFloat angle = cpBodyGetAngle(info->body);
+    info->texture->angle = angle;
     gfx_image_no_block(pos.x, pos.y, *info->texture);
   }
   return 0;
