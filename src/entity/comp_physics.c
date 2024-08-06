@@ -7,13 +7,12 @@ ecs_id PHYSICS_COMPONENT_SIGNATURE;
 
 void comp_physics_setup(comp_physics *cp, cpSpace *sp) {
   cp->time = 0.0f;
-  float radius = 5;
-  float mass = 1;
-  float moment = cpMomentForCircle(mass, 0, radius, cpvzero);
+  float width = 145, height = 184, mass = 1;
+  float moment = cpMomentForBox(mass, width, height);
   cp->info.body = cpSpaceAddBody(sp, cpBodyNew(mass, moment));
   cpBodySetPosition(cp->info.body, cpv(200.0f, 150.0f));
-  cp->info.shape = cpSpaceAddShape(sp, cpCircleShapeNew(cp->info.body, radius, cpvzero));
-  cpShapeSetFriction(cp->info.shape, 0.7);
+  cp->info.shape = cpSpaceAddShape(sp, cpBoxShapeNew(cp->info.body, width, height, 0));
+  cpShapeSetFriction(cp->info.shape, 0.2);
   cp->info.space = sp;
 }
 
@@ -49,4 +48,3 @@ ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   printf("\n");
   return 0;
 }
-

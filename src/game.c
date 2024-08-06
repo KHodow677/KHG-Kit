@@ -1,6 +1,5 @@
 #include "game.h"
 #include "entity/ecs_manager.h"
-#include "entity/ecs_manager.h"
 #include "physics/physics_setup.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/texture.h"
