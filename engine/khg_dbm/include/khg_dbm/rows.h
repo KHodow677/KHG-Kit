@@ -1,32 +1,30 @@
 #pragma once 
 
 #include "khg_dbm/generics.h"
-#include <stdlib.h>
+#include <sys/types.h>
 
 typedef struct {
   char *types;
   dbm_generic **columns;
 } row;
 
-row *create_row(char *types);
+size_t dbm_rowlen(row **in_row);
+row *dbm_create_row(char *types);
 
-size_t rowlen(row **in_row);
+dbm_i dbm_r_get_type(row **in_row, int index);
 
-dbm_i r_get_type(row **in_row, int index);
+int dbm_r_get_int(row **in_row, int index);
+void dbm_r_set_int(row **in_row, int index, int value);
 
-int r_get_int(row **in_row, int index);
-void r_set_int(row **in_row, int index, int value);
+char dbm_r_get_char(row **in_row, int index);
+void dbm_r_set_char(row **in_row, int index, char value);
 
-char r_get_char(row **in_row, int index);
-void r_set_char(row **in_row, int index, char value);
+char *dbm_r_get_str(row **in_row, int index);
+void dbm_r_set_str(row **in_row, int index, char *value);
 
-char *r_get_str(row **in_row, int index);
-void r_set_str(row **in_row, int index, char *value);
+void dbm_print_row(row **in_row);
 
-void print_row(row **in_row);
+size_t dbm_pack_row(row **in_row, char **buf);
+row* dbm_unpack_row(char *types, char **buf);
 
-size_t pack_row(row **in_row, char **buf);
-row* unpack_row(char *types, char **buf);
-
-size_t get_size(row **in_row);
-
+size_t dbm_get_size(row **in_row);

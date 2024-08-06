@@ -32,8 +32,6 @@ int game_run() {
     printf("Vendor: %s\n", vendor);
     printf("OpenGL Version: %s\n", version);
   } 
-  body = gfx_load_texture_asset("Tank-Body-Blue", "png");
-  top = gfx_load_texture_asset("Tank-Top-Blue", "png");
   cpVect gravity = cpv(0, 60);
   cpSpace *space = physics_setup(&gravity);
   comp_physics physics_component;

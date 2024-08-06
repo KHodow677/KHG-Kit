@@ -55,8 +55,8 @@ size_t read_buffer(FILE *fp, char **buf, size_t size) {
 }
 
 size_t write_buffer(FILE* fp, char* buf, size_t size) {
-    size = fwrite(buf, sizeof(char), size, fp);
-    return size;
+  size = fwrite(buf, sizeof(char), size, fp);
+  return size;
 }
 
 size_t pack_string(char *buf, char *string) {

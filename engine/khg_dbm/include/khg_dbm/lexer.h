@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdio.h>
+#include <sys/types.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 #ifndef strcasecmp

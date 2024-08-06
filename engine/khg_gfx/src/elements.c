@@ -1,5 +1,4 @@
 #include "khg_gfx/elements.h"
-#include "cglm/types-struct.h"
 #include "khg_gfx/font.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/internal.h"
@@ -156,16 +155,16 @@ gfx_div *gfx_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll
     state.scroll_ptr = scroll;
   }
   uint64_t id = DJB2_INIT;
-  id = djb2_hash(id, file, strlen(file));
-  id = djb2_hash(id, &line, sizeof(line));
+  id = gfx_internal_djb2_hash(id, file, strlen(file));
+  id = gfx_internal_djb2_hash(id, &line, sizeof(line));
   if (state.element_id_stack != -1) {
-    id = djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
+    id = gfx_internal_djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
   }
   state.prev_pos_ptr = state.pos_ptr;
   state.prev_font_stack = state.font_stack;
   state.prev_line_height = state.current_line_height;
   state.prev_div = state.current_div;
-  gfx_element_props props = get_props_for(state.theme.div_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.div_props);
   state.div_props = props;
   gfx_div div;
   div.aabb = (gfx_aabb){ .pos = pos, .size = size };
@@ -216,7 +215,7 @@ void gfx_div_end() {
 }
 
 gfx_clickable_item_state gfx_item_loc(vec2s size, const char *file, int32_t line) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   gfx_internal_next_line_on_overflow((vec2s){ size.x + props.padding * 2.0f + props.margin_right + props.margin_left, size.y + props.padding * 2.0f + props.margin_bottom + props.margin_top }, state.div_props.border_width);
   state.pos_ptr.x += props.margin_left;
   state.pos_ptr.y += props.margin_top;
@@ -235,7 +234,7 @@ gfx_clickable_item_state gfx_button_wide_loc(const wchar_t *text, const char *fi
 }
 
 gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file, int32_t line) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right,
   margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
@@ -254,7 +253,7 @@ gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file,
 }
 
 gfx_clickable_item_state gfx_image_button_fixed_loc(gfx_texture img, float width, float height, const char *file, int32_t line) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right,
   margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
@@ -283,7 +282,7 @@ gfx_clickable_item_state gfx_button_fixed_loc_wide(const wchar_t *text, float wi
 }
 
 gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file, int32_t line) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   float handle_size;
   if (slider->handle_size != 0.0f) {
@@ -334,7 +333,7 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
 }
 
 gfx_clickable_item_state gfx_progress_bar_int_loc(float val, float min, float max, float width, float height, const char *file, int32_t line) {
-  gfx_element_props props = get_props_for(state.theme.slider_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.slider_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
   gfx_color color = props.color;
   gfx_internal_next_line_on_overflow((vec2s){ width + margin_right + margin_left, height + margin_bottom + margin_top }, state.div_props.border_width);
@@ -351,7 +350,7 @@ gfx_clickable_item_state gfx_progress_bar_int_loc(float val, float min, float ma
 }
 
 gfx_clickable_item_state gfx_progress_stripe_int_loc(gfx_slider *slider, const char *file, int32_t line) {
-  gfx_element_props props = get_props_for(state.theme.slider_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.slider_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom =props.margin_bottom; 
   const float handle_size = 20;
   const float height = (slider->height != 0) ? slider->height : handle_size / 2.0f;
@@ -449,7 +448,7 @@ gfx_div gfx_get_grabbed_div() {
 void gfx_begin_loc(const char *file, int32_t line) {
   state.pos_ptr = (vec2s){ 0.0f, 0.0f };
   gfx_internal_renderer_begin();
-  gfx_element_props props = get_props_for(state.theme.div_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.div_props);
   props.color = (gfx_color){ 0, 0, 0, 0 };
   gfx_push_style_props(props);
   gfx_div_begin(((vec2s){ 0.0f, 0.0f }), ((vec2s){ (float)state.dsp_w, (float)state.dsp_h }), true);
@@ -492,7 +491,7 @@ vec2s gfx_text_dimension_wide_ex(const wchar_t *str, float wrap_point) {
 }
 
 vec2s gfx_button_dimension(const char *text) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   float padding = props.padding;
   vec2s text_dimension = gfx_text_dimension(text);
   return (vec2s){ text_dimension.x + padding * 2.0f, text_dimension.y + padding };
@@ -505,7 +504,7 @@ float gfx_get_text_end(const char *str, float start_x) {
 }
 
 void gfx_text(const char *text) {
-  gfx_element_props props = get_props_for(state.theme.text_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.text_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   gfx_color text_color = props.text_color;
@@ -521,7 +520,7 @@ void gfx_text(const char *text) {
 }
 
 void gfx_text_wide(const wchar_t *text) {
-  gfx_element_props props = get_props_for(state.theme.text_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.text_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right, 
   margin_top = props.margin_top, margin_bottom = props.margin_bottom;
@@ -767,11 +766,11 @@ bool gfx_aabb_intersects_aabb(gfx_aabb a, gfx_aabb b) {
 }
 
 void gfx_push_style_props(gfx_element_props props) {
-  props_stack_push(&state.props_stack, props);
+  gfx_internal_props_stack_push(&state.props_stack, props);
 }
 
 void gfx_pop_style_props() {
-  props_stack_pop(&state.props_stack);
+  gfx_internal_props_stack_pop(&state.props_stack);
 }
 
 bool gfx_hovered(vec2s pos, vec2s size) {
@@ -866,7 +865,7 @@ gfx_color gfx_color_from_zto(vec4s zto) {
 void gfx_image(gfx_texture tex) {
   float w, h;
   compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
-  gfx_element_props props = get_props_for(state.theme.image_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.image_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   gfx_color color = props.color;
   gfx_internal_next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
@@ -881,7 +880,7 @@ void gfx_image_no_block(float x, float y, gfx_texture tex) {
   float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
-  gfx_element_props props = get_props_for(state.theme.image_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.image_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   gfx_color color = props.color;
   gfx_internal_next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
@@ -915,7 +914,7 @@ void gfx_rect_no_block(float x, float y, float width, float height, gfx_color co
 
 void gfx_seperator() {
   gfx_next_line();
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   state.pos_ptr.x += props.margin_left;
   state.pos_ptr.y += props.margin_top;
   const uint32_t seperator_height = 1;

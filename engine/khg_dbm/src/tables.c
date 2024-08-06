@@ -70,4 +70,3 @@ table *unpack_table(char **buf) {
   }
   return new_table;
 }
-

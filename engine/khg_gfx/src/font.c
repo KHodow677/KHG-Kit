@@ -1,11 +1,11 @@
 #define STB_TRUETYPE_IMPLEMENTATION
-#include "stb_truetype/stb_truetype.h"
 
 #include "khg_gfx/font.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/ui.h"
 #include "khg_utl/error_func.h"
+#include "stb_truetype/stb_truetype.h"
 #include <stdio.h>
 #include <wctype.h>
 

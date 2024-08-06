@@ -20,7 +20,7 @@ void ecs_flush_destroyed(ecs_ecs *ecs) {
   for (size_t i = 0; i < destroy_queue->size; i++) {
     ecs_id entity_id = destroy_queue->array[i];
     if (ecs_is_ready(ecs, entity_id)) {
-        ecs_destroy(ecs, entity_id);
+      ecs_destroy(ecs, entity_id);
     }
   }
   destroy_queue->size = 0;

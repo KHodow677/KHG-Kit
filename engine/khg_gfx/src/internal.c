@@ -282,10 +282,10 @@ gfx_clickable_item_state gfx_internal_button(const char *file, int32_t line, vec
 
 gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color, vec2s hitbox_override) {
   uint64_t id = DJB2_INIT;
-  id = djb2_hash(id, file, strlen(file));
-  id = djb2_hash(id, &line, sizeof(line));
+  id = gfx_internal_djb2_hash(id, file, strlen(file));
+  id = gfx_internal_djb2_hash(id, &line, sizeof(line));
   if (state.element_id_stack != -1) {
-    id = djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
+    id = gfx_internal_djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
   }
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size= size })) {
     return gfx_clickable_idle;
@@ -382,7 +382,7 @@ void gfx_internal_draw_scrollbar_on(gfx_div *div) {
     state.scrollbar_div = *div;
     gfx_div *selected = div;
     float scroll = *state.scroll_ptr;
-    gfx_element_props props = get_props_for(state.theme.scrollbar_props);
+    gfx_element_props props = gfx_internal_get_props_for(state.theme.scrollbar_props);
     selected->total_area.x = state.pos_ptr.x;
     selected->total_area.y = state.pos_ptr.y + state.div_props.corner_radius;
     if (*state.scroll_ptr < -((div->total_area.y - *state.scroll_ptr) - div->aabb.pos.y - div->aabb.size.y) && *state.scroll_velocity_ptr < 0 && state.theme.div_smooth_scroll) {
@@ -438,7 +438,7 @@ void gfx_internal_input_field(gfx_input_field *input, gfx_input_field_type type,
     gfx_input_field_unselect_all(input);
     input->init = true;
   }
-  gfx_element_props props = get_props_for(state.theme.input_field_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.input_field_props);
   gfx_font font = gfx_internal_get_current_font();
   state.pos_ptr.x += props.margin_left; 
   state.pos_ptr.y += props.margin_top; 
@@ -692,7 +692,7 @@ gfx_font gfx_internal_get_current_font() {
 }
 
 gfx_clickable_item_state gfx_internal_button_element_loc(void *text, const char *file, int32_t line, bool wide) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right,
   margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
@@ -722,7 +722,7 @@ gfx_clickable_item_state gfx_internal_button_element_loc(void *text, const char 
 }
 
 gfx_clickable_item_state gfx_internal_button_fixed_element_loc(void *text, float width, float height, const char *file, int32_t line, bool wide) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right,
   margin_top = props.margin_top, margin_bottom = props.margin_bottom;
@@ -757,7 +757,7 @@ gfx_clickable_item_state gfx_internal_button_fixed_element_loc(void *text, float
 
 gfx_clickable_item_state gfx_internal_checkbox_element_loc(void *text, bool *val, gfx_color tick_color, gfx_color tex_color, const char *file, int32_t line, bool wide) {
   gfx_font font = gfx_internal_get_current_font();
-  gfx_element_props props = get_props_for(state.theme.checkbox_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.checkbox_props);
   float margin_left = props.margin_left;
   float margin_right = props.margin_right;
   float margin_top = props.margin_top;
@@ -792,7 +792,7 @@ gfx_clickable_item_state gfx_internal_checkbox_element_loc(void *text, bool *val
 }
 
 void gfx_internal_dropdown_menu_item_loc(void **items, void *placeholder, uint32_t item_count, float width, float height, int32_t *selected_index, bool *opened, const char *file, int32_t line, bool wide) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   float margin_left = props.margin_left, margin_right = props.margin_right,
   margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   float padding = props.padding;
@@ -858,7 +858,7 @@ void gfx_internal_dropdown_menu_item_loc(void **items, void *placeholder, uint32
 }
 
 int32_t gfx_internal_menu_item_list_item_loc(void **items, uint32_t item_count, int32_t selected_index, gfx_menu_item_callback per_cb, bool vertical, const char *file, int32_t line, bool wide) {
-  gfx_element_props props = get_props_for(state.theme.button_props);
+  gfx_element_props props = gfx_internal_get_props_for(state.theme.button_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right,
   margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
@@ -1087,7 +1087,7 @@ void gfx_internal_clear_events() {
   state.input.mouse.ypos_delta = 0;
 }
 
-uint64_t djb2_hash(uint64_t hash, const void *buf, size_t size) {
+uint64_t gfx_internal_djb2_hash(uint64_t hash, const void *buf, size_t size) {
   uint8_t *bytes = (uint8_t *)buf;
   int c;
   while ((c = *bytes++)) {
@@ -1096,7 +1096,7 @@ uint64_t djb2_hash(uint64_t hash, const void *buf, size_t size) {
   return hash;
 }
 
-void props_stack_create(gfx_props_stack *stack) {
+void gfx_internal_props_stack_create(gfx_props_stack *stack) {
   stack->data = (gfx_element_props *)malloc(UI_STACK_INIT_CAP * sizeof(gfx_element_props));
   if(!stack->data) {
     error_func("Failed to allocate memory for stack data structure", user_defined_data);
@@ -1105,7 +1105,7 @@ void props_stack_create(gfx_props_stack *stack) {
   stack->cap = UI_STACK_INIT_CAP;
 }
 
-void props_stack_resize(gfx_props_stack *stack, uint32_t newcap) {
+void gfx_internal_props_stack_resize(gfx_props_stack *stack, uint32_t newcap) {
   gfx_element_props* newdata = (gfx_element_props *)realloc(stack->data, newcap * sizeof(gfx_element_props));
   if(!newdata) {
     error_func("Failed to reallocate memory for stack datastructure", user_defined_data);
@@ -1114,30 +1114,29 @@ void props_stack_resize(gfx_props_stack *stack, uint32_t newcap) {
   stack->cap = newcap;
 }
 
-void props_stack_push(gfx_props_stack *stack, gfx_element_props props) {
+void gfx_internal_props_stack_push(gfx_props_stack *stack, gfx_element_props props) {
   if(stack->count == stack->cap) {
-    props_stack_resize(stack, stack->cap * 2);
+    gfx_internal_props_stack_resize(stack, stack->cap * 2);
   }
   stack->data[stack->count++] = props;
 }
 
-gfx_element_props props_stack_pop(gfx_props_stack *stack) {
+gfx_element_props gfx_internal_props_stack_pop(gfx_props_stack *stack) {
   gfx_element_props val = stack->data[--stack->count];
   if(stack->count > 0 && stack->count == stack->cap / 4) {
-    props_stack_resize(stack, stack->cap / 2);
+    gfx_internal_props_stack_resize(stack, stack->cap / 2);
   }
   return val;
 }
 
-gfx_element_props props_stack_peak(gfx_props_stack *stack) {
+gfx_element_props gfx_internal_props_stack_peak(gfx_props_stack *stack) {
   return stack->data[stack->count - 1];
 }
 
-bool props_stack_empty(gfx_props_stack *stack) {
+bool gfx_internal_props_stack_empty(gfx_props_stack *stack) {
   return stack->count == 0;
 }
 
-gfx_element_props get_props_for(gfx_element_props props) {
-  return (!props_stack_empty(&state.props_stack)) ? props_stack_peak(&state.props_stack) : props; 
+gfx_element_props gfx_internal_get_props_for(gfx_element_props props) {
+  return (!gfx_internal_props_stack_empty(&state.props_stack)) ? gfx_internal_props_stack_peak(&state.props_stack) : props; 
 }
-

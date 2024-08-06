@@ -150,3 +150,4 @@ void dbm_create_generic_str(dbm_generic **new_gen, dbm_i type, char *initial_con
       break;
   }
 }
+

@@ -1,4 +1,3 @@
-#include "glad/glad.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/ui.h"
 #include "khg_utl/error_func.h"
@@ -32,7 +31,7 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   state.theme = gfx_default_theme();
   state.renderer_render = true;
   state.drag_state = (gfx_drag_state){ false, { 0, 0 }, 0 };
-  props_stack_create(&state.props_stack);
+  gfx_internal_props_stack_create(&state.props_stack);
   memset(&state.grabbed_div, 0, sizeof(gfx_div));
   state.grabbed_div.id = -1;
   state.clipboard = clipboard_new(NULL);

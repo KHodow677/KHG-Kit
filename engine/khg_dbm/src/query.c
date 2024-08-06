@@ -113,15 +113,15 @@ size_t dbm_exc_update(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *
   for (dbm_query_node *it = results; it != NULL; it = it->next) {
     for (dbm_arg_node *arg = updates; arg != NULL; arg = arg->next) {
       int col = map_name_to_col(&in_table, arg->key);
-      switch (r_get_type(&it->data->data, col)) {
+      switch (dbm_r_get_type(&it->data->data, col)) {
         case int_t:
-          r_set_int(&it->data->data, col, atoi(arg->value));
+          dbm_r_set_int(&it->data->data, col, atoi(arg->value));
           break;
         case str_t:
-          r_set_str(&it->data->data, col, arg->value);
+          dbm_r_set_str(&it->data->data, col, arg->value);
           break;
         case char_t:
-          r_set_char(&it->data->data, col, arg->value[0]);
+          dbm_r_set_char(&it->data->data, col, arg->value[0]);
           break;
         default:
           break;
@@ -149,18 +149,18 @@ void dbm_exc_insert(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *va
     printf("Table doesn't exist");
   }
   if (in_table != NULL) {
-    row *new_row = create_row(in_table->field_types);
+    row *new_row = dbm_create_row(in_table->field_types);
     for (dbm_arg_node *arg = values; arg != NULL; arg = arg->next){
       int col = map_name_to_col(&in_table, arg->key);
-      switch (r_get_type(&new_row, col)) {
+      switch (dbm_r_get_type(&new_row, col)) {
         case int_t:
-          r_set_int(&new_row, col, atoi(arg->value));
+          dbm_r_set_int(&new_row, col, atoi(arg->value));
           break;
         case str_t:
-          r_set_str(&new_row, col, arg->value);
+          dbm_r_set_str(&new_row, col, arg->value);
           break;
         case char_t:
-          r_set_char(&new_row, col, arg->value[0]);
+          dbm_r_set_char(&new_row, col, arg->value[0]);
           break;
         default:
           break;
@@ -185,7 +185,7 @@ size_t dbm_exc_drop(dbm_database **db, dbm_arg_node *arg_table) {
 void dbm_print_query_nodes(dbm_query_node *root) {
   if(root != NULL) {
     for(dbm_query_node *it = root; it != NULL; it = it->next) {
-      print_row(&it->data->data);
+      dbm_print_row(&it->data->data);
     }
   }
 }

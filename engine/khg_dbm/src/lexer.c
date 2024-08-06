@@ -1,6 +1,7 @@
 #include "khg_dbm/lexer.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 char* Keywords[] = {
   "select", "from", "where", "join", "on",

@@ -1,7 +1,5 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
-#include "stb_image_resize/stb_image_resize2.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -12,6 +10,8 @@
 #include "khg_gfx/texture.h"
 #include "khg_utl/error_func.h"
 #include "glad/glad.h"
+#include "stb_image/stb_image.h"
+#include "stb_image_resize/stb_image_resize2.h"
 #include <string.h>
 #include <unistd.h>
 

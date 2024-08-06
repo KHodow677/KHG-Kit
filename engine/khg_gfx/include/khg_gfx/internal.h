@@ -182,14 +182,14 @@ extern void gfx_internal_glfw_window_size_callback(GLFWwindow *window, int width
 extern void gfx_internal_update_input(void);
 extern void gfx_internal_clear_events(void);
 
-extern uint64_t djb2_hash(uint64_t hash, const void *buf, size_t size);
+extern uint64_t gfx_internal_djb2_hash(uint64_t hash, const void *buf, size_t size);
 
-extern void props_stack_create(gfx_props_stack *stack); 
-extern void props_stack_resize(gfx_props_stack *stack, uint32_t newcap); 
-extern void props_stack_push(gfx_props_stack *stack, gfx_element_props props); 
-extern gfx_element_props props_stack_pop(gfx_props_stack *stack); 
-extern gfx_element_props props_stack_peak(gfx_props_stack *stack); 
-extern bool props_stack_empty(gfx_props_stack *stack);
+extern void gfx_internal_props_stack_create(gfx_props_stack *stack); 
+extern void gfx_internal_props_stack_resize(gfx_props_stack *stack, uint32_t newcap); 
+extern void gfx_internal_props_stack_push(gfx_props_stack *stack, gfx_element_props props); 
+extern gfx_element_props gfx_internal_props_stack_pop(gfx_props_stack *stack); 
+extern gfx_element_props gfx_internal_props_stack_peak(gfx_props_stack *stack); 
+extern bool gfx_internal_props_stack_empty(gfx_props_stack *stack);
 
-extern gfx_element_props get_props_for(gfx_element_props props);
+extern gfx_element_props gfx_internal_get_props_for(gfx_element_props props);
 
