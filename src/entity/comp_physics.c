@@ -1,10 +1,10 @@
 #include "comp_physics.h"
+#include "ecs_setup.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy.h"
 #include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT;
-cpBody *current_body;
 
 void comp_physics_setup(comp_physics *cp, cpSpace *sp) {
   cp->time = 0.0f;

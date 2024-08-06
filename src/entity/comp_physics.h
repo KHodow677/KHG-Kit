@@ -21,8 +21,6 @@ typedef struct {
   cpSpace *space;
 } physics_info;
 
-extern ecs_id PHYSICS_COMPONENT;
-
 void comp_physics_setup(comp_physics *cp, cpSpace *space);
 void comp_physics_free(comp_physics *cp);
 void comp_physics_register(comp_physics *cp, ecs_ecs *ecs);
