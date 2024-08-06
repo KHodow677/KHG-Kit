@@ -73,6 +73,7 @@ int gfx_loop_manager(GLFWwindow *window) {
   gfx_terminate();
   glfwDestroyWindow(window);
   glfwTerminate();
+  return 0;
 }
 
 void gfx_terminate() {

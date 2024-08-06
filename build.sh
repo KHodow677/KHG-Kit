@@ -4,7 +4,7 @@ then
   rm -r build/res
   cp -r res build/res
   cd build
-  cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   cmake --build .
 elif [ "$1" = "run" ]
 then
@@ -29,7 +29,7 @@ then
   rm -r build/res
   cp -r res build/res
   cd build
-  cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   make
   ./executable
 elif [ "$1" = "build" ] && [ "$2" = "test" ]
@@ -37,7 +37,7 @@ then
   rm -r build/res
   cp -r res build/res
   cd build
-  cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   cmake --build .
   ./test_runner
 elif [ "$1" = "build" ] && [ "$2" = "test" ] && [ "$3" = "run" ]
@@ -45,7 +45,7 @@ then
   rm -r build/res
   cp -r res build/res
   cd build
-  cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   cmake --build .
   ./test_runner
   ./executable
