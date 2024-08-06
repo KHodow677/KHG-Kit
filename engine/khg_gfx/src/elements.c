@@ -459,8 +459,8 @@ void gfx_begin_loc(const char *file, int32_t line) {
 void gfx_end() {
   gfx_div_end();
   state.selected_div = state.selected_div_tmp;
-  update_input();
-  clear_events();
+  gfx_internal_update_input();
+  gfx_internal_clear_events();
   gfx_internal_renderer_flush();
   state.drawcalls = 0;
 }

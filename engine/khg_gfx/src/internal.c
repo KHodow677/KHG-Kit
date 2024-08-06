@@ -958,7 +958,7 @@ int gfx_internal_map_vals(int value, int from_min, int from_max, int to_min, int
   return (value - from_min) * (to_max - to_min) / (from_max - from_min) + to_min;
 }
 
-void glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action, int mods) {
+void gfx_internal_glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action, int mods) {
   (void)window;
   (void)mods;
   (void)scancode;
@@ -979,7 +979,7 @@ void glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action
   state.key_ev.key_code = key;
 }
 
-void glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int action, int mods) {
+void gfx_internal_glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int action, int mods) {
   (void)window;
   (void)mods;
   if (action != GLFW_RELEASE)  {
@@ -998,7 +998,7 @@ void glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int action, 
   state.mb_ev.button_code = button;
 }
 
-void glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+void gfx_internal_glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
   (void)window;
   state.input.mouse.xscroll_delta = xoffset;
   state.input.mouse.yscroll_delta = yoffset;
@@ -1039,7 +1039,7 @@ void glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
   }
 }
 
-void glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos) {
+void gfx_internal_glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos) {
   (void)window;
   gfx_mouse *mouse = &state.input.mouse;
   mouse->xpos = xpos;
@@ -1061,23 +1061,23 @@ void glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos) {
   state.cp_ev.y = ypos;
 }
 
-void glfw_char_callback(GLFWwindow *window, uint32_t charcode) {
+void gfx_internal_glfw_char_callback(GLFWwindow *window, uint32_t charcode) {
   (void)window;
   state.ch_ev.char_code = charcode;
   state.ch_ev.happened = true;
 }
 
-void glfw_window_size_callback(GLFWwindow *window, int width, int height) {
+void gfx_internal_glfw_window_size_callback(GLFWwindow *window, int width, int height) {
   (void)window;
   glViewport(0, 0, width, height);
   gfx_resize_display(width, height);
 }
 
-void update_input() {
+void gfx_internal_update_input() {
   memcpy(state.input.mouse.buttons_last, state.input.mouse.buttons_current, sizeof(bool) * MAX_MOUSE_BUTTONS);
 }
 
-void clear_events() {
+void gfx_internal_clear_events() {
   state.key_ev.happened = false;
   state.mb_ev.happened = false;
   state.cp_ev.happened = false;

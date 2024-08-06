@@ -37,12 +37,12 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   state.grabbed_div.id = -1;
   state.clipboard = clipboard_new(NULL);
   state.drawcalls = 0;
-  glfwSetKeyCallback((GLFWwindow *)state.window_handle, glfw_key_callback);
-  glfwSetMouseButtonCallback((GLFWwindow *)state.window_handle, glfw_mouse_button_callback);
-  glfwSetScrollCallback((GLFWwindow *)state.window_handle, glfw_scroll_callback);
-  glfwSetCursorPosCallback((GLFWwindow *)state.window_handle, glfw_cursor_callback);
-  glfwSetCharCallback((GLFWwindow *)state.window_handle, glfw_char_callback);
-  glfwSetWindowSizeCallback((GLFWwindow *)state.window_handle, glfw_window_size_callback);
+  glfwSetKeyCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_key_callback);
+  glfwSetMouseButtonCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_mouse_button_callback);
+  glfwSetScrollCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_scroll_callback);
+  glfwSetCursorPosCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_cursor_callback);
+  glfwSetCharCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_char_callback);
+  glfwSetWindowSizeCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_window_size_callback);
   gfx_internal_renderer_init();
   state.tex_arrow_down = gfx_load_texture_asset("arrow-down", "png");
   state.tex_tick = gfx_load_texture_asset("tick", "png");

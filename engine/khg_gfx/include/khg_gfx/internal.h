@@ -172,15 +172,15 @@ extern void gfx_internal_insert_str_str(char *source, const char *insert, int32_
 extern void gfx_internal_substr_str(const char *str, int start_index, int end_index, char *substring);
 extern int gfx_internal_map_vals(int value, int from_min, int from_max, int to_min, int to_max);
 
-extern void glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action, int mods);
-extern void glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int action, int mods); 
-extern void glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-extern void glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos);
-extern void glfw_char_callback(GLFWwindow *window, uint32_t charcode);
-extern void glfw_window_size_callback(GLFWwindow *window, int width, int height);
+extern void gfx_internal_glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action, int mods);
+extern void gfx_internal_glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int action, int mods); 
+extern void gfx_internal_glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
+extern void gfx_internal_glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos);
+extern void gfx_internal_glfw_char_callback(GLFWwindow *window, uint32_t charcode);
+extern void gfx_internal_glfw_window_size_callback(GLFWwindow *window, int width, int height);
 
-extern void update_input(void);
-extern void clear_events(void);
+extern void gfx_internal_update_input(void);
+extern void gfx_internal_clear_events(void);
 
 extern uint64_t djb2_hash(uint64_t hash, const void *buf, size_t size);
 
