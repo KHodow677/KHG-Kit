@@ -8,6 +8,7 @@
 #include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include <stdlib.h>
 #include <stdio.h>
 
 float ang = 0.0f;
@@ -24,6 +25,13 @@ int game_run() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(800, 600, window);
+  printf("OS: %s\n", OS_NAME);
+  const GLubyte* vendor = glGetString(GL_VENDOR);
+  const GLubyte* version = glGetString(GL_VERSION);
+  if (vendor != NULL && version != NULL) {
+    printf("Vendor: %s\n", vendor);
+    printf("OpenGL Version: %s\n", version);
+  } 
   body = gfx_load_texture_asset("Tank-Body-Blue", "png");
   top = gfx_load_texture_asset("Tank-Top-Blue", "png");
   cpVect gravity = cpv(0, 15);
