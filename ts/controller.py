@@ -88,10 +88,7 @@ class controller(cmd.Cmd):
       print("No Project Selected")
       return
     old_hours = self.project.total_hours
-    if line.strip().lower() == "noround":
-      self.project.end_period(False)
-    else:
-      self.project.end_period()
+    self.project.end_period(False)
     print("Added {0} Hours".format(self.project.total_hours - old_hours))
 
   def do_remove(self, line):

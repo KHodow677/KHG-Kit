@@ -1,4 +1,5 @@
 #include "game.h"
+#include "entity/comp_follower.h"
 #include "entity/ecs_manager.h"
 #include "physics/physics_setup.h"
 #include "khg_gfx/ui.h"
@@ -34,11 +35,12 @@ int game_run() {
   } 
   cpVect gravity = cpv(0, 60);
   cpSpace *space = physics_setup(&gravity);
-  comp_physics physics_component;
-  comp_renderer renderer_component;
-  ecs_setup(space, &physics_component, &renderer_component);
+  comp_physics pc1, pc2;
+  comp_renderer rc1, rc2;
+  comp_follower fc;
+  ecs_setup(space, &pc1, &rc1, &pc2, &rc2, &fc);
   int res = gfx_loop_manager(window);
-  ecs_cleanup(space, &physics_component, &renderer_component);
+  ecs_cleanup(space, &pc1, &rc1, &pc2, &rc2);
   return res;
 }
 

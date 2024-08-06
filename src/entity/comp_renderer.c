@@ -10,9 +10,9 @@
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
 
-void comp_renderer_setup(comp_renderer *cr, comp_physics *cp) {
+void comp_renderer_setup(comp_renderer *cr, comp_physics *cp, char *file_name, char *file_type) {
   cr->info.texture = (gfx_texture *)malloc(sizeof(gfx_texture));
-  *cr->info.texture = gfx_load_texture_asset("Tank-Body-Blue", "png");
+  *cr->info.texture = gfx_load_texture_asset(file_name, file_type);
   cr->info.body = cp->info.body;
 }
 
