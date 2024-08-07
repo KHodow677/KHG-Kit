@@ -1,4 +1,6 @@
 #include "unity.h"
+#include "khg_tea/test_file_handler.h"
+#include "khg_tea/test_tea.h"
 
 void setUp(void) {
 }
@@ -6,12 +8,9 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void test_function(void) {
-  TEST_ASSERT_EQUAL(0, 0);
-}
-
 int main(void) {
   UNITY_BEGIN();
-  RUN_TEST(test_function);
+  TEST_TEA_FILE_HANDLER();
+  TEST_TEA_TEA();
   return UNITY_END();
 }

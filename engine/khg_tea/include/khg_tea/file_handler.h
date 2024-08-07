@@ -19,13 +19,13 @@ enum errors {
 };
 
 typedef struct {
-  int  mode;
-  int  count;
+  int mode;
+  int count;
   char key[KEY_SIZE];
   char *files[MAX_INPUT_FILES];
-  int  flags;
+  int flags;
 } tea_operation;
 
-int tea_operate(tea_operation);
+int tea_operate(tea_operation *prm);
 bool tea_delete(char *filename);
 int tea_strip_extension(char *filename, char *extension, char *out);
