@@ -5,12 +5,8 @@
 #include <string.h>
 #if defined(_WIN32) || defined(_WIN64)
     #include <io.h>
-    #include <fcntl.h>
     #define O_BINARY _O_BINARY
-    #define DEFAULT_FILE_CREATION_MODE _S_IREAD | _S_IWRITE
 #else
-    #include <unistd.h>
-    #include <fcntl.h>
     #include <sys/types.h>
     #include <sys/stat.h>
     #define O_BINARY 0 // O_BINARY is not needed on POSIX systems
