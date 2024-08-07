@@ -16,7 +16,7 @@ int tea_operate(tea_operation prm) {
         strcat(output_filename, prm.files[i]);
         strcat(output_filename, ENCRYPTED_FILE_EXTENSION);
       }
-      else{
+      else {
         if (tea_strip_extension(prm.files[i], ENCRYPTED_FILE_EXTENSION, output_filename) == ERR_INVALID_ARG) {
           fprintf(stderr,"Warning: Invalid file extension in %s\n", prm.files[i]);
           continue;
