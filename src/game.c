@@ -1,9 +1,8 @@
 #include "game.h"
-#include "entity/comp_follower.h"
+#include "entity/comp_physics.h"
 #include "entity/ecs_manager.h"
 #include "physics/physics_setup.h"
 #include "khg_gfx/ui.h"
-#include "khg_gfx/texture.h"
 #include "khg_gfx/elements.h"
 #include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
@@ -12,8 +11,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-float ang = 0.0f;
-gfx_texture body, top;
+comp_physics pc;
+comp_renderer rc;
+physics_info pi1, pi2;
 
 int game_run() {
   if (!glfwInit()) {
@@ -35,12 +35,9 @@ int game_run() {
   } 
   cpVect gravity = cpv(0, 60);
   cpSpace *space = physics_setup(&gravity);
-  comp_physics pc1, pc2;
-  comp_renderer rc1, rc2;
-  comp_follower fc;
-  ecs_setup(space, &pc1, &rc1, &pc2, &rc2, &fc);
+  ecs_setup(space, &pc, &rc, &pi1, &pi2);
   int res = gfx_loop_manager(window);
-  ecs_cleanup(space, &pc1, &rc1, &pc2, &rc2);
+  ecs_cleanup(space, &pc, &rc, &pi1, &pi2);
   return res;
 }
 

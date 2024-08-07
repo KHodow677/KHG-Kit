@@ -22,7 +22,7 @@ typedef struct {
 
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;
 
-void comp_renderer_setup(comp_renderer *cr, comp_physics *cp, char *file_name, char *file_type);
+void comp_renderer_setup(comp_renderer *cr, comp_physics *cp, char *file_name, char *file_type, physics_info *info);
 void comp_renderer_free(comp_renderer *cr);
 void comp_renderer_register(comp_renderer *cr, ecs_ecs *ecs);
 void sys_renderer_register(sys_renderer *sr, comp_renderer *cr, comp_physics *cp, ecs_ecs *ecs, renderer_info *info);
