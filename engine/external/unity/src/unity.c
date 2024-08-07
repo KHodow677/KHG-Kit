@@ -538,7 +538,9 @@ static void UnityTestResultsBegin(const char* file, const UNITY_LINE_TYPE line)
 static void UnityTestResultsFailBegin(const UNITY_LINE_TYPE line)
 {
     UnityTestResultsBegin(Unity.TestFile, line);
+    printf("\033[1;31m");
     UnityPrint(UnityStrFail);
+    printf("\033[0m");
     UNITY_OUTPUT_CHAR(':');
 }
 
@@ -552,7 +554,9 @@ void UnityConcludeTest(void)
     else if (!Unity.CurrentTestFailed)
     {
         UnityTestResultsBegin(Unity.TestFile, Unity.CurrentTestLineNumber);
+        printf("\033[0;32m");
         UnityPrint(UnityStrPass);
+        printf("\033[0m");
     }
     else
     {
@@ -2126,7 +2130,9 @@ void UnityFail(const char* msg, const UNITY_LINE_TYPE line)
     RETURN_IF_FAIL_OR_IGNORE;
 
     UnityTestResultsBegin(Unity.TestFile, line);
+    printf("\033[1;31m");
     UnityPrint(UnityStrFail);
+    printf("\033[0m");
     if (msg != NULL)
     {
         UNITY_OUTPUT_CHAR(':');
@@ -2252,7 +2258,9 @@ int UnityEnd(void)
     }
     else
     {
+        printf("\033[1;31m");
         UnityPrint(UnityStrFail);
+        printf("\033[0m");
 #ifdef UNITY_DIFFERENTIATE_FINAL_FAIL
         UNITY_OUTPUT_CHAR('E'); UNITY_OUTPUT_CHAR('D');
 #endif
