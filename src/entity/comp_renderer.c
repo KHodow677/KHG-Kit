@@ -1,5 +1,6 @@
 #include "comp_renderer.h"
 #include "comp_physics.h"
+#include "../data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
@@ -9,15 +10,16 @@
 #include <stdio.h>
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
+map *RENDERER_INFO_MAP = NULL;
 
-void comp_renderer_setup(comp_renderer *cr, comp_physics *cp, char *file_name, char *file_type, physics_info *info) {
-  cr->info.texture = (gfx_texture *)malloc(sizeof(gfx_texture));
-  *cr->info.texture = gfx_load_texture_asset(file_name, file_type);
-  cr->info.body = info->body;
+void info_renderer_setup(renderer_info *info, physics_info *p_info, char *file_name, char *file_type) {
+  info->texture = (gfx_texture *)malloc(sizeof(gfx_texture));
+  *info->texture = gfx_load_texture_asset(file_name, file_type);
+  info->body = p_info->body;
 }
 
-void comp_renderer_free(comp_renderer *cr) {
-  free(cr->info.texture);
+void info_renderer_free(renderer_info *info) {
+  free(info->texture);
 }
 
 void comp_renderer_register(comp_renderer *cr, ecs_ecs *ecs) {
@@ -25,21 +27,34 @@ void comp_renderer_register(comp_renderer *cr, ecs_ecs *ecs) {
   RENDERER_COMPONENT_SIGNATURE = cr->id; 
 }
 
-void sys_renderer_register(sys_renderer *sr, comp_renderer *cr, comp_physics *cp, ecs_ecs *ecs, renderer_info *info) {
-  sr->id = ecs_register_system(ecs, sys_renderer_update, NULL, NULL, info);
-  ecs_require_component(ecs, sr->id, cr->id);
-  ecs_require_component(ecs, sr->id, cp->id);
+void sys_renderer_register(sys_renderer *sr, ecs_ecs *ecs) {
+  sr->id = ecs_register_system(ecs, sys_renderer_update, NULL, NULL, NULL);
+  ecs_require_component(ecs, sr->id, RENDERER_COMPONENT_SIGNATURE);
+  ecs_require_component(ecs, sr->id, RENDERER_COMPONENT_SIGNATURE);
   sr->ecs = *ecs;
+  RENDERER_INFO_MAP = map_create(compare_ints, no_deallocator, no_deallocator);
+}
+
+void sys_renderer_add(ecs_ecs *ecs, ecs_id *eid, renderer_info *info) {
+  ecs_add(ecs, *eid, RENDERER_COMPONENT_SIGNATURE, NULL);
+  map_insert(RENDERER_INFO_MAP, eid, info);
+}
+
+void sys_renderer_free(bool need_free) {
+  if (need_free) {
+    map_deallocate(RENDERER_INFO_MAP);
+  }
 }
 
 ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   (void)ecs;
   (void)dt;
   (void)udata;
-  renderer_info *info = udata;
+  if (entity_count == 0) {
+    return 0;
+  }
+  renderer_info *info = map_at(RENDERER_INFO_MAP, &entities[0]);
   for (int id = 0; id < entity_count; id++) {
-    comp_renderer *cr = ecs_get(ecs, entities[id], RENDERER_COMPONENT_SIGNATURE);
-    comp_physics *cp = ecs_get(ecs, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     cpVect pos = cpBodyGetPosition(info->body);
     cpFloat angle = cpBodyGetAngle(info->body);
     info->texture->angle = angle;

@@ -1,5 +1,6 @@
 #include "game.h"
 #include "entity/comp_physics.h"
+#include "entity/comp_renderer.h"
 #include "entity/ecs_manager.h"
 #include "physics/physics_setup.h"
 #include "khg_gfx/ui.h"
@@ -14,6 +15,7 @@
 comp_physics pc;
 comp_renderer rc;
 physics_info pi1, pi2;
+renderer_info ri1;
 
 int game_run() {
   if (!glfwInit()) {
@@ -35,9 +37,9 @@ int game_run() {
   } 
   cpVect gravity = cpv(0, 60);
   cpSpace *space = physics_setup(&gravity);
-  ecs_setup(space, &pc, &rc, &pi1, &pi2);
+  ecs_setup(space, &pc, &rc, &pi1, &pi2, &ri1);
   int res = gfx_loop_manager(window);
-  ecs_cleanup(space, &pc, &rc, &pi1, &pi2);
+  ecs_cleanup(space, &pc, &rc, &pi1, &pi2, &ri1);
   return res;
 }
 

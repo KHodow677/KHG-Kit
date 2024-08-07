@@ -4,6 +4,7 @@
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/phy_types.h"
+#include "khg_utl/map.h"
 
 typedef struct {
   gfx_texture *texture;
@@ -12,7 +13,6 @@ typedef struct {
 
 typedef struct {
   ecs_id id;
-  renderer_info info;
 } comp_renderer;
 
 typedef struct {
@@ -21,10 +21,15 @@ typedef struct {
 } sys_renderer;
 
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;
+extern map *PHYSICS_INFO_MAP;
 
-void comp_renderer_setup(comp_renderer *cr, comp_physics *cp, char *file_name, char *file_type, physics_info *info);
-void comp_renderer_free(comp_renderer *cr);
+void info_renderer_setup(renderer_info *info, physics_info *p_info, char *file_name, char *file_type);
+void info_renderer_free(renderer_info *info);
+
 void comp_renderer_register(comp_renderer *cr, ecs_ecs *ecs);
-void sys_renderer_register(sys_renderer *sr, comp_renderer *cr, comp_physics *cp, ecs_ecs *ecs, renderer_info *info);
+
+void sys_renderer_register(sys_renderer *sr, ecs_ecs *ecs);
+void sys_renderer_add(ecs_ecs *ecs, ecs_id *eid, renderer_info *info);
+void sys_renderer_free(bool need_free);
 ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

@@ -13,6 +13,6 @@ extern sys_renderer RENDERER_SYSTEM;
 extern ecs_id E1;
 extern ecs_id E2;
 
-void ecs_setup(cpSpace *sp, comp_physics *cp1, comp_renderer *cr1, physics_info *pi1, physics_info *pi2);
-void ecs_cleanup(cpSpace *sp, comp_physics *cp1, comp_renderer *cr1, physics_info *pi1, physics_info *pi2);
+void ecs_setup(cpSpace *sp, comp_physics *cp1, comp_renderer *cr1, physics_info *pi1, physics_info *pi2, renderer_info *ri1);
+void ecs_cleanup(cpSpace *sp, comp_physics *cp1, comp_renderer *cr1, physics_info *pi1, physics_info *pi2, renderer_info *ri1);
 
