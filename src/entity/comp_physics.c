@@ -3,6 +3,7 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"
+#include "khg_phy/vect.h"
 #include "khg_utl/map.h"
 #include <stdio.h>
 
@@ -14,6 +15,7 @@ void info_physics_setup(physics_info *info, cpSpace *sp, bool collides) {
   float moment = cpMomentForBox(mass, width, height);
   info->body = cpSpaceAddBody(sp, cpBodyNew(mass, moment));
   cpBodySetPosition(info->body, cpv(200.0f, 150.0f));
+  cpBodySetCenterOfGravity(info->body, cpv(0, 0));
   if (collides) {
     info->shape = cpSpaceAddShape(sp, cpBoxShapeNew(info->body, width, height, 0.0f));
   }
