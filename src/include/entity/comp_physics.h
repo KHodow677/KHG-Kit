@@ -8,10 +8,8 @@ typedef struct {
   cpBody *body;
   cpShape *shape;
   cpSpace *space;
-  cpVect pos;
-  cpVect vel;
-  cpVect ang;
-  cpVect ang_vel;
+  cpFloat target_vel;
+  cpFloat target_ang_vel;
 } physics_info;
 
 typedef struct {
@@ -25,9 +23,6 @@ typedef struct {
 
 extern ecs_id PHYSICS_COMPONENT_SIGNATURE;
 extern map *PHYSICS_INFO_MAP;
-
-void info_physics_setup(physics_info *info, cpSpace *sp, bool collides);
-void info_physics_free(physics_info *info);
 
 void comp_physics_register(comp_physics *cp, ecs_ecs *ecs);
 

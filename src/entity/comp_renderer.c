@@ -1,5 +1,4 @@
 #include "entity/comp_renderer.h"
-#include "entity/comp_physics.h"
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
@@ -11,16 +10,6 @@
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
 map *RENDERER_INFO_MAP = NULL;
-
-void info_renderer_setup(renderer_info *info, physics_info *p_info, char *file_name, char *file_type) {
-  info->texture = (gfx_texture *)malloc(sizeof(gfx_texture));
-  *info->texture = gfx_load_texture_asset(file_name, file_type);
-  info->body = p_info->body;
-}
-
-void info_renderer_free(renderer_info *info) {
-  free(info->texture);
-}
 
 void comp_renderer_register(comp_renderer *cr, ecs_ecs *ecs) {
   cr->id = ecs_register_component(ecs, sizeof(comp_renderer), NULL, NULL);

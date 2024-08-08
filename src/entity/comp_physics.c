@@ -1,35 +1,16 @@
 #include "entity/comp_physics.h"
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy.h"
+#include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
+#include "khg_phy/space.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/map.h"
+#include <math.h>
 #include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT_SIGNATURE;
 map *PHYSICS_INFO_MAP = NULL;
-
-void info_physics_setup(physics_info *info, cpSpace *sp, bool collides) {
-  float width = 145.0f, height = 184.0f, mass = 1;
-  float moment = cpMomentForBox(mass, width, height);
-  info->body = cpSpaceAddBody(sp, cpBodyNew(mass, moment));
-  cpBodySetPosition(info->body, cpv(200.0f, 150.0f));
-  cpBodySetCenterOfGravity(info->body, cpv(0, 0));
-  if (collides) {
-    info->shape = cpSpaceAddShape(sp, cpBoxShapeNew(info->body, width, height, 0.0f));
-  }
-  else {
-    info->shape = cpSpaceAddShape(sp, cpBoxShapeNew(info->body, 0.0f, 0.0f, 0.0f));
-  }
-  cpShapeSetFriction(info->shape, 0.0f);
-  info->space = sp;
-}
-
-void info_physics_free(physics_info *info) {
-  cpShapeFree(info->shape);
-  cpBodyFree(info->body);
-}
 
 void comp_physics_register(comp_physics *cp, ecs_ecs *ecs) {
   cp->id = ecs_register_component(ecs, sizeof(comp_physics), NULL, NULL);
@@ -64,6 +45,9 @@ ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   physics_info *info = map_at(PHYSICS_INFO_MAP, &entities[0]);
   for (int id = 0; id < entity_count; id++) {
     info = map_at(PHYSICS_INFO_MAP, &entities[id]);
+    cpFloat current_ang = cpBodyGetAngle(info->body) + M_PI / 2;
+    cpBodySetVelocity(info->body, cpv(cosf(current_ang)*info->target_vel, -sinf(current_ang)*info->target_vel));
+    cpBodySetAngularVelocity(info->body, info->target_ang_vel);
   }
   cpSpaceStep(info->space, dt);
   return 0;
