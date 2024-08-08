@@ -2,6 +2,7 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/ecs_manager.h"
+#include "generators/elements/tank_body_generator.h"
 #include "physics/physics_setup.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
@@ -14,8 +15,6 @@
 
 comp_physics pc;
 comp_renderer rc;
-physics_info pi1, pi2;
-renderer_info ri1, ri2;
 
 int game_run() {
   if (!glfwInit()) {
@@ -37,9 +36,12 @@ int game_run() {
   } 
   cpVect gravity = cpv(0, 60);
   cpSpace *space = physics_setup(&gravity);
-  ecs_setup(space, &pc, &rc, &pi1, &pi2, &ri1, &ri2);
+  tank_body tb = { 0 };
+  tb.physics_info = (physics_info){ 0 };
+  tb.renderer_info = (renderer_info){ 0 };
+  ecs_setup(space, &pc, &rc, &tb);
   int res = gfx_loop_manager(window);
-  ecs_cleanup(space, &pc, &rc, &pi1, &pi2, &ri1, &ri2);
+  ecs_cleanup(space, &tb);
   return res;
 }
 

@@ -1,4 +1,4 @@
-#include "physics_setup.h"
+#include "physics/physics_setup.h"
 #include "khg_phy/phy_types.h"
 #include "khg_phy/space.h"
 

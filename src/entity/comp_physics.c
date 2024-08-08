@@ -1,5 +1,5 @@
-#include "comp_physics.h"
-#include "../data_utl/map_utl.h"
+#include "entity/comp_physics.h"
+#include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"

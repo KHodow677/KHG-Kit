@@ -8,6 +8,10 @@ typedef struct {
   cpBody *body;
   cpShape *shape;
   cpSpace *space;
+  cpVect pos;
+  cpVect vel;
+  cpVect ang;
+  cpVect ang_vel;
 } physics_info;
 
 typedef struct {

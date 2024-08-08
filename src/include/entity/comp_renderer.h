@@ -1,6 +1,6 @@
 #pragma once
 
-#include "comp_physics.h"
+#include "entity/comp_physics.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/phy_types.h"

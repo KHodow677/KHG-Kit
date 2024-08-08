@@ -60,7 +60,7 @@ elseif(UNIX)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address)
 endif()
 
-
+target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/include")
 target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_aud khg_dbm khg_ecs khg_gfx khg_phy khg_tcp khg_tea khg_utl)
 if (WIN32)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE Ws2_32)
