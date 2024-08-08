@@ -1,4 +1,5 @@
 #include "generators/components/comp_info_generator.h"
+#include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "khg_phy/phy.h"
@@ -33,5 +34,10 @@ void generate_renderer(renderer_info *info, physics_info *p_info, char *file_nam
 
 void free_renderer(renderer_info *info) {
   free(info->texture);
+}
+
+void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info) {
+  info->body = p_info->body;
+  info->target_body = target_p_info->body;
 }
 

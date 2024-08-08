@@ -1,3 +1,4 @@
+#include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 
@@ -6,4 +7,6 @@ void free_physics(physics_info *info);
 
 void generate_renderer(renderer_info *info, physics_info *p_info, char *file_name, char *file_type);
 void free_renderer(renderer_info *info);
+
+void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info);
 

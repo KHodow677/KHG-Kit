@@ -1,4 +1,5 @@
 #include "entity/comp_renderer.h"
+#include "entity/comp_physics.h"
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
@@ -19,7 +20,7 @@ void comp_renderer_register(comp_renderer *cr, ecs_ecs *ecs) {
 void sys_renderer_register(sys_renderer *sr, ecs_ecs *ecs) {
   sr->id = ecs_register_system(ecs, sys_renderer_update, NULL, NULL, NULL);
   ecs_require_component(ecs, sr->id, RENDERER_COMPONENT_SIGNATURE);
-  ecs_require_component(ecs, sr->id, RENDERER_COMPONENT_SIGNATURE);
+  ecs_require_component(ecs, sr->id, PHYSICS_COMPONENT_SIGNATURE);
   sr->ecs = *ecs;
   RENDERER_INFO_MAP = map_create(compare_ints, no_deallocator, no_deallocator);
 }
