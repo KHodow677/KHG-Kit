@@ -39,9 +39,12 @@ int game_run() {
   tank_body tb = { 0 };
   tb.physics_info = (physics_info){ 0 };
   tb.renderer_info = (renderer_info){ 0 };
-  ecs_setup(space, &pc, &rc, &tb);
+  tank_top tt = { 0 };
+  tb.physics_info = (physics_info) { 0 };
+  tb.renderer_info = (renderer_info) { 0 };
+  ecs_setup(space, &pc, &rc, &tb, &tt);
   int res = gfx_loop_manager(window);
-  ecs_cleanup(space, &tb);
+  ecs_cleanup(space, &tb, &tt);
   return res;
 }
 
