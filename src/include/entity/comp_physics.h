@@ -10,6 +10,8 @@ typedef struct {
   cpSpace *space;
   cpFloat target_vel;
   cpFloat target_ang_vel;
+  cpBool is_moving;
+  cpBool is_turning;
 } physics_info;
 
 typedef struct {

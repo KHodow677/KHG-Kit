@@ -1,4 +1,5 @@
 #include "entity/comp_physics.h"
+#include "data_utl/kinematic_utl.h"
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
@@ -45,8 +46,8 @@ ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   physics_info *info = map_at(PHYSICS_INFO_MAP, &entities[0]);
   for (int id = 0; id < entity_count; id++) {
     info = map_at(PHYSICS_INFO_MAP, &entities[id]);
-    cpFloat current_ang = cpBodyGetAngle(info->body) + M_PI / 2;
-    cpBodySetVelocity(info->body, cpv(cosf(current_ang)*info->target_vel, -sinf(current_ang)*info->target_vel));
+    cpFloat current_ang = normalize_angle(cpBodyGetAngle(info->body));
+    cpBodySetVelocity(info->body, cpv(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
     cpBodySetAngularVelocity(info->body, info->target_ang_vel);
   }
   cpSpaceStep(info->space, dt);

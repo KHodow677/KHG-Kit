@@ -1,6 +1,7 @@
 #include "game.h"
 #include "controllers/elements/tank_body_controller.h"
 #include "controllers/elements/tank_top_controller.h"
+#include "controllers/input/mouse_controller.h"
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -26,6 +27,8 @@ comp_follower fc;
 
 tank_body tb;
 tank_top tt;
+
+cpVect clicked_pos;
 
 int game_run() {
   if (!glfwInit()) {
@@ -65,9 +68,15 @@ void gfx_loop() {
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
-  tank_body_set_speed(&tb, -120);
-  tank_body_set_rotation_speed(&tb, -1);
-  tank_top_set_rotation_speed(&tt, 1);
+  if (!tb.physics_info.is_moving && !tb.physics_info.is_turning) {
+    clicked_pos = handle_mouse_controls();
+  }
+  if (!cpveql(clicked_pos, cpv(-1.0f, -1.0f)) && !tb.physics_info.is_moving) {
+    tank_body_rotate_to_position(&tb, &tt, clicked_pos, 2);
+  }
+  if (!cpveql(clicked_pos, cpv(-1.0f, -1.0f)) && !tb.physics_info.is_turning) {
+    tank_body_move_to_position(&tb, &tt, clicked_pos, 120);
+  }
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
