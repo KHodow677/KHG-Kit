@@ -77,6 +77,7 @@ void gfx_loop() {
   if (!cpveql(clicked_pos, cpv(-1.0f, -1.0f)) && !tb.physics_info.is_turning) {
     tank_body_move_to_position(&tb, &tt, clicked_pos, 120);
   }
+  tank_top_set_rotation_speed(&tt, 2);
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
