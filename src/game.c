@@ -65,7 +65,7 @@ void gfx_loop() {
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
-  tank_body_set_speed(&tb, -80);
+  tank_body_set_speed(&tb, -120);
   tank_body_set_rotation_speed(&tb, -1);
   tank_top_set_rotation_speed(&tt, 1);
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
