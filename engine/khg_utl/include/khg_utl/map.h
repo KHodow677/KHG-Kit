@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef struct map map;
-typedef struct map_node map_node;
+typedef struct map utl_map;
+typedef struct map_node utl_map_node;
 
 typedef void *key_type;
 typedef void *value_type;
@@ -15,60 +15,61 @@ typedef void (*value_dealloc_func)(void *);
 struct map_node {
   void *key;
   void *value;
-  map_node *left;
-  map_node *right;
-  map_node *parent;
+  utl_map_node *left;
+  utl_map_node *right;
+  utl_map_node *parent;
   int color;
 };
 
 typedef struct map_entry {
   key_type key;
   value_type value;
-} map_entry;
+} utl_map_entry;
 
 typedef struct map_iterator {
-  map_node *node;
-} map_iterator;
+  utl_map_node *node;
+} utl_map_iterator;
 
 typedef struct map_iterator_pair {
-  map_iterator first;
-  map_iterator second;
-} map_iterator_pair;
+  utl_map_iterator first;
+  utl_map_iterator second;
+} utl_map_iterator_pair;
 
-compare_func_map map_key_comp(const map* map);
-map_iterator_pair map_equal_range(const map* map, key_type key);
-key_type map_node_get_key(map_node* node);
+compare_func_map utl_map_key_comp(const utl_map *map);
+utl_map_iterator_pair utl_map_equal_range(const utl_map *map, key_type key);
+key_type utl_map_node_get_key(utl_map_node *node);
 
-map *map_create(compare_func_map comp, value_dealloc_func deallocKey, value_dealloc_func deallocValue);
-map *map_copy(const map* src);
+utl_map *utl_map_create(compare_func_map comp, value_dealloc_func deallocKey, value_dealloc_func deallocValue);
+utl_map *utl_map_copy(const utl_map *src);
 
-void map_deallocate(map *map);
-void map_iterator_increment(map_iterator *it);
-void map_iterator_decrement(map_iterator *it);
-void map_swap(map *map1, map *map2);
-void map_clear(map* map);
+void utl_map_deallocate(utl_map *map);
+void utl_map_iterator_increment(utl_map_iterator *it);
+void utl_map_iterator_decrement(utl_map_iterator *it);
+void utl_map_swap(utl_map *map1, utl_map *map2);
+void utl_map_clear(utl_map *map);
 
-map_iterator map_begin(const map *map);
-map_iterator map_end(const map *map);
-map_iterator map_rbegin(const map *map);
-map_iterator map_rend(const map *map);
-map_iterator map_cbegin(const map *map);
-map_iterator map_cend(const map *map);
-map_iterator map_crbegin(const map *map);
-map_iterator map_crend(const map *map);
-map_iterator map_lower_bound(const map *map, key_type key);
-map_iterator map_upper_bound(const map *map, key_type key);
-map_iterator map_find(const map *map, key_type key);
+utl_map_iterator utl_map_begin(const utl_map *map);
+utl_map_iterator utl_map_end(const utl_map *map);
+utl_map_iterator utl_map_rbegin(const utl_map *map);
+utl_map_iterator utl_map_rend(const utl_map *map);
+utl_map_iterator utl_map_cbegin(const utl_map *map);
+utl_map_iterator utl_map_cend(const utl_map *map);
+utl_map_iterator utl_map_crbegin(const utl_map *map);
+utl_map_iterator utl_map_crend(const utl_map *map);
+utl_map_iterator utl_map_lower_bound(const utl_map *map, key_type key);
+utl_map_iterator utl_map_upper_bound(const utl_map *map, key_type key);
+utl_map_iterator utl_map_find(const utl_map *map, key_type key);
 
-size_t map_size(const map *map);
-size_t map_max_size(const map *map);
-size_t map_count(const map *map, key_type key);
+size_t utl_map_size(const utl_map *map);
+size_t utl_map_max_size(const utl_map *map);
+size_t utl_map_count(const utl_map *map, key_type key);
 
-value_type map_at(const map* map, key_type key);
-value_type map_node_get_value(map_node* node);
+value_type utl_map_at(const utl_map *map, key_type key);
+value_type utl_map_node_get_value(utl_map_node *node);
 
-bool map_insert(map *map, key_type key, value_type value);
-bool map_erase(map *map, key_type key);
-bool map_emplace(map *map, key_type key, value_type value);
-bool map_emplace_hint(map *map, map_iterator hint, key_type key, value_type value);
-bool map_empty(const map *map);
+bool utl_map_insert(utl_map *map, key_type key, value_type value);
+bool utl_map_erase(utl_map *map, key_type key);
+bool utl_map_emplace(utl_map *map, key_type key, value_type value);
+bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, key_type key, value_type value);
+bool utl_map_empty(const utl_map *map);
+

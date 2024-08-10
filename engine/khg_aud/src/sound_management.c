@@ -36,9 +36,9 @@ void aud_play_sound_multi(aud_sound s) {
     }
   }
   if (index == -1) {
-    error_func("Buffer pool is already full", user_defined_data);
+    utl_error_func("Buffer pool is already full", utl_user_defined_data);
     if (old_index == -1) {
-      error_func("Buffer pool could not determine oldest buffer not playing sound", user_defined_data);
+      utl_error_func("Buffer pool could not determine oldest buffer not playing sound", utl_user_defined_data);
       return;
     }
     index = old_index;
@@ -91,13 +91,13 @@ void aud_wave_format(aud_wave *w, int sample_rate, int sample_size, int channels
   ma_uint32 frame_count_in = w->sample_count;
   ma_uint32 frame_count = (ma_uint32)ma_convert_frames(NULL, 0, format_out, channels, sample_rate, NULL, frame_count_in, format_in, w->channels, w->sample_rate);
   if (frame_count == 0) {
-    error_func("Failed to get frame count for format conversion", user_defined_data);
+    utl_error_func("Failed to get frame count for format conversion", utl_user_defined_data);
     return;
   }
   void *data = malloc(frame_count * channels * (sample_size / 8));
   frame_count = (ma_uint32)ma_convert_frames(data, frame_count, format_out, channels, sample_rate, w->data, frame_count_in, format_in, w->channels, w->sample_rate);
   if (frame_count == 0) {
-    error_func("Failed format conversion", user_defined_data);
+    utl_error_func("Failed format conversion", utl_user_defined_data);
     return;
   }
   w->sample_count = frame_count;
@@ -130,7 +130,7 @@ void aud_wave_crop(aud_wave *w, int init_sample, int final_sample) {
     w->data = data;
   }
   else {
-    error_func("WAVE: Crop range out of bounds", user_defined_data);
+    utl_error_func("WAVE: Crop range out of bounds", utl_user_defined_data);
   }
 }
 

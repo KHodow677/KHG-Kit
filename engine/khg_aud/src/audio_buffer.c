@@ -6,7 +6,7 @@
 aud_audio_buffer *aud_load_audio_buffer(ma_format format, ma_uint32 channels, ma_uint32 sample_rate, ma_uint32 size_in_frames, int usage) {
   aud_audio_buffer *a_buffer = (aud_audio_buffer *)calloc(1, sizeof(aud_audio_buffer));
   if (a_buffer == NULL) {
-    error_func("Failed to allocate memory for buffer", user_defined_data);
+    utl_error_func("Failed to allocate memory for buffer", utl_user_defined_data);
     return NULL;
   }
   if (size_in_frames > 0) {
@@ -16,7 +16,7 @@ aud_audio_buffer *aud_load_audio_buffer(ma_format format, ma_uint32 channels, ma
   converter_config.resampling.allowDynamicSampleRate = true;
   ma_result result = ma_data_converter_init(&converter_config, &a_buffer->converter);
   if (result != MA_SUCCESS) {
-    error_func("Failed to create data conversion pipeline", user_defined_data);
+    utl_error_func("Failed to create data conversion pipeline", utl_user_defined_data);
     free(a_buffer);
     return NULL;
   }

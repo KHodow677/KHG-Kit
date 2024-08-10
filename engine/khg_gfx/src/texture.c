@@ -28,7 +28,7 @@ gfx_texture gfx_load_texture(const char *filepath, bool flip, gfx_texture_filter
   int width, height, channels;
   unsigned char *image = stbi_load(filepath, &width, &height, &channels, STBI_rgb_alpha);
   if (!image) {
-    error_func("Failed to load a texture", user_defined_data);
+    utl_error_func("Failed to load a texture", utl_user_defined_data);
     return tex;
   }
   glGenTextures(1, &tex.id);
@@ -87,7 +87,7 @@ gfx_texture gfx_load_texture_resized_factor(const char *filepath, bool flip, gfx
   int32_t width, height, channels;
   stbi_uc *data = gfx_load_texture_data_resized_factor(filepath, wfactor, hfactor, &width, &height, &channels, flip);
   if(!data) {
-    error_func("Failed to load texture file", user_defined_data);
+    utl_error_func("Failed to load texture file", utl_user_defined_data);
     return tex;
   }
   int32_t w = width * wfactor;

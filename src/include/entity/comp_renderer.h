@@ -20,7 +20,7 @@ typedef struct {
 } sys_renderer;
 
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;
-extern map *PHYSICS_INFO_MAP;
+extern utl_map *PHYSICS_INFO_MAP;
 
 void comp_renderer_register(comp_renderer *cr, ecs_ecs *ecs);
 

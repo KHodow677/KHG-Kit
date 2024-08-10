@@ -39,16 +39,16 @@ bool tea_encrypt_decrypt(int mode, char *key, int flags, char *in_file, char *ou
   int len, inf, outf;
   outf = (flags & TEA_FLAG_OUTPUT_STDOUT) ? STDOUT_FILENO : 0;
   if (access(in_file, F_OK) == -1){
-    error_func("Skipping, Input file does not exists", user_defined_data);
+    utl_error_func("Skipping, Input file does not exists", utl_user_defined_data);
     return false;
   }
   if ((inf = open(in_file, O_RDONLY|O_BINARY)) == -1) {
-    error_func("Open - input", user_defined_data);
+    utl_error_func("Open - input", utl_user_defined_data);
     return false;
   }
   if ( outf == 0 ) {
     if ((outf = open(out_file, O_CREAT|O_WRONLY|O_BINARY, DEFAULT_FILE_CREATION_MODE)) == -1) {
-      error_func("Open - output", user_defined_data);
+      utl_error_func("Open - output", utl_user_defined_data);
       close(inf);
       return false;
     }
@@ -62,12 +62,12 @@ bool tea_encrypt_decrypt(int mode, char *key, int flags, char *in_file, char *ou
       tea_decode((uint32_t *) d, (uint32_t *) key);
     }
     if ((len = write(outf,d,DATA_SIZE)) < 0) {
-      error_func("Write", user_defined_data);
+      utl_error_func("Write", utl_user_defined_data);
       break;
     }
   }
   if (len < 0){
-    error_func("Read / Write", user_defined_data);
+    utl_error_func("Read / Write", utl_user_defined_data);
     goto failed_exit;
   }
   close(inf);

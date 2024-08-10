@@ -93,7 +93,7 @@ aud_music aud_load_music_stream(const char *file_name) {
     }
   }
   else {
-    error_func("File format not supported", user_defined_data);
+    utl_error_func("File format not supported", utl_user_defined_data);
   }
   if (!music_loaded) {
     if (m.ctx_type == AUD_MUSIC_AUDIO_WAV) {
@@ -116,7 +116,7 @@ aud_music aud_load_music_stream(const char *file_name) {
       jar_mod_unload((jar_mod_context_t *)m.ctx_data); 
       free(m.ctx_data);
     }
-    error_func("Music file could not be opened", user_defined_data);
+    utl_error_func("Music file could not be opened", utl_user_defined_data);
   }
   return m;
 }
