@@ -49,7 +49,9 @@ int game_run() {
     printf("Vendor: %s\n", vendor);
     printf("OpenGL Version: %s\n", version);
   } 
-  cpVect gravity = cpv(0, 0);
+  cpVect gravity = cpv(0.0f, 0.0f);
+  left_clicked_pos = cpv(-1.0f, -1.0f); 
+  right_clicked_pos = cpv(-1.0f, -1.0f); 
   space = physics_setup(&gravity);
   tb = (tank_body){ 0 };
   tt = (tank_top){ 0 };
@@ -64,19 +66,18 @@ void gfx_loop() {
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
-  if (!tb.physics_info.is_moving && !tb.physics_info.is_turning) {
+  if (!cpveql(handle_left_mouse_controls(), cpv(-1.0f, -1.0f))) {
     left_clicked_pos = handle_left_mouse_controls();
   }
-  if (!cpveql(left_clicked_pos, cpv(-1.0f, -1.0f)) && !tb.physics_info.is_moving) {
-    tank_body_rotate_to_position(&tb, &tt, left_clicked_pos, 2);
+  if (!cpveql(left_clicked_pos, cpv(-1.0f, -1.0f))) {
+    tank_body_target_position(&tb, left_clicked_pos, 120.0f, 2.0f);
   }
-  if (!cpveql(left_clicked_pos, cpv(-1.0f, -1.0f)) && !tb.physics_info.is_turning) {
-    tank_body_move_to_position(&tb, &tt, left_clicked_pos, 120);
+  if (!cpveql(handle_right_mouse_controls(), cpv(-1.0f, -1.0f))) {
+    right_clicked_pos = handle_right_mouse_controls();
+    tt.is_locked_on = false;
   }
-  tank_top_set_rotation_speed(&tt, 2);
-  right_clicked_pos = handle_right_mouse_controls();
   if (!cpveql(right_clicked_pos, cpv(-1.0f, -1.0f))) {
-    printf("Hi\n");
+    tank_top_lock_on_position(&tt, right_clicked_pos, 2.0f);
   }
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);

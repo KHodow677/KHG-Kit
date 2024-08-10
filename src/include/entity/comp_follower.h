@@ -7,6 +7,8 @@
 typedef struct {
   cpBody *body;
   cpBody *target_body;
+  bool follow_pos;
+  bool follow_ang;
 } follower_info;
 
 typedef struct {

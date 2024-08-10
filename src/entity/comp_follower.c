@@ -45,10 +45,14 @@ ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
   follower_info *info = utl_map_at(FOLLOWER_INFO_MAP, &entities[0]);
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(FOLLOWER_INFO_MAP, &entities[id]);
-    cpVect target_vel = cpvadd(cpBodyGetVelocity(info->target_body), cpBodyGetVelocity(info->body));
-    cpFloat target_ang_vel = cpBodyGetAngularVelocity(info->target_body) + cpBodyGetAngularVelocity(info->body);
-    cpBodySetVelocity(info->body, target_vel);
-    cpBodySetAngularVelocity(info->body, target_ang_vel);
+    if (info->follow_pos) {
+      cpVect target_vel = cpvadd(cpBodyGetVelocity(info->target_body), cpBodyGetVelocity(info->body));
+      cpBodySetVelocity(info->body, target_vel);
+    }
+    if (info->follow_ang) {
+      cpFloat target_ang_vel = cpBodyGetAngularVelocity(info->target_body) + cpBodyGetAngularVelocity(info->body);
+      cpBodySetAngularVelocity(info->body, target_ang_vel);
+    }
   }
   return 0;
 }

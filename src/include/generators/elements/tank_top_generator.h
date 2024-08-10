@@ -12,6 +12,7 @@ typedef struct {
   physics_info physics_info;
   renderer_info renderer_info;
   follower_info follower_info;
+  bool is_locked_on;
 } tank_top;
 
 void generate_tank_top(tank_top *tt, ecs_ecs *ecs, cpSpace *sp, tank_body *tb);
