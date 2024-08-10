@@ -36,8 +36,10 @@ void free_renderer(renderer_info *info) {
   free(info->texture);
 }
 
-void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info) {
+void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info, bool follow_pos, bool follow_ang) {
   info->body = p_info->body;
   info->target_body = target_p_info->body;
+  info->follow_pos = follow_pos;
+  info->follow_ang = follow_ang;
 }
 
