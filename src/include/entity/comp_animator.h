@@ -18,7 +18,7 @@ typedef struct {
 } sys_animator;
 
 extern ecs_id ANIMATOR_COMPONENT_SIGNATURE;
-extern map *ANIMATOR_INFO_MAP;
+extern utl_map *ANIMATOR_INFO_MAP;
 
 void comp_animator_register(comp_animator *ca, ecs_ecs *ecs);
 

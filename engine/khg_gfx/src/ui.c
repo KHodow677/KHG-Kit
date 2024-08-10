@@ -9,11 +9,11 @@
 void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_window) {
   setlocale(LC_ALL, "");
   if(!glfwInit()) {
-    error_func("Trying to initialize gfx with GLFW without initializing GLFW first", user_defined_data);
+    utl_error_func("Trying to initialize gfx with GLFW without initializing GLFW first", utl_user_defined_data);
     return;
   }
   if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-    error_func("Failed to initialize Glad", user_defined_data);
+    utl_error_func("Failed to initialize Glad", utl_user_defined_data);
     return;
   }
   memset(&state, 0, sizeof(state));

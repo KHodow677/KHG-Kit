@@ -11,7 +11,7 @@ void aud_init_audio_device(void) {
   ctx_config.logCallback = aud_on_log;
   ma_result result = ma_context_init(NULL, 0, &ctx_config, &audio.system.context);
   if (result != MA_SUCCESS) {
-    error_func("Failed to initialize context", user_defined_data);
+    utl_error_func("Failed to initialize context", utl_user_defined_data);
     return;
   }
   ma_device_config config = ma_device_config_init(ma_device_type_playback);
@@ -26,13 +26,13 @@ void aud_init_audio_device(void) {
   config.pUserData = NULL;
   result = ma_device_init(&audio.system.context, &config, &audio.system.device);
   if (result != MA_SUCCESS) {
-    error_func("Failed to initialize playback device", user_defined_data);
+    utl_error_func("Failed to initialize playback device", utl_user_defined_data);
     ma_context_uninit(&audio.system.context);
     return;
   }
   result = ma_device_start(&audio.system.device);
   if (result != MA_SUCCESS) {
-    error_func("Failed to start playback device", user_defined_data);
+    utl_error_func("Failed to start playback device", utl_user_defined_data);
     ma_device_uninit(&audio.system.device);
     ma_context_uninit(&audio.system.context);
     return;
@@ -49,7 +49,7 @@ void aud_close_audio_device(void) {
     aud_close_audio_buffer_pool();
   }
   else {
-    error_func("Device could not be closed, not currently initialized", user_defined_data);
+    utl_error_func("Device could not be closed, not currently initialized", utl_user_defined_data);
   }
 }
 

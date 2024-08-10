@@ -19,7 +19,7 @@ typedef struct {
 } sys_follower;
 
 extern ecs_id FOLLOWER_COMPONENT_SIGNATURE;
-extern map *FOLLOWER_INFO_MAP;
+extern utl_map *FOLLOWER_INFO_MAP;
 
 void comp_follower_register(comp_follower *cf, ecs_ecs *ecs);
 

@@ -34,16 +34,16 @@ unsigned char *aud_load_file_data(const char *file_name, unsigned int *bytes_rea
         *bytes_read = count;
       }
       else {
-        error_func("Failed to read file", user_defined_data);
+        utl_error_func("Failed to read file", utl_user_defined_data);
       }
       fclose(file);
     }
     else {
-      error_func("Failed to open file", user_defined_data);
+      utl_error_func("Failed to open file", utl_user_defined_data);
     }
   }
   else {
-    error_func("File name provided is not valid", user_defined_data);
+    utl_error_func("File name provided is not valid", utl_user_defined_data);
   }
   return data;
 }
@@ -54,16 +54,16 @@ void aud_save_file_data(const char *file_name, void *data, unsigned int bytes_to
     if (file != NULL) {
       unsigned int count = (unsigned int)fwrite(data, sizeof(unsigned char), bytes_to_write, file);
       if (count == 0) {
-        error_func("Failed to write file", user_defined_data);
+        utl_error_func("Failed to write file", utl_user_defined_data);
       }
       fclose(file);
     }
     else {
-      error_func("Failed to open file", user_defined_data);
+      utl_error_func("Failed to open file", utl_user_defined_data);
     }
   }
   else {
-    error_func("File name provided is not valid", user_defined_data);
+    utl_error_func("File name provided is not valid", utl_user_defined_data);
   }
 }
 
@@ -73,16 +73,16 @@ void aud_save_file_text(const char *file_name, char *text) {
     if (file != NULL) {
       int count = fprintf(file, "%s", text);
       if (count == 0) {
-        error_func("Failed to write text file", user_defined_data);
+        utl_error_func("Failed to write text file", utl_user_defined_data);
       }
       fclose(file);
     }
     else {
-      error_func("Failed to open text file", user_defined_data);
+      utl_error_func("Failed to open text file", utl_user_defined_data);
     }
   }
   else {
-    error_func("File name provided is not valid", user_defined_data);
+    utl_error_func("File name provided is not valid", utl_user_defined_data);
   }
 }
 
@@ -101,7 +101,7 @@ aud_wave aud_load_WAV(const char *file_name) {
     drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, w.data);
   }
   else {
-    error_func("Failed to load WAV data", user_defined_data);
+    utl_error_func("Failed to load WAV data", utl_user_defined_data);
   }
   drwav_uninit(&wav);
   free(file_data);
@@ -114,7 +114,7 @@ aud_wave aud_load_OGG(const char *file_name) {
   unsigned char *file_data = aud_load_file_data(file_name, &file_size);
   stb_vorbis *ogg_file = stb_vorbis_open_memory(file_data, file_size, NULL, NULL);
   if (ogg_file == NULL) {
-    error_func("Failed to load OGG data", user_defined_data);
+    utl_error_func("Failed to load OGG data", utl_user_defined_data);
   }
   else {
     stb_vorbis_info info = stb_vorbis_get_info(ogg_file);
@@ -138,7 +138,7 @@ aud_wave aud_load_FLAC(const char *file_name) {
   unsigned long long int total_sample_count = 0;
   w.data = drflac_open_memory_and_read_pcm_frames_s16(file_data, file_size, &w.channels, &w.sample_rate, (drflac_uint64 *)&total_sample_count);
   if (w.data == NULL) {
-    error_func("Failed to load FLAC data", user_defined_data);
+    utl_error_func("Failed to load FLAC data", utl_user_defined_data);
   }
   else {
     w.sample_count = (unsigned int)total_sample_count;
@@ -156,7 +156,7 @@ aud_wave aud_load_MP3(const char *file_name) {
   drmp3_config config = { 0 };
   w.data = drmp3_open_memory_and_read_f32(file_data, file_size, &config, (drmp3_uint64 *)&total_frame_count);
   if (w.data == NULL) {
-    error_func("Failed to load MP3 data", user_defined_data);
+    utl_error_func("Failed to load MP3 data", utl_user_defined_data);
   }
   else {
     w.channels = config.outputChannels;
@@ -197,7 +197,7 @@ aud_wave aud_load_wave(const char *file_name) {
     wave = aud_load_MP3(file_name);
   }
   else {
-    error_func("File format not supported", user_defined_data);
+    utl_error_func("File format not supported", utl_user_defined_data);
   }
   return wave;
 }
@@ -216,15 +216,15 @@ aud_sound aud_load_sound_from_wave(aud_wave w) {
     ma_uint32 frame_count_in = w.sample_count / w.channels;
     ma_uint32 frame_count = (ma_uint32)ma_convert_frames(NULL, 0, AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, NULL, frame_count_in, format_in, w.channels, w.sample_rate);
     if (frame_count == 0) {
-      error_func("Failed to get frame count for format conversion", user_defined_data);
+      utl_error_func("Failed to get frame count for format conversion", utl_user_defined_data);
     }
     aud_audio_buffer *audio_buffer = aud_load_audio_buffer(AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, frame_count, AUD_AUDIO_BUFFER_USAGE_STATIC);
     if (audio_buffer == NULL) {
-      error_func("Failed to create buffer", user_defined_data);
+      utl_error_func("Failed to create buffer", utl_user_defined_data);
     }
     frame_count = (ma_uint32)ma_convert_frames(audio_buffer->data, frame_count, AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, w.data, frame_count_in, format_in, w.channels, w.sample_rate);
     if (frame_count == 0) {
-      error_func("Failed format conversion", user_defined_data);
+      utl_error_func("Failed format conversion", utl_user_defined_data);
     }
     sound.sample_count = frame_count * AUD_AUDIO_DEVICE_CHANNELS;
     sound.stream.sample_rate = AUD_AUDIO_DEVICE_SAMPLE_RATE;
@@ -262,7 +262,7 @@ void aud_export_wave(aud_wave w, const char *file_name) {
     success = true;
   }
   if (!success) {
-    error_func("Failed to export wave data", user_defined_data);
+    utl_error_func("Failed to export wave data", utl_user_defined_data);
   }
 }
 

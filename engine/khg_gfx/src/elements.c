@@ -600,11 +600,11 @@ static wchar_t *str_to_wstr(const char *str) {
   size_t len = strlen(str) + 1;
   wchar_t *wstr = (wchar_t *)malloc(len * sizeof(wchar_t));
   if (wstr == NULL) {
-    error_func("Memory allocation failed", user_defined_data);
+    utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
   if (mbstowcs(wstr, str, len) == (size_t)-1) {
-    error_func("Conversion failed", user_defined_data);
+    utl_error_func("Conversion failed", utl_user_defined_data);
     free(wstr);
     return NULL;
   }

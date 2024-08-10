@@ -159,7 +159,7 @@ gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32
   gfx_font font = { 0 };
   FILE *file = fopen(filepath, "rb");
   if (file == NULL) {
-    error_func("Failed to open font file", user_defined_data);
+    utl_error_func("Failed to open font file", utl_user_defined_data);
   }
   fseek(file, 0, SEEK_END);
   long fileSize = ftell(file);
@@ -168,7 +168,7 @@ gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32
   size_t bytesRead = fread(buffer, 1, fileSize, file);
   fclose(file); 
   if (bytesRead != fileSize) {
-    error_func("Failed to read font file", user_defined_data);
+    utl_error_func("Failed to read font file", utl_user_defined_data);
     free(buffer);
     gfx_font emptyFont = { 0 };
     return emptyFont;

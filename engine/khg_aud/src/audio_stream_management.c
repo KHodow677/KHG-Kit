@@ -17,7 +17,7 @@ aud_audio_stream aud_init_audio_stream(unsigned int sample_rate, unsigned int sa
     stream.buffer->looping = true;
   }
   else {
-    error_func("Failed to load audio buffer, stream could not be created", user_defined_data);
+    utl_error_func("Failed to load audio buffer, stream could not be created", utl_user_defined_data);
   }
   return stream;
 }
@@ -50,11 +50,11 @@ void aud_update_audio_stream(aud_audio_stream stream, const void *data, int samp
         stream.buffer->is_sub_buffer_processed[subBufferToUpdate] = false;
       }
       else {
-        error_func("Attempting to write too many frames to buffer", user_defined_data);
+        utl_error_func("Attempting to write too many frames to buffer", utl_user_defined_data);
       }
     }
     else {
-      error_func("Buffer not available for updating", user_defined_data);
+      utl_error_func("Buffer not available for updating", utl_user_defined_data);
     }
   }
 }

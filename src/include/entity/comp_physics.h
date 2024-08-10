@@ -24,7 +24,7 @@ typedef struct {
 } sys_physics;
 
 extern ecs_id PHYSICS_COMPONENT_SIGNATURE;
-extern map *PHYSICS_INFO_MAP;
+extern utl_map *PHYSICS_INFO_MAP;
 
 void comp_physics_register(comp_physics *cp, ecs_ecs *ecs);
 

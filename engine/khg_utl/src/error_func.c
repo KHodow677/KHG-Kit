@@ -1,18 +1,18 @@
 #include "khg_utl/error_func.h"
 #include <stdio.h>
 
-void *user_defined_data = 0;
+void *utl_user_defined_data = 0;
 
-void default_error_func(const char *msg, void *userDefinedData) {
+void utl_default_error_func(const char *msg, void *user_defined_data) {
   printf("KHG Error: %s\n", msg);
 }
 
-void set_user_defined_data(void *data) {
-  user_defined_data = data;
+void utl_set_user_defined_data(void *data) {
+  utl_user_defined_data = data;
 }
 
-error_func_type set_error_func_callback(error_func_type newFunc) {
-  error_func_type a = error_func;
-  error_func = newFunc;
+utl_error_func_type utl_set_error_func_callback(utl_error_func_type new_func) {
+  utl_error_func_type a = utl_error_func;
+  utl_error_func = new_func;
   return a;
 }

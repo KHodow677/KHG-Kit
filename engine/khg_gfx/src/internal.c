@@ -17,7 +17,7 @@ uint32_t gfx_internal_shader_create(GLenum type, const char *src) {
   int32_t compiled; 
   glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
   if (!compiled) {
-    error_func("Failed to compile shader", user_defined_data);
+    utl_error_func("Failed to compile shader", utl_user_defined_data);
     glDeleteShader(shader);
   }
   return shader;
@@ -34,7 +34,7 @@ gfx_shader gfx_internal_shader_prg_create(const char *vert_src, const char *frag
   int32_t linked;
   glGetProgramiv(prg.id, GL_LINK_STATUS, &linked);
   if (!linked) {
-    error_func("Failed to link shader program", user_defined_data);
+    utl_error_func("Failed to link shader program", utl_user_defined_data);
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
     glDeleteProgram(prg.id);
@@ -927,7 +927,7 @@ void gfx_internal_remove_substr_str(char *str, int start_index, int end_index) {
 void gfx_internal_insert_i_str(char *str, char ch, int32_t index) {
   int len = strlen(str);
   if (index < 0 || index > len) {
-    error_func("Invalid string index for inserting", user_defined_data);
+    utl_error_func("Invalid string index for inserting", utl_user_defined_data);
     return;
   }
   for (int i = len; i > index; i--) {
@@ -941,7 +941,7 @@ void gfx_internal_insert_str_str(char *source, const char *insert, int32_t index
   int source_len = strlen(source);
   int insert_len = strlen(insert);
   if (index < 0 || index > source_len) {
-    error_func("Index for inserting out of bounds", user_defined_data);
+    utl_error_func("Index for inserting out of bounds", utl_user_defined_data);
     return;
   }
   memmove(source + index + insert_len, source + index, source_len - index + 1);
@@ -1099,7 +1099,7 @@ uint64_t gfx_internal_djb2_hash(uint64_t hash, const void *buf, size_t size) {
 void gfx_internal_props_stack_create(gfx_props_stack *stack) {
   stack->data = (gfx_element_props *)malloc(UI_STACK_INIT_CAP * sizeof(gfx_element_props));
   if(!stack->data) {
-    error_func("Failed to allocate memory for stack data structure", user_defined_data);
+    utl_error_func("Failed to allocate memory for stack data structure", utl_user_defined_data);
   }
   stack->count = 0;
   stack->cap = UI_STACK_INIT_CAP;
@@ -1108,7 +1108,7 @@ void gfx_internal_props_stack_create(gfx_props_stack *stack) {
 void gfx_internal_props_stack_resize(gfx_props_stack *stack, uint32_t newcap) {
   gfx_element_props* newdata = (gfx_element_props *)realloc(stack->data, newcap * sizeof(gfx_element_props));
   if(!newdata) {
-    error_func("Failed to reallocate memory for stack datastructure", user_defined_data);
+    utl_error_func("Failed to reallocate memory for stack datastructure", utl_user_defined_data);
   }
   stack->data = newdata;
   stack->cap = newcap;
