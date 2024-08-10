@@ -226,162 +226,123 @@ void vector_resize(Vector *vec, size_t size) {
     vector_reserve(vec, size);
   }
   if (vec->size < size) { 
-    memset((char *)vec->items + vec->size * vec->itemSize, 0, (size - vec->size) * vec->itemSize);  // Initialize new elements to 0 if size is increased
+    memset((char *)vec->items + vec->size * vec->itemSize, 0, (size - vec->size) * vec->itemSize);
   }
   vec->size = size;
 }
 
 void vector_shrink_to_fit(Vector *vec) {
-    if (!vec) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: Vector is NULL in vector_shrink_to_fit.\n");
-        #endif 
-        return; // Handle the error as per your application's needs
-    }
-    if (vec->size == vec->capacitySize) {
-        return; // No need to shrink if size equals capacity
-    }
+  if (!vec) {
+    error_func("Vector is NULL in vector_shrink_to_fit", user_defined_data);
+    return;
+  }
+  if (vec->size == vec->capacitySize) {
+    return;
+  }
+  if (vec->size == 0) {
+    free(vec->items);
+    vec->items = NULL;
+    vec->capacitySize = 0;
 
-    if (vec->size == 0) {
-        free(vec->items); // Assuming this memory is not part of the pool
-        vec->items = NULL;
-        vec->capacitySize = 0;
-
-        return;
-    }
-
-    void *newItems = memory_pool_allocate(vec->pool, vec->size * vec->itemSize);
-    if (!newItems) {
-        #ifdef VECTOR_LOGGING_ENABLE 
-            fmt_fprintf(stderr, "Error: Failed to allocate memory for vector_shrink_to_fit.\n");
-        #endif 
-        return; // Handle allocation failure, maybe by resizing the pool or another appropriate action
-    }
-    
-    memcpy(newItems, vec->items, vec->size * vec->itemSize);
-    vec->items = newItems;
-    vec->capacitySize = vec->size;
+    return;
+  }
+  void *newItems = memory_pool_allocate(vec->pool, vec->size * vec->itemSize);
+  if (!newItems) {
+    error_func("Failed to allocate memory for vector_shrink_to_fit", user_defined_data);
+    return;
+  }
+  memcpy(newItems, vec->items, vec->size * vec->itemSize);
+  vec->items = newItems;
+  vec->capacitySize = vec->size;
 }
 
 void vector_swap(Vector *vec1, Vector *vec2) {
-    if (!vec1 || !vec2) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: One or both vectors are NULL in vector_swap.\n");
-        #endif 
-        return; // Handle the error as per your application's needs
-    }
-
-    void *tempItems = vec1->items;
-    vec1->items = vec2->items;
-    vec2->items = tempItems;
-
-    size_t tempSize = vec1->size;
-    vec1->size = vec2->size;
-    vec2->size = tempSize;
-
-    size_t tempCapacity = vec1->capacitySize;
-    vec1->capacitySize = vec2->capacitySize;
-    vec2->capacitySize = tempCapacity;
-
-    size_t tempItemSize = vec1->itemSize;
-    vec1->itemSize = vec2->itemSize;
-    vec2->itemSize = tempItemSize;
+  if (!vec1 || !vec2) {
+    error_func("One or both vectors are NULL in vector_swap", user_defined_data);
+    return;
+  }
+  void *tempItems = vec1->items;
+  vec1->items = vec2->items;
+  vec2->items = tempItems;
+  size_t tempSize = vec1->size;
+  vec1->size = vec2->size;
+  vec2->size = tempSize;
+  size_t tempCapacity = vec1->capacitySize;
+  vec1->capacitySize = vec2->capacitySize;
+  vec2->capacitySize = tempCapacity;
+  size_t tempItemSize = vec1->itemSize;
+  vec1->itemSize = vec2->itemSize;
+  vec2->itemSize = tempItemSize;
 }
 
 void vector_assign(Vector *vec, size_t pos, void *item) {
-    if (!vec) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: Vector is NULL in vector_assign.\n");
-        #endif 
-        return; // Handle the error as per your application's needs
-    }
-    if (pos >= vec->size) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: Position is out of bounds in vector_assign.\n");
-        #endif 
-        return; // Handle the error as per your application's needs
-    }
-    memcpy((char *)vec->items + pos * vec->itemSize, item, vec->itemSize);
+  if (!vec) {
+    error_func("Vector is NULL in vector_assign", user_defined_data);
+    return;
+  }
+  if (pos >= vec->size) {
+    error_func("Position is out of bounds in vector_assign", user_defined_data);
+    return;
+  }
+  memcpy((char *)vec->items + pos * vec->itemSize, item, vec->itemSize);
 }
 
 void vector_emplace(Vector *vec, size_t pos, void *item, size_t itemSize) {
-    if (!vec) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: Vector is NULL in vector_emplace.\n");
-        #endif 
-        return; // Handle the error as per your application's needs
-    }
-    if (pos > vec->size || itemSize != vec->itemSize) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: Invalid position or item size in vector_emplace.\n");
-        #endif 
-        return; // Handle the error as per your application's needs
-    }
-    if (vec->size == vec->capacitySize) {
-        vector_reserve(vec, vec->capacitySize * 2); // Use the modified version
-    }
-
-    char *base = (char *)vec->items;
-    memmove(base + (pos + 1) * vec->itemSize, 
-            base + pos * vec->itemSize, 
-            (vec->size - pos) * vec->itemSize);
-
-    memcpy(base + pos * vec->itemSize, item, vec->itemSize);
-    vec->size++;
+  if (!vec) {
+    error_func("Vector is NULL in vector_emplace", user_defined_data);
+    return;
+  }
+  if (pos > vec->size || itemSize != vec->itemSize) {
+    error_func("Invalid position or item size in vector_emplace", user_defined_data);
+    return;
+  }
+  if (vec->size == vec->capacitySize) {
+    vector_reserve(vec, vec->capacitySize * 2);
+  }
+  char *base = (char *)vec->items;
+  memmove(base + (pos + 1) * vec->itemSize, base + pos * vec->itemSize, (vec->size - pos) * vec->itemSize);
+  memcpy(base + pos * vec->itemSize, item, vec->itemSize);
+  vec->size++;
 }
 
 bool vector_emplace_back(Vector *vec, void *item, size_t itemSize) {
-    if (!vec) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: Vector is NULL in vector_emplace_back.\n");
-        #endif 
-        return false; // Indicate failure
+  if (!vec) {
+    error_func("Vector is NULL in vector_emplace_back", user_defined_data);
+    return false;
+  }
+  if (itemSize != vec->itemSize) {
+    error_func("Invalid item size in vector_emplace_back", user_defined_data);
+    return false;
+  }
+  if (vec->size >= vec->capacitySize) {
+    if (!vector_reserve(vec, vec->capacitySize * 2)) {
+      return false;
     }
-    if (itemSize != vec->itemSize) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: Invalid item size in vector_emplace_back.\n");
-        #endif 
-        return false; // Indicate failure
-    }
-    if (vec->size >= vec->capacitySize) {
-        if (!vector_reserve(vec, vec->capacitySize * 2)) {
-            return false; // vector_reserve failed, indicate failure
-        }
-    }
-
-    memcpy((char *)vec->items + vec->size * vec->itemSize, item, vec->itemSize);
-    vec->size++;
-    return true; // Indicate success
+  }
+  memcpy((char *)vec->items + vec->size * vec->itemSize, item, vec->itemSize);
+  vec->size++;
+  return true;
 }
 
 bool vector_push_back(Vector *vec, const void *item) {
-    if (!vec) {
-        #ifdef VECTOR_LOGGING_ENABLE
-            fmt_fprintf(stderr, "Error: Vector is NULL in vector_push_back.\n");
-        #endif 
-        return false; // Indicate failure
-    }
-
-    if (vec->size >= vec->capacitySize) {
-        size_t newCapacity = vec->capacitySize * 2; // Example growth strategy
-        // Allocate new space from the memory pool
-        void *newItems = memory_pool_allocate(vec->pool, newCapacity * vec->itemSize);
-        if (!newItems) {
-            #ifdef VECTOR_LOGGING_ENABLE
-                fmt_fprintf(stderr, "Error: Failed to allocate memory in vector_push_back.\n");
-            #endif 
-            return false; // Indicate failure
-        }
-
-        memcpy(newItems, vec->items, vec->size * vec->itemSize); // Copy existing items to the new space
-        vec->items = newItems;
-        vec->capacitySize = newCapacity;
-    }
-
-    // Proceed with adding the new item
-    memcpy((char *)vec->items + (vec->size * vec->itemSize), item, vec->itemSize);
-    vec->size++;
-    return true; // Indicate success
+  if (!vec) {
+    error_func("Vector is NULL in vector_push_back", user_defined_data);
+    return false;
+  }
+  if (vec->size >= vec->capacitySize) {
+      size_t newCapacity = vec->capacitySize * 2;
+      void *newItems = memory_pool_allocate(vec->pool, newCapacity * vec->itemSize);
+      if (!newItems) {
+        error_func("Failed to allocate memory in vector_push_back", user_defined_data);
+        return false;
+      }
+      memcpy(newItems, vec->items, vec->size * vec->itemSize);
+      vec->items = newItems;
+      vec->capacitySize = newCapacity;
+  }
+  memcpy((char *)vec->items + (vec->size * vec->itemSize), item, vec->itemSize);
+  vec->size++;
+  return true;
 }
 
 void vector_deallocate(Vector *vec) {
