@@ -1,4 +1,5 @@
 #include "generators/components/comp_info_generator.h"
+#include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -18,10 +19,11 @@ void generate_physics_box(physics_info *info, cpSpace *sp, bool collides, float 
     info->shape = cpSpaceAddShape(sp, cpBoxShapeNew(info->body, 0.0f, 0.0f, 0.0f));
   }
   cpShapeSetFriction(info->shape, 0.0f);
-  info->space = sp;
 }
 
-void free_physics(physics_info *info) {
+void free_physics(physics_info *info, cpSpace *sp) {
+  cpSpaceRemoveShape(sp, info->shape);
+  cpSpaceRemoveBody(sp, info->body);
   cpShapeFree(info->shape);
   cpBodyFree(info->body);
 }
@@ -41,5 +43,9 @@ void generate_follower(follower_info *info, physics_info *p_info, physics_info *
   info->target_body = target_p_info->body;
   info->follow_pos = follow_pos;
   info->follow_ang = follow_ang;
+}
+
+void generate_destroyer(destroyer_info *info) {
+  info->destroy_now = false;
 }
 

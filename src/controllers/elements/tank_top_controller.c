@@ -2,6 +2,7 @@
 #include "data_utl/kinematic_utl.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
+#include "khg_phy/vect.h"
 #include <math.h>
 
 void tank_top_set_speed(tank_top *tt, cpFloat vel) {
@@ -38,12 +39,9 @@ void tank_top_lock_on_position(tank_top *tt, cpVect pos, cpFloat ang_vel) {
   float body_ang = normalize_angle(cpBodyGetAngle(tt->physics_info.body));
   float target_ang = normalize_angle(atan2f(body_pos.y - pos.y, body_pos.x - pos.x) - M_PI / 2);
   float angle_diff = normalize_angle(target_ang - body_ang);
-  /*
-  if (tt->is_locked_on) {
-    tank_top_set_angle(tt, target_ang);
+  if (cpvdist(body_pos, pos) <= 50.0f) {
     return;
   }
-  */
   if (!tank_top_is_targetting_position(tt, pos)) {
     tank_top_rotate_to_position(tt, ang_vel, angle_diff);
   }

@@ -50,6 +50,5 @@ ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     cpBodySetVelocity(info->body, cpv(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
     cpBodySetAngularVelocity(info->body, info->target_ang_vel);
   }
-  cpSpaceStep(info->space, dt);
   return 0;
 }

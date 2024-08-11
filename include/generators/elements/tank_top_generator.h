@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -12,9 +13,10 @@ typedef struct {
   physics_info physics_info;
   renderer_info renderer_info;
   follower_info follower_info;
+  destroyer_info destroyer_info;
   bool is_locked_on;
 } tank_top;
 
 void generate_tank_top(tank_top *tt, ecs_ecs *ecs, cpSpace *sp, tank_body *tb);
-void free_tank_top(tank_top *tt);
+void free_tank_top(tank_top *tt, cpSpace *sp);
 

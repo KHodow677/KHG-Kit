@@ -7,7 +7,6 @@
 typedef struct {
   cpBody *body;
   cpShape *shape;
-  cpSpace *space;
   cpFloat target_vel;
   cpFloat target_ang_vel;
   cpBool is_moving;
