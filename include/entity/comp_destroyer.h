@@ -1,0 +1,28 @@
+#pragma once
+
+#include "khg_ecs/ecs.h"
+#include "khg_utl/map.h"
+
+typedef struct {
+  bool destroy_now;
+} destroyer_info;
+
+typedef struct {
+  ecs_id id;
+} comp_destroyer;
+
+typedef struct {
+  ecs_id id;
+  ecs_ecs ecs;
+} sys_destroyer;
+
+extern ecs_id DESTROYER_COMPONENT_SIGNATURE;
+extern utl_map *DESTROYER_INFO_MAP;
+
+void comp_destroyer_register(comp_destroyer *cd, ecs_ecs *ecs);
+
+void sys_destroyer_register(sys_destroyer *sd, ecs_ecs *ecs);
+void sys_destroyer_add(ecs_ecs *ecs, ecs_id *eid, destroyer_info *info);
+void sys_destroyer_free(bool need_free);
+ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
+

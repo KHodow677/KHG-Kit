@@ -6,10 +6,6 @@
 #include <math.h>
 #include <stdbool.h>
 
-bool tank_body_at_position(tank_body *tb, cpVect pos) {
-  return cpveql(cpBodyGetPosition(tb->physics_info.body), pos);
-}
-
 void tank_body_set_speed(tank_body *tb, cpFloat vel) {
   tb->physics_info.target_vel = vel;
   tb->physics_info.is_moving = vel == 0.0f ? false : true;
@@ -53,10 +49,10 @@ bool tank_body_is_targeting_position(tank_body *tb, cpVect pos) {
   return angle_diff <= 0.05f;
 }
 
-bool tank_body_is_at_position(tank_body *tb, cpVect pos) {
+bool tank_body_is_at_position(tank_body *tb, cpVect pos, float tolerance) {
   cpVect body_pos = cpBodyGetPosition(tb->physics_info.body);
   float pos_diff = cpvdist(pos, body_pos);
-  if (pos_diff <= 1.0f) {
+  if (pos_diff <= tolerance) {
     return true;
   }
   return false;
@@ -67,16 +63,19 @@ void tank_body_target_position(tank_body *tb, cpVect pos, float vel, float ang_v
   float body_ang = normalize_angle(cpBodyGetAngle(tb->physics_info.body));
   float target_ang = normalize_angle(atan2f(body_pos.y - pos.y, body_pos.x - pos.x) - M_PI / 2);
   float angle_diff = normalize_angle(target_ang - body_ang);
-  if (tank_body_is_at_position(tb, pos)) {
-    tank_body_set_position(tb, pos, body_pos);
+  if (tank_body_is_at_position(tb, pos, 1.0f)) {
+    tank_body_set_speed(tb, 0.0f);
     tank_body_set_rotation_speed(tb, 0.0f);
     return;
   }
-  if (!tank_body_is_targeting_position(tb, pos)) {
+  if (!tank_body_is_targeting_position(tb, pos) && !tank_body_is_at_position(tb, pos, 1.0f)) {
     tank_body_rotate_to_position(tb, ang_vel, angle_diff);
+    tank_body_move_to_position(tb, pos, body_pos, vel);
   }
   else {
-    tank_body_set_angle(tb, target_ang);
+    if (!tank_body_is_at_position(tb, pos, 1.0f)) {
+      tank_body_set_angle(tb, target_ang);
+    }
     tank_body_move_to_position(tb, pos, body_pos, vel);
   }
 }
