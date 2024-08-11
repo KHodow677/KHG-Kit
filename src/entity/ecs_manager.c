@@ -39,7 +39,6 @@ void ecs_setup(cpSpace *sp, comp_physics *cp, comp_renderer *cr, comp_follower *
 void ecs_cleanup(cpSpace *sp, tank_body *tb, tank_top *tt) {
   if (!tb->destroyer_info.destroy_now) {
     free_tank_body(tb, sp);
-    printf("HI\n");
   }
   if (!tt->destroyer_info.destroy_now) {
     free_tank_top(tt, sp);

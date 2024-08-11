@@ -4,7 +4,6 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
-#include "khg_phy/space.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/map.h"
 #include <math.h>

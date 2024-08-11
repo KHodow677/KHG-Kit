@@ -8,6 +8,7 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/ecs_manager.h"
+#include "generators/elements/particle_generator.h"
 #include "generators/elements/tank_body_generator.h"
 #include "generators/elements/tank_top_generator.h"
 #include "khg_ecs/ecs.h"
@@ -31,6 +32,7 @@ comp_destroyer dc;
 
 tank_body tb;
 tank_top tt;
+particle p;
 
 cpVect left_clicked_pos;
 cpVect right_clicked_pos;
@@ -61,8 +63,6 @@ int game_run() {
   left_clicked_pos = cpv(-1.0f, -1.0f); 
   right_clicked_pos = cpv(-1.0f, -1.0f); 
   space = physics_setup(&gravity);
-  tb = (tank_body){ 0 };
-  tt = (tank_top){ 0 };
   ecs_setup(space, &pc, &rc, &fc, &dc, &tb, &tt);
   int res = gfx_loop_manager(window);
   ecs_cleanup(space, &tb, &tt);
@@ -81,6 +81,8 @@ void gfx_loop() {
     tank_body_target_position(&tb, left_clicked_pos, 60.0f, 1.0f);
   }
   if (!cpveql(handle_right_mouse_controls(), cpv(-1.0f, -1.0f))) {
+    printf("Spawn\n");
+    generate_particle(&p, ECS, space);
     right_clicked_pos = handle_right_mouse_controls();
     tt.is_locked_on = false;
   }
