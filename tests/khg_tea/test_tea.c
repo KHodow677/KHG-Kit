@@ -18,6 +18,7 @@ void test_tea_code() {
   tea_code(plaintext, key);
   TEST_ASSERT_EQUAL_UINT32(expected_ciphertext[0], plaintext[0]);
   TEST_ASSERT_EQUAL_UINT32(expected_ciphertext[1], plaintext[1]);
+  TEST_ASSERT_EQUAL(0, 1);
 }
 
 void test_tea_decode() {
