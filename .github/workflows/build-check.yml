@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    name: Build Check
     runs-on: ubuntu-latest
 
     steps:
@@ -19,7 +20,7 @@ jobs:
         cmake-version: 3.26.4
 
     - name: Run build script
-      run: ./build.sh
+      run: ./build.sh build
 
     - name: Check build status
       run: |
