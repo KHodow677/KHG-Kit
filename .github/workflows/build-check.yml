@@ -14,13 +14,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget tar libidn11
+
     - name: Install CMake 3.5
       run: |
-        # Install necessary dependencies
-        sudo apt-get update
-        sudo apt-get install -y wget tar
-
-        # Remove any existing CMake installation
+        # Remove any existing CMake installation to avoid conflicts
         sudo apt-get remove -y cmake || true
 
         # Download and install CMake 3.5.2
