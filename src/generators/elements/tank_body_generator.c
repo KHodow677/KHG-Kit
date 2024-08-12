@@ -18,6 +18,5 @@ void generate_tank_body(tank_body *tb, ecs_ecs *ecs, cpSpace *sp) {
 
 void free_tank_body(tank_body *tb, cpSpace *sp) {
   free_physics(&tb->physics_info, sp);
-  free_renderer(&tb->renderer_info);
 }
 

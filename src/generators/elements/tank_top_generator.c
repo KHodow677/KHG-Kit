@@ -22,6 +22,5 @@ void generate_tank_top(tank_top *tt, ecs_ecs *ecs, cpSpace *sp, tank_body *tb) {
 
 void free_tank_top(tank_top *tt, cpSpace *sp) {
   free_physics(&tt->physics_info, sp);
-  free_renderer(&tt->renderer_info);
 }
 

@@ -3,6 +3,7 @@
 #include "controllers/elements/tank_top_controller.h"
 #include "controllers/input/key_controllers.h"
 #include "controllers/input/mouse_controller.h"
+#include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
@@ -29,6 +30,7 @@ comp_physics pc;
 comp_renderer rc;
 comp_follower fc;
 comp_destroyer dc;
+comp_animator ac;
 
 tank_body tb;
 tank_top tt;
@@ -63,9 +65,9 @@ int game_run() {
   left_clicked_pos = cpv(-1.0f, -1.0f); 
   right_clicked_pos = cpv(-1.0f, -1.0f); 
   space = physics_setup(&gravity);
-  ecs_setup(space, &pc, &rc, &fc, &dc, &tb, &tt);
+  ecs_setup(space, &pc, &rc, &fc, &dc, &ac, &tb, &tt);
   int res = gfx_loop_manager(window);
-  ecs_cleanup(space, &tb, &tt);
+  ecs_cleanup(space, &tb, &tt, &p);
   return res;
 }
 
@@ -92,6 +94,7 @@ void gfx_loop() {
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
+  ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
   if (handle_escape_button()) {
     tt.destroyer_info.destroy_now = true;
     tb.destroyer_info.destroy_now = true;

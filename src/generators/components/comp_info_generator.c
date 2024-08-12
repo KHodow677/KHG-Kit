@@ -4,7 +4,7 @@
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
-#include "khg_ecs/ecs.h"
+#include "generators/components/texture_generator.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"
@@ -37,15 +37,8 @@ void free_physics(physics_info *info, cpSpace *sp) {
 }
 
 void generate_renderer(renderer_info *info, physics_info *p_info, char *file_name, char *file_type, float width, float height) {
-  info->texture = (gfx_texture *)malloc(sizeof(gfx_texture));
-  *info->texture = gfx_load_texture_asset(file_name, file_type);
-  info->texture->width = width;
-  info->texture->height = height;
+  info->texture = generate_texture(file_name, file_type, width, height);
   info->body = p_info->body;
-}
-
-void free_renderer(renderer_info *info) {
-  free(info->texture);
 }
 
 void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info, bool follow_pos, bool follow_ang) {
@@ -67,8 +60,8 @@ void generate_animator(animator_info *info, utl_vector *vec, int frame_count) {
 
 void free_animator(animator_info *info) {
   for (size_t i = 0; i < utl_vector_size(info->tex_vec); i++) {
-    gfx_texture *tex = utl_vector_at(info->tex_vec, i);
-    free(tex);
+    gfx_texture **tex = utl_vector_at(info->tex_vec, i);
+    free(*tex);
   }
   utl_vector_deallocate(info->tex_vec);
 }

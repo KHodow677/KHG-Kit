@@ -48,8 +48,8 @@ ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     info = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
     cpVect pos = cpBodyGetPosition(info->body);
     cpFloat angle = cpBodyGetAngle(info->body);
-    info->texture->angle = angle;
-    gfx_image_no_block(pos.x, pos.y, *info->texture);
+    info->texture.angle = angle;
+    gfx_image_no_block(pos.x, pos.y, info->texture);
   }
   return 0;
 }
