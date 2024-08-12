@@ -1,4 +1,4 @@
-name: Build Check
+name: Build and Test
 
 on:
   pull_request:
@@ -7,23 +7,51 @@ on:
 
 jobs:
   build:
+    name: Build and Run Tests
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up CMake
-      uses: cmake/setup-cmake@v3
+    - name: Install deps
+      run: |
+        sudo apt update
+        wget http://mirrors.kernel.org/ubuntu/pool/main/libi/libidn/libidn11_1.33-2.2ubuntu2_amd64.deb
+        sudo apt install ./libidn11_1.33-2.2ubuntu2_amd64.deb
+        sudo apt-get install libxrandr-dev libx11-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
       with:
-        cmake-version: 3.26.4
+        cmake-version: '3.16.x'
+
+    - name: Use cmake
+      run: cmake --version
 
     - name: Run build script
-      run: ./build.sh
-
-    - name: Check build status
       run: |
-        if [ ! -f "build/executable.exe" ]; then
-          echo "Build failed: executable.exe not found."
+        mkdir build
+        ./build.sh build
+
+    - name: Check build status (executable)
+      run: |
+        if [ ! -f "build/executable" ]; then
+          echo "Build failed: executable not found."
+          exit 1
+        fi
+
+    - name: Check build status (test_runner)
+      run: |
+        if [ ! -f "build/test_runner" ]; then
+          echo "Build failed: test_runner not found."
+          exit 1
+        fi
+
+    - name: Run tests
+      run: |
+        ./build.sh test
+        if [ $? -ne 0 ]; then
+          echo "Tests failed."
           exit 1
         fi
