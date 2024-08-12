@@ -14,22 +14,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget tar libidn11
-
-    - name: Install CMake 3.5
-      run: |
-        # Remove any existing CMake installation to avoid conflicts
-        sudo apt-get remove -y cmake || true
-
-        # Download and install CMake 3.5.2
-        wget https://cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz
-        tar -xzvf cmake-3.5.2-Linux-x86_64.tar.gz
-        sudo cp -r cmake-3.5.2-Linux-x86_64/* /usr/local/
-
-    - name: Verify CMake version
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2
+      with:
+        cmake-version: '3.5.x'
+    - name: Use cmake
       run: cmake --version
 
     - name: Run build script
