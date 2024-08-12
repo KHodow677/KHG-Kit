@@ -14,11 +14,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install cmake deps
+    - name: Install deps
       run: |
         sudo apt update
         wget http://mirrors.kernel.org/ubuntu/pool/main/libi/libidn/libidn11_1.33-2.2ubuntu2_amd64.deb
         sudo apt install ./libidn11_1.33-2.2ubuntu2_amd64.deb
+        sudo apt-get install libxrandr-dev libx11-dev libxinerama-dev libxcursor-dev libxi-dev
 
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v2
