@@ -17,21 +17,14 @@ jobs:
     - name: Install deps
       run: |
         sudo apt update
-        sudo apt install -y \
-          libidn11 \
-          libxrandr-dev \
-          libx11-dev \
-          libxinerama-dev \
-          libxcursor-dev \
-          libxi-dev \
-          libgl1-mesa-dev \
-          libglu1-mesa-dev
+        wget http://mirrors.kernel.org/ubuntu/pool/main/libi/libidn/libidn11_1.33-2.2ubuntu2_amd64.deb
+        sudo apt install ./libidn11_1.33-2.2ubuntu2_amd64.deb
+        sudo apt-get install libxrandr-dev libx11-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev
 
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: '3.16.x'
-
     - name: Use cmake
       run: cmake --version
 
