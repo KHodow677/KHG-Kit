@@ -71,7 +71,6 @@ jobs:
     - name: Run tests
       run: |
         mkdir build
-        cd build
         ./build.sh test
         if [ $? -ne 0 ]; then
           echo "Tests failed."
