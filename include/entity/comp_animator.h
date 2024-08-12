@@ -1,11 +1,13 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy_types.h"
 #include "khg_utl/map.h"
+#include "khg_utl/vector.h"
 
 typedef struct {
-  cpBody *body;
+  utl_vector *tex_vec;
+  int frame_count;
+  int frames_left;
 } animator_info;
 
 typedef struct {

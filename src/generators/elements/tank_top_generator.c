@@ -10,7 +10,7 @@
 
 void generate_tank_top(tank_top *tt, ecs_ecs *ecs, cpSpace *sp, tank_body *tb) {
   generate_physics_box(&tt->physics_info, sp, false, 102.0f, 209.0f, 1.0f, cpv(600.0f, 300.0f), 0.0f, cpv(0.0f, 55.5f));
-  generate_renderer(&tt->renderer_info, &tt->physics_info, "Tank-Top-Blue", "png");
+  generate_renderer(&tt->renderer_info, &tt->physics_info, "Tank-Top-Blue", "png", 102, 209);
   generate_follower(&tt->follower_info, &tt->physics_info, &tb->physics_info, true, false);
   generate_destroyer(&tt->destroyer_info);
   tt->entity = ecs_create(ecs);
@@ -22,6 +22,5 @@ void generate_tank_top(tank_top *tt, ecs_ecs *ecs, cpSpace *sp, tank_body *tb) {
 
 void free_tank_top(tank_top *tt, cpSpace *sp) {
   free_physics(&tt->physics_info, sp);
-  free_renderer(&tt->renderer_info);
 }
 

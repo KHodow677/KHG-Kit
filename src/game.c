@@ -3,11 +3,13 @@
 #include "controllers/elements/tank_top_controller.h"
 #include "controllers/input/key_controllers.h"
 #include "controllers/input/mouse_controller.h"
+#include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/ecs_manager.h"
+#include "generators/elements/particle_generator.h"
 #include "generators/elements/tank_body_generator.h"
 #include "generators/elements/tank_top_generator.h"
 #include "khg_ecs/ecs.h"
@@ -28,9 +30,11 @@ comp_physics pc;
 comp_renderer rc;
 comp_follower fc;
 comp_destroyer dc;
+comp_animator ac;
 
 tank_body tb;
 tank_top tt;
+particle p;
 
 cpVect left_clicked_pos;
 cpVect right_clicked_pos;
@@ -61,11 +65,9 @@ int game_run() {
   left_clicked_pos = cpv(-1.0f, -1.0f); 
   right_clicked_pos = cpv(-1.0f, -1.0f); 
   space = physics_setup(&gravity);
-  tb = (tank_body){ 0 };
-  tt = (tank_top){ 0 };
-  ecs_setup(space, &pc, &rc, &fc, &dc, &tb, &tt);
+  ecs_setup(space, &pc, &rc, &fc, &dc, &ac, &tb, &tt);
   int res = gfx_loop_manager(window);
-  ecs_cleanup(space, &tb, &tt);
+  ecs_cleanup(space, &tb, &tt, &p);
   return res;
 }
 
@@ -81,6 +83,8 @@ void gfx_loop() {
     tank_body_target_position(&tb, left_clicked_pos, 60.0f, 1.0f);
   }
   if (!cpveql(handle_right_mouse_controls(), cpv(-1.0f, -1.0f))) {
+    printf("Spawn\n");
+    generate_particle(&p, ECS, space);
     right_clicked_pos = handle_right_mouse_controls();
     tt.is_locked_on = false;
   }
@@ -90,6 +94,7 @@ void gfx_loop() {
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
+  ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
   if (handle_escape_button()) {
     tt.destroyer_info.destroy_now = true;
     tb.destroyer_info.destroy_now = true;
