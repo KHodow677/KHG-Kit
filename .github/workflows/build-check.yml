@@ -1,0 +1,30 @@
+name: Build Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up CMake
+      uses: cmake/setup-cmake@v3
+      with:
+        cmake-version: 3.26.4
+
+    - name: Run build script
+      run: ./build.sh
+
+    - name: Check build status
+      run: |
+        if [ ! -f "path/to/your/binary" ]; then
+          echo "Build failed: binary not found."
+          exit 1
+        fi
+      # Replace "path/to/your/binary" with the actual path to your built binary or executable file.
