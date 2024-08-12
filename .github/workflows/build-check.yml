@@ -23,8 +23,7 @@ jobs:
 
     - name: Check build status
       run: |
-        if [ ! -f "path/to/your/binary" ]; then
-          echo "Build failed: binary not found."
+        if [ ! -f "build/executable.exe" ]; then
+          echo "Build failed: executable.exe not found."
           exit 1
         fi
-      # Replace "path/to/your/binary" with the actual path to your built binary or executable file.
