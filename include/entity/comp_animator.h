@@ -2,12 +2,12 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_utl/map.h"
-#include "khg_utl/vector.h"
 
 typedef struct {
-  utl_vector *tex_vec;
-  int frame_count;
-  int frames_left;
+  int min_tex_id;
+  int max_tex_id;
+  int frame_duration;
+  int frame_timer;
 } animator_info;
 
 typedef struct {

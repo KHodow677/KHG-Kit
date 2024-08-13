@@ -231,7 +231,6 @@ static void map_erase_fixup(utl_map *map, utl_map_node *x) {
 
 static void map_free_nodes(utl_map_node *node, value_dealloc_func deallocKey, value_dealloc_func deallocValue) {
   if (node == NULL) {
-    utl_error_func("Node param is null and invalid in map_free_nodes", utl_user_defined_data);
     return;
   }
   map_free_nodes(node->left, deallocKey, deallocValue);

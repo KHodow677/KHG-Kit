@@ -2,9 +2,7 @@
 #include "entity/comp_renderer.h"
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
-#include "khg_gfx/texture.h"
 #include "khg_utl/map.h"
-#include "khg_utl/vector.h"
 #include <stdio.h>
 
 ecs_id ANIMATOR_COMPONENT_SIGNATURE;
@@ -45,8 +43,11 @@ ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
   renderer_info *r_info;
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(ANIMATOR_INFO_MAP, &entities[id]);
-    r_info  = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
-    r_info->texture = **(gfx_texture **)utl_vector_at(info->tex_vec, 1);
+    r_info = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
+    if (--info->frame_timer == 0) {
+      r_info->tex_id = r_info->tex_id < info->max_tex_id ? r_info->tex_id + 1 : info->min_tex_id;
+      info->frame_timer = info->frame_duration;
+    }
   }
   return 0;
 }
