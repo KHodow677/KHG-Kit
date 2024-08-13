@@ -1,4 +1,4 @@
-#include "generators/elements/particle_generator.h"
+#include "generators/entities/particle_generator.h"
 #include "generators/components/comp_info_generator.h"
 #include "generators/components/texture_generator.h"
 #include "khg_phy/vect.h"

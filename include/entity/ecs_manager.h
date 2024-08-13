@@ -5,8 +5,6 @@
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
-#include "generators/elements/tank_body_generator.h"
-#include "generators/elements/tank_top_generator.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/map.h"
 #include "khg_utl/vector.h"
@@ -21,6 +19,12 @@ extern sys_follower FOLLOWER_SYSTEM;
 extern sys_destroyer DESTROYER_SYSTEM;
 extern sys_animator ANIMATOR_SYSTEM;
 
-void ecs_setup(comp_physics *cp, comp_renderer *cr, comp_follower *cf, comp_destroyer *cd, comp_animator *ca, tank_body *tb, tank_top *tt);
-void ecs_cleanup(tank_body *tb, tank_top *tt);
+extern comp_physics PHYSICS_COMPONENT_TYPE;
+extern comp_renderer RENDERER_COMPONENT_TYPE;
+extern comp_follower FOLLOWER_COMPONENT_TYPE;
+extern comp_destroyer DESTROYER_COMPONENT_TYPE;
+extern comp_animator ANIMATOR_COMPONENT_TYPE;
+
+void ecs_setup();
+void ecs_cleanup();
 

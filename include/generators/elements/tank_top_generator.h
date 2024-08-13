@@ -6,7 +6,6 @@
 #include "entity/comp_renderer.h"
 #include "generators/elements/tank_body_generator.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy_types.h"
 
 typedef struct {
   ecs_id entity;

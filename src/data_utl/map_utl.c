@@ -1,6 +1,7 @@
 #include "data_utl/map_utl.h"
 #include "entity/entity.h"
-#include "generators/elements/particle_generator.h"
+#include "generators/entities/particle_generator.h"
+#include "generators/entities/tank_generator.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,6 +23,9 @@ void free_entity_deallocator(void *data) {
   generic_entity *ge = data;
   if (generic_entity_is_particle(ge)) {
     free_particle(ge->particle);
+  }
+  else if (generic_entity_is_tank(ge)) {
+    free_tank(ge->tank);
   }
   free(data);
 }

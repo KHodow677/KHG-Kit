@@ -21,25 +21,23 @@
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include "spawners/spawn_particles.h"
+#include "spawners/spawn_tank.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 cpSpace *SPACE;
 
-comp_physics pc;
-comp_renderer rc;
-comp_follower fc;
-comp_destroyer dc;
-comp_animator ac;
-
-tank_body tb;
-tank_top tt;
-
 cpVect left_clicked_pos;
 cpVect right_clicked_pos;
 
-void countBodies(cpBody *body, void *count) {
-    (*(int *)count)++;
+void log_info() {
+  printf("OS: %s\n", OS_NAME);
+  const GLubyte* vendor = glGetString(GL_VENDOR);
+  const GLubyte* version = glGetString(GL_VERSION);
+  if (vendor != NULL && version != NULL) {
+    printf("Vendor: %s\n", vendor);
+    printf("OpenGL Version: %s\n", version);
+  } 
 }
 
 int game_run() {
@@ -53,20 +51,15 @@ int game_run() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(800, 600, window);
-  printf("OS: %s\n", OS_NAME);
-  const GLubyte* vendor = glGetString(GL_VENDOR);
-  const GLubyte* version = glGetString(GL_VERSION);
-  if (vendor != NULL && version != NULL) {
-    printf("Vendor: %s\n", vendor);
-    printf("OpenGL Version: %s\n", version);
-  } 
+  log_info();
   cpVect gravity = cpv(0.0f, 0.0f);
   left_clicked_pos = cpv(-1.0f, -1.0f); 
   right_clicked_pos = cpv(-1.0f, -1.0f); 
   SPACE = physics_setup(&gravity);
-  ecs_setup(&pc, &rc, &fc, &dc, &ac, &tb, &tt);
+  ecs_setup();
+  spawn_tank();
   int res = gfx_loop_manager(window);
-  ecs_cleanup(&tb, &tt);
+  ecs_cleanup();
   return res;
 }
 
@@ -75,6 +68,7 @@ void gfx_loop() {
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
+  /*
   if (!cpveql(handle_left_mouse_controls(), cpv(-1.0f, -1.0f))) {
     left_clicked_pos = handle_left_mouse_controls();
   }
@@ -89,16 +83,19 @@ void gfx_loop() {
   if (!cpveql(right_clicked_pos, cpv(-1.0f, -1.0f))) {
     tank_top_lock_on_position(&tt, right_clicked_pos, 1.0f);
   }
+  */
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
+  /*
   if (handle_escape_button()) {
     tt.destroyer_info.destroy_now = true;
     tb.destroyer_info.destroy_now = true;
     free_tank_top(&tt);
     free_tank_body(&tb);
   }
+  */
   ecs_update_system(ECS, DESTROYER_SYSTEM.id, 0.0f);
   cpSpaceStep(SPACE, 1.0f/60.0f);
 }
