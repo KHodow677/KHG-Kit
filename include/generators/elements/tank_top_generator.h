@@ -17,6 +17,6 @@ typedef struct {
   bool is_locked_on;
 } tank_top;
 
-void generate_tank_top(tank_top *tt, ecs_ecs *ecs, cpSpace *sp, tank_body *tb);
-void free_tank_top(tank_top *tt, cpSpace *sp);
+void generate_tank_top(tank_top *tt, ecs_ecs *ecs, tank_body *tb);
+void free_tank_top(tank_top *tt);
 

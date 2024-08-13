@@ -14,6 +14,6 @@ typedef struct {
   animator_info animator_info;
 } particle;
 
-void generate_particle(particle *p, ecs_ecs *ecs, cpSpace *sp);
-void free_particle(particle *p, cpSpace *sp);
+void generate_particle(particle *p, ecs_ecs *ecs);
+void free_particle(particle *p);
 

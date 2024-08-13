@@ -4,8 +4,8 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 
-void generate_physics_box(physics_info *info, cpSpace *sp, bool collides, float width, float height, float mass, cpVect pos, cpFloat ang, cpVect cog);
-void free_physics(physics_info *info, cpSpace *sp);
+void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, cpFloat ang, cpVect cog);
+void free_physics(physics_info *info);
 
 void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id);
 
@@ -13,5 +13,5 @@ void generate_follower(follower_info *info, physics_info *p_info, physics_info *
 
 void generate_destroyer(destroyer_info *info);
 
-void generate_animator(animator_info *info, utl_vector *vec, int frame_count);
-void free_animator(animator_info *info);
+void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int frame_duration);
+

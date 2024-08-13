@@ -9,7 +9,6 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/ecs_manager.h"
-#include "generators/elements/particle_generator.h"
 #include "generators/elements/tank_body_generator.h"
 #include "generators/elements/tank_top_generator.h"
 #include "khg_ecs/ecs.h"
@@ -21,10 +20,11 @@
 #include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "spawners/spawn_particles.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-cpSpace *space;
+cpSpace *SPACE;
 
 comp_physics pc;
 comp_renderer rc;
@@ -34,7 +34,6 @@ comp_animator ac;
 
 tank_body tb;
 tank_top tt;
-particle p;
 
 cpVect left_clicked_pos;
 cpVect right_clicked_pos;
@@ -64,10 +63,10 @@ int game_run() {
   cpVect gravity = cpv(0.0f, 0.0f);
   left_clicked_pos = cpv(-1.0f, -1.0f); 
   right_clicked_pos = cpv(-1.0f, -1.0f); 
-  space = physics_setup(&gravity);
-  ecs_setup(space, &pc, &rc, &fc, &dc, &ac, &tb, &tt);
+  SPACE = physics_setup(&gravity);
+  ecs_setup(&pc, &rc, &fc, &dc, &ac, &tb, &tt);
   int res = gfx_loop_manager(window);
-  ecs_cleanup(space, &tb, &tt, &p);
+  ecs_cleanup(&tb, &tt);
   return res;
 }
 
@@ -83,8 +82,7 @@ void gfx_loop() {
     tank_body_target_position(&tb, left_clicked_pos, 60.0f, 1.0f);
   }
   if (!cpveql(handle_right_mouse_controls(), cpv(-1.0f, -1.0f))) {
-    printf("Spawn\n");
-    generate_particle(&p, ECS, space);
+    spawn_particle();
     right_clicked_pos = handle_right_mouse_controls();
     tt.is_locked_on = false;
   }
@@ -93,15 +91,15 @@ void gfx_loop() {
   }
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
-  ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
+  ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
   if (handle_escape_button()) {
     tt.destroyer_info.destroy_now = true;
     tb.destroyer_info.destroy_now = true;
-    free_tank_top(&tt, space);
-    free_tank_body(&tb, space);
+    free_tank_top(&tt);
+    free_tank_body(&tb);
   }
   ecs_update_system(ECS, DESTROYER_SYSTEM.id, 0.0f);
-  cpSpaceStep(space, 1.0f/60.0f);
+  cpSpaceStep(SPACE, 1.0f/60.0f);
 }
 

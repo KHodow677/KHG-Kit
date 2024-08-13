@@ -20,8 +20,22 @@ void add_new_texture(char *file_name, char *file_type, float width, float height
 void generate_textures() {
   add_new_texture("Tank-Body-Blue", "png", 145, 184);
   add_new_texture("Tank-Top-Blue", "png", 102, 209);
-  add_new_texture("particles/ef_22_0000", "png", 107, 100);
-  add_new_texture("particles/ef_22_0001", "png", 107, 100);
+  add_new_texture("particle/00", "png", 107, 100);
+  add_new_texture("particle/01", "png", 107, 100);
+  add_new_texture("particle/02", "png", 107, 100);
+  add_new_texture("particle/03", "png", 107, 100);
+  add_new_texture("particle/04", "png", 107, 100);
+  add_new_texture("particle/05", "png", 107, 100);
+  add_new_texture("particle/06", "png", 107, 100);
+  add_new_texture("particle/07", "png", 107, 100);
+  add_new_texture("particle/08", "png", 107, 100);
+  add_new_texture("particle/09", "png", 107, 100);
+  add_new_texture("particle/10", "png", 107, 100);
+  add_new_texture("particle/11", "png", 107, 100);
+  add_new_texture("particle/12", "png", 107, 100);
+  add_new_texture("particle/13", "png", 107, 100);
+  add_new_texture("particle/14", "png", 107, 100);
+  add_new_texture("particle/15", "png", 107, 100);
 }
 
 void free_textures() {
