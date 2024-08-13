@@ -1,12 +1,11 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_gfx/texture.h"
 #include "khg_phy/phy_types.h"
 #include "khg_utl/map.h"
 
 typedef struct {
-  gfx_texture texture;
+  int tex_id;
   cpBody *body;
 } renderer_info;
 

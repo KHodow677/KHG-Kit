@@ -1,11 +1,13 @@
 #include "entity/comp_renderer.h"
 #include "entity/comp_physics.h"
 #include "data_utl/map_utl.h"
+#include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
+#include "khg_utl/vector.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -48,8 +50,9 @@ ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     info = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
     cpVect pos = cpBodyGetPosition(info->body);
     cpFloat angle = cpBodyGetAngle(info->body);
-    info->texture.angle = angle;
-    gfx_image_no_block(pos.x, pos.y, info->texture);
+    gfx_texture *tex = *(gfx_texture **)utl_vector_at(TEXTURE_LOOKUP, info->tex_id);
+    tex->angle = angle;
+    gfx_image_no_block(pos.x, pos.y, *tex);
   }
   return 0;
 }

@@ -4,7 +4,6 @@
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
-#include "generators/components/texture_generator.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"
@@ -36,8 +35,8 @@ void free_physics(physics_info *info, cpSpace *sp) {
   cpBodyFree(info->body);
 }
 
-void generate_renderer(renderer_info *info, physics_info *p_info, char *file_name, char *file_type, float width, float height) {
-  info->texture = generate_texture(file_name, file_type, width, height);
+void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id) {
+  info->tex_id = tex_id;
   info->body = p_info->body;
 }
 

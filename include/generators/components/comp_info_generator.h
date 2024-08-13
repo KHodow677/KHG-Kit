@@ -7,7 +7,7 @@
 void generate_physics_box(physics_info *info, cpSpace *sp, bool collides, float width, float height, float mass, cpVect pos, cpFloat ang, cpVect cog);
 void free_physics(physics_info *info, cpSpace *sp);
 
-void generate_renderer(renderer_info *info, physics_info *p_info, char *file_name, char *file_type, float width, float height);
+void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id);
 
 void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info, bool follow_pos, bool follow_ang);
 

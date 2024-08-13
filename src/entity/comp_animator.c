@@ -45,8 +45,8 @@ ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
   renderer_info *r_info;
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(ANIMATOR_INFO_MAP, &entities[id]);
-    r_info  = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
-    r_info->texture = **(gfx_texture **)utl_vector_at(info->tex_vec, 1);
+    r_info = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
+    //r_info->texture = **(gfx_texture **)utl_vector_at(info->tex_vec, 1);
   }
   return 0;
 }

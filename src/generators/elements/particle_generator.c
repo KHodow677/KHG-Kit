@@ -1,5 +1,6 @@
 #include "generators/elements/particle_generator.h"
 #include "generators/components/comp_info_generator.h"
+#include "generators/components/texture_generator.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
@@ -8,7 +9,7 @@
 void generate_particle(particle *p, ecs_ecs *ecs, cpSpace *sp) {
   utl_vector *tex_vec = utl_vector_create(sizeof(gfx_texture *));
   generate_physics_box(&p->physics_info, sp, false, 107, 100, 1.0f, cpv(600.0f, 300.0f), 0.0f, cpv(0.0f, 0.0f));
-  generate_renderer(&p->renderer_info, &p->physics_info, "particles/ef_22_0000", "png", 107, 100);
+  generate_renderer(&p->renderer_info, &p->physics_info, PARTICLE_0);
   generate_destroyer(&p->destroyer_info);
   generate_animator(&p->animator_info, tex_vec, 1);
   p->entity = ecs_create(ecs);
