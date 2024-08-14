@@ -6,7 +6,6 @@
 #include "khg_phy/vect.h"
 #include <math.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 float POSITION_TOLERANCE = 10.0f;
 float ANGLE_TOLERANCE = 0.001f;
