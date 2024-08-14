@@ -7,10 +7,9 @@
 
 void spawn_particle() {
   generic_entity *ge = malloc(sizeof(generic_entity));
-  particle *p = malloc(sizeof(particle));
-  generate_particle(p, ECS);
   ge->type = ENTITY_TYPE_PARTICLE;
-  ge->particle = p;
+  ge->particle = (particle){ 0 };
+  generate_particle(&ge->particle, ECS);
   utl_vector_push_back(ENTITY_LOOKUP, &ge);
 }
 

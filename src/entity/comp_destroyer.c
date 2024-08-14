@@ -1,12 +1,9 @@
 #include "entity/comp_destroyer.h"
 #include "controllers/elements/element_destruction_controller.h"
 #include "data_utl/map_utl.h"
-#include "entity/ecs_manager.h"
 #include "entity/entity.h"
-#include "generators/entities/particle_generator.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/map.h"
-#include "khg_utl/vector.h"
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -13,10 +13,10 @@ bool generic_entity_is_tank(generic_entity *entity) {
 
 void free_entity(generic_entity *ge) {
   if (generic_entity_is_particle(ge)) {
-    free_particle(ge->particle);
+    free_particle(&ge->particle);
   }
   else if (generic_entity_is_tank(ge)) {
-    free_tank(ge->tank);
+    free_tank(&ge->tank);
   }
   free(ge);
 }
