@@ -1,21 +1,15 @@
 #include "game.h"
 #include "controllers/elements/element_controller.h"
-#include "entity/comp_animator.h"
-#include "entity/comp_destroyer.h"
-#include "entity/comp_follower.h"
-#include "entity/comp_physics.h"
-#include "entity/comp_renderer.h"
 #include "entity/ecs_manager.h"
-#include "khg_ecs/ecs.h"
-#include "khg_utl/map.h"
 #include "physics/physics_setup.h"
+#include "spawners/spawn_tank.h"
+#include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "khg_phy/space.h"
 #include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
-#include "spawners/spawn_tank.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -55,12 +49,11 @@ void gfx_loop() {
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
   ecs_update_system(ECS, MOVER_SYSTEM.id, 0.0f);
+  ecs_update_system(ECS, ROTATOR_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, DESTROYER_SYSTEM.id, 0.0f);
-  //utl_map_clear(ENTITY_DELETE_LOOKUP);
   cpSpaceStep(SPACE, 1.0f/60.0f);
 }
-

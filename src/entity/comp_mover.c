@@ -1,13 +1,11 @@
 #include "entity/comp_mover.h"
 #include "controllers/input/mouse_controller.h"
 #include "controllers/elements/element_controller.h"
-#include "entity/comp_destroyer.h"
 #include "entity/comp_physics.h"
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/map.h"
-#include "spawners/spawn_particles.h"
 #include <stdio.h>
 
 ecs_id MOVER_COMPONENT_SIGNATURE;
@@ -46,22 +44,13 @@ ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_d
   }
   mover_info *info;
   physics_info *p_info;
-  destroyer_info *d_info;
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(MOVER_INFO_MAP, &entities[id]);
     p_info = utl_map_at(PHYSICS_INFO_MAP, &entities[id]);
-    d_info = utl_map_at(DESTROYER_INFO_MAP, &entities[id]);
     if (!cpveql(handle_left_mouse_controls(), cpv(-1.0f, -1.0f))) {
       info->target_move_pos = handle_left_mouse_controls();
     }
-    if (!cpveql(handle_right_mouse_controls(), cpv(-1.0f, -1.0f))) {
-      spawn_particle();
-      info->target_look_pos = handle_right_mouse_controls();
-      p_info->is_locked_on = false;
-    }
-    element_target_position(p_info, info->target_move_pos, 60.0f, 1.0f);
-    element_lock_on_position(p_info, info->target_look_pos, 1.0f);
+    element_target_position(p_info, info->target_move_pos, 300.0f, 16.0f);
   }
   return 0;
 }
-
