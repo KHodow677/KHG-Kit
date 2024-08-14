@@ -53,4 +53,3 @@ ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, e
   }
   return 0;
 }
-

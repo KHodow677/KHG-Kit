@@ -5,6 +5,7 @@
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
+#include "entity/comp_rotator.h"
 #include "entity/ecs_manager.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy.h"
@@ -67,3 +68,8 @@ void generate_mover(mover_info *info, physics_info *p_info) {
   info->target_look_pos = cpvadd(info->target_move_pos, cpv(0.0f, -50.0f));
 }
 
+void generate_rotator(rotator_info *info, physics_info *p_info) {
+  info->body = p_info->body;
+  info->target_move_pos = cpBodyGetPosition(info->body);
+  info->target_look_pos = cpvadd(info->target_move_pos, cpv(0.0f, -50.0f));
+}

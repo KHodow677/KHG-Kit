@@ -4,6 +4,7 @@
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
+#include "entity/comp_rotator.h"
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, cpFloat ang, cpVect cog);
 void free_physics(physics_info *info);
@@ -18,3 +19,4 @@ void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int 
 
 void generate_mover(mover_info *info, physics_info *p_info);
 
+void generate_rotator(rotator_info *info, physics_info *p_info);

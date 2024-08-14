@@ -14,16 +14,15 @@ void generate_tank_top(tank_top *tt, ecs_ecs *ecs, tank_body *tb) {
   generate_renderer(&tt->renderer_info, &tt->physics_info, TANK_TOP);
   generate_follower(&tt->follower_info, &tt->physics_info, &tb->physics_info, true, false);
   generate_destroyer(&tt->destroyer_info);
-  //generate_mover(&tt->mover_info, &tt->physics_info);
+  generate_rotator(&tt->rotator_info, &tt->physics_info);
   tt->entity = ecs_create(ecs);
   sys_physics_add(ecs, &tt->entity, &tt->physics_info);
   sys_renderer_add(ecs, &tt->entity, &tt->renderer_info);
   sys_follower_add(ecs, &tt->entity, &tt->follower_info);
   sys_destroyer_add(ecs, &tt->entity, &tt->destroyer_info);
-  //sys_mover_add(ecs, &tt->entity, &tt->mover_info);
+  sys_rotator_add(ecs, &tt->entity, &tt->rotator_info);
 }
 
 void free_tank_top(tank_top *tt) {
   free_physics(&tt->physics_info);
 }
-

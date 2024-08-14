@@ -2,9 +2,9 @@
 
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
-#include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
+#include "entity/comp_rotator.h"
 #include "generators/elements/tank_body_generator.h"
 #include "khg_ecs/ecs.h"
 
@@ -14,7 +14,7 @@ typedef struct {
   renderer_info renderer_info;
   follower_info follower_info;
   destroyer_info destroyer_info;
-  mover_info mover_info;
+  rotator_info rotator_info;
   bool is_locked_on;
 } tank_top;
 
