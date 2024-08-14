@@ -28,5 +28,7 @@ void free_entity_deallocator(void *data) {
     free_tank(ge->tank);
   }
   free(data);
+  printf("Free\n");
+  data = NULL;
 }
 

@@ -10,9 +10,5 @@
 #define OS_NAME "Mac"
 #endif
 
-#include "khg_phy/phy_types.h"
-
-extern cpSpace *SPACE;
-
 int game_run();
 

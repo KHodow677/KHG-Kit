@@ -7,10 +7,11 @@
 typedef struct {
   cpBody *body;
   cpShape *shape;
-  cpFloat target_vel;
-  cpFloat target_ang_vel;
-  cpBool is_moving;
-  cpBool is_turning;
+  float target_vel;
+  float target_ang_vel;
+  bool is_moving;
+  bool is_turning;
+  bool is_locked_on;
 } physics_info;
 
 typedef struct {

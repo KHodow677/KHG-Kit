@@ -4,6 +4,7 @@
 #include "khg_utl/map.h"
 
 typedef struct {
+  int unique_id;
   bool destroy_now;
 } destroyer_info;
 

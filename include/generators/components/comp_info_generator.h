@@ -1,6 +1,7 @@
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
+#include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 
@@ -13,5 +14,7 @@ void generate_follower(follower_info *info, physics_info *p_info, physics_info *
 
 void generate_destroyer(destroyer_info *info);
 
-void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int frame_duration);
+void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int frame_duration, bool destroy_on_max);
+
+void generate_mover(mover_info *info, physics_info *p_info);
 
