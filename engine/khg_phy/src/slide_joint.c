@@ -49,7 +49,7 @@ preStep(cpSlideJoint *joint, float dt)
 	
 	// calculate bias velocity
 	float maxBias = joint->constraint.maxBias;
-	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
+	joint->bias = phy_clamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
 }
 
 static void
@@ -81,7 +81,7 @@ applyImpulse(cpSlideJoint *joint, float dt)
 	// compute normal impulse
 	float jn = (joint->bias - vrn)*joint->nMass;
 	float jnOld = joint->jnAcc;
-	joint->jnAcc = cpfclamp(jnOld + jn, -joint->constraint.maxForce*dt, 0.0f);
+	joint->jnAcc = phy_clamp(jnOld + jn, -joint->constraint.maxForce*dt, 0.0f);
 	jn = joint->jnAcc - jnOld;
 	
 	// apply impulse
@@ -91,7 +91,7 @@ applyImpulse(cpSlideJoint *joint, float dt)
 static float
 getImpulse(cpConstraint *joint)
 {
-	return cpfabs(((cpSlideJoint *)joint)->jnAcc);
+	return phy_abs(((cpSlideJoint *)joint)->jnAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -128,7 +128,7 @@ cpSlideJointNew(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, float min,
 	return (cpConstraint *)cpSlideJointInit(cpSlideJointAlloc(), a, b, anchorA, anchorB, min, max);
 }
 
-cpBool
+bool
 cpConstraintIsSlideJoint(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);

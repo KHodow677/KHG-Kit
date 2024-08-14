@@ -49,9 +49,9 @@ CP_EXPORT float cpConstraintGetMaxBias(const cpConstraint *constraint);
 CP_EXPORT void cpConstraintSetMaxBias(cpConstraint *constraint, float maxBias);
 
 /// Get if the two bodies connected by the constraint are allowed to collide or not.
-CP_EXPORT cpBool cpConstraintGetCollideBodies(const cpConstraint *constraint);
+CP_EXPORT bool cpConstraintGetCollideBodies(const cpConstraint *constraint);
 /// Set if the two bodies connected by the constraint are allowed to collide or not. (defaults to cpFalse)
-CP_EXPORT void cpConstraintSetCollideBodies(cpConstraint *constraint, cpBool collideBodies);
+CP_EXPORT void cpConstraintSetCollideBodies(cpConstraint *constraint, bool collideBodies);
 
 /// Get the pre-solve function that is called before the solver runs.
 CP_EXPORT cpConstraintPreSolveFunc cpConstraintGetPreSolveFunc(const cpConstraint *constraint);

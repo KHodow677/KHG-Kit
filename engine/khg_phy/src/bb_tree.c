@@ -74,7 +74,7 @@ typedef struct Thread {
 
 struct Pair {
 	Thread a, b;
-	cpCollisionID id;
+	phy_collision_id id;
 };
 
 //MARK: Misc Functions
@@ -91,7 +91,7 @@ GetBB(cpBBTree *tree, void *obj)
 		float y = (bb.t - bb.b)*coef;
 		
 		cpVect v = cpvmult(velocityFunc(obj), 0.1f);
-		return cpBBNew(bb.l + cpfmin(-x, v.x), bb.b + cpfmin(-y, v.y), bb.r + cpfmax(x, v.x), bb.t + cpfmax(y, v.y));
+		return cpBBNew(bb.l + phy_min(-x, v.x), bb.b + phy_min(-y, v.y), bb.r + phy_max(x, v.x), bb.t + phy_max(y, v.y));
 	} else {
 		return bb;
 	}
@@ -283,7 +283,7 @@ NodeNew(cpBBTree *tree, Node *a, Node *b)
 	return node;
 }
 
-static inline cpBool
+static inline bool
 NodeIsLeaf(Node *node)
 {
 	return (node->obj != NULL);
@@ -319,7 +319,7 @@ NodeReplaceChild(Node *parent, Node *child, Node *value, cpBBTree *tree)
 static inline float
 cpBBProximity(cpBB a, cpBB b)
 {
-	return cpfabs(a.l + a.r - b.l - b.r) + cpfabs(a.b + a.t - b.b - b.t);
+	return phy_abs(a.l + a.r - b.l - b.r) + phy_abs(a.b + a.t - b.b - b.t);
 }
 
 static Node *
@@ -373,11 +373,11 @@ SubtreeSegmentQuery(Node *subtree, void *obj, cpVect a, cpVect b, float t_exit, 
 		float t_b = cpBBSegmentQuery(subtree->B->bb, a, b);
 		
 		if(t_a < t_b){
-			if(t_a < t_exit) t_exit = cpfmin(t_exit, SubtreeSegmentQuery(subtree->A, obj, a, b, t_exit, func, data));
-			if(t_b < t_exit) t_exit = cpfmin(t_exit, SubtreeSegmentQuery(subtree->B, obj, a, b, t_exit, func, data));
+			if(t_a < t_exit) t_exit = phy_min(t_exit, SubtreeSegmentQuery(subtree->A, obj, a, b, t_exit, func, data));
+			if(t_b < t_exit) t_exit = phy_min(t_exit, SubtreeSegmentQuery(subtree->B, obj, a, b, t_exit, func, data));
 		} else {
-			if(t_b < t_exit) t_exit = cpfmin(t_exit, SubtreeSegmentQuery(subtree->B, obj, a, b, t_exit, func, data));
-			if(t_a < t_exit) t_exit = cpfmin(t_exit, SubtreeSegmentQuery(subtree->A, obj, a, b, t_exit, func, data));
+			if(t_b < t_exit) t_exit = phy_min(t_exit, SubtreeSegmentQuery(subtree->B, obj, a, b, t_exit, func, data));
+			if(t_a < t_exit) t_exit = phy_min(t_exit, SubtreeSegmentQuery(subtree->A, obj, a, b, t_exit, func, data));
 		}
 		
 		return t_exit;
@@ -423,7 +423,7 @@ typedef struct MarkContext {
 } MarkContext;
 
 static void
-MarkLeafQuery(Node *subtree, Node *leaf, cpBool left, MarkContext *context)
+MarkLeafQuery(Node *subtree, Node *leaf, bool left, MarkContext *context)
 {
 	if(cpBBIntersects(leaf->bb, subtree->bb)){
 		if(NodeIsLeaf(subtree)){
@@ -446,13 +446,13 @@ MarkLeaf(Node *leaf, MarkContext *context)
 	cpBBTree *tree = context->tree;
 	if(leaf->STAMP == GetMasterTree(tree)->stamp){
 		Node *staticRoot = context->staticRoot;
-		if(staticRoot) MarkLeafQuery(staticRoot, leaf, cpFalse, context);
+		if(staticRoot) MarkLeafQuery(staticRoot, leaf, false, context);
 		
 		for(Node *node = leaf; node->parent; node = node->parent){
 			if(node == node->parent->A){
-				MarkLeafQuery(node->parent->B, leaf, cpTrue, context);
+				MarkLeafQuery(node->parent->B, leaf, true, context);
 			} else {
-				MarkLeafQuery(node->parent->A, leaf, cpFalse, context);
+				MarkLeafQuery(node->parent->A, leaf, false, context);
 			}
 		}
 	} else {
@@ -495,7 +495,7 @@ LeafNew(cpBBTree *tree, void *obj, cpBB bb)
 	return node;
 }
 
-static cpBool
+static bool
 LeafUpdate(Node *leaf, cpBBTree *tree)
 {
 	Node *root = tree->root;
@@ -510,13 +510,13 @@ LeafUpdate(Node *leaf, cpBBTree *tree)
 		PairsClear(leaf, tree);
 		leaf->STAMP = GetMasterTree(tree)->stamp;
 		
-		return cpTrue;
+		return true;
 	} else {
-		return cpFalse;
+		return false;
 	}
 }
 
-static cpCollisionID VoidQueryFunc(void *obj1, void *obj2, cpCollisionID id, void *data){return id;}
+static phy_collision_id VoidQueryFunc(void *obj1, void *obj2, phy_collision_id id, void *data){return id;}
 
 static void
 LeafAddPairs(Node *leaf, cpBBTree *tree)
@@ -527,7 +527,7 @@ LeafAddPairs(Node *leaf, cpBBTree *tree)
 		if(dynamicRoot){
 			cpBBTree *dynamicTree = GetTree(dynamicIndex);
 			MarkContext context = {dynamicTree, NULL, NULL, NULL};
-			MarkLeafQuery(dynamicRoot, leaf, cpTrue, &context);
+			MarkLeafQuery(dynamicRoot, leaf, true, &context);
 		}
 	} else {
 		Node *staticRoot = GetRootIfTree(tree->spatialIndex.staticIndex);
@@ -578,7 +578,7 @@ void
 cpBBTreeSetVelocityFunc(cpSpatialIndex *index, cpBBTreeVelocityFunc func)
 {
 	if(index->klass != Klass()){
-		cpAssertWarn(cpFalse, "Ignoring cpBBTreeSetVelocityFunc() call to non-tree spatial index.");
+		cpAssertWarn(false, "Ignoring cpBBTreeSetVelocityFunc() call to non-tree spatial index.");
 		return;
 	}
 	
@@ -603,7 +603,7 @@ cpBBTreeDestroy(cpBBTree *tree)
 //MARK: Insert/Remove
 
 static void
-cpBBTreeInsert(cpBBTree *tree, void *obj, cpHashValue hashid)
+cpBBTreeInsert(cpBBTree *tree, void *obj, phy_hash_value hashid)
 {
 	Node *leaf = (Node *)cpHashSetInsert(tree->leaves, hashid, obj, (cpHashSetTransFunc)leafSetTrans, tree);
 	
@@ -616,7 +616,7 @@ cpBBTreeInsert(cpBBTree *tree, void *obj, cpHashValue hashid)
 }
 
 static void
-cpBBTreeRemove(cpBBTree *tree, void *obj, cpHashValue hashid)
+cpBBTreeRemove(cpBBTree *tree, void *obj, phy_hash_value hashid)
 {
 	Node *leaf = (Node *)cpHashSetRemove(tree->leaves, hashid, obj);
 	
@@ -625,8 +625,8 @@ cpBBTreeRemove(cpBBTree *tree, void *obj, cpHashValue hashid)
 	NodeRecycle(tree, leaf);
 }
 
-static cpBool
-cpBBTreeContains(cpBBTree *tree, void *obj, cpHashValue hashid)
+static bool
+cpBBTreeContains(cpBBTree *tree, void *obj, phy_hash_value hashid)
 {
 	return (cpHashSetFind(tree->leaves, hashid, obj) != NULL);
 }
@@ -660,7 +660,7 @@ cpBBTreeReindex(cpBBTree *tree)
 }
 
 static void
-cpBBTreeReindexObject(cpBBTree *tree, void *obj, cpHashValue hashid)
+cpBBTreeReindexObject(cpBBTree *tree, void *obj, phy_hash_value hashid)
 {
 	Node *leaf = (Node *)cpHashSetFind(tree->leaves, hashid, obj);
 	if(leaf){
@@ -754,7 +754,7 @@ partitionNodes(cpBBTree *tree, Node **nodes, int count)
 	for(int i=1; i<count; i++) bb = cpBBMerge(bb, nodes[i]->bb);
 	
 	// Split it on it's longest axis
-	cpBool splitWidth = (bb.r - bb.l > bb.t - bb.b);
+	bool splitWidth = (bb.r - bb.l > bb.t - bb.b);
 	
 	// Sort the bounds and use the median as the splitting point
 	float *bounds = (float *)cpcalloc(count*2, sizeof(float));
@@ -828,7 +828,7 @@ void
 cpBBTreeOptimize(cpSpatialIndex *index)
 {
 	if(index->klass != &klass){
-		cpAssertWarn(cpFalse, "Ignoring cpBBTreeOptimize() call to non-tree spatial index.");
+		cpAssertWarn(false, "Ignoring cpBBTreeOptimize() call to non-tree spatial index.");
 		return;
 	}
 	

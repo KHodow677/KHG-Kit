@@ -3,7 +3,7 @@
 #include "khg_phy/phy_types.h"
 
 /// Check if a constraint is a pin joint.
-CP_EXPORT cpBool cpConstraintIsPinJoint(const cpConstraint *constraint);
+CP_EXPORT bool cpConstraintIsPinJoint(const cpConstraint *constraint);
 
 /// Allocate a pin joint.
 CP_EXPORT cpPinJoint* cpPinJointAlloc(void);

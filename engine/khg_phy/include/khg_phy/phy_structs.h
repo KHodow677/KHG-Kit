@@ -87,12 +87,12 @@ struct cpContact {
 	float jnAcc, jtAcc, jBias;
 	float bias;
 	
-	cpHashValue hash;
+	phy_hash_value hash;
 };
 
 struct cpCollisionInfo {
 	const cpShape *a, *b;
-	cpCollisionID id;
+	phy_collision_id id;
 	
 	cpVect n;
 	
@@ -118,7 +118,7 @@ struct cpArbiter {
 	
 	// Regular, wildcard A and wildcard B collision handlers.
 	cpCollisionHandler *handler, *handlerA, *handlerB;
-	cpBool swapped;
+	bool swapped;
 	
 	cpTimestamp stamp;
 	enum cpArbiterState state;
@@ -162,7 +162,7 @@ struct cpShape {
 	struct cpShapeMassInfo massInfo;
 	cpBB bb;
 	
-	cpBool sensor;
+	bool sensor;
 	
 	float e;
 	float u;
@@ -176,7 +176,7 @@ struct cpShape {
 	cpShape *next;
 	cpShape *prev;
 	
-	cpHashValue hashid;
+	phy_hash_value hashid;
 };
 
 struct cpCircleShape {
@@ -239,7 +239,7 @@ struct cpConstraint {
 	float errorBias;
 	float maxBias;
 	
-	cpBool collideBodies;
+	bool collideBodies;
 	
 	cpConstraintPreSolveFunc preSolve;
 	cpConstraintPostSolveFunc postSolve;
@@ -396,7 +396,7 @@ struct cpSpace {
 	cpArray *rousedBodies;
 	cpArray *sleepingComponents;
 	
-	cpHashValue shapeIDCounter;
+	phy_hash_value shapeIDCounter;
 	cpSpatialIndex *staticShapes;
 	cpSpatialIndex *dynamicShapes;
 	
@@ -410,11 +410,11 @@ struct cpSpace {
 	cpArray *allocatedBuffers;
 	int locked;
 	
-	cpBool usesWildcards;
+	bool usesWildcards;
 	cpHashSet *collisionHandlers;
 	cpCollisionHandler defaultHandler;
 	
-	cpBool skipPostStep;
+	bool skipPostStep;
 	cpArray *postStepCallbacks;
 	
 	cpBody *staticBody;

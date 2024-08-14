@@ -36,7 +36,7 @@ preStep(cpDampedRotarySpring *spring, float dt)
 	cpAssertSoft(moment != 0.0, "Unsolvable spring.");
 	spring->iSum = 1.0f/moment;
 
-	spring->w_coef = 1.0f - cpfexp(-spring->damping*dt*moment);
+	spring->w_coef = 1.0f - expf(-spring->damping*dt*moment);
 	spring->target_wrn = 0.0f;
 
 	// apply spring torque
@@ -111,7 +111,7 @@ cpDampedRotarySpringNew(cpBody *a, cpBody *b, float restAngle, float stiffness, 
 	return (cpConstraint *)cpDampedRotarySpringInit(cpDampedRotarySpringAlloc(), a, b, restAngle, stiffness, damping);
 }
 
-cpBool
+bool
 cpConstraintIsDampedRotarySpring(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);

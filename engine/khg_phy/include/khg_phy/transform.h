@@ -70,8 +70,8 @@ cpTransformbBB(cpTransform t, cpBB bb)
 	float hh = (bb.t - bb.b)*0.5;
 	
 	float a = t.a*hw, b = t.c*hh, d = t.b*hw, e = t.d*hh;
-	float hw_max = cpfmax(cpfabs(a + b), cpfabs(a - b));
-	float hh_max = cpfmax(cpfabs(d + e), cpfabs(d - e));
+	float hw_max = phy_max(phy_abs(a + b), phy_abs(a - b));
+	float hh_max = phy_max(phy_abs(d + e), phy_abs(d - e));
 	return cpBBNewForExtents(cpTransformPoint(t, center), hw_max, hh_max);
 }
 

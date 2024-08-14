@@ -44,7 +44,7 @@ preStep(cpDampedSpring *spring, float dt)
 	spring->nMass = 1.0f/k;
 	
 	spring->target_vrn = 0.0f;
-	spring->v_coef = 1.0f - cpfexp(-spring->damping*dt*k);
+	spring->v_coef = 1.0f - expf(-spring->damping*dt*k);
 
 	// apply spring force
 	float f_spring = spring->springForceFunc((cpConstraint *)spring, dist);
@@ -119,7 +119,7 @@ cpDampedSpringNew(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, float re
 	return (cpConstraint *)cpDampedSpringInit(cpDampedSpringAlloc(), a, b, anchorA, anchorB, restLength, stiffness, damping);
 }
 
-cpBool
+bool
 cpConstraintIsDampedSpring(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);

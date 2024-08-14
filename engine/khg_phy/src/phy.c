@@ -69,7 +69,7 @@ cpMomentForCircle(float m, float r1, float r2, cpVect offset)
 float
 cpAreaForCircle(float r1, float r2)
 {
-	return (float)CP_PI*cpfabs(r1*r1 - r2*r2);
+	return (float)CP_PI*phy_abs(r1*r1 - r2*r2);
 }
 
 float
@@ -123,7 +123,7 @@ cpAreaForPoly(const int count, const cpVect *verts, float r)
 		perimeter += cpvdist(v1, v2);
 	}
 	
-	return r*(CP_PI*cpfabs(r) + perimeter) + area/2.0f;
+	return r*(CP_PI*phy_abs(r) + perimeter) + area/2.0f;
 }
 
 cpVect
@@ -321,7 +321,7 @@ void cpSpaceBBQuery_b(cpSpace *space, cpBB bb, cpShapeFilter filter, cpSpaceBBQu
 }
 
 static void ShapeQueryIteratorFunc(cpShape *shape, cpContactPointSet *points, cpSpaceShapeQueryBlock block){block(shape, points);}
-cpBool cpSpaceShapeQuery_b(cpSpace *space, cpShape *shape, cpSpaceShapeQueryBlock block){
+bool cpSpaceShapeQuery_b(cpSpace *space, cpShape *shape, cpSpaceShapeQueryBlock block){
 	return cpSpaceShapeQuery(space, shape, (cpSpaceShapeQueryFunc)ShapeQueryIteratorFunc, block);
 }
 

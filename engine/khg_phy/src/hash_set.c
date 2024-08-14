@@ -24,7 +24,7 @@
 
 typedef struct cpHashSetBin {
 	void *elt;
-	cpHashValue hash;
+	phy_hash_value hash;
 	struct cpHashSetBin *next;
 } cpHashSetBin;
 
@@ -99,7 +99,7 @@ cpHashSetResize(cpHashSet *set)
 		while(bin){
 			cpHashSetBin *next = bin->next;
 			
-			cpHashValue idx = bin->hash%newSize;
+			phy_hash_value idx = bin->hash%newSize;
 			bin->next = newTable[idx];
 			newTable[idx] = bin;
 			
@@ -150,9 +150,9 @@ cpHashSetCount(cpHashSet *set)
 }
 
 const void *
-cpHashSetInsert(cpHashSet *set, cpHashValue hash, const void *ptr, cpHashSetTransFunc trans, void *data)
+cpHashSetInsert(cpHashSet *set, phy_hash_value hash, const void *ptr, cpHashSetTransFunc trans, void *data)
 {
-	cpHashValue idx = hash%set->size;
+	phy_hash_value idx = hash%set->size;
 	
 	// Find the bin with the matching element.
 	cpHashSetBin *bin = set->table[idx];
@@ -176,9 +176,9 @@ cpHashSetInsert(cpHashSet *set, cpHashValue hash, const void *ptr, cpHashSetTran
 }
 
 const void *
-cpHashSetRemove(cpHashSet *set, cpHashValue hash, const void *ptr)
+cpHashSetRemove(cpHashSet *set, phy_hash_value hash, const void *ptr)
 {
-	cpHashValue idx = hash%set->size;
+	phy_hash_value idx = hash%set->size;
 	
 	cpHashSetBin **prev_ptr = &set->table[idx];
 	cpHashSetBin *bin = set->table[idx];
@@ -205,9 +205,9 @@ cpHashSetRemove(cpHashSet *set, cpHashValue hash, const void *ptr)
 }
 
 const void *
-cpHashSetFind(cpHashSet *set, cpHashValue hash, const void *ptr)
+cpHashSetFind(cpHashSet *set, phy_hash_value hash, const void *ptr)
 {	
-	cpHashValue idx = hash%set->size;
+	phy_hash_value idx = hash%set->size;
 	cpHashSetBin *bin = set->table[idx];
 	while(bin && !set->eql(ptr, bin->elt))
 		bin = bin->next;

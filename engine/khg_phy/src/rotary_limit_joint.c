@@ -40,7 +40,7 @@ preStep(cpRotaryLimitJoint *joint, float dt)
 	
 	// calculate bias velocity
 	float maxBias = joint->constraint.maxBias;
-	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
+	joint->bias = phy_clamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
 
 	// If the bias is 0, the joint is not at a limit. Reset the impulse.
 	if(!joint->bias) joint->jAcc = 0.0f;
@@ -74,9 +74,9 @@ applyImpulse(cpRotaryLimitJoint *joint, float dt)
 	float j = -(joint->bias + wr)*joint->iSum;
 	float jOld = joint->jAcc;
 	if(joint->bias < 0.0f){
-		joint->jAcc = cpfclamp(jOld + j, 0.0f, jMax);
+		joint->jAcc = phy_clamp(jOld + j, 0.0f, jMax);
 	} else {
-		joint->jAcc = cpfclamp(jOld + j, -jMax, 0.0f);
+		joint->jAcc = phy_clamp(jOld + j, -jMax, 0.0f);
 	}
 	j = joint->jAcc - jOld;
 	
@@ -88,7 +88,7 @@ applyImpulse(cpRotaryLimitJoint *joint, float dt)
 static float
 getImpulse(cpRotaryLimitJoint *joint)
 {
-	return cpfabs(joint->jAcc);
+	return phy_abs(joint->jAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -123,7 +123,7 @@ cpRotaryLimitJointNew(cpBody *a, cpBody *b, float min, float max)
 	return (cpConstraint *)cpRotaryLimitJointInit(cpRotaryLimitJointAlloc(), a, b, min, max);
 }
 
-cpBool
+bool
 cpConstraintIsRotaryLimitJoint(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);

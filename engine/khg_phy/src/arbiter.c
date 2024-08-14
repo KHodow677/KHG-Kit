@@ -51,12 +51,12 @@ cpArbiterUnthread(cpArbiter *arb)
 	unthreadHelper(arb, arb->body_b);
 }
 
-cpBool cpArbiterIsFirstContact(const cpArbiter *arb)
+bool cpArbiterIsFirstContact(const cpArbiter *arb)
 {
 	return arb->state == CP_ARBITER_STATE_FIRST_COLLISION;
 }
 
-cpBool cpArbiterIsRemoval(const cpArbiter *arb)
+bool cpArbiterIsRemoval(const cpArbiter *arb)
 {
 	return arb->state == CP_ARBITER_STATE_INVALIDATED;
 }
@@ -96,13 +96,13 @@ cpArbiterGetDepth(const cpArbiter *arb, int i)
 	return cpvdot(cpvadd(cpvsub(con->r2, con->r1), cpvsub(arb->body_b->p, arb->body_a->p)), arb->n);
 }
 
-cpContactPointSet
+phy_contact_point_set
 cpArbiterGetContactPointSet(const cpArbiter *arb)
 {
-	cpContactPointSet set;
+	phy_contact_point_set set;
 	set.count = cpArbiterGetCount(arb);
 	
-	cpBool swapped = arb->swapped;
+	bool swapped = arb->swapped;
 	cpVect n = arb->n;
 	set.normal = (swapped ? cpvneg(n) : n);
 	
@@ -120,12 +120,12 @@ cpArbiterGetContactPointSet(const cpArbiter *arb)
 }
 
 void
-cpArbiterSetContactPointSet(cpArbiter *arb, cpContactPointSet *set)
+cpArbiterSetContactPointSet(cpArbiter *arb, phy_contact_point_set *set)
 {
 	int count = set->count;
 	cpAssertHard(count == arb->count, "The number of contact points cannot be changed.");
 	
-	cpBool swapped = arb->swapped;
+	bool swapped = arb->swapped;
 	arb->n = (swapped ? cpvneg(set->normal) : set->normal);
 	
 	for(int i=0; i<count; i++){
@@ -139,7 +139,7 @@ cpArbiterSetContactPointSet(cpArbiter *arb, cpContactPointSet *set)
 }
 
 cpVect
-cpArbiterTotalImpulse(const cpArbiter *arb)
+phy_arbiter_total_impulse(const cpArbiter *arb)
 {
 	struct cpContact *contacts = arb->contacts;
 	cpVect n = arb->n;
@@ -155,7 +155,7 @@ cpArbiterTotalImpulse(const cpArbiter *arb)
 }
 
 float
-cpArbiterTotalKE(const cpArbiter *arb)
+phy_arbiter_total_ke(const cpArbiter *arb)
 {
 	float eCoef = (1 - arb->e)/(1 + arb->e);
 	float sum = 0.0;
@@ -172,11 +172,11 @@ cpArbiterTotalKE(const cpArbiter *arb)
 	return sum;
 }
 
-cpBool
-cpArbiterIgnore(cpArbiter *arb)
+bool
+phy_arbiter_ignore(cpArbiter *arb)
 {
 	arb->state = CP_ARBITER_STATE_IGNORE;
-	return cpFalse;
+	return false;
 }
 
 float
@@ -216,19 +216,19 @@ phy_arbiter_set_surface_velocity(cpArbiter *arb, cpVect vr)
 }
 
 cpDataPointer
-cpArbiterGetUserData(const cpArbiter *arb)
+phy_arbiter_get_user_data(const cpArbiter *arb)
 {
 	return arb->data;
 }
 
 void
-cpArbiterSetUserData(cpArbiter *arb, cpDataPointer userData)
+phy_arbiter_set_user_data(cpArbiter *arb, cpDataPointer userData)
 {
 	arb->data = userData;
 }
 
 void
-cpArbiterGetShapes(const cpArbiter *arb, cpShape **a, cpShape **b)
+phy_arbiter_get_shapes(const cpArbiter *arb, cpShape **a, cpShape **b)
 {
 	if(arb->swapped){
 		(*a) = (cpShape *)arb->b;
@@ -239,43 +239,43 @@ cpArbiterGetShapes(const cpArbiter *arb, cpShape **a, cpShape **b)
 	}
 }
 
-void cpArbiterGetBodies(const cpArbiter *arb, cpBody **a, cpBody **b)
+void phy_arbiter_get_bodies(const cpArbiter *arb, cpBody **a, cpBody **b)
 {
-	CP_ARBITER_GET_SHAPES(arb, shape_a, shape_b);
+	PHY_ARBITER_GET_SHAPES(arb, shape_a, shape_b);
 	(*a) = shape_a->body;
 	(*b) = shape_b->body;
 }
 
-cpBool
+bool
 cpArbiterCallWildcardBeginA(cpArbiter *arb, cpSpace *space)
 {
 	cpCollisionHandler *handler = arb->handlerA;
 	return handler->beginFunc(arb, space, handler->userData);
 }
 
-cpBool
+bool
 cpArbiterCallWildcardBeginB(cpArbiter *arb, cpSpace *space)
 {
 	cpCollisionHandler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
-	cpBool retval = handler->beginFunc(arb, space, handler->userData);
+	bool retval = handler->beginFunc(arb, space, handler->userData);
 	arb->swapped = !arb->swapped;
 	return retval;
 }
 
-cpBool
+bool
 cpArbiterCallWildcardPreSolveA(cpArbiter *arb, cpSpace *space)
 {
 	cpCollisionHandler *handler = arb->handlerA;
 	return handler->preSolveFunc(arb, space, handler->userData);
 }
 
-cpBool
+bool
 cpArbiterCallWildcardPreSolveB(cpArbiter *arb, cpSpace *space)
 {
 	cpCollisionHandler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
-	cpBool retval = handler->preSolveFunc(arb, space, handler->userData);
+	bool retval = handler->preSolveFunc(arb, space, handler->userData);
 	arb->swapped = !arb->swapped;
 	return retval;
 }
@@ -316,7 +316,7 @@ cpArbiter*
 cpArbiterInit(cpArbiter *arb, cpShape *a, cpShape *b)
 {
 	arb->handler = NULL;
-	arb->swapped = cpFalse;
+	arb->swapped = false;
 	
 	arb->handler = NULL;
 	arb->handlerA = NULL;
@@ -401,7 +401,7 @@ cpArbiterUpdate(cpArbiter *arb, struct cpCollisionInfo *info, cpSpace *space)
 	cpCollisionHandler *handler = arb->handler = cpSpaceLookupHandler(space, typeA, typeB, defaultHandler);
 	
 	// Check if the types match, but don't swap for a default handler which use the wildcard for type A.
-	cpBool swapped = arb->swapped = (typeA != handler->typeA && handler->typeA != CP_WILDCARD_COLLISION_TYPE);
+	bool swapped = arb->swapped = (typeA != handler->typeA && handler->typeA != CP_WILDCARD_COLLISION_TYPE);
 	
 	if(handler != defaultHandler || space->usesWildcards){
 		// The order of the main handler swaps the wildcard handlers too. Uffda.
@@ -430,7 +430,7 @@ cpArbiterPreStep(cpArbiter *arb, float dt, float slop, float bias)
 				
 		// Calculate the target bias velocity.
 		float dist = cpvdot(cpvadd(cpvsub(con->r2, con->r1), body_delta), n);
-		con->bias = -bias*cpfmin(0.0f, dist + slop)/dt;
+		con->bias = -bias*phy_min(0.0f, dist + slop)/dt;
 		con->jBias = 0.0f;
 		
 		// Calculate the target bounce velocity.
@@ -481,16 +481,16 @@ cpArbiterApplyImpulse(cpArbiter *arb)
 		
 		float jbn = (con->bias - vbn)*nMass;
 		float jbnOld = con->jBias;
-		con->jBias = cpfmax(jbnOld + jbn, 0.0f);
+		con->jBias = phy_max(jbnOld + jbn, 0.0f);
 		
 		float jn = -(con->bounce + vrn)*nMass;
 		float jnOld = con->jnAcc;
-		con->jnAcc = cpfmax(jnOld + jn, 0.0f);
+		con->jnAcc = phy_max(jnOld + jn, 0.0f);
 		
 		float jtMax = friction*con->jnAcc;
 		float jt = -vrt*con->tMass;
 		float jtOld = con->jtAcc;
-		con->jtAcc = cpfclamp(jtOld + jt, -jtMax, jtMax);
+		con->jtAcc = phy_clamp(jtOld + jt, -jtMax, jtMax);
 		
 		apply_bias_impulses(a, b, r1, r2, cpvmult(n, con->jBias - jbnOld));
 		apply_impulses(a, b, r1, r2, cpvrotate(n, cpv(con->jnAcc - jnOld, con->jtAcc - jtOld)));

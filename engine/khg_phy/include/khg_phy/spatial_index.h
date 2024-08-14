@@ -10,7 +10,7 @@ typedef cpBB (*cpSpatialIndexBBFunc)(void *obj);
 /// Spatial index/object iterator callback function type.
 typedef void (*cpSpatialIndexIteratorFunc)(void *obj, void *data);
 /// Spatial query callback function type.
-typedef cpCollisionID (*cpSpatialIndexQueryFunc)(void *obj1, void *obj2, cpCollisionID id, void *data);
+typedef phy_collision_id (*cpSpatialIndexQueryFunc)(void *obj1, void *obj2, phy_collision_id id, void *data);
 /// Spatial segment query callback function type.
 typedef float (*cpSpatialIndexSegmentQueryFunc)(void *obj1, void *obj2, void *data);
 
@@ -83,12 +83,12 @@ typedef void (*cpSpatialIndexDestroyImpl)(cpSpatialIndex *index);
 typedef int (*cpSpatialIndexCountImpl)(cpSpatialIndex *index);
 typedef void (*cpSpatialIndexEachImpl)(cpSpatialIndex *index, cpSpatialIndexIteratorFunc func, void *data);
 
-typedef cpBool (*cpSpatialIndexContainsImpl)(cpSpatialIndex *index, void *obj, cpHashValue hashid);
-typedef void (*cpSpatialIndexInsertImpl)(cpSpatialIndex *index, void *obj, cpHashValue hashid);
-typedef void (*cpSpatialIndexRemoveImpl)(cpSpatialIndex *index, void *obj, cpHashValue hashid);
+typedef bool (*cpSpatialIndexContainsImpl)(cpSpatialIndex *index, void *obj, phy_hash_value hashid);
+typedef void (*cpSpatialIndexInsertImpl)(cpSpatialIndex *index, void *obj, phy_hash_value hashid);
+typedef void (*cpSpatialIndexRemoveImpl)(cpSpatialIndex *index, void *obj, phy_hash_value hashid);
 
 typedef void (*cpSpatialIndexReindexImpl)(cpSpatialIndex *index);
-typedef void (*cpSpatialIndexReindexObjectImpl)(cpSpatialIndex *index, void *obj, cpHashValue hashid);
+typedef void (*cpSpatialIndexReindexObjectImpl)(cpSpatialIndex *index, void *obj, phy_hash_value hashid);
 typedef void (*cpSpatialIndexReindexQueryImpl)(cpSpatialIndex *index, cpSpatialIndexQueryFunc func, void *data);
 
 typedef void (*cpSpatialIndexQueryImpl)(cpSpatialIndex *index, void *obj, cpBB bb, cpSpatialIndexQueryFunc func, void *data);
@@ -137,21 +137,21 @@ static inline void cpSpatialIndexEach(cpSpatialIndex *index, cpSpatialIndexItera
 
 /// Returns true if the spatial index contains the given object.
 /// Most spatial indexes use hashed storage, so you must provide a hash value too.
-static inline cpBool cpSpatialIndexContains(cpSpatialIndex *index, void *obj, cpHashValue hashid)
+static inline bool cpSpatialIndexContains(cpSpatialIndex *index, void *obj, phy_hash_value hashid)
 {
 	return index->klass->contains(index, obj, hashid);
 }
 
 /// Add an object to a spatial index.
 /// Most spatial indexes use hashed storage, so you must provide a hash value too.
-static inline void cpSpatialIndexInsert(cpSpatialIndex *index, void *obj, cpHashValue hashid)
+static inline void cpSpatialIndexInsert(cpSpatialIndex *index, void *obj, phy_hash_value hashid)
 {
 	index->klass->insert(index, obj, hashid);
 }
 
 /// Remove an object from a spatial index.
 /// Most spatial indexes use hashed storage, so you must provide a hash value too.
-static inline void cpSpatialIndexRemove(cpSpatialIndex *index, void *obj, cpHashValue hashid)
+static inline void cpSpatialIndexRemove(cpSpatialIndex *index, void *obj, phy_hash_value hashid)
 {
 	index->klass->remove(index, obj, hashid);
 }
@@ -163,7 +163,7 @@ static inline void cpSpatialIndexReindex(cpSpatialIndex *index)
 }
 
 /// Reindex a single object in the spatial index.
-static inline void cpSpatialIndexReindexObject(cpSpatialIndex *index, void *obj, cpHashValue hashid)
+static inline void cpSpatialIndexReindexObject(cpSpatialIndex *index, void *obj, phy_hash_value hashid)
 {
 	index->klass->reindexObject(index, obj, hashid);
 }

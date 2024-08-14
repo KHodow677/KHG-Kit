@@ -56,7 +56,7 @@ applyImpulse(cpSimpleMotor *joint, float dt)
 	// compute normal impulse	
 	float j = -wr*joint->iSum;
 	float jOld = joint->jAcc;
-	joint->jAcc = cpfclamp(jOld + j, -jMax, jMax);
+	joint->jAcc = phy_clamp(jOld + j, -jMax, jMax);
 	j = joint->jAcc - jOld;
 	
 	// apply impulse
@@ -67,7 +67,7 @@ applyImpulse(cpSimpleMotor *joint, float dt)
 static float
 getImpulse(cpSimpleMotor *joint)
 {
-	return cpfabs(joint->jAcc);
+	return phy_abs(joint->jAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -101,7 +101,7 @@ cpSimpleMotorNew(cpBody *a, cpBody *b, float rate)
 	return (cpConstraint *)cpSimpleMotorInit(cpSimpleMotorAlloc(), a, b, rate);
 }
 
-cpBool
+bool
 cpConstraintIsSimpleMotor(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);

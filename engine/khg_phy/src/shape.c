@@ -115,14 +115,14 @@ cpShapeGetBB(const cpShape *shape)
 	return shape->bb;
 }
 
-cpBool
+bool
 cpShapeGetSensor(const cpShape *shape)
 {
 	return shape->sensor;
 }
 
 void
-cpShapeSetSensor(cpShape *shape, cpBool sensor)
+cpShapeSetSensor(cpShape *shape, bool sensor)
 {
 	cpBodyActivate(shape->body);
 	shape->sensor = sensor;
@@ -234,7 +234,7 @@ cpShapePointQuery(const cpShape *shape, cpVect p, cpPointQueryInfo *info)
 }
 
 
-cpBool
+bool
 cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, float radius, cpSegmentQueryInfo *info){
 	cpSegmentQueryInfo blank = {NULL, b, cpvzero, 1.0f};
 	if(info){
@@ -256,17 +256,17 @@ cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, float radius, cpSe
 	return (info->shape != NULL);
 }
 
-cpContactPointSet
+phy_contact_point_set
 cpShapesCollide(const cpShape *a, const cpShape *b)
 {
 	struct cpContact contacts[PHY_MAX_CONTACTS_PER_ARBITER];
 	struct cpCollisionInfo info = cpCollide(a, b, 0, contacts);
 	
-	cpContactPointSet set;
+	phy_contact_point_set set;
 	set.count = info.count;
 	
 	// cpCollideShapes() may have swapped the contact order. Flip the normal.
-	cpBool swapped = (a != info.a);
+	bool swapped = (a != info.a);
 	set.normal = (swapped ? cpvneg(info.n) : info.n);
 	
 	for(int i=0; i<info.count; i++){

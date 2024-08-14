@@ -38,7 +38,7 @@ preStep(cpRatchetJoint *joint, float dt)
 	if(diff*ratchet > 0.0f){
 		pdist = diff;
 	} else {
-		joint->angle = cpffloor((delta - phase)/ratchet)*ratchet + phase;
+		joint->angle = floorf((delta - phase)/ratchet)*ratchet + phase;
 	}
 	
 	// calculate moment of inertia coefficient.
@@ -46,7 +46,7 @@ preStep(cpRatchetJoint *joint, float dt)
 	
 	// calculate bias velocity
 	float maxBias = joint->constraint.maxBias;
-	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
+	joint->bias = phy_clamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
 
 	// If the bias is 0, the joint is not at a limit. Reset the impulse.
 	if(!joint->bias) joint->jAcc = 0.0f;
@@ -80,7 +80,7 @@ applyImpulse(cpRatchetJoint *joint, float dt)
 	// compute normal impulse	
 	float j = -(joint->bias + wr)*joint->iSum;
 	float jOld = joint->jAcc;
-	joint->jAcc = cpfclamp((jOld + j)*ratchet, 0.0f, jMax*cpfabs(ratchet))/ratchet;
+	joint->jAcc = phy_clamp((jOld + j)*ratchet, 0.0f, jMax*phy_abs(ratchet))/ratchet;
 	j = joint->jAcc - jOld;
 	
 	// apply impulse
@@ -91,7 +91,7 @@ applyImpulse(cpRatchetJoint *joint, float dt)
 static float
 getImpulse(cpRatchetJoint *joint)
 {
-	return cpfabs(joint->jAcc);
+	return phy_abs(joint->jAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -128,7 +128,7 @@ cpRatchetJointNew(cpBody *a, cpBody *b, float phase, float ratchet)
 	return (cpConstraint *)cpRatchetJointInit(cpRatchetJointAlloc(), a, b, phase, ratchet);
 }
 
-cpBool
+bool
 cpConstraintIsRatchetJoint(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);

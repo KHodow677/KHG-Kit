@@ -32,7 +32,7 @@ preStep(cpGearJoint *joint, float dt)
 	
 	// calculate bias velocity
 	float maxBias = joint->constraint.maxBias;
-	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*(b->a*joint->ratio - a->a - joint->phase)/dt, -maxBias, maxBias);
+	joint->bias = phy_clamp(-bias_coef(joint->constraint.errorBias, dt)*(b->a*joint->ratio - a->a - joint->phase)/dt, -maxBias, maxBias);
 }
 
 static void
@@ -60,7 +60,7 @@ applyImpulse(cpGearJoint *joint, float dt)
 	// compute normal impulse	
 	float j = (joint->bias - wr)*joint->iSum;
 	float jOld = joint->jAcc;
-	joint->jAcc = cpfclamp(jOld + j, -jMax, jMax);
+	joint->jAcc = phy_clamp(jOld + j, -jMax, jMax);
 	j = joint->jAcc - jOld;
 	
 	// apply impulse
@@ -71,7 +71,7 @@ applyImpulse(cpGearJoint *joint, float dt)
 static float
 getImpulse(cpGearJoint *joint)
 {
-	return cpfabs(joint->jAcc);
+	return phy_abs(joint->jAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -107,7 +107,7 @@ cpGearJointNew(cpBody *a, cpBody *b, float phase, float ratio)
 	return (cpConstraint *)cpGearJointInit(cpGearJointAlloc(), a, b, phase, ratio);
 }
 
-cpBool
+bool
 cpConstraintIsGearJoint(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);

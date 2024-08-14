@@ -30,19 +30,19 @@ cpMarchCells(
 	
 	// Keep a copy of the previous row to avoid double lookups.
 	float *buffer = (float *)cpcalloc(x_samples, sizeof(float));
-	for(unsigned long i=0; i<x_samples; i++) buffer[i] = sample(cpv(cpflerp(bb.l, bb.r, i*x_denom), bb.b), sample_data);
+	for(unsigned long i=0; i<x_samples; i++) buffer[i] = sample(cpv(phy_lerp(bb.l, bb.r, i*x_denom), bb.b), sample_data);
 	
 	for(unsigned long j=0; j<y_samples-1; j++){
-		float y0 = cpflerp(bb.b, bb.t, (j+0)*y_denom);
-		float y1 = cpflerp(bb.b, bb.t, (j+1)*y_denom);
+		float y0 = phy_lerp(bb.b, bb.t, (j+0)*y_denom);
+		float y1 = phy_lerp(bb.b, bb.t, (j+1)*y_denom);
 		
 		float a, b = buffer[0];
 		float c, d = sample(cpv(bb.l, y1), sample_data);
 		buffer[0] = d;
 		
 		for(unsigned long i=0; i<x_samples-1; i++){
-			float x0 = cpflerp(bb.l, bb.r, (i+0)*x_denom);
-			float x1 = cpflerp(bb.l, bb.r, (i+1)*x_denom);
+			float x0 = phy_lerp(bb.l, bb.r, (i+0)*x_denom);
+			float x1 = phy_lerp(bb.l, bb.r, (i+1)*x_denom);
 			
 			a = b; b = buffer[i + 1];
 			c = d; d = sample(cpv(x1, y1), sample_data);
@@ -67,7 +67,7 @@ seg(cpVect v0, cpVect v1, cpMarchSegmentFunc f, void *data)
 static inline float
 midlerp(float x0, float x1, float s0, float s1, float t)
 {
-	return cpflerp(x0, x1, (t - s0)/(s1 - s0));
+	return phy_lerp(x0, x1, (t - s0)/(s1 - s0));
 }
 
 static void
@@ -123,8 +123,8 @@ cpMarchCellHard(
 	cpMarchSegmentFunc segment, void *segment_data
 ){
 	// midpoints
-	float xm = cpflerp(x0, x1, 0.5f);
-	float ym = cpflerp(y0, y1, 0.5f);
+	float xm = phy_lerp(x0, x1, 0.5f);
+	float ym = phy_lerp(y0, y1, 0.5f);
 	
 	switch((a>t)<<0 | (b>t)<<1 | (c>t)<<2 | (d>t)<<3){
 		case 0x1: segs(cpv(x0, ym), cpv(xm, ym), cpv(xm, y0), segment, segment_data); break;

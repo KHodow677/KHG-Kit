@@ -18,7 +18,7 @@ static inline cpVect cpv(const float x, const float y)
 }
 
 /// Check if two vectors are equal. (Be careful when comparing floating point numbers!)
-static inline cpBool cpveql(const cpVect v1, const cpVect v2)
+static inline bool cpveql(const cpVect v1, const cpVect v2)
 {
 	return (v1.x == v2.x && v1.y == v2.y);
 }
@@ -88,7 +88,7 @@ static inline cpVect cpvforangle(const float a)
 /// Returns the angular direction v is pointing in (in radians).
 static inline float cpvtoangle(const cpVect v)
 {
-	return cpfatan2(v.y, v.x);
+	return atan2f(v.y, v.x);
 }
 
 /// Uses complex number multiplication to rotate v1 by v2. Scaling will occur if v1 is not a unit vector.
@@ -112,7 +112,7 @@ static inline float cpvlengthsq(const cpVect v)
 /// Returns the length of v.
 static inline float cpvlength(const cpVect v)
 {
-	return cpfsqrt(cpvdot(v, v));
+	return sqrtf(cpvdot(v, v));
 }
 
 /// Linearly interpolate between v1 and v2.
@@ -125,7 +125,7 @@ static inline cpVect cpvlerp(const cpVect v1, const cpVect v2, const float t)
 static inline cpVect cpvnormalize(const cpVect v)
 {
 	// Neat trick I saw somewhere to avoid div/0.
-	return cpvmult(v, 1.0f/(cpvlength(v) + CPFLOAT_MIN));
+	return cpvmult(v, 1.0f/(cpvlength(v) + FLT_MIN));
 }
 
 /// Spherical linearly interpolate between v1 and v2.
@@ -133,14 +133,14 @@ static inline cpVect
 cpvslerp(const cpVect v1, const cpVect v2, const float t)
 {
 	float dot = cpvdot(cpvnormalize(v1), cpvnormalize(v2));
-	float omega = cpfacos(cpfclamp(dot, -1.0f, 1.0f));
+	float omega = acosf(phy_clamp(dot, -1.0f, 1.0f));
 	
 	if(omega < 1e-3){
 		// If the angle between two vectors is very small, lerp instead to avoid precision issues.
 		return cpvlerp(v1, v2, t);
 	} else {
-		float denom = 1.0f/cpfsin(omega);
-		return cpvadd(cpvmult(v1, cpfsin((1.0f - t)*omega)*denom), cpvmult(v2, cpfsin(t*omega)*denom));
+		float denom = 1.0f/sinf(omega);
+		return cpvadd(cpvmult(v1, sinf((1.0f - t)*omega)*denom), cpvmult(v2, sinf(t*omega)*denom));
 	}
 }
 
@@ -149,9 +149,9 @@ static inline cpVect
 cpvslerpconst(const cpVect v1, const cpVect v2, const float a)
 {
 	float dot = cpvdot(cpvnormalize(v1), cpvnormalize(v2));
-	float omega = cpfacos(cpfclamp(dot, -1.0f, 1.0f));
+	float omega = acosf(phy_clamp(dot, -1.0f, 1.0f));
 	
-	return cpvslerp(v1, v2, cpfmin(a, omega)/omega);
+	return cpvslerp(v1, v2, phy_min(a, omega)/omega);
 }
 
 /// Clamp v to length len.
@@ -179,7 +179,7 @@ static inline float cpvdistsq(const cpVect v1, const cpVect v2)
 }
 
 /// Returns true if the distance between v1 and v2 is less than dist.
-static inline cpBool cpvnear(const cpVect v1, const cpVect v2, const float dist)
+static inline bool cpvnear(const cpVect v1, const cpVect v2, const float dist)
 {
 	return cpvdistsq(v1, v2) < dist*dist;
 }

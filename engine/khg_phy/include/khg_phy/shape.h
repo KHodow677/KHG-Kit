@@ -69,10 +69,10 @@ CP_EXPORT cpBB cpShapeUpdate(cpShape *shape, cpTransform transform);
 CP_EXPORT float cpShapePointQuery(const cpShape *shape, cpVect p, cpPointQueryInfo *out);
 
 /// Perform a segment query against a shape. @c info must be a pointer to a valid cpSegmentQueryInfo structure.
-CP_EXPORT cpBool cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, float radius, cpSegmentQueryInfo *info);
+CP_EXPORT bool cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, float radius, cpSegmentQueryInfo *info);
 
 /// Return contact information about two shapes.
-CP_EXPORT cpContactPointSet cpShapesCollide(const cpShape *a, const cpShape *b);
+CP_EXPORT phy_contact_point_set cpShapesCollide(const cpShape *a, const cpShape *b);
 
 /// The cpSpace this body is added to.
 CP_EXPORT cpSpace* cpShapeGetSpace(const cpShape *shape);
@@ -104,9 +104,9 @@ CP_EXPORT cpVect cpShapeGetCenterOfGravity(cpShape *shape);
 CP_EXPORT cpBB cpShapeGetBB(const cpShape *shape);
 
 /// Get if the shape is set to be a sensor or not.
-CP_EXPORT cpBool cpShapeGetSensor(const cpShape *shape);
+CP_EXPORT bool cpShapeGetSensor(const cpShape *shape);
 /// Set if the shape is a sensor or not.
-CP_EXPORT void cpShapeSetSensor(cpShape *shape, cpBool sensor);
+CP_EXPORT void cpShapeSetSensor(cpShape *shape, bool sensor);
 
 /// Get the elasticity of this shape.
 CP_EXPORT float cpShapeGetElasticity(const cpShape *shape);

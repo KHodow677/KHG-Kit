@@ -629,7 +629,7 @@ cpHastySpaceStep(cpSpace *space, float dt)
 		cpSpacePushFreshContactBuffer(space);
 		cpSpatialIndexEach(space->dynamicShapes, (cpSpatialIndexIteratorFunc)cpShapeUpdateFunc, NULL);
 		cpSpatialIndexReindexQuery(space->dynamicShapes, (cpSpatialIndexQueryFunc)cpSpaceCollideShapes, space);
-	} cpSpaceUnlock(space, cpFalse);
+	} cpSpaceUnlock(space, false);
 	
 	// Rebuild the contact graph (and detect sleeping components if sleeping is enabled)
 	cpSpaceProcessComponents(space, dt);
@@ -640,7 +640,7 @@ cpHastySpaceStep(cpSpace *space, float dt)
 
 		// Prestep the arbiters and constraints.
 		float slop = space->collisionSlop;
-		float biasCoef = 1.0f - cpfpow(space->collisionBias, dt);
+		float biasCoef = 1.0f - powf(space->collisionBias, dt);
 		for(int i=0; i<arbiters->num; i++){
 			cpArbiterPreStep((cpArbiter *)arbiters->arr[i], dt, slop, biasCoef);
 		}
@@ -655,7 +655,7 @@ cpHastySpaceStep(cpSpace *space, float dt)
 		}
 	
 		// Integrate velocities.
-		float damping = cpfpow(space->damping, dt);
+		float damping = powf(space->damping, dt);
 		cpVect gravity = space->gravity;
 		for(int i=0; i<bodies->num; i++){
 			cpBody *body = (cpBody *)bodies->arr[i];
@@ -696,5 +696,5 @@ cpHastySpaceStep(cpSpace *space, float dt)
 			cpCollisionHandler *handler = arb->handler;
 			handler->postSolveFunc(arb, space, handler->userData);
 		}
-	} cpSpaceUnlock(space, cpTrue);
+	} cpSpaceUnlock(space, true);
 }

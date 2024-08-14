@@ -6,7 +6,7 @@
 typedef struct cpSimpleMotor cpSimpleMotor;
 
 /// Check if a constraint is a damped rotary springs.
-CP_EXPORT cpBool cpConstraintIsSimpleMotor(const cpConstraint *constraint);
+CP_EXPORT bool cpConstraintIsSimpleMotor(const cpConstraint *constraint);
 
 /// Allocate a simple motor.
 CP_EXPORT cpSimpleMotor* cpSimpleMotorAlloc(void);

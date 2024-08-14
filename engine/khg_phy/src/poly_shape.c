@@ -53,10 +53,10 @@ cpPolyShapeCacheData(cpPolyShape *poly, cpTransform transform)
 		dst[i].v0 = v;
 		dst[i].n = n;
 		
-		l = cpfmin(l, v.x);
-		r = cpfmax(r, v.x);
-		b = cpfmin(b, v.y);
-		t = cpfmax(t, v.y);
+		l = phy_min(l, v.x);
+		r = phy_max(r, v.x);
+		b = phy_min(b, v.y);
+		t = phy_max(t, v.y);
 	}
 	
 	float radius = poly->r;
@@ -73,7 +73,7 @@ cpPolyShapePointQuery(cpPolyShape *poly, cpVect p, cpPointQueryInfo *info){
 	float minDist = INFINITY;
 	cpVect closestPoint = cpvzero;
 	cpVect closestNormal = cpvzero;
-	cpBool outside = cpFalse;
+	bool outside = false;
 	
 	for(int i=0; i<count; i++){
 		cpVect v1 = planes[i].v0;
@@ -118,7 +118,7 @@ cpPolyShapeSegmentQuery(cpPolyShape *poly, cpVect a, cpVect b, float r2, cpSegme
 		
 		float bn = cpvdot(b, n);
 		// Avoid divide by zero. (d is always positive)
-		float t = d/cpfmax(an - bn, CPFLOAT_MIN);
+		float t = d/phy_max(an - bn, FLT_MIN);
 		if(t < 0.0f || 1.0f < t) continue;
 		
 		cpVect point = cpvlerp(a, b, t);

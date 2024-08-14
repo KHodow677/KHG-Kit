@@ -39,7 +39,7 @@ preStep(cpPinJoint *joint, float dt)
 	
 	// calculate bias velocity
 	float maxBias = joint->constraint.maxBias;
-	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*(dist - joint->dist)/dt, -maxBias, maxBias);
+	joint->bias = phy_clamp(-bias_coef(joint->constraint.errorBias, dt)*(dist - joint->dist)/dt, -maxBias, maxBias);
 }
 
 static void
@@ -67,7 +67,7 @@ applyImpulse(cpPinJoint *joint, float dt)
 	// compute normal impulse
 	float jn = (joint->bias - vrn)*joint->nMass;
 	float jnOld = joint->jnAcc;
-	joint->jnAcc = cpfclamp(jnOld + jn, -jnMax, jnMax);
+	joint->jnAcc = phy_clamp(jnOld + jn, -jnMax, jnMax);
 	jn = joint->jnAcc - jnOld;
 	
 	// apply impulse
@@ -77,7 +77,7 @@ applyImpulse(cpPinJoint *joint, float dt)
 static float
 getImpulse(cpPinJoint *joint)
 {
-	return cpfabs(joint->jnAcc);
+	return phy_abs(joint->jnAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -120,7 +120,7 @@ cpPinJointNew(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB)
 	return (cpConstraint *)cpPinJointInit(cpPinJointAlloc(), a, b, anchorA, anchorB);
 }
 
-cpBool
+bool
 cpConstraintIsPinJoint(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);

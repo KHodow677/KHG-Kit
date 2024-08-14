@@ -104,7 +104,7 @@ cpBodyFree(cpBody *body)
 	#define	cpAssertSaneBody(body)
 #else
 	static void cpv_assert_nan(cpVect v, const char *message){cpAssertHard(v.x == v.x && v.y == v.y, message);}
-	static void cpv_assert_infinite(cpVect v, const char *message){cpAssertHard(cpfabs(v.x) != INFINITY && cpfabs(v.y) != INFINITY, message);}
+	static void cpv_assert_infinite(cpVect v, const char *message){cpAssertHard(phy_abs(v.x) != INFINITY && phy_abs(v.y) != INFINITY, message);}
 	static void cpv_assert_sane(cpVect v, const char *message){cpv_assert_nan(v, message); cpv_assert_infinite(v, message);}
 	
 	static void
@@ -119,15 +119,15 @@ cpBodyFree(cpBody *body)
 		cpv_assert_sane(body->v, "Body's velocity is invalid.");
 		cpv_assert_sane(body->f, "Body's force is invalid.");
 
-		cpAssertHard(body->a == body->a && cpfabs(body->a) != INFINITY, "Body's angle is invalid.");
-		cpAssertHard(body->w == body->w && cpfabs(body->w) != INFINITY, "Body's angular velocity is invalid.");
-		cpAssertHard(body->t == body->t && cpfabs(body->t) != INFINITY, "Body's torque is invalid.");
+		cpAssertHard(body->a == body->a && phy_abs(body->a) != INFINITY, "Body's angle is invalid.");
+		cpAssertHard(body->w == body->w && phy_abs(body->w) != INFINITY, "Body's angular velocity is invalid.");
+		cpAssertHard(body->t == body->t && phy_abs(body->t) != INFINITY, "Body's torque is invalid.");
 	}
 	
 	#define	cpAssertSaneBody(body) cpBodySanityCheck(body)
 #endif
 
-cpBool
+bool
 cpBodyIsSleeping(const cpBody *body)
 {
 	return (body->sleeping.root != ((cpBody*)0));
@@ -616,7 +616,7 @@ cpBodyEachArbiter(cpBody *body, cpBodyArbiterIteratorFunc func, void *data)
 	while(arb){
 		cpArbiter *next = cpArbiterNext(arb, body);
 		
-		cpBool swapped = arb->swapped; {
+		bool swapped = arb->swapped; {
 			arb->swapped = (body == arb->body_b);
 			func(body, arb, data);
 		} arb->swapped = swapped;
