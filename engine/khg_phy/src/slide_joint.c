@@ -22,7 +22,7 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpSlideJoint *joint, cpFloat dt)
+preStep(cpSlideJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -31,8 +31,8 @@ preStep(cpSlideJoint *joint, cpFloat dt)
 	joint->r2 = cpTransformVect(b->transform, cpvsub(joint->anchorB, b->cog));
 	
 	cpVect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
-	cpFloat dist = cpvlength(delta);
-	cpFloat pdist = 0.0f;
+	float dist = cpvlength(delta);
+	float pdist = 0.0f;
 	if(dist > joint->max) {
 		pdist = dist - joint->max;
 		joint->n = cpvnormalize(delta);
@@ -48,12 +48,12 @@ preStep(cpSlideJoint *joint, cpFloat dt)
 	joint->nMass = 1.0f/k_scalar(a, b, joint->r1, joint->r2, joint->n);
 	
 	// calculate bias velocity
-	cpFloat maxBias = joint->constraint.maxBias;
+	float maxBias = joint->constraint.maxBias;
 	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
 }
 
 static void
-applyCachedImpulse(cpSlideJoint *joint, cpFloat dt_coef)
+applyCachedImpulse(cpSlideJoint *joint, float dt_coef)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -63,7 +63,7 @@ applyCachedImpulse(cpSlideJoint *joint, cpFloat dt_coef)
 }
 
 static void
-applyImpulse(cpSlideJoint *joint, cpFloat dt)
+applyImpulse(cpSlideJoint *joint, float dt)
 {
 	if(cpveql(joint->n, cpvzero)) return;  // early exit
 
@@ -76,11 +76,11 @@ applyImpulse(cpSlideJoint *joint, cpFloat dt)
 		
 	// compute relative velocity
 	cpVect vr = relative_velocity(a, b, r1, r2);
-	cpFloat vrn = cpvdot(vr, n);
+	float vrn = cpvdot(vr, n);
 	
 	// compute normal impulse
-	cpFloat jn = (joint->bias - vrn)*joint->nMass;
-	cpFloat jnOld = joint->jnAcc;
+	float jn = (joint->bias - vrn)*joint->nMass;
+	float jnOld = joint->jnAcc;
 	joint->jnAcc = cpfclamp(jnOld + jn, -joint->constraint.maxForce*dt, 0.0f);
 	jn = joint->jnAcc - jnOld;
 	
@@ -88,7 +88,7 @@ applyImpulse(cpSlideJoint *joint, cpFloat dt)
 	apply_impulses(a, b, joint->r1, joint->r2, cpvmult(n, jn));
 }
 
-static cpFloat
+static float
 getImpulse(cpConstraint *joint)
 {
 	return cpfabs(((cpSlideJoint *)joint)->jnAcc);
@@ -108,7 +108,7 @@ cpSlideJointAlloc(void)
 }
 
 cpSlideJoint *
-cpSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, cpFloat min, cpFloat max)
+cpSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, float min, float max)
 {
 	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
 	
@@ -123,7 +123,7 @@ cpSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVe
 }
 
 cpConstraint *
-cpSlideJointNew(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, cpFloat min, cpFloat max)
+cpSlideJointNew(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, float min, float max)
 {
 	return (cpConstraint *)cpSlideJointInit(cpSlideJointAlloc(), a, b, anchorA, anchorB, min, max);
 }
@@ -164,7 +164,7 @@ cpSlideJointSetAnchorB(cpConstraint *constraint, cpVect anchorB)
 	((cpSlideJoint *)constraint)->anchorB = anchorB;
 }
 
-cpFloat
+float
 cpSlideJointGetMin(const cpConstraint *constraint)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
@@ -172,14 +172,14 @@ cpSlideJointGetMin(const cpConstraint *constraint)
 }
 
 void
-cpSlideJointSetMin(cpConstraint *constraint, cpFloat min)
+cpSlideJointSetMin(cpConstraint *constraint, float min)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
 	cpConstraintActivateBodies(constraint);
 	((cpSlideJoint *)constraint)->min = min;
 }
 
-cpFloat
+float
 cpSlideJointGetMax(const cpConstraint *constraint)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
@@ -187,7 +187,7 @@ cpSlideJointGetMax(const cpConstraint *constraint)
 }
 
 void
-cpSlideJointSetMax(cpConstraint *constraint, cpFloat max)
+cpSlideJointSetMax(cpConstraint *constraint, float max)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
 	cpConstraintActivateBodies(constraint);

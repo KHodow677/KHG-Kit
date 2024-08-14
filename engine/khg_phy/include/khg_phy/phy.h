@@ -69,40 +69,40 @@ CP_EXPORT extern const char *cpVersionString;
 
 /// Calculate the moment of inertia for a circle.
 /// @c r1 and @c r2 are the inner and outer diameters. A solid circle has an inner diameter of 0.
-CP_EXPORT cpFloat cpMomentForCircle(cpFloat m, cpFloat r1, cpFloat r2, cpVect offset);
+CP_EXPORT float cpMomentForCircle(float m, float r1, float r2, cpVect offset);
 
 /// Calculate area of a hollow circle.
 /// @c r1 and @c r2 are the inner and outer diameters. A solid circle has an inner diameter of 0.
-CP_EXPORT cpFloat cpAreaForCircle(cpFloat r1, cpFloat r2);
+CP_EXPORT float cpAreaForCircle(float r1, float r2);
 
 /// Calculate the moment of inertia for a line segment.
 /// Beveling radius is not supported.
-CP_EXPORT cpFloat cpMomentForSegment(cpFloat m, cpVect a, cpVect b, cpFloat radius);
+CP_EXPORT float cpMomentForSegment(float m, cpVect a, cpVect b, float radius);
 
 /// Calculate the area of a fattened (capsule shaped) line segment.
-CP_EXPORT cpFloat cpAreaForSegment(cpVect a, cpVect b, cpFloat radius);
+CP_EXPORT float cpAreaForSegment(cpVect a, cpVect b, float radius);
 
 /// Calculate the moment of inertia for a solid polygon shape assuming it's center of gravity is at it's centroid. The offset is added to each vertex.
-CP_EXPORT cpFloat cpMomentForPoly(cpFloat m, int count, const cpVect *verts, cpVect offset, cpFloat radius);
+CP_EXPORT float cpMomentForPoly(float m, int count, const cpVect *verts, cpVect offset, float radius);
 
 /// Calculate the signed area of a polygon. A Clockwise winding gives positive area.
 /// This is probably backwards from what you expect, but matches Chipmunk's the winding for poly shapes.
-CP_EXPORT cpFloat cpAreaForPoly(const int count, const cpVect *verts, cpFloat radius);
+CP_EXPORT float cpAreaForPoly(const int count, const cpVect *verts, float radius);
 
 /// Calculate the natural centroid of a polygon.
 CP_EXPORT cpVect cpCentroidForPoly(const int count, const cpVect *verts);
 
 /// Calculate the moment of inertia for a solid box.
-CP_EXPORT cpFloat cpMomentForBox(cpFloat m, cpFloat width, cpFloat height);
+CP_EXPORT float cpMomentForBox(float m, float width, float height);
 
 /// Calculate the moment of inertia for a solid box.
-CP_EXPORT cpFloat cpMomentForBox2(cpFloat m, cpBB box);
+CP_EXPORT float cpMomentForBox2(float m, cpBB box);
 
 /// Calculate the convex hull of a given set of points. Returns the count of points in the hull.
 /// @c result must be a pointer to a @c cpVect array with at least @c count elements. If @c verts == @c result, then @c verts will be reduced inplace.
 /// @c first is an optional pointer to an integer to store where the first vertex in the hull came from (i.e. verts[first] == result[0])
 /// @c tol is the allowed amount to shrink the hull when simplifying it. A tolerance of 0.0 creates an exact hull.
-CP_EXPORT int cpConvexHull(int count, const cpVect *verts, cpVect *result, int *first, cpFloat tol);
+CP_EXPORT int cpConvexHull(int count, const cpVect *verts, cpVect *result, int *first, float tol);
 
 /// Convenience macro to work with cpConvexHull.
 /// @c count and @c verts is the input array passed to cpConvexHull().
@@ -117,7 +117,7 @@ static inline cpVect
 cpClosetPointOnSegment(const cpVect p, const cpVect a, const cpVect b)
 {
 	cpVect delta = cpvsub(a, b);
-	cpFloat t = cpfclamp01(cpvdot(delta, cpvsub(p, b))/cpvlengthsq(delta));
+	float t = cpfclamp01(cpvdot(delta, cpvsub(p, b))/cpvlengthsq(delta));
 	return cpvadd(b, cpvmult(delta, t));
 }
 
@@ -135,11 +135,11 @@ void cpBodyEachShape_b(cpBody *body, void (^block)(cpShape *shape));
 void cpBodyEachConstraint_b(cpBody *body, void (^block)(cpConstraint *constraint));
 void cpBodyEachArbiter_b(cpBody *body, void (^block)(cpArbiter *arbiter));
 
-typedef void (^cpSpacePointQueryBlock)(cpShape *shape, cpVect point, cpFloat distance, cpVect gradient);
-void cpSpacePointQuery_b(cpSpace *space, cpVect point, cpFloat maxDistance, cpShapeFilter filter, cpSpacePointQueryBlock block);
+typedef void (^cpSpacePointQueryBlock)(cpShape *shape, cpVect point, float distance, cpVect gradient);
+void cpSpacePointQuery_b(cpSpace *space, cpVect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryBlock block);
 
-typedef void (^cpSpaceSegmentQueryBlock)(cpShape *shape, cpVect point, cpVect normal, cpFloat alpha);
-void cpSpaceSegmentQuery_b(cpSpace *space, cpVect start, cpVect end, cpFloat radius, cpShapeFilter filter, cpSpaceSegmentQueryBlock block);
+typedef void (^cpSpaceSegmentQueryBlock)(cpShape *shape, cpVect point, cpVect normal, float alpha);
+void cpSpaceSegmentQuery_b(cpSpace *space, cpVect start, cpVect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryBlock block);
 
 typedef void (^cpSpaceBBQueryBlock)(cpShape *shape);
 void cpSpaceBBQuery_b(cpSpace *space, cpBB bb, cpShapeFilter filter, cpSpaceBBQueryBlock block);
@@ -156,7 +156,7 @@ cpBool cpSpaceShapeQuery_b(cpSpace *space, cpShape *shape, cpSpaceShapeQueryBloc
 #ifdef __cplusplus
 }
 
-static inline cpVect operator *(const cpVect v, const cpFloat s){return cpvmult(v, s);}
+static inline cpVect operator *(const cpVect v, const float s){return cpvmult(v, s);}
 static inline cpVect operator +(const cpVect v1, const cpVect v2){return cpvadd(v1, v2);}
 static inline cpVect operator -(const cpVect v1, const cpVect v2){return cpvsub(v1, v2);}
 static inline cpBool operator ==(const cpVect v1, const cpVect v2){return cpveql(v1, v2);}

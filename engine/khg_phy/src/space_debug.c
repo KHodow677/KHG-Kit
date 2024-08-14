@@ -131,9 +131,9 @@ cpSpaceDebugDrawConstraint(cpConstraint *constraint, cpSpaceDebugDrawOptions *op
 		options->drawDot(5, b, color, data);
 
 		cpVect delta = cpvsub(b, a);
-		cpFloat cos = delta.x;
-		cpFloat sin = delta.y;
-		cpFloat s = 1.0f/cpvlength(delta);
+		float cos = delta.x;
+		float sin = delta.y;
+		float s = 1.0f/cpvlength(delta);
 		
 		cpVect r1 = cpv(cos, -sin*s);
 		cpVect r2 = cpv(sin,  cos*s);
@@ -175,7 +175,7 @@ cpSpaceDebugDraw(cpSpace *space, cpSpaceDebugDrawOptions *options)
 				cpVect p1 = cpvadd(arb->body_a->p, arb->contacts[j].r1);
 				cpVect p2 = cpvadd(arb->body_b->p, arb->contacts[j].r2);
 				
-				cpFloat d = 2.0f;
+				float d = 2.0f;
 				cpVect a = cpvadd(p1, cpvmult(n, -d));
 				cpVect b = cpvadd(p2, cpvmult(n,  d));
 				draw_seg(a, b, color, data);

@@ -236,8 +236,8 @@ int pthread_join(pthread_t thread, void **value_ptr)
 		#error Cannot use CP_USE_DOUBLES on 32 bit ARM.
 	#endif
 	
-	typedef float64_t cpFloat_t;
-	typedef float64x2_t cpFloatx2_t;
+	typedef float64_t float_t;
+	typedef float64x2_t floatx2_t;
 	#define vld vld1q_f64
 	#define vdup_n vdupq_n_f64
 	#define vst vst1q_f64
@@ -254,8 +254,8 @@ int pthread_join(pthread_t thread, void **value_ptr)
 	#define vmax vmaxq_f64
 	#define vrev(__a) __builtin_shufflevector(__a, __a, 1, 0)
 #else
-	typedef float32_t cpFloat_t;
-	typedef float32x2_t cpFloatx2_t;
+	typedef float32_t float_t;
+	typedef float32x2_t floatx2_t;
 	#define vld vld1_f32
 	#define vdup_n vdup_n_f32
 	#define vst vst1_f32
@@ -276,17 +276,17 @@ int pthread_join(pthread_t thread, void **value_ptr)
 // TODO could probably do better here, maybe using vcreate?
 // especially for the constants
 // Maybe use the {} notation for GCC/Clang?
-static inline cpFloatx2_t
-vmake(cpFloat_t x, cpFloat_t y)
+static inline floatx2_t
+vmake(float_t x, float_t y)
 {
-//	cpFloatx2_t v = {};
+//	floatx2_t v = {};
 //	v = vset_lane(x, v, 0);
 //	v = vset_lane(y, v, 1);
 //	
 //	return v;
 	
 	// This might not be super compatible, but all the NEON headers use it...
-	return (cpFloatx2_t){x, y};
+	return (floatx2_t){x, y};
 }
 
 static void
@@ -294,87 +294,87 @@ cpArbiterApplyImpulse_NEON(cpArbiter *arb)
 {
 	cpBody *a = arb->body_a;
 	cpBody *b = arb->body_b;
-	cpFloatx2_t surface_vr = vld((cpFloat_t *)&arb->surface_vr);
-	cpFloatx2_t n = vld((cpFloat_t *)&arb->n);
-	cpFloat_t friction = arb->u;
+	floatx2_t surface_vr = vld((float_t *)&arb->surface_vr);
+	floatx2_t n = vld((float_t *)&arb->n);
+	float_t friction = arb->u;
 	
 	int numContacts = arb->count;
 	struct cpContact *contacts = arb->contacts;
 	for(int i=0; i<numContacts; i++){
 		struct cpContact *con = contacts + i;
-		cpFloatx2_t r1 = vld((cpFloat_t *)&con->r1);
-		cpFloatx2_t r2 = vld((cpFloat_t *)&con->r2);
+		floatx2_t r1 = vld((float_t *)&con->r1);
+		floatx2_t r2 = vld((float_t *)&con->r2);
 		
-		cpFloatx2_t perp = vmake(-1.0, 1.0);
-		cpFloatx2_t r1p = vmul(vrev(r1), perp);
-		cpFloatx2_t r2p = vmul(vrev(r2), perp);
+		floatx2_t perp = vmake(-1.0, 1.0);
+		floatx2_t r1p = vmul(vrev(r1), perp);
+		floatx2_t r2p = vmul(vrev(r2), perp);
 		
-		cpFloatx2_t vBias_a = vld((cpFloat_t *)&a->v_bias);
-		cpFloatx2_t vBias_b = vld((cpFloat_t *)&b->v_bias);
-		cpFloatx2_t wBias = vmake(a->w_bias, b->w_bias);
+		floatx2_t vBias_a = vld((float_t *)&a->v_bias);
+		floatx2_t vBias_b = vld((float_t *)&b->v_bias);
+		floatx2_t wBias = vmake(a->w_bias, b->w_bias);
 		
-		cpFloatx2_t vb1 = vadd(vBias_a, vmul_n(r1p, vget_lane(wBias, 0)));
-		cpFloatx2_t vb2 = vadd(vBias_b, vmul_n(r2p, vget_lane(wBias, 1)));
-		cpFloatx2_t vbr = vsub(vb2, vb1);
+		floatx2_t vb1 = vadd(vBias_a, vmul_n(r1p, vget_lane(wBias, 0)));
+		floatx2_t vb2 = vadd(vBias_b, vmul_n(r2p, vget_lane(wBias, 1)));
+		floatx2_t vbr = vsub(vb2, vb1);
 		
-		cpFloatx2_t v_a = vld((cpFloat_t *)&a->v);
-		cpFloatx2_t v_b = vld((cpFloat_t *)&b->v);
-		cpFloatx2_t w = vmake(a->w, b->w);
-		cpFloatx2_t v1 = vadd(v_a, vmul_n(r1p, vget_lane(w, 0)));
-		cpFloatx2_t v2 = vadd(v_b, vmul_n(r2p, vget_lane(w, 1)));
-		cpFloatx2_t vr = vsub(v2, v1);
+		floatx2_t v_a = vld((float_t *)&a->v);
+		floatx2_t v_b = vld((float_t *)&b->v);
+		floatx2_t w = vmake(a->w, b->w);
+		floatx2_t v1 = vadd(v_a, vmul_n(r1p, vget_lane(w, 0)));
+		floatx2_t v2 = vadd(v_b, vmul_n(r2p, vget_lane(w, 1)));
+		floatx2_t vr = vsub(v2, v1);
 		
-		cpFloatx2_t vbn_vrn = vpadd(vmul(vbr, n), vmul(vr, n));
+		floatx2_t vbn_vrn = vpadd(vmul(vbr, n), vmul(vr, n));
 		
-		cpFloatx2_t v_offset = vmake(con->bias, -con->bounce);
-		cpFloatx2_t jOld = vmake(con->jBias, con->jnAcc);
-		cpFloatx2_t jbn_jn = vmul_n(vsub(v_offset, vbn_vrn), con->nMass);
+		floatx2_t v_offset = vmake(con->bias, -con->bounce);
+		floatx2_t jOld = vmake(con->jBias, con->jnAcc);
+		floatx2_t jbn_jn = vmul_n(vsub(v_offset, vbn_vrn), con->nMass);
 		jbn_jn = vmax(vadd(jOld, jbn_jn), vdup_n(0.0));
-		cpFloatx2_t jApply = vsub(jbn_jn, jOld);
+		floatx2_t jApply = vsub(jbn_jn, jOld);
 		
-		cpFloatx2_t t = vmul(vrev(n), perp);
-		cpFloatx2_t vrt_tmp = vmul(vadd(vr, surface_vr), t);
-		cpFloatx2_t vrt = vpadd(vrt_tmp, vrt_tmp);
+		floatx2_t t = vmul(vrev(n), perp);
+		floatx2_t vrt_tmp = vmul(vadd(vr, surface_vr), t);
+		floatx2_t vrt = vpadd(vrt_tmp, vrt_tmp);
 		
-		cpFloatx2_t jtOld = {}; jtOld = vset_lane(con->jtAcc, jtOld, 0);
-		cpFloatx2_t jtMax = vrev(vmul_n(jbn_jn, friction));
-		cpFloatx2_t jt = vmul_n(vrt, -con->tMass);
+		floatx2_t jtOld = {}; jtOld = vset_lane(con->jtAcc, jtOld, 0);
+		floatx2_t jtMax = vrev(vmul_n(jbn_jn, friction));
+		floatx2_t jt = vmul_n(vrt, -con->tMass);
 		jt = vmax(vneg(jtMax), vmin(vadd(jtOld, jt), jtMax));
-		cpFloatx2_t jtApply = vsub(jt, jtOld);
+		floatx2_t jtApply = vsub(jt, jtOld);
 		
-		cpFloatx2_t i_inv = vmake(-a->i_inv, b->i_inv);
-		cpFloatx2_t nperp = vmake(1.0, -1.0);
+		floatx2_t i_inv = vmake(-a->i_inv, b->i_inv);
+		floatx2_t nperp = vmake(1.0, -1.0);
 		
-		cpFloatx2_t jBias = vmul_n(n, vget_lane(jApply, 0));
-		cpFloatx2_t jBiasCross = vmul(vrev(jBias), nperp);
-		cpFloatx2_t biasCrosses = vpadd(vmul(r1, jBiasCross), vmul(r2, jBiasCross));
+		floatx2_t jBias = vmul_n(n, vget_lane(jApply, 0));
+		floatx2_t jBiasCross = vmul(vrev(jBias), nperp);
+		floatx2_t biasCrosses = vpadd(vmul(r1, jBiasCross), vmul(r2, jBiasCross));
 		wBias = vadd(wBias, vmul(i_inv, biasCrosses));
 		
 		vBias_a = vsub(vBias_a, vmul_n(jBias, a->m_inv));
 		vBias_b = vadd(vBias_b, vmul_n(jBias, b->m_inv));
 		
-		cpFloatx2_t j = vadd(vmul_n(n, vget_lane(jApply, 1)), vmul_n(t, vget_lane(jtApply, 0)));
-		cpFloatx2_t jCross = vmul(vrev(j), nperp);
-		cpFloatx2_t crosses = vpadd(vmul(r1, jCross), vmul(r2, jCross));
+		floatx2_t j = vadd(vmul_n(n, vget_lane(jApply, 1)), vmul_n(t, vget_lane(jtApply, 0)));
+		floatx2_t jCross = vmul(vrev(j), nperp);
+		floatx2_t crosses = vpadd(vmul(r1, jCross), vmul(r2, jCross));
 		w = vadd(w, vmul(i_inv, crosses));
 		
 		v_a = vsub(v_a, vmul_n(j, a->m_inv));
 		v_b = vadd(v_b, vmul_n(j, b->m_inv));
 		
 		// TODO would moving these earlier help pipeline them better?
-		vst((cpFloat_t *)&a->v_bias, vBias_a);
-		vst((cpFloat_t *)&b->v_bias, vBias_b);
-		vst_lane((cpFloat_t *)&a->w_bias, wBias, 0);
-		vst_lane((cpFloat_t *)&b->w_bias, wBias, 1);
+		vst((float_t *)&a->v_bias, vBias_a);
+		vst((float_t *)&b->v_bias, vBias_b);
+		vst_lane((float_t *)&a->w_bias, wBias, 0);
+		vst_lane((float_t *)&b->w_bias, wBias, 1);
 		
-		vst((cpFloat_t *)&a->v, v_a);
-		vst((cpFloat_t *)&b->v, v_b);
-		vst_lane((cpFloat_t *)&a->w, w, 0);
-		vst_lane((cpFloat_t *)&b->w, w, 1);
+		vst((float_t *)&a->v, v_a);
+		vst((float_t *)&b->v, v_b);
+		vst_lane((float_t *)&a->w, w, 0);
+		vst_lane((float_t *)&b->w, w, 1);
 		
-		vst_lane((cpFloat_t *)&con->jBias, jbn_jn, 0);
-		vst_lane((cpFloat_t *)&con->jnAcc, jbn_jn, 1);
-		vst_lane((cpFloat_t *)&con->jtAcc, jt, 0);
+		vst_lane((float_t *)&con->jBias, jbn_jn, 0);
+		vst_lane((float_t *)&con->jnAcc, jbn_jn, 1);
+		vst_lane((float_t *)&con->jtAcc, jt, 0);
 	}
 }
 
@@ -474,7 +474,7 @@ Solver(cpSpace *space, unsigned long worker, unsigned long worker_count)
 	cpArray *constraints = space->constraints;
 	cpArray *arbiters = space->arbiters;
 	
-	cpFloat dt = space->curr_dt;
+	float dt = space->curr_dt;
 	unsigned long iterations = (space->iterations + worker_count - 1)/worker_count;
 	
 	for(unsigned long i=0; i<iterations; i++){
@@ -592,14 +592,14 @@ cpHastySpaceFree(cpSpace *space)
 }
 
 void
-cpHastySpaceStep(cpSpace *space, cpFloat dt)
+cpHastySpaceStep(cpSpace *space, float dt)
 {
 	// don't step if the timestep is 0!
 	if(dt == 0.0f) return;
 	
 	space->stamp++;
 	
-	cpFloat prev_dt = space->curr_dt;
+	float prev_dt = space->curr_dt;
 	space->curr_dt = dt;
 		
 	cpArray *bodies = space->dynamicBodies;
@@ -639,8 +639,8 @@ cpHastySpaceStep(cpSpace *space, cpFloat dt)
 		cpHashSetFilter(space->cachedArbiters, (cpHashSetFilterFunc)cpSpaceArbiterSetFilter, space);
 
 		// Prestep the arbiters and constraints.
-		cpFloat slop = space->collisionSlop;
-		cpFloat biasCoef = 1.0f - cpfpow(space->collisionBias, dt);
+		float slop = space->collisionSlop;
+		float biasCoef = 1.0f - cpfpow(space->collisionBias, dt);
 		for(int i=0; i<arbiters->num; i++){
 			cpArbiterPreStep((cpArbiter *)arbiters->arr[i], dt, slop, biasCoef);
 		}
@@ -655,7 +655,7 @@ cpHastySpaceStep(cpSpace *space, cpFloat dt)
 		}
 	
 		// Integrate velocities.
-		cpFloat damping = cpfpow(space->damping, dt);
+		float damping = cpfpow(space->damping, dt);
 		cpVect gravity = space->gravity;
 		for(int i=0; i<bodies->num; i++){
 			cpBody *body = (cpBody *)bodies->arr[i];
@@ -663,7 +663,7 @@ cpHastySpaceStep(cpSpace *space, cpFloat dt)
 		}
 		
 		// Apply cached impulses
-		cpFloat dt_coef = (prev_dt == 0.0f ? 0.0f : dt/prev_dt);
+		float dt_coef = (prev_dt == 0.0f ? 0.0f : dt/prev_dt);
 		for(int i=0; i<arbiters->num; i++){
 			cpArbiterApplyCachedImpulse((cpArbiter *)arbiters->arr[i], dt_coef);
 		}

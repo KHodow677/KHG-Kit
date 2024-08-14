@@ -46,9 +46,9 @@ cpConstraintInit(cpConstraint *constraint, const cpConstraintClass *klass, cpBod
 	constraint->next_a = NULL;
 	constraint->next_b = NULL;
 	
-	constraint->maxForce = (cpFloat)INFINITY;
+	constraint->maxForce = (float)INFINITY;
 	constraint->errorBias = cpfpow(1.0f - 0.1f, 60.0f);
-	constraint->maxBias = (cpFloat)INFINITY;
+	constraint->maxBias = (float)INFINITY;
 	
 	constraint->collideBodies = cpTrue;
 	
@@ -74,42 +74,42 @@ cpConstraintGetBodyB(const cpConstraint *constraint)
 	return constraint->b;
 }
 
-cpFloat
+float
 cpConstraintGetMaxForce(const cpConstraint *constraint)
 {
 	return constraint->maxForce;
 }
 
 void
-cpConstraintSetMaxForce(cpConstraint *constraint, cpFloat maxForce)
+cpConstraintSetMaxForce(cpConstraint *constraint, float maxForce)
 {
 	cpAssertHard(maxForce >= 0.0f, "maxForce must be positive.");
 	cpConstraintActivateBodies(constraint);
 	constraint->maxForce = maxForce;
 }
 
-cpFloat
+float
 cpConstraintGetErrorBias(const cpConstraint *constraint)
 {
 	return constraint->errorBias;
 }
 
 void
-cpConstraintSetErrorBias(cpConstraint *constraint, cpFloat errorBias)
+cpConstraintSetErrorBias(cpConstraint *constraint, float errorBias)
 {
 	cpAssertHard(errorBias >= 0.0f, "errorBias must be positive.");
 	cpConstraintActivateBodies(constraint);
 	constraint->errorBias = errorBias;
 }
 
-cpFloat
+float
 cpConstraintGetMaxBias(const cpConstraint *constraint)
 {
 	return constraint->maxBias;
 }
 
 void
-cpConstraintSetMaxBias(cpConstraint *constraint, cpFloat maxBias)
+cpConstraintSetMaxBias(cpConstraint *constraint, float maxBias)
 {
 	cpAssertHard(maxBias >= 0.0f, "maxBias must be positive.");
 	cpConstraintActivateBodies(constraint);
@@ -166,7 +166,7 @@ cpConstraintSetUserData(cpConstraint *constraint, cpDataPointer userData)
 }
 
 
-cpFloat
+float
 cpConstraintGetImpulse(cpConstraint *constraint)
 {
 	return constraint->klass->getImpulse(constraint);

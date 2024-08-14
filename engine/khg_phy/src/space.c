@@ -262,63 +262,63 @@ cpSpaceSetGravity(cpSpace *space, cpVect gravity)
 	}
 }
 
-cpFloat
+float
 cpSpaceGetDamping(const cpSpace *space)
 {
 	return space->damping;
 }
 
 void
-cpSpaceSetDamping(cpSpace *space, cpFloat damping)
+cpSpaceSetDamping(cpSpace *space, float damping)
 {
 	cpAssertHard(damping >= 0.0, "Damping must be positive.");
 	space->damping = damping;
 }
 
-cpFloat
+float
 cpSpaceGetIdleSpeedThreshold(const cpSpace *space)
 {
 	return space->idleSpeedThreshold;
 }
 
 void
-cpSpaceSetIdleSpeedThreshold(cpSpace *space, cpFloat idleSpeedThreshold)
+cpSpaceSetIdleSpeedThreshold(cpSpace *space, float idleSpeedThreshold)
 {
 	space->idleSpeedThreshold = idleSpeedThreshold;
 }
 
-cpFloat
+float
 cpSpaceGetSleepTimeThreshold(const cpSpace *space)
 {
 	return space->sleepTimeThreshold;
 }
 
 void
-cpSpaceSetSleepTimeThreshold(cpSpace *space, cpFloat sleepTimeThreshold)
+cpSpaceSetSleepTimeThreshold(cpSpace *space, float sleepTimeThreshold)
 {
 	space->sleepTimeThreshold = sleepTimeThreshold;
 }
 
-cpFloat
+float
 cpSpaceGetCollisionSlop(const cpSpace *space)
 {
 	return space->collisionSlop;
 }
 
 void
-cpSpaceSetCollisionSlop(cpSpace *space, cpFloat collisionSlop)
+cpSpaceSetCollisionSlop(cpSpace *space, float collisionSlop)
 {
 	space->collisionSlop = collisionSlop;
 }
 
-cpFloat
+float
 cpSpaceGetCollisionBias(const cpSpace *space)
 {
 	return space->collisionBias;
 }
 
 void
-cpSpaceSetCollisionBias(cpSpace *space, cpFloat collisionBias)
+cpSpaceSetCollisionBias(cpSpace *space, float collisionBias)
 {
 	space->collisionBias = collisionBias;
 }
@@ -353,7 +353,7 @@ cpSpaceGetStaticBody(const cpSpace *space)
 	return space->staticBody;
 }
 
-cpFloat
+float
 cpSpaceGetCurrentTimeStep(const cpSpace *space)
 {
 	return space->curr_dt;
@@ -685,7 +685,7 @@ copyShapes(cpShape *shape, cpSpatialIndex *index)
 }
 
 void
-cpSpaceUseSpatialHash(cpSpace *space, cpFloat dim, int count)
+cpSpaceUseSpatialHash(cpSpace *space, float dim, int count)
 {
 	cpSpatialIndex *staticShapes = cpSpaceHashNew(dim, count, (cpSpatialIndexBBFunc)cpShapeGetBB, NULL);
 	cpSpatialIndex *dynamicShapes = cpSpaceHashNew(dim, count, (cpSpatialIndexBBFunc)cpShapeGetBB, staticShapes);

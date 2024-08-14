@@ -29,7 +29,7 @@ struct cpSpaceHash {
 	cpSpatialIndex spatialIndex;
 	
 	int numcells;
-	cpFloat celldim;
+	float celldim;
 	
 	cpSpaceHashBin **table;
 	cpHashSet *handleSet;
@@ -171,7 +171,7 @@ cpSpaceHashAllocTable(cpSpaceHash *hash, int numcells)
 static inline cpSpatialIndexClass *Klass(void);
 
 cpSpatialIndex *
-cpSpaceHashInit(cpSpaceHash *hash, cpFloat celldim, int numcells, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
+cpSpaceHashInit(cpSpaceHash *hash, float celldim, int numcells, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
 {
 	cpSpatialIndexInit((cpSpatialIndex *)hash, Klass(), bbfunc, staticIndex);
 	
@@ -191,7 +191,7 @@ cpSpaceHashInit(cpSpaceHash *hash, cpFloat celldim, int numcells, cpSpatialIndex
 }
 
 cpSpatialIndex *
-cpSpaceHashNew(cpFloat celldim, int cells, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
+cpSpaceHashNew(float celldim, int cells, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
 {
 	return cpSpaceHashInit(cpSpaceHashAlloc(), celldim, cells, bbfunc, staticIndex);
 }
@@ -232,7 +232,7 @@ hash_func(cpHashValue x, cpHashValue y, cpHashValue n)
 // Much faster than (int)floor(f)
 // Profiling showed floor() to be a sizable performance hog
 static inline int
-floor_int(cpFloat f)
+floor_int(float f)
 {
 	int i = (int)f;
 	return (f < 0.0f && f != i ? i - 1 : i);
@@ -242,7 +242,7 @@ static inline void
 hashHandle(cpSpaceHash *hash, cpHandle *hand, cpBB bb)
 {
 	// Find the dimensions in cell coordinates.
-	cpFloat dim = hash->celldim;
+	float dim = hash->celldim;
 	int l = floor_int(bb.l/dim); // Fix by ShiftZ
 	int r = floor_int(bb.r/dim);
 	int b = floor_int(bb.b/dim);
@@ -377,7 +377,7 @@ static void
 cpSpaceHashQuery(cpSpaceHash *hash, void *obj, cpBB bb, cpSpatialIndexQueryFunc func, void *data)
 {
 	// Get the dimensions in cell coordinates.
-	cpFloat dim = hash->celldim;
+	float dim = hash->celldim;
 	int l = floor_int(bb.l/dim);  // Fix by ShiftZ
 	int r = floor_int(bb.r/dim);
 	int b = floor_int(bb.b/dim);
@@ -411,7 +411,7 @@ queryRehash_helper(cpHandle *hand, queryRehashContext *context)
 	cpSpatialIndexQueryFunc func = context->func;
 	void *data = context->data;
 
-	cpFloat dim = hash->celldim;
+	float dim = hash->celldim;
 	int n = hash->numcells;
 
 	void *obj = hand->obj;
@@ -456,10 +456,10 @@ cpSpaceHashReindexQuery(cpSpaceHash *hash, cpSpatialIndexQueryFunc func, void *d
 	cpSpatialIndexCollideStatic((cpSpatialIndex *)hash, hash->spatialIndex.staticIndex, func, data);
 }
 
-static inline cpFloat
+static inline float
 segmentQuery_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
-	cpFloat t = 1.0f;
+	float t = 1.0f;
 	 
 	restart:
 	for(cpSpaceHashBin *bin = *bin_ptr; bin; bin = bin->next){
@@ -485,17 +485,17 @@ segmentQuery_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSp
 
 // modified from http://playtechs.blogspot.com/2007/03/raytracing-on-grid.html
 static void
-cpSpaceHashSegmentQuery(cpSpaceHash *hash, void *obj, cpVect a, cpVect b, cpFloat t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+cpSpaceHashSegmentQuery(cpSpaceHash *hash, void *obj, cpVect a, cpVect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
 	a = cpvmult(a, 1.0f/hash->celldim);
 	b = cpvmult(b, 1.0f/hash->celldim);
 	
 	int cell_x = floor_int(a.x), cell_y = floor_int(a.y);
 
-	cpFloat t = 0;
+	float t = 0;
 
 	int x_inc, y_inc;
-	cpFloat temp_v, temp_h;
+	float temp_v, temp_h;
 
 	if (b.x > a.x){
 		x_inc = 1;
@@ -514,12 +514,12 @@ cpSpaceHashSegmentQuery(cpSpaceHash *hash, void *obj, cpVect a, cpVect b, cpFloa
 	}
 	
 	// Division by zero is *very* slow on ARM
-	cpFloat dx = cpfabs(b.x - a.x), dy = cpfabs(b.y - a.y);
-	cpFloat dt_dx = (dx ? 1.0f/dx : INFINITY), dt_dy = (dy ? 1.0f/dy : INFINITY);
+	float dx = cpfabs(b.x - a.x), dy = cpfabs(b.y - a.y);
+	float dt_dx = (dx ? 1.0f/dx : INFINITY), dt_dy = (dy ? 1.0f/dy : INFINITY);
 	
 	// fix NANs in horizontal directions
-	cpFloat next_h = (temp_h ? temp_h*dt_dx : dt_dx);
-	cpFloat next_v = (temp_v ? temp_v*dt_dy : dt_dy);
+	float next_h = (temp_h ? temp_h*dt_dx : dt_dx);
+	float next_v = (temp_v ? temp_v*dt_dy : dt_dy);
 	
 	int n = hash->numcells;
 	cpSpaceHashBin **table = hash->table;
@@ -545,7 +545,7 @@ cpSpaceHashSegmentQuery(cpSpaceHash *hash, void *obj, cpVect a, cpVect b, cpFloa
 //MARK: Misc
 
 void
-cpSpaceHashResize(cpSpaceHash *hash, cpFloat celldim, int numcells)
+cpSpaceHashResize(cpSpaceHash *hash, float celldim, int numcells)
 {
 	if(hash->spatialIndex.klass != Klass()){
 		cpAssertWarn(cpFalse, "Ignoring cpSpaceHashResize() call to non-cpSpaceHash spatial index.");
@@ -609,7 +609,7 @@ cpSpaceHashRenderDebug(cpSpatialIndex *index)
 	cpSpaceHash *hash = (cpSpaceHash *)index;
 	cpBB bb = cpBBNew(-320, -240, 320, 240);
 	
-	cpFloat dim = hash->celldim;
+	float dim = hash->celldim;
 	int n = hash->numcells;
 	
 	int l = (int)floor(bb.l/dim);

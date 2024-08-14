@@ -22,7 +22,7 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpGrooveJoint *joint, cpFloat dt)
+preStep(cpGrooveJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -33,13 +33,13 @@ preStep(cpGrooveJoint *joint, cpFloat dt)
 
 	// calculate axis
 	cpVect n = cpTransformVect(a->transform, joint->grv_n);
-	cpFloat d = cpvdot(ta, n);
+	float d = cpvdot(ta, n);
 	
 	joint->grv_tn = n;
 	joint->r2 = cpTransformVect(b->transform, cpvsub(joint->anchorB, b->cog));
 	
 	// calculate tangential distance along the axis of r2
-	cpFloat td = cpvcross(cpvadd(b->p, joint->r2), n);
+	float td = cpvcross(cpvadd(b->p, joint->r2), n);
 	// calculate clamping factor and r2
 	if(td <= cpvcross(ta, n)){
 		joint->clamp = 1.0f;
@@ -61,7 +61,7 @@ preStep(cpGrooveJoint *joint, cpFloat dt)
 }
 
 static void
-applyCachedImpulse(cpGrooveJoint *joint, cpFloat dt_coef)
+applyCachedImpulse(cpGrooveJoint *joint, float dt_coef)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -70,14 +70,14 @@ applyCachedImpulse(cpGrooveJoint *joint, cpFloat dt_coef)
 }
 
 static inline cpVect
-grooveConstrain(cpGrooveJoint *joint, cpVect j, cpFloat dt){
+grooveConstrain(cpGrooveJoint *joint, cpVect j, float dt){
 	cpVect n = joint->grv_tn;
 	cpVect jClamp = (joint->clamp*cpvcross(j, n) > 0.0f) ? j : cpvproject(j, n);
 	return cpvclamp(jClamp, joint->constraint.maxForce*dt);
 }
 
 static void
-applyImpulse(cpGrooveJoint *joint, cpFloat dt)
+applyImpulse(cpGrooveJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -97,7 +97,7 @@ applyImpulse(cpGrooveJoint *joint, cpFloat dt)
 	apply_impulses(a, b, joint->r1, joint->r2, j);
 }
 
-static cpFloat
+static float
 getImpulse(cpGrooveJoint *joint)
 {
 	return cpvlength(joint->jAcc);

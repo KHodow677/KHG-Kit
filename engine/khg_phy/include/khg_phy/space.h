@@ -71,32 +71,32 @@ CP_EXPORT void cpSpaceSetGravity(cpSpace *space, cpVect gravity);
 /// A value of 0.9 would mean that each body's velocity will drop 10% per second.
 /// The default value is 1.0, meaning no damping is applied.
 /// @note This damping value is different than those of cpDampedSpring and cpDampedRotarySpring.
-CP_EXPORT cpFloat cpSpaceGetDamping(const cpSpace *space);
-CP_EXPORT void cpSpaceSetDamping(cpSpace *space, cpFloat damping);
+CP_EXPORT float cpSpaceGetDamping(const cpSpace *space);
+CP_EXPORT void cpSpaceSetDamping(cpSpace *space, float damping);
 
 /// Speed threshold for a body to be considered idle.
 /// The default value of 0 means to let the space guess a good threshold based on gravity.
-CP_EXPORT cpFloat cpSpaceGetIdleSpeedThreshold(const cpSpace *space);
-CP_EXPORT void cpSpaceSetIdleSpeedThreshold(cpSpace *space, cpFloat idleSpeedThreshold);
+CP_EXPORT float cpSpaceGetIdleSpeedThreshold(const cpSpace *space);
+CP_EXPORT void cpSpaceSetIdleSpeedThreshold(cpSpace *space, float idleSpeedThreshold);
 
 /// Time a group of bodies must remain idle in order to fall asleep.
 /// Enabling sleeping also implicitly enables the the contact graph.
 /// The default value of INFINITY disables the sleeping algorithm.
-CP_EXPORT cpFloat cpSpaceGetSleepTimeThreshold(const cpSpace *space);
-CP_EXPORT void cpSpaceSetSleepTimeThreshold(cpSpace *space, cpFloat sleepTimeThreshold);
+CP_EXPORT float cpSpaceGetSleepTimeThreshold(const cpSpace *space);
+CP_EXPORT void cpSpaceSetSleepTimeThreshold(cpSpace *space, float sleepTimeThreshold);
 
 /// Amount of encouraged penetration between colliding shapes.
 /// Used to reduce oscillating contacts and keep the collision cache warm.
 /// Defaults to 0.1. If you have poor simulation quality,
 /// increase this number as much as possible without allowing visible amounts of overlap.
-CP_EXPORT cpFloat cpSpaceGetCollisionSlop(const cpSpace *space);
-CP_EXPORT void cpSpaceSetCollisionSlop(cpSpace *space, cpFloat collisionSlop);
+CP_EXPORT float cpSpaceGetCollisionSlop(const cpSpace *space);
+CP_EXPORT void cpSpaceSetCollisionSlop(cpSpace *space, float collisionSlop);
 
 /// Determines how fast overlapping shapes are pushed apart.
 /// Expressed as a fraction of the error remaining after each second.
 /// Defaults to pow(1.0 - 0.1, 60.0) meaning that Chipmunk fixes 10% of overlap each frame at 60Hz.
-CP_EXPORT cpFloat cpSpaceGetCollisionBias(const cpSpace *space);
-CP_EXPORT void cpSpaceSetCollisionBias(cpSpace *space, cpFloat collisionBias);
+CP_EXPORT float cpSpaceGetCollisionBias(const cpSpace *space);
+CP_EXPORT void cpSpaceSetCollisionBias(cpSpace *space, float collisionBias);
 
 /// Number of frames that contact information should persist.
 /// Defaults to 3. There is probably never a reason to change this value.
@@ -115,7 +115,7 @@ CP_EXPORT cpBody* cpSpaceGetStaticBody(const cpSpace *space);
 
 /// Returns the current (or most recent) time step used with the given space.
 /// Useful from callbacks if your time step is not a compile-time global.
-CP_EXPORT cpFloat cpSpaceGetCurrentTimeStep(const cpSpace *space);
+CP_EXPORT float cpSpaceGetCurrentTimeStep(const cpSpace *space);
 
 /// returns true from inside a callback when objects cannot be added/removed.
 CP_EXPORT cpBool cpSpaceIsLocked(cpSpace *space);
@@ -173,18 +173,18 @@ CP_EXPORT cpBool cpSpaceAddPostStepCallback(cpSpace *space, cpPostStepFunc func,
 // TODO: They should also be abortable.
 
 /// Nearest point query callback function type.
-typedef void (*cpSpacePointQueryFunc)(cpShape *shape, cpVect point, cpFloat distance, cpVect gradient, void *data);
+typedef void (*cpSpacePointQueryFunc)(cpShape *shape, cpVect point, float distance, cpVect gradient, void *data);
 /// Query the space at a point and call @c func for each shape found.
-CP_EXPORT void cpSpacePointQuery(cpSpace *space, cpVect point, cpFloat maxDistance, cpShapeFilter filter, cpSpacePointQueryFunc func, void *data);
+CP_EXPORT void cpSpacePointQuery(cpSpace *space, cpVect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryFunc func, void *data);
 /// Query the space at a point and return the nearest shape found. Returns NULL if no shapes were found.
-CP_EXPORT cpShape *cpSpacePointQueryNearest(cpSpace *space, cpVect point, cpFloat maxDistance, cpShapeFilter filter, cpPointQueryInfo *out);
+CP_EXPORT cpShape *cpSpacePointQueryNearest(cpSpace *space, cpVect point, float maxDistance, cpShapeFilter filter, cpPointQueryInfo *out);
 
 /// Segment query callback function type.
-typedef void (*cpSpaceSegmentQueryFunc)(cpShape *shape, cpVect point, cpVect normal, cpFloat alpha, void *data);
+typedef void (*cpSpaceSegmentQueryFunc)(cpShape *shape, cpVect point, cpVect normal, float alpha, void *data);
 /// Perform a directed line segment query (like a raycast) against the space calling @c func for each shape intersected.
-CP_EXPORT void cpSpaceSegmentQuery(cpSpace *space, cpVect start, cpVect end, cpFloat radius, cpShapeFilter filter, cpSpaceSegmentQueryFunc func, void *data);
+CP_EXPORT void cpSpaceSegmentQuery(cpSpace *space, cpVect start, cpVect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryFunc func, void *data);
 /// Perform a directed line segment query (like a raycast) against the space and return the first shape hit. Returns NULL if no shapes were hit.
-CP_EXPORT cpShape *cpSpaceSegmentQueryFirst(cpSpace *space, cpVect start, cpVect end, cpFloat radius, cpShapeFilter filter, cpSegmentQueryInfo *out);
+CP_EXPORT cpShape *cpSpaceSegmentQueryFirst(cpSpace *space, cpVect start, cpVect end, float radius, cpShapeFilter filter, cpSegmentQueryInfo *out);
 
 /// Rectangle Query callback function type.
 typedef void (*cpSpaceBBQueryFunc)(cpShape *shape, void *data);
@@ -226,13 +226,13 @@ CP_EXPORT void cpSpaceReindexShape(cpSpace *space, cpShape *shape);
 CP_EXPORT void cpSpaceReindexShapesForBody(cpSpace *space, cpBody *body);
 
 /// Switch the space to use a spatial has as it's spatial index.
-CP_EXPORT void cpSpaceUseSpatialHash(cpSpace *space, cpFloat dim, int count);
+CP_EXPORT void cpSpaceUseSpatialHash(cpSpace *space, float dim, int count);
 
 
 //MARK: Time Stepping
 
 /// Step the space forward in time by @c dt.
-CP_EXPORT void cpSpaceStep(cpSpace *space, cpFloat dt);
+CP_EXPORT void cpSpaceStep(cpSpace *space, float dt);
 
 
 //MARK: Debug API
@@ -245,15 +245,15 @@ typedef struct cpSpaceDebugColor {
 } cpSpaceDebugColor;
 
 /// Callback type for a function that draws a filled, stroked circle.
-typedef void (*cpSpaceDebugDrawCircleImpl)(cpVect pos, cpFloat angle, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawCircleImpl)(cpVect pos, float angle, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
 /// Callback type for a function that draws a line segment.
 typedef void (*cpSpaceDebugDrawSegmentImpl)(cpVect a, cpVect b, cpSpaceDebugColor color, cpDataPointer data);
 /// Callback type for a function that draws a thick line segment.
-typedef void (*cpSpaceDebugDrawFatSegmentImpl)(cpVect a, cpVect b, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawFatSegmentImpl)(cpVect a, cpVect b, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
 /// Callback type for a function that draws a convex polygon.
-typedef void (*cpSpaceDebugDrawPolygonImpl)(int count, const cpVect *verts, cpFloat radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawPolygonImpl)(int count, const cpVect *verts, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
 /// Callback type for a function that draws a dot.
-typedef void (*cpSpaceDebugDrawDotImpl)(cpFloat size, cpVect pos, cpSpaceDebugColor color, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawDotImpl)(float size, cpVect pos, cpSpaceDebugColor color, cpDataPointer data);
 /// Callback type for a function that returns a color for a given shape. This gives you an opportunity to color shapes based on how they are used in your engine.
 typedef cpSpaceDebugColor (*cpSpaceDebugDrawColorForShapeImpl)(cpShape *shape, cpDataPointer data);
 

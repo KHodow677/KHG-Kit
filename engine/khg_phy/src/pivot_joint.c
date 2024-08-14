@@ -22,7 +22,7 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpPivotJoint *joint, cpFloat dt)
+preStep(cpPivotJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -39,7 +39,7 @@ preStep(cpPivotJoint *joint, cpFloat dt)
 }
 
 static void
-applyCachedImpulse(cpPivotJoint *joint, cpFloat dt_coef)
+applyCachedImpulse(cpPivotJoint *joint, float dt_coef)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -48,7 +48,7 @@ applyCachedImpulse(cpPivotJoint *joint, cpFloat dt_coef)
 }
 
 static void
-applyImpulse(cpPivotJoint *joint, cpFloat dt)
+applyImpulse(cpPivotJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -69,7 +69,7 @@ applyImpulse(cpPivotJoint *joint, cpFloat dt)
 	apply_impulses(a, b, joint->r1, joint->r2, j);
 }
 
-static cpFloat
+static float
 getImpulse(cpConstraint *joint)
 {
 	return cpvlength(((cpPivotJoint *)joint)->jAcc);

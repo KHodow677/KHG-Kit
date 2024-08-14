@@ -2,22 +2,22 @@
 
 #include "khg_phy/phy_types.h"
 
-#define CP_MAX_CONTACTS_PER_ARBITER 2
+#define PHY_MAX_CONTACTS_PER_ARBITER 2
 
-extern cpFloat cpArbiterGetRestitution(const cpArbiter *arb);
-extern void cpArbiterSetRestitution(cpArbiter *arb, cpFloat restitution);
+extern float phy_arbiter_get_restitution(const cpArbiter *arb);
+extern void phy_arbiter_set_restitution(cpArbiter *arb, float restitution);
 
-extern cpFloat cpArbiterGetFriction(const cpArbiter *arb);
-extern void cpArbiterSetFriction(cpArbiter *arb, cpFloat friction);
+extern float phy_arbiter_get_friction(const cpArbiter *arb);
+extern void phy_arbiter_set_friction(cpArbiter *arb, float friction);
 
-extern cpVect cpArbiterGetSurfaceVelocity(cpArbiter *arb);
-extern void cpArbiterSetSurfaceVelocity(cpArbiter *arb, cpVect vr);
+extern cpVect phy_arbiter_get_surface_velocity(cpArbiter *arb);
+extern void phy_arbiter_set_surface_velocity(cpArbiter *arb, cpVect vr);
 
 extern cpDataPointer cpArbiterGetUserData(const cpArbiter *arb);
 extern void cpArbiterSetUserData(cpArbiter *arb, cpDataPointer userData);
 
 extern cpVect cpArbiterTotalImpulse(const cpArbiter *arb);
-extern cpFloat cpArbiterTotalKE(const cpArbiter *arb);
+extern float cpArbiterTotalKE(const cpArbiter *arb);
 
 extern cpBool cpArbiterIgnore(cpArbiter *arb);
 
@@ -31,8 +31,8 @@ struct cpContactPointSet {
 	cpVect normal;
 	struct {
 		cpVect pointA, pointB;
-		cpFloat distance;
-	} points[CP_MAX_CONTACTS_PER_ARBITER];
+		float distance;
+	} points[PHY_MAX_CONTACTS_PER_ARBITER];
 };
 
 extern cpContactPointSet cpArbiterGetContactPointSet(const cpArbiter *arb);
@@ -45,7 +45,7 @@ extern int cpArbiterGetCount(const cpArbiter *arb);
 extern cpVect cpArbiterGetNormal(const cpArbiter *arb);
 extern cpVect cpArbiterGetPointA(const cpArbiter *arb, int i);
 extern cpVect cpArbiterGetPointB(const cpArbiter *arb, int i);
-extern cpFloat cpArbiterGetDepth(const cpArbiter *arb, int i);
+extern float cpArbiterGetDepth(const cpArbiter *arb, int i);
 
 extern cpBool cpArbiterCallWildcardBeginA(cpArbiter *arb, cpSpace *space);
 extern cpBool cpArbiterCallWildcardBeginB(cpArbiter *arb, cpSpace *space);

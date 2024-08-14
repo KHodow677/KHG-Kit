@@ -21,4 +21,4 @@ CP_EXPORT void cpHastySpaceSetThreads(cpSpace *space, unsigned long threads);
 CP_EXPORT unsigned long cpHastySpaceGetThreads(cpSpace *space);
 
 /// When stepping a hasty space, you must use this function.
-CP_EXPORT void cpHastySpaceStep(cpSpace *space, cpFloat dt);
+CP_EXPORT void cpHastySpaceStep(cpSpace *space, float dt);

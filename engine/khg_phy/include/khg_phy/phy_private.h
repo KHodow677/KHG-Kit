@@ -75,8 +75,8 @@ cpArbiterThreadForBody(cpArbiter *arb, cpBody *body)
 void cpArbiterUnthread(cpArbiter *arb);
 
 void cpArbiterUpdate(cpArbiter *arb, struct cpCollisionInfo *info, cpSpace *space);
-void cpArbiterPreStep(cpArbiter *arb, cpFloat dt, cpFloat bias, cpFloat slop);
-void cpArbiterApplyCachedImpulse(cpArbiter *arb, cpFloat dt_coef);
+void cpArbiterPreStep(cpArbiter *arb, float dt, float bias, float slop);
+void cpArbiterApplyCachedImpulse(cpArbiter *arb, float dt_coef);
 void cpArbiterApplyImpulse(cpArbiter *arb);
 
 
@@ -96,18 +96,18 @@ cpShapeActive(cpShape *shape)
 struct cpCollisionInfo cpCollide(const cpShape *a, const cpShape *b, cpCollisionID id, struct cpContact *contacts);
 
 static inline void
-CircleSegmentQuery(cpShape *shape, cpVect center, cpFloat r1, cpVect a, cpVect b, cpFloat r2, cpSegmentQueryInfo *info)
+CircleSegmentQuery(cpShape *shape, cpVect center, float r1, cpVect a, cpVect b, float r2, cpSegmentQueryInfo *info)
 {
 	cpVect da = cpvsub(a, center);
 	cpVect db = cpvsub(b, center);
-	cpFloat rsum = r1 + r2;
+	float rsum = r1 + r2;
 	
-	cpFloat qa = cpvdot(da, da) - 2.0f*cpvdot(da, db) + cpvdot(db, db);
-	cpFloat qb = cpvdot(da, db) - cpvdot(da, da);
-	cpFloat det = qb*qb - qa*(cpvdot(da, da) - rsum*rsum);
+	float qa = cpvdot(da, da) - 2.0f*cpvdot(da, db) + cpvdot(db, db);
+	float qb = cpvdot(da, db) - cpvdot(da, da);
+	float det = qb*qb - qa*(cpvdot(da, da) - rsum*rsum);
 	
 	if(det >= 0.0f){
-		cpFloat t = (-qb - cpfsqrt(det))/(qa);
+		float t = (-qb - cpfsqrt(det))/(qa);
 		if(0.0f<= t && t <= 1.0f){
 			cpVect n = cpvnormalize(cpvlerp(da, db, t));
 			
@@ -155,7 +155,7 @@ relative_velocity(cpBody *a, cpBody *b, cpVect r1, cpVect r2){
 	return cpvsub(v2_sum, v1_sum);
 }
 
-static inline cpFloat
+static inline float
 normal_relative_velocity(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect n){
 	return cpvdot(relative_velocity(a, b, r1, r2), n);
 }
@@ -187,17 +187,17 @@ apply_bias_impulses(cpBody *a , cpBody *b, cpVect r1, cpVect r2, cpVect j)
 	apply_bias_impulse(b, j, r2);
 }
 
-static inline cpFloat
+static inline float
 k_scalar_body(cpBody *body, cpVect r, cpVect n)
 {
-	cpFloat rcn = cpvcross(r, n);
+	float rcn = cpvcross(r, n);
 	return body->m_inv + body->i_inv*rcn*rcn;
 }
 
-static inline cpFloat
+static inline float
 k_scalar(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect n)
 {
-	cpFloat value = k_scalar_body(a, r1, n) + k_scalar_body(b, r2, n);
+	float value = k_scalar_body(a, r1, n) + k_scalar_body(b, r2, n);
 	cpAssertSoft(value != 0.0, "Unsolvable collision or constraint.");
 	
 	return value;
@@ -206,41 +206,41 @@ k_scalar(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect n)
 static inline cpMat2x2
 k_tensor(cpBody *a, cpBody *b, cpVect r1, cpVect r2)
 {
-	cpFloat m_sum = a->m_inv + b->m_inv;
+	float m_sum = a->m_inv + b->m_inv;
 	
 	// start with Identity*m_sum
-	cpFloat k11 = m_sum, k12 = 0.0f;
-	cpFloat k21 = 0.0f,  k22 = m_sum;
+	float k11 = m_sum, k12 = 0.0f;
+	float k21 = 0.0f,  k22 = m_sum;
 	
 	// add the influence from r1
-	cpFloat a_i_inv = a->i_inv;
-	cpFloat r1xsq =  r1.x * r1.x * a_i_inv;
-	cpFloat r1ysq =  r1.y * r1.y * a_i_inv;
-	cpFloat r1nxy = -r1.x * r1.y * a_i_inv;
+	float a_i_inv = a->i_inv;
+	float r1xsq =  r1.x * r1.x * a_i_inv;
+	float r1ysq =  r1.y * r1.y * a_i_inv;
+	float r1nxy = -r1.x * r1.y * a_i_inv;
 	k11 += r1ysq; k12 += r1nxy;
 	k21 += r1nxy; k22 += r1xsq;
 	
 	// add the influnce from r2
-	cpFloat b_i_inv = b->i_inv;
-	cpFloat r2xsq =  r2.x * r2.x * b_i_inv;
-	cpFloat r2ysq =  r2.y * r2.y * b_i_inv;
-	cpFloat r2nxy = -r2.x * r2.y * b_i_inv;
+	float b_i_inv = b->i_inv;
+	float r2xsq =  r2.x * r2.x * b_i_inv;
+	float r2ysq =  r2.y * r2.y * b_i_inv;
+	float r2nxy = -r2.x * r2.y * b_i_inv;
 	k11 += r2ysq; k12 += r2nxy;
 	k21 += r2nxy; k22 += r2xsq;
 	
 	// invert
-	cpFloat det = k11*k22 - k12*k21;
+	float det = k11*k22 - k12*k21;
 	cpAssertSoft(det != 0.0, "Unsolvable constraint.");
 	
-	cpFloat det_inv = 1.0f/det;
+	float det_inv = 1.0f/det;
 	return cpMat2x2New(
 		 k22*det_inv, -k12*det_inv,
 		-k21*det_inv,  k11*det_inv
  	);
 }
 
-static inline cpFloat
-bias_coef(cpFloat errorBias, cpFloat dt)
+static inline float
+bias_coef(float errorBias, float dt)
 {
 	return 1.0f - cpfpow(errorBias, dt);
 }
@@ -258,7 +258,7 @@ void cpSpaceSetStaticBody(cpSpace *space, cpBody *body);
 
 extern cpCollisionHandler cpCollisionHandlerDoNothing;
 
-void cpSpaceProcessComponents(cpSpace *space, cpFloat dt);
+void cpSpaceProcessComponents(cpSpace *space, float dt);
 
 void cpSpacePushFreshContactBuffer(cpSpace *space);
 struct cpContact *cpContactBufferGetArray(cpSpace *space);

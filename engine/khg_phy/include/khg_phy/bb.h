@@ -4,19 +4,19 @@
 #include "khg_phy/vect.h"
 
 typedef struct cpBB{
-	cpFloat l, b, r ,t;
+	float l, b, r ,t;
 } cpBB;
 
-static inline cpBB cpBBNew(const cpFloat l, const cpFloat b, const cpFloat r, const cpFloat t) {
+static inline cpBB cpBBNew(const float l, const float b, const float r, const float t) {
 	cpBB bb = { l, b, r, t };
 	return bb;
 }
 
-static inline cpBB cpBBNewForExtents(const cpVect c, const cpFloat hw, const cpFloat hh) {
+static inline cpBB cpBBNewForExtents(const cpVect c, const float hw, const float hh) {
 	return cpBBNew(c.x - hw, c.y - hh, c.x + hw, c.y + hh);
 }
 
-static inline cpBB cpBBNewForCircle(const cpVect p, const cpFloat r) {
+static inline cpBB cpBBNewForCircle(const cpVect p, const float r) {
 	return cpBBNewForExtents(p, r, r);
 }
 
@@ -44,25 +44,25 @@ static inline cpVect cpBBCenter(cpBB bb) {
 	return cpvlerp(cpv(bb.l, bb.b), cpv(bb.r, bb.t), 0.5f);
 }
 
-static inline cpFloat cpBBArea(cpBB bb) {
+static inline float cpBBArea(cpBB bb) {
 	return (bb.r - bb.l)*(bb.t - bb.b);
 }
 
-static inline cpFloat cpBBMergedArea(cpBB a, cpBB b) {
+static inline float cpBBMergedArea(cpBB a, cpBB b) {
 	return (cpfmax(a.r, b.r) - cpfmin(a.l, b.l))*(cpfmax(a.t, b.t) - cpfmin(a.b, b.b));
 }
 
-static inline cpFloat cpBBSegmentQuery(cpBB bb, cpVect a, cpVect b) {
+static inline float cpBBSegmentQuery(cpBB bb, cpVect a, cpVect b) {
 	cpVect delta = cpvsub(b, a);
-	cpFloat tmin = -INFINITY, tmax = INFINITY;
+	float tmin = -INFINITY, tmax = INFINITY;
   if (delta.x == 0.0f) {
 		if(a.x < bb.l || bb.r < a.x) {
       return INFINITY;
     }
 	} 
   else {
-		cpFloat t1 = (bb.l - a.x)/delta.x;
-		cpFloat t2 = (bb.r - a.x)/delta.x;
+		float t1 = (bb.l - a.x)/delta.x;
+		float t2 = (bb.r - a.x)/delta.x;
 		tmin = cpfmax(tmin, cpfmin(t1, t2));
 		tmax = cpfmin(tmax, cpfmax(t1, t2));
 	}
@@ -72,8 +72,8 @@ static inline cpFloat cpBBSegmentQuery(cpBB bb, cpVect a, cpVect b) {
     }
 	} 
   else {
-		cpFloat t1 = (bb.b - a.y)/delta.y;
-		cpFloat t2 = (bb.t - a.y)/delta.y;
+		float t1 = (bb.b - a.y)/delta.y;
+		float t2 = (bb.t - a.y)/delta.y;
 		tmin = cpfmax(tmin, cpfmin(t1, t2));
 		tmax = cpfmin(tmax, cpfmax(t1, t2));
 	}
@@ -94,12 +94,12 @@ static inline cpVect cpBBClampVect(const cpBB bb, const cpVect v) {
 }
 
 static inline cpVect cpBBWrapVect(const cpBB bb, const cpVect v) {
-	cpFloat dx = cpfabs(bb.r - bb.l);
-	cpFloat modx = cpfmod(v.x - bb.l, dx);
-	cpFloat x = (modx > 0.0f) ? modx : modx + dx;
-	cpFloat dy = cpfabs(bb.t - bb.b);
-	cpFloat mody = cpfmod(v.y - bb.b, dy);
-	cpFloat y = (mody > 0.0f) ? mody : mody + dy;
+	float dx = cpfabs(bb.r - bb.l);
+	float modx = cpfmod(v.x - bb.l, dx);
+	float x = (modx > 0.0f) ? modx : modx + dx;
+	float dy = cpfabs(bb.t - bb.b);
+	float mody = cpfmod(v.y - bb.b, dy);
+	float y = (mody > 0.0f) ? mody : mody + dy;
 	return cpv(x + bb.l, y + bb.b);
 }
 

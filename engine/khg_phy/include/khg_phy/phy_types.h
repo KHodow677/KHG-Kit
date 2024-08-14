@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <float.h>
 
-typedef float cpFloat;
 #define cpfsqrt sqrtf
 #define cpfsin sinf
 #define cpfcos cosf
@@ -16,33 +15,33 @@ typedef float cpFloat;
 #define cpfceil ceilf
 #define CPFLOAT_MIN FLT_MIN
 
-#define CP_PI ((cpFloat)3.14159265358979323846264338327950288)
+#define CP_PI ((float)3.14159265358979323846264338327950288)
 
-static inline cpFloat cpfmax(cpFloat a, cpFloat b) {
+static inline float cpfmax(float a, float b) {
 	return (a > b) ? a : b;
 }
 
-static inline cpFloat cpfmin(cpFloat a, cpFloat b) {
+static inline float cpfmin(float a, float b) {
 	return (a < b) ? a : b;
 }
 
-static inline cpFloat cpfabs(cpFloat f) {
+static inline float cpfabs(float f) {
 	return (f < 0) ? -f : f;
 }
 
-static inline cpFloat cpfclamp(cpFloat f, cpFloat min, cpFloat max) {
+static inline float cpfclamp(float f, float min, float max) {
 	return cpfmin(cpfmax(f, min), max);
 }
 
-static inline cpFloat cpfclamp01(cpFloat f) {
+static inline float cpfclamp01(float f) {
 	return cpfmax(0.0f, cpfmin(f, 1.0f));
 }
 
-static inline cpFloat cpflerp(cpFloat f1, cpFloat f2, cpFloat t) {
+static inline float cpflerp(float f1, float f2, float t) {
 	return f1*(1.0f - t) + f2*t;
 }
 
-static inline cpFloat cpflerpconst(cpFloat f1, cpFloat f2, cpFloat d) {
+static inline float cpflerpconst(float f1, float f2, float d) {
 	return f1 + cpfclamp(f2 - f1, -d, d);
 }
 
@@ -59,14 +58,14 @@ typedef unsigned int cpTimestamp;
 #define CP_NO_GROUP ((cpGroup)0)
 #define CP_ALL_CATEGORIES (~(cpBitmask)0)
 #define CP_WILDCARD_COLLISION_TYPE (~(cpCollisionType)0)
-typedef struct cpVect{ cpFloat x,y; } cpVect;
+typedef struct cpVect{ float x,y; } cpVect;
 
 typedef struct cpTransform {
-  cpFloat a, b, c, d, tx, ty;
+  float a, b, c, d, tx, ty;
 } cpTransform;
 
 typedef struct cpMat2x2 {
-	cpFloat a, b, c, d;
+	float a, b, c, d;
 } cpMat2x2;
 
 #define CP_BUFFER_BYTES (32*1024)

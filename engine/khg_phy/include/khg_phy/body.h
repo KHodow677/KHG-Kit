@@ -18,16 +18,16 @@ typedef enum cpBodyType {
 } cpBodyType;
 
 /// Rigid body velocity update function type.
-typedef void (*cpBodyVelocityFunc)(cpBody *body, cpVect gravity, cpFloat damping, cpFloat dt);
+typedef void (*cpBodyVelocityFunc)(cpBody *body, cpVect gravity, float damping, float dt);
 /// Rigid body position update function type.
-typedef void (*cpBodyPositionFunc)(cpBody *body, cpFloat dt);
+typedef void (*cpBodyPositionFunc)(cpBody *body, float dt);
 
 /// Allocate a cpBody.
 CP_EXPORT cpBody* cpBodyAlloc(void);
 /// Initialize a cpBody.
-CP_EXPORT cpBody* cpBodyInit(cpBody *body, cpFloat mass, cpFloat moment);
+CP_EXPORT cpBody* cpBodyInit(cpBody *body, float mass, float moment);
 /// Allocate and initialize a cpBody.
-CP_EXPORT cpBody* cpBodyNew(cpFloat mass, cpFloat moment);
+CP_EXPORT cpBody* cpBodyNew(float mass, float moment);
 
 /// Allocate and initialize a cpBody, and set it as a kinematic body.
 CP_EXPORT cpBody* cpBodyNewKinematic(void);
@@ -62,14 +62,14 @@ CP_EXPORT void cpBodySetType(cpBody *body, cpBodyType type);
 CP_EXPORT cpSpace* cpBodyGetSpace(const cpBody *body);
 
 /// Get the mass of the body.
-CP_EXPORT cpFloat cpBodyGetMass(const cpBody *body);
+CP_EXPORT float cpBodyGetMass(const cpBody *body);
 /// Set the mass of the body.
-CP_EXPORT void cpBodySetMass(cpBody *body, cpFloat m);
+CP_EXPORT void cpBodySetMass(cpBody *body, float m);
 
 /// Get the moment of inertia of the body.
-CP_EXPORT cpFloat cpBodyGetMoment(const cpBody *body);
+CP_EXPORT float cpBodyGetMoment(const cpBody *body);
 /// Set the moment of inertia of the body.
-CP_EXPORT void cpBodySetMoment(cpBody *body, cpFloat i);
+CP_EXPORT void cpBodySetMoment(cpBody *body, float i);
 
 /// Set the position of a body.
 CP_EXPORT cpVect cpBodyGetPosition(const cpBody *body);
@@ -92,19 +92,19 @@ CP_EXPORT cpVect cpBodyGetForce(const cpBody *body);
 CP_EXPORT void cpBodySetForce(cpBody *body, cpVect force);
 
 /// Get the angle of the body.
-CP_EXPORT cpFloat cpBodyGetAngle(const cpBody *body);
+CP_EXPORT float cpBodyGetAngle(const cpBody *body);
 /// Set the angle of a body.
-CP_EXPORT void cpBodySetAngle(cpBody *body, cpFloat a);
+CP_EXPORT void cpBodySetAngle(cpBody *body, float a);
 
 /// Get the angular velocity of the body.
-CP_EXPORT cpFloat cpBodyGetAngularVelocity(const cpBody *body);
+CP_EXPORT float cpBodyGetAngularVelocity(const cpBody *body);
 /// Set the angular velocity of the body.
-CP_EXPORT void cpBodySetAngularVelocity(cpBody *body, cpFloat angularVelocity);
+CP_EXPORT void cpBodySetAngularVelocity(cpBody *body, float angularVelocity);
 
 /// Get the torque applied to the body for the next time step.
-CP_EXPORT cpFloat cpBodyGetTorque(const cpBody *body);
+CP_EXPORT float cpBodyGetTorque(const cpBody *body);
 /// Set the torque applied to the body for the next time step.
-CP_EXPORT void cpBodySetTorque(cpBody *body, cpFloat torque);
+CP_EXPORT void cpBodySetTorque(cpBody *body, float torque);
 
 /// Get the rotation vector of the body. (The x basis vector of it's transform.)
 CP_EXPORT cpVect cpBodyGetRotation(const cpBody *body);
@@ -121,9 +121,9 @@ CP_EXPORT void cpBodySetVelocityUpdateFunc(cpBody *body, cpBodyVelocityFunc velo
 CP_EXPORT void cpBodySetPositionUpdateFunc(cpBody *body, cpBodyPositionFunc positionFunc);
 
 /// Default velocity integration function..
-CP_EXPORT void cpBodyUpdateVelocity(cpBody *body, cpVect gravity, cpFloat damping, cpFloat dt);
+CP_EXPORT void cpBodyUpdateVelocity(cpBody *body, cpVect gravity, float damping, float dt);
 /// Default position integration function.
-CP_EXPORT void cpBodyUpdatePosition(cpBody *body, cpFloat dt);
+CP_EXPORT void cpBodyUpdatePosition(cpBody *body, float dt);
 
 /// Convert body relative/local coordinates to absolute/world coordinates.
 CP_EXPORT cpVect cpBodyLocalToWorld(const cpBody *body, const cpVect point);
@@ -146,7 +146,7 @@ CP_EXPORT cpVect cpBodyGetVelocityAtWorldPoint(const cpBody *body, cpVect point)
 CP_EXPORT cpVect cpBodyGetVelocityAtLocalPoint(const cpBody *body, cpVect point);
 
 /// Get the amount of kinetic energy contained by the body.
-CP_EXPORT cpFloat cpBodyKineticEnergy(const cpBody *body);
+CP_EXPORT float cpBodyKineticEnergy(const cpBody *body);
 
 /// Body/shape iterator callback function type. 
 typedef void (*cpBodyShapeIteratorFunc)(cpBody *body, cpShape *shape, void *data);

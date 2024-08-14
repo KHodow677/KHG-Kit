@@ -10,7 +10,7 @@ typedef struct cpPointQueryInfo {
 	/// The closest point on the shape's surface. (in world space coordinates)
 	cpVect point;
 	/// The distance to the point. The distance is negative if the point is inside the shape.
-	cpFloat distance;
+	float distance;
 	/// The gradient of the signed distance function.
 	/// The value should be similar to info.p/info.d, but accurate even for very small values of info.d.
 	cpVect gradient;
@@ -25,7 +25,7 @@ typedef struct cpSegmentQueryInfo {
 	/// The normal of the surface hit.
 	cpVect normal;
 	/// The normalized distance along the query segment in the range [0, 1].
-	cpFloat alpha;
+	float alpha;
 } cpSegmentQueryInfo;
 
 /// Fast collision filtering type that is used to determine if two objects collide before calling collision or query callbacks.
@@ -66,10 +66,10 @@ CP_EXPORT cpBB cpShapeUpdate(cpShape *shape, cpTransform transform);
 
 /// Perform a nearest point query. It finds the closest point on the surface of shape to a specific point.
 /// The value returned is the distance between the points. A negative distance means the point is inside the shape.
-CP_EXPORT cpFloat cpShapePointQuery(const cpShape *shape, cpVect p, cpPointQueryInfo *out);
+CP_EXPORT float cpShapePointQuery(const cpShape *shape, cpVect p, cpPointQueryInfo *out);
 
 /// Perform a segment query against a shape. @c info must be a pointer to a valid cpSegmentQueryInfo structure.
-CP_EXPORT cpBool cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, cpFloat radius, cpSegmentQueryInfo *info);
+CP_EXPORT cpBool cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, float radius, cpSegmentQueryInfo *info);
 
 /// Return contact information about two shapes.
 CP_EXPORT cpContactPointSet cpShapesCollide(const cpShape *a, const cpShape *b);
@@ -84,19 +84,19 @@ CP_EXPORT cpBody* cpShapeGetBody(const cpShape *shape);
 CP_EXPORT void cpShapeSetBody(cpShape *shape, cpBody *body);
 
 /// Get the mass of the shape if you are having Chipmunk calculate mass properties for you.
-CP_EXPORT cpFloat cpShapeGetMass(cpShape *shape);
+CP_EXPORT float cpShapeGetMass(cpShape *shape);
 /// Set the mass of this shape to have Chipmunk calculate mass properties for you.
-CP_EXPORT void cpShapeSetMass(cpShape *shape, cpFloat mass);
+CP_EXPORT void cpShapeSetMass(cpShape *shape, float mass);
 
 /// Get the density of the shape if you are having Chipmunk calculate mass properties for you.
-CP_EXPORT cpFloat cpShapeGetDensity(cpShape *shape);
+CP_EXPORT float cpShapeGetDensity(cpShape *shape);
 /// Set the density  of this shape to have Chipmunk calculate mass properties for you.
-CP_EXPORT void cpShapeSetDensity(cpShape *shape, cpFloat density);
+CP_EXPORT void cpShapeSetDensity(cpShape *shape, float density);
 
 /// Get the calculated moment of inertia for this shape.
-CP_EXPORT cpFloat cpShapeGetMoment(cpShape *shape);
+CP_EXPORT float cpShapeGetMoment(cpShape *shape);
 /// Get the calculated area of this shape.
-CP_EXPORT cpFloat cpShapeGetArea(cpShape *shape);
+CP_EXPORT float cpShapeGetArea(cpShape *shape);
 /// Get the centroid of this shape.
 CP_EXPORT cpVect cpShapeGetCenterOfGravity(cpShape *shape);
 
@@ -109,14 +109,14 @@ CP_EXPORT cpBool cpShapeGetSensor(const cpShape *shape);
 CP_EXPORT void cpShapeSetSensor(cpShape *shape, cpBool sensor);
 
 /// Get the elasticity of this shape.
-CP_EXPORT cpFloat cpShapeGetElasticity(const cpShape *shape);
+CP_EXPORT float cpShapeGetElasticity(const cpShape *shape);
 /// Set the elasticity of this shape.
-CP_EXPORT void cpShapeSetElasticity(cpShape *shape, cpFloat elasticity);
+CP_EXPORT void cpShapeSetElasticity(cpShape *shape, float elasticity);
 
 /// Get the friction of this shape.
-CP_EXPORT cpFloat cpShapeGetFriction(const cpShape *shape);
+CP_EXPORT float cpShapeGetFriction(const cpShape *shape);
 /// Set the friction of this shape.
-CP_EXPORT void cpShapeSetFriction(cpShape *shape, cpFloat friction);
+CP_EXPORT void cpShapeSetFriction(cpShape *shape, float friction);
 
 /// Get the surface velocity of this shape.
 CP_EXPORT cpVect cpShapeGetSurfaceVelocity(const cpShape *shape);
@@ -145,14 +145,14 @@ CP_EXPORT void cpShapeSetFilter(cpShape *shape, cpShapeFilter filter);
 /// Allocate a circle shape.
 CP_EXPORT cpCircleShape* cpCircleShapeAlloc(void);
 /// Initialize a circle shape.
-CP_EXPORT cpCircleShape* cpCircleShapeInit(cpCircleShape *circle, cpBody *body, cpFloat radius, cpVect offset);
+CP_EXPORT cpCircleShape* cpCircleShapeInit(cpCircleShape *circle, cpBody *body, float radius, cpVect offset);
 /// Allocate and initialize a circle shape.
-CP_EXPORT cpShape* cpCircleShapeNew(cpBody *body, cpFloat radius, cpVect offset);
+CP_EXPORT cpShape* cpCircleShapeNew(cpBody *body, float radius, cpVect offset);
 
 /// Get the offset of a circle shape.
 CP_EXPORT cpVect cpCircleShapeGetOffset(const cpShape *shape);
 /// Get the radius of a circle shape.
-CP_EXPORT cpFloat cpCircleShapeGetRadius(const cpShape *shape);
+CP_EXPORT float cpCircleShapeGetRadius(const cpShape *shape);
 
 /// @}
 /// @defgroup cpSegmentShape cpSegmentShape
@@ -160,9 +160,9 @@ CP_EXPORT cpFloat cpCircleShapeGetRadius(const cpShape *shape);
 /// Allocate a segment shape.
 CP_EXPORT cpSegmentShape* cpSegmentShapeAlloc(void);
 /// Initialize a segment shape.
-CP_EXPORT cpSegmentShape* cpSegmentShapeInit(cpSegmentShape *seg, cpBody *body, cpVect a, cpVect b, cpFloat radius);
+CP_EXPORT cpSegmentShape* cpSegmentShapeInit(cpSegmentShape *seg, cpBody *body, cpVect a, cpVect b, float radius);
 /// Allocate and initialize a segment shape.
-CP_EXPORT cpShape* cpSegmentShapeNew(cpBody *body, cpVect a, cpVect b, cpFloat radius);
+CP_EXPORT cpShape* cpSegmentShapeNew(cpBody *body, cpVect a, cpVect b, float radius);
 
 /// Let Chipmunk know about the geometry of adjacent segments to avoid colliding with endcaps.
 CP_EXPORT void cpSegmentShapeSetNeighbors(cpShape *shape, cpVect prev, cpVect next);
@@ -174,6 +174,6 @@ CP_EXPORT cpVect cpSegmentShapeGetB(const cpShape *shape);
 /// Get the normal of a segment shape.
 CP_EXPORT cpVect cpSegmentShapeGetNormal(const cpShape *shape);
 /// Get the first endpoint of a segment shape.
-CP_EXPORT cpFloat cpSegmentShapeGetRadius(const cpShape *shape);
+CP_EXPORT float cpSegmentShapeGetRadius(const cpShape *shape);
 
 /// @}

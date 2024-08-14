@@ -6,7 +6,7 @@
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
 
-void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, cpFloat ang, cpVect cog);
+void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, float ang, cpVect cog);
 void free_physics(physics_info *info);
 
 void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id);

@@ -87,7 +87,7 @@ cpArbiterGetPointB(const cpArbiter *arb, int i)
 	return cpvadd(arb->body_b->p, arb->contacts[i].r2);
 }
 
-cpFloat
+float
 cpArbiterGetDepth(const cpArbiter *arb, int i)
 {
 	cpAssertHard(0 <= i && i < cpArbiterGetCount(arb), "Index error: The specified contact index is invalid for this arbiter");
@@ -154,17 +154,17 @@ cpArbiterTotalImpulse(const cpArbiter *arb)
 	return cpvzero;
 }
 
-cpFloat
+float
 cpArbiterTotalKE(const cpArbiter *arb)
 {
-	cpFloat eCoef = (1 - arb->e)/(1 + arb->e);
-	cpFloat sum = 0.0;
+	float eCoef = (1 - arb->e)/(1 + arb->e);
+	float sum = 0.0;
 	
 	struct cpContact *contacts = arb->contacts;
 	for(int i=0, count=cpArbiterGetCount(arb); i<count; i++){
 		struct cpContact *con = &contacts[i];
-		cpFloat jnAcc = con->jnAcc;
-		cpFloat jtAcc = con->jtAcc;
+		float jnAcc = con->jnAcc;
+		float jtAcc = con->jtAcc;
 		
 		sum += eCoef*jnAcc*jnAcc/con->nMass + jtAcc*jtAcc/con->tMass;
 	}
@@ -179,38 +179,38 @@ cpArbiterIgnore(cpArbiter *arb)
 	return cpFalse;
 }
 
-cpFloat
-cpArbiterGetRestitution(const cpArbiter *arb)
+float
+phy_arbiter_get_restitution(const cpArbiter *arb)
 {
 	return arb->e;
 }
 
 void
-cpArbiterSetRestitution(cpArbiter *arb, cpFloat restitution)
+phy_arbiter_set_restitution(cpArbiter *arb, float restitution)
 {
 	arb->e = restitution;
 }
 
-cpFloat
-cpArbiterGetFriction(const cpArbiter *arb)
+float
+phy_arbiter_get_friction(const cpArbiter *arb)
 {
 	return arb->u;
 }
 
 void
-cpArbiterSetFriction(cpArbiter *arb, cpFloat friction)
+phy_arbiter_set_friction(cpArbiter *arb, float friction)
 {
 	arb->u = friction;
 }
 
 cpVect
-cpArbiterGetSurfaceVelocity(cpArbiter *arb)
+phy_arbiter_get_surface_velocity(cpArbiter *arb)
 {
 	return cpvmult(arb->surface_vr, arb->swapped ? -1.0f : 1.0);
 }
 
 void
-cpArbiterSetSurfaceVelocity(cpArbiter *arb, cpVect vr)
+phy_arbiter_set_surface_velocity(cpArbiter *arb, cpVect vr)
 {
 	arb->surface_vr = cpvmult(vr, arb->swapped ? -1.0f : 1.0);
 }
@@ -414,7 +414,7 @@ cpArbiterUpdate(cpArbiter *arb, struct cpCollisionInfo *info, cpSpace *space)
 }
 
 void
-cpArbiterPreStep(cpArbiter *arb, cpFloat dt, cpFloat slop, cpFloat bias)
+cpArbiterPreStep(cpArbiter *arb, float dt, float slop, float bias)
 {
 	cpBody *a = arb->body_a;
 	cpBody *b = arb->body_b;
@@ -429,7 +429,7 @@ cpArbiterPreStep(cpArbiter *arb, cpFloat dt, cpFloat slop, cpFloat bias)
 		con->tMass = 1.0f/k_scalar(a, b, con->r1, con->r2, cpvperp(n));
 				
 		// Calculate the target bias velocity.
-		cpFloat dist = cpvdot(cpvadd(cpvsub(con->r2, con->r1), body_delta), n);
+		float dist = cpvdot(cpvadd(cpvsub(con->r2, con->r1), body_delta), n);
 		con->bias = -bias*cpfmin(0.0f, dist + slop)/dt;
 		con->jBias = 0.0f;
 		
@@ -439,7 +439,7 @@ cpArbiterPreStep(cpArbiter *arb, cpFloat dt, cpFloat slop, cpFloat bias)
 }
 
 void
-cpArbiterApplyCachedImpulse(cpArbiter *arb, cpFloat dt_coef)
+cpArbiterApplyCachedImpulse(cpArbiter *arb, float dt_coef)
 {
 	if(cpArbiterIsFirstContact(arb)) return;
 	
@@ -463,11 +463,11 @@ cpArbiterApplyImpulse(cpArbiter *arb)
 	cpBody *b = arb->body_b;
 	cpVect n = arb->n;
 	cpVect surface_vr = arb->surface_vr;
-	cpFloat friction = arb->u;
+	float friction = arb->u;
 
 	for(int i=0; i<arb->count; i++){
 		struct cpContact *con = &arb->contacts[i];
-		cpFloat nMass = con->nMass;
+		float nMass = con->nMass;
 		cpVect r1 = con->r1;
 		cpVect r2 = con->r2;
 		
@@ -475,21 +475,21 @@ cpArbiterApplyImpulse(cpArbiter *arb)
 		cpVect vb2 = cpvadd(b->v_bias, cpvmult(cpvperp(r2), b->w_bias));
 		cpVect vr = cpvadd(relative_velocity(a, b, r1, r2), surface_vr);
 		
-		cpFloat vbn = cpvdot(cpvsub(vb2, vb1), n);
-		cpFloat vrn = cpvdot(vr, n);
-		cpFloat vrt = cpvdot(vr, cpvperp(n));
+		float vbn = cpvdot(cpvsub(vb2, vb1), n);
+		float vrn = cpvdot(vr, n);
+		float vrt = cpvdot(vr, cpvperp(n));
 		
-		cpFloat jbn = (con->bias - vbn)*nMass;
-		cpFloat jbnOld = con->jBias;
+		float jbn = (con->bias - vbn)*nMass;
+		float jbnOld = con->jBias;
 		con->jBias = cpfmax(jbnOld + jbn, 0.0f);
 		
-		cpFloat jn = -(con->bounce + vrn)*nMass;
-		cpFloat jnOld = con->jnAcc;
+		float jn = -(con->bounce + vrn)*nMass;
+		float jnOld = con->jnAcc;
 		con->jnAcc = cpfmax(jnOld + jn, 0.0f);
 		
-		cpFloat jtMax = friction*con->jnAcc;
-		cpFloat jt = -vrt*con->tMass;
-		cpFloat jtOld = con->jtAcc;
+		float jtMax = friction*con->jnAcc;
+		float jt = -vrt*con->tMass;
+		float jtOld = con->jtAcc;
 		con->jtAcc = cpfclamp(jtOld + jt, -jtMax, jtMax);
 		
 		apply_bias_impulses(a, b, r1, r2, cpvmult(n, con->jBias - jbnOld));

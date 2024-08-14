@@ -23,8 +23,8 @@ CP_EXPORT cpVect cpPinJointGetAnchorB(const cpConstraint *constraint);
 CP_EXPORT void cpPinJointSetAnchorB(cpConstraint *constraint, cpVect anchorB);
 
 /// Get the distance the joint will maintain between the two anchors.
-CP_EXPORT cpFloat cpPinJointGetDist(const cpConstraint *constraint);
+CP_EXPORT float cpPinJointGetDist(const cpConstraint *constraint);
 /// Set the distance the joint will maintain between the two anchors.
-CP_EXPORT void cpPinJointSetDist(cpConstraint *constraint, cpFloat dist);
+CP_EXPORT void cpPinJointSetDist(cpConstraint *constraint, float dist);
 
 ///@}

@@ -91,10 +91,10 @@ cpShapeSetBody(cpShape *shape, cpBody *body)
 	shape->body = body;
 }
 
-cpFloat cpShapeGetMass(cpShape *shape){ return shape->massInfo.m; }
+float cpShapeGetMass(cpShape *shape){ return shape->massInfo.m; }
 
 void
-cpShapeSetMass(cpShape *shape, cpFloat mass){
+cpShapeSetMass(cpShape *shape, float mass){
 	cpBody *body = shape->body;
 	cpBodyActivate(body);
 	
@@ -102,11 +102,11 @@ cpShapeSetMass(cpShape *shape, cpFloat mass){
 	cpBodyAccumulateMassFromShapes(body);
 }
 
-cpFloat cpShapeGetDensity(cpShape *shape){ return shape->massInfo.m/shape->massInfo.area; }
-void cpShapeSetDensity(cpShape *shape, cpFloat density){ cpShapeSetMass(shape, density*shape->massInfo.area); }
+float cpShapeGetDensity(cpShape *shape){ return shape->massInfo.m/shape->massInfo.area; }
+void cpShapeSetDensity(cpShape *shape, float density){ cpShapeSetMass(shape, density*shape->massInfo.area); }
 
-cpFloat cpShapeGetMoment(cpShape *shape){ return shape->massInfo.m*shape->massInfo.i; }
-cpFloat cpShapeGetArea(cpShape *shape){ return shape->massInfo.area; }
+float cpShapeGetMoment(cpShape *shape){ return shape->massInfo.m*shape->massInfo.i; }
+float cpShapeGetArea(cpShape *shape){ return shape->massInfo.area; }
 cpVect cpShapeGetCenterOfGravity(cpShape *shape) { return shape->massInfo.cog; }
 
 cpBB
@@ -128,28 +128,28 @@ cpShapeSetSensor(cpShape *shape, cpBool sensor)
 	shape->sensor = sensor;
 }
 
-cpFloat
+float
 cpShapeGetElasticity(const cpShape *shape)
 {
 	return shape->e;
 }
 
 void
-cpShapeSetElasticity(cpShape *shape, cpFloat elasticity)
+cpShapeSetElasticity(cpShape *shape, float elasticity)
 {
 	cpAssertHard(elasticity >= 0.0f, "Elasticity must be positive.");
 	cpBodyActivate(shape->body);
 	shape->e = elasticity;
 }
 
-cpFloat
+float
 cpShapeGetFriction(const cpShape *shape)
 {
 	return shape->u;
 }
 
 void
-cpShapeSetFriction(cpShape *shape, cpFloat friction)
+cpShapeSetFriction(cpShape *shape, float friction)
 {
 	cpAssertHard(friction >= 0.0f, "Friction must be postive.");
 	cpBodyActivate(shape->body);
@@ -219,7 +219,7 @@ cpShapeUpdate(cpShape *shape, cpTransform transform)
 	return (shape->bb = shape->klass->cacheData(shape, transform));
 }
 
-cpFloat
+float
 cpShapePointQuery(const cpShape *shape, cpVect p, cpPointQueryInfo *info)
 {
 	cpPointQueryInfo blank = {NULL, cpvzero, INFINITY, cpvzero};
@@ -235,7 +235,7 @@ cpShapePointQuery(const cpShape *shape, cpVect p, cpPointQueryInfo *info)
 
 
 cpBool
-cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, cpFloat radius, cpSegmentQueryInfo *info){
+cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, float radius, cpSegmentQueryInfo *info){
 	cpSegmentQueryInfo blank = {NULL, b, cpvzero, 1.0f};
 	if(info){
 		(*info) = blank;
@@ -259,7 +259,7 @@ cpShapeSegmentQuery(const cpShape *shape, cpVect a, cpVect b, cpFloat radius, cp
 cpContactPointSet
 cpShapesCollide(const cpShape *a, const cpShape *b)
 {
-	struct cpContact contacts[CP_MAX_CONTACTS_PER_ARBITER];
+	struct cpContact contacts[PHY_MAX_CONTACTS_PER_ARBITER];
 	struct cpCollisionInfo info = cpCollide(a, b, 0, contacts);
 	
 	cpContactPointSet set;
@@ -299,11 +299,11 @@ static void
 cpCircleShapePointQuery(cpCircleShape *circle, cpVect p, cpPointQueryInfo *info)
 {
 	cpVect delta = cpvsub(p, circle->tc);
-	cpFloat d = cpvlength(delta);
-	cpFloat r = circle->r;
+	float d = cpvlength(delta);
+	float r = circle->r;
 	
 	info->shape = (cpShape *)circle;
-	cpFloat r_over_d = d > 0.0f ? r/d : r;
+	float r_over_d = d > 0.0f ? r/d : r;
 	info->point = cpvadd(circle->tc, cpvmult(delta, r_over_d)); // TODO: div/0
 	info->distance = d - r;
 	
@@ -312,13 +312,13 @@ cpCircleShapePointQuery(cpCircleShape *circle, cpVect p, cpPointQueryInfo *info)
 }
 
 static void
-cpCircleShapeSegmentQuery(cpCircleShape *circle, cpVect a, cpVect b, cpFloat radius, cpSegmentQueryInfo *info)
+cpCircleShapeSegmentQuery(cpCircleShape *circle, cpVect a, cpVect b, float radius, cpSegmentQueryInfo *info)
 {
 	CircleSegmentQuery((cpShape *)circle, circle->tc, circle->r, a, b, radius, info);
 }
 
 static struct cpShapeMassInfo
-cpCircleShapeMassInfo(cpFloat mass, cpFloat radius, cpVect center)
+cpCircleShapeMassInfo(float mass, float radius, cpVect center)
 {
 	struct cpShapeMassInfo info = {
 		mass, cpMomentForCircle(1.0f, 0.0f, radius, cpvzero),
@@ -338,7 +338,7 @@ static const cpShapeClass cpCircleShapeClass = {
 };
 
 cpCircleShape *
-cpCircleShapeInit(cpCircleShape *circle, cpBody *body, cpFloat radius, cpVect offset)
+cpCircleShapeInit(cpCircleShape *circle, cpBody *body, float radius, cpVect offset)
 {
 	circle->c = offset;
 	circle->r = radius;
@@ -349,7 +349,7 @@ cpCircleShapeInit(cpCircleShape *circle, cpBody *body, cpFloat radius, cpVect of
 }
 
 cpShape *
-cpCircleShapeNew(cpBody *body, cpFloat radius, cpVect offset)
+cpCircleShapeNew(cpBody *body, float radius, cpVect offset)
 {
 	return (cpShape *)cpCircleShapeInit(cpCircleShapeAlloc(), body, radius, offset);
 }
@@ -361,7 +361,7 @@ cpCircleShapeGetOffset(const cpShape *shape)
 	return ((cpCircleShape *)shape)->c;
 }
 
-cpFloat
+float
 cpCircleShapeGetRadius(const cpShape *shape)
 {
 	cpAssertHard(shape->klass == &cpCircleShapeClass, "Shape is not a circle shape.");
@@ -382,7 +382,7 @@ cpSegmentShapeCacheData(cpSegmentShape *seg, cpTransform transform)
 	seg->tb = cpTransformPoint(transform, seg->b);
 	seg->tn = cpTransformVect(transform, seg->n);
 	
-	cpFloat l,r,b,t;
+	float l,r,b,t;
 	
 	if(seg->ta.x < seg->tb.x){
 		l = seg->ta.x;
@@ -400,7 +400,7 @@ cpSegmentShapeCacheData(cpSegmentShape *seg, cpTransform transform)
 		t = seg->ta.y;
 	}
 	
-	cpFloat rad = seg->r;
+	float rad = seg->r;
 	return cpBBNew(l - rad, b - rad, r + rad, t + rad);
 }
 
@@ -410,8 +410,8 @@ cpSegmentShapePointQuery(cpSegmentShape *seg, cpVect p, cpPointQueryInfo *info)
 	cpVect closest = cpClosetPointOnSegment(p, seg->ta, seg->tb);
 	
 	cpVect delta = cpvsub(p, closest);
-	cpFloat d = cpvlength(delta);
-	cpFloat r = seg->r;
+	float d = cpvlength(delta);
+	float r = seg->r;
 	cpVect g = cpvmult(delta, 1.0f/d);
 	
 	info->shape = (cpShape *)seg;
@@ -423,11 +423,11 @@ cpSegmentShapePointQuery(cpSegmentShape *seg, cpVect p, cpPointQueryInfo *info)
 }
 
 static void
-cpSegmentShapeSegmentQuery(cpSegmentShape *seg, cpVect a, cpVect b, cpFloat r2, cpSegmentQueryInfo *info)
+cpSegmentShapeSegmentQuery(cpSegmentShape *seg, cpVect a, cpVect b, float r2, cpSegmentQueryInfo *info)
 {
 	cpVect n = seg->tn;
-	cpFloat d = cpvdot(cpvsub(seg->ta, a), n);
-	cpFloat r = seg->r + r2;
+	float d = cpvdot(cpvsub(seg->ta, a), n);
+	float r = seg->r + r2;
 	
 	cpVect flipped_n = (d > 0.0f ? cpvneg(n) : n);
 	cpVect seg_offset = cpvsub(cpvmult(flipped_n, r), a);
@@ -438,12 +438,12 @@ cpSegmentShapeSegmentQuery(cpSegmentShape *seg, cpVect a, cpVect b, cpFloat r2, 
 	cpVect delta = cpvsub(b, a);
 	
 	if(cpvcross(delta, seg_a)*cpvcross(delta, seg_b) <= 0.0f){
-		cpFloat d_offset = d + (d > 0.0f ? -r : r);
-		cpFloat ad = -d_offset;
-		cpFloat bd = cpvdot(delta, n) - d_offset;
+		float d_offset = d + (d > 0.0f ? -r : r);
+		float ad = -d_offset;
+		float bd = cpvdot(delta, n) - d_offset;
 		
 		if(ad*bd < 0.0f){
-			cpFloat t = ad/(ad - bd);
+			float t = ad/(ad - bd);
 			
 			info->shape = (cpShape *)seg;
 			info->point = cpvsub(cpvlerp(a, b, t), cpvmult(flipped_n, r2));
@@ -465,7 +465,7 @@ cpSegmentShapeSegmentQuery(cpSegmentShape *seg, cpVect a, cpVect b, cpFloat r2, 
 }
 
 static struct cpShapeMassInfo
-cpSegmentShapeMassInfo(cpFloat mass, cpVect a, cpVect b, cpFloat r)
+cpSegmentShapeMassInfo(float mass, cpVect a, cpVect b, float r)
 {
 	struct cpShapeMassInfo info = {
 		mass, cpMomentForBox(1.0f, cpvdist(a, b) + 2.0f*r, 2.0f*r), // TODO is an approximation.
@@ -485,7 +485,7 @@ static const cpShapeClass cpSegmentShapeClass = {
 };
 
 cpSegmentShape *
-cpSegmentShapeInit(cpSegmentShape *seg, cpBody *body, cpVect a, cpVect b, cpFloat r)
+cpSegmentShapeInit(cpSegmentShape *seg, cpBody *body, cpVect a, cpVect b, float r)
 {
 	seg->a = a;
 	seg->b = b;
@@ -502,7 +502,7 @@ cpSegmentShapeInit(cpSegmentShape *seg, cpBody *body, cpVect a, cpVect b, cpFloa
 }
 
 cpShape*
-cpSegmentShapeNew(cpBody *body, cpVect a, cpVect b, cpFloat r)
+cpSegmentShapeNew(cpBody *body, cpVect a, cpVect b, float r)
 {
 	return (cpShape *)cpSegmentShapeInit(cpSegmentShapeAlloc(), body, a, b, r);
 }
@@ -528,7 +528,7 @@ cpSegmentShapeGetNormal(const cpShape *shape)
 	return ((cpSegmentShape *)shape)->n;
 }
 
-cpFloat
+float
 cpSegmentShapeGetRadius(const cpShape *shape)
 {
 	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
@@ -550,14 +550,14 @@ cpSegmentShapeSetNeighbors(cpShape *shape, cpVect prev, cpVect next)
 // TODO setters should wake the shape up?
 
 void
-cpCircleShapeSetRadius(cpShape *shape, cpFloat radius)
+cpCircleShapeSetRadius(cpShape *shape, float radius)
 {
 	cpAssertHard(shape->klass == &cpCircleShapeClass, "Shape is not a circle shape.");
 	cpCircleShape *circle = (cpCircleShape *)shape;
 	
 	circle->r = radius;
 	
-	cpFloat mass = shape->massInfo.m;
+	float mass = shape->massInfo.m;
 	shape->massInfo = cpCircleShapeMassInfo(mass, circle->r, circle->c);
 	if(mass > 0.0f) cpBodyAccumulateMassFromShapes(shape->body);
 }
@@ -570,7 +570,7 @@ cpCircleShapeSetOffset(cpShape *shape, cpVect offset)
 	
 	circle->c = offset;
 
-	cpFloat mass = shape->massInfo.m;
+	float mass = shape->massInfo.m;
 	shape->massInfo = cpCircleShapeMassInfo(shape->massInfo.m, circle->r, circle->c);
 	if(mass > 0.0f) cpBodyAccumulateMassFromShapes(shape->body);
 }
@@ -585,20 +585,20 @@ cpSegmentShapeSetEndpoints(cpShape *shape, cpVect a, cpVect b)
 	seg->b = b;
 	seg->n = cpvperp(cpvnormalize(cpvsub(b, a)));
 
-	cpFloat mass = shape->massInfo.m;
+	float mass = shape->massInfo.m;
 	shape->massInfo = cpSegmentShapeMassInfo(shape->massInfo.m, seg->a, seg->b, seg->r);
 	if(mass > 0.0f) cpBodyAccumulateMassFromShapes(shape->body);
 }
 
 void
-cpSegmentShapeSetRadius(cpShape *shape, cpFloat radius)
+cpSegmentShapeSetRadius(cpShape *shape, float radius)
 {
 	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
 	cpSegmentShape *seg = (cpSegmentShape *)shape;
 	
 	seg->r = radius;
 
-	cpFloat mass = shape->massInfo.m;
+	float mass = shape->massInfo.m;
 	shape->massInfo = cpSegmentShapeMassInfo(shape->massInfo.m, seg->a, seg->b, seg->r);
 	if(mass > 0.0f) cpBodyAccumulateMassFromShapes(shape->body);
 }

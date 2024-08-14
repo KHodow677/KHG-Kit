@@ -86,9 +86,9 @@ GetBB(cpBBTree *tree, void *obj)
 	
 	cpBBTreeVelocityFunc velocityFunc = tree->velocityFunc;
 	if(velocityFunc){
-		cpFloat coef = 0.1f;
-		cpFloat x = (bb.r - bb.l)*coef;
-		cpFloat y = (bb.t - bb.b)*coef;
+		float coef = 0.1f;
+		float x = (bb.r - bb.l)*coef;
+		float y = (bb.t - bb.b)*coef;
 		
 		cpVect v = cpvmult(velocityFunc(obj), 0.1f);
 		return cpBBNew(bb.l + cpfmin(-x, v.x), bb.b + cpfmin(-y, v.y), bb.r + cpfmax(x, v.x), bb.t + cpfmax(y, v.y));
@@ -316,7 +316,7 @@ NodeReplaceChild(Node *parent, Node *child, Node *value, cpBBTree *tree)
 
 //MARK: Subtree Functions
 
-static inline cpFloat
+static inline float
 cpBBProximity(cpBB a, cpBB b)
 {
 	return cpfabs(a.l + a.r - b.l - b.r) + cpfabs(a.b + a.t - b.b - b.t);
@@ -330,8 +330,8 @@ SubtreeInsert(Node *subtree, Node *leaf, cpBBTree *tree)
 	} else if(NodeIsLeaf(subtree)){
 		return NodeNew(tree, leaf, subtree);
 	} else {
-		cpFloat cost_a = cpBBArea(subtree->B->bb) + cpBBMergedArea(subtree->A->bb, leaf->bb);
-		cpFloat cost_b = cpBBArea(subtree->A->bb) + cpBBMergedArea(subtree->B->bb, leaf->bb);
+		float cost_a = cpBBArea(subtree->B->bb) + cpBBMergedArea(subtree->A->bb, leaf->bb);
+		float cost_b = cpBBArea(subtree->A->bb) + cpBBMergedArea(subtree->B->bb, leaf->bb);
 		
 		if(cost_a == cost_b){
 			cost_a = cpBBProximity(subtree->A->bb, leaf->bb);
@@ -363,14 +363,14 @@ SubtreeQuery(Node *subtree, void *obj, cpBB bb, cpSpatialIndexQueryFunc func, vo
 }
 
 
-static cpFloat
-SubtreeSegmentQuery(Node *subtree, void *obj, cpVect a, cpVect b, cpFloat t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+static float
+SubtreeSegmentQuery(Node *subtree, void *obj, cpVect a, cpVect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
 	if(NodeIsLeaf(subtree)){
 		return func(obj, subtree->obj, data);
 	} else {
-		cpFloat t_a = cpBBSegmentQuery(subtree->A->bb, a, b);
-		cpFloat t_b = cpBBSegmentQuery(subtree->B->bb, a, b);
+		float t_a = cpBBSegmentQuery(subtree->A->bb, a, b);
+		float t_b = cpBBSegmentQuery(subtree->B->bb, a, b);
 		
 		if(t_a < t_b){
 			if(t_a < t_exit) t_exit = cpfmin(t_exit, SubtreeSegmentQuery(subtree->A, obj, a, b, t_exit, func, data));
@@ -672,7 +672,7 @@ cpBBTreeReindexObject(cpBBTree *tree, void *obj, cpHashValue hashid)
 //MARK: Query
 
 static void
-cpBBTreeSegmentQuery(cpBBTree *tree, void *obj, cpVect a, cpVect b, cpFloat t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+cpBBTreeSegmentQuery(cpBBTree *tree, void *obj, cpVect a, cpVect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
 	Node *root = tree->root;
 	if(root) SubtreeSegmentQuery(root, obj, a, b, t_exit, func, data);
@@ -730,7 +730,7 @@ static inline cpSpatialIndexClass *Klass(){return &klass;}
 //MARK: Tree Optimization
 
 static int
-cpfcompare(const cpFloat *a, const cpFloat *b){
+cpfcompare(const float *a, const float *b){
 	return (*a < *b ? -1 : (*b < *a ? 1 : 0));
 }
 
@@ -757,7 +757,7 @@ partitionNodes(cpBBTree *tree, Node **nodes, int count)
 	cpBool splitWidth = (bb.r - bb.l > bb.t - bb.b);
 	
 	// Sort the bounds and use the median as the splitting point
-	cpFloat *bounds = (cpFloat *)cpcalloc(count*2, sizeof(cpFloat));
+	float *bounds = (float *)cpcalloc(count*2, sizeof(float));
 	if(splitWidth){
 		for(int i=0; i<count; i++){
 			bounds[2*i + 0] = nodes[i]->bb.l;
@@ -770,8 +770,8 @@ partitionNodes(cpBBTree *tree, Node **nodes, int count)
 		}
 	}
 	
-	qsort(bounds, count*2, sizeof(cpFloat), (int (*)(const void *, const void *))cpfcompare);
-	cpFloat split = (bounds[count - 1] + bounds[count])*0.5f; // use the medain as the split
+	qsort(bounds, count*2, sizeof(float), (int (*)(const void *, const void *))cpfcompare);
+	float split = (bounds[count - 1] + bounds[count])*0.5f; // use the medain as the split
 	cpfree(bounds);
 
 	// Generate the child BBs

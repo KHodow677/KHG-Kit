@@ -22,7 +22,7 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpPinJoint *joint, cpFloat dt)
+preStep(cpPinJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -31,19 +31,19 @@ preStep(cpPinJoint *joint, cpFloat dt)
 	joint->r2 = cpTransformVect(b->transform, cpvsub(joint->anchorB, b->cog));
 	
 	cpVect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
-	cpFloat dist = cpvlength(delta);
-	joint->n = cpvmult(delta, 1.0f/(dist ? dist : (cpFloat)INFINITY));
+	float dist = cpvlength(delta);
+	joint->n = cpvmult(delta, 1.0f/(dist ? dist : (float)INFINITY));
 	
 	// calculate mass normal
 	joint->nMass = 1.0f/k_scalar(a, b, joint->r1, joint->r2, joint->n);
 	
 	// calculate bias velocity
-	cpFloat maxBias = joint->constraint.maxBias;
+	float maxBias = joint->constraint.maxBias;
 	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*(dist - joint->dist)/dt, -maxBias, maxBias);
 }
 
 static void
-applyCachedImpulse(cpPinJoint *joint, cpFloat dt_coef)
+applyCachedImpulse(cpPinJoint *joint, float dt_coef)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -53,20 +53,20 @@ applyCachedImpulse(cpPinJoint *joint, cpFloat dt_coef)
 }
 
 static void
-applyImpulse(cpPinJoint *joint, cpFloat dt)
+applyImpulse(cpPinJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
 	cpVect n = joint->n;
 
 	// compute relative velocity
-	cpFloat vrn = normal_relative_velocity(a, b, joint->r1, joint->r2, n);
+	float vrn = normal_relative_velocity(a, b, joint->r1, joint->r2, n);
 	
-	cpFloat jnMax = joint->constraint.maxForce*dt;
+	float jnMax = joint->constraint.maxForce*dt;
 	
 	// compute normal impulse
-	cpFloat jn = (joint->bias - vrn)*joint->nMass;
-	cpFloat jnOld = joint->jnAcc;
+	float jn = (joint->bias - vrn)*joint->nMass;
+	float jnOld = joint->jnAcc;
 	joint->jnAcc = cpfclamp(jnOld + jn, -jnMax, jnMax);
 	jn = joint->jnAcc - jnOld;
 	
@@ -74,7 +74,7 @@ applyImpulse(cpPinJoint *joint, cpFloat dt)
 	apply_impulses(a, b, joint->r1, joint->r2, cpvmult(n, jn));
 }
 
-static cpFloat
+static float
 getImpulse(cpPinJoint *joint)
 {
 	return cpfabs(joint->jnAcc);
@@ -156,7 +156,7 @@ cpPinJointSetAnchorB(cpConstraint *constraint, cpVect anchorB)
 	((cpPinJoint *)constraint)->anchorB = anchorB;
 }
 
-cpFloat
+float
 cpPinJointGetDist(const cpConstraint *constraint)
 {
 	cpAssertHard(cpConstraintIsPinJoint(constraint), "Constraint is not a pin joint.");
@@ -164,7 +164,7 @@ cpPinJointGetDist(const cpConstraint *constraint)
 }
 
 void
-cpPinJointSetDist(cpConstraint *constraint, cpFloat dist)
+cpPinJointSetDist(cpConstraint *constraint, float dist)
 {
 	cpAssertHard(cpConstraintIsPinJoint(constraint), "Constraint is not a pin joint.");
 	cpConstraintActivateBodies(constraint);

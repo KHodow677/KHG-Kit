@@ -25,7 +25,7 @@
 
 struct PointQueryContext {
 	cpVect point;
-	cpFloat maxDistance;
+	float maxDistance;
 	cpShapeFilter filter;
 	cpSpacePointQueryFunc func;
 };
@@ -46,7 +46,7 @@ NearestPointQuery(struct PointQueryContext *context, cpShape *shape, cpCollision
 }
 
 void
-cpSpacePointQuery(cpSpace *space, cpVect point, cpFloat maxDistance, cpShapeFilter filter, cpSpacePointQueryFunc func, void *data)
+cpSpacePointQuery(cpSpace *space, cpVect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryFunc func, void *data)
 {
 	struct PointQueryContext context = {point, maxDistance, filter, func};
 	cpBB bb = cpBBNewForCircle(point, cpfmax(maxDistance, 0.0f));
@@ -73,7 +73,7 @@ NearestPointQueryNearest(struct PointQueryContext *context, cpShape *shape, cpCo
 }
 
 cpShape *
-cpSpacePointQueryNearest(cpSpace *space, cpVect point, cpFloat maxDistance, cpShapeFilter filter, cpPointQueryInfo *out)
+cpSpacePointQueryNearest(cpSpace *space, cpVect point, float maxDistance, cpShapeFilter filter, cpPointQueryInfo *out)
 {
 	cpPointQueryInfo info = {NULL, cpvzero, maxDistance, cpvzero};
 	if(out){
@@ -100,12 +100,12 @@ cpSpacePointQueryNearest(cpSpace *space, cpVect point, cpFloat maxDistance, cpSh
 
 struct SegmentQueryContext {
 	cpVect start, end;
-	cpFloat radius;
+	float radius;
 	cpShapeFilter filter;
 	cpSpaceSegmentQueryFunc func;
 };
 
-static cpFloat
+static float
 SegmentQuery(struct SegmentQueryContext *context, cpShape *shape, void *data)
 {
 	cpSegmentQueryInfo info;
@@ -121,7 +121,7 @@ SegmentQuery(struct SegmentQueryContext *context, cpShape *shape, void *data)
 }
 
 void
-cpSpaceSegmentQuery(cpSpace *space, cpVect start, cpVect end, cpFloat radius, cpShapeFilter filter, cpSpaceSegmentQueryFunc func, void *data)
+cpSpaceSegmentQuery(cpSpace *space, cpVect start, cpVect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryFunc func, void *data)
 {
 	struct SegmentQueryContext context = {
 		start, end,
@@ -136,7 +136,7 @@ cpSpaceSegmentQuery(cpSpace *space, cpVect start, cpVect end, cpFloat radius, cp
 	} cpSpaceUnlock(space, cpTrue);
 }
 
-static cpFloat
+static float
 SegmentQueryFirst(struct SegmentQueryContext *context, cpShape *shape, cpSegmentQueryInfo *out)
 {
 	cpSegmentQueryInfo info;
@@ -153,7 +153,7 @@ SegmentQueryFirst(struct SegmentQueryContext *context, cpShape *shape, cpSegment
 }
 
 cpShape *
-cpSpaceSegmentQueryFirst(cpSpace *space, cpVect start, cpVect end, cpFloat radius, cpShapeFilter filter, cpSegmentQueryInfo *out)
+cpSpaceSegmentQueryFirst(cpSpace *space, cpVect start, cpVect end, float radius, cpShapeFilter filter, cpSegmentQueryInfo *out)
 {
 	cpSegmentQueryInfo info = {NULL, end, cpvzero, 1.0f};
 	if(out){

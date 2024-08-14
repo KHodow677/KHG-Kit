@@ -161,7 +161,7 @@ cpSpacePushFreshContactBuffer(cpSpace *space)
 struct cpContact *
 cpContactBufferGetArray(cpSpace *space)
 {
-	if(space->contactBuffersHead->numContacts + CP_MAX_CONTACTS_PER_ARBITER > CP_CONTACTS_BUFFER_SIZE){
+	if(space->contactBuffersHead->numContacts + PHY_MAX_CONTACTS_PER_ARBITER > CP_CONTACTS_BUFFER_SIZE){
 		// contact buffer could overflow on the next collision, push a fresh one.
 		cpSpacePushFreshContactBuffer(space);
 	}
@@ -173,7 +173,7 @@ cpContactBufferGetArray(cpSpace *space)
 void
 cpSpacePushContacts(cpSpace *space, int count)
 {
-	cpAssertHard(count <= CP_MAX_CONTACTS_PER_ARBITER, "Internal Error: Contact buffer overflow!");
+	cpAssertHard(count <= PHY_MAX_CONTACTS_PER_ARBITER, "Internal Error: Contact buffer overflow!");
 	space->contactBuffersHead->numContacts += count;
 }
 
@@ -333,14 +333,14 @@ cpShapeUpdateFunc(cpShape *shape, void *unused)
 }
 
 void
-cpSpaceStep(cpSpace *space, cpFloat dt)
+cpSpaceStep(cpSpace *space, float dt)
 {
 	// don't step if the timestep is 0!
 	if(dt == 0.0f) return;
 	
 	space->stamp++;
 	
-	cpFloat prev_dt = space->curr_dt;
+	float prev_dt = space->curr_dt;
 	space->curr_dt = dt;
 		
 	cpArray *bodies = space->dynamicBodies;
@@ -380,8 +380,8 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 		cpHashSetFilter(space->cachedArbiters, (cpHashSetFilterFunc)cpSpaceArbiterSetFilter, space);
 
 		// Prestep the arbiters and constraints.
-		cpFloat slop = space->collisionSlop;
-		cpFloat biasCoef = 1.0f - cpfpow(space->collisionBias, dt);
+		float slop = space->collisionSlop;
+		float biasCoef = 1.0f - cpfpow(space->collisionBias, dt);
 		for(int i=0; i<arbiters->num; i++){
 			cpArbiterPreStep((cpArbiter *)arbiters->arr[i], dt, slop, biasCoef);
 		}
@@ -396,7 +396,7 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 		}
 	
 		// Integrate velocities.
-		cpFloat damping = cpfpow(space->damping, dt);
+		float damping = cpfpow(space->damping, dt);
 		cpVect gravity = space->gravity;
 		for(int i=0; i<bodies->num; i++){
 			cpBody *body = (cpBody *)bodies->arr[i];
@@ -404,7 +404,7 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 		}
 		
 		// Apply cached impulses
-		cpFloat dt_coef = (prev_dt == 0.0f ? 0.0f : dt/prev_dt);
+		float dt_coef = (prev_dt == 0.0f ? 0.0f : dt/prev_dt);
 		for(int i=0; i<arbiters->num; i++){
 			cpArbiterApplyCachedImpulse((cpArbiter *)arbiters->arr[i], dt_coef);
 		}

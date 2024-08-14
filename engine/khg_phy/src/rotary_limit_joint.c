@@ -22,13 +22,13 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpRotaryLimitJoint *joint, cpFloat dt)
+preStep(cpRotaryLimitJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
 	
-	cpFloat dist = b->a - a->a;
-	cpFloat pdist = 0.0f;
+	float dist = b->a - a->a;
+	float pdist = 0.0f;
 	if(dist > joint->max) {
 		pdist = joint->max - dist;
 	} else if(dist < joint->min) {
@@ -39,7 +39,7 @@ preStep(cpRotaryLimitJoint *joint, cpFloat dt)
 	joint->iSum = 1.0f/(a->i_inv + b->i_inv);
 	
 	// calculate bias velocity
-	cpFloat maxBias = joint->constraint.maxBias;
+	float maxBias = joint->constraint.maxBias;
 	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
 
 	// If the bias is 0, the joint is not at a limit. Reset the impulse.
@@ -47,18 +47,18 @@ preStep(cpRotaryLimitJoint *joint, cpFloat dt)
 }
 
 static void
-applyCachedImpulse(cpRotaryLimitJoint *joint, cpFloat dt_coef)
+applyCachedImpulse(cpRotaryLimitJoint *joint, float dt_coef)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
 	
-	cpFloat j = joint->jAcc*dt_coef;
+	float j = joint->jAcc*dt_coef;
 	a->w -= j*a->i_inv;
 	b->w += j*b->i_inv;
 }
 
 static void
-applyImpulse(cpRotaryLimitJoint *joint, cpFloat dt)
+applyImpulse(cpRotaryLimitJoint *joint, float dt)
 {
 	if(!joint->bias) return; // early exit
 
@@ -66,13 +66,13 @@ applyImpulse(cpRotaryLimitJoint *joint, cpFloat dt)
 	cpBody *b = joint->constraint.b;
 	
 	// compute relative rotational velocity
-	cpFloat wr = b->w - a->w;
+	float wr = b->w - a->w;
 	
-	cpFloat jMax = joint->constraint.maxForce*dt;
+	float jMax = joint->constraint.maxForce*dt;
 	
 	// compute normal impulse	
-	cpFloat j = -(joint->bias + wr)*joint->iSum;
-	cpFloat jOld = joint->jAcc;
+	float j = -(joint->bias + wr)*joint->iSum;
+	float jOld = joint->jAcc;
 	if(joint->bias < 0.0f){
 		joint->jAcc = cpfclamp(jOld + j, 0.0f, jMax);
 	} else {
@@ -85,7 +85,7 @@ applyImpulse(cpRotaryLimitJoint *joint, cpFloat dt)
 	b->w += j*b->i_inv;
 }
 
-static cpFloat
+static float
 getImpulse(cpRotaryLimitJoint *joint)
 {
 	return cpfabs(joint->jAcc);
@@ -105,7 +105,7 @@ cpRotaryLimitJointAlloc(void)
 }
 
 cpRotaryLimitJoint *
-cpRotaryLimitJointInit(cpRotaryLimitJoint *joint, cpBody *a, cpBody *b, cpFloat min, cpFloat max)
+cpRotaryLimitJointInit(cpRotaryLimitJoint *joint, cpBody *a, cpBody *b, float min, float max)
 {
 	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
 	
@@ -118,7 +118,7 @@ cpRotaryLimitJointInit(cpRotaryLimitJoint *joint, cpBody *a, cpBody *b, cpFloat 
 }
 
 cpConstraint *
-cpRotaryLimitJointNew(cpBody *a, cpBody *b, cpFloat min, cpFloat max)
+cpRotaryLimitJointNew(cpBody *a, cpBody *b, float min, float max)
 {
 	return (cpConstraint *)cpRotaryLimitJointInit(cpRotaryLimitJointAlloc(), a, b, min, max);
 }
@@ -129,7 +129,7 @@ cpConstraintIsRotaryLimitJoint(const cpConstraint *constraint)
 	return (constraint->klass == &klass);
 }
 
-cpFloat
+float
 cpRotaryLimitJointGetMin(const cpConstraint *constraint)
 {
 	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
@@ -137,14 +137,14 @@ cpRotaryLimitJointGetMin(const cpConstraint *constraint)
 }
 
 void
-cpRotaryLimitJointSetMin(cpConstraint *constraint, cpFloat min)
+cpRotaryLimitJointSetMin(cpConstraint *constraint, float min)
 {
 	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
 	cpConstraintActivateBodies(constraint);
 	((cpRotaryLimitJoint *)constraint)->min = min;
 }
 
-cpFloat
+float
 cpRotaryLimitJointGetMax(const cpConstraint *constraint)
 {
 	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
@@ -152,7 +152,7 @@ cpRotaryLimitJointGetMax(const cpConstraint *constraint)
 }
 
 void
-cpRotaryLimitJointSetMax(cpConstraint *constraint, cpFloat max)
+cpRotaryLimitJointSetMax(cpConstraint *constraint, float max)
 {
 	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
 	cpConstraintActivateBodies(constraint);
