@@ -225,7 +225,7 @@ static void map_erase_fixup(utl_map *map, utl_map_node *x) {
     }
   }
   if (x != NULL) { 
-      x->color = BLACK;
+    x->color = BLACK;
   }
 }
 

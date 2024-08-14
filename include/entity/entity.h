@@ -1,25 +1,23 @@
 #pragma once
 
-#include "generators/elements/particle_generator.h"
-#include "generators/elements/tank_body_generator.h"
-#include "generators/elements/tank_top_generator.h"
+#include "generators/entities/particle_generator.h"
+#include "generators/entities/tank_generator.h"
 
 typedef struct {
   enum {
     ENTITY_TYPE_NONE,
     ENTITY_TYPE_PARTICLE,
-    ENTITY_TYPE_TANK_BODY,
-    ENTITY_TYPE_TANK_TOP
+    ENTITY_TYPE_TANK,
   } type;
-
   union {
     particle *particle;
-    tank_body *tank_body;
-    tank_top *tank_top;
+    tank *tank;
   };
 } generic_entity;
 
 bool generic_entity_is_particle(generic_entity *entity);
-bool generic_entity_is_tank_body(generic_entity *entity);
-bool generic_entity_is_tank_top(generic_entity *entity);
+bool generic_entity_is_tank(generic_entity *entity);
+void free_entity(generic_entity *ge);
+void generate_entity_lookup(void);
+void free_entity_lookup(void);
 

@@ -1,8 +1,13 @@
 #include "entity/comp_destroyer.h"
 #include "data_utl/map_utl.h"
+#include "entity/ecs_manager.h"
+#include "entity/entity.h"
+#include "generators/entities/particle_generator.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/map.h"
+#include "khg_utl/vector.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 ecs_id DESTROYER_COMPONENT_SIGNATURE;
 utl_map *DESTROYER_INFO_MAP = NULL;
@@ -38,9 +43,19 @@ ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, e
     return 0;
   }
   destroyer_info *info = utl_map_at(DESTROYER_INFO_MAP, &entities[0]);
+  generic_entity *ge = NULL;
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(DESTROYER_INFO_MAP, &entities[id]);
     if (info->destroy_now) {
+      for (int i = 0; i < utl_vector_size(ENTITY_LOOKUP); i++) {
+        ge = *(generic_entity **)utl_vector_at(ENTITY_LOOKUP, i);
+        if (ge->particle->entity == entities[id]) {
+          utl_vector_erase(ENTITY_LOOKUP, i, 1);
+          free_particle(ge->particle);
+          free(ge);
+          break; 
+        }
+      }
       ecs_queue_destroy(ecs, entities[id]);
     }
   }

@@ -18,6 +18,7 @@ void add_new_texture(char *file_name, char *file_type, float width, float height
 }
 
 void generate_textures() {
+  TEXTURE_LOOKUP = utl_vector_create(sizeof(gfx_texture *));
   add_new_texture("Tank-Body-Blue", "png", 145, 184);
   add_new_texture("Tank-Top-Blue", "png", 102, 209);
   add_new_texture("particle/00", "png", 107, 100);

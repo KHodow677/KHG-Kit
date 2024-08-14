@@ -2,11 +2,14 @@
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
+#include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
-#include "game.h"
+#include "entity/ecs_manager.h"
+#include "khg_phy/body.h"
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"
+#include "khg_phy/vect.h"
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, cpFloat ang, cpVect cog) {
   float moment = cpMomentForBox(mass, width, height);
@@ -50,10 +53,17 @@ void generate_destroyer(destroyer_info *info) {
   info->destroy_now = false;
 }
 
-void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int frame_duration) {
+void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int frame_duration, bool destroy_on_max) {
   info->min_tex_id = min_tex_id;
   info->max_tex_id = max_tex_id;
   info->frame_duration = frame_duration;
   info->frame_timer = frame_duration;
+  info->destroy_on_max = destroy_on_max;
+}
+
+void generate_mover(mover_info *info, physics_info *p_info) {
+  info->body = p_info->body;
+  info->target_move_pos = cpBodyGetPosition(info->body);
+  info->target_look_pos = cpvadd(info->target_move_pos, cpv(0.0f, -50.0f));
 }
 
