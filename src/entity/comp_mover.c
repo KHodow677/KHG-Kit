@@ -1,7 +1,6 @@
 #include "entity/comp_mover.h"
 #include "controllers/input/mouse_controller.h"
 #include "controllers/elements/element_controller.h"
-#include "entity/comp_destroyer.h"
 #include "entity/comp_physics.h"
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
@@ -51,7 +50,7 @@ ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_d
     if (!cpveql(handle_left_mouse_controls(), cpv(-1.0f, -1.0f))) {
       info->target_move_pos = handle_left_mouse_controls();
     }
-    element_target_position(p_info, info->target_move_pos, 60.0f, 1.0f);
+    element_target_position(p_info, info->target_move_pos, 100.0f, 5.0f);
   }
   return 0;
 }

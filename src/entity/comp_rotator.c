@@ -53,7 +53,7 @@ ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
       info->target_look_pos = handle_right_mouse_controls();
       p_info->is_locked_on = false;
     }
-    element_lock_on_position(p_info, info->target_look_pos, 1.0f);
+    element_lock_on_position(p_info, info->target_look_pos, 5.0f);
   }
   return 0;
 }
