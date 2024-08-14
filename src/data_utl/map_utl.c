@@ -14,4 +14,3 @@ void no_deallocator(void *data) {
 void free_deallocator(void *data) {
   free(data);
 }
-
