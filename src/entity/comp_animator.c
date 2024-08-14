@@ -2,7 +2,6 @@
 #include "entity/comp_destroyer.h"
 #include "entity/comp_renderer.h"
 #include "data_utl/map_utl.h"
-#include "generators/entities/particle_generator.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/map.h"
 #include <stdio.h>

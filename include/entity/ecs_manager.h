@@ -7,13 +7,11 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "khg_ecs/ecs.h"
-#include "khg_utl/map.h"
 #include "khg_utl/vector.h"
 
 extern cpSpace *SPACE;
 extern ecs_ecs *ECS;
-extern utl_map *ENTITY_LOOKUP;
-extern utl_map *ENTITY_DELETE_LOOKUP;
+extern utl_vector *ENTITY_LOOKUP;
 extern utl_vector *TEXTURE_LOOKUP;
 
 extern sys_physics PHYSICS_SYSTEM;

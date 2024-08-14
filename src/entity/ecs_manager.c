@@ -1,14 +1,12 @@
 #include "entity/ecs_manager.h"
 #include "entity/comp_mover.h"
-#include "data_utl/map_utl.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
+#include "entity/entity.h"
 #include "generators/components/texture_generator.h"
-#include "khg_gfx/texture.h"
-#include "khg_utl/map.h"
 #include "khg_utl/vector.h"
 #include "physics/physics_setup.h"
 #include "khg_ecs/ecs.h"
@@ -17,8 +15,7 @@
 
 cpSpace *SPACE;
 ecs_ecs *ECS;
-utl_map *ENTITY_LOOKUP;
-utl_map *ENTITY_DELETE_LOOKUP;
+utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;
 
 sys_physics PHYSICS_SYSTEM = { 0 };
@@ -49,9 +46,7 @@ void ecs_setup() {
   sys_destroyer_register(&DESTROYER_SYSTEM, ECS);
   sys_animator_register(&ANIMATOR_SYSTEM, ECS);
   sys_mover_register(&MOVER_SYSTEM, ECS);
-  ENTITY_LOOKUP = utl_map_create(compare_ints, no_deallocator, free_entity_deallocator);
-  ENTITY_DELETE_LOOKUP = utl_map_create(compare_ints, no_deallocator, free_entity_deallocator);
-  TEXTURE_LOOKUP = utl_vector_create(sizeof(gfx_texture *));
+  generate_entity_lookup();
   generate_textures();
 }
 
@@ -61,9 +56,8 @@ void ecs_cleanup() {
   sys_follower_free(false);
   sys_destroyer_free(false);
   sys_mover_free(false);
+  free_entity_lookup();
   free_textures();
-  utl_map_deallocate(ENTITY_LOOKUP);
-  utl_map_deallocate(ENTITY_DELETE_LOOKUP);
   physics_free(SPACE);
   ecs_free(ECS);
 }
