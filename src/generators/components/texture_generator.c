@@ -21,22 +21,27 @@ void generate_textures() {
   TEXTURE_LOOKUP = utl_vector_create(sizeof(gfx_texture *));
   add_new_texture("Tank-Body-Blue", "png", 145, 184);
   add_new_texture("Tank-Top-Blue", "png", 102, 209);
-  add_new_texture("particle/00", "png", 107, 100);
-  add_new_texture("particle/01", "png", 107, 100);
-  add_new_texture("particle/02", "png", 107, 100);
-  add_new_texture("particle/03", "png", 107, 100);
-  add_new_texture("particle/04", "png", 107, 100);
-  add_new_texture("particle/05", "png", 107, 100);
-  add_new_texture("particle/06", "png", 107, 100);
-  add_new_texture("particle/07", "png", 107, 100);
-  add_new_texture("particle/08", "png", 107, 100);
-  add_new_texture("particle/09", "png", 107, 100);
-  add_new_texture("particle/10", "png", 107, 100);
-  add_new_texture("particle/11", "png", 107, 100);
-  add_new_texture("particle/12", "png", 107, 100);
-  add_new_texture("particle/13", "png", 107, 100);
-  add_new_texture("particle/14", "png", 107, 100);
-  add_new_texture("particle/15", "png", 107, 100);
+  add_new_texture("particle/p1/00", "png", 107, 100);
+  add_new_texture("particle/p1/01", "png", 107, 100);
+  add_new_texture("particle/p1/02", "png", 107, 100);
+  add_new_texture("particle/p1/03", "png", 107, 100);
+  add_new_texture("particle/p1/04", "png", 107, 100);
+  add_new_texture("particle/p1/05", "png", 107, 100);
+  add_new_texture("particle/p1/06", "png", 107, 100);
+  add_new_texture("particle/p1/07", "png", 107, 100);
+  add_new_texture("particle/p1/08", "png", 107, 100);
+  add_new_texture("particle/p1/09", "png", 107, 100);
+  add_new_texture("particle/p1/10", "png", 107, 100);
+  add_new_texture("particle/p1/11", "png", 107, 100);
+  add_new_texture("particle/p1/12", "png", 107, 100);
+  add_new_texture("particle/p1/13", "png", 107, 100);
+  add_new_texture("particle/p1/14", "png", 107, 100);
+  add_new_texture("particle/p1/15", "png", 107, 100);
+  add_new_texture("particle/p2/00", "png", 107, 100);
+  add_new_texture("particle/p2/01", "png", 107, 100);
+  add_new_texture("particle/p2/02", "png", 107, 100);
+  add_new_texture("particle/p2/03", "png", 107, 100);
+  add_new_texture("particle/p2/04", "png", 107, 100);
 }
 
 void free_textures() {

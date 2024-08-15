@@ -49,9 +49,9 @@ ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
     p_info = utl_map_at(PHYSICS_INFO_MAP, &entities[id]);
     if (!cpveql(handle_right_mouse_controls(), cpv(-1.0f, -1.0f))) {
-      spawn_particle();
       info->target_look_pos = handle_right_mouse_controls();
       p_info->is_locked_on = false;
+      spawn_particle(info->target_look_pos.x, info->target_look_pos.y);
     }
     element_lock_on_position(p_info, info->target_look_pos, 16.0f);
   }
