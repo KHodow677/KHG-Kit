@@ -40,8 +40,7 @@ ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, e
   if (entity_count == 0) {
     return 0;
   }
-  destroyer_info *info = utl_map_at(DESTROYER_INFO_MAP, &entities[0]);
-  generic_entity *ge = NULL;
+  destroyer_info *info;
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(DESTROYER_INFO_MAP, &entities[id]);
     if (info->destroy_now) {

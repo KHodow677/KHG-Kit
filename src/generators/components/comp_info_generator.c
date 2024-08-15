@@ -1,3 +1,4 @@
+#include "generators/components/comp_info_generator.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
@@ -42,9 +43,10 @@ void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id) {
   info->body = p_info->body;
 }
 
-void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info, bool follow_pos, bool follow_ang) {
+void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info, int degree, bool follow_pos, bool follow_ang) {
   info->body = p_info->body;
   info->target_body = target_p_info->body;
+  info->degree = degree;
   info->follow_pos = follow_pos;
   info->follow_ang = follow_ang;
 }
@@ -72,3 +74,8 @@ void generate_rotator(rotator_info *info, physics_info *p_info) {
   info->target_move_pos = cpBodyGetPosition(info->body);
   info->target_look_pos = cpvadd(info->target_move_pos, cpv(0.0f, -50.0f));
 }
+
+void generate_shooter(shooter_info *info) {
+  info->shoot_now = false;
+}
+

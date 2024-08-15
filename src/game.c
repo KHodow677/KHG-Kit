@@ -50,7 +50,11 @@ void gfx_loop() {
   gfx_begin();
   ecs_update_system(ECS, MOVER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, ROTATOR_SYSTEM.id, 0.0f);
+  ecs_update_system(ECS, SHOOTER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
+  FOLLOWER_SYSTEM.current_degree = 1;
+  ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
+  FOLLOWER_SYSTEM.current_degree = 2;
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
