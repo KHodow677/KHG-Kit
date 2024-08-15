@@ -450,34 +450,34 @@ size_t utl_map_count(const utl_map *map, key_type key) {
 }
 
 bool utl_map_emplace(utl_map *map, key_type key, value_type value) {
-    if (map == NULL || key == NULL) {
-      utl_error_func("Null pointer provided for map or key in map_emplace", utl_user_defined_data);
+  if (map == NULL || key == NULL) {
+    utl_error_func("Null pointer provided for map or key in map_emplace", utl_user_defined_data);
+    return false;
+  }
+  utl_map_node **curr = &map->root;
+  utl_map_node *parent = NULL;
+  while (*curr) {
+    parent = *curr;
+    int cmp = map->compFunc(key, (*curr)->key);
+    if (cmp == 0) { 
       return false;
     }
-    utl_map_node **curr = &map->root;
-    utl_map_node *parent = NULL;
-    while (*curr) {
-      parent = *curr;
-      int cmp = map->compFunc(key, (*curr)->key);
-      if (cmp == 0) { 
-        return false;
-      }
-      if (cmp < 0) { 
-        curr = &(*curr)->left;
-      }
-      else { 
-        curr = &(*curr)->right;
-      }
+    if (cmp < 0) { 
+      curr = &(*curr)->left;
     }
-    utl_map_node *newNode = create_node(key, value);
-    if (!newNode) {
-      return false;
+    else { 
+      curr = &(*curr)->right;
     }
-    *curr = newNode;
-    newNode->parent = parent;
-    map->size++;
-    map_insert_fixup(map, newNode);
-    return true;
+  }
+  utl_map_node *newNode = create_node(key, value);
+  if (!newNode) {
+    return false;
+  }
+  *curr = newNode;
+  newNode->parent = parent;
+  map->size++;
+  map_insert_fixup(map, newNode);
+  return true;
 }
 
 compare_func_map utl_map_key_comp(const utl_map *map) {
@@ -489,68 +489,68 @@ compare_func_map utl_map_key_comp(const utl_map *map) {
 }
 
 bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, key_type key, value_type value) {
-    if (map == NULL || !key) {
-      utl_error_func("Map or key is null cannot emplace in map_emplace_hint", utl_user_defined_data);
-      exit(-1);
-    }
-    utl_map_node *newNode = create_node(key, value);
-    if (newNode == NULL) {
-      utl_error_func("Unable to crate new Node in map_emplace_hint", utl_user_defined_data);
+  if (map == NULL || !key) {
+    utl_error_func("Map or key is null cannot emplace in map_emplace_hint", utl_user_defined_data);
+    exit(-1);
+  }
+  utl_map_node *newNode = create_node(key, value);
+  if (newNode == NULL) {
+    utl_error_func("Unable to crate new Node in map_emplace_hint", utl_user_defined_data);
+    return false;
+  }
+  if (map->root == NULL) {
+    map->root = newNode;
+    map->root->color = BLACK;
+    map->size++;
+    return true;
+  }
+  if (hint.node != NULL) {
+    utl_map_node *curr = hint.node;
+    int cmp = map->compFunc(key, curr->key);
+    if (cmp < 0) {
+      if (curr->left == NULL) {
+        curr->left = newNode;
+        newNode->parent = curr;
+        map->size++;
+        map_insert_fixup(map, newNode);
+        return true;
+      }
+    } 
+    else if (cmp > 0) {
+      if (curr->right == NULL) {
+        curr->right = newNode;
+        newNode->parent = curr;
+        map->size++;
+        map_insert_fixup(map, newNode);
+        return true;
+      }
+    } 
+    else {
+      free(newNode);
       return false;
     }
-    if (map->root == NULL) {
-      map->root = newNode;
-      map->root->color = BLACK;
-      map->size++;
-      return true;
+  }
+  utl_map_node **curr = &map->root;
+  utl_map_node *parent = NULL;
+  while (*curr) {
+    parent = *curr;
+    int cmp = map->compFunc(key, (*curr)->key);
+    if (cmp == 0) {
+      free(newNode);
+      return false;
     }
-    if (hint.node != NULL) {
-      utl_map_node *curr = hint.node;
-      int cmp = map->compFunc(key, curr->key);
-      if (cmp < 0) {
-        if (curr->left == NULL) {
-          curr->left = newNode;
-          newNode->parent = curr;
-          map->size++;
-          map_insert_fixup(map, newNode);
-          return true;
-        }
-      } 
-      else if (cmp > 0) {
-        if (curr->right == NULL) {
-          curr->right = newNode;
-          newNode->parent = curr;
-          map->size++;
-          map_insert_fixup(map, newNode);
-          return true;
-        }
-      } 
-      else {
-        free(newNode);
-        return false;
-      }
+    if (cmp < 0) {
+      curr = &(*curr)->left;
     }
-    utl_map_node **curr = &map->root;
-    utl_map_node *parent = NULL;
-    while (*curr) {
-      parent = *curr;
-      int cmp = map->compFunc(key, (*curr)->key);
-      if (cmp == 0) {
-        free(newNode);
-        return false;
-      }
-      if (cmp < 0) {
-        curr = &(*curr)->left;
-      }
-      else { 
-        curr = &(*curr)->right;
-      }
+    else { 
+      curr = &(*curr)->right;
     }
-    *curr = newNode;
-    newNode->parent = parent;
-    map->size++;
-    map_insert_fixup(map, newNode);
-    return true;
+  }
+  *curr = newNode;
+  newNode->parent = parent;
+  map->size++;
+  map_insert_fixup(map, newNode);
+  return true;
 }
 
 bool utl_map_erase(utl_map *map, key_type key) {
@@ -821,3 +821,4 @@ utl_map *utl_map_copy(const utl_map *src) {
   }
   return newMap;
 }
+
