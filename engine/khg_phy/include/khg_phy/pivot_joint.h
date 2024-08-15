@@ -3,7 +3,7 @@
 #include "khg_phy/phy_types.h"
 
 /// Check if a constraint is a slide joint.
-CP_EXPORT cpBool cpConstraintIsPivotJoint(const cpConstraint *constraint);
+CP_EXPORT bool cpConstraintIsPivotJoint(const cpConstraint *constraint);
 
 /// Allocate a pivot joint
 CP_EXPORT cpPivotJoint* cpPivotJointAlloc(void);

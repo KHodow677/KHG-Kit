@@ -31,7 +31,7 @@ cpBodyAlloc(void)
 }
 
 cpBody *
-cpBodyInit(cpBody *body, cpFloat mass, cpFloat moment)
+cpBodyInit(cpBody *body, float mass, float moment)
 {
 	body->space = NULL;
 	body->shapeList = NULL;
@@ -66,7 +66,7 @@ cpBodyInit(cpBody *body, cpFloat mass, cpFloat moment)
 }
 
 cpBody*
-cpBodyNew(cpFloat mass, cpFloat moment)
+cpBodyNew(float mass, float moment)
 {
 	return cpBodyInit(cpBodyAlloc(), mass, moment);
 }
@@ -104,7 +104,7 @@ cpBodyFree(cpBody *body)
 	#define	cpAssertSaneBody(body)
 #else
 	static void cpv_assert_nan(cpVect v, const char *message){cpAssertHard(v.x == v.x && v.y == v.y, message);}
-	static void cpv_assert_infinite(cpVect v, const char *message){cpAssertHard(cpfabs(v.x) != INFINITY && cpfabs(v.y) != INFINITY, message);}
+	static void cpv_assert_infinite(cpVect v, const char *message){cpAssertHard(phy_abs(v.x) != INFINITY && phy_abs(v.y) != INFINITY, message);}
 	static void cpv_assert_sane(cpVect v, const char *message){cpv_assert_nan(v, message); cpv_assert_infinite(v, message);}
 	
 	static void
@@ -119,15 +119,15 @@ cpBodyFree(cpBody *body)
 		cpv_assert_sane(body->v, "Body's velocity is invalid.");
 		cpv_assert_sane(body->f, "Body's force is invalid.");
 
-		cpAssertHard(body->a == body->a && cpfabs(body->a) != INFINITY, "Body's angle is invalid.");
-		cpAssertHard(body->w == body->w && cpfabs(body->w) != INFINITY, "Body's angular velocity is invalid.");
-		cpAssertHard(body->t == body->t && cpfabs(body->t) != INFINITY, "Body's torque is invalid.");
+		cpAssertHard(body->a == body->a && phy_abs(body->a) != INFINITY, "Body's angle is invalid.");
+		cpAssertHard(body->w == body->w && phy_abs(body->w) != INFINITY, "Body's angular velocity is invalid.");
+		cpAssertHard(body->t == body->t && phy_abs(body->t) != INFINITY, "Body's torque is invalid.");
 	}
 	
 	#define	cpAssertSaneBody(body) cpBodySanityCheck(body)
 #endif
 
-cpBool
+bool
 cpBodyIsSleeping(const cpBody *body)
 {
 	return (body->sleeping.root != ((cpBody*)0));
@@ -218,10 +218,10 @@ cpBodyAccumulateMassFromShapes(cpBody *body)
 	// Accumulate mass from shapes.
 	CP_BODY_FOREACH_SHAPE(body, shape){
 		struct cpShapeMassInfo *info = &shape->massInfo;
-		cpFloat m = info->m;
+		float m = info->m;
 		
 		if(m > 0.0f){
-			cpFloat msum = body->m + m;
+			float msum = body->m + m;
 			
 			body->i += m*info->i + cpvdistsq(body->cog, info->cog)*(m*body->m)/msum;
 			body->cog = cpvlerp(body->cog, info->cog, m/msum);
@@ -244,14 +244,14 @@ cpBodyGetSpace(const cpBody *body)
 	return body->space;
 }
 
-cpFloat
+float
 cpBodyGetMass(const cpBody *body)
 {
 	return body->m;
 }
 
 void
-cpBodySetMass(cpBody *body, cpFloat mass)
+cpBodySetMass(cpBody *body, float mass)
 {
 	cpAssertHard(cpBodyGetType(body) == CP_BODY_TYPE_DYNAMIC, "You cannot set the mass of kinematic or static bodies.");
 	cpAssertHard(0.0f <= mass && mass < INFINITY, "Mass must be positive and finite.");
@@ -262,14 +262,14 @@ cpBodySetMass(cpBody *body, cpFloat mass)
 	cpAssertSaneBody(body);
 }
 
-cpFloat
+float
 cpBodyGetMoment(const cpBody *body)
 {
 	return body->i;
 }
 
 void
-cpBodySetMoment(cpBody *body, cpFloat moment)
+cpBodySetMoment(cpBody *body, float moment)
 {
 	cpAssertHard(moment >= 0.0f, "Moment of Inertia must be positive.");
 	
@@ -345,7 +345,7 @@ cpBodyRemoveConstraint(cpBody *body, cpConstraint *constraint)
 
 // 'p' is the position of the CoG
 static void
-SetTransform(cpBody *body, cpVect p, cpFloat a)
+SetTransform(cpBody *body, cpVect p, float a)
 {
 	cpVect rot = cpvforangle(a);
 	cpVect c = body->cog;
@@ -356,8 +356,8 @@ SetTransform(cpBody *body, cpVect p, cpFloat a)
 	);
 }
 
-static inline cpFloat
-SetAngle(cpBody *body, cpFloat a)
+static inline float
+SetAngle(cpBody *body, float a)
 {
 	body->a = a;
 	cpAssertSaneBody(body);
@@ -423,14 +423,14 @@ cpBodySetForce(cpBody *body, cpVect force)
 	cpAssertSaneBody(body);
 }
 
-cpFloat
+float
 cpBodyGetAngle(const cpBody *body)
 {
 	return body->a;
 }
 
 void
-cpBodySetAngle(cpBody *body, cpFloat angle)
+cpBodySetAngle(cpBody *body, float angle)
 {
 	cpBodyActivate(body);
 	SetAngle(body, angle);
@@ -438,28 +438,28 @@ cpBodySetAngle(cpBody *body, cpFloat angle)
 	SetTransform(body, body->p, angle);
 }
 
-cpFloat
+float
 cpBodyGetAngularVelocity(const cpBody *body)
 {
 	return body->w;
 }
 
 void
-cpBodySetAngularVelocity(cpBody *body, cpFloat angularVelocity)
+cpBodySetAngularVelocity(cpBody *body, float angularVelocity)
 {
 	cpBodyActivate(body);
 	body->w = angularVelocity;
 	cpAssertSaneBody(body);
 }
 
-cpFloat
+float
 cpBodyGetTorque(const cpBody *body)
 {
 	return body->t;
 }
 
 void
-cpBodySetTorque(cpBody *body, cpFloat torque)
+cpBodySetTorque(cpBody *body, float torque)
 {
 	cpBodyActivate(body);
 	body->t = torque;
@@ -491,7 +491,7 @@ cpBodySetPositionUpdateFunc(cpBody *body, cpBodyPositionFunc positionFunc)
 }
 
 void
-cpBodyUpdateVelocity(cpBody *body, cpVect gravity, cpFloat damping, cpFloat dt)
+cpBodyUpdateVelocity(cpBody *body, cpVect gravity, float damping, float dt)
 {
 	// Skip kinematic bodies.
 	if(cpBodyGetType(body) == CP_BODY_TYPE_KINEMATIC) return;
@@ -509,10 +509,10 @@ cpBodyUpdateVelocity(cpBody *body, cpVect gravity, cpFloat damping, cpFloat dt)
 }
 
 void
-cpBodyUpdatePosition(cpBody *body, cpFloat dt)
+cpBodyUpdatePosition(cpBody *body, float dt)
 {
 	cpVect p = body->p = cpvadd(body->p, cpvmult(cpvadd(body->v, body->v_bias), dt));
-	cpFloat a = SetAngle(body, body->a + (body->w + body->w_bias)*dt);
+	float a = SetAngle(body, body->a + (body->w + body->w_bias)*dt);
 	SetTransform(body, p, a);
 	
 	body->v_bias = cpvzero;
@@ -578,12 +578,12 @@ cpBodyGetVelocityAtWorldPoint(const cpBody *body, cpVect point)
 	return cpvadd(body->v, cpvmult(cpvperp(r), body->w));
 }
 
-cpFloat
+float
 cpBodyKineticEnergy(const cpBody *body)
 {
 	// Need to do some fudging to avoid NaNs
-	cpFloat vsq = cpvdot(body->v, body->v);
-	cpFloat wsq = body->w*body->w;
+	float vsq = cpvdot(body->v, body->v);
+	float wsq = body->w*body->w;
 	return (vsq ? vsq*body->m : 0.0f) + (wsq ? wsq*body->i : 0.0f);
 }
 
@@ -616,7 +616,7 @@ cpBodyEachArbiter(cpBody *body, cpBodyArbiterIteratorFunc func, void *data)
 	while(arb){
 		cpArbiter *next = cpArbiterNext(arb, body);
 		
-		cpBool swapped = arb->swapped; {
+		bool swapped = arb->swapped; {
 			arb->swapped = (body == arb->body_b);
 			func(body, arb, data);
 		} arb->swapped = swapped;

@@ -3,7 +3,7 @@
 #include "khg_phy/phy_types.h"
 
 /// Check if a constraint is a pin joint.
-CP_EXPORT cpBool cpConstraintIsPinJoint(const cpConstraint *constraint);
+CP_EXPORT bool cpConstraintIsPinJoint(const cpConstraint *constraint);
 
 /// Allocate a pin joint.
 CP_EXPORT cpPinJoint* cpPinJointAlloc(void);
@@ -23,8 +23,8 @@ CP_EXPORT cpVect cpPinJointGetAnchorB(const cpConstraint *constraint);
 CP_EXPORT void cpPinJointSetAnchorB(cpConstraint *constraint, cpVect anchorB);
 
 /// Get the distance the joint will maintain between the two anchors.
-CP_EXPORT cpFloat cpPinJointGetDist(const cpConstraint *constraint);
+CP_EXPORT float cpPinJointGetDist(const cpConstraint *constraint);
 /// Set the distance the joint will maintain between the two anchors.
-CP_EXPORT void cpPinJointSetDist(cpConstraint *constraint, cpFloat dist);
+CP_EXPORT void cpPinJointSetDist(cpConstraint *constraint, float dist);
 
 ///@}

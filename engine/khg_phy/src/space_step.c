@@ -37,7 +37,7 @@ cpSpaceGetPostStepCallback(cpSpace *space, void *key)
 
 static void PostStepDoNothing(cpSpace *space, void *obj, void *data){}
 
-cpBool
+bool
 cpSpaceAddPostStepCallback(cpSpace *space, cpPostStepFunc func, void *key, void *data)
 {
 	cpAssertWarn(space->locked,
@@ -51,9 +51,9 @@ cpSpaceAddPostStepCallback(cpSpace *space, cpPostStepFunc func, void *key, void 
 		callback->data = data;
 		
 		cpArrayPush(space->postStepCallbacks, callback);
-		return cpTrue;
+		return true;
 	} else {
-		return cpFalse;
+		return false;
 	}
 }
 
@@ -66,7 +66,7 @@ cpSpaceLock(cpSpace *space)
 }
 
 void
-cpSpaceUnlock(cpSpace *space, cpBool runPostStep)
+cpSpaceUnlock(cpSpace *space, bool runPostStep)
 {
 	space->locked--;
 	cpAssertHard(space->locked >= 0, "Internal Error: Space lock underflow.");
@@ -82,7 +82,7 @@ cpSpaceUnlock(cpSpace *space, cpBool runPostStep)
 		waking->num = 0;
 		
 		if(space->locked == 0 && runPostStep && !space->skipPostStep){
-			space->skipPostStep = cpTrue;
+			space->skipPostStep = true;
 			
 			cpArray *arr = space->postStepCallbacks;
 			for(int i=0; i<arr->num; i++){
@@ -99,7 +99,7 @@ cpSpaceUnlock(cpSpace *space, cpBool runPostStep)
 			}
 			
 			arr->num = 0;
-			space->skipPostStep = cpFalse;
+			space->skipPostStep = false;
 		}
 	}
 }
@@ -161,7 +161,7 @@ cpSpacePushFreshContactBuffer(cpSpace *space)
 struct cpContact *
 cpContactBufferGetArray(cpSpace *space)
 {
-	if(space->contactBuffersHead->numContacts + CP_MAX_CONTACTS_PER_ARBITER > CP_CONTACTS_BUFFER_SIZE){
+	if(space->contactBuffersHead->numContacts + PHY_MAX_CONTACTS_PER_ARBITER > CP_CONTACTS_BUFFER_SIZE){
 		// contact buffer could overflow on the next collision, push a fresh one.
 		cpSpacePushFreshContactBuffer(space);
 	}
@@ -173,7 +173,7 @@ cpContactBufferGetArray(cpSpace *space)
 void
 cpSpacePushContacts(cpSpace *space, int count)
 {
-	cpAssertHard(count <= CP_MAX_CONTACTS_PER_ARBITER, "Internal Error: Contact buffer overflow!");
+	cpAssertHard(count <= PHY_MAX_CONTACTS_PER_ARBITER, "Internal Error: Contact buffer overflow!");
 	space->contactBuffersHead->numContacts += count;
 }
 
@@ -201,7 +201,7 @@ cpSpaceArbiterSetTrans(cpShape **shapes, cpSpace *space)
 	return cpArbiterInit((cpArbiter *)cpArrayPop(space->pooledArbiters), shapes[0], shapes[1]);
 }
 
-static inline cpBool
+static inline bool
 QueryRejectConstraint(cpBody *a, cpBody *b)
 {
 	CP_BODY_FOREACH_CONSTRAINT(a, constraint){
@@ -210,13 +210,13 @@ QueryRejectConstraint(cpBody *a, cpBody *b)
 				(constraint->a == a && constraint->b == b) ||
 				(constraint->a == b && constraint->b == a)
 			)
-		) return cpTrue;
+		) return true;
 	}
 	
-	return cpFalse;
+	return false;
 }
 
-static inline cpBool
+static inline bool
 QueryReject(cpShape *a, cpShape *b)
 {
 	return (
@@ -226,14 +226,14 @@ QueryReject(cpShape *a, cpShape *b)
 		|| a->body == b->body
 		// Don't collide shapes that are filtered.
 		|| cpShapeFilterReject(a->filter, b->filter)
-		// Don't collide bodies if they have a constraint with collideBodies == cpFalse.
+		// Don't collide bodies if they have a constraint with collideBodies == false.
 		|| QueryRejectConstraint(a->body, b->body)
 	);
 }
 
 // Callback from the spatial hash.
-cpCollisionID
-cpSpaceCollideShapes(cpShape *a, cpShape *b, cpCollisionID id, cpSpace *space)
+phy_collision_id
+cpSpaceCollideShapes(cpShape *a, cpShape *b, phy_collision_id id, cpSpace *space)
 {
 	// Reject any of the simple cases
 	if(QueryReject(a,b)) return id;
@@ -247,7 +247,7 @@ cpSpaceCollideShapes(cpShape *a, cpShape *b, cpCollisionID id, cpSpace *space)
 	// Get an arbiter from space->arbiterSet for the two shapes.
 	// This is where the persistant contact magic comes from.
 	const cpShape *shape_pair[] = {info.a, info.b};
-	cpHashValue arbHashID = CP_HASH_PAIR((cpHashValue)info.a, (cpHashValue)info.b);
+	phy_hash_value arbHashID = CP_HASH_PAIR((phy_hash_value)info.a, (phy_hash_value)info.b);
 	cpArbiter *arb = (cpArbiter *)cpHashSetInsert(space->cachedArbiters, arbHashID, shape_pair, (cpHashSetTransFunc)cpSpaceArbiterSetTrans, space);
 	cpArbiterUpdate(arb, &info, space);
 	
@@ -255,7 +255,7 @@ cpSpaceCollideShapes(cpShape *a, cpShape *b, cpCollisionID id, cpSpace *space)
 	
 	// Call the begin function first if it's the first step
 	if(arb->state == CP_ARBITER_STATE_FIRST_COLLISION && !handler->beginFunc(arb, space, handler->userData)){
-		cpArbiterIgnore(arb); // permanently ignore the collision until separation
+		phy_arbiter_ignore(arb); // permanently ignore the collision until separation
 	}
 	
 	if(
@@ -289,7 +289,7 @@ cpSpaceCollideShapes(cpShape *a, cpShape *b, cpCollisionID id, cpSpace *space)
 }
 
 // Hashset filter func to throw away old arbiters.
-cpBool
+bool
 cpSpaceArbiterSetFilter(cpArbiter *arb, cpSpace *space)
 {
 	cpTimestamp ticks = space->stamp - arb->stamp;
@@ -303,7 +303,7 @@ cpSpaceArbiterSetFilter(cpArbiter *arb, cpSpace *space)
 		(cpBodyGetType(a) == CP_BODY_TYPE_STATIC || cpBodyIsSleeping(a)) &&
 		(cpBodyGetType(b) == CP_BODY_TYPE_STATIC || cpBodyIsSleeping(b))
 	){
-		return cpTrue;
+		return true;
 	}
 	
 	// Arbiter was used last frame, but not this one
@@ -318,10 +318,10 @@ cpSpaceArbiterSetFilter(cpArbiter *arb, cpSpace *space)
 		arb->count = 0;
 		
 		cpArrayPush(space->pooledArbiters, arb);
-		return cpFalse;
+		return false;
 	}
 	
-	return cpTrue;
+	return true;
 }
 
 //MARK: All Important cpSpaceStep() Function
@@ -333,14 +333,14 @@ cpShapeUpdateFunc(cpShape *shape, void *unused)
 }
 
 void
-cpSpaceStep(cpSpace *space, cpFloat dt)
+cpSpaceStep(cpSpace *space, float dt)
 {
 	// don't step if the timestep is 0!
 	if(dt == 0.0f) return;
 	
 	space->stamp++;
 	
-	cpFloat prev_dt = space->curr_dt;
+	float prev_dt = space->curr_dt;
 	space->curr_dt = dt;
 		
 	cpArray *bodies = space->dynamicBodies;
@@ -370,7 +370,7 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 		cpSpacePushFreshContactBuffer(space);
 		cpSpatialIndexEach(space->dynamicShapes, (cpSpatialIndexIteratorFunc)cpShapeUpdateFunc, NULL);
 		cpSpatialIndexReindexQuery(space->dynamicShapes, (cpSpatialIndexQueryFunc)cpSpaceCollideShapes, space);
-	} cpSpaceUnlock(space, cpFalse);
+	} cpSpaceUnlock(space, false);
 	
 	// Rebuild the contact graph (and detect sleeping components if sleeping is enabled)
 	cpSpaceProcessComponents(space, dt);
@@ -380,8 +380,8 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 		cpHashSetFilter(space->cachedArbiters, (cpHashSetFilterFunc)cpSpaceArbiterSetFilter, space);
 
 		// Prestep the arbiters and constraints.
-		cpFloat slop = space->collisionSlop;
-		cpFloat biasCoef = 1.0f - cpfpow(space->collisionBias, dt);
+		float slop = space->collisionSlop;
+		float biasCoef = 1.0f - powf(space->collisionBias, dt);
 		for(int i=0; i<arbiters->num; i++){
 			cpArbiterPreStep((cpArbiter *)arbiters->arr[i], dt, slop, biasCoef);
 		}
@@ -396,7 +396,7 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 		}
 	
 		// Integrate velocities.
-		cpFloat damping = cpfpow(space->damping, dt);
+		float damping = powf(space->damping, dt);
 		cpVect gravity = space->gravity;
 		for(int i=0; i<bodies->num; i++){
 			cpBody *body = (cpBody *)bodies->arr[i];
@@ -404,7 +404,7 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 		}
 		
 		// Apply cached impulses
-		cpFloat dt_coef = (prev_dt == 0.0f ? 0.0f : dt/prev_dt);
+		float dt_coef = (prev_dt == 0.0f ? 0.0f : dt/prev_dt);
 		for(int i=0; i<arbiters->num; i++){
 			cpArbiterApplyCachedImpulse((cpArbiter *)arbiters->arr[i], dt_coef);
 		}
@@ -441,5 +441,5 @@ cpSpaceStep(cpSpace *space, cpFloat dt)
 			cpCollisionHandler *handler = arb->handler;
 			handler->postSolveFunc(arb, space, handler->userData);
 		}
-	} cpSpaceUnlock(space, cpTrue);
+	} cpSpaceUnlock(space, true);
 }

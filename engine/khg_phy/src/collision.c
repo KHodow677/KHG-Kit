@@ -1,24 +1,3 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include <stdio.h>
 #include <string.h>
 
@@ -42,9 +21,9 @@
 #define WARN_EPA_ITERATIONS 20
 
 static inline void
-cpCollisionInfoPushContact(struct cpCollisionInfo *info, cpVect p1, cpVect p2, cpHashValue hash)
+cpCollisionInfoPushContact(struct cpCollisionInfo *info, cpVect p1, cpVect p2, phy_hash_value hash)
 {
-	cpAssertSoft(info->count <= CP_MAX_CONTACTS_PER_ARBITER, "Internal error: Tried to push too many contacts.");
+	cpAssertSoft(info->count <= PHY_MAX_CONTACTS_PER_ARBITER, "Internal error: Tried to push too many contacts.");
 	
 	struct cpContact *con = &info->arr[info->count];
 	con->r1 = p1;
@@ -62,12 +41,12 @@ cpCollisionInfoPushContact(struct cpCollisionInfo *info, cpVect p1, cpVect p2, c
 static inline int
 PolySupportPointIndex(const int count, const struct cpSplittingPlane *planes, const cpVect n)
 {
-	cpFloat max = -INFINITY;
+	float max = -INFINITY;
 	int index = 0;
 	
 	for(int i=0; i<count; i++){
 		cpVect v = planes[i].v0;
-		cpFloat d = cpvdot(v, n);
+		float d = cpvdot(v, n);
 		if(d > max){
 			max = d;
 			index = i;
@@ -80,11 +59,11 @@ PolySupportPointIndex(const int count, const struct cpSplittingPlane *planes, co
 struct SupportPoint {
 	cpVect p;
 	// Save an index of the point so it can be cheaply looked up as a starting point for the next frame.
-	cpCollisionID index;
+	phy_collision_id index;
 };
 
 static inline struct SupportPoint
-SupportPointNew(cpVect p, cpCollisionID index)
+SupportPointNew(cpVect p, phy_collision_id index)
 {
 	struct SupportPoint point = {p, index};
 	return point;
@@ -123,7 +102,7 @@ struct MinkowskiPoint {
 	// b - a
 	cpVect ab;
 	// Concatenate the two support point indexes.
-	cpCollisionID id;
+	phy_collision_id id;
 };
 
 static inline struct MinkowskiPoint
@@ -150,13 +129,13 @@ Support(const struct SupportContext *ctx, const cpVect n)
 struct EdgePoint {
 	cpVect p;
 	// Keep a hash value for Chipmunk's collision hashing mechanism.
-	cpHashValue hash;
+	phy_hash_value hash;
 };
 
 // Support edges are the edges of a polygon or segment shape that are in contact.
 struct Edge {
 	struct EdgePoint a, b;
-	cpFloat r;
+	float r;
 	cpVect n;
 };
 
@@ -171,7 +150,7 @@ SupportEdgeForPoly(const cpPolyShape *poly, const cpVect n)
 	int i2 = (i1 + 1)%count;
 	
 	const struct cpSplittingPlane *planes = poly->planes;
-	cpHashValue hashid = poly->shape.hashid;
+	phy_hash_value hashid = poly->shape.hashid;
 	if(cpvdot(n, planes[i1].n) > cpvdot(n, planes[i2].n)){
 		struct Edge edge = {{planes[i0].v0, CP_HASH_PAIR(hashid, i0)}, {planes[i1].v0, CP_HASH_PAIR(hashid, i1)}, poly->r, planes[i1].n};
 		return edge;
@@ -184,7 +163,7 @@ SupportEdgeForPoly(const cpPolyShape *poly, const cpVect n)
 static struct Edge
 SupportEdgeForSegment(const cpSegmentShape *seg, const cpVect n)
 {
-	cpHashValue hashid = seg->shape.hashid;
+	phy_hash_value hashid = seg->shape.hashid;
 	if(cpvdot(seg->tn, n) > 0.0){
 		struct Edge edge = {{seg->ta, CP_HASH_PAIR(hashid, 0)}, {seg->tb, CP_HASH_PAIR(hashid, 1)}, seg->r, seg->tn};
 		return edge;
@@ -196,18 +175,18 @@ SupportEdgeForSegment(const cpSegmentShape *seg, const cpVect n)
 
 // Find the closest p(t) to (0, 0) where p(t) = a*(1-t)/2 + b*(1+t)/2
 // The range for t is [-1, 1] to avoid floating point issues if the parameters are swapped.
-static inline cpFloat
+static inline float
 ClosestT(const cpVect a, const cpVect b)
 {
 	cpVect delta = cpvsub(b, a);
-	return -cpfclamp(cpvdot(delta, cpvadd(a, b))/(cpvlengthsq(delta) + CPFLOAT_MIN), -1.0f, 1.0f);
+	return -phy_clamp(cpvdot(delta, cpvadd(a, b))/(cpvlengthsq(delta) + FLT_MIN), -1.0f, 1.0f);
 }
 
 // Basically the same as cpvlerp(), except t = [-1, 1]
 static inline cpVect
-LerpT(const cpVect a, const cpVect b, const cpFloat t)
+LerpT(const cpVect a, const cpVect b, const float t)
 {
-	cpFloat ht = 0.5f*t;
+	float ht = 0.5f*t;
 	return cpvadd(cpvmult(a, 0.5f - ht), cpvmult(b, 0.5f + ht));
 }
 
@@ -218,9 +197,9 @@ struct ClosestPoints {
 	// Minimum separating axis of the two shapes.
 	cpVect n;
 	// Signed distance between the points.
-	cpFloat d;
+	float d;
 	// Concatenation of the id's of the minkoski points.
-	cpCollisionID id;
+	phy_collision_id id;
 };
 
 // Calculate the closest points on two shapes given the closest edge on their minkowski difference to (0, 0)
@@ -228,20 +207,20 @@ static inline struct ClosestPoints
 ClosestPointsNew(const struct MinkowskiPoint v0, const struct MinkowskiPoint v1)
 {
 	// Find the closest p(t) on the minkowski difference to (0, 0)
-	cpFloat t = ClosestT(v0.ab, v1.ab);
+	float t = ClosestT(v0.ab, v1.ab);
 	cpVect p = LerpT(v0.ab, v1.ab, t);
 	
 	// Interpolate the original support points using the same 't' value as above.
 	// This gives you the closest surface points in absolute coordinates. NEAT!
 	cpVect pa = LerpT(v0.a, v1.a, t);
 	cpVect pb = LerpT(v0.b, v1.b, t);
-	cpCollisionID id = (v0.id & 0xFFFF)<<16 | (v1.id & 0xFFFF);
+	phy_collision_id id = (v0.id & 0xFFFF)<<16 | (v1.id & 0xFFFF);
 	
 	// First try calculating the MSA from the minkowski difference edge.
 	// This gives us a nice, accurate MSA when the surfaces are close together.
 	cpVect delta = cpvsub(v1.ab, v0.ab);
 	cpVect n = cpvnormalize(cpvrperp(delta));
-	cpFloat d = cpvdot(n, p);
+	float d = cpvdot(n, p);
 	
 	if(d <= 0.0f || (-1.0f < t && t < 1.0f)){
 		// If the shapes are overlapping, or we have a regular vertex/edge collision, we are done.
@@ -249,8 +228,8 @@ ClosestPointsNew(const struct MinkowskiPoint v0, const struct MinkowskiPoint v1)
 		return points;
 	} else {
 		// Vertex/vertex collisions need special treatment since the MSA won't be shared with an axis of the minkowski difference.
-		cpFloat d2 = cpvlength(p);
-		cpVect n2 = cpvmult(p, 1.0f/(d2 + CPFLOAT_MIN));
+		float d2 = cpvlength(p);
+		cpVect n2 = cpvmult(p, 1.0f/(d2 + FLT_MIN));
 		
 		struct ClosestPoints points = {pa, pb, n2, d2, id};
 		return points;
@@ -259,7 +238,7 @@ ClosestPointsNew(const struct MinkowskiPoint v0, const struct MinkowskiPoint v1)
 
 //MARK: EPA Functions
 
-static inline cpFloat
+static inline float
 ClosestDist(const cpVect v0,const cpVect v1)
 {
 	return cpvlengthsq(LerpT(v0, v1, ClosestT(v0, v1)));
@@ -271,12 +250,12 @@ static struct ClosestPoints
 EPARecurse(const struct SupportContext *ctx, const int count, const struct MinkowskiPoint *hull, const int iteration)
 {
 	int mini = 0;
-	cpFloat minDist = INFINITY;
+	float minDist = INFINITY;
 	
 	// TODO: precalculate this when building the hull and save a step.
 	// Find the closest segment hull[i] and hull[i + 1] to (0, 0)
 	for(int j=0, i=count-1; j<count; i=j, j++){
-		cpFloat d = ClosestDist(hull[i].ab, hull[j].ab);
+		float d = ClosestDist(hull[i].ab, hull[j].ab);
 		if(d < minDist){
 			minDist = d;
 			mini = i;
@@ -302,7 +281,7 @@ EPARecurse(const struct SupportContext *ctx, const int count, const struct Minko
 	
 	// The usual exit condition is a duplicated vertex.
 	// Much faster to check the ids than to check the signed area.
-	cpBool duplicate = (p.id == v0.id || p.id == v1.id);
+	bool duplicate = (p.id == v0.id || p.id == v1.id);
 	
 	if(!duplicate && cpCheckPointGreater(v0.ab, v1.ab, p.ab) && iteration < MAX_EPA_ITERATIONS){
 		// Rebuild the convex hull by inserting p.
@@ -357,7 +336,7 @@ GJKRecurse(const struct SupportContext *ctx, const struct MinkowskiPoint v0, con
 		// Origin is behind axis. Flip and try again.
 		return GJKRecurse(ctx, v1, v0, iteration);
 	} else {
-		cpFloat t = ClosestT(v0.ab, v1.ab);
+		float t = ClosestT(v0.ab, v1.ab);
 		cpVect n = (-1.0f < t && t < 1.0f ? cpvperp(cpvsub(v1.ab, v0.ab)) : cpvneg(LerpT(v0.ab, v1.ab, t)));
 		struct MinkowskiPoint p = Support(ctx, n);
 		
@@ -414,7 +393,7 @@ ShapePoint(const cpShape *shape, const int i)
 
 // Find the closest points between two shapes using the GJK algorithm.
 static struct ClosestPoints
-GJK(const struct SupportContext *ctx, cpCollisionID *id)
+GJK(const struct SupportContext *ctx, phy_collision_id *id)
 {
 #if DRAW_GJK || DRAW_EPA
 	int count1 = 1;
@@ -477,7 +456,7 @@ GJK(const struct SupportContext *ctx, cpCollisionID *id)
 static inline void
 ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPoints points, struct cpCollisionInfo *info)
 {
-	cpFloat mindist = e1.r + e2.r;
+	float mindist = e1.r + e2.r;
 	if(points.d <= mindist){
 #ifdef DRAW_CLIP
 	ChipmunkDebugDrawFatSegment(e1.a.p, e1.b.p, e1.r, RGBAColor(0, 1, 0, 1), LAColor(0, 0));
@@ -486,31 +465,31 @@ ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPo
 		cpVect n = info->n = points.n;
 		
 		// Distances along the axis parallel to n
-		cpFloat d_e1_a = cpvcross(e1.a.p, n);
-		cpFloat d_e1_b = cpvcross(e1.b.p, n);
-		cpFloat d_e2_a = cpvcross(e2.a.p, n);
-		cpFloat d_e2_b = cpvcross(e2.b.p, n);
+		float d_e1_a = cpvcross(e1.a.p, n);
+		float d_e1_b = cpvcross(e1.b.p, n);
+		float d_e2_a = cpvcross(e2.a.p, n);
+		float d_e2_b = cpvcross(e2.b.p, n);
 		
 		// TODO + min isn't a complete fix.
-		cpFloat e1_denom = 1.0f/(d_e1_b - d_e1_a + CPFLOAT_MIN);
-		cpFloat e2_denom = 1.0f/(d_e2_b - d_e2_a + CPFLOAT_MIN);
+		float e1_denom = 1.0f/(d_e1_b - d_e1_a + FLT_MIN);
+		float e2_denom = 1.0f/(d_e2_b - d_e2_a + FLT_MIN);
 		
 		// Project the endpoints of the two edges onto the opposing edge, clamping them as necessary.
 		// Compare the projected points to the collision normal to see if the shapes overlap there.
 		{
-			cpVect p1 = cpvadd(cpvmult(n,  e1.r), cpvlerp(e1.a.p, e1.b.p, cpfclamp01((d_e2_b - d_e1_a)*e1_denom)));
-			cpVect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, cpfclamp01((d_e1_a - d_e2_a)*e2_denom)));
-			cpFloat dist = cpvdot(cpvsub(p2, p1), n);
+			cpVect p1 = cpvadd(cpvmult(n,  e1.r), cpvlerp(e1.a.p, e1.b.p, phy_clamp01((d_e2_b - d_e1_a)*e1_denom)));
+			cpVect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, phy_clamp01((d_e1_a - d_e2_a)*e2_denom)));
+			float dist = cpvdot(cpvsub(p2, p1), n);
 			if(dist <= 0.0f){
-				cpHashValue hash_1a2b = CP_HASH_PAIR(e1.a.hash, e2.b.hash);
+				phy_hash_value hash_1a2b = CP_HASH_PAIR(e1.a.hash, e2.b.hash);
 				cpCollisionInfoPushContact(info, p1, p2, hash_1a2b);
 			}
 		}{
-			cpVect p1 = cpvadd(cpvmult(n,  e1.r), cpvlerp(e1.a.p, e1.b.p, cpfclamp01((d_e2_a - d_e1_a)*e1_denom)));
-			cpVect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, cpfclamp01((d_e1_b - d_e2_a)*e2_denom)));
-			cpFloat dist = cpvdot(cpvsub(p2, p1), n);
+			cpVect p1 = cpvadd(cpvmult(n,  e1.r), cpvlerp(e1.a.p, e1.b.p, phy_clamp01((d_e2_a - d_e1_a)*e1_denom)));
+			cpVect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, phy_clamp01((d_e1_b - d_e2_a)*e2_denom)));
+			float dist = cpvdot(cpvsub(p2, p1), n);
 			if(dist <= 0.0f){
-				cpHashValue hash_1b2a = CP_HASH_PAIR(e1.b.hash, e2.a.hash);
+				phy_hash_value hash_1b2a = CP_HASH_PAIR(e1.b.hash, e2.a.hash);
 				cpCollisionInfoPushContact(info, p1, p2, hash_1b2a);
 			}
 		}
@@ -525,12 +504,12 @@ typedef void (*CollisionFunc)(const cpShape *a, const cpShape *b, struct cpColli
 static void
 CircleToCircle(const cpCircleShape *c1, const cpCircleShape *c2, struct cpCollisionInfo *info)
 {
-	cpFloat mindist = c1->r + c2->r;
+	float mindist = c1->r + c2->r;
 	cpVect delta = cpvsub(c2->tc, c1->tc);
-	cpFloat distsq = cpvlengthsq(delta);
+	float distsq = cpvlengthsq(delta);
 	
 	if(distsq < mindist*mindist){
-		cpFloat dist = cpfsqrt(distsq);
+		float dist = sqrtf(distsq);
 		cpVect n = info->n = (dist ? cpvmult(delta, 1.0f/dist) : cpv(1.0f, 0.0f));
 		cpCollisionInfoPushContact(info, cpvadd(c1->tc, cpvmult(n, c1->r)), cpvadd(c2->tc, cpvmult(n, -c2->r)), 0);
 	}
@@ -545,15 +524,15 @@ CircleToSegment(const cpCircleShape *circle, const cpSegmentShape *segment, stru
 	
 	// Find the closest point on the segment to the circle.
 	cpVect seg_delta = cpvsub(seg_b, seg_a);
-	cpFloat closest_t = cpfclamp01(cpvdot(seg_delta, cpvsub(center, seg_a))/cpvlengthsq(seg_delta));
+	float closest_t = phy_clamp01(cpvdot(seg_delta, cpvsub(center, seg_a))/cpvlengthsq(seg_delta));
 	cpVect closest = cpvadd(seg_a, cpvmult(seg_delta, closest_t));
 	
 	// Compare the radii of the two shapes to see if they are colliding.
-	cpFloat mindist = circle->r + segment->r;
+	float mindist = circle->r + segment->r;
 	cpVect delta = cpvsub(closest, center);
-	cpFloat distsq = cpvlengthsq(delta);
+	float distsq = cpvlengthsq(delta);
 	if(distsq < mindist*mindist){
-		cpFloat dist = cpfsqrt(distsq);
+		float dist = sqrtf(distsq);
 		// Handle coincident shapes as gracefully as possible.
 		cpVect n = info->n = (dist ? cpvmult(delta, 1.0f/dist) : segment->tn);
 		
@@ -681,7 +660,7 @@ CircleToPoly(const cpCircleShape *circle, const cpPolyShape *poly, struct cpColl
 static void
 CollisionError(const cpShape *circle, const cpShape *poly, struct cpCollisionInfo *info)
 {
-	cpAssertHard(cpFalse, "Internal Error: Shape types are not sorted.");
+	cpAssertHard(false, "Internal Error: Shape types are not sorted.");
 }
 
 
@@ -699,7 +678,7 @@ static const CollisionFunc BuiltinCollisionFuncs[9] = {
 static const CollisionFunc *CollisionFuncs = BuiltinCollisionFuncs;
 
 struct cpCollisionInfo
-cpCollide(const cpShape *a, const cpShape *b, cpCollisionID id, struct cpContact *contacts)
+cpCollide(const cpShape *a, const cpShape *b, phy_collision_id id, struct cpContact *contacts)
 {
 	struct cpCollisionInfo info = {a, b, id, cpvzero, 0, contacts};
 	

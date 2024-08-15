@@ -22,7 +22,7 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpGearJoint *joint, cpFloat dt)
+preStep(cpGearJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
@@ -31,36 +31,36 @@ preStep(cpGearJoint *joint, cpFloat dt)
 	joint->iSum = 1.0f/(a->i_inv*joint->ratio_inv + joint->ratio*b->i_inv);
 	
 	// calculate bias velocity
-	cpFloat maxBias = joint->constraint.maxBias;
-	joint->bias = cpfclamp(-bias_coef(joint->constraint.errorBias, dt)*(b->a*joint->ratio - a->a - joint->phase)/dt, -maxBias, maxBias);
+	float maxBias = joint->constraint.maxBias;
+	joint->bias = phy_clamp(-bias_coef(joint->constraint.errorBias, dt)*(b->a*joint->ratio - a->a - joint->phase)/dt, -maxBias, maxBias);
 }
 
 static void
-applyCachedImpulse(cpGearJoint *joint, cpFloat dt_coef)
+applyCachedImpulse(cpGearJoint *joint, float dt_coef)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
 	
-	cpFloat j = joint->jAcc*dt_coef;
+	float j = joint->jAcc*dt_coef;
 	a->w -= j*a->i_inv*joint->ratio_inv;
 	b->w += j*b->i_inv;
 }
 
 static void
-applyImpulse(cpGearJoint *joint, cpFloat dt)
+applyImpulse(cpGearJoint *joint, float dt)
 {
 	cpBody *a = joint->constraint.a;
 	cpBody *b = joint->constraint.b;
 	
 	// compute relative rotational velocity
-	cpFloat wr = b->w*joint->ratio - a->w;
+	float wr = b->w*joint->ratio - a->w;
 	
-	cpFloat jMax = joint->constraint.maxForce*dt;
+	float jMax = joint->constraint.maxForce*dt;
 	
 	// compute normal impulse	
-	cpFloat j = (joint->bias - wr)*joint->iSum;
-	cpFloat jOld = joint->jAcc;
-	joint->jAcc = cpfclamp(jOld + j, -jMax, jMax);
+	float j = (joint->bias - wr)*joint->iSum;
+	float jOld = joint->jAcc;
+	joint->jAcc = phy_clamp(jOld + j, -jMax, jMax);
 	j = joint->jAcc - jOld;
 	
 	// apply impulse
@@ -68,10 +68,10 @@ applyImpulse(cpGearJoint *joint, cpFloat dt)
 	b->w += j*b->i_inv;
 }
 
-static cpFloat
+static float
 getImpulse(cpGearJoint *joint)
 {
-	return cpfabs(joint->jAcc);
+	return phy_abs(joint->jAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -88,7 +88,7 @@ cpGearJointAlloc(void)
 }
 
 cpGearJoint *
-cpGearJointInit(cpGearJoint *joint, cpBody *a, cpBody *b, cpFloat phase, cpFloat ratio)
+cpGearJointInit(cpGearJoint *joint, cpBody *a, cpBody *b, float phase, float ratio)
 {
 	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
 	
@@ -102,18 +102,18 @@ cpGearJointInit(cpGearJoint *joint, cpBody *a, cpBody *b, cpFloat phase, cpFloat
 }
 
 cpConstraint *
-cpGearJointNew(cpBody *a, cpBody *b, cpFloat phase, cpFloat ratio)
+cpGearJointNew(cpBody *a, cpBody *b, float phase, float ratio)
 {
 	return (cpConstraint *)cpGearJointInit(cpGearJointAlloc(), a, b, phase, ratio);
 }
 
-cpBool
+bool
 cpConstraintIsGearJoint(const cpConstraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
-cpFloat
+float
 cpGearJointGetPhase(const cpConstraint *constraint)
 {
 	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
@@ -121,14 +121,14 @@ cpGearJointGetPhase(const cpConstraint *constraint)
 }
 
 void
-cpGearJointSetPhase(cpConstraint *constraint, cpFloat phase)
+cpGearJointSetPhase(cpConstraint *constraint, float phase)
 {
 	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
 	cpConstraintActivateBodies(constraint);
 	((cpGearJoint *)constraint)->phase = phase;
 }
 
-cpFloat
+float
 cpGearJointGetRatio(const cpConstraint *constraint)
 {
 	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
@@ -136,7 +136,7 @@ cpGearJointGetRatio(const cpConstraint *constraint)
 }
 
 void
-cpGearJointSetRatio(cpConstraint *constraint, cpFloat ratio)
+cpGearJointSetRatio(cpConstraint *constraint, float ratio)
 {
 	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
 	cpConstraintActivateBodies(constraint);

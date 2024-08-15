@@ -1,4 +1,4 @@
 #pragma once
 
-void spawn_particle(void);
+void spawn_particle(float x, float y);
 

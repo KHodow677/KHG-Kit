@@ -6,10 +6,9 @@
 
 void spawn_tank() {
   generic_entity *ge = malloc(sizeof(generic_entity));
-  tank *t = malloc(sizeof(tank));
-  generate_tank(t, ECS);
   ge->type = ENTITY_TYPE_TANK;
-  ge->tank = t;
+  ge->tank = (tank){ 0 };
+  generate_tank(&ge->tank, ECS);
   utl_vector_push_back(ENTITY_LOOKUP, &ge);
 }
 

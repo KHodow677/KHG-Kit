@@ -10,8 +10,8 @@ typedef struct {
     ENTITY_TYPE_TANK,
   } type;
   union {
-    particle *particle;
-    tank *tank;
+    particle particle;
+    tank tank;
   };
 } generic_entity;
 

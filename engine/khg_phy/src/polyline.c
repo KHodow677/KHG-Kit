@@ -101,7 +101,7 @@ cpPolylineEnqueue(cpPolyline *line, cpVect v)
 }
 
 // Returns true if the polyline starts and ends with the same vertex.
-cpBool
+bool
 cpPolylineIsClosed(cpPolyline *line)
 {
 	return (line->count > 1 && cpveql(line->verts[0], line->verts[line->count-1]));
@@ -109,21 +109,21 @@ cpPolylineIsClosed(cpPolyline *line)
 
 // Check if a cpPolyline is longer than a certain length
 // Takes a range which can wrap around if the polyline is looped.
-static cpBool
-cpPolylineIsShort(cpVect *points, int count, int start, int end, cpFloat min)
+static bool
+cpPolylineIsShort(cpVect *points, int count, int start, int end, float min)
 {
-  cpFloat length = 0.0f;
+  float length = 0.0f;
 	for(int i=start; i!=end; i=Next(i, count)){
 		length += cpvdist(points[i], points[Next(i, count)]);
-		if(length > min) return cpFalse;
+		if(length > min) return false;
 	}
   
-  return cpTrue;
+  return true;
 }
 
 //MARK: Polyline Simplification
 
-static inline cpFloat
+static inline float
 Sharpness(cpVect a, cpVect b, cpVect c)
 {
 	// TODO could speed this up by caching the normals instead of calculating each twice.
@@ -133,15 +133,15 @@ Sharpness(cpVect a, cpVect b, cpVect c)
 // Join similar adjacent line segments together. Works well for hard edged shapes.
 // 'tol' is the minimum anglular difference in radians of a vertex.
 cpPolyline *
-cpPolylineSimplifyVertexes(cpPolyline *line, cpFloat tol)
+cpPolylineSimplifyVertexes(cpPolyline *line, float tol)
 {
 	cpPolyline *reduced = cpPolylineMake2(0, line->verts[0], line->verts[1]);
 	
-	cpFloat minSharp = -cpfcos(tol);
+	float minSharp = -cosf(tol);
 	
 	for(int i=2; i<line->count; i++){
 		cpVect vert = line->verts[i];
-		cpFloat sharp = Sharpness(reduced->verts[reduced->count - 2], reduced->verts[reduced->count - 1], vert);
+		float sharp = Sharpness(reduced->verts[reduced->count - 2], reduced->verts[reduced->count - 1], vert);
 		
 		if(sharp <= minSharp){
 			reduced->verts[reduced->count - 1] = vert;
@@ -167,7 +167,7 @@ static cpPolyline *
 DouglasPeucker(
 	cpVect *verts, cpPolyline *reduced,
 	int length, int start, int end,
-	cpFloat min, cpFloat tol
+	float min, float tol
 ){
 	// Early exit if the points are adjacent
   if((end - start + length)%length < 2) return reduced;
@@ -179,14 +179,14 @@ DouglasPeucker(
 	if(cpvnear(a, b, min) && cpPolylineIsShort(verts, length, start, end, min)) return reduced;
 	
 	// Find the maximal vertex to split and recurse on
-	cpFloat max = 0.0;
+	float max = 0.0;
 	int maxi = start;
 	
 	cpVect n = cpvnormalize(cpvperp(cpvsub(b, a)));
-	cpFloat d = cpvdot(n, a);
+	float d = cpvdot(n, a);
 	
 	for(int i=Next(start, length); i!=end; i=Next(i, length)){
-		cpFloat dist = fabs(cpvdot(n, verts[i]) - d);
+		float dist = fabs(cpvdot(n, verts[i]) - d);
 		
 		if(dist > max){
 			max = dist;
@@ -207,11 +207,11 @@ DouglasPeucker(
 // 'tol' is the maximum error for the reduction.
 // The reduced polyline will never be farther than this distance from the original polyline.
 cpPolyline *
-cpPolylineSimplifyCurves(cpPolyline *line, cpFloat tol)
+cpPolylineSimplifyCurves(cpPolyline *line, float tol)
 {
 	cpPolyline *reduced = cpPolylineMake(line->count);
 	
-	cpFloat min = tol/2.0f;
+	float min = tol/2.0f;
   
   if(cpPolylineIsClosed(line)){
 		int start, end;
@@ -257,7 +257,7 @@ cpPolylineSetNew(void)
 }
 
 void
-cpPolylineSetDestroy(cpPolylineSet *set, cpBool freePolylines)
+cpPolylineSetDestroy(cpPolylineSet *set, bool freePolylines)
 {
 	if(freePolylines){
 		for(int i=0; i<set->count; i++){
@@ -270,7 +270,7 @@ cpPolylineSetDestroy(cpPolylineSet *set, cpBool freePolylines)
 
 
 void
-cpPolylineSetFree(cpPolylineSet *set, cpBool freePolylines)
+cpPolylineSetFree(cpPolylineSet *set, bool freePolylines)
 {
 	if(set){
 		cpPolylineSetDestroy(set, freePolylines);
@@ -376,7 +376,7 @@ cpPolylineSetCollectSegment(cpVect v0, cpVect v1, cpPolylineSet *lines)
 //MARK: Convex Hull Functions
 
 cpPolyline *
-cpPolylineToConvexHull(cpPolyline *line, cpFloat tol)
+cpPolylineToConvexHull(cpPolyline *line, float tol)
 {
 	cpPolyline *hull = cpPolylineMake(line->count + 1);
 	hull->count = cpConvexHull(line->count, line->verts, hull->verts, NULL, tol);
@@ -389,16 +389,16 @@ cpPolylineToConvexHull(cpPolyline *line, cpFloat tol)
 
 struct Notch {
 	int i;
-	cpFloat d;
+	float d;
 	cpVect v;
 	cpVect n;
 };
 
-static cpFloat
+static float
 FindSteiner(int count, cpVect *verts, struct Notch notch)
 {
-	cpFloat min = INFINITY;
-	cpFloat feature = -1.0;
+	float min = INFINITY;
+	float feature = -1.0;
 	
 	for(int i=1; i<count-1; i++){
 		int index = (notch.i + i)%count;
@@ -406,11 +406,11 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 		cpVect seg_a = verts[index];
 		cpVect seg_b = verts[Next(index, count)];
 		
-		cpFloat thing_a = cpvcross(notch.n, cpvsub(seg_a, notch.v));
-		cpFloat thing_b = cpvcross(notch.n, cpvsub(seg_b, notch.v));
+		float thing_a = cpvcross(notch.n, cpvsub(seg_a, notch.v));
+		float thing_b = cpvcross(notch.n, cpvsub(seg_b, notch.v));
 		if(thing_a*thing_b <= 0.0){
-			cpFloat t = thing_a/(thing_a - thing_b);
-			cpFloat dist = cpvdot(notch.n, cpvsub(cpvlerp(seg_a, seg_b, t), notch.v));
+			float t = thing_a/(thing_a - thing_b);
+			float dist = cpvdot(notch.n, cpvsub(cpvlerp(seg_a, seg_b, t), notch.v));
 			
 			if(dist >= 0.0 && dist <= min){
 				min = dist;
@@ -422,15 +422,15 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 	return feature;
 }
 
-//static cpFloat
+//static float
 //FindSteiner2(cpVect *verts, int count, struct Notch notch)
 //{
 //	cpVect a = verts[(notch.i + count - 1)%count];
 //	cpVect b = verts[(notch.i + 1)%count];
 //	cpVect n = cpvnormalize(cpvadd(cpvnormalize(cpvsub(notch.v, a)), cpvnormalize(cpvsub(notch.v, b))));
 //	
-//	cpFloat min = INFINITY;
-//	cpFloat feature = -1.0;
+//	float min = INFINITY;
+//	float feature = -1.0;
 //	
 //	for(int i=1; i<count-1; i++){
 //		int index = (notch.i + i)%count;
@@ -438,11 +438,11 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 //		cpVect seg_a = verts[index];
 //		cpVect seg_b = verts[Next(index, count)];
 //		
-//		cpFloat thing_a = cpvcross(n, cpvsub(seg_a, notch.v));
-//		cpFloat thing_b = cpvcross(n, cpvsub(seg_b, notch.v));
+//		float thing_a = cpvcross(n, cpvsub(seg_a, notch.v));
+//		float thing_b = cpvcross(n, cpvsub(seg_b, notch.v));
 //		if(thing_a*thing_b <= 0.0){
-//			cpFloat t = thing_a/(thing_a - thing_b);
-//			cpFloat dist = cpvdot(n, cpvsub(cpvlerp(seg_a, seg_b, t), notch.v));
+//			float t = thing_a/(thing_a - thing_b);
+//			float dist = cpvdot(n, cpvsub(cpvlerp(seg_a, seg_b, t), notch.v));
 //			
 //			if(dist >= 0.0 && dist <= min){
 //				min = dist;
@@ -455,13 +455,13 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 //	return feature;
 //}
 
-//struct Range {cpFloat min, max;};
+//struct Range {float min, max;};
 //static inline struct Range
 //clip_range(cpVect delta_a, cpVect delta_b, cpVect clip)
 //{
-//	cpFloat da = cpvcross(delta_a, clip);
-//	cpFloat db = cpvcross(delta_b, clip);
-//	cpFloat clamp = da/(da - db);
+//	float da = cpvcross(delta_a, clip);
+//	float db = cpvcross(delta_b, clip);
+//	float clamp = da/(da - db);
 //	if(da > db){
 //		return (struct Range){-INFINITY, clamp};
 //	} else if(da < db){
@@ -471,11 +471,11 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 //	}
 //}
 //
-//static cpFloat
+//static float
 //FindSteiner3(cpVect *verts, int count, struct Notch notch)
 //{
-//	cpFloat min = INFINITY;
-//	cpFloat feature = -1.0;
+//	float min = INFINITY;
+//	float feature = -1.0;
 //	
 //	cpVect support_a = verts[(notch.i - 1 + count)%count];
 //	cpVect support_b = verts[(notch.i + 1)%count];
@@ -496,16 +496,16 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 //			struct Range range1 = clip_range(delta_a, delta_b, cpvsub(notch.v, clip_a));
 //			struct Range range2 = clip_range(delta_a, delta_b, cpvsub(clip_b, notch.v));
 //			
-//			cpFloat min_t = cpfmax(0.0, cpfmax(range1.min, range2.min));
-//			cpFloat max_t = cpfmin(1.0, cpfmin(range1.max, range2.max));
+//			float min_t = cpfmax(0.0, cpfmax(range1.min, range2.min));
+//			float max_t = cpfmin(1.0, cpfmin(range1.max, range2.max));
 //			
 //			// Ignore if the segment has been completely clipped away.
 //			if(min_t < max_t){
 //				cpVect seg_delta = cpvsub(seg_b, seg_a);
-//				cpFloat closest_t = cpfclamp(cpvdot(seg_delta, cpvsub(notch.v, seg_a))/cpvlengthsq(seg_delta), min_t, max_t);
+//				float closest_t = cpfclamp(cpvdot(seg_delta, cpvsub(notch.v, seg_a))/cpvlengthsq(seg_delta), min_t, max_t);
 //				cpVect closest = cpvlerp(seg_a, seg_b, closest_t);
 //				
-//				cpFloat dist = cpvdistsq(notch.v, closest);
+//				float dist = cpvdistsq(notch.v, closest);
 //				if(dist < min){
 //					min = dist;
 //					feature = index + closest_t;
@@ -518,7 +518,7 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 //	return feature;
 //}
 
-//static cpBool
+//static bool
 //VertexUnobscured(int count, cpVect *verts, int index, int notch_i)
 //{
 //	cpVect v = verts[notch_i];
@@ -530,23 +530,23 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 //		cpVect seg_a = verts[i];
 //		cpVect seg_b = verts[Next(i, count)];
 //		
-//		cpFloat thing_a = cpvcross(n, cpvsub(seg_a, v));
-//		cpFloat thing_b = cpvcross(n, cpvsub(seg_b, v));
-//		if(thing_a*thing_b <= 0.0) return cpTrue;
+//		float thing_a = cpvcross(n, cpvsub(seg_a, v));
+//		float thing_b = cpvcross(n, cpvsub(seg_b, v));
+//		if(thing_a*thing_b <= 0.0) return true;
 //	}
 //	
-//	return cpFalse;
+//	return false;
 //}
 //
-//static cpFloat
-//FindSteiner4(int count, cpVect *verts, struct Notch notch, cpFloat *convexity)
+//static float
+//FindSteiner4(int count, cpVect *verts, struct Notch notch, float *convexity)
 //{
-//	cpFloat min = INFINITY;
-//	cpFloat feature = -1.0;
+//	float min = INFINITY;
+//	float feature = -1.0;
 //	
 //	for(int i=Next(notch.b, count); i!=notch.a; i=Next(i, count)){
 //		cpVect v = verts[i];
-//		cpFloat weight = (1.0 + 0.1*convexity[i])/(1.0*cpvdist(notch.v, v));
+//		float weight = (1.0 + 0.1*convexity[i])/(1.0*cpvdist(notch.v, v));
 //		
 //		if(weight <= min && VertexUnobscured(count, verts, i, notch.i)){
 //			min = weight;
@@ -559,7 +559,7 @@ FindSteiner(int count, cpVect *verts, struct Notch notch)
 //}
 
 static struct Notch
-DeepestNotch(int count, cpVect *verts, int hullCount, cpVect *hullVerts, int first, cpFloat tol)
+DeepestNotch(int count, cpVect *verts, int hullCount, cpVect *hullVerts, int first, float tol)
 {
 	struct Notch notch = {};
 	int j = Next(first, count);
@@ -570,11 +570,11 @@ DeepestNotch(int count, cpVect *verts, int hullCount, cpVect *hullVerts, int fir
 		
 		// TODO use a cross check instead?
 		cpVect n = cpvnormalize(cpvrperp(cpvsub(a, b)));
-		cpFloat d = cpvdot(n, a);
+		float d = cpvdot(n, a);
 		
 		cpVect v = verts[j];
 		while(!cpveql(v, b)){
-			cpFloat depth = cpvdot(n, v) - d;
+			float depth = cpvdot(n, v) - d;
 			
 			if(depth > notch.d){
 				notch.d = depth;
@@ -596,7 +596,7 @@ DeepestNotch(int count, cpVect *verts, int hullCount, cpVect *hullVerts, int fir
 static inline int IMAX(int a, int b){return (a > b ? a : b);}
 
 static void
-ApproximateConcaveDecomposition(cpVect *verts, int count, cpFloat tol, cpPolylineSet *set)
+ApproximateConcaveDecomposition(cpVect *verts, int count, float tol, cpPolylineSet *set)
 {
 	int first;
 	cpVect *hullVerts = (cpVect*) alloca(count*sizeof(cpVect));
@@ -606,7 +606,7 @@ ApproximateConcaveDecomposition(cpVect *verts, int count, cpFloat tol, cpPolylin
 		struct Notch notch = DeepestNotch(count, verts, hullCount, hullVerts, first, tol);
 		
 		if(notch.d > tol){
-			cpFloat steiner_it = FindSteiner(count, verts, notch);
+			float steiner_it = FindSteiner(count, verts, notch);
 			
 			if(steiner_it >= 0.0){
 				int steiner_i = (int)steiner_it;
@@ -640,7 +640,7 @@ ApproximateConcaveDecomposition(cpVect *verts, int count, cpFloat tol, cpPolylin
 }
 
 cpPolylineSet *
-cpPolylineConvexDecomposition_BETA(cpPolyline *line, cpFloat tol)
+cpPolylineConvexDecomposition_BETA(cpPolyline *line, float tol)
 {
 	cpAssertSoft(cpPolylineIsClosed(line), "Cannot decompose an open polygon.");
 	cpAssertSoft(cpAreaForPoly(line->count, line->verts, 0.0) >= 0.0, "Winding is backwards. (Are you passing a hole?)");

@@ -3,7 +3,6 @@
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
-#include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/map.h"
 #include <math.h>
@@ -45,7 +44,7 @@ ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   physics_info *info = utl_map_at(PHYSICS_INFO_MAP, &entities[0]);
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(PHYSICS_INFO_MAP, &entities[id]);
-    cpFloat current_ang = normalize_angle(cpBodyGetAngle(info->body));
+    float current_ang = normalize_angle(cpBodyGetAngle(info->body));
     cpBodySetVelocity(info->body, cpv(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
     cpBodySetAngularVelocity(info->body, info->target_ang_vel);
   }

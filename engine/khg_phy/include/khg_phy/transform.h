@@ -12,7 +12,7 @@ static const cpTransform cpTransformIdentity = {1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.
 /// (c, d) is the y basis vector.
 /// (tx, ty) is the translation.
 static inline cpTransform
-cpTransformNew(cpFloat a, cpFloat b, cpFloat c, cpFloat d, cpFloat tx, cpFloat ty)
+cpTransformNew(float a, float b, float c, float d, float tx, float ty)
 {
 	cpTransform t = {a, b, c, d, tx, ty};
 	return t;
@@ -20,7 +20,7 @@ cpTransformNew(cpFloat a, cpFloat b, cpFloat c, cpFloat d, cpFloat tx, cpFloat t
 
 /// Construct a new transform matrix in transposed order.
 static inline cpTransform
-cpTransformNewTranspose(cpFloat a, cpFloat c, cpFloat tx, cpFloat b, cpFloat d, cpFloat ty)
+cpTransformNewTranspose(float a, float c, float tx, float b, float d, float ty)
 {
 	cpTransform t = {a, b, c, d, tx, ty};
 	return t;
@@ -30,7 +30,7 @@ cpTransformNewTranspose(cpFloat a, cpFloat c, cpFloat tx, cpFloat b, cpFloat d, 
 static inline cpTransform
 cpTransformInverse(cpTransform t)
 {
-  cpFloat inv_det = 1.0/(t.a*t.d - t.c*t.b);
+  float inv_det = 1.0/(t.a*t.d - t.c*t.b);
   return cpTransformNewTranspose(
      t.d*inv_det, -t.c*inv_det, (t.c*t.ty - t.tx*t.d)*inv_det,
     -t.b*inv_det,  t.a*inv_det, (t.tx*t.b - t.a*t.ty)*inv_det
@@ -66,12 +66,12 @@ static inline cpBB
 cpTransformbBB(cpTransform t, cpBB bb)
 {
 	cpVect center = cpBBCenter(bb);
-	cpFloat hw = (bb.r - bb.l)*0.5;
-	cpFloat hh = (bb.t - bb.b)*0.5;
+	float hw = (bb.r - bb.l)*0.5;
+	float hh = (bb.t - bb.b)*0.5;
 	
-	cpFloat a = t.a*hw, b = t.c*hh, d = t.b*hw, e = t.d*hh;
-	cpFloat hw_max = cpfmax(cpfabs(a + b), cpfabs(a - b));
-	cpFloat hh_max = cpfmax(cpfabs(d + e), cpfabs(d - e));
+	float a = t.a*hw, b = t.c*hh, d = t.b*hw, e = t.d*hh;
+	float hw_max = phy_max(phy_abs(a + b), phy_abs(a - b));
+	float hh_max = phy_max(phy_abs(d + e), phy_abs(d - e));
 	return cpBBNewForExtents(cpTransformPoint(t, center), hw_max, hh_max);
 }
 
@@ -87,7 +87,7 @@ cpTransformTranslate(cpVect translate)
 
 /// Create a scale matrix.
 static inline cpTransform
-cpTransformScale(cpFloat scaleX, cpFloat scaleY)
+cpTransformScale(float scaleX, float scaleY)
 {
 	return cpTransformNewTranspose(
 		scaleX,    0.0, 0.0,
@@ -97,7 +97,7 @@ cpTransformScale(cpFloat scaleX, cpFloat scaleY)
 
 /// Create a rotation matrix.
 static inline cpTransform
-cpTransformRotate(cpFloat radians)
+cpTransformRotate(float radians)
 {
 	cpVect rot = cpvforangle(radians);
 	return cpTransformNewTranspose(
@@ -108,7 +108,7 @@ cpTransformRotate(cpFloat radians)
 
 /// Create a rigid transformation matrix. (transation + rotation)
 static inline cpTransform
-cpTransformRigid(cpVect translate, cpFloat radians)
+cpTransformRigid(cpVect translate, float radians)
 {
 	cpVect rot = cpvforangle(radians);
 	return cpTransformNewTranspose(
@@ -162,10 +162,10 @@ cpTransformBoneScale(cpVect v0, cpVect v1)
 }
 
 static inline cpTransform
-cpTransformAxialScale(cpVect axis, cpVect pivot, cpFloat scale)
+cpTransformAxialScale(cpVect axis, cpVect pivot, float scale)
 {
-  cpFloat A = axis.x*axis.y*(scale - 1.0);
-  cpFloat B = cpvdot(axis, pivot)*(1.0 - scale);
+  float A = axis.x*axis.y*(scale - 1.0);
+  float B = cpvdot(axis, pivot)*(1.0 - scale);
   
   return cpTransformNewTranspose(
     scale*axis.x*axis.x + axis.y*axis.y, A, axis.x*B,

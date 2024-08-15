@@ -1,4 +1,3 @@
-#include "generators/components/comp_info_generator.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
@@ -12,7 +11,7 @@
 #include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
 
-void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, cpFloat ang, cpVect cog) {
+void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, float ang, cpVect cog) {
   float moment = cpMomentForBox(mass, width, height);
   info->body = cpSpaceAddBody(SPACE, cpBodyNew(mass, moment));
   cpBodySetPosition(info->body, pos);

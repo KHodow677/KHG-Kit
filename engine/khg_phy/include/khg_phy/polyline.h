@@ -14,22 +14,22 @@ typedef struct cpPolyline {
 CP_EXPORT void cpPolylineFree(cpPolyline *line);
 
 /// Returns true if the first vertex is equal to the last.
-CP_EXPORT cpBool cpPolylineIsClosed(cpPolyline *line);
+CP_EXPORT bool cpPolylineIsClosed(cpPolyline *line);
 
 /**
 	Returns a copy of a polyline simplified by using the Douglas-Peucker algorithm.
 	This works very well on smooth or gently curved shapes, but not well on straight edged or angular shapes.
 */
-CP_EXPORT cpPolyline *cpPolylineSimplifyCurves(cpPolyline *line, cpFloat tol);
+CP_EXPORT cpPolyline *cpPolylineSimplifyCurves(cpPolyline *line, float tol);
 
 /**
 	Returns a copy of a polyline simplified by discarding "flat" vertexes.
 	This works well on straight edged or angular shapes, not as well on smooth shapes.
 */
-CP_EXPORT cpPolyline *cpPolylineSimplifyVertexes(cpPolyline *line, cpFloat tol);
+CP_EXPORT cpPolyline *cpPolylineSimplifyVertexes(cpPolyline *line, float tol);
 
 /// Get the convex hull of a polyline as a looped polyline.
-CP_EXPORT cpPolyline *cpPolylineToConvexHull(cpPolyline *line, cpFloat tol);
+CP_EXPORT cpPolyline *cpPolylineToConvexHull(cpPolyline *line, float tol);
 
 
 /// Polyline sets are collections of polylines, generally built by cpMarchSoft() or cpMarchHard().
@@ -48,10 +48,10 @@ CP_EXPORT cpPolylineSet *cpPolylineSetInit(cpPolylineSet *set);
 CP_EXPORT cpPolylineSet *cpPolylineSetNew(void);
 
 /// Destroy a polyline set.
-CP_EXPORT void cpPolylineSetDestroy(cpPolylineSet *set, cpBool freePolylines);
+CP_EXPORT void cpPolylineSetDestroy(cpPolylineSet *set, bool freePolylines);
 
 /// Destroy and free a polyline set.
-CP_EXPORT void cpPolylineSetFree(cpPolylineSet *set, cpBool freePolylines);
+CP_EXPORT void cpPolylineSetFree(cpPolylineSet *set, bool freePolylines);
 
 /**
 	Add a line segment to a polyline set.
@@ -66,7 +66,7 @@ CP_EXPORT void cpPolylineSetCollectSegment(cpVect v0, cpVect v1, cpPolylineSet *
 	NOTE: If the input is a self intersecting polygon, the output might end up overly simplified.
 */
 
-CP_EXPORT cpPolylineSet *cpPolylineConvexDecomposition(cpPolyline *line, cpFloat tol);
+CP_EXPORT cpPolylineSet *cpPolylineConvexDecomposition(cpPolyline *line, float tol);
 
 #define cpPolylineConvexDecomposition_BETA cpPolylineConvexDecomposition
 

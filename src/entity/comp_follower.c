@@ -50,7 +50,7 @@ ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
       cpBodySetVelocity(info->body, target_vel);
     }
     if (info->follow_ang) {
-      cpFloat target_ang_vel = cpBodyGetAngularVelocity(info->target_body) + cpBodyGetAngularVelocity(info->body);
+      float target_ang_vel = cpBodyGetAngularVelocity(info->target_body) + cpBodyGetAngularVelocity(info->body);
       cpBodySetAngularVelocity(info->body, target_ang_vel);
     }
   }

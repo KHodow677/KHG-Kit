@@ -26,7 +26,7 @@ static inline cpSpatialIndexClass *Klass(void);
 //MARK: Basic Structures
 
 typedef struct Bounds {
-	cpFloat min, max;
+	float min, max;
 } Bounds;
 
 typedef struct TableCell {
@@ -43,7 +43,7 @@ struct cpSweep1D
 	TableCell *table;
 };
 
-static inline cpBool
+static inline bool
 BoundsOverlap(Bounds a, Bounds b)
 {
 	return (a.min <= b.max && b.min <= a.max);
@@ -118,20 +118,20 @@ cpSweep1DEach(cpSweep1D *sweep, cpSpatialIndexIteratorFunc func, void *data)
 }
 
 static int
-cpSweep1DContains(cpSweep1D *sweep, void *obj, cpHashValue hashid)
+cpSweep1DContains(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
 {
 	TableCell *table = sweep->table;
 	for(int i=0, count=sweep->num; i<count; i++){
-		if(table[i].obj == obj) return cpTrue;
+		if(table[i].obj == obj) return true;
 	}
 	
-	return cpFalse;
+	return false;
 }
 
 //MARK: Basic Operations
 
 static void
-cpSweep1DInsert(cpSweep1D *sweep, void *obj, cpHashValue hashid)
+cpSweep1DInsert(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
 {
 	if(sweep->num == sweep->max) ResizeTable(sweep, sweep->max*2);
 	
@@ -140,7 +140,7 @@ cpSweep1DInsert(cpSweep1D *sweep, void *obj, cpHashValue hashid)
 }
 
 static void
-cpSweep1DRemove(cpSweep1D *sweep, void *obj, cpHashValue hashid)
+cpSweep1DRemove(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
 {
 	TableCell *table = sweep->table;
 	for(int i=0, count=sweep->num; i<count; i++){
@@ -158,7 +158,7 @@ cpSweep1DRemove(cpSweep1D *sweep, void *obj, cpHashValue hashid)
 //MARK: Reindexing Functions
 
 static void
-cpSweep1DReindexObject(cpSweep1D *sweep, void *obj, cpHashValue hashid)
+cpSweep1DReindexObject(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
 {
 	// Nothing to do here
 }
@@ -188,7 +188,7 @@ cpSweep1DQuery(cpSweep1D *sweep, void *obj, cpBB bb, cpSpatialIndexQueryFunc fun
 }
 
 static void
-cpSweep1DSegmentQuery(cpSweep1D *sweep, void *obj, cpVect a, cpVect b, cpFloat t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+cpSweep1DSegmentQuery(cpSweep1D *sweep, void *obj, cpVect a, cpVect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
 	cpBB bb = cpBBExpand(cpBBNew(a.x, a.y, a.x, a.y), b);
 	Bounds bounds = BBToBounds(sweep, bb);
@@ -220,7 +220,7 @@ cpSweep1DReindexQuery(cpSweep1D *sweep, cpSpatialIndexQueryFunc func, void *data
 	
 	for(int i=0; i<count; i++){
 		TableCell cell = table[i];
-		cpFloat max = cell.bounds.max;
+		float max = cell.bounds.max;
 		
 		for(int j=i+1; table[j].bounds.min < max && j<count; j++){
 			func(cell.obj, table[j].obj, 0, data);

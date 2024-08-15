@@ -14,12 +14,12 @@ float ROTATION_SPEED_SCALE = 5.0f;
 float POSITION_EASING = 3.0f;
 float ROTATION_EASING = 1.0f;
 
-void element_set_speed(physics_info *info, cpFloat vel) {
+void element_set_speed(physics_info *info, float vel) {
   info->target_vel = vel;
   info->is_moving = vel == 0.0f ? false : true;
 }
 
-void element_set_rotation_speed(physics_info *info, cpFloat ang_vel) {
+void element_set_rotation_speed(physics_info *info, float ang_vel) {
   info->target_ang_vel = ang_vel;  
   info->is_turning = ang_vel == 0.0f ? false : true;
 }
@@ -102,7 +102,7 @@ void element_target_position(physics_info *info, cpVect pos, float max_vel, floa
   }
 }
 
-void element_lock_on_position(physics_info *info, cpVect pos, cpFloat max_ang_vel) {
+void element_lock_on_position(physics_info *info, cpVect pos, float max_ang_vel) {
   cpVect body_pos = cpBodyGetPosition(info->body);
   float body_ang = normalize_angle(cpBodyGetAngle(info->body));
   float target_ang = normalize_angle(atan2f(body_pos.y - pos.y, body_pos.x - pos.x) - M_PI / 2);

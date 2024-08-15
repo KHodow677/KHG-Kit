@@ -10,39 +10,39 @@
 
 
 typedef void (*cpMarchCellFunc)(
-	cpFloat t, cpFloat a, cpFloat b, cpFloat c, cpFloat d,
-	cpFloat x0, cpFloat x1, cpFloat y0, cpFloat y1,
+	float t, float a, float b, float c, float d,
+	float x0, float x1, float y0, float y1,
 	cpMarchSegmentFunc segment, void *segment_data
 );
 
 // The looping and sample caching code is shared between cpMarchHard() and cpMarchSoft().
 static void
 cpMarchCells(
-  cpBB bb, unsigned long x_samples, unsigned long y_samples, cpFloat t,
+  cpBB bb, unsigned long x_samples, unsigned long y_samples, float t,
   cpMarchSegmentFunc segment, void *segment_data,
   cpMarchSampleFunc sample, void *sample_data,
 	cpMarchCellFunc cell
 ){
-	cpFloat x_denom = 1.0/(cpFloat)(x_samples - 1);
-	cpFloat y_denom = 1.0/(cpFloat)(y_samples - 1);
+	float x_denom = 1.0/(float)(x_samples - 1);
+	float y_denom = 1.0/(float)(y_samples - 1);
 	
 	// TODO range assertions and short circuit for 0 sized windows.
 	
 	// Keep a copy of the previous row to avoid double lookups.
-	cpFloat *buffer = (cpFloat *)cpcalloc(x_samples, sizeof(cpFloat));
-	for(unsigned long i=0; i<x_samples; i++) buffer[i] = sample(cpv(cpflerp(bb.l, bb.r, i*x_denom), bb.b), sample_data);
+	float *buffer = (float *)cpcalloc(x_samples, sizeof(float));
+	for(unsigned long i=0; i<x_samples; i++) buffer[i] = sample(cpv(phy_lerp(bb.l, bb.r, i*x_denom), bb.b), sample_data);
 	
 	for(unsigned long j=0; j<y_samples-1; j++){
-		cpFloat y0 = cpflerp(bb.b, bb.t, (j+0)*y_denom);
-		cpFloat y1 = cpflerp(bb.b, bb.t, (j+1)*y_denom);
+		float y0 = phy_lerp(bb.b, bb.t, (j+0)*y_denom);
+		float y1 = phy_lerp(bb.b, bb.t, (j+1)*y_denom);
 		
-		cpFloat a, b = buffer[0];
-		cpFloat c, d = sample(cpv(bb.l, y1), sample_data);
+		float a, b = buffer[0];
+		float c, d = sample(cpv(bb.l, y1), sample_data);
 		buffer[0] = d;
 		
 		for(unsigned long i=0; i<x_samples-1; i++){
-			cpFloat x0 = cpflerp(bb.l, bb.r, (i+0)*x_denom);
-			cpFloat x1 = cpflerp(bb.l, bb.r, (i+1)*x_denom);
+			float x0 = phy_lerp(bb.l, bb.r, (i+0)*x_denom);
+			float x1 = phy_lerp(bb.l, bb.r, (i+1)*x_denom);
 			
 			a = b; b = buffer[i + 1];
 			c = d; d = sample(cpv(x1, y1), sample_data);
@@ -64,16 +64,16 @@ seg(cpVect v0, cpVect v1, cpMarchSegmentFunc f, void *data)
 }
 
 // Lerps between two positions based on their sample values.
-static inline cpFloat
-midlerp(cpFloat x0, cpFloat x1, cpFloat s0, cpFloat s1, cpFloat t)
+static inline float
+midlerp(float x0, float x1, float s0, float s1, float t)
 {
-	return cpflerp(x0, x1, (t - s0)/(s1 - s0));
+	return phy_lerp(x0, x1, (t - s0)/(s1 - s0));
 }
 
 static void
 cpMarchCellSoft(
-	cpFloat t, cpFloat a, cpFloat b, cpFloat c, cpFloat d,
-	cpFloat x0, cpFloat x1, cpFloat y0, cpFloat y1,
+	float t, float a, float b, float c, float d,
+	float x0, float x1, float y0, float y1,
 	cpMarchSegmentFunc segment, void *segment_data
 ){
 	// TODO this switch part is super expensive, can it be NEONized?
@@ -100,7 +100,7 @@ cpMarchCellSoft(
 
 void
 cpMarchSoft(
-  cpBB bb, unsigned long x_samples, unsigned long y_samples, cpFloat t,
+  cpBB bb, unsigned long x_samples, unsigned long y_samples, float t,
   cpMarchSegmentFunc segment, void *segment_data,
   cpMarchSampleFunc sample, void *sample_data
 ){
@@ -118,13 +118,13 @@ segs(cpVect a, cpVect b, cpVect c, cpMarchSegmentFunc f, void *data)
 
 static void
 cpMarchCellHard(
-	cpFloat t, cpFloat a, cpFloat b, cpFloat c, cpFloat d,
-	cpFloat x0, cpFloat x1, cpFloat y0, cpFloat y1,
+	float t, float a, float b, float c, float d,
+	float x0, float x1, float y0, float y1,
 	cpMarchSegmentFunc segment, void *segment_data
 ){
 	// midpoints
-	cpFloat xm = cpflerp(x0, x1, 0.5f);
-	cpFloat ym = cpflerp(y0, y1, 0.5f);
+	float xm = phy_lerp(x0, x1, 0.5f);
+	float ym = phy_lerp(y0, y1, 0.5f);
 	
 	switch((a>t)<<0 | (b>t)<<1 | (c>t)<<2 | (d>t)<<3){
 		case 0x1: segs(cpv(x0, ym), cpv(xm, ym), cpv(xm, y0), segment, segment_data); break;
@@ -149,7 +149,7 @@ cpMarchCellHard(
 
 void
 cpMarchHard(
-  cpBB bb, unsigned long x_samples, unsigned long y_samples, cpFloat t,
+  cpBB bb, unsigned long x_samples, unsigned long y_samples, float t,
   cpMarchSegmentFunc segment, void *segment_data,
   cpMarchSampleFunc sample, void *sample_data
 ){

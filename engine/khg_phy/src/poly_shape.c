@@ -43,8 +43,8 @@ cpPolyShapeCacheData(cpPolyShape *poly, cpTransform transform)
 	struct cpSplittingPlane *dst = poly->planes;
 	struct cpSplittingPlane *src = dst + count;
 	
-	cpFloat l = (cpFloat)INFINITY, r = -(cpFloat)INFINITY;
-	cpFloat b = (cpFloat)INFINITY, t = -(cpFloat)INFINITY;
+	float l = (float)INFINITY, r = -(float)INFINITY;
+	float b = (float)INFINITY, t = -(float)INFINITY;
 	
 	for(int i=0; i<count; i++){
 		cpVect v = cpTransformPoint(transform, src[i].v0);
@@ -53,13 +53,13 @@ cpPolyShapeCacheData(cpPolyShape *poly, cpTransform transform)
 		dst[i].v0 = v;
 		dst[i].n = n;
 		
-		l = cpfmin(l, v.x);
-		r = cpfmax(r, v.x);
-		b = cpfmin(b, v.y);
-		t = cpfmax(t, v.y);
+		l = phy_min(l, v.x);
+		r = phy_max(r, v.x);
+		b = phy_min(b, v.y);
+		t = phy_max(t, v.y);
 	}
 	
-	cpFloat radius = poly->r;
+	float radius = poly->r;
 	return (poly->shape.bb = cpBBNew(l - radius, b - radius, r + radius, t + radius));
 }
 
@@ -67,13 +67,13 @@ static void
 cpPolyShapePointQuery(cpPolyShape *poly, cpVect p, cpPointQueryInfo *info){
 	int count = poly->count;
 	struct cpSplittingPlane *planes = poly->planes;
-	cpFloat r = poly->r;
+	float r = poly->r;
 	
 	cpVect v0 = planes[count - 1].v0;
-	cpFloat minDist = INFINITY;
+	float minDist = INFINITY;
 	cpVect closestPoint = cpvzero;
 	cpVect closestNormal = cpvzero;
-	cpBool outside = cpFalse;
+	bool outside = false;
 	
 	for(int i=0; i<count; i++){
 		cpVect v1 = planes[i].v0;
@@ -81,7 +81,7 @@ cpPolyShapePointQuery(cpPolyShape *poly, cpVect p, cpPointQueryInfo *info){
 		
 		cpVect closest = cpClosetPointOnSegment(p, v0, v1);
 		
-		cpFloat dist = cpvdist(p, closest);
+		float dist = cpvdist(p, closest);
 		if(dist < minDist){
 			minDist = dist;
 			closestPoint = closest;
@@ -91,7 +91,7 @@ cpPolyShapePointQuery(cpPolyShape *poly, cpVect p, cpPointQueryInfo *info){
 		v0 = v1;
 	}
 	
-	cpFloat dist = (outside ? minDist : -minDist);
+	float dist = (outside ? minDist : -minDist);
 	cpVect g = cpvmult(cpvsub(p, closestPoint), 1.0f/dist);
 	
 	info->shape = (cpShape *)poly;
@@ -103,28 +103,28 @@ cpPolyShapePointQuery(cpPolyShape *poly, cpVect p, cpPointQueryInfo *info){
 }
 
 static void
-cpPolyShapeSegmentQuery(cpPolyShape *poly, cpVect a, cpVect b, cpFloat r2, cpSegmentQueryInfo *info)
+cpPolyShapeSegmentQuery(cpPolyShape *poly, cpVect a, cpVect b, float r2, cpSegmentQueryInfo *info)
 {
 	struct cpSplittingPlane *planes = poly->planes;
 	int count = poly->count;
-	cpFloat r = poly->r;
-	cpFloat rsum = r + r2;
+	float r = poly->r;
+	float rsum = r + r2;
 	
 	for(int i=0; i<count; i++){
 		cpVect n = planes[i].n;
-		cpFloat an = cpvdot(a, n);
-		cpFloat d =  an - cpvdot(planes[i].v0, n) - rsum;
+		float an = cpvdot(a, n);
+		float d =  an - cpvdot(planes[i].v0, n) - rsum;
 		if(d < 0.0f) continue;
 		
-		cpFloat bn = cpvdot(b, n);
+		float bn = cpvdot(b, n);
 		// Avoid divide by zero. (d is always positive)
-		cpFloat t = d/cpfmax(an - bn, CPFLOAT_MIN);
+		float t = d/phy_max(an - bn, FLT_MIN);
 		if(t < 0.0f || 1.0f < t) continue;
 		
 		cpVect point = cpvlerp(a, b, t);
-		cpFloat dt = cpvcross(n, point);
-		cpFloat dtMin = cpvcross(n, planes[(i - 1 + count)%count].v0);
-		cpFloat dtMax = cpvcross(n, planes[i].v0);
+		float dt = cpvcross(n, point);
+		float dtMin = cpvcross(n, planes[(i - 1 + count)%count].v0);
+		float dtMax = cpvcross(n, planes[i].v0);
 		
 		if(dtMin <= dt && dt <= dtMax){
 			info->shape = (cpShape *)poly;
@@ -165,7 +165,7 @@ SetVerts(cpPolyShape *poly, int count, const cpVect *verts)
 }
 
 static struct cpShapeMassInfo
-cpPolyShapeMassInfo(cpFloat mass, int count, const cpVect *verts, cpFloat radius)
+cpPolyShapeMassInfo(float mass, int count, const cpVect *verts, float radius)
 {
 	// TODO moment is approximate due to radius.
 	
@@ -188,7 +188,7 @@ static const cpShapeClass polyClass = {
 };
 
 cpPolyShape *
-cpPolyShapeInit(cpPolyShape *poly, cpBody *body, int count, const cpVect *verts, cpTransform transform, cpFloat radius)
+cpPolyShapeInit(cpPolyShape *poly, cpBody *body, int count, const cpVect *verts, cpTransform transform, float radius)
 {
 	cpVect *hullVerts = (cpVect *)alloca(count*sizeof(cpVect));
 	
@@ -200,7 +200,7 @@ cpPolyShapeInit(cpPolyShape *poly, cpBody *body, int count, const cpVect *verts,
 }
 
 cpPolyShape *
-cpPolyShapeInitRaw(cpPolyShape *poly, cpBody *body, int count, const cpVect *verts, cpFloat radius)
+cpPolyShapeInitRaw(cpPolyShape *poly, cpBody *body, int count, const cpVect *verts, float radius)
 {
 	cpShapeInit((cpShape *)poly, &polyClass, body, cpPolyShapeMassInfo(0.0f, count, verts, radius));
 	
@@ -211,28 +211,28 @@ cpPolyShapeInitRaw(cpPolyShape *poly, cpBody *body, int count, const cpVect *ver
 }
 
 cpShape *
-cpPolyShapeNew(cpBody *body, int count, const cpVect *verts, cpTransform transform, cpFloat radius)
+cpPolyShapeNew(cpBody *body, int count, const cpVect *verts, cpTransform transform, float radius)
 {
 	return (cpShape *)cpPolyShapeInit(cpPolyShapeAlloc(), body, count, verts, transform, radius);
 }
 
 cpShape *
-cpPolyShapeNewRaw(cpBody *body, int count, const cpVect *verts, cpFloat radius)
+cpPolyShapeNewRaw(cpBody *body, int count, const cpVect *verts, float radius)
 {
 	return (cpShape *)cpPolyShapeInitRaw(cpPolyShapeAlloc(), body, count, verts, radius);
 }
 
 cpPolyShape *
-cpBoxShapeInit(cpPolyShape *poly, cpBody *body, cpFloat width, cpFloat height, cpFloat radius)
+cpBoxShapeInit(cpPolyShape *poly, cpBody *body, float width, float height, float radius)
 {
-	cpFloat hw = width/2.0f;
-	cpFloat hh = height/2.0f;
+	float hw = width/2.0f;
+	float hh = height/2.0f;
 	
 	return cpBoxShapeInit2(poly, body, cpBBNew(-hw, -hh, hw, hh), radius);
 }
 
 cpPolyShape *
-cpBoxShapeInit2(cpPolyShape *poly, cpBody *body, cpBB box, cpFloat radius)
+cpBoxShapeInit2(cpPolyShape *poly, cpBody *body, cpBB box, float radius)
 {
 	cpVect verts[4] = {
 		cpv(box.r, box.b),
@@ -245,13 +245,13 @@ cpBoxShapeInit2(cpPolyShape *poly, cpBody *body, cpBB box, cpFloat radius)
 }
 
 cpShape *
-cpBoxShapeNew(cpBody *body, cpFloat width, cpFloat height, cpFloat radius)
+cpBoxShapeNew(cpBody *body, float width, float height, float radius)
 {
 	return (cpShape *)cpBoxShapeInit(cpPolyShapeAlloc(), body, width, height, radius);
 }
 
 cpShape *
-cpBoxShapeNew2(cpBody *body, cpBB box, cpFloat radius)
+cpBoxShapeNew2(cpBody *body, cpBB box, float radius)
 {
 	return (cpShape *)cpBoxShapeInit2(cpPolyShapeAlloc(), body, box, radius);
 }
@@ -274,7 +274,7 @@ cpPolyShapeGetVert(const cpShape *shape, int i)
 	return ((cpPolyShape *)shape)->planes[i + count].v0;
 }
 
-cpFloat
+float
 cpPolyShapeGetRadius(const cpShape *shape)
 {
 	cpAssertHard(shape->klass == &polyClass, "Shape is not a poly shape.");
@@ -304,13 +304,13 @@ cpPolyShapeSetVertsRaw(cpShape *shape, int count, cpVect *verts)
 	
 	SetVerts(poly, count, verts);
 	
-	cpFloat mass = shape->massInfo.m;
+	float mass = shape->massInfo.m;
 	shape->massInfo = cpPolyShapeMassInfo(shape->massInfo.m, count, verts, poly->r);
 	if(mass > 0.0f) cpBodyAccumulateMassFromShapes(shape->body);
 }
 
 void
-cpPolyShapeSetRadius(cpShape *shape, cpFloat radius)
+cpPolyShapeSetRadius(cpShape *shape, float radius)
 {
 	cpAssertHard(shape->klass == &polyClass, "Shape is not a poly shape.");
 	cpPolyShape *poly = (cpPolyShape *)shape;
@@ -318,7 +318,7 @@ cpPolyShapeSetRadius(cpShape *shape, cpFloat radius)
 	
 	
 	// TODO radius is not handled by moment/area
-//	cpFloat mass = shape->massInfo.m;
+//	float mass = shape->massInfo.m;
 //	shape->massInfo = cpPolyShapeMassInfo(shape->massInfo.m, poly->count, poly->verts, poly->r);
 //	if(mass > 0.0f) cpBodyAccumulateMassFromShapes(shape->body);
 }

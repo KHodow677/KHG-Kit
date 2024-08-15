@@ -61,7 +61,7 @@ cpSpaceActivateBody(cpSpace *space, cpBody *body)
 				// Reinsert the arbiter into the arbiter cache
 				const cpShape *a = arb->a, *b = arb->b;
 				const cpShape *shape_pair[] = {a, b};
-				cpHashValue arbHashID = CP_HASH_PAIR((cpHashValue)a, (cpHashValue)b);
+				phy_hash_value arbHashID = CP_HASH_PAIR((phy_hash_value)a, (phy_hash_value)b);
 				cpHashSetInsert(space->cachedArbiters, arbHashID, shape_pair, NULL, arb);
 				
 				// Update the arbiter's state
@@ -207,20 +207,20 @@ FloodFillComponent(cpBody *root, cpBody *body)
 	}
 }
 
-static inline cpBool
-ComponentActive(cpBody *root, cpFloat threshold)
+static inline bool
+ComponentActive(cpBody *root, float threshold)
 {
 	CP_BODY_FOREACH_COMPONENT(root, body){
-		if(body->sleeping.idleTime < threshold) return cpTrue;
+		if(body->sleeping.idleTime < threshold) return true;
 	}
 	
-	return cpFalse;
+	return false;
 }
 
 void
-cpSpaceProcessComponents(cpSpace *space, cpFloat dt)
+cpSpaceProcessComponents(cpSpace *space, float dt)
 {
-	cpBool sleep = (space->sleepTimeThreshold != INFINITY);
+	bool sleep = (space->sleepTimeThreshold != INFINITY);
 	cpArray *bodies = space->dynamicBodies;
 	
 #ifndef NDEBUG
@@ -234,8 +234,8 @@ cpSpaceProcessComponents(cpSpace *space, cpFloat dt)
 	
 	// Calculate the kinetic energy of all the bodies.
 	if(sleep){
-		cpFloat dv = space->idleSpeedThreshold;
-		cpFloat dvsq = (dv ? dv*dv : cpvlengthsq(space->gravity)*dt*dt);
+		float dv = space->idleSpeedThreshold;
+		float dvsq = (dv ? dv*dv : cpvlengthsq(space->gravity)*dt*dt);
 		
 		// update idling and reset component nodes
 		for(int i=0; i<bodies->num; i++){
@@ -245,7 +245,7 @@ cpSpaceProcessComponents(cpSpace *space, cpFloat dt)
 			if(cpBodyGetType(body) != CP_BODY_TYPE_DYNAMIC) continue;
 			
 			// Need to deal with infinite mass objects
-			cpFloat keThreshold = (dvsq ? body->m*dvsq : 0.0f);
+			float keThreshold = (dvsq ? body->m*dvsq : 0.0f);
 			body->sleeping.idleTime = (cpBodyKineticEnergy(body) > keThreshold ? 0.0f : body->sleeping.idleTime + dt);
 		}
 	}
