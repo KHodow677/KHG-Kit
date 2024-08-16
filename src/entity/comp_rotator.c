@@ -6,7 +6,6 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/map.h"
-#include "spawners/spawn_particles.h"
 #include <stdio.h>
 
 ecs_id ROTATOR_COMPONENT_SIGNATURE;
@@ -51,7 +50,6 @@ ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     if (!cpveql(handle_right_mouse_controls(), cpv(-1.0f, -1.0f))) {
       info->target_look_pos = handle_right_mouse_controls();
       p_info->is_locked_on = false;
-      spawn_particle(info->target_look_pos.x, info->target_look_pos.y);
     }
     element_lock_on_position(p_info, info->target_look_pos, 16.0f);
   }

@@ -1,5 +1,6 @@
 #include "game.h"
 #include "controllers/elements/element_controller.h"
+#include "data_utl/thread_utl.h"
 #include "entity/ecs_manager.h"
 #include "physics/physics_setup.h"
 #include "spawners/spawn_tank.h"
@@ -35,6 +36,7 @@ int game_run() {
   glfwMakeContextCurrent(window);
   gfx_init_glfw(800, 600, window);
   log_info();
+  set_optimal_thread_count();
   SPACE = physics_setup(cpv(0.0f, 0.0f));
   ecs_setup();
   spawn_tank();
@@ -50,7 +52,11 @@ void gfx_loop() {
   gfx_begin();
   ecs_update_system(ECS, MOVER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, ROTATOR_SYSTEM.id, 0.0f);
+  ecs_update_system(ECS, SHOOTER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
+  FOLLOWER_SYSTEM.current_degree = 1;
+  ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
+  FOLLOWER_SYSTEM.current_degree = 2;
   ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);

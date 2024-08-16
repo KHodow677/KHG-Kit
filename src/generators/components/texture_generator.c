@@ -37,11 +37,11 @@ void generate_textures() {
   add_new_texture("particle/p1/13", "png", 107, 100);
   add_new_texture("particle/p1/14", "png", 107, 100);
   add_new_texture("particle/p1/15", "png", 107, 100);
-  add_new_texture("particle/p2/00", "png", 107, 100);
-  add_new_texture("particle/p2/01", "png", 107, 100);
-  add_new_texture("particle/p2/02", "png", 107, 100);
-  add_new_texture("particle/p2/03", "png", 107, 100);
-  add_new_texture("particle/p2/04", "png", 107, 100);
+  add_new_texture("particle/p2/00", "png", 80, 80);
+  add_new_texture("particle/p2/01", "png", 80, 80);
+  add_new_texture("particle/p2/02", "png", 80, 80);
+  add_new_texture("particle/p2/03", "png", 80, 80);
+  add_new_texture("particle/p2/04", "png", 80, 80);
 }
 
 void free_textures() {

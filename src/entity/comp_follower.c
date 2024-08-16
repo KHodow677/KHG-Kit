@@ -1,6 +1,8 @@
 #include "entity/comp_follower.h"
+#include "data_utl/kinematic_utl.h"
 #include "entity/comp_physics.h"
 #include "data_utl/map_utl.h"
+#include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
@@ -21,6 +23,7 @@ void sys_follower_register(sys_follower *sf, ecs_ecs *ecs) {
   ecs_require_component(ecs, sf->id, FOLLOWER_COMPONENT_SIGNATURE);
   ecs_require_component(ecs, sf->id, PHYSICS_COMPONENT_SIGNATURE);
   sf->ecs = *ecs;
+  sf->current_degree = 1;
   FOLLOWER_INFO_MAP = utl_map_create(compare_ints, no_deallocator, no_deallocator);
 }
 
@@ -43,15 +46,19 @@ ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     return 0;
   }
   follower_info *info = utl_map_at(FOLLOWER_INFO_MAP, &entities[0]);
+  int current_degree = FOLLOWER_SYSTEM.current_degree;
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(FOLLOWER_INFO_MAP, &entities[id]);
-    if (info->follow_pos) {
-      cpVect target_vel = cpvadd(cpBodyGetVelocity(info->target_body), cpBodyGetVelocity(info->body));
-      cpBodySetVelocity(info->body, target_vel);
+    if (info->degree != current_degree) {
+      continue;
     }
     if (info->follow_ang) {
       float target_ang_vel = cpBodyGetAngularVelocity(info->target_body) + cpBodyGetAngularVelocity(info->body);
       cpBodySetAngularVelocity(info->body, target_ang_vel);
+    }
+    if (info->follow_pos) {
+      cpVect target_vel = cpvadd(cpBodyGetVelocity(info->target_body), cpBodyGetVelocity(info->body));
+      cpBodySetVelocity(info->body, target_vel);
     }
   }
   return 0;

@@ -2,5 +2,5 @@
 
 #include <stdbool.h>
 
-bool handle_escape_button(void);
+bool handle_space_button(void);
 

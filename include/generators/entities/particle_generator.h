@@ -2,6 +2,7 @@
 
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
+#include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "khg_ecs/ecs.h"
@@ -12,8 +13,9 @@ typedef struct {
   renderer_info renderer_info;
   destroyer_info destroyer_info;
   animator_info animator_info;
+  follower_info follower_info;
 } particle;
 
-void generate_particle(particle *p, ecs_ecs *ecs, float x, float y);
+void generate_particle(particle *p, physics_info *barrel_info, ecs_ecs *ecs, float x, float y);
 void free_particle(particle *p);
 
