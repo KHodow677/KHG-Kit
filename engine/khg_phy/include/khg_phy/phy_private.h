@@ -143,8 +143,8 @@ void cpConstraintInit(phy_constraint *constraint, const struct cpConstraintClass
 static inline void
 cpConstraintActivateBodies(phy_constraint *constraint)
 {
-	phy_body *a = constraint->a; cpBodyActivate(a);
-	phy_body *b = constraint->b; cpBodyActivate(b);
+	phy_body *a = constraint->a; phy_body_activate(a);
+	phy_body *b = constraint->b; phy_body_activate(b);
 }
 
 static inline phy_vect
@@ -284,7 +284,7 @@ cpSpaceUncacheArbiter(phy_space *space, phy_arbiter *arb)
 }
 
 static inline phy_array *
-cpSpaceArrayForBodyType(phy_space *space, cpBodyType type)
+cpSpaceArrayForBodyType(phy_space *space, phy_body_type type)
 {
 	return (type == CP_BODY_TYPE_STATIC ? space->staticBodies : space->dynamicBodies);
 }

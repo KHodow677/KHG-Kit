@@ -239,7 +239,7 @@ floor_int(float f)
 }
 
 static inline void
-hashHandle(cpSpaceHash *hash, cpHandle *hand, cpBB bb)
+hashHandle(cpSpaceHash *hash, cpHandle *hand, phy_bb bb)
 {
 	// Find the dimensions in cell coordinates.
 	float dim = hash->celldim;
@@ -374,7 +374,7 @@ query_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSpatialIn
 }
 
 static void
-cpSpaceHashQuery(cpSpaceHash *hash, void *obj, cpBB bb, cpSpatialIndexQueryFunc func, void *data)
+cpSpaceHashQuery(cpSpaceHash *hash, void *obj, phy_bb bb, cpSpatialIndexQueryFunc func, void *data)
 {
 	// Get the dimensions in cell coordinates.
 	float dim = hash->celldim;
@@ -415,7 +415,7 @@ queryRehash_helper(cpHandle *hand, queryRehashContext *context)
 	int n = hash->numcells;
 
 	void *obj = hand->obj;
-	cpBB bb = hash->spatialIndex.bbfunc(obj);
+	phy_bb bb = hash->spatialIndex.bbfunc(obj);
 
 	int l = floor_int(bb.l/dim);
 	int r = floor_int(bb.r/dim);

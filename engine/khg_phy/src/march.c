@@ -18,7 +18,7 @@ typedef void (*cpMarchCellFunc)(
 // The looping and sample caching code is shared between cpMarchHard() and cpMarchSoft().
 static void
 cpMarchCells(
-  cpBB bb, unsigned long x_samples, unsigned long y_samples, float t,
+  phy_bb bb, unsigned long x_samples, unsigned long y_samples, float t,
   cpMarchSegmentFunc segment, void *segment_data,
   cpMarchSampleFunc sample, void *sample_data,
 	cpMarchCellFunc cell
@@ -100,7 +100,7 @@ cpMarchCellSoft(
 
 void
 cpMarchSoft(
-  cpBB bb, unsigned long x_samples, unsigned long y_samples, float t,
+  phy_bb bb, unsigned long x_samples, unsigned long y_samples, float t,
   cpMarchSegmentFunc segment, void *segment_data,
   cpMarchSampleFunc sample, void *sample_data
 ){
@@ -149,7 +149,7 @@ cpMarchCellHard(
 
 void
 cpMarchHard(
-  cpBB bb, unsigned long x_samples, unsigned long y_samples, float t,
+  phy_bb bb, unsigned long x_samples, unsigned long y_samples, float t,
   cpMarchSegmentFunc segment, void *segment_data,
   cpMarchSampleFunc sample, void *sample_data
 ){

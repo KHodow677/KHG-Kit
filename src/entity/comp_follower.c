@@ -53,12 +53,12 @@ ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
       continue;
     }
     if (info->follow_ang) {
-      float target_ang_vel = cpBodyGetAngularVelocity(info->target_body) + cpBodyGetAngularVelocity(info->body);
-      cpBodySetAngularVelocity(info->body, target_ang_vel);
+      float target_ang_vel = phy_body_get_angular_velocity(info->target_body) + phy_body_get_angular_velocity(info->body);
+      phy_body_set_angular_velocity(info->body, target_ang_vel);
     }
     if (info->follow_pos) {
-      phy_vect target_vel = cpvadd(cpBodyGetVelocity(info->target_body), cpBodyGetVelocity(info->body));
-      cpBodySetVelocity(info->body, target_vel);
+      phy_vect target_vel = cpvadd(phy_body_get_velocity(info->target_body), phy_body_get_velocity(info->body));
+      phy_body_set_velocity(info->body, target_vel);
     }
   }
   return 0;

@@ -14,8 +14,8 @@ struct phy_array {
 
 struct phy_body {
 	// Integration functions
-	cpBodyVelocityFunc velocity_func;
-	cpBodyPositionFunc position_func;
+	phy_body_velocity_func velocity_func;
+	phy_body_position_func position_func;
 	
 	// mass and it's inverse
 	float m;
@@ -138,7 +138,7 @@ typedef enum cpShapeType{
 	CP_NUM_SHAPES
 } cpShapeType;
 
-typedef cpBB (*cpShapeCacheDataImpl)(phy_shape *shape, phy_transform transform);
+typedef phy_bb (*cpShapeCacheDataImpl)(phy_shape *shape, phy_transform transform);
 typedef void (*cpShapeDestroyImpl)(phy_shape *shape);
 typedef void (*cpShapePointQueryImpl)(const phy_shape *shape, phy_vect p, cpPointQueryInfo *info);
 typedef void (*cpShapeSegmentQueryImpl)(const phy_shape *shape, phy_vect a, phy_vect b, float radius, cpSegmentQueryInfo *info);
@@ -160,7 +160,7 @@ struct phy_shape {
 	phy_space *space;
 	phy_body *body;
 	struct cpShapeMassInfo massInfo;
-	cpBB bb;
+	phy_bb bb;
 	
 	bool sensor;
 	

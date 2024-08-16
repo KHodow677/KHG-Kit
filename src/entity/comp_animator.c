@@ -2,14 +2,16 @@
 #include "data_utl/thread_utl.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_renderer.h"
-#include "data_utl/map_utl.h"
+#include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_thd/thread.h"
 #include "khg_utl/map.h"
+#include "khg_utl/vector.h"
 #include <stdio.h>
 
 ecs_id ANIMATOR_COMPONENT_SIGNATURE;
-utl_map *ANIMATOR_INFO_MAP = NULL;
+animator_info NO_ANIMATOR = { 0 };
+utl_vector *ANIMATOR_INFO = NULL;
 
 void comp_animator_register(comp_animator *ca, ecs_ecs *ecs) {
   ca->id = ecs_register_component(ecs, sizeof(comp_animator), NULL, NULL);
@@ -22,17 +24,20 @@ void sys_animator_register(sys_animator *sa, ecs_ecs *ecs) {
   ecs_require_component(ecs, sa->id, RENDERER_COMPONENT_SIGNATURE);
   ecs_require_component(ecs, sa->id, DESTROYER_COMPONENT_SIGNATURE);
   sa->ecs = *ecs;
-  ANIMATOR_INFO_MAP = utl_map_create(compare_ints, no_deallocator, no_deallocator);
+  ANIMATOR_INFO = utl_vector_create(sizeof(animator_info));
+  for (int i = 0; i < ECS->entity_count; i++) {
+    utl_vector_push_back(ANIMATOR_INFO, &NO_ANIMATOR);
+  }
 }
 
 void sys_animator_add(ecs_ecs *ecs, ecs_id *eid, animator_info *info) {
   ecs_add(ecs, *eid, ANIMATOR_COMPONENT_SIGNATURE, NULL);
-  utl_map_insert(ANIMATOR_INFO_MAP, eid, info);
+  utl_vector_assign(ANIMATOR_INFO, *eid, info);
 }
 
 void sys_animator_free(bool need_free) {
   if (need_free) {
-    utl_map_deallocate(ANIMATOR_INFO_MAP);
+    utl_vector_deallocate(ANIMATOR_INFO);
   }
 }
 
@@ -42,9 +47,9 @@ void *update_animator_entities(void *arg) {
   renderer_info *r_info;
   destroyer_info *d_info;
   for (int id = data->start; id < data->end; id++) {
-    info = utl_map_at(ANIMATOR_INFO_MAP, &data->entities[id]);
+    info = utl_vector_at(ANIMATOR_INFO, data->entities[id]);
     r_info = utl_map_at(RENDERER_INFO_MAP, &data->entities[id]);
-    d_info = utl_map_at(DESTROYER_INFO_MAP, &data->entities[id]);
+    d_info = utl_vector_at(DESTROYER_INFO, data->entities[id]);
     if (--info->frame_timer == 0) {
       r_info->tex_id = r_info->tex_id < info->max_tex_id ? r_info->tex_id + 1 : info->min_tex_id;
       info->frame_timer = info->frame_duration;

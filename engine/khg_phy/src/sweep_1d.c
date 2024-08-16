@@ -50,7 +50,7 @@ BoundsOverlap(Bounds a, Bounds b)
 }
 
 static inline Bounds
-BBToBounds(cpSweep1D *sweep, cpBB bb)
+BBToBounds(cpSweep1D *sweep, phy_bb bb)
 {
 	Bounds bounds = {bb.l, bb.r};
 	return bounds;
@@ -173,7 +173,7 @@ cpSweep1DReindex(cpSweep1D *sweep)
 //MARK: Query Functions
 
 static void
-cpSweep1DQuery(cpSweep1D *sweep, void *obj, cpBB bb, cpSpatialIndexQueryFunc func, void *data)
+cpSweep1DQuery(cpSweep1D *sweep, void *obj, phy_bb bb, cpSpatialIndexQueryFunc func, void *data)
 {
 	// Implementing binary search here would allow you to find an upper limit
 	// but not a lower limit. Probably not worth the hassle.
@@ -190,7 +190,7 @@ cpSweep1DQuery(cpSweep1D *sweep, void *obj, cpBB bb, cpSpatialIndexQueryFunc fun
 static void
 cpSweep1DSegmentQuery(cpSweep1D *sweep, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
-	cpBB bb = cpBBExpand(cpBBNew(a.x, a.y, a.x, a.y), b);
+	phy_bb bb = phy_bb_expand(phy_bb_new(a.x, a.y, a.x, a.y), b);
 	Bounds bounds = BBToBounds(sweep, bb);
 	
 	TableCell *table = sweep->table;

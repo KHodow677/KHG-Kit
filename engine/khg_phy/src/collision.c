@@ -440,7 +440,7 @@ GJK(const struct SupportContext *ctx, phy_collision_id *id)
 		v1 = MinkowskiPointNew(ShapePoint(ctx->shape1, (*id>> 8)&0xFF), ShapePoint(ctx->shape2, (*id    )&0xFF));
 	} else {
 		// No cached indexes, use the shapes' bounding box centers as a guess for a starting axis.
-		phy_vect axis = cpvperp(cpvsub(cpBBCenter(ctx->shape1->bb), cpBBCenter(ctx->shape2->bb)));
+		phy_vect axis = cpvperp(cpvsub(phy_bb_center(ctx->shape1->bb), phy_bb_center(ctx->shape2->bb)));
 		v0 = Support(ctx, axis);
 		v1 = Support(ctx, cpvneg(axis));
 	}

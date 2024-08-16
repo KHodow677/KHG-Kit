@@ -49,7 +49,7 @@ void
 cpSpacePointQuery(phy_space *space, phy_vect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryFunc func, void *data)
 {
 	struct PointQueryContext context = {point, maxDistance, filter, func};
-	cpBB bb = cpBBNewForCircle(point, phy_max(maxDistance, 0.0f));
+	phy_bb bb = phy_bb_new_for_circle(point, phy_max(maxDistance, 0.0f));
 	
 	cpSpaceLock(space); {
 		cpSpatialIndexQuery(space->dynamicShapes, &context, bb, (cpSpatialIndexQueryFunc)NearestPointQuery, data);
@@ -88,7 +88,7 @@ cpSpacePointQueryNearest(phy_space *space, phy_vect point, float maxDistance, cp
 		NULL
 	};
 	
-	cpBB bb = cpBBNewForCircle(point, phy_max(maxDistance, 0.0f));
+	phy_bb bb = phy_bb_new_for_circle(point, phy_max(maxDistance, 0.0f));
 	cpSpatialIndexQuery(space->dynamicShapes, &context, bb, (cpSpatialIndexQueryFunc)NearestPointQueryNearest, out);
 	cpSpatialIndexQuery(space->staticShapes, &context, bb, (cpSpatialIndexQueryFunc)NearestPointQueryNearest, out);
 	
@@ -178,7 +178,7 @@ cpSpaceSegmentQueryFirst(phy_space *space, phy_vect start, phy_vect end, float r
 //MARK: BB Query Functions
 
 struct BBQueryContext {
-	cpBB bb;
+	phy_bb bb;
 	cpShapeFilter filter;
 	cpSpaceBBQueryFunc func;
 };
@@ -188,7 +188,7 @@ BBQuery(struct BBQueryContext *context, phy_shape *shape, phy_collision_id id, v
 {
 	if(
 		!cpShapeFilterReject(shape->filter, context->filter) &&
-		cpBBIntersects(context->bb, shape->bb)
+		phy_bb_intersects(context->bb, shape->bb)
 	){
 		context->func(shape, data);
 	}
@@ -197,7 +197,7 @@ BBQuery(struct BBQueryContext *context, phy_shape *shape, phy_collision_id id, v
 }
 
 void
-cpSpaceBBQuery(phy_space *space, cpBB bb, cpShapeFilter filter, cpSpaceBBQueryFunc func, void *data)
+cpSpaceBBQuery(phy_space *space, phy_bb bb, cpShapeFilter filter, cpSpaceBBQueryFunc func, void *data)
 {
 	struct BBQueryContext context = {bb, filter, func};
 	
@@ -234,7 +234,7 @@ bool
 cpSpaceShapeQuery(phy_space *space, phy_shape *shape, cpSpaceShapeQueryFunc func, void *data)
 {
 	phy_body *body = shape->body;
-	cpBB bb = (body ? cpShapeUpdate(shape, body->transform) : shape->bb);
+	phy_bb bb = (body ? cpShapeUpdate(shape, body->transform) : shape->bb);
 	struct ShapeQueryContext context = {func, data, false};
 	
 	cpSpaceLock(space); {

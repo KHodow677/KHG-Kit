@@ -62,17 +62,17 @@ cpTransformVect(phy_transform t, phy_vect v)
 }
 
 /// Transform a cpBB.
-static inline cpBB
-cpTransformbBB(phy_transform t, cpBB bb)
+static inline phy_bb
+cpTransformbBB(phy_transform t, phy_bb bb)
 {
-	phy_vect center = cpBBCenter(bb);
+	phy_vect center = phy_bb_center(bb);
 	float hw = (bb.r - bb.l)*0.5;
 	float hh = (bb.t - bb.b)*0.5;
 	
 	float a = t.a*hw, b = t.c*hh, d = t.b*hw, e = t.d*hh;
 	float hw_max = phy_max(phy_abs(a + b), phy_abs(a - b));
 	float hh_max = phy_max(phy_abs(d + e), phy_abs(d - e));
-	return cpBBNewForExtents(cpTransformPoint(t, center), hw_max, hh_max);
+	return phy_bb_new_for_extents(cpTransformPoint(t, center), hw_max, hh_max);
 }
 
 /// Create a transation matrix.
@@ -143,7 +143,7 @@ cpTransformWrapInverse(phy_transform outer, phy_transform inner)
 }
 
 static inline phy_transform
-cpTransformOrtho(cpBB bb)
+cpTransformOrtho(phy_bb bb)
 {
   return cpTransformNewTranspose(
     2.0/(bb.r - bb.l), 0.0, -(bb.r + bb.l)/(bb.r - bb.l),

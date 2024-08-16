@@ -64,28 +64,28 @@ handlerSetTrans(phy_collision_handler *handler, void *unused)
 
 static bool
 DefaultBegin(phy_arbiter *arb, phy_space *space, phy_data_pointer data){
-	bool retA = cpArbiterCallWildcardBeginA(arb, space);
-	bool retB = cpArbiterCallWildcardBeginB(arb, space);
+	bool retA = phy_arbiter_call_wildcard_begin_A(arb, space);
+	bool retB = phy_arbiter_call_wildcard_begin_B(arb, space);
 	return retA && retB;
 }
 
 static bool
 DefaultPreSolve(phy_arbiter *arb, phy_space *space, phy_data_pointer data){
-	bool retA = cpArbiterCallWildcardPreSolveA(arb, space);
-	bool retB = cpArbiterCallWildcardPreSolveB(arb, space);
+	bool retA = phy_arbiter_call_wildcard_pre_solve_A(arb, space);
+	bool retB = phy_arbiter_call_wildcard_pre_solve_B(arb, space);
 	return retA && retB;
 }
 
 static void
 DefaultPostSolve(phy_arbiter *arb, phy_space *space, phy_data_pointer data){
-	cpArbiterCallWildcardPostSolveA(arb, space);
-	cpArbiterCallWildcardPostSolveB(arb, space);
+	phy_arbiter_call_wildcard_post_solve_A(arb, space);
+	phy_arbiter_call_wildcard_post_solve_B(arb, space);
 }
 
 static void
 DefaultSeparate(phy_arbiter *arb, phy_space *space, phy_data_pointer data){
-	cpArbiterCallWildcardSeparateA(arb, space);
-	cpArbiterCallWildcardSeparateB(arb, space);
+	phy_arbiter_call_wildcard_separate_A(arb, space);
+	phy_arbiter_call_wildcard_separate_B(arb, space);
 }
 
 // Use the wildcard identifier since  the default handler should never match any type pair.
@@ -170,8 +170,8 @@ cpSpaceInit(phy_space *space)
 	space->postStepCallbacks = cpArrayNew(0);
 	space->skipPostStep = false;
 	
-	phy_body *staticBody = cpBodyInit(&space->_staticBody, 0.0f, 0.0f);
-	cpBodySetType(staticBody, CP_BODY_TYPE_STATIC);
+	phy_body *staticBody = phy_body_init(&space->_staticBody, 0.0f, 0.0f);
+	phy_body_set_type(staticBody, CP_BODY_TYPE_STATIC);
 	cpSpaceSetStaticBody(space, staticBody);
 	
 	return space;
@@ -183,7 +183,7 @@ cpSpaceNew(void)
 	return cpSpaceInit(cpSpaceAlloc());
 }
 
-static void cpBodyActivateWrap(phy_body *body, void *unused){cpBodyActivate(body);}
+static void cpBodyActivateWrap(phy_body *body, void *unused){phy_body_activate(body);}
 
 void
 cpSpaceDestroy(phy_space *space)
@@ -258,7 +258,7 @@ cpSpaceSetGravity(phy_space *space, phy_vect gravity)
 	// Wake up all of the bodies since the gravity changed.
 	phy_array *components = space->sleepingComponents;
 	for(int i=0; i<components->num; i++){
-		cpBodyActivate((phy_body *)components->arr[i]);
+		phy_body_activate((phy_body *)components->arr[i]);
 	}
 }
 
@@ -425,8 +425,8 @@ cpSpaceAddShape(phy_space *space, phy_shape *shape)
 	
 	phy_body *body = shape->body;
 	
-	bool isStatic = (cpBodyGetType(body) == CP_BODY_TYPE_STATIC);
-	if(!isStatic) cpBodyActivate(body);
+	bool isStatic = (phy_body_get_type(body) == CP_BODY_TYPE_STATIC);
+	if(!isStatic) phy_body_activate(body);
 	cpBodyAddShape(body, shape);
 	
 	shape->hashid = space->shapeIDCounter++;
@@ -444,7 +444,7 @@ cpSpaceAddBody(phy_space *space, phy_body *body)
 	cpAssertHard(!body->space, "You have already added this body to another space. You cannot add it to a second.");
 	cpAssertSpaceUnlocked(space);
 	
-	cpArrayPush(cpSpaceArrayForBodyType(space, cpBodyGetType(body)), body);
+	cpArrayPush(cpSpaceArrayForBodyType(space, phy_body_get_type(body)), body);
 	body->space = space;
 	
 	return body;
@@ -461,8 +461,8 @@ cpSpaceAddConstraint(phy_space *space, phy_constraint *constraint)
 	cpAssertHard(a != NULL && b != NULL, "Constraint is attached to a NULL body.");
 //	cpAssertHard(a->space == space && b->space == space, "The constraint's bodies must be added to the space before the constraint.");
 	
-	cpBodyActivate(a);
-	cpBodyActivate(b);
+	phy_body_activate(a);
+	phy_body_activate(b);
 	cpArrayPush(space->constraints, constraint);
 	
 	// Push onto the heads of the bodies' constraint lists
@@ -526,11 +526,11 @@ cpSpaceRemoveShape(phy_space *space, phy_shape *shape)
 	cpAssertHard(cpSpaceContainsShape(space, shape), "Cannot remove a shape that was not added to the space. (Removed twice maybe?)");
 	cpAssertSpaceUnlocked(space);
 	
-	bool isStatic = (cpBodyGetType(body) == CP_BODY_TYPE_STATIC);
+	bool isStatic = (phy_body_get_type(body) == CP_BODY_TYPE_STATIC);
 	if(isStatic){
-		cpBodyActivateStatic(body, shape);
+		phy_body_activate_static(body, shape);
 	} else {
-		cpBodyActivate(body);
+		phy_body_activate(body);
 	}
 
 	cpBodyRemoveShape(body, shape);
@@ -549,9 +549,9 @@ cpSpaceRemoveBody(phy_space *space, phy_body *body)
 //	cpAssertHard(body->constraintList == NULL, "Cannot remove a body from the space before removing the constraints attached to it.");
 	cpAssertSpaceUnlocked(space);
 	
-	cpBodyActivate(body);
+	phy_body_activate(body);
 //	cpSpaceFilterArbiters(space, body, NULL);
-	cpArrayDeleteObj(cpSpaceArrayForBodyType(space, cpBodyGetType(body)), body);
+	cpArrayDeleteObj(cpSpaceArrayForBodyType(space, phy_body_get_type(body)), body);
 	body->space = NULL;
 }
 
@@ -561,8 +561,8 @@ cpSpaceRemoveConstraint(phy_space *space, phy_constraint *constraint)
 	cpAssertHard(cpSpaceContainsConstraint(space, constraint), "Cannot remove a constraint that was not added to the space. (Removed twice maybe?)");
 	cpAssertSpaceUnlocked(space);
 	
-	cpBodyActivate(constraint->a);
-	cpBodyActivate(constraint->b);
+	phy_body_activate(constraint->a);
+	phy_body_activate(constraint->b);
 	cpArrayDeleteObj(space->constraints, constraint);
 	
 	cpBodyRemoveConstraint(constraint->a, constraint);

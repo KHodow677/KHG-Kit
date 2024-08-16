@@ -32,8 +32,8 @@ int phy_test() {
   
   // The cpSpaceAdd*() functions return the thing that you are adding.
   // It's convenient to create and add an object in one line.
-  phy_body *ballBody = cpSpaceAddBody(space, cpBodyNew(mass, moment));
-  cpBodySetPosition(ballBody, cpv(0, 15));
+  phy_body *ballBody = cpSpaceAddBody(space, phy_body_new(mass, moment));
+  phy_body_set_position(ballBody, cpv(0, 15));
   
   // Now we create the collision shape for the ball.
   // You can create multiple collision shapes that point to the same body.
@@ -46,15 +46,15 @@ int phy_test() {
   // It is *highly* recommended to use a fixed size time step.
   float timeStep = 1.0/60.0;
   for(float time = 0; time < 2; time += timeStep){
-    phy_vect pos = cpBodyGetPosition(ballBody);
-    phy_vect vel = cpBodyGetVelocity(ballBody);
+    phy_vect pos = phy_body_get_position(ballBody);
+    phy_vect vel = phy_body_get_velocity(ballBody);
     printf( "Time is %5.2f. ballBody is at (%5.2f, %5.2f). It's velocity is (%5.2f, %5.2f)\n", time, pos.x, pos.y, vel.x, vel.y);
     cpSpaceStep(space, timeStep);
   }
   
   // Clean up our objects and exit!
   cpShapeFree(ballShape);
-  cpBodyFree(ballBody);
+  phy_body_free(ballBody);
   cpShapeFree(ground);
   cpSpaceFree(space);
   

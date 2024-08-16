@@ -96,7 +96,7 @@ float cpShapeGetMass(phy_shape *shape){ return shape->massInfo.m; }
 void
 cpShapeSetMass(phy_shape *shape, float mass){
 	phy_body *body = shape->body;
-	cpBodyActivate(body);
+	phy_body_activate(body);
 	
 	shape->massInfo.m = mass;
 	cpBodyAccumulateMassFromShapes(body);
@@ -109,7 +109,7 @@ float cpShapeGetMoment(phy_shape *shape){ return shape->massInfo.m*shape->massIn
 float cpShapeGetArea(phy_shape *shape){ return shape->massInfo.area; }
 phy_vect cpShapeGetCenterOfGravity(phy_shape *shape) { return shape->massInfo.cog; }
 
-cpBB
+phy_bb
 cpShapeGetBB(const phy_shape *shape)
 {
 	return shape->bb;
@@ -124,7 +124,7 @@ cpShapeGetSensor(const phy_shape *shape)
 void
 cpShapeSetSensor(phy_shape *shape, bool sensor)
 {
-	cpBodyActivate(shape->body);
+	phy_body_activate(shape->body);
 	shape->sensor = sensor;
 }
 
@@ -138,7 +138,7 @@ void
 cpShapeSetElasticity(phy_shape *shape, float elasticity)
 {
 	cpAssertHard(elasticity >= 0.0f, "Elasticity must be positive.");
-	cpBodyActivate(shape->body);
+	phy_body_activate(shape->body);
 	shape->e = elasticity;
 }
 
@@ -152,7 +152,7 @@ void
 cpShapeSetFriction(phy_shape *shape, float friction)
 {
 	cpAssertHard(friction >= 0.0f, "Friction must be postive.");
-	cpBodyActivate(shape->body);
+	phy_body_activate(shape->body);
 	shape->u = friction;
 }
 
@@ -165,7 +165,7 @@ cpShapeGetSurfaceVelocity(const phy_shape *shape)
 void
 cpShapeSetSurfaceVelocity(phy_shape *shape, phy_vect surfaceVelocity)
 {
-	cpBodyActivate(shape->body);
+	phy_body_activate(shape->body);
 	shape->surfaceV = surfaceVelocity;
 }
 
@@ -190,7 +190,7 @@ cpShapeGetCollisionType(const phy_shape *shape)
 void
 cpShapeSetCollisionType(phy_shape *shape, phy_collision_type collisionType)
 {
-	cpBodyActivate(shape->body);
+	phy_body_activate(shape->body);
 	shape->type = collisionType;
 }
 
@@ -203,17 +203,17 @@ cpShapeGetFilter(const phy_shape *shape)
 void
 cpShapeSetFilter(phy_shape *shape, cpShapeFilter filter)
 {
-	cpBodyActivate(shape->body);
+	phy_body_activate(shape->body);
 	shape->filter = filter;
 }
 
-cpBB
+phy_bb
 cpShapeCacheBB(phy_shape *shape)
 {
 	return cpShapeUpdate(shape, shape->body->transform);
 }
 
-cpBB
+phy_bb
 cpShapeUpdate(phy_shape *shape, phy_transform transform)
 {
 	return (shape->bb = shape->klass->cacheData(shape, transform));
@@ -288,11 +288,11 @@ cpCircleShapeAlloc(void)
 	return (phy_circle_shape *)calloc(1, sizeof(phy_circle_shape));
 }
 
-static cpBB
+static phy_bb
 cpCircleShapeCacheData(phy_circle_shape *circle, phy_transform transform)
 {
 	phy_vect c = circle->tc = cpTransformPoint(transform, circle->c);
-	return cpBBNewForCircle(c, circle->r);
+	return phy_bb_new_for_circle(c, circle->r);
 }
 
 static void
@@ -375,7 +375,7 @@ cpSegmentShapeAlloc(void)
 	return (phy_segment_shape *)calloc(1, sizeof(phy_segment_shape));
 }
 
-static cpBB
+static phy_bb
 cpSegmentShapeCacheData(phy_segment_shape *seg, phy_transform transform)
 {
 	seg->ta = cpTransformPoint(transform, seg->a);
@@ -401,7 +401,7 @@ cpSegmentShapeCacheData(phy_segment_shape *seg, phy_transform transform)
 	}
 	
 	float rad = seg->r;
-	return cpBBNew(l - rad, b - rad, r + rad, t + rad);
+	return phy_bb_new(l - rad, b - rad, r + rad, t + rad);
 }
 
 static void

@@ -221,7 +221,7 @@ QueryReject(phy_shape *a, phy_shape *b)
 {
 	return (
 		// BBoxes must overlap
-		!cpBBIntersects(a->bb, b->bb)
+		!phy_bb_intersects(a->bb, b->bb)
 		// Don't collide shapes attached to the same body.
 		|| a->body == b->body
 		// Don't collide shapes that are filtered.
@@ -300,8 +300,8 @@ cpSpaceArbiterSetFilter(phy_arbiter *arb, phy_space *space)
 	// Preserve arbiters on sensors and rejected arbiters for sleeping objects.
 	// This prevents errant separate callbacks from happenening.
 	if(
-		(cpBodyGetType(a) == CP_BODY_TYPE_STATIC || cpBodyIsSleeping(a)) &&
-		(cpBodyGetType(b) == CP_BODY_TYPE_STATIC || cpBodyIsSleeping(b))
+		(phy_body_get_type(a) == CP_BODY_TYPE_STATIC || phy_body_is_sleeping(a)) &&
+		(phy_body_get_type(b) == CP_BODY_TYPE_STATIC || phy_body_is_sleeping(b))
 	){
 		return true;
 	}
@@ -353,7 +353,7 @@ cpSpaceStep(phy_space *space, float dt)
 		arb->state = CP_ARBITER_STATE_NORMAL;
 		
 		// If both bodies are awake, unthread the arbiter from the contact graph.
-		if(!cpBodyIsSleeping(arb->body_a) && !cpBodyIsSleeping(arb->body_b)){
+		if(!phy_body_is_sleeping(arb->body_a) && !phy_body_is_sleeping(arb->body_b)){
 			cpArbiterUnthread(arb);
 		}
 	}

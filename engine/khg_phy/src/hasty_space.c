@@ -612,7 +612,7 @@ cpHastySpaceStep(phy_space *space, float dt)
 		arb->state = CP_ARBITER_STATE_NORMAL;
 		
 		// If both bodies are awake, unthread the arbiter from the contact graph.
-		if(!cpBodyIsSleeping(arb->body_a) && !cpBodyIsSleeping(arb->body_b)){
+		if(!phy_body_is_sleeping(arb->body_a) && !phy_body_is_sleeping(arb->body_b)){
 			cpArbiterUnthread(arb);
 		}
 	}

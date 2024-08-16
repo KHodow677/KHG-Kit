@@ -36,26 +36,27 @@ struct phy_contact_point_set {
 	} points[PHY_MAX_CONTACTS_PER_ARBITER];
 };
 
-extern phy_contact_point_set cpArbiterGetContactPointSet(const phy_arbiter *arb);
-extern void cpArbiterSetContactPointSet(phy_arbiter *arb, phy_contact_point_set *set);
+extern phy_contact_point_set phy_arbiter_get_contact_point_set(const phy_arbiter *arb);
+extern void phy_arbiter_set_contact_point_set(phy_arbiter *arb, phy_contact_point_set *set);
 
-extern bool cpArbiterIsFirstContact(const phy_arbiter *arb);
-extern bool cpArbiterIsRemoval(const phy_arbiter *arb);
+extern bool phy_arbiter_is_first_contact(const phy_arbiter *arb);
+extern bool phy_arbiter_is_removal(const phy_arbiter *arb);
 
-extern int cpArbiterGetCount(const phy_arbiter *arb);
-extern phy_vect cpArbiterGetNormal(const phy_arbiter *arb);
-extern phy_vect cpArbiterGetPointA(const phy_arbiter *arb, int i);
-extern phy_vect cpArbiterGetPointB(const phy_arbiter *arb, int i);
-extern float cpArbiterGetDepth(const phy_arbiter *arb, int i);
+extern int phy_arbiter_get_count(const phy_arbiter *arb);
+extern phy_vect phy_arbiter_get_normal(const phy_arbiter *arb);
+extern phy_vect phy_arbiter_get_point_A(const phy_arbiter *arb, int i);
+extern phy_vect phy_arbiter_get_point_B(const phy_arbiter *arb, int i);
+extern float phy_arbiter_get_depth(const phy_arbiter *arb, int i);
 
-extern bool cpArbiterCallWildcardBeginA(phy_arbiter *arb, phy_space *space);
-extern bool cpArbiterCallWildcardBeginB(phy_arbiter *arb, phy_space *space);
+extern bool phy_arbiter_call_wildcard_begin_A(phy_arbiter *arb, phy_space *space);
+extern bool phy_arbiter_call_wildcard_begin_B(phy_arbiter *arb, phy_space *space);
 
-extern bool cpArbiterCallWildcardPreSolveA(phy_arbiter *arb, phy_space *space);
-extern bool cpArbiterCallWildcardPreSolveB(phy_arbiter *arb, phy_space *space);
+extern bool phy_arbiter_call_wildcard_pre_solve_A(phy_arbiter *arb, phy_space *space);
+extern bool phy_arbiter_call_wildcard_pre_solve_B(phy_arbiter *arb, phy_space *space);
 
-extern void cpArbiterCallWildcardPostSolveA(phy_arbiter *arb, phy_space *space);
-extern void cpArbiterCallWildcardPostSolveB(phy_arbiter *arb, phy_space *space);
+extern void phy_arbiter_call_wildcard_post_solve_A(phy_arbiter *arb, phy_space *space);
+extern void phy_arbiter_call_wildcard_post_solve_B(phy_arbiter *arb, phy_space *space);
 
-extern void cpArbiterCallWildcardSeparateA(phy_arbiter *arb, phy_space *space);
-extern void cpArbiterCallWildcardSeparateB(phy_arbiter *arb, phy_space *space);
+extern void phy_arbiter_call_wildcard_separate_A(phy_arbiter *arb, phy_space *space);
+extern void phy_arbiter_call_wildcard_separate_B(phy_arbiter *arb, phy_space *space);
+

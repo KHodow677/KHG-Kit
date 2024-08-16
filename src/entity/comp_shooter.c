@@ -58,7 +58,9 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     r_info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
     if (handle_space_button() && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 15;
-      phy_vect pos = cpBodyGetPosition(p_info->body);
+      phy_vect pos = phy_body_get_position(p_info->body);
+      spawn_particle(p_info, pos.x, pos.y);
+      spawn_particle(p_info, pos.x, pos.y);
       spawn_particle(p_info, pos.x, pos.y);
     }
     else {

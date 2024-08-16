@@ -160,7 +160,7 @@ cpMomentForBox(float m, float width, float height)
 }
 
 float
-cpMomentForBox2(float m, cpBB box)
+cpMomentForBox2(float m, phy_bb box)
 {
 	float width = box.r - box.l;
 	float height = box.t - box.b;

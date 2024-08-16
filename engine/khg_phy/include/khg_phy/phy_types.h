@@ -95,9 +95,3 @@ typedef struct phy_space phy_space;
 #endif
 #endif
 
-#if defined(_WIN32) || defined(_WIN64)
-#define CP_EXPORT __declspec(dllexport)
-#else
-#define CP_EXPORT
-#endif
-

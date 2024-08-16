@@ -41,9 +41,9 @@ void *update_physics_entities(void *arg) {
   physics_info *info;
   for (int id = data->start; id < data->end; id++) {
     info = utl_map_at(PHYSICS_INFO_MAP, &data->entities[id]);
-    float current_ang = normalize_angle(cpBodyGetAngle(info->body));
-    cpBodySetVelocity(info->body, cpv(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
-    cpBodySetAngularVelocity(info->body, info->target_ang_vel);
+    float current_ang = normalize_angle(phy_body_get_angle(info->body));
+    phy_body_set_velocity(info->body, cpv(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
+    phy_body_set_angular_velocity(info->body, info->target_ang_vel);
   }
   return NULL;
 }

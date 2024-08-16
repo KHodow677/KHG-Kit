@@ -14,10 +14,10 @@
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = cpMomentForBox(mass, width, height);
-  info->body = cpSpaceAddBody(SPACE, cpBodyNew(mass, moment));
-  cpBodySetPosition(info->body, pos);
-  cpBodySetCenterOfGravity(info->body, cog);
-  cpBodySetAngle(info->body, ang);
+  info->body = cpSpaceAddBody(SPACE, phy_body_new(mass, moment));
+  phy_body_set_position(info->body, pos);
+  phy_body_set_center_of_gravity(info->body, cog);
+  phy_body_set_angle(info->body, ang);
   if (collides) {
     info->shape = cpSpaceAddShape(SPACE, cpBoxShapeNew(info->body, width, height, 0.0f));
   }
@@ -35,7 +35,7 @@ void free_physics(physics_info *info) {
   cpSpaceRemoveShape(SPACE, info->shape);
   cpSpaceRemoveBody(SPACE, info->body);
   cpShapeFree(info->shape);
-  cpBodyFree(info->body);
+  phy_body_free(info->body);
 }
 
 void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id) {
@@ -65,13 +65,13 @@ void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int 
 
 void generate_mover(mover_info *info, physics_info *p_info) {
   info->body = p_info->body;
-  info->target_move_pos = cpBodyGetPosition(info->body);
+  info->target_move_pos = phy_body_get_position(info->body);
   info->target_look_pos = cpvadd(info->target_move_pos, cpv(0.0f, -50.0f));
 }
 
 void generate_rotator(rotator_info *info, physics_info *p_info) {
   info->body = p_info->body;
-  info->target_move_pos = cpBodyGetPosition(info->body);
+  info->target_move_pos = phy_body_get_position(info->body);
   info->target_look_pos = cpvadd(info->target_move_pos, cpv(0.0f, -50.0f));
 }
 

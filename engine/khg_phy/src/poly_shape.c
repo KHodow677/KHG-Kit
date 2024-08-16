@@ -36,7 +36,7 @@ cpPolyShapeDestroy(phy_poly_shape *poly)
 	}
 }
 
-static cpBB
+static phy_bb
 cpPolyShapeCacheData(phy_poly_shape *poly, phy_transform transform)
 {
 	int count = poly->count;
@@ -60,7 +60,7 @@ cpPolyShapeCacheData(phy_poly_shape *poly, phy_transform transform)
 	}
 	
 	float radius = poly->r;
-	return (poly->shape.bb = cpBBNew(l - radius, b - radius, r + radius, t + radius));
+	return (poly->shape.bb = phy_bb_new(l - radius, b - radius, r + radius, t + radius));
 }
 
 static void
@@ -228,11 +228,11 @@ cpBoxShapeInit(phy_poly_shape *poly, phy_body *body, float width, float height, 
 	float hw = width/2.0f;
 	float hh = height/2.0f;
 	
-	return cpBoxShapeInit2(poly, body, cpBBNew(-hw, -hh, hw, hh), radius);
+	return cpBoxShapeInit2(poly, body, phy_bb_new(-hw, -hh, hw, hh), radius);
 }
 
 phy_poly_shape *
-cpBoxShapeInit2(phy_poly_shape *poly, phy_body *body, cpBB box, float radius)
+cpBoxShapeInit2(phy_poly_shape *poly, phy_body *body, phy_bb box, float radius)
 {
 	phy_vect verts[4] = {
 		cpv(box.r, box.b),
@@ -251,7 +251,7 @@ cpBoxShapeNew(phy_body *body, float width, float height, float radius)
 }
 
 phy_shape *
-cpBoxShapeNew2(phy_body *body, cpBB box, float radius)
+cpBoxShapeNew2(phy_body *body, phy_bb box, float radius)
 {
 	return (phy_shape *)cpBoxShapeInit2(cpPolyShapeAlloc(), body, box, radius);
 }

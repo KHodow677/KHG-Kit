@@ -7,6 +7,7 @@
 #include "generators/components/texture_generator.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
+#include "khg_utl/vector.h"
 
 void generate_tank_body(tank_body *tb, ecs_ecs *ecs, float x, float y) {
   generate_physics_box(&tb->physics_info, false, 145.0f, 184.0f, 1.0f, cpv(x, y), 0.0f, cpv(0.0f, 0.0f));
@@ -24,7 +25,7 @@ void free_tank_body(tank_body *tb) {
   free_physics(&tb->physics_info);
   utl_map_erase(PHYSICS_INFO_MAP, &tb->entity);
   utl_map_erase(RENDERER_INFO_MAP, &tb->entity);
-  utl_map_erase(DESTROYER_INFO_MAP, &tb->entity);
+  utl_vector_assign(DESTROYER_INFO, tb->entity, &NO_DESTROYER);
   utl_map_erase(MOVER_INFO_MAP, &tb->entity);
 }
 

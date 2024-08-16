@@ -51,56 +51,56 @@ cpArbiterUnthread(phy_arbiter *arb)
 	unthreadHelper(arb, arb->body_b);
 }
 
-bool cpArbiterIsFirstContact(const phy_arbiter *arb)
+bool phy_arbiter_is_first_contact(const phy_arbiter *arb)
 {
 	return arb->state == CP_ARBITER_STATE_FIRST_COLLISION;
 }
 
-bool cpArbiterIsRemoval(const phy_arbiter *arb)
+bool phy_arbiter_is_removal(const phy_arbiter *arb)
 {
 	return arb->state == CP_ARBITER_STATE_INVALIDATED;
 }
 
-int cpArbiterGetCount(const phy_arbiter *arb)
+int phy_arbiter_get_count(const phy_arbiter *arb)
 {
 	// Return 0 contacts if we are in a separate callback.
 	return (arb->state < CP_ARBITER_STATE_CACHED ? arb->count : 0);
 }
 
 phy_vect
-cpArbiterGetNormal(const phy_arbiter *arb)
+phy_arbiter_get_normal(const phy_arbiter *arb)
 {
 	return cpvmult(arb->n, arb->swapped ? -1.0f : 1.0);
 }
 
 phy_vect
-cpArbiterGetPointA(const phy_arbiter *arb, int i)
+phy_arbiter_get_point_A(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < cpArbiterGetCount(arb), "Index error: The specified contact index is invalid for this arbiter");
+	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
 	return cpvadd(arb->body_a->p, arb->contacts[i].r1);
 }
 
 phy_vect
-cpArbiterGetPointB(const phy_arbiter *arb, int i)
+phy_arbiter_get_point_B(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < cpArbiterGetCount(arb), "Index error: The specified contact index is invalid for this arbiter");
+	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
 	return cpvadd(arb->body_b->p, arb->contacts[i].r2);
 }
 
 float
-cpArbiterGetDepth(const phy_arbiter *arb, int i)
+phy_arbiter_get_depth(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < cpArbiterGetCount(arb), "Index error: The specified contact index is invalid for this arbiter");
+	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
 	
 	struct cpContact *con = &arb->contacts[i];
 	return cpvdot(cpvadd(cpvsub(con->r2, con->r1), cpvsub(arb->body_b->p, arb->body_a->p)), arb->n);
 }
 
 phy_contact_point_set
-cpArbiterGetContactPointSet(const phy_arbiter *arb)
+phy_arbiter_get_contact_point_set(const phy_arbiter *arb)
 {
 	phy_contact_point_set set;
-	set.count = cpArbiterGetCount(arb);
+	set.count = phy_arbiter_get_count(arb);
 	
 	bool swapped = arb->swapped;
 	phy_vect n = arb->n;
@@ -120,7 +120,7 @@ cpArbiterGetContactPointSet(const phy_arbiter *arb)
 }
 
 void
-cpArbiterSetContactPointSet(phy_arbiter *arb, phy_contact_point_set *set)
+phy_arbiter_set_contact_point_set(phy_arbiter *arb, phy_contact_point_set *set)
 {
 	int count = set->count;
 	cpAssertHard(count == arb->count, "The number of contact points cannot be changed.");
@@ -145,7 +145,7 @@ phy_arbiter_total_impulse(const phy_arbiter *arb)
 	phy_vect n = arb->n;
 	phy_vect sum = cpvzero;
 	
-	for(int i=0, count=cpArbiterGetCount(arb); i<count; i++){
+	for(int i=0, count=phy_arbiter_get_count(arb); i<count; i++){
 		struct cpContact *con = &contacts[i];
 		sum = cpvadd(sum, cpvrotate(n, cpv(con->jnAcc, con->jtAcc)));
 	}
@@ -161,7 +161,7 @@ phy_arbiter_total_ke(const phy_arbiter *arb)
 	float sum = 0.0;
 	
 	struct cpContact *contacts = arb->contacts;
-	for(int i=0, count=cpArbiterGetCount(arb); i<count; i++){
+	for(int i=0, count=phy_arbiter_get_count(arb); i<count; i++){
 		struct cpContact *con = &contacts[i];
 		float jnAcc = con->jnAcc;
 		float jtAcc = con->jtAcc;
@@ -247,14 +247,14 @@ void phy_arbiter_get_bodies(const phy_arbiter *arb, phy_body **a, phy_body **b)
 }
 
 bool
-cpArbiterCallWildcardBeginA(phy_arbiter *arb, phy_space *space)
+phy_arbiter_call_wildcard_begin_A(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handlerA;
 	return handler->beginFunc(arb, space, handler->userData);
 }
 
 bool
-cpArbiterCallWildcardBeginB(phy_arbiter *arb, phy_space *space)
+phy_arbiter_call_wildcard_begin_B(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
@@ -264,14 +264,14 @@ cpArbiterCallWildcardBeginB(phy_arbiter *arb, phy_space *space)
 }
 
 bool
-cpArbiterCallWildcardPreSolveA(phy_arbiter *arb, phy_space *space)
+phy_arbiter_call_wildcard_pre_solve_A(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handlerA;
 	return handler->preSolveFunc(arb, space, handler->userData);
 }
 
 bool
-cpArbiterCallWildcardPreSolveB(phy_arbiter *arb, phy_space *space)
+phy_arbiter_call_wildcard_pre_solve_B(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
@@ -281,14 +281,14 @@ cpArbiterCallWildcardPreSolveB(phy_arbiter *arb, phy_space *space)
 }
 
 void
-cpArbiterCallWildcardPostSolveA(phy_arbiter *arb, phy_space *space)
+phy_arbiter_call_wildcard_post_solve_A(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handlerA;
 	handler->postSolveFunc(arb, space, handler->userData);
 }
 
 void
-cpArbiterCallWildcardPostSolveB(phy_arbiter *arb, phy_space *space)
+phy_arbiter_call_wildcard_post_solve_B(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
@@ -297,14 +297,14 @@ cpArbiterCallWildcardPostSolveB(phy_arbiter *arb, phy_space *space)
 }
 
 void
-cpArbiterCallWildcardSeparateA(phy_arbiter *arb, phy_space *space)
+phy_arbiter_call_wildcard_separate_A(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handlerA;
 	handler->separateFunc(arb, space, handler->userData);
 }
 
 void
-cpArbiterCallWildcardSeparateB(phy_arbiter *arb, phy_space *space)
+phy_arbiter_call_wildcard_separate_B(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
@@ -441,7 +441,7 @@ cpArbiterPreStep(phy_arbiter *arb, float dt, float slop, float bias)
 void
 cpArbiterApplyCachedImpulse(phy_arbiter *arb, float dt_coef)
 {
-	if(cpArbiterIsFirstContact(arb)) return;
+	if(phy_arbiter_is_first_contact(arb)) return;
 	
 	phy_body *a = arb->body_a;
 	phy_body *b = arb->body_b;
