@@ -22,10 +22,10 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpRotaryLimitJoint *joint, float dt)
+preStep(rotary_limit_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	float dist = b->a - a->a;
 	float pdist = 0.0f;
@@ -47,10 +47,10 @@ preStep(cpRotaryLimitJoint *joint, float dt)
 }
 
 static void
-applyCachedImpulse(cpRotaryLimitJoint *joint, float dt_coef)
+applyCachedImpulse(rotary_limit_joint *joint, float dt_coef)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	float j = joint->jAcc*dt_coef;
 	a->w -= j*a->i_inv;
@@ -58,12 +58,12 @@ applyCachedImpulse(cpRotaryLimitJoint *joint, float dt_coef)
 }
 
 static void
-applyImpulse(cpRotaryLimitJoint *joint, float dt)
+applyImpulse(rotary_limit_joint *joint, float dt)
 {
 	if(!joint->bias) return; // early exit
 
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	// compute relative rotational velocity
 	float wr = b->w - a->w;
@@ -86,7 +86,7 @@ applyImpulse(cpRotaryLimitJoint *joint, float dt)
 }
 
 static float
-getImpulse(cpRotaryLimitJoint *joint)
+getImpulse(rotary_limit_joint *joint)
 {
 	return phy_abs(joint->jAcc);
 }
@@ -98,16 +98,16 @@ static const cpConstraintClass klass = {
 	(cpConstraintGetImpulseImpl)getImpulse,
 };
 
-cpRotaryLimitJoint *
+rotary_limit_joint *
 cpRotaryLimitJointAlloc(void)
 {
-	return (cpRotaryLimitJoint *)cpcalloc(1, sizeof(cpRotaryLimitJoint));
+	return (rotary_limit_joint *)calloc(1, sizeof(rotary_limit_joint));
 }
 
-cpRotaryLimitJoint *
-cpRotaryLimitJointInit(cpRotaryLimitJoint *joint, cpBody *a, cpBody *b, float min, float max)
+rotary_limit_joint *
+cpRotaryLimitJointInit(rotary_limit_joint *joint, phy_body *a, phy_body *b, float min, float max)
 {
-	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
+	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
 	joint->min = min;
 	joint->max  = max;
@@ -117,44 +117,44 @@ cpRotaryLimitJointInit(cpRotaryLimitJoint *joint, cpBody *a, cpBody *b, float mi
 	return joint;
 }
 
-cpConstraint *
-cpRotaryLimitJointNew(cpBody *a, cpBody *b, float min, float max)
+phy_constraint *
+cpRotaryLimitJointNew(phy_body *a, phy_body *b, float min, float max)
 {
-	return (cpConstraint *)cpRotaryLimitJointInit(cpRotaryLimitJointAlloc(), a, b, min, max);
+	return (phy_constraint *)cpRotaryLimitJointInit(cpRotaryLimitJointAlloc(), a, b, min, max);
 }
 
 bool
-cpConstraintIsRotaryLimitJoint(const cpConstraint *constraint)
+cpConstraintIsRotaryLimitJoint(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
 float
-cpRotaryLimitJointGetMin(const cpConstraint *constraint)
+cpRotaryLimitJointGetMin(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
-	return ((cpRotaryLimitJoint *)constraint)->min;
+	return ((rotary_limit_joint *)constraint)->min;
 }
 
 void
-cpRotaryLimitJointSetMin(cpConstraint *constraint, float min)
+cpRotaryLimitJointSetMin(phy_constraint *constraint, float min)
 {
 	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpRotaryLimitJoint *)constraint)->min = min;
+	((rotary_limit_joint *)constraint)->min = min;
 }
 
 float
-cpRotaryLimitJointGetMax(const cpConstraint *constraint)
+cpRotaryLimitJointGetMax(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
-	return ((cpRotaryLimitJoint *)constraint)->max;
+	return ((rotary_limit_joint *)constraint)->max;
 }
 
 void
-cpRotaryLimitJointSetMax(cpConstraint *constraint, float max)
+cpRotaryLimitJointSetMax(phy_constraint *constraint, float max)
 {
 	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpRotaryLimitJoint *)constraint)->max = max;
+	((rotary_limit_joint *)constraint)->max = max;
 }

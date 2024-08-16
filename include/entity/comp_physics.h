@@ -5,8 +5,8 @@
 #include "khg_utl/map.h"
 
 typedef struct {
-  cpBody *body;
-  cpShape *shape;
+  phy_body *body;
+  phy_shape *shape;
   float target_vel;
   float target_ang_vel;
   bool is_moving;

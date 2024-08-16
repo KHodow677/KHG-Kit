@@ -1,8 +1,9 @@
 #include "entity/comp_destroyer.h"
 #include "controllers/elements/element_destruction_controller.h"
 #include "data_utl/map_utl.h"
-#include "entity/entity.h"
+#include "data_utl/thread_utl.h"
 #include "khg_ecs/ecs.h"
+#include "khg_thd/thread.h"
 #include "khg_utl/map.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,6 +34,18 @@ void sys_destroyer_free(bool need_free) {
   }
 }
 
+void *update_destroyer_entities(void *arg) {
+  thread_data *data = (thread_data *)arg;
+  destroyer_info *info;
+  for (int id = data->start; id < data->end; id++) {
+    info = utl_map_at(DESTROYER_INFO_MAP, &data->entities[id]);
+    if (info->destroy_now) {
+      element_destroy(data->entities[id]);
+    }
+  }
+  return NULL;
+}
+
 ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   (void)ecs;
   (void)dt;
@@ -40,12 +53,19 @@ ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, e
   if (entity_count == 0) {
     return 0;
   }
-  destroyer_info *info;
-  for (int id = 0; id < entity_count; id++) {
-    info = utl_map_at(DESTROYER_INFO_MAP, &entities[id]);
-    if (info->destroy_now) {
-      element_destroy(ecs, entities[id]);
-    }
+  const int thread_count = THREAD_COUNT;
+  struct thd_thread threads[thread_count];
+  thread_data t_data[thread_count];
+  int chunk_size = entity_count / thread_count;
+  for (int i = 0; i < thread_count; i++) {
+    t_data[i].entities = entities;
+    t_data[i].start = i * chunk_size;
+    t_data[i].end = (i == thread_count - 1) ? entity_count : t_data[i].start + chunk_size;
+    thd_thread_create(&threads[i], NULL, update_destroyer_entities, &t_data[i], NULL);
+  }
+  for (int i = 0; i < thread_count; i++) {
+    thd_thread_join(threads[i], NULL);
   }
   return 0;
 }
+

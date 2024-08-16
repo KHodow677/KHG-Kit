@@ -5,9 +5,9 @@
 #include "khg_utl/map.h"
 
 typedef struct {
-  cpBody *body;
-  cpVect target_move_pos;
-  cpVect target_look_pos;
+  phy_body *body;
+  phy_vect target_move_pos;
+  phy_vect target_look_pos;
 } rotator_info;
 
 typedef struct {

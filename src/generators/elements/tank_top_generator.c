@@ -10,8 +10,8 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
 
-void generate_tank_top(tank_top *tt, ecs_ecs *ecs, tank_body *tb) {
-  generate_physics_box(&tt->physics_info, false, 102.0f, 209.0f, 1.0f, cpv(600.0f, 300.0f), 0.0f, cpv(0.0f, 55.5f));
+void generate_tank_top(tank_top *tt, ecs_ecs *ecs, tank_body *tb, float x, float y) {
+  generate_physics_box(&tt->physics_info, false, 102.0f, 209.0f, 1.0f, cpv(x, y), 0.0f, cpv(0.0f, 55.5f));
   generate_renderer(&tt->renderer_info, &tt->physics_info, TANK_TOP);
   generate_follower(&tt->follower_info, &tt->physics_info, &tb->physics_info, 1, true, false);
   generate_destroyer(&tt->destroyer_info);

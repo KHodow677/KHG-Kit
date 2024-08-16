@@ -292,8 +292,8 @@ vmake(float_t x, float_t y)
 static void
 cpArbiterApplyImpulse_NEON(cpArbiter *arb)
 {
-	cpBody *a = arb->body_a;
-	cpBody *b = arb->body_b;
+	phy_body *a = arb->body_a;
+	phy_body *b = arb->body_b;
 	floatx2_t surface_vr = vld((float_t *)&arb->surface_vr);
 	floatx2_t n = vld((float_t *)&arb->n);
 	float_t friction = arb->u;
@@ -392,10 +392,10 @@ struct ThreadContext {
 	unsigned long thread_num;
 };
 
-typedef	void (*cpHastySpaceWorkFunction)(cpSpace *space, unsigned long worker, unsigned long worker_count);
+typedef	void (*cpHastySpaceWorkFunction)(phy_space *space, unsigned long worker, unsigned long worker_count);
 
 struct cpHastySpace {
-	cpSpace space;
+	phy_space space;
 	
 	// Number of worker threads (including the main thread)
 	unsigned long num_threads;
@@ -454,7 +454,7 @@ RunWorkers(cpHastySpace *hasty, cpHastySpaceWorkFunction func)
 			pthread_cond_broadcast(&hasty->cond_work);
 		} pthread_mutex_unlock(&hasty->mutex);
 		
-		func((cpSpace *)hasty, 0, hasty->num_threads);
+		func((phy_space *)hasty, 0, hasty->num_threads);
 			
 		pthread_mutex_lock(&hasty->mutex); {
 			if(hasty->num_working > 0){
@@ -462,24 +462,24 @@ RunWorkers(cpHastySpace *hasty, cpHastySpaceWorkFunction func)
 			}
 		} pthread_mutex_unlock(&hasty->mutex);
 	} else {
-		func((cpSpace *)hasty, 0, hasty->num_threads);
+		func((phy_space *)hasty, 0, hasty->num_threads);
 	}
 	
 	hasty->work = NULL;
 }
 
 static void
-Solver(cpSpace *space, unsigned long worker, unsigned long worker_count)
+Solver(phy_space *space, unsigned long worker, unsigned long worker_count)
 {
-	cpArray *constraints = space->constraints;
-	cpArray *arbiters = space->arbiters;
+	phy_array *constraints = space->constraints;
+	phy_array *arbiters = space->arbiters;
 	
 	float dt = space->curr_dt;
 	unsigned long iterations = (space->iterations + worker_count - 1)/worker_count;
 	
 	for(unsigned long i=0; i<iterations; i++){
 		for(int j=0; j<arbiters->num; j++){
-			cpArbiter *arb = (cpArbiter *)arbiters->arr[j];
+			phy_arbiter *arb = (phy_arbiter *)arbiters->arr[j];
 			#ifdef __ARM_NEON__
 				cpArbiterApplyImpulse_NEON(arb);
 			#else
@@ -488,7 +488,7 @@ Solver(cpSpace *space, unsigned long worker, unsigned long worker_count)
 		}
 			
 		for(int j=0; j<constraints->num; j++){
-			cpConstraint *constraint = (cpConstraint *)constraints->arr[j];
+			phy_constraint *constraint = (phy_constraint *)constraints->arr[j];
 			constraint->klass->applyImpulse(constraint, dt);
 		}
 	}
@@ -511,7 +511,7 @@ HaltThreads(cpHastySpace *hasty)
 }
 
 void
-cpHastySpaceSetThreads(cpSpace *space, unsigned long threads)
+cpHastySpaceSetThreads(phy_space *space, unsigned long threads)
 {
 #if TARGET_IPHONE_SIMULATOR == 1
 	// Individual values appear to be written non-atomically when compiled as debug for the simulator.
@@ -550,18 +550,18 @@ cpHastySpaceSetThreads(cpSpace *space, unsigned long threads)
 }
 
 unsigned long
-cpHastySpaceGetThreads(cpSpace *space)
+cpHastySpaceGetThreads(phy_space *space)
 {
 	return ((cpHastySpace *)space)->num_threads;
 }
 
 //MARK: Overriden cpSpace Functions.
 
-cpSpace *
+phy_space *
 cpHastySpaceNew(void)
 {
-	cpHastySpace *hasty = (cpHastySpace *)cpcalloc(1, sizeof(cpHastySpace));
-	cpSpaceInit((cpSpace *)hasty);
+	cpHastySpace *hasty = (cpHastySpace *)calloc(1, sizeof(cpHastySpace));
+	cpSpaceInit((phy_space *)hasty);
 	
 	pthread_mutex_init(&hasty->mutex, NULL);
 	pthread_cond_init(&hasty->cond_work, NULL);
@@ -572,13 +572,13 @@ cpHastySpaceNew(void)
 	
 	// Default to 1 thread for determinism.
 	hasty->num_threads = 1;
-	cpHastySpaceSetThreads((cpSpace *)hasty, 1);
+	cpHastySpaceSetThreads((phy_space *)hasty, 1);
 
-	return (cpSpace *)hasty;
+	return (phy_space *)hasty;
 }
 
 void
-cpHastySpaceFree(cpSpace *space)
+cpHastySpaceFree(phy_space *space)
 {
 	cpHastySpace *hasty = (cpHastySpace *)space;
 	
@@ -592,7 +592,7 @@ cpHastySpaceFree(cpSpace *space)
 }
 
 void
-cpHastySpaceStep(cpSpace *space, float dt)
+cpHastySpaceStep(phy_space *space, float dt)
 {
 	// don't step if the timestep is 0!
 	if(dt == 0.0f) return;
@@ -602,13 +602,13 @@ cpHastySpaceStep(cpSpace *space, float dt)
 	float prev_dt = space->curr_dt;
 	space->curr_dt = dt;
 		
-	cpArray *bodies = space->dynamicBodies;
-	cpArray *constraints = space->constraints;
-	cpArray *arbiters = space->arbiters;
+	phy_array *bodies = space->dynamicBodies;
+	phy_array *constraints = space->constraints;
+	phy_array *arbiters = space->arbiters;
 	
 	// Reset and empty the arbiter list.
 	for(int i=0; i<arbiters->num; i++){
-		cpArbiter *arb = (cpArbiter *)arbiters->arr[i];
+		phy_arbiter *arb = (phy_arbiter *)arbiters->arr[i];
 		arb->state = CP_ARBITER_STATE_NORMAL;
 		
 		// If both bodies are awake, unthread the arbiter from the contact graph.
@@ -621,7 +621,7 @@ cpHastySpaceStep(cpSpace *space, float dt)
 	cpSpaceLock(space); {
 		// Integrate positions
 		for(int i=0; i<bodies->num; i++){
-			cpBody *body = (cpBody *)bodies->arr[i];
+			phy_body *body = (phy_body *)bodies->arr[i];
 			body->position_func(body, dt);
 		}
 		
@@ -642,11 +642,11 @@ cpHastySpaceStep(cpSpace *space, float dt)
 		float slop = space->collisionSlop;
 		float biasCoef = 1.0f - powf(space->collisionBias, dt);
 		for(int i=0; i<arbiters->num; i++){
-			cpArbiterPreStep((cpArbiter *)arbiters->arr[i], dt, slop, biasCoef);
+			cpArbiterPreStep((phy_arbiter *)arbiters->arr[i], dt, slop, biasCoef);
 		}
 
 		for(int i=0; i<constraints->num; i++){
-			cpConstraint *constraint = (cpConstraint *)constraints->arr[i];
+			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			
 			cpConstraintPreSolveFunc preSolve = constraint->preSolve;
 			if(preSolve) preSolve(constraint, space);
@@ -656,20 +656,20 @@ cpHastySpaceStep(cpSpace *space, float dt)
 	
 		// Integrate velocities.
 		float damping = powf(space->damping, dt);
-		cpVect gravity = space->gravity;
+		phy_vect gravity = space->gravity;
 		for(int i=0; i<bodies->num; i++){
-			cpBody *body = (cpBody *)bodies->arr[i];
+			phy_body *body = (phy_body *)bodies->arr[i];
 			body->velocity_func(body, gravity, damping, dt);
 		}
 		
 		// Apply cached impulses
 		float dt_coef = (prev_dt == 0.0f ? 0.0f : dt/prev_dt);
 		for(int i=0; i<arbiters->num; i++){
-			cpArbiterApplyCachedImpulse((cpArbiter *)arbiters->arr[i], dt_coef);
+			cpArbiterApplyCachedImpulse((phy_arbiter *)arbiters->arr[i], dt_coef);
 		}
 		
 		for(int i=0; i<constraints->num; i++){
-			cpConstraint *constraint = (cpConstraint *)constraints->arr[i];
+			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			constraint->klass->applyCachedImpulse(constraint, dt_coef);
 		}
 		
@@ -683,7 +683,7 @@ cpHastySpaceStep(cpSpace *space, float dt)
 		
 		// Run the constraint post-solve callbacks
 		for(int i=0; i<constraints->num; i++){
-			cpConstraint *constraint = (cpConstraint *)constraints->arr[i];
+			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			
 			cpConstraintPostSolveFunc postSolve = constraint->postSolve;
 			if(postSolve) postSolve(constraint, space);
@@ -691,9 +691,9 @@ cpHastySpaceStep(cpSpace *space, float dt)
 		
 		// run the post-solve callbacks
 		for(int i=0; i<arbiters->num; i++){
-			cpArbiter *arb = (cpArbiter *) arbiters->arr[i];
+			phy_arbiter *arb = (phy_arbiter *) arbiters->arr[i];
 			
-			cpCollisionHandler *handler = arb->handler;
+			phy_collision_handler *handler = arb->handler;
 			handler->postSolveFunc(arb, space, handler->userData);
 		}
 	} cpSpaceUnlock(space, true);

@@ -24,14 +24,14 @@
 
 #include "khg_phy/phy_private.h"
 
-cpBody*
+phy_body*
 cpBodyAlloc(void)
 {
-	return (cpBody *)cpcalloc(1, sizeof(cpBody));
+	return (phy_body *)calloc(1, sizeof(phy_body));
 }
 
-cpBody *
-cpBodyInit(cpBody *body, float mass, float moment)
+phy_body *
+cpBodyInit(phy_body *body, float mass, float moment)
 {
 	body->space = NULL;
 	body->shapeList = NULL;
@@ -65,50 +65,50 @@ cpBodyInit(cpBody *body, float mass, float moment)
 	return body;
 }
 
-cpBody*
+phy_body*
 cpBodyNew(float mass, float moment)
 {
 	return cpBodyInit(cpBodyAlloc(), mass, moment);
 }
 
-cpBody*
+phy_body*
 cpBodyNewKinematic()
 {
-	cpBody *body = cpBodyNew(0.0f, 0.0f);
+	phy_body *body = cpBodyNew(0.0f, 0.0f);
 	cpBodySetType(body, CP_BODY_TYPE_KINEMATIC);
 	
 	return body;
 }
 
-cpBody*
+phy_body*
 cpBodyNewStatic()
 {
-	cpBody *body = cpBodyNew(0.0f, 0.0f);
+	phy_body *body = cpBodyNew(0.0f, 0.0f);
 	cpBodySetType(body, CP_BODY_TYPE_STATIC);
 	
 	return body;
 }
 
-void cpBodyDestroy(cpBody *body){}
+void cpBodyDestroy(phy_body *body){}
 
 void
-cpBodyFree(cpBody *body)
+cpBodyFree(phy_body *body)
 {
 	if(body){
 		cpBodyDestroy(body);
-		cpfree(body);
+		free(body);
 	}
 }
 
 #ifdef NDEBUG
 	#define	cpAssertSaneBody(body)
 #else
-	static void cpv_assert_nan(cpVect v, const char *message){cpAssertHard(v.x == v.x && v.y == v.y, message);}
-	static void cpv_assert_infinite(cpVect v, const char *message){cpAssertHard(phy_abs(v.x) != INFINITY && phy_abs(v.y) != INFINITY, message);}
-	static void cpv_assert_sane(cpVect v, const char *message){cpv_assert_nan(v, message); cpv_assert_infinite(v, message);}
+	static void cpv_assert_nan(phy_vect v, const char *message){cpAssertHard(v.x == v.x && v.y == v.y, message);}
+	static void cpv_assert_infinite(phy_vect v, const char *message){cpAssertHard(phy_abs(v.x) != INFINITY && phy_abs(v.y) != INFINITY, message);}
+	static void cpv_assert_sane(phy_vect v, const char *message){cpv_assert_nan(v, message); cpv_assert_infinite(v, message);}
 	
 	static void
-	cpBodySanityCheck(const cpBody *body)
+	cpBodySanityCheck(const phy_body *body)
 	{
 		cpAssertHard(body->m == body->m && body->m_inv == body->m_inv, "Body's mass is NaN.");
 		cpAssertHard(body->i == body->i && body->i_inv == body->i_inv, "Body's moment is NaN.");
@@ -128,13 +128,13 @@ cpBodyFree(cpBody *body)
 #endif
 
 bool
-cpBodyIsSleeping(const cpBody *body)
+cpBodyIsSleeping(const phy_body *body)
 {
-	return (body->sleeping.root != ((cpBody*)0));
+	return (body->sleeping.root != ((phy_body*)0));
 }
 
 cpBodyType
-cpBodyGetType(cpBody *body)
+cpBodyGetType(phy_body *body)
 {
 	if(body->sleeping.idleTime == INFINITY){
 		return CP_BODY_TYPE_STATIC;
@@ -146,7 +146,7 @@ cpBodyGetType(cpBody *body)
 }
 
 void
-cpBodySetType(cpBody *body, cpBodyType type)
+cpBodySetType(phy_body *body, cpBodyType type)
 {
 	cpBodyType oldType = cpBodyGetType(body);
 	if(oldType == type) return;
@@ -169,7 +169,7 @@ cpBodySetType(cpBody *body, cpBodyType type)
 	}
 	
 	// If the body is added to a space already, we'll need to update some space data structures.
-	cpSpace *space = cpBodyGetSpace(body);
+	phy_space *space = cpBodyGetSpace(body);
 	if(space != NULL){
 		cpAssertSpaceUnlocked(space);
 		
@@ -181,8 +181,8 @@ cpBodySetType(cpBody *body, cpBodyType type)
 		}
 		
 		// Move the bodies to the correct array.
-		cpArray *fromArray = cpSpaceArrayForBodyType(space, oldType);
-		cpArray *toArray = cpSpaceArrayForBodyType(space, type);
+		phy_array *fromArray = cpSpaceArrayForBodyType(space, oldType);
+		phy_array *toArray = cpSpaceArrayForBodyType(space, type);
 		if(fromArray != toArray){
 			cpArrayDeleteObj(fromArray, body);
 			cpArrayPush(toArray, body);
@@ -204,7 +204,7 @@ cpBodySetType(cpBody *body, cpBodyType type)
 
 // Should *only* be called when shapes with mass info are modified, added or removed.
 void
-cpBodyAccumulateMassFromShapes(cpBody *body)
+cpBodyAccumulateMassFromShapes(phy_body *body)
 {
 	if(body == NULL || cpBodyGetType(body) != CP_BODY_TYPE_DYNAMIC) return;
 	
@@ -213,7 +213,7 @@ cpBodyAccumulateMassFromShapes(cpBody *body)
 	body->cog = cpvzero;
 	
 	// Cache the position to realign it at the end.
-	cpVect pos = cpBodyGetPosition(body);
+	phy_vect pos = cpBodyGetPosition(body);
 	
 	// Accumulate mass from shapes.
 	CP_BODY_FOREACH_SHAPE(body, shape){
@@ -238,20 +238,20 @@ cpBodyAccumulateMassFromShapes(cpBody *body)
 	cpAssertSaneBody(body);
 }
 
-cpSpace *
-cpBodyGetSpace(const cpBody *body)
+phy_space *
+cpBodyGetSpace(const phy_body *body)
 {
 	return body->space;
 }
 
 float
-cpBodyGetMass(const cpBody *body)
+cpBodyGetMass(const phy_body *body)
 {
 	return body->m;
 }
 
 void
-cpBodySetMass(cpBody *body, float mass)
+cpBodySetMass(phy_body *body, float mass)
 {
 	cpAssertHard(cpBodyGetType(body) == CP_BODY_TYPE_DYNAMIC, "You cannot set the mass of kinematic or static bodies.");
 	cpAssertHard(0.0f <= mass && mass < INFINITY, "Mass must be positive and finite.");
@@ -263,13 +263,13 @@ cpBodySetMass(cpBody *body, float mass)
 }
 
 float
-cpBodyGetMoment(const cpBody *body)
+cpBodyGetMoment(const phy_body *body)
 {
 	return body->i;
 }
 
 void
-cpBodySetMoment(cpBody *body, float moment)
+cpBodySetMoment(phy_body *body, float moment)
 {
 	cpAssertHard(moment >= 0.0f, "Moment of Inertia must be positive.");
 	
@@ -279,16 +279,16 @@ cpBodySetMoment(cpBody *body, float moment)
 	cpAssertSaneBody(body);
 }
 
-cpVect
-cpBodyGetRotation(const cpBody *body)
+phy_vect
+cpBodyGetRotation(const phy_body *body)
 {
 	return cpv(body->transform.a, body->transform.b);
 }
 
 void
-cpBodyAddShape(cpBody *body, cpShape *shape)
+cpBodyAddShape(phy_body *body, phy_shape *shape)
 {
-	cpShape *next = body->shapeList;
+	phy_shape *next = body->shapeList;
 	if(next) next->prev = shape;
 	
 	shape->next = next;
@@ -300,10 +300,10 @@ cpBodyAddShape(cpBody *body, cpShape *shape)
 }
 
 void
-cpBodyRemoveShape(cpBody *body, cpShape *shape)
+cpBodyRemoveShape(phy_body *body, phy_shape *shape)
 {
-  cpShape *prev = shape->prev;
-  cpShape *next = shape->next;
+  phy_shape *prev = shape->prev;
+  phy_shape *next = shape->next;
   
   if(prev){
 		prev->next = next;
@@ -323,8 +323,8 @@ cpBodyRemoveShape(cpBody *body, cpShape *shape)
 	}
 }
 
-static cpConstraint *
-filterConstraints(cpConstraint *node, cpBody *body, cpConstraint *filter)
+static phy_constraint *
+filterConstraints(phy_constraint *node, phy_body *body, phy_constraint *filter)
 {
 	if(node == filter){
 		return cpConstraintNext(node, body);
@@ -338,17 +338,17 @@ filterConstraints(cpConstraint *node, cpBody *body, cpConstraint *filter)
 }
 
 void
-cpBodyRemoveConstraint(cpBody *body, cpConstraint *constraint)
+cpBodyRemoveConstraint(phy_body *body, phy_constraint *constraint)
 {
 	body->constraintList = filterConstraints(body->constraintList, body, constraint);
 }
 
 // 'p' is the position of the CoG
 static void
-SetTransform(cpBody *body, cpVect p, float a)
+SetTransform(phy_body *body, phy_vect p, float a)
 {
-	cpVect rot = cpvforangle(a);
-	cpVect c = body->cog;
+	phy_vect rot = cpvforangle(a);
+	phy_vect c = body->cog;
 	
 	body->transform = cpTransformNewTranspose(
 		rot.x, -rot.y, p.x - (c.x*rot.x - c.y*rot.y),
@@ -357,7 +357,7 @@ SetTransform(cpBody *body, cpVect p, float a)
 }
 
 static inline float
-SetAngle(cpBody *body, float a)
+SetAngle(phy_body *body, float a)
 {
 	body->a = a;
 	cpAssertSaneBody(body);
@@ -365,58 +365,58 @@ SetAngle(cpBody *body, float a)
 	return a;
 }
 
-cpVect
-cpBodyGetPosition(const cpBody *body)
+phy_vect
+cpBodyGetPosition(const phy_body *body)
 {
 	return cpTransformPoint(body->transform, cpvzero);
 }
 
 void
-cpBodySetPosition(cpBody *body, cpVect position)
+cpBodySetPosition(phy_body *body, phy_vect position)
 {
 	cpBodyActivate(body);
-	cpVect p = body->p = cpvadd(cpTransformVect(body->transform, body->cog), position);
+	phy_vect p = body->p = cpvadd(cpTransformVect(body->transform, body->cog), position);
 	cpAssertSaneBody(body);
 	
 	SetTransform(body, p, body->a);
 }
 
-cpVect
-cpBodyGetCenterOfGravity(const cpBody *body)
+phy_vect
+cpBodyGetCenterOfGravity(const phy_body *body)
 {
 	return body->cog;
 }
 
 void
-cpBodySetCenterOfGravity(cpBody *body, cpVect cog)
+cpBodySetCenterOfGravity(phy_body *body, phy_vect cog)
 {
 	cpBodyActivate(body);
 	body->cog = cog;
 	cpAssertSaneBody(body);
 }
 
-cpVect
-cpBodyGetVelocity(const cpBody *body)
+phy_vect
+cpBodyGetVelocity(const phy_body *body)
 {
 	return body->v;
 }
 
 void
-cpBodySetVelocity(cpBody *body, cpVect velocity)
+cpBodySetVelocity(phy_body *body, phy_vect velocity)
 {
 	cpBodyActivate(body);
 	body->v = velocity;
 	cpAssertSaneBody(body);
 }
 
-cpVect
-cpBodyGetForce(const cpBody *body)
+phy_vect
+cpBodyGetForce(const phy_body *body)
 {
 	return body->f;
 }
 
 void
-cpBodySetForce(cpBody *body, cpVect force)
+cpBodySetForce(phy_body *body, phy_vect force)
 {
 	cpBodyActivate(body);
 	body->f = force;
@@ -424,13 +424,13 @@ cpBodySetForce(cpBody *body, cpVect force)
 }
 
 float
-cpBodyGetAngle(const cpBody *body)
+cpBodyGetAngle(const phy_body *body)
 {
 	return body->a;
 }
 
 void
-cpBodySetAngle(cpBody *body, float angle)
+cpBodySetAngle(phy_body *body, float angle)
 {
 	cpBodyActivate(body);
 	SetAngle(body, angle);
@@ -439,13 +439,13 @@ cpBodySetAngle(cpBody *body, float angle)
 }
 
 float
-cpBodyGetAngularVelocity(const cpBody *body)
+cpBodyGetAngularVelocity(const phy_body *body)
 {
 	return body->w;
 }
 
 void
-cpBodySetAngularVelocity(cpBody *body, float angularVelocity)
+cpBodySetAngularVelocity(phy_body *body, float angularVelocity)
 {
 	cpBodyActivate(body);
 	body->w = angularVelocity;
@@ -453,45 +453,45 @@ cpBodySetAngularVelocity(cpBody *body, float angularVelocity)
 }
 
 float
-cpBodyGetTorque(const cpBody *body)
+cpBodyGetTorque(const phy_body *body)
 {
 	return body->t;
 }
 
 void
-cpBodySetTorque(cpBody *body, float torque)
+cpBodySetTorque(phy_body *body, float torque)
 {
 	cpBodyActivate(body);
 	body->t = torque;
 	cpAssertSaneBody(body);
 }
 
-cpDataPointer
-cpBodyGetUserData(const cpBody *body)
+phy_data_pointer
+cpBodyGetUserData(const phy_body *body)
 {
 	return body->userData;
 }
 
 void
-cpBodySetUserData(cpBody *body, cpDataPointer userData)
+cpBodySetUserData(phy_body *body, phy_data_pointer userData)
 {
 	body->userData = userData;
 }
 
 void
-cpBodySetVelocityUpdateFunc(cpBody *body, cpBodyVelocityFunc velocityFunc)
+cpBodySetVelocityUpdateFunc(phy_body *body, cpBodyVelocityFunc velocityFunc)
 {
 	body->velocity_func = velocityFunc;
 }
 
 void
-cpBodySetPositionUpdateFunc(cpBody *body, cpBodyPositionFunc positionFunc)
+cpBodySetPositionUpdateFunc(phy_body *body, cpBodyPositionFunc positionFunc)
 {
 	body->position_func = positionFunc;
 }
 
 void
-cpBodyUpdateVelocity(cpBody *body, cpVect gravity, float damping, float dt)
+cpBodyUpdateVelocity(phy_body *body, phy_vect gravity, float damping, float dt)
 {
 	// Skip kinematic bodies.
 	if(cpBodyGetType(body) == CP_BODY_TYPE_KINEMATIC) return;
@@ -509,9 +509,9 @@ cpBodyUpdateVelocity(cpBody *body, cpVect gravity, float damping, float dt)
 }
 
 void
-cpBodyUpdatePosition(cpBody *body, float dt)
+cpBodyUpdatePosition(phy_body *body, float dt)
 {
-	cpVect p = body->p = cpvadd(body->p, cpvmult(cpvadd(body->v, body->v_bias), dt));
+	phy_vect p = body->p = cpvadd(body->p, cpvmult(cpvadd(body->v, body->v_bias), dt));
 	float a = SetAngle(body, body->a + (body->w + body->w_bias)*dt);
 	SetTransform(body, p, a);
 	
@@ -521,65 +521,65 @@ cpBodyUpdatePosition(cpBody *body, float dt)
 	cpAssertSaneBody(body);
 }
 
-cpVect
-cpBodyLocalToWorld(const cpBody *body, const cpVect point)
+phy_vect
+cpBodyLocalToWorld(const phy_body *body, const phy_vect point)
 {
 	return cpTransformPoint(body->transform, point);
 }
 
-cpVect
-cpBodyWorldToLocal(const cpBody *body, const cpVect point)
+phy_vect
+cpBodyWorldToLocal(const phy_body *body, const phy_vect point)
 {
 	return cpTransformPoint(cpTransformRigidInverse(body->transform), point);
 }
 
 void
-cpBodyApplyForceAtWorldPoint(cpBody *body, cpVect force, cpVect point)
+cpBodyApplyForceAtWorldPoint(phy_body *body, phy_vect force, phy_vect point)
 {
 	cpBodyActivate(body);
 	body->f = cpvadd(body->f, force);
 	
-	cpVect r = cpvsub(point, cpTransformPoint(body->transform, body->cog));
+	phy_vect r = cpvsub(point, cpTransformPoint(body->transform, body->cog));
 	body->t += cpvcross(r, force);
 }
 
 void
-cpBodyApplyForceAtLocalPoint(cpBody *body, cpVect force, cpVect point)
+cpBodyApplyForceAtLocalPoint(phy_body *body, phy_vect force, phy_vect point)
 {
 	cpBodyApplyForceAtWorldPoint(body, cpTransformVect(body->transform, force), cpTransformPoint(body->transform, point));
 }
 
 void
-cpBodyApplyImpulseAtWorldPoint(cpBody *body, cpVect impulse, cpVect point)
+cpBodyApplyImpulseAtWorldPoint(phy_body *body, phy_vect impulse, phy_vect point)
 {
 	cpBodyActivate(body);
 	
-	cpVect r = cpvsub(point, cpTransformPoint(body->transform, body->cog));
+	phy_vect r = cpvsub(point, cpTransformPoint(body->transform, body->cog));
 	apply_impulse(body, impulse, r);
 }
 
 void
-cpBodyApplyImpulseAtLocalPoint(cpBody *body, cpVect impulse, cpVect point)
+cpBodyApplyImpulseAtLocalPoint(phy_body *body, phy_vect impulse, phy_vect point)
 {
 	cpBodyApplyImpulseAtWorldPoint(body, cpTransformVect(body->transform, impulse), cpTransformPoint(body->transform, point));
 }
 
-cpVect
-cpBodyGetVelocityAtLocalPoint(const cpBody *body, cpVect point)
+phy_vect
+cpBodyGetVelocityAtLocalPoint(const phy_body *body, phy_vect point)
 {
-	cpVect r = cpTransformVect(body->transform, cpvsub(point, body->cog));
+	phy_vect r = cpTransformVect(body->transform, cpvsub(point, body->cog));
 	return cpvadd(body->v, cpvmult(cpvperp(r), body->w));
 }
 
-cpVect
-cpBodyGetVelocityAtWorldPoint(const cpBody *body, cpVect point)
+phy_vect
+cpBodyGetVelocityAtWorldPoint(const phy_body *body, phy_vect point)
 {
-	cpVect r = cpvsub(point, cpTransformPoint(body->transform, body->cog));
+	phy_vect r = cpvsub(point, cpTransformPoint(body->transform, body->cog));
 	return cpvadd(body->v, cpvmult(cpvperp(r), body->w));
 }
 
 float
-cpBodyKineticEnergy(const cpBody *body)
+cpBodyKineticEnergy(const phy_body *body)
 {
 	// Need to do some fudging to avoid NaNs
 	float vsq = cpvdot(body->v, body->v);
@@ -588,33 +588,33 @@ cpBodyKineticEnergy(const cpBody *body)
 }
 
 void
-cpBodyEachShape(cpBody *body, cpBodyShapeIteratorFunc func, void *data)
+cpBodyEachShape(phy_body *body, cpBodyShapeIteratorFunc func, void *data)
 {
-	cpShape *shape = body->shapeList;
+	phy_shape *shape = body->shapeList;
 	while(shape){
-		cpShape *next = shape->next;
+		phy_shape *next = shape->next;
 		func(body, shape, data);
 		shape = next;
 	}
 }
 
 void
-cpBodyEachConstraint(cpBody *body, cpBodyConstraintIteratorFunc func, void *data)
+cpBodyEachConstraint(phy_body *body, cpBodyConstraintIteratorFunc func, void *data)
 {
-	cpConstraint *constraint = body->constraintList;
+	phy_constraint *constraint = body->constraintList;
 	while(constraint){
-		cpConstraint *next = cpConstraintNext(constraint, body);
+		phy_constraint *next = cpConstraintNext(constraint, body);
 		func(body, constraint, data);
 		constraint = next;
 	}
 }
 
 void
-cpBodyEachArbiter(cpBody *body, cpBodyArbiterIteratorFunc func, void *data)
+cpBodyEachArbiter(phy_body *body, cpBodyArbiterIteratorFunc func, void *data)
 {
-	cpArbiter *arb = body->arbiterList;
+	phy_arbiter *arb = body->arbiterList;
 	while(arb){
-		cpArbiter *next = cpArbiterNext(arb, body);
+		phy_arbiter *next = cpArbiterNext(arb, body);
 		
 		bool swapped = arb->swapped; {
 			arb->swapped = (body == arb->body_b);

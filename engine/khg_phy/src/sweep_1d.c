@@ -68,14 +68,14 @@ MakeTableCell(cpSweep1D *sweep, void *obj)
 cpSweep1D *
 cpSweep1DAlloc(void)
 {
-	return (cpSweep1D *)cpcalloc(1, sizeof(cpSweep1D));
+	return (cpSweep1D *)calloc(1, sizeof(cpSweep1D));
 }
 
 static void
 ResizeTable(cpSweep1D *sweep, int size)
 {
 	sweep->max = size;
-	sweep->table = (TableCell *)cprealloc(sweep->table, size*sizeof(TableCell));
+	sweep->table = (TableCell *)realloc(sweep->table, size*sizeof(TableCell));
 }
 
 cpSpatialIndex *
@@ -98,7 +98,7 @@ cpSweep1DNew(cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
 static void
 cpSweep1DDestroy(cpSweep1D *sweep)
 {
-	cpfree(sweep->table);
+	free(sweep->table);
 	sweep->table = NULL;
 }
 
@@ -188,7 +188,7 @@ cpSweep1DQuery(cpSweep1D *sweep, void *obj, cpBB bb, cpSpatialIndexQueryFunc fun
 }
 
 static void
-cpSweep1DSegmentQuery(cpSweep1D *sweep, void *obj, cpVect a, cpVect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+cpSweep1DSegmentQuery(cpSweep1D *sweep, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
 	cpBB bb = cpBBExpand(cpBBNew(a.x, a.y, a.x, a.y), b);
 	Bounds bounds = BBToBounds(sweep, bb);

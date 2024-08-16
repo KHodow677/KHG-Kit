@@ -61,7 +61,7 @@ CP_EXPORT void cpBBTreeOptimize(cpSpatialIndex *index);
 
 /// Bounding box tree velocity callback function.
 /// This function should return an estimate for the object's velocity.
-typedef cpVect (*cpBBTreeVelocityFunc)(void *obj);
+typedef phy_vect (*cpBBTreeVelocityFunc)(void *obj);
 /// Set the velocity function for the bounding box tree to enable temporal coherence.
 CP_EXPORT void cpBBTreeSetVelocityFunc(cpSpatialIndex *index, cpBBTreeVelocityFunc func);
 
@@ -92,7 +92,7 @@ typedef void (*cpSpatialIndexReindexObjectImpl)(cpSpatialIndex *index, void *obj
 typedef void (*cpSpatialIndexReindexQueryImpl)(cpSpatialIndex *index, cpSpatialIndexQueryFunc func, void *data);
 
 typedef void (*cpSpatialIndexQueryImpl)(cpSpatialIndex *index, void *obj, cpBB bb, cpSpatialIndexQueryFunc func, void *data);
-typedef void (*cpSpatialIndexSegmentQueryImpl)(cpSpatialIndex *index, void *obj, cpVect a, cpVect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data);
+typedef void (*cpSpatialIndexSegmentQueryImpl)(cpSpatialIndex *index, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data);
 
 struct cpSpatialIndexClass {
 	cpSpatialIndexDestroyImpl destroy;
@@ -175,7 +175,7 @@ static inline void cpSpatialIndexQuery(cpSpatialIndex *index, void *obj, cpBB bb
 }
 
 /// Perform a segment query against the spatial index, calling @c func for each potential match.
-static inline void cpSpatialIndexSegmentQuery(cpSpatialIndex *index, void *obj, cpVect a, cpVect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+static inline void cpSpatialIndexSegmentQuery(cpSpatialIndex *index, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
 	index->klass->segmentQuery(index, obj, a, b, t_exit, func, data);
 }

@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-cpSpace *SPACE;
+phy_space *SPACE;
 ecs_ecs *ECS;
 utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;

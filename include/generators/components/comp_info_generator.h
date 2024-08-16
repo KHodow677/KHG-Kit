@@ -7,7 +7,7 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_shooter.h"
 
-void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, float ang, cpVect cog);
+void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
 void free_physics(physics_info *info);
 
 void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id);

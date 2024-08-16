@@ -5,8 +5,8 @@
 #include "khg_utl/map.h"
 
 typedef struct {
-  cpBody *body;
-  cpBody *target_body;
+  phy_body *body;
+  phy_body *target_body;
   int degree;
   bool follow_pos;
   bool follow_ang;

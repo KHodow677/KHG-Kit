@@ -29,7 +29,7 @@ cpMarchCells(
 	// TODO range assertions and short circuit for 0 sized windows.
 	
 	// Keep a copy of the previous row to avoid double lookups.
-	float *buffer = (float *)cpcalloc(x_samples, sizeof(float));
+	float *buffer = (float *)calloc(x_samples, sizeof(float));
 	for(unsigned long i=0; i<x_samples; i++) buffer[i] = sample(cpv(phy_lerp(bb.l, bb.r, i*x_denom), bb.b), sample_data);
 	
 	for(unsigned long j=0; j<y_samples-1; j++){
@@ -52,13 +52,13 @@ cpMarchCells(
 		}
 	}
 	
-	cpfree(buffer);
+	free(buffer);
 }
 
 
 // TODO should flip this around eventually.
 static inline void
-seg(cpVect v0, cpVect v1, cpMarchSegmentFunc f, void *data)
+seg(phy_vect v0, phy_vect v1, cpMarchSegmentFunc f, void *data)
 {
 	if(!cpveql(v0, v1)) f(v1, v0, data);
 }
@@ -110,7 +110,7 @@ cpMarchSoft(
 
 // TODO should flip this around eventually.
 static inline void
-segs(cpVect a, cpVect b, cpVect c, cpMarchSegmentFunc f, void *data)
+segs(phy_vect a, phy_vect b, phy_vect c, cpMarchSegmentFunc f, void *data)
 {
 	seg(b, c, f, data);
 	seg(a, b, f, data);

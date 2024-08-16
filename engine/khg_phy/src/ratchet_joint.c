@@ -22,10 +22,10 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpRatchetJoint *joint, float dt)
+preStep(phy_ratchet_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	float angle = joint->angle;
 	float phase = joint->phase;
@@ -53,10 +53,10 @@ preStep(cpRatchetJoint *joint, float dt)
 }
 
 static void
-applyCachedImpulse(cpRatchetJoint *joint, float dt_coef)
+applyCachedImpulse(phy_ratchet_joint *joint, float dt_coef)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	float j = joint->jAcc*dt_coef;
 	a->w -= j*a->i_inv;
@@ -64,12 +64,12 @@ applyCachedImpulse(cpRatchetJoint *joint, float dt_coef)
 }
 
 static void
-applyImpulse(cpRatchetJoint *joint, float dt)
+applyImpulse(phy_ratchet_joint *joint, float dt)
 {
 	if(!joint->bias) return; // early exit
 
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	// compute relative rotational velocity
 	float wr = b->w - a->w;
@@ -89,7 +89,7 @@ applyImpulse(cpRatchetJoint *joint, float dt)
 }
 
 static float
-getImpulse(cpRatchetJoint *joint)
+getImpulse(phy_ratchet_joint *joint)
 {
 	return phy_abs(joint->jAcc);
 }
@@ -101,16 +101,16 @@ static const cpConstraintClass klass = {
 	(cpConstraintGetImpulseImpl)getImpulse,
 };
 
-cpRatchetJoint *
+phy_ratchet_joint *
 cpRatchetJointAlloc(void)
 {
-	return (cpRatchetJoint *)cpcalloc(1, sizeof(cpRatchetJoint));
+	return (phy_ratchet_joint *)calloc(1, sizeof(phy_ratchet_joint));
 }
 
-cpRatchetJoint *
-cpRatchetJointInit(cpRatchetJoint *joint, cpBody *a, cpBody *b, float phase, float ratchet)
+phy_ratchet_joint *
+cpRatchetJointInit(phy_ratchet_joint *joint, phy_body *a, phy_body *b, float phase, float ratchet)
 {
-	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
+	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
 	joint->angle = 0.0f;
 	joint->phase = phase;
@@ -122,58 +122,58 @@ cpRatchetJointInit(cpRatchetJoint *joint, cpBody *a, cpBody *b, float phase, flo
 	return joint;
 }
 
-cpConstraint *
-cpRatchetJointNew(cpBody *a, cpBody *b, float phase, float ratchet)
+phy_constraint *
+cpRatchetJointNew(phy_body *a, phy_body *b, float phase, float ratchet)
 {
-	return (cpConstraint *)cpRatchetJointInit(cpRatchetJointAlloc(), a, b, phase, ratchet);
+	return (phy_constraint *)cpRatchetJointInit(cpRatchetJointAlloc(), a, b, phase, ratchet);
 }
 
 bool
-cpConstraintIsRatchetJoint(const cpConstraint *constraint)
+cpConstraintIsRatchetJoint(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
 float
-cpRatchetJointGetAngle(const cpConstraint *constraint)
+cpRatchetJointGetAngle(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsRatchetJoint(constraint), "Constraint is not a ratchet joint.");
-	return ((cpRatchetJoint *)constraint)->angle;
+	return ((phy_ratchet_joint *)constraint)->angle;
 }
 
 void
-cpRatchetJointSetAngle(cpConstraint *constraint, float angle)
+cpRatchetJointSetAngle(phy_constraint *constraint, float angle)
 {
 	cpAssertHard(cpConstraintIsRatchetJoint(constraint), "Constraint is not a ratchet joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpRatchetJoint *)constraint)->angle = angle;
+	((phy_ratchet_joint *)constraint)->angle = angle;
 }
 
 float
-cpRatchetJointGetPhase(const cpConstraint *constraint)
+cpRatchetJointGetPhase(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsRatchetJoint(constraint), "Constraint is not a ratchet joint.");
-	return ((cpRatchetJoint *)constraint)->phase;
+	return ((phy_ratchet_joint *)constraint)->phase;
 }
 
 void
-cpRatchetJointSetPhase(cpConstraint *constraint, float phase)
+cpRatchetJointSetPhase(phy_constraint *constraint, float phase)
 {
 	cpAssertHard(cpConstraintIsRatchetJoint(constraint), "Constraint is not a ratchet joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpRatchetJoint *)constraint)->phase = phase;
+	((phy_ratchet_joint *)constraint)->phase = phase;
 }
 float
-cpRatchetJointGetRatchet(const cpConstraint *constraint)
+cpRatchetJointGetRatchet(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsRatchetJoint(constraint), "Constraint is not a ratchet joint.");
-	return ((cpRatchetJoint *)constraint)->ratchet;
+	return ((phy_ratchet_joint *)constraint)->ratchet;
 }
 
 void
-cpRatchetJointSetRatchet(cpConstraint *constraint, float ratchet)
+cpRatchetJointSetRatchet(phy_constraint *constraint, float ratchet)
 {
 	cpAssertHard(cpConstraintIsRatchetJoint(constraint), "Constraint is not a ratchet joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpRatchetJoint *)constraint)->ratchet = ratchet;
+	((phy_ratchet_joint *)constraint)->ratchet = ratchet;
 }

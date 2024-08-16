@@ -24,31 +24,31 @@
 #ifndef CP_SPACE_DISABLE_DEBUG_API
 
 static void
-cpSpaceDebugDrawShape(cpShape *shape, cpSpaceDebugDrawOptions *options)
+cpSpaceDebugDrawShape(phy_shape *shape, cpSpaceDebugDrawOptions *options)
 {
-	cpBody *body = shape->body;
-	cpDataPointer data = options->data;
+	phy_body *body = shape->body;
+	phy_data_pointer data = options->data;
 	
 	cpSpaceDebugColor outline_color = options->shapeOutlineColor;
 	cpSpaceDebugColor fill_color = options->colorForShape(shape, data);
 	
 	switch(shape->klass->type){
 		case CP_CIRCLE_SHAPE: {
-			cpCircleShape *circle = (cpCircleShape *)shape;
+			phy_circle_shape *circle = (phy_circle_shape *)shape;
 			options->drawCircle(circle->tc, body->a, circle->r, outline_color, fill_color, data);
 			break;
 		}
 		case CP_SEGMENT_SHAPE: {
-			cpSegmentShape *seg = (cpSegmentShape *)shape;
+			phy_segment_shape *seg = (phy_segment_shape *)shape;
 			options->drawFatSegment(seg->ta, seg->tb, seg->r, outline_color, fill_color, data);
 			break;
 		}
 		case CP_POLY_SHAPE: {
-			cpPolyShape *poly = (cpPolyShape *)shape;
+			phy_poly_shape *poly = (phy_poly_shape *)shape;
 			
 			int count = poly->count;
 			struct cpSplittingPlane *planes = poly->planes;
-			cpVect *verts = (cpVect *)alloca(count*sizeof(cpVect));
+			phy_vect *verts = (phy_vect *)alloca(count*sizeof(phy_vect));
 			
 			for(int i=0; i<count; i++) verts[i] = planes[i].v0;
 			options->drawPolygon(count, verts, poly->r, outline_color, fill_color, data);
@@ -58,7 +58,7 @@ cpSpaceDebugDrawShape(cpShape *shape, cpSpaceDebugDrawOptions *options)
 	}
 }
 
-static const cpVect spring_verts[] = {
+static const phy_vect spring_verts[] = {
 	{0.00f, 0.0f},
 	{0.20f, 0.0f},
 	{0.25f, 3.0f},
@@ -75,72 +75,72 @@ static const cpVect spring_verts[] = {
 	{0.80f, 0.0f},
 	{1.00f, 0.0f},
 };
-static const int spring_count = sizeof(spring_verts)/sizeof(cpVect);
+static const int spring_count = sizeof(spring_verts)/sizeof(phy_vect);
 
 static void
-cpSpaceDebugDrawConstraint(cpConstraint *constraint, cpSpaceDebugDrawOptions *options)
+cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *options)
 {
-	cpDataPointer data = options->data;
+	phy_data_pointer data = options->data;
 	cpSpaceDebugColor color = options->constraintColor;
 	
-	cpBody *body_a = constraint->a;
-	cpBody *body_b = constraint->b;
+	phy_body *body_a = constraint->a;
+	phy_body *body_b = constraint->b;
 
 	if(cpConstraintIsPinJoint(constraint)){
-		cpPinJoint *joint = (cpPinJoint *)constraint;
+		phy_pin_joint *joint = (phy_pin_joint *)constraint;
 		
-		cpVect a = cpTransformPoint(body_a->transform, joint->anchorA);
-		cpVect b = cpTransformPoint(body_b->transform, joint->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, joint->anchorA);
+		phy_vect b = cpTransformPoint(body_b->transform, joint->anchorB);
 		
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
 		options->drawSegment(a, b, color, data);
 	} else if(cpConstraintIsSlideJoint(constraint)){
-		cpSlideJoint *joint = (cpSlideJoint *)constraint;
+		phy_slide_joint *joint = (phy_slide_joint *)constraint;
 	
-		cpVect a = cpTransformPoint(body_a->transform, joint->anchorA);
-		cpVect b = cpTransformPoint(body_b->transform, joint->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, joint->anchorA);
+		phy_vect b = cpTransformPoint(body_b->transform, joint->anchorB);
 		
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
 		options->drawSegment(a, b, color, data);
 	} else if(cpConstraintIsPivotJoint(constraint)){
-		cpPivotJoint *joint = (cpPivotJoint *)constraint;
+		phy_pivot_joint *joint = (phy_pivot_joint *)constraint;
 	
-		cpVect a = cpTransformPoint(body_a->transform, joint->anchorA);
-		cpVect b = cpTransformPoint(body_b->transform, joint->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, joint->anchorA);
+		phy_vect b = cpTransformPoint(body_b->transform, joint->anchorB);
 
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
 	} else if(cpConstraintIsGrooveJoint(constraint)){
-		cpGrooveJoint *joint = (cpGrooveJoint *)constraint;
+		phy_groove_joint *joint = (phy_groove_joint *)constraint;
 	
-		cpVect a = cpTransformPoint(body_a->transform, joint->grv_a);
-		cpVect b = cpTransformPoint(body_a->transform, joint->grv_b);
-		cpVect c = cpTransformPoint(body_b->transform, joint->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, joint->grv_a);
+		phy_vect b = cpTransformPoint(body_a->transform, joint->grv_b);
+		phy_vect c = cpTransformPoint(body_b->transform, joint->anchorB);
 		
 		options->drawDot(5, c, color, data);
 		options->drawSegment(a, b, color, data);
 	} else if(cpConstraintIsDampedSpring(constraint)){
-		cpDampedSpring *spring = (cpDampedSpring *)constraint;
+		phy_damped_spring *spring = (phy_damped_spring *)constraint;
 		
-		cpVect a = cpTransformPoint(body_a->transform, spring->anchorA);
-		cpVect b = cpTransformPoint(body_b->transform, spring->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, spring->anchorA);
+		phy_vect b = cpTransformPoint(body_b->transform, spring->anchorB);
 		
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
 
-		cpVect delta = cpvsub(b, a);
+		phy_vect delta = cpvsub(b, a);
 		float cos = delta.x;
 		float sin = delta.y;
 		float s = 1.0f/cpvlength(delta);
 		
-		cpVect r1 = cpv(cos, -sin*s);
-		cpVect r2 = cpv(sin,  cos*s);
+		phy_vect r1 = cpv(cos, -sin*s);
+		phy_vect r2 = cpv(sin,  cos*s);
 		
-		cpVect *verts = (cpVect *)alloca(spring_count*sizeof(cpVect));
+		phy_vect *verts = (phy_vect *)alloca(spring_count*sizeof(phy_vect));
 		for(int i=0; i<spring_count; i++){
-			cpVect v = spring_verts[i];
+			phy_vect v = spring_verts[i];
 			verts[i] = cpv(cpvdot(v, r1) + a.x, cpvdot(v, r2) + a.y);
 		}
 		
@@ -151,7 +151,7 @@ cpSpaceDebugDrawConstraint(cpConstraint *constraint, cpSpaceDebugDrawOptions *op
 }
 
 void
-cpSpaceDebugDraw(cpSpace *space, cpSpaceDebugDrawOptions *options)
+cpSpaceDebugDraw(phy_space *space, cpSpaceDebugDrawOptions *options)
 {
 	if(options->flags & CP_SPACE_DEBUG_DRAW_SHAPES){
 		cpSpaceEachShape(space, (cpSpaceShapeIteratorFunc)cpSpaceDebugDrawShape, options);
@@ -162,22 +162,22 @@ cpSpaceDebugDraw(cpSpace *space, cpSpaceDebugDrawOptions *options)
 	}
 	
 	if(options->flags & CP_SPACE_DEBUG_DRAW_COLLISION_POINTS){
-		cpArray *arbiters = space->arbiters;
+		phy_array *arbiters = space->arbiters;
 		cpSpaceDebugColor color = options->collisionPointColor;
 		cpSpaceDebugDrawSegmentImpl draw_seg = options->drawSegment;
-		cpDataPointer data = options->data;
+		phy_data_pointer data = options->data;
 		
 		for(int i=0; i<arbiters->num; i++){
-			cpArbiter *arb = (cpArbiter*)arbiters->arr[i];
-			cpVect n = arb->n;
+			phy_arbiter *arb = (phy_arbiter*)arbiters->arr[i];
+			phy_vect n = arb->n;
 			
 			for(int j=0; j<arb->count; j++){
-				cpVect p1 = cpvadd(arb->body_a->p, arb->contacts[j].r1);
-				cpVect p2 = cpvadd(arb->body_b->p, arb->contacts[j].r2);
+				phy_vect p1 = cpvadd(arb->body_a->p, arb->contacts[j].r1);
+				phy_vect p2 = cpvadd(arb->body_b->p, arb->contacts[j].r2);
 				
 				float d = 2.0f;
-				cpVect a = cpvadd(p1, cpvmult(n, -d));
-				cpVect b = cpvadd(p2, cpvmult(n,  d));
+				phy_vect a = cpvadd(p1, cpvmult(n, -d));
+				phy_vect b = cpvadd(p2, cpvmult(n,  d));
 				draw_seg(a, b, color, data);
 			}
 		}

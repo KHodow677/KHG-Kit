@@ -26,7 +26,7 @@ cpSpatialIndexFree(cpSpatialIndex *index)
 {
 	if(index){
 		cpSpatialIndexDestroy(index);
-		cpfree(index);
+		free(index);
 	}
 }
 

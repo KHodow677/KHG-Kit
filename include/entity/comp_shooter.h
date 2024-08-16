@@ -4,7 +4,7 @@
 #include "khg_utl/map.h"
 
 typedef struct {
-  bool shoot_now;
+  int shoot_cooldown;
 } shooter_info;
 
 typedef struct {

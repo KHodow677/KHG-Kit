@@ -6,7 +6,7 @@
 
 typedef struct {
   int tex_id;
-  cpBody *body;
+  phy_body *body;
 } renderer_info;
 
 typedef struct {

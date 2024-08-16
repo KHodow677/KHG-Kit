@@ -73,7 +73,6 @@ ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     t_data[i].end = (i == thread_count - 1) ? entity_count : t_data[i].start + chunk_size;
     thd_thread_create(&threads[i], NULL, update_animator_entities, &t_data[i], NULL);
   }
-
   for (int i = 0; i < thread_count; i++) {
     thd_thread_join(threads[i], NULL);
   }

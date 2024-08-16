@@ -22,15 +22,15 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpSlideJoint *joint, float dt)
+preStep(phy_slide_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	joint->r1 = cpTransformVect(a->transform, cpvsub(joint->anchorA, a->cog));
 	joint->r2 = cpTransformVect(b->transform, cpvsub(joint->anchorB, b->cog));
 	
-	cpVect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
+	phy_vect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
 	float dist = cpvlength(delta);
 	float pdist = 0.0f;
 	if(dist > joint->max) {
@@ -53,29 +53,29 @@ preStep(cpSlideJoint *joint, float dt)
 }
 
 static void
-applyCachedImpulse(cpSlideJoint *joint, float dt_coef)
+applyCachedImpulse(phy_slide_joint *joint, float dt_coef)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
-	cpVect j = cpvmult(joint->n, joint->jnAcc*dt_coef);
+	phy_vect j = cpvmult(joint->n, joint->jnAcc*dt_coef);
 	apply_impulses(a, b, joint->r1, joint->r2, j);
 }
 
 static void
-applyImpulse(cpSlideJoint *joint, float dt)
+applyImpulse(phy_slide_joint *joint, float dt)
 {
 	if(cpveql(joint->n, cpvzero)) return;  // early exit
 
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
-	cpVect n = joint->n;
-	cpVect r1 = joint->r1;
-	cpVect r2 = joint->r2;
+	phy_vect n = joint->n;
+	phy_vect r1 = joint->r1;
+	phy_vect r2 = joint->r2;
 		
 	// compute relative velocity
-	cpVect vr = relative_velocity(a, b, r1, r2);
+	phy_vect vr = relative_velocity(a, b, r1, r2);
 	float vrn = cpvdot(vr, n);
 	
 	// compute normal impulse
@@ -89,9 +89,9 @@ applyImpulse(cpSlideJoint *joint, float dt)
 }
 
 static float
-getImpulse(cpConstraint *joint)
+getImpulse(phy_constraint *joint)
 {
-	return phy_abs(((cpSlideJoint *)joint)->jnAcc);
+	return phy_abs(((phy_slide_joint *)joint)->jnAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -101,16 +101,16 @@ static const cpConstraintClass klass = {
 	(cpConstraintGetImpulseImpl)getImpulse,
 };
 
-cpSlideJoint *
+phy_slide_joint *
 cpSlideJointAlloc(void)
 {
-	return (cpSlideJoint *)cpcalloc(1, sizeof(cpSlideJoint));
+	return (phy_slide_joint *)calloc(1, sizeof(phy_slide_joint));
 }
 
-cpSlideJoint *
-cpSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, float min, float max)
+phy_slide_joint *
+cpSlideJointInit(phy_slide_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float min, float max)
 {
-	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
+	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
 	joint->anchorA = anchorA;
 	joint->anchorB = anchorB;
@@ -122,74 +122,74 @@ cpSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVe
 	return joint;
 }
 
-cpConstraint *
-cpSlideJointNew(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, float min, float max)
+phy_constraint *
+cpSlideJointNew(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float min, float max)
 {
-	return (cpConstraint *)cpSlideJointInit(cpSlideJointAlloc(), a, b, anchorA, anchorB, min, max);
+	return (phy_constraint *)cpSlideJointInit(cpSlideJointAlloc(), a, b, anchorA, anchorB, min, max);
 }
 
 bool
-cpConstraintIsSlideJoint(const cpConstraint *constraint)
+cpConstraintIsSlideJoint(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
-cpVect
-cpSlideJointGetAnchorA(const cpConstraint *constraint)
+phy_vect
+cpSlideJointGetAnchorA(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
-	return ((cpSlideJoint *)constraint)->anchorA;
+	return ((phy_slide_joint *)constraint)->anchorA;
 }
 
 void
-cpSlideJointSetAnchorA(cpConstraint *constraint, cpVect anchorA)
+cpSlideJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpSlideJoint *)constraint)->anchorA = anchorA;
+	((phy_slide_joint *)constraint)->anchorA = anchorA;
 }
 
-cpVect
-cpSlideJointGetAnchorB(const cpConstraint *constraint)
+phy_vect
+cpSlideJointGetAnchorB(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
-	return ((cpSlideJoint *)constraint)->anchorB;
+	return ((phy_slide_joint *)constraint)->anchorB;
 }
 
 void
-cpSlideJointSetAnchorB(cpConstraint *constraint, cpVect anchorB)
+cpSlideJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpSlideJoint *)constraint)->anchorB = anchorB;
+	((phy_slide_joint *)constraint)->anchorB = anchorB;
 }
 
 float
-cpSlideJointGetMin(const cpConstraint *constraint)
+cpSlideJointGetMin(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
-	return ((cpSlideJoint *)constraint)->min;
+	return ((phy_slide_joint *)constraint)->min;
 }
 
 void
-cpSlideJointSetMin(cpConstraint *constraint, float min)
+cpSlideJointSetMin(phy_constraint *constraint, float min)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpSlideJoint *)constraint)->min = min;
+	((phy_slide_joint *)constraint)->min = min;
 }
 
 float
-cpSlideJointGetMax(const cpConstraint *constraint)
+cpSlideJointGetMax(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
-	return ((cpSlideJoint *)constraint)->max;
+	return ((phy_slide_joint *)constraint)->max;
 }
 
 void
-cpSlideJointSetMax(cpConstraint *constraint, float max)
+cpSlideJointSetMax(phy_constraint *constraint, float max)
 {
 	cpAssertHard(cpConstraintIsSlideJoint(constraint), "Constraint is not a slide joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpSlideJoint *)constraint)->max = max;
+	((phy_slide_joint *)constraint)->max = max;
 }

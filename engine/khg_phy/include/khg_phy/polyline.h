@@ -7,7 +7,7 @@
 // cpPolyline structs are intended to be passed by value and destroyed when you are done with them.
 typedef struct cpPolyline {
   int count, capacity;
-  cpVect verts[];
+  phy_vect verts[];
 } cpPolyline;
 
 /// Destroy and free a polyline instance.
@@ -58,7 +58,7 @@ CP_EXPORT void cpPolylineSetFree(cpPolylineSet *set, bool freePolylines);
 	A segment will either start a new polyline, join two others, or add to or loop an existing polyline.
 	This is mostly intended to be used as a callback directly from cpMarchSoft() or cpMarchHard().
 */
-CP_EXPORT void cpPolylineSetCollectSegment(cpVect v0, cpVect v1, cpPolylineSet *lines);
+CP_EXPORT void cpPolylineSetCollectSegment(phy_vect v0, phy_vect v1, cpPolylineSet *lines);
 
 /**
 	Get an approximate convex decomposition from a polyline.

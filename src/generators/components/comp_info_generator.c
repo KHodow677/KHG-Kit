@@ -12,7 +12,7 @@
 #include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
 
-void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, cpVect pos, float ang, cpVect cog) {
+void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = cpMomentForBox(mass, width, height);
   info->body = cpSpaceAddBody(SPACE, cpBodyNew(mass, moment));
   cpBodySetPosition(info->body, pos);
@@ -76,6 +76,6 @@ void generate_rotator(rotator_info *info, physics_info *p_info) {
 }
 
 void generate_shooter(shooter_info *info) {
-  info->shoot_now = false;
+  info->shoot_cooldown = 0;
 }
 

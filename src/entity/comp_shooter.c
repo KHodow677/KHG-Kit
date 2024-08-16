@@ -10,6 +10,7 @@
 #include "khg_phy/phy_types.h"
 #include "khg_utl/map.h"
 #include "spawners/spawn_particles.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -55,13 +56,13 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     info = utl_map_at(SHOOTER_INFO_MAP, &entities[id]);
     p_info = utl_map_at(PHYSICS_INFO_MAP, &entities[id]);
     r_info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
-    if (handle_space_button() && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f)) {
-      info->shoot_now = true;
-      cpVect pos = cpBodyGetPosition(p_info->body);
+    if (handle_space_button() && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
+      info->shoot_cooldown = 15;
+      phy_vect pos = cpBodyGetPosition(p_info->body);
       spawn_particle(p_info, pos.x, pos.y);
     }
     else {
-      info->shoot_now = false;
+      info->shoot_cooldown = fmaxf(info->shoot_cooldown - 1, 0.0f);
     }
   }
   return 0;

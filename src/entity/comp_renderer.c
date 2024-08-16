@@ -48,7 +48,7 @@ ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
   renderer_info *info = utl_map_at(RENDERER_INFO_MAP, &entities[0]);
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
-    cpVect pos = cpBodyGetPosition(info->body);
+    phy_vect pos = cpBodyGetPosition(info->body);
     float angle = cpBodyGetAngle(info->body);
     gfx_texture *tex = *(gfx_texture **)utl_vector_at(TEXTURE_LOOKUP, info->tex_id);
     tex->angle = angle;

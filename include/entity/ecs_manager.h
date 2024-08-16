@@ -11,7 +11,7 @@
 #include "khg_ecs/ecs.h"
 #include "khg_utl/vector.h"
 
-extern cpSpace *SPACE;
+extern phy_space *SPACE;
 extern ecs_ecs *ECS;
 extern utl_vector *ENTITY_LOOKUP;
 extern utl_vector *TEXTURE_LOOKUP;

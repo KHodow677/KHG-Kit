@@ -20,22 +20,23 @@
  */
 
 #include "khg_phy/phy_private.h"
+#include "khg_phy/phy_types.h"
 
 static void
-preStep(cpSimpleMotor *joint, float dt)
+preStep(phy_simple_motor_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	// calculate moment of inertia coefficient.
 	joint->iSum = 1.0f/(a->i_inv + b->i_inv);
 }
 
 static void
-applyCachedImpulse(cpSimpleMotor *joint, float dt_coef)
+applyCachedImpulse(phy_simple_motor_joint *joint, float dt_coef)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	float j = joint->jAcc*dt_coef;
 	a->w -= j*a->i_inv;
@@ -43,10 +44,10 @@ applyCachedImpulse(cpSimpleMotor *joint, float dt_coef)
 }
 
 static void
-applyImpulse(cpSimpleMotor *joint, float dt)
+applyImpulse(phy_simple_motor_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	// compute relative rotational velocity
 	float wr = b->w - a->w + joint->rate;
@@ -65,7 +66,7 @@ applyImpulse(cpSimpleMotor *joint, float dt)
 }
 
 static float
-getImpulse(cpSimpleMotor *joint)
+getImpulse(phy_simple_motor_joint *joint)
 {
 	return phy_abs(joint->jAcc);
 }
@@ -77,16 +78,16 @@ static const cpConstraintClass klass = {
 	(cpConstraintGetImpulseImpl)getImpulse,
 };
 
-cpSimpleMotor *
+phy_simple_motor_joint *
 cpSimpleMotorAlloc(void)
 {
-	return (cpSimpleMotor *)cpcalloc(1, sizeof(cpSimpleMotor));
+	return (phy_simple_motor_joint *)calloc(1, sizeof(phy_simple_motor_joint));
 }
 
-cpSimpleMotor *
-cpSimpleMotorInit(cpSimpleMotor *joint, cpBody *a, cpBody *b, float rate)
+phy_simple_motor_joint *
+cpSimpleMotorInit(phy_simple_motor_joint *joint, phy_body *a, phy_body *b, float rate)
 {
-	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
+	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
 	joint->rate = rate;
 	
@@ -95,29 +96,29 @@ cpSimpleMotorInit(cpSimpleMotor *joint, cpBody *a, cpBody *b, float rate)
 	return joint;
 }
 
-cpConstraint *
-cpSimpleMotorNew(cpBody *a, cpBody *b, float rate)
+phy_constraint *
+cpSimpleMotorNew(phy_body *a, phy_body *b, float rate)
 {
-	return (cpConstraint *)cpSimpleMotorInit(cpSimpleMotorAlloc(), a, b, rate);
+	return (phy_constraint *)cpSimpleMotorInit(cpSimpleMotorAlloc(), a, b, rate);
 }
 
 bool
-cpConstraintIsSimpleMotor(const cpConstraint *constraint)
+cpConstraintIsSimpleMotor(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
 float
-cpSimpleMotorGetRate(const cpConstraint *constraint)
+cpSimpleMotorGetRate(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsSimpleMotor(constraint), "Constraint is not a SimpleMotor.");
-	return ((cpSimpleMotor *)constraint)->rate;
+	return ((phy_simple_motor_joint *)constraint)->rate;
 }
 
 void
-cpSimpleMotorSetRate(cpConstraint *constraint, float rate)
+cpSimpleMotorSetRate(phy_constraint *constraint, float rate)
 {
 	cpAssertHard(cpConstraintIsSimpleMotor(constraint), "Constraint is not a SimpleMotor.");
 	cpConstraintActivateBodies(constraint);
-	((cpSimpleMotor *)constraint)->rate = rate;
+	((phy_simple_motor_joint *)constraint)->rate = rate;
 }

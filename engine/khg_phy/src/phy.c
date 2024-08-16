@@ -61,7 +61,7 @@ const char *cpVersionString = XSTR(CP_VERSION_MAJOR) "." XSTR(CP_VERSION_MINOR) 
 //MARK: Misc Functions
 
 float
-cpMomentForCircle(float m, float r1, float r2, cpVect offset)
+cpMomentForCircle(float m, float r1, float r2, phy_vect offset)
 {
 	return m*(0.5f*(r1*r1 + r2*r2) + cpvlengthsq(offset));
 }
@@ -73,9 +73,9 @@ cpAreaForCircle(float r1, float r2)
 }
 
 float
-cpMomentForSegment(float m, cpVect a, cpVect b, float r)
+cpMomentForSegment(float m, phy_vect a, phy_vect b, float r)
 {
-	cpVect offset = cpvlerp(a, b, 0.5f);
+	phy_vect offset = cpvlerp(a, b, 0.5f);
 	
 	// This approximates the shape as a box for rounded segments, but it's quite close.
 	float length = cpvdist(b, a) + 2.0f*r;
@@ -83,13 +83,13 @@ cpMomentForSegment(float m, cpVect a, cpVect b, float r)
 }
 
 float
-cpAreaForSegment(cpVect a, cpVect b, float r)
+cpAreaForSegment(phy_vect a, phy_vect b, float r)
 {
 	return r*((float)CP_PI*r + 2.0f*cpvdist(a, b));
 }
 
 float
-cpMomentForPoly(float m, int count, const cpVect *verts, cpVect offset, float r)
+cpMomentForPoly(float m, int count, const phy_vect *verts, phy_vect offset, float r)
 {
 	// TODO account for radius.
 	if(count == 2) return cpMomentForSegment(m, verts[0], verts[1], 0.0f);
@@ -97,8 +97,8 @@ cpMomentForPoly(float m, int count, const cpVect *verts, cpVect offset, float r)
 	float sum1 = 0.0f;
 	float sum2 = 0.0f;
 	for(int i=0; i<count; i++){
-		cpVect v1 = cpvadd(verts[i], offset);
-		cpVect v2 = cpvadd(verts[(i+1)%count], offset);
+		phy_vect v1 = cpvadd(verts[i], offset);
+		phy_vect v2 = cpvadd(verts[(i+1)%count], offset);
 		
 		float a = cpvcross(v2, v1);
 		float b = cpvdot(v1, v1) + cpvdot(v1, v2) + cpvdot(v2, v2);
@@ -111,13 +111,13 @@ cpMomentForPoly(float m, int count, const cpVect *verts, cpVect offset, float r)
 }
 
 float
-cpAreaForPoly(const int count, const cpVect *verts, float r)
+cpAreaForPoly(const int count, const phy_vect *verts, float r)
 {
 	float area = 0.0f;
 	float perimeter = 0.0f;
 	for(int i=0; i<count; i++){
-		cpVect v1 = verts[i];
-		cpVect v2 = verts[(i+1)%count];
+		phy_vect v1 = verts[i];
+		phy_vect v2 = verts[(i+1)%count];
 		
 		area += cpvcross(v1, v2);
 		perimeter += cpvdist(v1, v2);
@@ -126,15 +126,15 @@ cpAreaForPoly(const int count, const cpVect *verts, float r)
 	return r*(CP_PI*phy_abs(r) + perimeter) + area/2.0f;
 }
 
-cpVect
-cpCentroidForPoly(const int count, const cpVect *verts)
+phy_vect
+cpCentroidForPoly(const int count, const phy_vect *verts)
 {
 	float sum = 0.0f;
-	cpVect vsum = cpvzero;
+	phy_vect vsum = cpvzero;
 	
 	for(int i=0; i<count; i++){
-		cpVect v1 = verts[i];
-		cpVect v2 = verts[(i+1)%count];
+		phy_vect v1 = verts[i];
+		phy_vect v2 = verts[(i+1)%count];
 		float cross = cpvcross(v1, v2);
 		
 		sum += cross;
@@ -145,8 +145,8 @@ cpCentroidForPoly(const int count, const cpVect *verts)
 }
 
 //void
-//cpRecenterPoly(const int count, cpVect *verts){
-//	cpVect centroid = cpCentroidForPoly(count, verts);
+//cpRecenterPoly(const int count, phy_vect *verts){
+//	phy_vect centroid = cpCentroidForPoly(count, verts);
 //	
 //	for(int i=0; i<count; i++){
 //		verts[i] = cpvsub(verts[i], centroid);
@@ -164,7 +164,7 @@ cpMomentForBox2(float m, cpBB box)
 {
 	float width = box.r - box.l;
 	float height = box.t - box.b;
-	cpVect offset = cpvmult(cpv(box.l + box.r, box.b + box.t), 0.5f);
+	phy_vect offset = cpvmult(cpv(box.l + box.r, box.b + box.t), 0.5f);
 	
 	// TODO: NaN when offset is 0 and m is INFINITY
 	return cpMomentForBox(m, width, height) + m*cpvlengthsq(offset);
@@ -173,14 +173,14 @@ cpMomentForBox2(float m, cpBB box)
 //MARK: Quick Hull
 
 void
-cpLoopIndexes(const cpVect *verts, int count, int *start, int *end)
+cpLoopIndexes(const phy_vect *verts, int count, int *start, int *end)
 {
 	(*start) = (*end) = 0;
-	cpVect min = verts[0];
-	cpVect max = min;
+	phy_vect min = verts[0];
+	phy_vect max = min;
 	
   for(int i=1; i<count; i++){
-    cpVect v = verts[i];
+    phy_vect v = verts[i];
 		
     if(v.x < min.x || (v.x == min.x && v.y < min.y)){
       min = v;
@@ -192,17 +192,17 @@ cpLoopIndexes(const cpVect *verts, int count, int *start, int *end)
 	}
 }
 
-#define SWAP(__A__, __B__) {cpVect __TMP__ = __A__; __A__ = __B__; __B__ = __TMP__;}
+#define SWAP(__A__, __B__) {phy_vect __TMP__ = __A__; __A__ = __B__; __B__ = __TMP__;}
 
 static int
-QHullPartition(cpVect *verts, int count, cpVect a, cpVect b, float tol)
+QHullPartition(phy_vect *verts, int count, phy_vect a, phy_vect b, float tol)
 {
 	if(count == 0) return 0;
 	
 	float max = 0;
 	int pivot = 0;
 	
-	cpVect delta = cpvsub(b, a);
+	phy_vect delta = cpvsub(b, a);
 	float valueTol = tol*cpvlength(delta);
 	
 	int head = 0;
@@ -227,7 +227,7 @@ QHullPartition(cpVect *verts, int count, cpVect a, cpVect b, float tol)
 }
 
 static int
-QHullReduce(float tol, cpVect *verts, int count, cpVect a, cpVect pivot, cpVect b, cpVect *result)
+QHullReduce(float tol, phy_vect *verts, int count, phy_vect a, phy_vect pivot, phy_vect b, phy_vect *result)
 {
 	if(count < 0){
 		return 0;
@@ -248,11 +248,11 @@ QHullReduce(float tol, cpVect *verts, int count, cpVect a, cpVect pivot, cpVect 
 // QuickHull seemed like a neat algorithm, and efficient-ish for large input sets.
 // My implementation performs an in place reduction using the result array as scratch space.
 int
-cpConvexHull(int count, const cpVect *verts, cpVect *result, int *first, float tol)
+cpConvexHull(int count, const phy_vect *verts, phy_vect *result, int *first, float tol)
 {
 	if(verts != result){
 		// Copy the line vertexes into the empty part of the result polyline to use as a scratch buffer.
-		memcpy(result, verts, count*sizeof(cpVect));
+		memcpy(result, verts, count*sizeof(phy_vect));
 	}
 	
 	// Degenerate case, all points are the same.
@@ -266,8 +266,8 @@ cpConvexHull(int count, const cpVect *verts, cpVect *result, int *first, float t
 	SWAP(result[0], result[start]);
 	SWAP(result[1], result[end == 0 ? start : end]);
 	
-	cpVect a = result[0];
-	cpVect b = result[1];
+	phy_vect a = result[0];
+	phy_vect b = result[1];
 	
 	if(first) (*first) = start;
 	return QHullReduce(tol, result + 2, count - 2, a, b, a, result + 1) + 1;
@@ -306,13 +306,13 @@ void cpBodyEachArbiter_b(cpBody *body, void (^block)(cpArbiter *arbiter)){
 	cpBodyEachArbiter(body, (cpBodyArbiterIteratorFunc)BodyIteratorFunc, block);
 }
 
-static void PointQueryIteratorFunc(cpShape *shape, cpVect p, float d, cpVect g, cpSpacePointQueryBlock block){block(shape, p, d, g);}
-void cpSpacePointQuery_b(cpSpace *space, cpVect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryBlock block){
+static void PointQueryIteratorFunc(cpShape *shape, phy_vect p, float d, phy_vect g, cpSpacePointQueryBlock block){block(shape, p, d, g);}
+void cpSpacePointQuery_b(cpSpace *space, phy_vect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryBlock block){
 	cpSpacePointQuery(space, point, maxDistance, filter, (cpSpacePointQueryFunc)PointQueryIteratorFunc, block);
 }
 
-static void SegmentQueryIteratorFunc(cpShape *shape, cpVect p, cpVect n, float t, cpSpaceSegmentQueryBlock block){block(shape, p, n, t);}
-void cpSpaceSegmentQuery_b(cpSpace *space, cpVect start, cpVect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryBlock block){
+static void SegmentQueryIteratorFunc(cpShape *shape, phy_vect p, phy_vect n, float t, cpSpaceSegmentQueryBlock block){block(shape, p, n, t);}
+void cpSpaceSegmentQuery_b(cpSpace *space, phy_vect start, phy_vect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryBlock block){
 	cpSpaceSegmentQuery(space, start, end, radius, filter, (cpSpaceSegmentQueryFunc)SegmentQueryIteratorFunc, block);
 }
 
