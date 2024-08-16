@@ -13,6 +13,8 @@ ecs_id ANIMATOR_COMPONENT_SIGNATURE;
 animator_info NO_ANIMATOR = { 0 };
 utl_vector *ANIMATOR_INFO = NULL;
 
+void *(*ANIMATOR_FUNC_PTR)(void *) = NULL;
+
 void comp_animator_register(comp_animator *ca, ecs_ecs *ecs) {
   ca->id = ecs_register_component(ecs, sizeof(comp_animator), NULL, NULL);
   ANIMATOR_COMPONENT_SIGNATURE = ca->id; 
@@ -50,12 +52,12 @@ void *update_animator_entities(void *arg) {
     info = utl_vector_at(ANIMATOR_INFO, data->entities[id]);
     r_info = utl_map_at(RENDERER_INFO_MAP, &data->entities[id]);
     d_info = utl_vector_at(DESTROYER_INFO, data->entities[id]);
-    if (--info->frame_timer == 0) {
-      r_info->tex_id = r_info->tex_id < info->max_tex_id ? r_info->tex_id + 1 : info->min_tex_id;
-      info->frame_timer = info->frame_duration;
-    }
     if (info->destroy_on_max && r_info->tex_id == info->max_tex_id) {
       d_info->destroy_now = true;
+    }
+    else if (--info->frame_timer == 0) {
+      r_info->tex_id = r_info->tex_id < info->max_tex_id ? r_info->tex_id + 1 : info->min_tex_id;
+      info->frame_timer = info->frame_duration;
     }
   }
   return NULL;
@@ -65,22 +67,7 @@ ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
   (void)ecs;
   (void)dt;
   (void)udata;
-  if (entity_count == 0) {
-    return 0;
-  }
-  const int thread_count = THREAD_COUNT;
-  struct thd_thread threads[thread_count];
-  thread_data t_data[thread_count];
-  int chunk_size = entity_count / thread_count;
-  for (int i = 0; i < thread_count; i++) {
-    t_data[i].entities = entities;
-    t_data[i].start = i * chunk_size;
-    t_data[i].end = (i == thread_count - 1) ? entity_count : t_data[i].start + chunk_size;
-    thd_thread_create(&threads[i], NULL, update_animator_entities, &t_data[i], NULL);
-  }
-  for (int i = 0; i < thread_count; i++) {
-    thd_thread_join(threads[i], NULL);
-  }
+  run_thread_update(entities, entity_count, update_animator_entities);
   return 0;
 }
 

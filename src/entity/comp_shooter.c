@@ -60,8 +60,6 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
       info->shoot_cooldown = 15;
       phy_vect pos = phy_body_get_position(p_info->body);
       spawn_particle(p_info, pos.x, pos.y);
-      spawn_particle(p_info, pos.x, pos.y);
-      spawn_particle(p_info, pos.x, pos.y);
     }
     else {
       info->shoot_cooldown = fmaxf(info->shoot_cooldown - 1, 0.0f);
