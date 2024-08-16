@@ -1,8 +1,10 @@
 #include "entity/comp_animator.h"
+#include "data_utl/thread_utl.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_renderer.h"
 #include "data_utl/map_utl.h"
 #include "khg_ecs/ecs.h"
+#include "khg_thd/thread.h"
 #include "khg_utl/map.h"
 #include <stdio.h>
 
@@ -34,20 +36,15 @@ void sys_animator_free(bool need_free) {
   }
 }
 
-ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  (void)ecs;
-  (void)dt;
-  (void)udata;
-  if (entity_count == 0) {
-    return 0;
-  }
+void *update_animator_entities(void *arg) {
+  thread_data *data = (thread_data *)arg;
   animator_info *info;
   renderer_info *r_info;
   destroyer_info *d_info;
-  for (int id = 0; id < entity_count; id++) {
-    info = utl_map_at(ANIMATOR_INFO_MAP, &entities[id]);
-    r_info = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
-    d_info = utl_map_at(DESTROYER_INFO_MAP, &entities[id]);
+  for (int id = data->start; id < data->end; id++) {
+    info = utl_map_at(ANIMATOR_INFO_MAP, &data->entities[id]);
+    r_info = utl_map_at(RENDERER_INFO_MAP, &data->entities[id]);
+    d_info = utl_map_at(DESTROYER_INFO_MAP, &data->entities[id]);
     if (--info->frame_timer == 0) {
       r_info->tex_id = r_info->tex_id < info->max_tex_id ? r_info->tex_id + 1 : info->min_tex_id;
       info->frame_timer = info->frame_duration;
@@ -55,6 +52,30 @@ ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     if (info->destroy_on_max && r_info->tex_id == info->max_tex_id) {
       d_info->destroy_now = true;
     }
+  }
+  return NULL;
+}
+
+ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  (void)ecs;
+  (void)dt;
+  (void)udata;
+  if (entity_count == 0) {
+    return 0;
+  }
+  const int thread_count = THREAD_COUNT;
+  struct thd_thread threads[thread_count];
+  thread_data t_data[thread_count];
+  int chunk_size = entity_count / thread_count;
+  for (int i = 0; i < thread_count; i++) {
+    t_data[i].entities = entities;
+    t_data[i].start = i * chunk_size;
+    t_data[i].end = (i == thread_count - 1) ? entity_count : t_data[i].start + chunk_size;
+    thd_thread_create(&threads[i], NULL, update_animator_entities, &t_data[i], NULL);
+  }
+
+  for (int i = 0; i < thread_count; i++) {
+    thd_thread_join(threads[i], NULL);
   }
   return 0;
 }

@@ -28,5 +28,6 @@ void comp_animator_register(comp_animator *ca, ecs_ecs *ecs);
 void sys_animator_register(sys_animator *sa, ecs_ecs *ecs);
 void sys_animator_add(ecs_ecs *ecs, ecs_id *eid, animator_info *info);
 void sys_animator_free(bool need_free);
+void *update_animator_entities(void *arg);
 ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

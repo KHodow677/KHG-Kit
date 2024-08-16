@@ -6,8 +6,8 @@
 
 #ifdef _WIN32
 #include <windows.h>
-DWORD WINAPI __cthreads_winthreads_function_wrapper(void *data) {
-  struct cthreads_args *args = data;
+DWORD WINAPI __thd_winthreads_function_wrapper(void *data) {
+  struct thd_args *args = data;
   args->func(args->data);
 
   return TRUE;
@@ -16,15 +16,15 @@ DWORD WINAPI __cthreads_winthreads_function_wrapper(void *data) {
 #include <pthread.h>
 #endif
 
-int cthreads_thread_create(struct cthreads_thread *thread, struct cthreads_thread_attr *attr, void *(*func)(void *data), void *data, struct cthreads_args *args) {
+int thd_thread_create(struct thd_thread *thread, struct thd_thread_attr *attr, void *(*func)(void *data), void *data, struct thd_args *args) {
 #if defined(_WIN32) || defined(_WIN64)
   args->func = func;
   args->data = data;
   if (attr) { 
-    thread->wThread = CreateThread(NULL, attr->stacksize ? attr->stacksize : 0, __cthreads_winthreads_function_wrapper, args, attr->dwCreationFlags ? (DWORD)attr->dwCreationFlags : 0, NULL);
+    thread->wThread = CreateThread(NULL, attr->stacksize ? attr->stacksize : 0, __thd_winthreads_function_wrapper, args, attr->dwCreationFlags ? (DWORD)attr->dwCreationFlags : 0, NULL);
     }
   else {
-    thread->wThread = CreateThread(NULL, 0, __cthreads_winthreads_function_wrapper, args, 0, NULL);
+    thread->wThread = CreateThread(NULL, 0, __thd_winthreads_function_wrapper, args, 0, NULL);
   }
   return thread->wThread == NULL;
 #else
@@ -40,7 +40,7 @@ int cthreads_thread_create(struct cthreads_thread *thread, struct cthreads_threa
     if (attr->guardsize) {
       pthread_attr_setguardsize(&pAttr, attr->guardsize);
     }
-#ifdef CTHREADS_THREAD_INHERITSCHED
+#ifdef THD_THREAD_INHERITSCHED
     if (attr->inheritsched) {
       pthread_attr_setinheritsched(&pAttr, attr->inheritsched);
     }
@@ -51,7 +51,7 @@ int cthreads_thread_create(struct cthreads_thread *thread, struct cthreads_threa
     if (attr->scope) {
       pthread_attr_setscope(&pAttr, attr->scope);
     }
-#ifdef CTHREADS_THREAD_STACK
+#ifdef THD_THREAD_STACK
       if (attr->stack) {
         pthread_attr_setstack(&pAttr, attr->stackaddr, attr->stack);
       }
@@ -64,7 +64,7 @@ int cthreads_thread_create(struct cthreads_thread *thread, struct cthreads_threa
 #endif
 }
 
-int cthreads_thread_detach(struct cthreads_thread thread) {
+int thd_thread_detach(struct thd_thread thread) {
 #if defined(_WIN32) || defined(_WIN64)
   return CloseHandle(thread.wThread);
 #else
@@ -72,7 +72,7 @@ int cthreads_thread_detach(struct cthreads_thread thread) {
 #endif
 }
 
-int cthreads_thread_join(struct cthreads_thread thread, void *code) {
+int thd_thread_join(struct thd_thread thread, void *code) {
 #if defined(_WIN32) || defined(_WIN64)
   if (WaitForSingleObject(thread.wThread, INFINITE) == WAIT_FAILED) {
     return 0;
@@ -83,7 +83,7 @@ int cthreads_thread_join(struct cthreads_thread thread, void *code) {
 #endif
 }
 
-int cthreads_thread_equal(struct cthreads_thread thread1, struct cthreads_thread thread2) {
+int thd_thread_equal(struct thd_thread thread1, struct thd_thread thread2) {
 #if defined(_WIN32) || defined(_WIN64)
   return thread1.wThread == thread2.wThread;
 #else
@@ -91,8 +91,8 @@ int cthreads_thread_equal(struct cthreads_thread thread1, struct cthreads_thread
 #endif
 }
 
-struct cthreads_thread cthreads_thread_self(void) {
-  struct cthreads_thread t;
+struct thd_thread thd_thread_self(void) {
+  struct thd_thread t;
 #if defined(_WIN32) || defined(_WIN64)
   t.wThread = GetCurrentThread();
 #else
@@ -101,7 +101,7 @@ struct cthreads_thread cthreads_thread_self(void) {
   return t;
 }
 
-unsigned long cthreads_thread_id(struct cthreads_thread thread) {
+unsigned long thd_thread_id(struct thd_thread thread) {
 #if defined(_WIN32) || defined(_WIN64)
   return GetThreadId(thread.wThread);
 #else
@@ -109,7 +109,7 @@ unsigned long cthreads_thread_id(struct cthreads_thread thread) {
 #endif
 }
 
-void cthreads_thread_exit(void *code) {
+void thd_thread_exit(void *code) {
 #if defined(_WIN32) || defined(_WIN64)
 #if defined  __WATCOMC__ || _MSC_VER || __DMC__
   ExitThread((DWORD)code);
@@ -121,7 +121,7 @@ void cthreads_thread_exit(void *code) {
 #endif
 }
 
-int cthreads_thread_cancel(struct cthreads_thread thread) {
+int thd_thread_cancel(struct thd_thread thread) {
 #if defined(_WIN32) || defined(_WIN64)
   return TerminateThread(thread.wThread, 0);
 #else
@@ -129,10 +129,10 @@ int cthreads_thread_cancel(struct cthreads_thread thread) {
 #endif
 }
 
-#ifdef CTHREADS_MUTEX_ATTR
-int cthreads_mutex_init(struct cthreads_mutex *mutex, struct cthreads_mutex_attr *attr) {
+#ifdef THD_MUTEX_ATTR
+int thd_mutex_init(struct thd_mutex *mutex, struct thd_mutex_attr *attr) {
 #else
-int cthreads_mutex_init(struct cthreads_mutex *mutex, void *attr) {
+int thd_mutex_init(struct thd_mutex *mutex, void *attr) {
 #endif
 #if defined(_WIN32) || defined(_WIN64)
   (void) attr;
@@ -147,22 +147,22 @@ int cthreads_mutex_init(struct cthreads_mutex *mutex, void *attr) {
     if (attr->pshared) {
       pthread_mutexattr_setpshared(&pAttr, attr->pshared);
     }
-#ifdef CTHREADS_MUTEX_TYPE
+#ifdef THD_MUTEX_TYPE
     if (attr->type) {
       pthread_mutexattr_settype(&pAttr, attr->type);
     }
 #endif
-#ifdef CTHREADS_MUTEX_ROBUST
+#ifdef THD_MUTEX_ROBUST
     if (attr->robust) {
       pthread_mutexattr_setrobust(&pAttr, attr->robust);
     }
 #endif
-#ifdef CTHREADS_MUTEX_PROTOCOL
+#ifdef THD_MUTEX_PROTOCOL
     if (attr->protocol) {
       pthread_mutexattr_setprotocol(&pAttr, attr->protocol);
     }
 #endif
-#ifdef CTHREADS_MUTEX_PRIOCEILING
+#ifdef THD_MUTEX_PRIOCEILING
     if (attr->prioceiling) {
       pthread_mutexattr_setprioceiling(&pAttr, attr->prioceiling);
     }
@@ -172,7 +172,7 @@ int cthreads_mutex_init(struct cthreads_mutex *mutex, void *attr) {
 #endif
 }
 
-int cthreads_mutex_lock(struct cthreads_mutex *mutex) {
+int thd_mutex_lock(struct thd_mutex *mutex) {
 #if defined(_WIN32) || defined(_WIN64)
   EnterCriticalSection(&mutex->wMutex);
   return 0;
@@ -181,7 +181,7 @@ int cthreads_mutex_lock(struct cthreads_mutex *mutex) {
 #endif
 }
 
-int cthreads_mutex_trylock(struct cthreads_mutex *mutex) {
+int thd_mutex_trylock(struct thd_mutex *mutex) {
 #if defined(_WIN32) || defined(_WIN64)
   TryEnterCriticalSection(&mutex->wMutex);
   return 0;
@@ -190,7 +190,7 @@ int cthreads_mutex_trylock(struct cthreads_mutex *mutex) {
 #endif
 }
 
-int cthreads_mutex_unlock(struct cthreads_mutex *mutex) {
+int thd_mutex_unlock(struct thd_mutex *mutex) {
 #if defined(_WIN32) || defined(_WIN64)
   LeaveCriticalSection(&mutex->wMutex);
   return 0;
@@ -199,7 +199,7 @@ int cthreads_mutex_unlock(struct cthreads_mutex *mutex) {
 #endif
 }
 
-int cthreads_mutex_destroy(struct cthreads_mutex *mutex) {
+int thd_mutex_destroy(struct thd_mutex *mutex) {
 #if defined(_WIN32) || defined(_WIN64)
   DeleteCriticalSection(&mutex->wMutex);
   return 0;
@@ -208,10 +208,10 @@ int cthreads_mutex_destroy(struct cthreads_mutex *mutex) {
 #endif
 }
 
-#ifdef CTHREADS_COND_ATTR
-int cthreads_cond_init(struct cthreads_cond *cond, struct cthreads_cond_attr *attr) {
+#ifdef THD_COND_ATTR
+int thd_cond_init(struct thd_cond *cond, struct thd_cond_attr *attr) {
 #else
-int cthreads_cond_init(struct cthreads_cond *cond, void *attr) {
+int thd_cond_init(struct thd_cond *cond, void *attr) {
 #endif
 #if defined(_WIN32) || defined(_WIN64)
   (void) attr;
@@ -226,7 +226,7 @@ int cthreads_cond_init(struct cthreads_cond *cond, void *attr) {
     if (attr->pshared) {
       pthread_condattr_setpshared(&pAttr, attr->pshared);
     }
-#ifdef CTHREADS_COND_CLOCK
+#ifdef THD_COND_CLOCK
     if (attr->clock) {
       pthread_condattr_setclock(&pAttr, attr->clock);
     }
@@ -236,7 +236,7 @@ int cthreads_cond_init(struct cthreads_cond *cond, void *attr) {
 #endif
 }
 
-int cthreads_cond_signal(struct cthreads_cond *cond) {
+int thd_cond_signal(struct thd_cond *cond) {
 #if defined(_WIN32) || defined(_WIN64)
   WakeConditionVariable(&cond->wCond);
   return 0;
@@ -245,7 +245,7 @@ int cthreads_cond_signal(struct cthreads_cond *cond) {
 #endif
 }
 
-int cthreads_cond_broadcast(struct cthreads_cond *cond) {
+int thd_cond_broadcast(struct thd_cond *cond) {
 #if defined(_WIN32) || defined(_WIN64)
   WakeAllConditionVariable(&cond->wCond);
   return 0;
@@ -254,7 +254,7 @@ int cthreads_cond_broadcast(struct cthreads_cond *cond) {
 #endif
 }
 
-int cthreads_cond_destroy(struct cthreads_cond *cond) {
+int thd_cond_destroy(struct thd_cond *cond) {
 #if defined(_WIN32) || defined(_WIN64)
   return 0;
 #else
@@ -262,7 +262,7 @@ int cthreads_cond_destroy(struct cthreads_cond *cond) {
 #endif
 }
 
-int cthreads_cond_wait(struct cthreads_cond *cond, struct cthreads_mutex *mutex) {
+int thd_cond_wait(struct thd_cond *cond, struct thd_mutex *mutex) {
 #if defined(_WIN32) || defined(_WIN64)
   return SleepConditionVariableCS(&cond->wCond, &mutex->wMutex, INFINITE) == 0;
 #else
@@ -270,8 +270,8 @@ int cthreads_cond_wait(struct cthreads_cond *cond, struct cthreads_mutex *mutex)
 #endif
 }
 
-#ifdef CTHREADS_RWLOCK
-int cthreads_rwlock_init(struct cthreads_rwlock *rwlock) {
+#ifdef THD_RWLOCK
+int thd_rwlock_init(struct thd_rwlock *rwlock) {
 #if defined(_WIN32) || defined(_WIN64)
   rwlock->wRWLock = malloc(sizeof(SRWLOCK));
   if (!rwlock->wRWLock) {
@@ -284,7 +284,7 @@ int cthreads_rwlock_init(struct cthreads_rwlock *rwlock) {
   #endif
 }
 
-int cthreads_rwlock_rdlock(struct cthreads_rwlock *rwlock) {
+int thd_rwlock_rdlock(struct thd_rwlock *rwlock) {
 #if defined(_WIN32) || defined(_WIN64)
   AcquireSRWLockShared(rwlock->wRWLock);
   rwlock->type = 1;
@@ -294,7 +294,7 @@ int cthreads_rwlock_rdlock(struct cthreads_rwlock *rwlock) {
 #endif
 }
 
-int cthreads_rwlock_unlock(struct cthreads_rwlock *rwlock) {
+int thd_rwlock_unlock(struct thd_rwlock *rwlock) {
 #if defined(_WIN32) || defined(_WIN64)
   switch (rwlock->type) {
     case 1: {
@@ -313,7 +313,7 @@ int cthreads_rwlock_unlock(struct cthreads_rwlock *rwlock) {
 #endif
 }
 
-int cthreads_rwlock_wrlock(struct cthreads_rwlock *rwlock) {
+int thd_rwlock_wrlock(struct thd_rwlock *rwlock) {
 #if defined(_WIN32) || defined(_WIN64)
   AcquireSRWLockExclusive(rwlock->wRWLock);
   rwlock->type = 2;
@@ -323,7 +323,7 @@ int cthreads_rwlock_wrlock(struct cthreads_rwlock *rwlock) {
 #endif
 }
 
-int cthreads_rwlock_destroy(struct cthreads_rwlock *rwlock) {
+int thd_rwlock_destroy(struct thd_rwlock *rwlock) {
 #if defined(_WIN32) || defined(_WIN64)
   free(rwlock->wRWLock);
   rwlock->wRWLock = NULL;
