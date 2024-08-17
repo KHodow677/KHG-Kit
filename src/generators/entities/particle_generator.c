@@ -36,6 +36,6 @@ void free_particle(particle *p) {
   utl_vector_assign(ANIMATOR_INFO, p->entity, &NO_ANIMATOR);
   utl_map_erase(PHYSICS_INFO_MAP, &p->entity);
   utl_map_erase(RENDERER_INFO_MAP, &p->entity);
-  utl_map_erase(FOLLOWER_INFO_MAP, &p->entity);
+  utl_vector_assign(FOLLOWER_INFO, p->entity, &NO_FOLLOWER);
 }
 

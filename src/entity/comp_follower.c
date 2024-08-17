@@ -1,17 +1,17 @@
 #include "entity/comp_follower.h"
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_physics.h"
-#include "data_utl/map_utl.h"
 #include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
-#include "khg_utl/map.h"
+#include "khg_utl/vector.h"
 #include <stdio.h>
 
 ecs_id FOLLOWER_COMPONENT_SIGNATURE;
-utl_map *FOLLOWER_INFO_MAP = NULL;
+follower_info NO_FOLLOWER = { 0 };
+utl_vector *FOLLOWER_INFO = NULL;
 
 void comp_follower_register(comp_follower *cf, ecs_ecs *ecs) {
   cf->id = ecs_register_component(ecs, sizeof(comp_follower), NULL, NULL);
@@ -24,17 +24,20 @@ void sys_follower_register(sys_follower *sf, ecs_ecs *ecs) {
   ecs_require_component(ecs, sf->id, PHYSICS_COMPONENT_SIGNATURE);
   sf->ecs = *ecs;
   sf->current_degree = 1;
-  FOLLOWER_INFO_MAP = utl_map_create(compare_ints, no_deallocator, no_deallocator);
+  FOLLOWER_INFO = utl_vector_create(sizeof(follower_info));
+  for (int i = 0; i < ECS->entity_count; i++) {
+    utl_vector_push_back(FOLLOWER_INFO, &NO_FOLLOWER);
+  }
 }
 
 void sys_follower_add(ecs_ecs *ecs, ecs_id *eid, follower_info *info) {
   ecs_add(ecs, *eid, FOLLOWER_COMPONENT_SIGNATURE, NULL);
-  utl_map_insert(FOLLOWER_INFO_MAP, eid, info);
+  utl_vector_assign(FOLLOWER_INFO, *eid, info);
 }
 
 void sys_follower_free(bool need_free) {
   if (need_free) {
-    utl_map_deallocate(FOLLOWER_INFO_MAP);
+    utl_vector_deallocate(FOLLOWER_INFO);
   }
 }
 
@@ -45,10 +48,10 @@ ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
   if (entity_count == 0) {
     return 0;
   }
-  follower_info *info = utl_map_at(FOLLOWER_INFO_MAP, &entities[0]);
+  follower_info *info;
   int current_degree = FOLLOWER_SYSTEM.current_degree;
   for (int id = 0; id < entity_count; id++) {
-    info = utl_map_at(FOLLOWER_INFO_MAP, &entities[id]);
+    info = utl_vector_at(FOLLOWER_INFO, entities[id]);
     if (info->degree != current_degree) {
       continue;
     }

@@ -26,6 +26,7 @@ void free_tank_body(tank_body *tb) {
   utl_map_erase(PHYSICS_INFO_MAP, &tb->entity);
   utl_map_erase(RENDERER_INFO_MAP, &tb->entity);
   utl_vector_assign(DESTROYER_INFO, tb->entity, &NO_DESTROYER);
+  utl_vector_assign(FOLLOWER_INFO, tb->entity, &NO_FOLLOWER);
   utl_map_erase(MOVER_INFO_MAP, &tb->entity);
 }
 
