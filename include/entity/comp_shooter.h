@@ -1,7 +1,7 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_utl/map.h"
+#include "khg_utl/vector.h"
 
 typedef struct {
   int shoot_cooldown;
@@ -17,12 +17,14 @@ typedef struct {
 } sys_shooter;
 
 extern ecs_id SHOOTER_COMPONENT_SIGNATURE;
-extern utl_map *SHOOTER_INFO_MAP;
+extern shooter_info NO_SHOOTER;
+extern utl_vector *SHOOTER_INFO;
 
 void comp_shooter_register(comp_shooter *cs, ecs_ecs *ecs);
 
 void sys_shooter_register(sys_shooter *ss, ecs_ecs *ecs);
 void sys_shooter_add(ecs_ecs *ecs, ecs_id *eid, shooter_info *info);
 void sys_shooter_free(bool need_free);
+void *update_shooter_entities(void *arg);
 ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

@@ -1,5 +1,6 @@
 #include "entity/comp_follower.h"
 #include "data_utl/kinematic_utl.h"
+#include "data_utl/thread_utl.h"
 #include "entity/comp_physics.h"
 #include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
@@ -41,17 +42,12 @@ void sys_follower_free(bool need_free) {
   }
 }
 
-ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  (void)ecs;
-  (void)dt;
-  (void)udata;
-  if (entity_count == 0) {
-    return 0;
-  }
+void *update_follower_entities(void *arg) {
+  thread_data *data = (thread_data *)arg;
   follower_info *info;
   int current_degree = FOLLOWER_SYSTEM.current_degree;
-  for (int id = 0; id < entity_count; id++) {
-    info = utl_vector_at(FOLLOWER_INFO, entities[id]);
+  for (int id = data->start; id < data->end; id++) {
+    info = utl_vector_at(FOLLOWER_INFO, data->entities[id]);
     if (info->degree != current_degree) {
       continue;
     }
@@ -64,5 +60,11 @@ ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
       phy_body_set_velocity(info->body, target_vel);
     }
   }
+  return NULL;
+}
+
+ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  run_thread_update(entities, entity_count, update_follower_entities);
   return 0;
 }
+

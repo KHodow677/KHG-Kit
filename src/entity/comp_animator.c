@@ -63,9 +63,6 @@ void *update_animator_entities(void *arg) {
 }
 
 ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  (void)ecs;
-  (void)dt;
-  (void)udata;
   run_thread_update(entities, entity_count, update_animator_entities);
   return 0;
 }

@@ -32,6 +32,6 @@ void free_tank_top(tank_top *tt) {
   utl_map_erase(RENDERER_INFO_MAP, &tt->entity);
   utl_vector_assign(DESTROYER_INFO, tt->entity, &NO_DESTROYER);
   utl_map_erase(ROTATOR_INFO_MAP, &tt->entity);
-  utl_map_erase(SHOOTER_INFO_MAP, &tt->entity);
+  utl_vector_assign(SHOOTER_INFO, tt->entity, &NO_SHOOTER);
 }
 
