@@ -4,7 +4,6 @@
 #include "entity/comp_renderer.h"
 #include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_thd/thread.h"
 #include "khg_utl/map.h"
 #include "khg_utl/vector.h"
 #include <stdio.h>

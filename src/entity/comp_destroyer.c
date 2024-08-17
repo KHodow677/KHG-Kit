@@ -3,7 +3,6 @@
 #include "data_utl/thread_utl.h"
 #include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_thd/thread.h"
 #include "khg_utl/vector.h"
 #include <stdio.h>
 #include <stdlib.h>
