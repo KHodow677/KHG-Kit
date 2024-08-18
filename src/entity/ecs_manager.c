@@ -19,6 +19,9 @@ phy_space *SPACE;
 ecs_ecs *ECS;
 utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;
+gfx_texture NO_TEXTURE = { 0 };
+int MAX_TEXTURES = 1024;
+int CURRENT_TEXTURE_ID = 0;
 
 sys_physics PHYSICS_SYSTEM = { 0 };
 sys_renderer RENDERER_SYSTEM = { 0 };
