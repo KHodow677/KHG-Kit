@@ -55,7 +55,7 @@ void *update_shooter_entities(void *arg) {
   rotator_info *r_info;
   for (int id = data->start; id < data->end; id++) {
     info = utl_vector_at(SHOOTER_INFO, data->entities[id]);
-    p_info = utl_map_at(PHYSICS_INFO_MAP, &data->entities[id]);
+    p_info = utl_vector_at(PHYSICS_INFO, data->entities[id]);
     r_info = utl_map_at(ROTATOR_INFO_MAP, &data->entities[id]);
     if (handle_space_button() && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 11;

@@ -6,7 +6,6 @@
 #include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
-#include "khg_utl/map.h"
 #include "khg_utl/vector.h"
 #include <stdio.h>
 
@@ -47,7 +46,7 @@ void *update_mover_entities(void *arg) {
   physics_info *p_info;
   for (int id = data->start; id < data->end; id++) {
     info = utl_vector_at(MOVER_INFO, data->entities[id]);
-    p_info = utl_map_at(PHYSICS_INFO_MAP, &data->entities[id]);
+    p_info = utl_vector_at(PHYSICS_INFO, data->entities[id]);
     if (!cpveql(handle_left_mouse_controls(), cpv(-1.0f, -1.0f))) {
       info->target_move_pos = handle_left_mouse_controls();
     }

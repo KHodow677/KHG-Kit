@@ -1,17 +1,18 @@
 #include "entity/comp_physics.h"
 #include "data_utl/kinematic_utl.h"
-#include "data_utl/map_utl.h"
 #include "data_utl/thread_utl.h"
+#include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/vect.h"
 #include "khg_thd/thread.h"
-#include "khg_utl/map.h"
+#include "khg_utl/vector.h"
 #include <math.h>
 #include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT_SIGNATURE;
-utl_map *PHYSICS_INFO_MAP = NULL;
+physics_info NO_PHYSICS = { 0 };
+utl_vector *PHYSICS_INFO = NULL;
 
 void comp_physics_register(comp_physics *cp, ecs_ecs *ecs) {
   cp->id = ecs_register_component(ecs, sizeof(comp_physics), NULL, NULL);
@@ -22,17 +23,20 @@ void sys_physics_register(sys_physics *sp, ecs_ecs *ecs) {
   sp->id = ecs_register_system(ecs, sys_physics_update, NULL, NULL, NULL);
   ecs_require_component(ecs, sp->id, PHYSICS_COMPONENT_SIGNATURE);
   sp->ecs = *ecs;
-  PHYSICS_INFO_MAP = utl_map_create(compare_ints, no_deallocator, no_deallocator);
+  PHYSICS_INFO = utl_vector_create(sizeof(physics_info));
+  for (int i = 0; i < ECS->entity_count; i++) {
+    utl_vector_push_back(PHYSICS_INFO, &NO_PHYSICS);
+  }
 }
 
 void sys_physics_add(ecs_ecs *ecs, ecs_id *eid, physics_info *info) {
   ecs_add(ecs, *eid, PHYSICS_COMPONENT_SIGNATURE, NULL);
-  utl_map_insert(PHYSICS_INFO_MAP, eid, info);
+  utl_vector_assign(PHYSICS_INFO, *eid, info);
 }
 
 void sys_physics_free(bool need_free) {
   if (need_free) {
-    utl_map_deallocate(PHYSICS_INFO_MAP);
+    utl_vector_deallocate(PHYSICS_INFO);
   }
 }
 
@@ -40,7 +44,7 @@ void *update_physics_entities(void *arg) {
   thread_data *data = (thread_data *)arg;
   physics_info *info;
   for (int id = data->start; id < data->end; id++) {
-    info = utl_map_at(PHYSICS_INFO_MAP, &data->entities[id]);
+    info = utl_vector_at(PHYSICS_INFO, data->entities[id]);
     float current_ang = normalize_angle(phy_body_get_angle(info->body));
     phy_body_set_velocity(info->body, cpv(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
     phy_body_set_angular_velocity(info->body, info->target_ang_vel);

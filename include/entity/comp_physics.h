@@ -2,7 +2,7 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy_types.h"
-#include "khg_utl/map.h"
+#include "khg_utl/vector.h"
 
 typedef struct {
   phy_body *body;
@@ -24,7 +24,8 @@ typedef struct {
 } sys_physics;
 
 extern ecs_id PHYSICS_COMPONENT_SIGNATURE;
-extern utl_map *PHYSICS_INFO_MAP;
+extern physics_info NO_PHYSICS;
+extern utl_vector* PHYSICS_INFO;
 
 void comp_physics_register(comp_physics *cp, ecs_ecs *ecs);
 
