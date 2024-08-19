@@ -28,6 +28,6 @@ void comp_mover_register(comp_mover *cm, ecs_ecs *ecs);
 void sys_mover_register(sys_mover *sm, ecs_ecs *ecs);
 void sys_mover_add(ecs_ecs *ecs, ecs_id *eid, mover_info *info);
 void sys_mover_free(bool need_free);
-void *update_mover_entities(void *arg);
+
 ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

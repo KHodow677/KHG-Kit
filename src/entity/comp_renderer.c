@@ -39,12 +39,6 @@ void sys_renderer_free(bool need_free) {
 }
 
 ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  (void)ecs;
-  (void)dt;
-  (void)udata;
-  if (entity_count == 0) {
-    return 0;
-  }
   renderer_info *info = utl_map_at(RENDERER_INFO_MAP, &entities[0]);
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(RENDERER_INFO_MAP, &entities[id]);

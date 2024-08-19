@@ -27,5 +27,6 @@ void comp_rotator_register(comp_rotator *cr, ecs_ecs *ecs);
 void sys_rotator_register(sys_rotator *sr, ecs_ecs *ecs);
 void sys_rotator_add(ecs_ecs *ecs, ecs_id *eid, rotator_info *info);
 void sys_rotator_free(bool need_free);
+
 ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

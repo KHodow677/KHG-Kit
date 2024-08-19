@@ -1,7 +1,6 @@
 #include "entity/comp_mover.h"
 #include "controllers/input/mouse_controller.h"
 #include "controllers/elements/element_controller.h"
-#include "data_utl/thread_utl.h"
 #include "entity/comp_physics.h"
 #include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
@@ -40,23 +39,16 @@ void sys_mover_free(bool need_free) {
   }
 }
 
-void *update_mover_entities(void *arg) {
-  thread_data *data = (thread_data *)arg;
+ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   mover_info *info;
   physics_info *p_info;
-  for (int id = data->start; id < data->end; id++) {
-    info = utl_vector_at(MOVER_INFO, data->entities[id]);
-    p_info = utl_vector_at(PHYSICS_INFO, data->entities[id]);
+  for (int id = 0; id < entity_count; id++) {
+    info = utl_vector_at(MOVER_INFO, entities[id]);
+    p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
     if (!cpveql(handle_left_mouse_controls(), cpv(-1.0f, -1.0f))) {
       info->target_move_pos = handle_left_mouse_controls();
     }
     element_target_position(p_info, info->target_move_pos, 300.0f, 16.0f);
   }
-  return NULL;
-}
-
-ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  run_thread_update(entities, entity_count, update_mover_entities);
   return 0;
 }
-

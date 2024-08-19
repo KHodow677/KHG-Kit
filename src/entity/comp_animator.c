@@ -1,5 +1,4 @@
 #include "entity/comp_animator.h"
-#include "data_utl/thread_utl.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_renderer.h"
 #include "entity/ecs_manager.h"
@@ -42,15 +41,14 @@ void sys_animator_free(bool need_free) {
   }
 }
 
-void *update_animator_entities(void *arg) {
-  thread_data *data = (thread_data *)arg;
+ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   animator_info *info;
   renderer_info *r_info;
   destroyer_info *d_info;
-  for (int id = data->start; id < data->end; id++) {
-    info = utl_vector_at(ANIMATOR_INFO, data->entities[id]);
-    r_info = utl_map_at(RENDERER_INFO_MAP, &data->entities[id]);
-    d_info = utl_vector_at(DESTROYER_INFO, data->entities[id]);
+  for (int id = 0; id < entity_count; id++) {
+    info = utl_vector_at(ANIMATOR_INFO, entities[id]);
+    r_info = utl_map_at(RENDERER_INFO_MAP, &entities[id]);
+    d_info = utl_vector_at(DESTROYER_INFO, entities[id]);
     if (info->destroy_on_max && r_info->tex_id == info->max_tex_id) {
       d_info->destroy_now = true;
     }
@@ -59,11 +57,5 @@ void *update_animator_entities(void *arg) {
       info->frame_timer = info->frame_duration;
     }
   }
-  return NULL;
-}
-
-ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  run_thread_update(entities, entity_count, update_animator_entities);
   return 0;
 }
-

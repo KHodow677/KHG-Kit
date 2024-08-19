@@ -32,6 +32,5 @@ void sys_follower_register(sys_follower *sf, ecs_ecs *ecs);
 void sys_follower_add(ecs_ecs *ecs, ecs_id *eid, follower_info *info);
 void sys_follower_free(bool need_free);
 
-void *update_follower_entities(void *arg);
 ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

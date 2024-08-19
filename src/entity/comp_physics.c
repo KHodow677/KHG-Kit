@@ -1,11 +1,9 @@
 #include "entity/comp_physics.h"
 #include "data_utl/kinematic_utl.h"
-#include "data_utl/thread_utl.h"
 #include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/vect.h"
-#include "khg_thd/thread.h"
 #include "khg_utl/vector.h"
 #include <math.h>
 #include <stdio.h>
@@ -40,39 +38,13 @@ void sys_physics_free(bool need_free) {
   }
 }
 
-void *update_physics_entities(void *arg) {
-  thread_data *data = (thread_data *)arg;
+ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   physics_info *info;
-  for (int id = data->start; id < data->end; id++) {
-    info = utl_vector_at(PHYSICS_INFO, data->entities[id]);
+  for (int id = 0; id < entity_count; id++) {
+    info = utl_vector_at(PHYSICS_INFO, entities[id]);
     float current_ang = normalize_angle(phy_body_get_angle(info->body));
     phy_body_set_velocity(info->body, cpv(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
     phy_body_set_angular_velocity(info->body, info->target_ang_vel);
   }
-  return NULL;
-}
-
-ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  (void)ecs;
-  (void)dt;
-  (void)udata;
-  if (entity_count == 0) {
-    return 0;
-  }
-  const int thread_count = THREAD_COUNT;
-  struct thd_thread threads[thread_count];
-  thread_data t_data[thread_count];
-  int chunk_size = entity_count / thread_count;
-  for (int i = 0; i < thread_count; i++) {
-    t_data[i].entities = entities;
-    t_data[i].start = i * chunk_size;
-    t_data[i].end = (i == thread_count - 1) ? entity_count : t_data[i].start + chunk_size;
-    thd_thread_create(&threads[i], NULL, update_physics_entities, &t_data[i], NULL);
-  }
-
-  for (int i = 0; i < thread_count; i++) {
-    thd_thread_join(threads[i], NULL);
-  }
   return 0;
 }
-

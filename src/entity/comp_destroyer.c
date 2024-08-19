@@ -1,6 +1,5 @@
 #include "entity/comp_destroyer.h"
 #include "controllers/elements/element_destruction_controller.h"
-#include "data_utl/thread_utl.h"
 #include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/vector.h"
@@ -37,20 +36,14 @@ void sys_destroyer_free(bool need_free) {
   }
 }
 
-void *update_destroyer_entities(void *arg) {
-  thread_data *data = (thread_data *)arg;
+ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   destroyer_info *info;
-  for (int id = data->start; id < data->end; id++) {
-    info = utl_vector_at(DESTROYER_INFO, data->entities[id]);
+  for (int id = 0; id < entity_count; id++) {
+    info = utl_vector_at(DESTROYER_INFO, entities[id]);
     if (info->destroy_now) {
-      element_destroy(data->entities[id]);
+      element_destroy(entities[id]);
     }
   }
-  return NULL;
-}
-
-ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  run_thread_update(entities, entity_count, update_destroyer_entities);
   return 0;
 }
 
