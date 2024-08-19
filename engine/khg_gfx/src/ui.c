@@ -52,6 +52,8 @@ int gfx_loop_manager(GLFWwindow *window) {
   const double frame_duration = 1.0 / target_fps;
   double last_time = glfwGetTime();
   double elapsed_time;
+  int frame_count = 0;
+  double start_time = last_time;
   while (!glfwWindowShouldClose(window)) {
     double current_time = glfwGetTime();
     elapsed_time = current_time - last_time;
@@ -60,11 +62,20 @@ int gfx_loop_manager(GLFWwindow *window) {
       gfx_loop();
       gfx_end();
       glfwSwapBuffers(window);
+
       double frame_end_time = glfwGetTime();
       double frame_render_duration = frame_end_time - current_time;
       if (frame_render_duration < frame_duration) {
         double sleep_duration = frame_duration - frame_render_duration;
         glfwWaitEventsTimeout(sleep_duration);
+      }
+      frame_count++;
+      double elapsed_since_start = current_time - start_time;
+      if (elapsed_since_start >= 1.0) { // Log every second
+        double fps = frame_count / elapsed_since_start;
+        printf("Current FPS: %.2f\n", fps);
+        frame_count = 0;
+        start_time = current_time;
       }
     }
     glfwPollEvents();
@@ -78,4 +89,3 @@ int gfx_loop_manager(GLFWwindow *window) {
 void gfx_terminate() {
   gfx_free_font(&state.theme.font);
 }
-

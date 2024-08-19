@@ -17,5 +17,4 @@ typedef struct {
 } thread_data;
 
 void set_optimal_thread_count(void);
-ecs_ret run_thread_update(ecs_id *entities, int entity_count, void *(*func_ptr)(void *));
 
