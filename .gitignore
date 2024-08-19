@@ -1,9 +1,9 @@
 # Editors
 .vscode
+.idea
 
 # Build
 build
-.idea
 
 # Documentation
 html
