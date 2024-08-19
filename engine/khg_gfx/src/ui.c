@@ -48,34 +48,27 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
 }
 
 int gfx_loop_manager(GLFWwindow *window) {
-  const double target_fps = 60.0;
-  const double frame_duration = 1.0 / target_fps;
   double last_time = glfwGetTime();
-  double elapsed_time;
+  double frame_duration = 1.0 / 60.0; // Target frame duration for 60 FPS
   int frame_count = 0;
-  double start_time = last_time;
+  double fps_start_time = last_time;
   while (!glfwWindowShouldClose(window)) {
     double current_time = glfwGetTime();
-    elapsed_time = current_time - last_time;
+    double elapsed_time = current_time - last_time;
     if (elapsed_time >= frame_duration) {
       last_time = current_time;
       gfx_loop();
       gfx_end();
       glfwSwapBuffers(window);
-
-      double frame_end_time = glfwGetTime();
-      double frame_render_duration = frame_end_time - current_time;
-      if (frame_render_duration < frame_duration) {
-        double sleep_duration = frame_duration - frame_render_duration;
-        glfwWaitEventsTimeout(sleep_duration);
-      }
       frame_count++;
-      double elapsed_since_start = current_time - start_time;
-      if (elapsed_since_start >= 1.0) { // Log every second
-        double fps = frame_count / elapsed_since_start;
-        printf("Current FPS: %.2f\n", fps);
+      double fps_elapsed_time = current_time - fps_start_time;
+      if (fps_elapsed_time >= 1.0) {
+        double fps = frame_count / fps_elapsed_time;
+        char title[256];
+        snprintf(title, sizeof(title), "FPS: %.2f", fps);
+        glfwSetWindowTitle(window, title);
         frame_count = 0;
-        start_time = current_time;
+        fps_start_time = current_time;
       }
     }
     glfwPollEvents();
