@@ -1,2 +1,1 @@
-
 int thd_test();

@@ -90,42 +90,32 @@ int thd_test() {
   //! Note that the data is free to be filled
   data.occupied = 0;
   printf("test thread... ");
-  
   //! Initializes the mutex of the data structure
   thd_mutex_init(&data.mutex);
   //! Initializes the conditions of the data structure
   thd_condition_init(&data.condread);
   thd_condition_init(&data.condwrite);
-  
-  for(j = 0; j < NLOOPS; j++)
-  {
-      //! Fill the data's buffer with 0
-      for(i = 0; i < BUFSIZE; i++)
-      {
-          data.buffer[i] = 0;
-      }
-      
-      //! Detaches all the threads
-      for(i = 0; i < NCONSUMER; i++)
-      {
-          thd_thread_detach(consumers+i, (thd_thread_method)func_consumer, &data);
-      }
-      thd_thread_detach(&producer, (thd_thread_method)func_producer, &data);
-      
-      //! Joins all the threads
-      thd_thread_join(&producer);
-      for(i = 0; i < NCONSUMER; i++)
-      {
-          thd_thread_join(consumers+i);
-      }        
+  for(j = 0; j < NLOOPS; j++) {
+    //! Fill the data's buffer with 0
+    for(i = 0; i < BUFSIZE; i++) {
+      data.buffer[i] = 0;
+    }
+    //! Detaches all the threads
+    for(i = 0; i < NCONSUMER; i++) {
+      thd_thread_detach(consumers+i, (thd_thread_method)func_consumer, &data);
+    }
+    thd_thread_detach(&producer, (thd_thread_method)func_producer, &data);
+    //! Joins all the threads
+    thd_thread_join(&producer);
+    for(i = 0; i < NCONSUMER; i++) {
+      thd_thread_join(consumers+i);
+    }        
   }
-  
   //! Destroy the conditions of the data structure
   thd_condition_destroy(&data.condread);
   thd_condition_destroy(&data.condwrite);
   //! Destroy the mutex of the data structure
   thd_mutex_destroy(&data.mutex);
-  
   printf("ok\n");
   return 0;
 }
