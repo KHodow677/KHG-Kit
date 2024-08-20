@@ -22,10 +22,10 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpPivotJoint *joint, float dt)
+preStep(phy_pivot_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	joint->r1 = cpTransformVect(a->transform, cpvsub(joint->anchorA, a->cog));
 	joint->r2 = cpTransformVect(b->transform, cpvsub(joint->anchorB, b->cog));
@@ -34,34 +34,34 @@ preStep(cpPivotJoint *joint, float dt)
 	joint-> k = k_tensor(a, b, joint->r1, joint->r2);
 	
 	// calculate bias velocity
-	cpVect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
+	phy_vect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
 	joint->bias = cpvclamp(cpvmult(delta, -bias_coef(joint->constraint.errorBias, dt)/dt), joint->constraint.maxBias);
 }
 
 static void
-applyCachedImpulse(cpPivotJoint *joint, float dt_coef)
+applyCachedImpulse(phy_pivot_joint *joint, float dt_coef)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	apply_impulses(a, b, joint->r1, joint->r2, cpvmult(joint->jAcc, dt_coef));
 }
 
 static void
-applyImpulse(cpPivotJoint *joint, float dt)
+applyImpulse(phy_pivot_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
-	cpVect r1 = joint->r1;
-	cpVect r2 = joint->r2;
+	phy_vect r1 = joint->r1;
+	phy_vect r2 = joint->r2;
 		
 	// compute relative velocity
-	cpVect vr = relative_velocity(a, b, r1, r2);
+	phy_vect vr = relative_velocity(a, b, r1, r2);
 	
 	// compute normal impulse
-	cpVect j = cpMat2x2Transform(joint->k, cpvsub(joint->bias, vr));
-	cpVect jOld = joint->jAcc;
+	phy_vect j = cpMat2x2Transform(joint->k, cpvsub(joint->bias, vr));
+	phy_vect jOld = joint->jAcc;
 	joint->jAcc = cpvclamp(cpvadd(joint->jAcc, j), joint->constraint.maxForce*dt);
 	j = cpvsub(joint->jAcc, jOld);
 	
@@ -70,9 +70,9 @@ applyImpulse(cpPivotJoint *joint, float dt)
 }
 
 static float
-getImpulse(cpConstraint *joint)
+getImpulse(phy_constraint *joint)
 {
-	return cpvlength(((cpPivotJoint *)joint)->jAcc);
+	return cpvlength(((phy_pivot_joint *)joint)->jAcc);
 }
 
 static const cpConstraintClass klass = {
@@ -82,16 +82,16 @@ static const cpConstraintClass klass = {
 	(cpConstraintGetImpulseImpl)getImpulse,
 };
 
-cpPivotJoint *
+phy_pivot_joint *
 cpPivotJointAlloc(void)
 {
-	return (cpPivotJoint *)cpcalloc(1, sizeof(cpPivotJoint));
+	return (phy_pivot_joint *)calloc(1, sizeof(phy_pivot_joint));
 }
 
-cpPivotJoint *
-cpPivotJointInit(cpPivotJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB)
+phy_pivot_joint *
+cpPivotJointInit(phy_pivot_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB)
 {
-	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
+	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
 	joint->anchorA = anchorA;
 	joint->anchorB = anchorB;
@@ -101,52 +101,52 @@ cpPivotJointInit(cpPivotJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVe
 	return joint;
 }
 
-cpConstraint *
-cpPivotJointNew2(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB)
+phy_constraint *
+cpPivotJointNew2(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB)
 {
-	return (cpConstraint *)cpPivotJointInit(cpPivotJointAlloc(), a, b, anchorA, anchorB);
+	return (phy_constraint *)cpPivotJointInit(cpPivotJointAlloc(), a, b, anchorA, anchorB);
 }
 
-cpConstraint *
-cpPivotJointNew(cpBody *a, cpBody *b, cpVect pivot)
+phy_constraint *
+cpPivotJointNew(phy_body *a, phy_body *b, phy_vect pivot)
 {
-	cpVect anchorA = (a ? cpBodyWorldToLocal(a, pivot) : pivot);
-	cpVect anchorB = (b ? cpBodyWorldToLocal(b, pivot) : pivot);
+	phy_vect anchorA = (a ? cpBodyWorldToLocal(a, pivot) : pivot);
+	phy_vect anchorB = (b ? cpBodyWorldToLocal(b, pivot) : pivot);
 	return cpPivotJointNew2(a, b, anchorA, anchorB);
 }
 
 bool
-cpConstraintIsPivotJoint(const cpConstraint *constraint)
+cpConstraintIsPivotJoint(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
-cpVect
-cpPivotJointGetAnchorA(const cpConstraint *constraint)
+phy_vect
+cpPivotJointGetAnchorA(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsPivotJoint(constraint), "Constraint is not a pivot joint.");
-	return ((cpPivotJoint *)constraint)->anchorA;
+	return ((phy_pivot_joint *)constraint)->anchorA;
 }
 
 void
-cpPivotJointSetAnchorA(cpConstraint *constraint, cpVect anchorA)
+cpPivotJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
 {
 	cpAssertHard(cpConstraintIsPivotJoint(constraint), "Constraint is not a pivot joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpPivotJoint *)constraint)->anchorA = anchorA;
+	((phy_pivot_joint *)constraint)->anchorA = anchorA;
 }
 
-cpVect
-cpPivotJointGetAnchorB(const cpConstraint *constraint)
+phy_vect
+cpPivotJointGetAnchorB(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsPivotJoint(constraint), "Constraint is not a pivot joint.");
-	return ((cpPivotJoint *)constraint)->anchorB;
+	return ((phy_pivot_joint *)constraint)->anchorB;
 }
 
 void
-cpPivotJointSetAnchorB(cpConstraint *constraint, cpVect anchorB)
+cpPivotJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
 {
 	cpAssertHard(cpConstraintIsPivotJoint(constraint), "Constraint is not a pivot joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpPivotJoint *)constraint)->anchorB = anchorB;
+	((phy_pivot_joint *)constraint)->anchorB = anchorB;
 }

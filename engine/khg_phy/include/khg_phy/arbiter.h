@@ -5,57 +5,58 @@
 
 #define PHY_MAX_CONTACTS_PER_ARBITER 2
 
-extern float phy_arbiter_get_restitution(const cpArbiter *arb);
-extern void phy_arbiter_set_restitution(cpArbiter *arb, float restitution);
+extern float phy_arbiter_get_restitution(const phy_arbiter *arb);
+extern void phy_arbiter_set_restitution(phy_arbiter *arb, float restitution);
 
-extern float phy_arbiter_get_friction(const cpArbiter *arb);
-extern void phy_arbiter_set_friction(cpArbiter *arb, float friction);
+extern float phy_arbiter_get_friction(const phy_arbiter *arb);
+extern void phy_arbiter_set_friction(phy_arbiter *arb, float friction);
 
-extern cpVect phy_arbiter_get_surface_velocity(cpArbiter *arb);
-extern void phy_arbiter_set_surface_velocity(cpArbiter *arb, cpVect vr);
+extern phy_vect phy_arbiter_get_surface_velocity(phy_arbiter *arb);
+extern void phy_arbiter_set_surface_velocity(phy_arbiter *arb, phy_vect vr);
 
-extern cpDataPointer phy_arbiter_get_user_data(const cpArbiter *arb);
-extern void phy_arbiter_set_user_data(cpArbiter *arb, cpDataPointer userData);
+extern phy_data_pointer phy_arbiter_get_user_data(const phy_arbiter *arb);
+extern void phy_arbiter_set_user_data(phy_arbiter *arb, phy_data_pointer userData);
 
-extern cpVect phy_arbiter_total_impulse(const cpArbiter *arb);
-extern float phy_arbiter_total_ke(const cpArbiter *arb);
+extern phy_vect phy_arbiter_total_impulse(const phy_arbiter *arb);
+extern float phy_arbiter_total_ke(const phy_arbiter *arb);
 
-extern bool phy_arbiter_ignore(cpArbiter *arb);
+extern bool phy_arbiter_ignore(phy_arbiter *arb);
 
-extern void phy_arbiter_get_shapes(const cpArbiter *arb, cpShape **a, cpShape **b);
-#define PHY_ARBITER_GET_SHAPES(__arb__, __a__, __b__) cpShape *__a__, *__b__; phy_arbiter_get_shapes(__arb__, &__a__, &__b__);
-extern void phy_arbiter_get_bodies(const cpArbiter *arb, cpBody **a, cpBody **b);
-#define PHY_ARBITER_GET_BODIES(__arb__, __a__, __b__) cpBody *__a__, *__b__; phy_arbiter_get_bodies(__arb__, &__a__, &__b__);
+extern void phy_arbiter_get_shapes(const phy_arbiter *arb, phy_shape **a, phy_shape **b);
+#define PHY_ARBITER_GET_SHAPES(__arb__, __a__, __b__) phy_shape *__a__, *__b__; phy_arbiter_get_shapes(__arb__, &__a__, &__b__);
+extern void phy_arbiter_get_bodies(const phy_arbiter *arb, phy_body **a, phy_body **b);
+#define PHY_ARBITER_GET_BODIES(__arb__, __a__, __b__) phy_body *__a__, *__b__; phy_arbiter_get_bodies(__arb__, &__a__, &__b__);
 
 struct phy_contact_point_set {
 	int count;
-	cpVect normal;
+	phy_vect normal;
 	struct {
-		cpVect pointA, pointB;
+		phy_vect pointA, pointB;
 		float distance;
 	} points[PHY_MAX_CONTACTS_PER_ARBITER];
 };
 
-extern phy_contact_point_set cpArbiterGetContactPointSet(const cpArbiter *arb);
-extern void cpArbiterSetContactPointSet(cpArbiter *arb, phy_contact_point_set *set);
+extern phy_contact_point_set phy_arbiter_get_contact_point_set(const phy_arbiter *arb);
+extern void phy_arbiter_set_contact_point_set(phy_arbiter *arb, phy_contact_point_set *set);
 
-extern bool cpArbiterIsFirstContact(const cpArbiter *arb);
-extern bool cpArbiterIsRemoval(const cpArbiter *arb);
+extern bool phy_arbiter_is_first_contact(const phy_arbiter *arb);
+extern bool phy_arbiter_is_removal(const phy_arbiter *arb);
 
-extern int cpArbiterGetCount(const cpArbiter *arb);
-extern cpVect cpArbiterGetNormal(const cpArbiter *arb);
-extern cpVect cpArbiterGetPointA(const cpArbiter *arb, int i);
-extern cpVect cpArbiterGetPointB(const cpArbiter *arb, int i);
-extern float cpArbiterGetDepth(const cpArbiter *arb, int i);
+extern int phy_arbiter_get_count(const phy_arbiter *arb);
+extern phy_vect phy_arbiter_get_normal(const phy_arbiter *arb);
+extern phy_vect phy_arbiter_get_point_A(const phy_arbiter *arb, int i);
+extern phy_vect phy_arbiter_get_point_B(const phy_arbiter *arb, int i);
+extern float phy_arbiter_get_depth(const phy_arbiter *arb, int i);
 
-extern bool cpArbiterCallWildcardBeginA(cpArbiter *arb, cpSpace *space);
-extern bool cpArbiterCallWildcardBeginB(cpArbiter *arb, cpSpace *space);
+extern bool phy_arbiter_call_wildcard_begin_A(phy_arbiter *arb, phy_space *space);
+extern bool phy_arbiter_call_wildcard_begin_B(phy_arbiter *arb, phy_space *space);
 
-extern bool cpArbiterCallWildcardPreSolveA(cpArbiter *arb, cpSpace *space);
-extern bool cpArbiterCallWildcardPreSolveB(cpArbiter *arb, cpSpace *space);
+extern bool phy_arbiter_call_wildcard_pre_solve_A(phy_arbiter *arb, phy_space *space);
+extern bool phy_arbiter_call_wildcard_pre_solve_B(phy_arbiter *arb, phy_space *space);
 
-extern void cpArbiterCallWildcardPostSolveA(cpArbiter *arb, cpSpace *space);
-extern void cpArbiterCallWildcardPostSolveB(cpArbiter *arb, cpSpace *space);
+extern void phy_arbiter_call_wildcard_post_solve_A(phy_arbiter *arb, phy_space *space);
+extern void phy_arbiter_call_wildcard_post_solve_B(phy_arbiter *arb, phy_space *space);
 
-extern void cpArbiterCallWildcardSeparateA(cpArbiter *arb, cpSpace *space);
-extern void cpArbiterCallWildcardSeparateB(cpArbiter *arb, cpSpace *space);
+extern void phy_arbiter_call_wildcard_separate_A(phy_arbiter *arb, phy_space *space);
+extern void phy_arbiter_call_wildcard_separate_B(phy_arbiter *arb, phy_space *space);
+

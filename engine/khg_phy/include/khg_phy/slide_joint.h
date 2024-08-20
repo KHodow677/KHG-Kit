@@ -3,31 +3,31 @@
 #include "khg_phy/phy_types.h"
 
 /// Check if a constraint is a slide joint.
-CP_EXPORT bool cpConstraintIsSlideJoint(const cpConstraint *constraint);
+bool cpConstraintIsSlideJoint(const phy_constraint *constraint);
 
 /// Allocate a slide joint.
-CP_EXPORT cpSlideJoint* cpSlideJointAlloc(void);
+phy_slide_joint* cpSlideJointAlloc(void);
 /// Initialize a slide joint.
-CP_EXPORT cpSlideJoint* cpSlideJointInit(cpSlideJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, float min, float max);
+phy_slide_joint* cpSlideJointInit(phy_slide_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float min, float max);
 /// Allocate and initialize a slide joint.
-CP_EXPORT cpConstraint* cpSlideJointNew(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB, float min, float max);
+phy_constraint* cpSlideJointNew(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float min, float max);
 
 /// Get the location of the first anchor relative to the first body.
-CP_EXPORT cpVect cpSlideJointGetAnchorA(const cpConstraint *constraint);
+phy_vect cpSlideJointGetAnchorA(const phy_constraint *constraint);
 /// Set the location of the first anchor relative to the first body.
-CP_EXPORT void cpSlideJointSetAnchorA(cpConstraint *constraint, cpVect anchorA);
+void cpSlideJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA);
 
 /// Get the location of the second anchor relative to the second body.
-CP_EXPORT cpVect cpSlideJointGetAnchorB(const cpConstraint *constraint);
+phy_vect cpSlideJointGetAnchorB(const phy_constraint *constraint);
 /// Set the location of the second anchor relative to the second body.
-CP_EXPORT void cpSlideJointSetAnchorB(cpConstraint *constraint, cpVect anchorB);
+void cpSlideJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB);
 
 /// Get the minimum distance the joint will maintain between the two anchors.
-CP_EXPORT float cpSlideJointGetMin(const cpConstraint *constraint);
+float cpSlideJointGetMin(const phy_constraint *constraint);
 /// Set the minimum distance the joint will maintain between the two anchors.
-CP_EXPORT void cpSlideJointSetMin(cpConstraint *constraint, float min);
+void cpSlideJointSetMin(phy_constraint *constraint, float min);
 
 /// Get the maximum distance the joint will maintain between the two anchors.
-CP_EXPORT float cpSlideJointGetMax(const cpConstraint *constraint);
+float cpSlideJointGetMax(const phy_constraint *constraint);
 /// Set the maximum distance the joint will maintain between the two anchors.
-CP_EXPORT void cpSlideJointSetMax(cpConstraint *constraint, float max);
+void cpSlideJointSetMax(phy_constraint *constraint, float max);

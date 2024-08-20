@@ -2,13 +2,13 @@
 #include "khg_phy/phy_types.h"
 #include "khg_phy/space.h"
 
-cpSpace *physics_setup(cpVect grav) {
-  cpSpace *sp = cpSpaceNew();
+phy_space *physics_setup(phy_vect grav) {
+  phy_space *sp = cpSpaceNew();
   cpSpaceSetGravity(sp, grav);
   return sp;
 }
 
-void physics_free(cpSpace *sp) {
+void physics_free(phy_space *sp) {
   cpSpaceFree(sp);
 }
 

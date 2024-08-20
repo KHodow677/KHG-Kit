@@ -24,35 +24,35 @@
 #include "khg_phy/phy_private.h"
 
 
-cpArray *
+phy_array *
 cpArrayNew(int size)
 {
-	cpArray *arr = (cpArray *)cpcalloc(1, sizeof(cpArray));
+	phy_array *arr = (phy_array *)calloc(1, sizeof(phy_array));
 	
 	arr->num = 0;
 	arr->max = (size ? size : 4);
-	arr->arr = (void **)cpcalloc(arr->max, sizeof(void*));
+	arr->arr = (void **)calloc(arr->max, sizeof(void*));
 	
 	return arr;
 }
 
 void
-cpArrayFree(cpArray *arr)
+cpArrayFree(phy_array *arr)
 {
 	if(arr){
-		cpfree(arr->arr);
+		free(arr->arr);
 		arr->arr = NULL;
 		
-		cpfree(arr);
+		free(arr);
 	}
 }
 
 void
-cpArrayPush(cpArray *arr, void *object)
+cpArrayPush(phy_array *arr, void *object)
 {
 	if(arr->num == arr->max){
 		arr->max = 3*(arr->max + 1)/2;
-		arr->arr = (void **)cprealloc(arr->arr, arr->max*sizeof(void*));
+		arr->arr = (void **)realloc(arr->arr, arr->max*sizeof(void*));
 	}
 	
 	arr->arr[arr->num] = object;
@@ -60,7 +60,7 @@ cpArrayPush(cpArray *arr, void *object)
 }
 
 void *
-cpArrayPop(cpArray *arr)
+cpArrayPop(phy_array *arr)
 {
 	arr->num--;
 	
@@ -71,7 +71,7 @@ cpArrayPop(cpArray *arr)
 }
 
 void
-cpArrayDeleteObj(cpArray *arr, void *obj)
+cpArrayDeleteObj(phy_array *arr, void *obj)
 {
 	for(int i=0; i<arr->num; i++){
 		if(arr->arr[i] == obj){
@@ -86,13 +86,13 @@ cpArrayDeleteObj(cpArray *arr, void *obj)
 }
 
 void
-cpArrayFreeEach(cpArray *arr, void (freeFunc)(void*))
+cpArrayFreeEach(phy_array *arr, void (freeFunc)(void*))
 {
 	for(int i=0; i<arr->num; i++) freeFunc(arr->arr[i]);
 }
 
 bool
-cpArrayContains(cpArray *arr, void *ptr)
+cpArrayContains(phy_array *arr, void *ptr)
 {
 	for(int i=0; i<arr->num; i++)
 		if(arr->arr[i] == ptr) return true;

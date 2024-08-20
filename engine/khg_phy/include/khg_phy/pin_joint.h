@@ -3,28 +3,28 @@
 #include "khg_phy/phy_types.h"
 
 /// Check if a constraint is a pin joint.
-CP_EXPORT bool cpConstraintIsPinJoint(const cpConstraint *constraint);
+bool cpConstraintIsPinJoint(const phy_constraint *constraint);
 
 /// Allocate a pin joint.
-CP_EXPORT cpPinJoint* cpPinJointAlloc(void);
+phy_pin_joint* cpPinJointAlloc(void);
 /// Initialize a pin joint.
-CP_EXPORT cpPinJoint* cpPinJointInit(cpPinJoint *joint, cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB);
+phy_pin_joint* cpPinJointInit(phy_pin_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB);
 /// Allocate and initialize a pin joint.
-CP_EXPORT cpConstraint* cpPinJointNew(cpBody *a, cpBody *b, cpVect anchorA, cpVect anchorB);
+phy_constraint* cpPinJointNew(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB);
 
 /// Get the location of the first anchor relative to the first body.
-CP_EXPORT cpVect cpPinJointGetAnchorA(const cpConstraint *constraint);
+phy_vect cpPinJointGetAnchorA(const phy_constraint *constraint);
 /// Set the location of the first anchor relative to the first body.
-CP_EXPORT void cpPinJointSetAnchorA(cpConstraint *constraint, cpVect anchorA);
+void cpPinJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA);
 
 /// Get the location of the second anchor relative to the second body.
-CP_EXPORT cpVect cpPinJointGetAnchorB(const cpConstraint *constraint);
+phy_vect cpPinJointGetAnchorB(const phy_constraint *constraint);
 /// Set the location of the second anchor relative to the second body.
-CP_EXPORT void cpPinJointSetAnchorB(cpConstraint *constraint, cpVect anchorB);
+void cpPinJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB);
 
 /// Get the distance the joint will maintain between the two anchors.
-CP_EXPORT float cpPinJointGetDist(const cpConstraint *constraint);
+float cpPinJointGetDist(const phy_constraint *constraint);
 /// Set the distance the joint will maintain between the two anchors.
-CP_EXPORT void cpPinJointSetDist(cpConstraint *constraint, float dist);
+void cpPinJointSetDist(phy_constraint *constraint, float dist);
 
 ///@}

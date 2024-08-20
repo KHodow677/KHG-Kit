@@ -4,6 +4,7 @@
 #include "khg_gfx/events.h"
 
 bool handle_space_button() {
-  return gfx_key_went_down(GLFW_KEY_SPACE);
+  bool ret = gfx_key_is_down(GLFW_KEY_SPACE);
+  return ret;
 }
 

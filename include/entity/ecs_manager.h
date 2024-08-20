@@ -9,12 +9,16 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_shooter.h"
 #include "khg_ecs/ecs.h"
+#include "khg_gfx/texture.h"
 #include "khg_utl/vector.h"
 
-extern cpSpace *SPACE;
+extern phy_space *SPACE;
 extern ecs_ecs *ECS;
 extern utl_vector *ENTITY_LOOKUP;
 extern utl_vector *TEXTURE_LOOKUP;
+extern gfx_texture NO_TEXTURE;
+extern int MAX_TEXTURES;
+extern int CURRENT_TEXTURE_ID;
 
 extern sys_physics PHYSICS_SYSTEM;
 extern sys_renderer RENDERER_SYSTEM;

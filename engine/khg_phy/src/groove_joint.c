@@ -22,17 +22,17 @@
 #include "khg_phy/phy_private.h"
 
 static void
-preStep(cpGrooveJoint *joint, float dt)
+preStep(phy_groove_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	// calculate endpoints in worldspace
-	cpVect ta = cpTransformPoint(a->transform, joint->grv_a);
-	cpVect tb = cpTransformPoint(a->transform, joint->grv_b);
+	phy_vect ta = cpTransformPoint(a->transform, joint->grv_a);
+	phy_vect tb = cpTransformPoint(a->transform, joint->grv_b);
 
 	// calculate axis
-	cpVect n = cpTransformVect(a->transform, joint->grv_n);
+	phy_vect n = cpTransformVect(a->transform, joint->grv_n);
 	float d = cpvdot(ta, n);
 	
 	joint->grv_tn = n;
@@ -56,40 +56,40 @@ preStep(cpGrooveJoint *joint, float dt)
 	joint->k = k_tensor(a, b, joint->r1, joint->r2);
 	
 	// calculate bias velocity
-	cpVect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
+	phy_vect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
 	joint->bias = cpvclamp(cpvmult(delta, -bias_coef(joint->constraint.errorBias, dt)/dt), joint->constraint.maxBias);
 }
 
 static void
-applyCachedImpulse(cpGrooveJoint *joint, float dt_coef)
+applyCachedImpulse(phy_groove_joint *joint, float dt_coef)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 		
 	apply_impulses(a, b, joint->r1, joint->r2, cpvmult(joint->jAcc, dt_coef));
 }
 
-static inline cpVect
-grooveConstrain(cpGrooveJoint *joint, cpVect j, float dt){
-	cpVect n = joint->grv_tn;
-	cpVect jClamp = (joint->clamp*cpvcross(j, n) > 0.0f) ? j : cpvproject(j, n);
+static inline phy_vect
+grooveConstrain(phy_groove_joint *joint, phy_vect j, float dt){
+	phy_vect n = joint->grv_tn;
+	phy_vect jClamp = (joint->clamp*cpvcross(j, n) > 0.0f) ? j : cpvproject(j, n);
 	return cpvclamp(jClamp, joint->constraint.maxForce*dt);
 }
 
 static void
-applyImpulse(cpGrooveJoint *joint, float dt)
+applyImpulse(phy_groove_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
-	cpVect r1 = joint->r1;
-	cpVect r2 = joint->r2;
+	phy_vect r1 = joint->r1;
+	phy_vect r2 = joint->r2;
 	
 	// compute impulse
-	cpVect vr = relative_velocity(a, b, r1, r2);
+	phy_vect vr = relative_velocity(a, b, r1, r2);
 
-	cpVect j = cpMat2x2Transform(joint->k, cpvsub(joint->bias, vr));
-	cpVect jOld = joint->jAcc;
+	phy_vect j = cpMat2x2Transform(joint->k, cpvsub(joint->bias, vr));
+	phy_vect jOld = joint->jAcc;
 	joint->jAcc = grooveConstrain(joint, cpvadd(jOld, j), dt);
 	j = cpvsub(joint->jAcc, jOld);
 	
@@ -98,7 +98,7 @@ applyImpulse(cpGrooveJoint *joint, float dt)
 }
 
 static float
-getImpulse(cpGrooveJoint *joint)
+getImpulse(phy_groove_joint *joint)
 {
 	return cpvlength(joint->jAcc);
 }
@@ -110,16 +110,16 @@ static const cpConstraintClass klass = {
 	(cpConstraintGetImpulseImpl)getImpulse,
 };
 
-cpGrooveJoint *
+phy_groove_joint *
 cpGrooveJointAlloc(void)
 {
-	return (cpGrooveJoint *)cpcalloc(1, sizeof(cpGrooveJoint));
+	return (phy_groove_joint *)calloc(1, sizeof(phy_groove_joint));
 }
 
-cpGrooveJoint *
-cpGrooveJointInit(cpGrooveJoint *joint, cpBody *a, cpBody *b, cpVect groove_a, cpVect groove_b, cpVect anchorB)
+phy_groove_joint *
+cpGrooveJointInit(phy_groove_joint *joint, phy_body *a, phy_body *b, phy_vect groove_a, phy_vect groove_b, phy_vect anchorB)
 {
-	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
+	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
 	joint->grv_a = groove_a;
 	joint->grv_b = groove_b;
@@ -131,30 +131,30 @@ cpGrooveJointInit(cpGrooveJoint *joint, cpBody *a, cpBody *b, cpVect groove_a, c
 	return joint;
 }
 
-cpConstraint *
-cpGrooveJointNew(cpBody *a, cpBody *b, cpVect groove_a, cpVect groove_b, cpVect anchorB)
+phy_constraint *
+cpGrooveJointNew(phy_body *a, phy_body *b, phy_vect groove_a, phy_vect groove_b, phy_vect anchorB)
 {
-	return (cpConstraint *)cpGrooveJointInit(cpGrooveJointAlloc(), a, b, groove_a, groove_b, anchorB);
+	return (phy_constraint *)cpGrooveJointInit(cpGrooveJointAlloc(), a, b, groove_a, groove_b, anchorB);
 }
 
 bool
-cpConstraintIsGrooveJoint(const cpConstraint *constraint)
+cpConstraintIsGrooveJoint(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
-cpVect
-cpGrooveJointGetGrooveA(const cpConstraint *constraint)
+phy_vect
+cpGrooveJointGetGrooveA(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
-	return ((cpGrooveJoint *)constraint)->grv_a;
+	return ((phy_groove_joint *)constraint)->grv_a;
 }
 
 void
-cpGrooveJointSetGrooveA(cpConstraint *constraint, cpVect value)
+cpGrooveJointSetGrooveA(phy_constraint *constraint, phy_vect value)
 {
 	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
-	cpGrooveJoint *g = (cpGrooveJoint *)constraint;
+	phy_groove_joint *g = (phy_groove_joint *)constraint;
 	
 	g->grv_a = value;
 	g->grv_n = cpvperp(cpvnormalize(cpvsub(g->grv_b, value)));
@@ -162,18 +162,18 @@ cpGrooveJointSetGrooveA(cpConstraint *constraint, cpVect value)
 	cpConstraintActivateBodies(constraint);
 }
 
-cpVect
-cpGrooveJointGetGrooveB(const cpConstraint *constraint)
+phy_vect
+cpGrooveJointGetGrooveB(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
-	return ((cpGrooveJoint *)constraint)->grv_b;
+	return ((phy_groove_joint *)constraint)->grv_b;
 }
 
 void
-cpGrooveJointSetGrooveB(cpConstraint *constraint, cpVect value)
+cpGrooveJointSetGrooveB(phy_constraint *constraint, phy_vect value)
 {
 	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
-	cpGrooveJoint *g = (cpGrooveJoint *)constraint;
+	phy_groove_joint *g = (phy_groove_joint *)constraint;
 	
 	g->grv_b = value;
 	g->grv_n = cpvperp(cpvnormalize(cpvsub(value, g->grv_a)));
@@ -181,17 +181,17 @@ cpGrooveJointSetGrooveB(cpConstraint *constraint, cpVect value)
 	cpConstraintActivateBodies(constraint);
 }
 
-cpVect
-cpGrooveJointGetAnchorB(const cpConstraint *constraint)
+phy_vect
+cpGrooveJointGetAnchorB(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
-	return ((cpGrooveJoint *)constraint)->anchorB;
+	return ((phy_groove_joint *)constraint)->anchorB;
 }
 
 void
-cpGrooveJointSetAnchorB(cpConstraint *constraint, cpVect anchorB)
+cpGrooveJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
 {
 	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpGrooveJoint *)constraint)->anchorB = anchorB;
+	((phy_groove_joint *)constraint)->anchorB = anchorB;
 }

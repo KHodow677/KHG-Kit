@@ -23,11 +23,11 @@
 
 // TODO: make this generic so I can reuse it for constraints also.
 static inline void
-unthreadHelper(cpArbiter *arb, cpBody *body)
+unthreadHelper(phy_arbiter *arb, phy_body *body)
 {
 	struct cpArbiterThread *thread = cpArbiterThreadForBody(arb, body);
-	cpArbiter *prev = thread->prev;
-	cpArbiter *next = thread->next;
+	phy_arbiter *prev = thread->prev;
+	phy_arbiter *next = thread->next;
 	
 	if(prev){
 		cpArbiterThreadForBody(prev, body)->next = next;
@@ -45,71 +45,71 @@ unthreadHelper(cpArbiter *arb, cpBody *body)
 }
 
 void
-cpArbiterUnthread(cpArbiter *arb)
+cpArbiterUnthread(phy_arbiter *arb)
 {
 	unthreadHelper(arb, arb->body_a);
 	unthreadHelper(arb, arb->body_b);
 }
 
-bool cpArbiterIsFirstContact(const cpArbiter *arb)
+bool phy_arbiter_is_first_contact(const phy_arbiter *arb)
 {
 	return arb->state == CP_ARBITER_STATE_FIRST_COLLISION;
 }
 
-bool cpArbiterIsRemoval(const cpArbiter *arb)
+bool phy_arbiter_is_removal(const phy_arbiter *arb)
 {
 	return arb->state == CP_ARBITER_STATE_INVALIDATED;
 }
 
-int cpArbiterGetCount(const cpArbiter *arb)
+int phy_arbiter_get_count(const phy_arbiter *arb)
 {
 	// Return 0 contacts if we are in a separate callback.
 	return (arb->state < CP_ARBITER_STATE_CACHED ? arb->count : 0);
 }
 
-cpVect
-cpArbiterGetNormal(const cpArbiter *arb)
+phy_vect
+phy_arbiter_get_normal(const phy_arbiter *arb)
 {
 	return cpvmult(arb->n, arb->swapped ? -1.0f : 1.0);
 }
 
-cpVect
-cpArbiterGetPointA(const cpArbiter *arb, int i)
+phy_vect
+phy_arbiter_get_point_A(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < cpArbiterGetCount(arb), "Index error: The specified contact index is invalid for this arbiter");
+	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
 	return cpvadd(arb->body_a->p, arb->contacts[i].r1);
 }
 
-cpVect
-cpArbiterGetPointB(const cpArbiter *arb, int i)
+phy_vect
+phy_arbiter_get_point_B(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < cpArbiterGetCount(arb), "Index error: The specified contact index is invalid for this arbiter");
+	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
 	return cpvadd(arb->body_b->p, arb->contacts[i].r2);
 }
 
 float
-cpArbiterGetDepth(const cpArbiter *arb, int i)
+phy_arbiter_get_depth(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < cpArbiterGetCount(arb), "Index error: The specified contact index is invalid for this arbiter");
+	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
 	
 	struct cpContact *con = &arb->contacts[i];
 	return cpvdot(cpvadd(cpvsub(con->r2, con->r1), cpvsub(arb->body_b->p, arb->body_a->p)), arb->n);
 }
 
 phy_contact_point_set
-cpArbiterGetContactPointSet(const cpArbiter *arb)
+phy_arbiter_get_contact_point_set(const phy_arbiter *arb)
 {
 	phy_contact_point_set set;
-	set.count = cpArbiterGetCount(arb);
+	set.count = phy_arbiter_get_count(arb);
 	
 	bool swapped = arb->swapped;
-	cpVect n = arb->n;
+	phy_vect n = arb->n;
 	set.normal = (swapped ? cpvneg(n) : n);
 	
 	for(int i=0; i<set.count; i++){
 		// Contact points are relative to body CoGs;
-		cpVect p1 = cpvadd(arb->body_a->p, arb->contacts[i].r1);
-		cpVect p2 = cpvadd(arb->body_b->p, arb->contacts[i].r2);
+		phy_vect p1 = cpvadd(arb->body_a->p, arb->contacts[i].r1);
+		phy_vect p2 = cpvadd(arb->body_b->p, arb->contacts[i].r2);
 		
 		set.points[i].pointA = (swapped ? p2 : p1);
 		set.points[i].pointB = (swapped ? p1 : p2);
@@ -120,7 +120,7 @@ cpArbiterGetContactPointSet(const cpArbiter *arb)
 }
 
 void
-cpArbiterSetContactPointSet(cpArbiter *arb, phy_contact_point_set *set)
+phy_arbiter_set_contact_point_set(phy_arbiter *arb, phy_contact_point_set *set)
 {
 	int count = set->count;
 	cpAssertHard(count == arb->count, "The number of contact points cannot be changed.");
@@ -130,22 +130,22 @@ cpArbiterSetContactPointSet(cpArbiter *arb, phy_contact_point_set *set)
 	
 	for(int i=0; i<count; i++){
 		// Convert back to CoG relative offsets.
-		cpVect p1 = set->points[i].pointA;
-		cpVect p2 = set->points[i].pointB;
+		phy_vect p1 = set->points[i].pointA;
+		phy_vect p2 = set->points[i].pointB;
 		
 		arb->contacts[i].r1 = cpvsub(swapped ? p2 : p1, arb->body_a->p);
 		arb->contacts[i].r2 = cpvsub(swapped ? p1 : p2, arb->body_b->p);
 	}
 }
 
-cpVect
-phy_arbiter_total_impulse(const cpArbiter *arb)
+phy_vect
+phy_arbiter_total_impulse(const phy_arbiter *arb)
 {
 	struct cpContact *contacts = arb->contacts;
-	cpVect n = arb->n;
-	cpVect sum = cpvzero;
+	phy_vect n = arb->n;
+	phy_vect sum = cpvzero;
 	
-	for(int i=0, count=cpArbiterGetCount(arb); i<count; i++){
+	for(int i=0, count=phy_arbiter_get_count(arb); i<count; i++){
 		struct cpContact *con = &contacts[i];
 		sum = cpvadd(sum, cpvrotate(n, cpv(con->jnAcc, con->jtAcc)));
 	}
@@ -155,13 +155,13 @@ phy_arbiter_total_impulse(const cpArbiter *arb)
 }
 
 float
-phy_arbiter_total_ke(const cpArbiter *arb)
+phy_arbiter_total_ke(const phy_arbiter *arb)
 {
 	float eCoef = (1 - arb->e)/(1 + arb->e);
 	float sum = 0.0;
 	
 	struct cpContact *contacts = arb->contacts;
-	for(int i=0, count=cpArbiterGetCount(arb); i<count; i++){
+	for(int i=0, count=phy_arbiter_get_count(arb); i<count; i++){
 		struct cpContact *con = &contacts[i];
 		float jnAcc = con->jnAcc;
 		float jtAcc = con->jtAcc;
@@ -173,73 +173,73 @@ phy_arbiter_total_ke(const cpArbiter *arb)
 }
 
 bool
-phy_arbiter_ignore(cpArbiter *arb)
+phy_arbiter_ignore(phy_arbiter *arb)
 {
 	arb->state = CP_ARBITER_STATE_IGNORE;
 	return false;
 }
 
 float
-phy_arbiter_get_restitution(const cpArbiter *arb)
+phy_arbiter_get_restitution(const phy_arbiter *arb)
 {
 	return arb->e;
 }
 
 void
-phy_arbiter_set_restitution(cpArbiter *arb, float restitution)
+phy_arbiter_set_restitution(phy_arbiter *arb, float restitution)
 {
 	arb->e = restitution;
 }
 
 float
-phy_arbiter_get_friction(const cpArbiter *arb)
+phy_arbiter_get_friction(const phy_arbiter *arb)
 {
 	return arb->u;
 }
 
 void
-phy_arbiter_set_friction(cpArbiter *arb, float friction)
+phy_arbiter_set_friction(phy_arbiter *arb, float friction)
 {
 	arb->u = friction;
 }
 
-cpVect
-phy_arbiter_get_surface_velocity(cpArbiter *arb)
+phy_vect
+phy_arbiter_get_surface_velocity(phy_arbiter *arb)
 {
 	return cpvmult(arb->surface_vr, arb->swapped ? -1.0f : 1.0);
 }
 
 void
-phy_arbiter_set_surface_velocity(cpArbiter *arb, cpVect vr)
+phy_arbiter_set_surface_velocity(phy_arbiter *arb, phy_vect vr)
 {
 	arb->surface_vr = cpvmult(vr, arb->swapped ? -1.0f : 1.0);
 }
 
-cpDataPointer
-phy_arbiter_get_user_data(const cpArbiter *arb)
+phy_data_pointer
+phy_arbiter_get_user_data(const phy_arbiter *arb)
 {
 	return arb->data;
 }
 
 void
-phy_arbiter_set_user_data(cpArbiter *arb, cpDataPointer userData)
+phy_arbiter_set_user_data(phy_arbiter *arb, phy_data_pointer userData)
 {
 	arb->data = userData;
 }
 
 void
-phy_arbiter_get_shapes(const cpArbiter *arb, cpShape **a, cpShape **b)
+phy_arbiter_get_shapes(const phy_arbiter *arb, phy_shape **a, phy_shape **b)
 {
 	if(arb->swapped){
-		(*a) = (cpShape *)arb->b;
-		(*b) = (cpShape *)arb->a;
+		(*a) = (phy_shape *)arb->b;
+		(*b) = (phy_shape *)arb->a;
 	} else {
-		(*a) = (cpShape *)arb->a;
-		(*b) = (cpShape *)arb->b;
+		(*a) = (phy_shape *)arb->a;
+		(*b) = (phy_shape *)arb->b;
 	}
 }
 
-void phy_arbiter_get_bodies(const cpArbiter *arb, cpBody **a, cpBody **b)
+void phy_arbiter_get_bodies(const phy_arbiter *arb, phy_body **a, phy_body **b)
 {
 	PHY_ARBITER_GET_SHAPES(arb, shape_a, shape_b);
 	(*a) = shape_a->body;
@@ -247,16 +247,16 @@ void phy_arbiter_get_bodies(const cpArbiter *arb, cpBody **a, cpBody **b)
 }
 
 bool
-cpArbiterCallWildcardBeginA(cpArbiter *arb, cpSpace *space)
+phy_arbiter_call_wildcard_begin_A(phy_arbiter *arb, phy_space *space)
 {
-	cpCollisionHandler *handler = arb->handlerA;
+	phy_collision_handler *handler = arb->handlerA;
 	return handler->beginFunc(arb, space, handler->userData);
 }
 
 bool
-cpArbiterCallWildcardBeginB(cpArbiter *arb, cpSpace *space)
+phy_arbiter_call_wildcard_begin_B(phy_arbiter *arb, phy_space *space)
 {
-	cpCollisionHandler *handler = arb->handlerB;
+	phy_collision_handler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
 	bool retval = handler->beginFunc(arb, space, handler->userData);
 	arb->swapped = !arb->swapped;
@@ -264,16 +264,16 @@ cpArbiterCallWildcardBeginB(cpArbiter *arb, cpSpace *space)
 }
 
 bool
-cpArbiterCallWildcardPreSolveA(cpArbiter *arb, cpSpace *space)
+phy_arbiter_call_wildcard_pre_solve_A(phy_arbiter *arb, phy_space *space)
 {
-	cpCollisionHandler *handler = arb->handlerA;
+	phy_collision_handler *handler = arb->handlerA;
 	return handler->preSolveFunc(arb, space, handler->userData);
 }
 
 bool
-cpArbiterCallWildcardPreSolveB(cpArbiter *arb, cpSpace *space)
+phy_arbiter_call_wildcard_pre_solve_B(phy_arbiter *arb, phy_space *space)
 {
-	cpCollisionHandler *handler = arb->handlerB;
+	phy_collision_handler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
 	bool retval = handler->preSolveFunc(arb, space, handler->userData);
 	arb->swapped = !arb->swapped;
@@ -281,39 +281,39 @@ cpArbiterCallWildcardPreSolveB(cpArbiter *arb, cpSpace *space)
 }
 
 void
-cpArbiterCallWildcardPostSolveA(cpArbiter *arb, cpSpace *space)
+phy_arbiter_call_wildcard_post_solve_A(phy_arbiter *arb, phy_space *space)
 {
-	cpCollisionHandler *handler = arb->handlerA;
+	phy_collision_handler *handler = arb->handlerA;
 	handler->postSolveFunc(arb, space, handler->userData);
 }
 
 void
-cpArbiterCallWildcardPostSolveB(cpArbiter *arb, cpSpace *space)
+phy_arbiter_call_wildcard_post_solve_B(phy_arbiter *arb, phy_space *space)
 {
-	cpCollisionHandler *handler = arb->handlerB;
+	phy_collision_handler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
 	handler->postSolveFunc(arb, space, handler->userData);
 	arb->swapped = !arb->swapped;
 }
 
 void
-cpArbiterCallWildcardSeparateA(cpArbiter *arb, cpSpace *space)
+phy_arbiter_call_wildcard_separate_A(phy_arbiter *arb, phy_space *space)
 {
-	cpCollisionHandler *handler = arb->handlerA;
+	phy_collision_handler *handler = arb->handlerA;
 	handler->separateFunc(arb, space, handler->userData);
 }
 
 void
-cpArbiterCallWildcardSeparateB(cpArbiter *arb, cpSpace *space)
+phy_arbiter_call_wildcard_separate_B(phy_arbiter *arb, phy_space *space)
 {
-	cpCollisionHandler *handler = arb->handlerB;
+	phy_collision_handler *handler = arb->handlerB;
 	arb->swapped = !arb->swapped;
 	handler->separateFunc(arb, space, handler->userData);
 	arb->swapped = !arb->swapped;
 }
 
-cpArbiter*
-cpArbiterInit(cpArbiter *arb, cpShape *a, cpShape *b)
+phy_arbiter*
+cpArbiterInit(phy_arbiter *arb, phy_shape *a, phy_shape *b)
 {
 	arb->handler = NULL;
 	arb->swapped = false;
@@ -345,18 +345,18 @@ cpArbiterInit(cpArbiter *arb, cpShape *a, cpShape *b)
 	return arb;
 }
 
-static inline cpCollisionHandler *
-cpSpaceLookupHandler(cpSpace *space, cpCollisionType a, cpCollisionType b, cpCollisionHandler *defaultValue)
+static inline phy_collision_handler *
+cpSpaceLookupHandler(phy_space *space, phy_collision_type a, phy_collision_type b, phy_collision_handler *defaultValue)
 {
-	cpCollisionType types[] = {a, b};
-	cpCollisionHandler *handler = (cpCollisionHandler *)cpHashSetFind(space->collisionHandlers, CP_HASH_PAIR(a, b), types);
+	phy_collision_type types[] = {a, b};
+	phy_collision_handler *handler = (phy_collision_handler *)cpHashSetFind(space->collisionHandlers, CP_HASH_PAIR(a, b), types);
 	return (handler ? handler : defaultValue);
 }
 
 void
-cpArbiterUpdate(cpArbiter *arb, struct cpCollisionInfo *info, cpSpace *space)
+cpArbiterUpdate(phy_arbiter *arb, struct cpCollisionInfo *info, phy_space *space)
 {
-	const cpShape *a = info->a, *b = info->b;
+	const phy_shape *a = info->a, *b = info->b;
 	
 	// For collisions between two similar primitive types, the order could have been swapped since the last frame.
 	arb->a = a; arb->body_a = a->body;
@@ -393,20 +393,20 @@ cpArbiterUpdate(cpArbiter *arb, struct cpCollisionInfo *info, cpSpace *space)
 	arb->e = a->e * b->e;
 	arb->u = a->u * b->u;
 	
-	cpVect surface_vr = cpvsub(b->surfaceV, a->surfaceV);
+	phy_vect surface_vr = cpvsub(b->surfaceV, a->surfaceV);
 	arb->surface_vr = cpvsub(surface_vr, cpvmult(info->n, cpvdot(surface_vr, info->n)));
 	
-	cpCollisionType typeA = info->a->type, typeB = info->b->type;
-	cpCollisionHandler *defaultHandler = &space->defaultHandler;
-	cpCollisionHandler *handler = arb->handler = cpSpaceLookupHandler(space, typeA, typeB, defaultHandler);
+	phy_collision_type typeA = info->a->type, typeB = info->b->type;
+	phy_collision_handler *defaultHandler = &space->defaultHandler;
+	phy_collision_handler *handler = arb->handler = cpSpaceLookupHandler(space, typeA, typeB, defaultHandler);
 	
 	// Check if the types match, but don't swap for a default handler which use the wildcard for type A.
-	bool swapped = arb->swapped = (typeA != handler->typeA && handler->typeA != CP_WILDCARD_COLLISION_TYPE);
+	bool swapped = arb->swapped = (typeA != handler->typeA && handler->typeA != PHY_WILDCARD_COLLISION_TYPE);
 	
 	if(handler != defaultHandler || space->usesWildcards){
 		// The order of the main handler swaps the wildcard handlers too. Uffda.
-		arb->handlerA = cpSpaceLookupHandler(space, (swapped ? typeB : typeA), CP_WILDCARD_COLLISION_TYPE, &cpCollisionHandlerDoNothing);
-		arb->handlerB = cpSpaceLookupHandler(space, (swapped ? typeA : typeB), CP_WILDCARD_COLLISION_TYPE, &cpCollisionHandlerDoNothing);
+		arb->handlerA = cpSpaceLookupHandler(space, (swapped ? typeB : typeA), PHY_WILDCARD_COLLISION_TYPE, &cpCollisionHandlerDoNothing);
+		arb->handlerB = cpSpaceLookupHandler(space, (swapped ? typeA : typeB), PHY_WILDCARD_COLLISION_TYPE, &cpCollisionHandlerDoNothing);
 	}
 		
 	// mark it as new if it's been cached
@@ -414,12 +414,12 @@ cpArbiterUpdate(cpArbiter *arb, struct cpCollisionInfo *info, cpSpace *space)
 }
 
 void
-cpArbiterPreStep(cpArbiter *arb, float dt, float slop, float bias)
+cpArbiterPreStep(phy_arbiter *arb, float dt, float slop, float bias)
 {
-	cpBody *a = arb->body_a;
-	cpBody *b = arb->body_b;
-	cpVect n = arb->n;
-	cpVect body_delta = cpvsub(b->p, a->p);
+	phy_body *a = arb->body_a;
+	phy_body *b = arb->body_b;
+	phy_vect n = arb->n;
+	phy_vect body_delta = cpvsub(b->p, a->p);
 	
 	for(int i=0; i<arb->count; i++){
 		struct cpContact *con = &arb->contacts[i];
@@ -439,17 +439,17 @@ cpArbiterPreStep(cpArbiter *arb, float dt, float slop, float bias)
 }
 
 void
-cpArbiterApplyCachedImpulse(cpArbiter *arb, float dt_coef)
+cpArbiterApplyCachedImpulse(phy_arbiter *arb, float dt_coef)
 {
-	if(cpArbiterIsFirstContact(arb)) return;
+	if(phy_arbiter_is_first_contact(arb)) return;
 	
-	cpBody *a = arb->body_a;
-	cpBody *b = arb->body_b;
-	cpVect n = arb->n;
+	phy_body *a = arb->body_a;
+	phy_body *b = arb->body_b;
+	phy_vect n = arb->n;
 	
 	for(int i=0; i<arb->count; i++){
 		struct cpContact *con = &arb->contacts[i];
-		cpVect j = cpvrotate(n, cpv(con->jnAcc, con->jtAcc));
+		phy_vect j = cpvrotate(n, cpv(con->jnAcc, con->jtAcc));
 		apply_impulses(a, b, con->r1, con->r2, cpvmult(j, dt_coef));
 	}
 }
@@ -457,23 +457,23 @@ cpArbiterApplyCachedImpulse(cpArbiter *arb, float dt_coef)
 // TODO: is it worth splitting velocity/position correction?
 
 void
-cpArbiterApplyImpulse(cpArbiter *arb)
+cpArbiterApplyImpulse(phy_arbiter *arb)
 {
-	cpBody *a = arb->body_a;
-	cpBody *b = arb->body_b;
-	cpVect n = arb->n;
-	cpVect surface_vr = arb->surface_vr;
+	phy_body *a = arb->body_a;
+	phy_body *b = arb->body_b;
+	phy_vect n = arb->n;
+	phy_vect surface_vr = arb->surface_vr;
 	float friction = arb->u;
 
 	for(int i=0; i<arb->count; i++){
 		struct cpContact *con = &arb->contacts[i];
 		float nMass = con->nMass;
-		cpVect r1 = con->r1;
-		cpVect r2 = con->r2;
+		phy_vect r1 = con->r1;
+		phy_vect r2 = con->r2;
 		
-		cpVect vb1 = cpvadd(a->v_bias, cpvmult(cpvperp(r1), a->w_bias));
-		cpVect vb2 = cpvadd(b->v_bias, cpvmult(cpvperp(r2), b->w_bias));
-		cpVect vr = cpvadd(relative_velocity(a, b, r1, r2), surface_vr);
+		phy_vect vb1 = cpvadd(a->v_bias, cpvmult(cpvperp(r1), a->w_bias));
+		phy_vect vb2 = cpvadd(b->v_bias, cpvmult(cpvperp(r2), b->w_bias));
+		phy_vect vr = cpvadd(relative_velocity(a, b, r1, r2), surface_vr);
 		
 		float vbn = cpvdot(cpvsub(vb2, vb1), n);
 		float vrn = cpvdot(vr, n);

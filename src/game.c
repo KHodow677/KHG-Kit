@@ -39,7 +39,7 @@ int game_run() {
   set_optimal_thread_count();
   SPACE = physics_setup(cpv(0.0f, 0.0f));
   ecs_setup();
-  spawn_tank();
+  spawn_tank(600, 300);
   int res = gfx_loop_manager(window);
   ecs_cleanup();
   return res;

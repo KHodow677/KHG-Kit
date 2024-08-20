@@ -9,6 +9,6 @@ typedef struct {
   tank_top top;
 } tank;
 
-void generate_tank(tank *t, ecs_ecs *ecs);
+void generate_tank(tank *t, ecs_ecs *ecs, float x, float y);
 void free_tank(tank *t);
 

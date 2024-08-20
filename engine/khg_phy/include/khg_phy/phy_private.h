@@ -12,16 +12,16 @@
 
 //MARK: cpArray
 
-cpArray *cpArrayNew(int size);
+phy_array *cpArrayNew(int size);
 
-void cpArrayFree(cpArray *arr);
+void cpArrayFree(phy_array *arr);
 
-void cpArrayPush(cpArray *arr, void *object);
-void *cpArrayPop(cpArray *arr);
-void cpArrayDeleteObj(cpArray *arr, void *obj);
-bool cpArrayContains(cpArray *arr, void *ptr);
+void cpArrayPush(phy_array *arr, void *object);
+void *cpArrayPop(phy_array *arr);
+void cpArrayDeleteObj(phy_array *arr, void *obj);
+bool cpArrayContains(phy_array *arr, void *ptr);
 
-void cpArrayFreeEach(cpArray *arr, void (freeFunc)(void*));
+void cpArrayFreeEach(phy_array *arr, void (freeFunc)(void*));
 
 
 //MARK: cpHashSet
@@ -29,32 +29,32 @@ void cpArrayFreeEach(cpArray *arr, void (freeFunc)(void*));
 typedef bool (*cpHashSetEqlFunc)(const void *ptr, const void *elt);
 typedef void *(*cpHashSetTransFunc)(const void *ptr, void *data);
 
-cpHashSet *cpHashSetNew(int size, cpHashSetEqlFunc eqlFunc);
-void cpHashSetSetDefaultValue(cpHashSet *set, void *default_value);
+phy_hash_set *cpHashSetNew(int size, cpHashSetEqlFunc eqlFunc);
+void cpHashSetSetDefaultValue(phy_hash_set *set, void *default_value);
 
-void cpHashSetFree(cpHashSet *set);
+void cpHashSetFree(phy_hash_set *set);
 
-int cpHashSetCount(cpHashSet *set);
-const void *cpHashSetInsert(cpHashSet *set, phy_hash_value hash, const void *ptr, cpHashSetTransFunc trans, void *data);
-const void *cpHashSetRemove(cpHashSet *set, phy_hash_value hash, const void *ptr);
-const void *cpHashSetFind(cpHashSet *set, phy_hash_value hash, const void *ptr);
+int cpHashSetCount(phy_hash_set *set);
+const void *cpHashSetInsert(phy_hash_set *set, phy_hash_value hash, const void *ptr, cpHashSetTransFunc trans, void *data);
+const void *cpHashSetRemove(phy_hash_set *set, phy_hash_value hash, const void *ptr);
+const void *cpHashSetFind(phy_hash_set *set, phy_hash_value hash, const void *ptr);
 
 typedef void (*cpHashSetIteratorFunc)(void *elt, void *data);
-void cpHashSetEach(cpHashSet *set, cpHashSetIteratorFunc func, void *data);
+void cpHashSetEach(phy_hash_set *set, cpHashSetIteratorFunc func, void *data);
 
 typedef bool (*cpHashSetFilterFunc)(void *elt, void *data);
-void cpHashSetFilter(cpHashSet *set, cpHashSetFilterFunc func, void *data);
+void cpHashSetFilter(phy_hash_set *set, cpHashSetFilterFunc func, void *data);
 
 
 //MARK: Bodies
 
-void cpBodyAddShape(cpBody *body, cpShape *shape);
-void cpBodyRemoveShape(cpBody *body, cpShape *shape);
+void cpBodyAddShape(phy_body *body, phy_shape *shape);
+void cpBodyRemoveShape(phy_body *body, phy_shape *shape);
 
-//void cpBodyAccumulateMassForShape(cpBody *body, cpShape *shape);
-void cpBodyAccumulateMassFromShapes(cpBody *body);
+//void cpBodyAccumulateMassForShape(cpBody *body, phy_shape *shape);
+void cpBodyAccumulateMassFromShapes(phy_body *body);
 
-void cpBodyRemoveConstraint(cpBody *body, cpConstraint *constraint);
+void cpBodyRemoveConstraint(phy_body *body, phy_constraint *constraint);
 
 
 //MARK: Spatial Index Functions
@@ -64,28 +64,28 @@ cpSpatialIndex *cpSpatialIndexInit(cpSpatialIndex *index, cpSpatialIndexClass *k
 
 //MARK: Arbiters
 
-cpArbiter* cpArbiterInit(cpArbiter *arb, cpShape *a, cpShape *b);
+phy_arbiter* cpArbiterInit(phy_arbiter *arb, phy_shape *a, phy_shape *b);
 
 static inline struct cpArbiterThread *
-cpArbiterThreadForBody(cpArbiter *arb, cpBody *body)
+cpArbiterThreadForBody(phy_arbiter *arb, phy_body *body)
 {
 	return (arb->body_a == body ? &arb->thread_a : &arb->thread_b);
 }
 
-void cpArbiterUnthread(cpArbiter *arb);
+void cpArbiterUnthread(phy_arbiter *arb);
 
-void cpArbiterUpdate(cpArbiter *arb, struct cpCollisionInfo *info, cpSpace *space);
-void cpArbiterPreStep(cpArbiter *arb, float dt, float bias, float slop);
-void cpArbiterApplyCachedImpulse(cpArbiter *arb, float dt_coef);
-void cpArbiterApplyImpulse(cpArbiter *arb);
+void cpArbiterUpdate(phy_arbiter *arb, struct cpCollisionInfo *info, phy_space *space);
+void cpArbiterPreStep(phy_arbiter *arb, float dt, float bias, float slop);
+void cpArbiterApplyCachedImpulse(phy_arbiter *arb, float dt_coef);
+void cpArbiterApplyImpulse(phy_arbiter *arb);
 
 
 //MARK: Shapes/Collisions
 
-cpShape *cpShapeInit(cpShape *shape, const cpShapeClass *klass, cpBody *body, struct cpShapeMassInfo massInfo);
+phy_shape *cpShapeInit(phy_shape *shape, const cpShapeClass *klass, phy_body *body, struct cpShapeMassInfo massInfo);
 
 static inline bool
-cpShapeActive(cpShape *shape)
+cpShapeActive(phy_shape *shape)
 {
 	// checks if the shape is added to a shape list.
 	// TODO could this just check the space now?
@@ -93,13 +93,13 @@ cpShapeActive(cpShape *shape)
 }
 
 // Note: This function returns contact points with r1/r2 in absolute coordinates, not body relative.
-struct cpCollisionInfo cpCollide(const cpShape *a, const cpShape *b, phy_collision_id id, struct cpContact *contacts);
+struct cpCollisionInfo cpCollide(const phy_shape *a, const phy_shape *b, phy_collision_id id, struct cpContact *contacts);
 
 static inline void
-CircleSegmentQuery(cpShape *shape, cpVect center, float r1, cpVect a, cpVect b, float r2, cpSegmentQueryInfo *info)
+CircleSegmentQuery(phy_shape *shape, phy_vect center, float r1, phy_vect a, phy_vect b, float r2, cpSegmentQueryInfo *info)
 {
-	cpVect da = cpvsub(a, center);
-	cpVect db = cpvsub(b, center);
+	phy_vect da = cpvsub(a, center);
+	phy_vect db = cpvsub(b, center);
 	float rsum = r1 + r2;
 	
 	float qa = cpvdot(da, da) - 2.0f*cpvdot(da, db) + cpvdot(db, db);
@@ -109,7 +109,7 @@ CircleSegmentQuery(cpShape *shape, cpVect center, float r1, cpVect a, cpVect b, 
 	if(det >= 0.0f){
 		float t = (-qb - sqrtf(det))/(qa);
 		if(0.0f<= t && t <= 1.0f){
-			cpVect n = cpvnormalize(cpvlerp(da, db, t));
+			phy_vect n = cpvnormalize(cpvlerp(da, db, t));
 			
 			info->shape = shape;
 			info->point = cpvsub(cpvlerp(a, b, t), cpvmult(n, r2));
@@ -132,70 +132,70 @@ cpShapeFilterReject(cpShapeFilter a, cpShapeFilter b)
 	);
 }
 
-void cpLoopIndexes(const cpVect *verts, int count, int *start, int *end);
+void cpLoopIndexes(const phy_vect *verts, int count, int *start, int *end);
 
 
 //MARK: Constraints
 // TODO naming conventions here
 
-void cpConstraintInit(cpConstraint *constraint, const struct cpConstraintClass *klass, cpBody *a, cpBody *b);
+void cpConstraintInit(phy_constraint *constraint, const struct cpConstraintClass *klass, phy_body *a, phy_body *b);
 
 static inline void
-cpConstraintActivateBodies(cpConstraint *constraint)
+cpConstraintActivateBodies(phy_constraint *constraint)
 {
-	cpBody *a = constraint->a; cpBodyActivate(a);
-	cpBody *b = constraint->b; cpBodyActivate(b);
+	phy_body *a = constraint->a; phy_body_activate(a);
+	phy_body *b = constraint->b; phy_body_activate(b);
 }
 
-static inline cpVect
-relative_velocity(cpBody *a, cpBody *b, cpVect r1, cpVect r2){
-	cpVect v1_sum = cpvadd(a->v, cpvmult(cpvperp(r1), a->w));
-	cpVect v2_sum = cpvadd(b->v, cpvmult(cpvperp(r2), b->w));
+static inline phy_vect
+relative_velocity(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2){
+	phy_vect v1_sum = cpvadd(a->v, cpvmult(cpvperp(r1), a->w));
+	phy_vect v2_sum = cpvadd(b->v, cpvmult(cpvperp(r2), b->w));
 	
 	return cpvsub(v2_sum, v1_sum);
 }
 
 static inline float
-normal_relative_velocity(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect n){
+normal_relative_velocity(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2, phy_vect n){
 	return cpvdot(relative_velocity(a, b, r1, r2), n);
 }
 
 static inline void
-apply_impulse(cpBody *body, cpVect j, cpVect r){
+apply_impulse(phy_body *body, phy_vect j, phy_vect r){
 	body->v = cpvadd(body->v, cpvmult(j, body->m_inv));
 	body->w += body->i_inv*cpvcross(r, j);
 }
 
 static inline void
-apply_impulses(cpBody *a , cpBody *b, cpVect r1, cpVect r2, cpVect j)
+apply_impulses(phy_body *a , phy_body *b, phy_vect r1, phy_vect r2, phy_vect j)
 {
 	apply_impulse(a, cpvneg(j), r1);
 	apply_impulse(b, j, r2);
 }
 
 static inline void
-apply_bias_impulse(cpBody *body, cpVect j, cpVect r)
+apply_bias_impulse(phy_body *body, phy_vect j, phy_vect r)
 {
 	body->v_bias = cpvadd(body->v_bias, cpvmult(j, body->m_inv));
 	body->w_bias += body->i_inv*cpvcross(r, j);
 }
 
 static inline void
-apply_bias_impulses(cpBody *a , cpBody *b, cpVect r1, cpVect r2, cpVect j)
+apply_bias_impulses(phy_body *a , phy_body *b, phy_vect r1, phy_vect r2, phy_vect j)
 {
 	apply_bias_impulse(a, cpvneg(j), r1);
 	apply_bias_impulse(b, j, r2);
 }
 
 static inline float
-k_scalar_body(cpBody *body, cpVect r, cpVect n)
+k_scalar_body(phy_body *body, phy_vect r, phy_vect n)
 {
 	float rcn = cpvcross(r, n);
 	return body->m_inv + body->i_inv*rcn*rcn;
 }
 
 static inline float
-k_scalar(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect n)
+k_scalar(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2, phy_vect n)
 {
 	float value = k_scalar_body(a, r1, n) + k_scalar_body(b, r2, n);
 	cpAssertSoft(value != 0.0, "Unsolvable collision or constraint.");
@@ -203,8 +203,8 @@ k_scalar(cpBody *a, cpBody *b, cpVect r1, cpVect r2, cpVect n)
 	return value;
 }
 
-static inline cpMat2x2
-k_tensor(cpBody *a, cpBody *b, cpVect r1, cpVect r2)
+static inline phy_mat2x2
+k_tensor(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2)
 {
 	float m_sum = a->m_inv + b->m_inv;
 	
@@ -254,67 +254,67 @@ bias_coef(float errorBias, float dt)
 		"Put these calls into a post-step callback." \
 	);
 
-void cpSpaceSetStaticBody(cpSpace *space, cpBody *body);
+void cpSpaceSetStaticBody(phy_space *space, phy_body *body);
 
-extern cpCollisionHandler cpCollisionHandlerDoNothing;
+extern phy_collision_handler cpCollisionHandlerDoNothing;
 
-void cpSpaceProcessComponents(cpSpace *space, float dt);
+void cpSpaceProcessComponents(phy_space *space, float dt);
 
-void cpSpacePushFreshContactBuffer(cpSpace *space);
-struct cpContact *cpContactBufferGetArray(cpSpace *space);
-void cpSpacePushContacts(cpSpace *space, int count);
+void cpSpacePushFreshContactBuffer(phy_space *space);
+struct cpContact *cpContactBufferGetArray(phy_space *space);
+void cpSpacePushContacts(phy_space *space, int count);
 
-cpPostStepCallback *cpSpaceGetPostStepCallback(cpSpace *space, void *key);
+cpPostStepCallback *cpSpaceGetPostStepCallback(phy_space *space, void *key);
 
-bool cpSpaceArbiterSetFilter(cpArbiter *arb, cpSpace *space);
-void cpSpaceFilterArbiters(cpSpace *space, cpBody *body, cpShape *filter);
+bool cpSpaceArbiterSetFilter(phy_arbiter *arb, phy_space *space);
+void cpSpaceFilterArbiters(phy_space *space, phy_body *body, phy_shape *filter);
 
-void cpSpaceActivateBody(cpSpace *space, cpBody *body);
-void cpSpaceLock(cpSpace *space);
-void cpSpaceUnlock(cpSpace *space, bool runPostStep);
+void cpSpaceActivateBody(phy_space *space, phy_body *body);
+void cpSpaceLock(phy_space *space);
+void cpSpaceUnlock(phy_space *space, bool runPostStep);
 
 static inline void
-cpSpaceUncacheArbiter(cpSpace *space, cpArbiter *arb)
+cpSpaceUncacheArbiter(phy_space *space, phy_arbiter *arb)
 {
-	const cpShape *a = arb->a, *b = arb->b;
-	const cpShape *shape_pair[] = {a, b};
+	const phy_shape *a = arb->a, *b = arb->b;
+	const phy_shape *shape_pair[] = {a, b};
 	phy_hash_value arbHashID = CP_HASH_PAIR((phy_hash_value)a, (phy_hash_value)b);
 	cpHashSetRemove(space->cachedArbiters, arbHashID, shape_pair);
 	cpArrayDeleteObj(space->arbiters, arb);
 }
 
-static inline cpArray *
-cpSpaceArrayForBodyType(cpSpace *space, cpBodyType type)
+static inline phy_array *
+cpSpaceArrayForBodyType(phy_space *space, phy_body_type type)
 {
 	return (type == CP_BODY_TYPE_STATIC ? space->staticBodies : space->dynamicBodies);
 }
 
-void cpShapeUpdateFunc(cpShape *shape, void *unused);
-phy_collision_id cpSpaceCollideShapes(cpShape *a, cpShape *b, phy_collision_id id, cpSpace *space);
+void cpShapeUpdateFunc(phy_shape *shape, void *unused);
+phy_collision_id cpSpaceCollideShapes(phy_shape *a, phy_shape *b, phy_collision_id id, phy_space *space);
 
 
 //MARK: Foreach loops
 
-static inline cpConstraint *
-cpConstraintNext(cpConstraint *node, cpBody *body)
+static inline phy_constraint *
+cpConstraintNext(phy_constraint *node, phy_body *body)
 {
 	return (node->a == body ? node->next_a : node->next_b);
 }
 
 #define CP_BODY_FOREACH_CONSTRAINT(bdy, var)\
-	for(cpConstraint *var = bdy->constraintList; var; var = cpConstraintNext(var, bdy))
+	for(phy_constraint *var = bdy->constraintList; var; var = cpConstraintNext(var, bdy))
 
-static inline cpArbiter *
-cpArbiterNext(cpArbiter *node, cpBody *body)
+static inline phy_arbiter *
+cpArbiterNext(phy_arbiter *node, phy_body *body)
 {
 	return (node->body_a == body ? node->thread_a.next : node->thread_b.next);
 }
 
 #define CP_BODY_FOREACH_ARBITER(bdy, var)\
-	for(cpArbiter *var = bdy->arbiterList; var; var = cpArbiterNext(var, bdy))
+	for(phy_arbiter *var = bdy->arbiterList; var; var = cpArbiterNext(var, bdy))
 
 #define CP_BODY_FOREACH_SHAPE(body, var)\
-	for(cpShape *var = body->shapeList; var; var = var->next)
+	for(phy_shape *var = body->shapeList; var; var = var->next)
 
 #define CP_BODY_FOREACH_COMPONENT(root, var)\
-	for(cpBody *var = root; var; var = var->sleeping.next)
+	for(phy_body *var = root; var; var = var->sleeping.next)

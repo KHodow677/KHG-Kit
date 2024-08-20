@@ -36,70 +36,62 @@ static inline float phy_lerpconst(float f1, float f2, float d) {
 
 typedef uintptr_t phy_hash_value;
 typedef uint32_t phy_collision_id;
-typedef void *cpDataPointer;
-typedef uintptr_t cpCollisionType;
-typedef uintptr_t cpGroup;
-typedef unsigned int cpBitmask;
-typedef unsigned int cpTimestamp;
-#define CP_NO_GROUP ((cpGroup)0)
-#define CP_ALL_CATEGORIES (~(cpBitmask)0)
-#define CP_WILDCARD_COLLISION_TYPE (~(cpCollisionType)0)
-typedef struct cpVect{ float x,y; } cpVect;
+typedef void *phy_data_pointer;
+typedef uintptr_t phy_collision_type;
+typedef uintptr_t phy_group;
+typedef unsigned int phy_bitmask;
+typedef unsigned int phy_timestamp;
+#define PHY_NO_GROUP ((phy_group)0)
+#define PHY_ALL_CATEGORIES (~(phy_bitmask)0)
+#define PHY_WILDCARD_COLLISION_TYPE (~(phy_collision_type)0)
 
-typedef struct cpTransform {
+typedef struct phy_vect{ 
+  float x, y; 
+} phy_vect;
+
+typedef struct phy_transform {
   float a, b, c, d, tx, ty;
-} cpTransform;
+} phy_transform;
 
-typedef struct cpMat2x2 {
+typedef struct phy_mat2x2 {
 	float a, b, c, d;
-} cpMat2x2;
+} phy_mat2x2;
 
-#define CP_BUFFER_BYTES (32*1024)
+#define PHY_BUFFER_BYTES (32*1024)
 
-#define cpcalloc calloc
-#define cprealloc realloc
-#define cpfree free
+typedef struct phy_array phy_array;
+typedef struct phy_hash_set phy_hash_set;
 
-typedef struct cpArray cpArray;
-typedef struct cpHashSet cpHashSet;
+typedef struct phy_body phy_body;
 
-typedef struct cpBody cpBody;
+typedef struct phy_shape phy_shape;
+typedef struct phy_circle_shape phy_circle_shape;
+typedef struct phy_segment_shape phy_segment_shape;
+typedef struct phy_poly_shape phy_poly_shape;
 
-typedef struct cpShape cpShape;
-typedef struct cpCircleShape cpCircleShape;
-typedef struct cpSegmentShape cpSegmentShape;
-typedef struct cpPolyShape cpPolyShape;
+typedef struct phy_constraint phy_constraint;
+typedef struct phy_pin_joint phy_pin_joint;
+typedef struct phy_slide_joint phy_slide_joint;
+typedef struct phy_pivot_joint phy_pivot_joint;
+typedef struct phy_groove_joint phy_groove_joint;
+typedef struct phy_damped_spring phy_damped_spring;
+typedef struct phy_damped_rotary_spring phy_damped_rotary_spring;
+typedef struct rotary_limit_joint rotary_limit_joint;
+typedef struct phy_ratchet_joint phy_ratchet_joint;
+typedef struct phy_gear_joint phy_gear_joint;
+typedef struct phy_simple_motor_joint phy_simple_motor_joint;
 
-typedef struct cpConstraint cpConstraint;
-typedef struct cpPinJoint cpPinJoint;
-typedef struct cpSlideJoint cpSlideJoint;
-typedef struct cpPivotJoint cpPivotJoint;
-typedef struct cpGrooveJoint cpGrooveJoint;
-typedef struct cpDampedSpring cpDampedSpring;
-typedef struct cpDampedRotarySpring cpDampedRotarySpring;
-typedef struct cpRotaryLimitJoint cpRotaryLimitJoint;
-typedef struct cpRatchetJoint cpRatchetJoint;
-typedef struct cpGearJoint cpGearJoint;
-typedef struct cpSimpleMotorJoint cpSimpleMotorJoint;
-
-typedef struct cpCollisionHandler cpCollisionHandler;
+typedef struct phy_collision_handler phy_collision_handler;
 typedef struct phy_contact_point_set phy_contact_point_set;
-typedef struct cpArbiter cpArbiter;
+typedef struct phy_arbiter phy_arbiter;
 
-typedef struct cpSpace cpSpace;
+typedef struct phy_space phy_space;
 
 #ifndef alloca
-	#ifdef _WIN32
-		#include <malloc.h>
-	#elif defined(__FreeBSD__)
-	#else
-		#include <alloca.h>
-	#endif
-#endif
-
-#ifdef _WIN32
-	#define CP_EXPORT __declspec(dllexport)
+#if defined(_WIN32) || defined(_WIN64)
+#include <malloc.h>
 #else
-	#define CP_EXPORT
+#include <alloca.h>
+#endif
 #endif
 

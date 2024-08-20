@@ -7,24 +7,24 @@
 /// Collision begin event function callback type.
 /// Returning false from a begin callback causes the collision to be ignored until
 /// the the separate callback is called when the objects stop colliding.
-typedef bool (*cpCollisionBeginFunc)(cpArbiter *arb, cpSpace *space, cpDataPointer userData);
+typedef bool (*cpCollisionBeginFunc)(phy_arbiter *arb, phy_space *space, phy_data_pointer userData);
 /// Collision pre-solve event function callback type.
 /// Returning false from a pre-step callback causes the collision to be ignored until the next step.
-typedef bool (*cpCollisionPreSolveFunc)(cpArbiter *arb, cpSpace *space, cpDataPointer userData);
+typedef bool (*cpCollisionPreSolveFunc)(phy_arbiter *arb, phy_space *space, phy_data_pointer userData);
 /// Collision post-solve event function callback type.
-typedef void (*cpCollisionPostSolveFunc)(cpArbiter *arb, cpSpace *space, cpDataPointer userData);
+typedef void (*cpCollisionPostSolveFunc)(phy_arbiter *arb, phy_space *space, phy_data_pointer userData);
 /// Collision separate event function callback type.
-typedef void (*cpCollisionSeparateFunc)(cpArbiter *arb, cpSpace *space, cpDataPointer userData);
+typedef void (*cpCollisionSeparateFunc)(phy_arbiter *arb, phy_space *space, phy_data_pointer userData);
 
 /// Struct that holds function callback pointers to configure custom collision handling.
 /// Collision handlers have a pair of types; when a collision occurs between two shapes that have these types, the collision handler functions are triggered.
-struct cpCollisionHandler {
+struct phy_collision_handler {
 	/// Collision type identifier of the first shape that this handler recognizes.
 	/// In the collision handler callback, the shape with this type will be the first argument. Read only.
-	const cpCollisionType typeA;
+	const phy_collision_type typeA;
 	/// Collision type identifier of the second shape that this handler recognizes.
 	/// In the collision handler callback, the shape with this type will be the second argument. Read only.
-	const cpCollisionType typeB;
+	const phy_collision_type typeB;
 	/// This function is called when two shapes with types that match this collision handler begin colliding.
 	cpCollisionBeginFunc beginFunc;
 	/// This function is called each step when two shapes with types that match this collision handler are colliding.
@@ -36,7 +36,7 @@ struct cpCollisionHandler {
 	/// This function is called when two shapes with types that match this collision handler stop colliding.
 	cpCollisionSeparateFunc separateFunc;
 	/// This is a user definable context pointer that is passed to all of the collision handler functions.
-	cpDataPointer userData;
+	phy_data_pointer userData;
 };
 
 // TODO: Make timestep a parameter?
@@ -45,126 +45,126 @@ struct cpCollisionHandler {
 //MARK: Memory and Initialization
 
 /// Allocate a cpSpace.
-CP_EXPORT cpSpace* cpSpaceAlloc(void);
+phy_space* cpSpaceAlloc(void);
 /// Initialize a cpSpace.
-CP_EXPORT cpSpace* cpSpaceInit(cpSpace *space);
+phy_space* cpSpaceInit(phy_space *space);
 /// Allocate and initialize a cpSpace.
-CP_EXPORT cpSpace* cpSpaceNew(void);
+phy_space* cpSpaceNew(void);
 
 /// Destroy a cpSpace.
-CP_EXPORT void cpSpaceDestroy(cpSpace *space);
+void cpSpaceDestroy(phy_space *space);
 /// Destroy and free a cpSpace.
-CP_EXPORT void cpSpaceFree(cpSpace *space);
+void cpSpaceFree(phy_space *space);
 
 
 //MARK: Properties
 
 /// Number of iterations to use in the impulse solver to solve contacts and other constraints.
-CP_EXPORT int cpSpaceGetIterations(const cpSpace *space);
-CP_EXPORT void cpSpaceSetIterations(cpSpace *space, int iterations);
+int cpSpaceGetIterations(const phy_space *space);
+void cpSpaceSetIterations(phy_space *space, int iterations);
 
 /// Gravity to pass to rigid bodies when integrating velocity.
-CP_EXPORT cpVect cpSpaceGetGravity(const cpSpace *space);
-CP_EXPORT void cpSpaceSetGravity(cpSpace *space, cpVect gravity);
+phy_vect cpSpaceGetGravity(const phy_space *space);
+void cpSpaceSetGravity(phy_space *space, phy_vect gravity);
 
 /// Damping rate expressed as the fraction of velocity bodies retain each second.
 /// A value of 0.9 would mean that each body's velocity will drop 10% per second.
 /// The default value is 1.0, meaning no damping is applied.
 /// @note This damping value is different than those of cpDampedSpring and cpDampedRotarySpring.
-CP_EXPORT float cpSpaceGetDamping(const cpSpace *space);
-CP_EXPORT void cpSpaceSetDamping(cpSpace *space, float damping);
+float cpSpaceGetDamping(const phy_space *space);
+void cpSpaceSetDamping(phy_space *space, float damping);
 
 /// Speed threshold for a body to be considered idle.
 /// The default value of 0 means to let the space guess a good threshold based on gravity.
-CP_EXPORT float cpSpaceGetIdleSpeedThreshold(const cpSpace *space);
-CP_EXPORT void cpSpaceSetIdleSpeedThreshold(cpSpace *space, float idleSpeedThreshold);
+float cpSpaceGetIdleSpeedThreshold(const phy_space *space);
+void cpSpaceSetIdleSpeedThreshold(phy_space *space, float idleSpeedThreshold);
 
 /// Time a group of bodies must remain idle in order to fall asleep.
 /// Enabling sleeping also implicitly enables the the contact graph.
 /// The default value of INFINITY disables the sleeping algorithm.
-CP_EXPORT float cpSpaceGetSleepTimeThreshold(const cpSpace *space);
-CP_EXPORT void cpSpaceSetSleepTimeThreshold(cpSpace *space, float sleepTimeThreshold);
+float cpSpaceGetSleepTimeThreshold(const phy_space *space);
+void cpSpaceSetSleepTimeThreshold(phy_space *space, float sleepTimeThreshold);
 
 /// Amount of encouraged penetration between colliding shapes.
 /// Used to reduce oscillating contacts and keep the collision cache warm.
 /// Defaults to 0.1. If you have poor simulation quality,
 /// increase this number as much as possible without allowing visible amounts of overlap.
-CP_EXPORT float cpSpaceGetCollisionSlop(const cpSpace *space);
-CP_EXPORT void cpSpaceSetCollisionSlop(cpSpace *space, float collisionSlop);
+float cpSpaceGetCollisionSlop(const phy_space *space);
+void cpSpaceSetCollisionSlop(phy_space *space, float collisionSlop);
 
 /// Determines how fast overlapping shapes are pushed apart.
 /// Expressed as a fraction of the error remaining after each second.
 /// Defaults to pow(1.0 - 0.1, 60.0) meaning that Chipmunk fixes 10% of overlap each frame at 60Hz.
-CP_EXPORT float cpSpaceGetCollisionBias(const cpSpace *space);
-CP_EXPORT void cpSpaceSetCollisionBias(cpSpace *space, float collisionBias);
+float cpSpaceGetCollisionBias(const phy_space *space);
+void cpSpaceSetCollisionBias(phy_space *space, float collisionBias);
 
 /// Number of frames that contact information should persist.
 /// Defaults to 3. There is probably never a reason to change this value.
-CP_EXPORT cpTimestamp cpSpaceGetCollisionPersistence(const cpSpace *space);
-CP_EXPORT void cpSpaceSetCollisionPersistence(cpSpace *space, cpTimestamp collisionPersistence);
+phy_timestamp cpSpaceGetCollisionPersistence(const phy_space *space);
+void cpSpaceSetCollisionPersistence(phy_space *space, phy_timestamp collisionPersistence);
 
 /// User definable data pointer.
 /// Generally this points to your game's controller or game state
 /// class so you can access it when given a cpSpace reference in a callback.
-CP_EXPORT cpDataPointer cpSpaceGetUserData(const cpSpace *space);
-CP_EXPORT void cpSpaceSetUserData(cpSpace *space, cpDataPointer userData);
+phy_data_pointer cpSpaceGetUserData(const phy_space *space);
+void cpSpaceSetUserData(phy_space *space, phy_data_pointer userData);
 
 /// The Space provided static body for a given cpSpace.
 /// This is merely provided for convenience and you are not required to use it.
-CP_EXPORT cpBody* cpSpaceGetStaticBody(const cpSpace *space);
+phy_body* cpSpaceGetStaticBody(const phy_space *space);
 
 /// Returns the current (or most recent) time step used with the given space.
 /// Useful from callbacks if your time step is not a compile-time global.
-CP_EXPORT float cpSpaceGetCurrentTimeStep(const cpSpace *space);
+float cpSpaceGetCurrentTimeStep(const phy_space *space);
 
 /// returns true from inside a callback when objects cannot be added/removed.
-CP_EXPORT bool cpSpaceIsLocked(cpSpace *space);
+bool cpSpaceIsLocked(phy_space *space);
 
 
 //MARK: Collision Handlers
 
 /// Create or return the existing collision handler that is called for all collisions that are not handled by a more specific collision handler.
-CP_EXPORT cpCollisionHandler *cpSpaceAddDefaultCollisionHandler(cpSpace *space);
+phy_collision_handler *cpSpaceAddDefaultCollisionHandler(phy_space *space);
 /// Create or return the existing collision handler for the specified pair of collision types.
 /// If wildcard handlers are used with either of the collision types, it's the responibility of the custom handler to invoke the wildcard handlers.
-CP_EXPORT cpCollisionHandler *cpSpaceAddCollisionHandler(cpSpace *space, cpCollisionType a, cpCollisionType b);
+phy_collision_handler *cpSpaceAddCollisionHandler(phy_space *space, phy_collision_type a, phy_collision_type b);
 /// Create or return the existing wildcard collision handler for the specified type.
-CP_EXPORT cpCollisionHandler *cpSpaceAddWildcardHandler(cpSpace *space, cpCollisionType type);
+phy_collision_handler *cpSpaceAddWildcardHandler(phy_space *space, phy_collision_type type);
 
 
 //MARK: Add/Remove objects
 
 /// Add a collision shape to the simulation.
 /// If the shape is attached to a static body, it will be added as a static shape.
-CP_EXPORT cpShape* cpSpaceAddShape(cpSpace *space, cpShape *shape);
+phy_shape* cpSpaceAddShape(phy_space *space, phy_shape *shape);
 /// Add a rigid body to the simulation.
-CP_EXPORT cpBody* cpSpaceAddBody(cpSpace *space, cpBody *body);
+phy_body* cpSpaceAddBody(phy_space *space, phy_body *body);
 /// Add a constraint to the simulation.
-CP_EXPORT cpConstraint* cpSpaceAddConstraint(cpSpace *space, cpConstraint *constraint);
+phy_constraint* cpSpaceAddConstraint(phy_space *space, phy_constraint *constraint);
 
 /// Remove a collision shape from the simulation.
-CP_EXPORT void cpSpaceRemoveShape(cpSpace *space, cpShape *shape);
+void cpSpaceRemoveShape(phy_space *space, phy_shape *shape);
 /// Remove a rigid body from the simulation.
-CP_EXPORT void cpSpaceRemoveBody(cpSpace *space, cpBody *body);
+void cpSpaceRemoveBody(phy_space *space, phy_body *body);
 /// Remove a constraint from the simulation.
-CP_EXPORT void cpSpaceRemoveConstraint(cpSpace *space, cpConstraint *constraint);
+void cpSpaceRemoveConstraint(phy_space *space, phy_constraint *constraint);
 
 /// Test if a collision shape has been added to the space.
-CP_EXPORT bool cpSpaceContainsShape(cpSpace *space, cpShape *shape);
+bool cpSpaceContainsShape(phy_space *space, phy_shape *shape);
 /// Test if a rigid body has been added to the space.
-CP_EXPORT bool cpSpaceContainsBody(cpSpace *space, cpBody *body);
+bool cpSpaceContainsBody(phy_space *space, phy_body *body);
 /// Test if a constraint has been added to the space.
-CP_EXPORT bool cpSpaceContainsConstraint(cpSpace *space, cpConstraint *constraint);
+bool cpSpaceContainsConstraint(phy_space *space, phy_constraint *constraint);
 
 //MARK: Post-Step Callbacks
 
 /// Post Step callback function type.
-typedef void (*cpPostStepFunc)(cpSpace *space, void *key, void *data);
+typedef void (*cpPostStepFunc)(phy_space *space, void *key, void *data);
 /// Schedule a post-step callback to be called when cpSpaceStep() finishes.
 /// You can only register one callback per unique value for @c key.
 /// Returns true only if @c key has never been scheduled before.
 /// It's possible to pass @c NULL for @c func if you only want to mark @c key as being used.
-CP_EXPORT bool cpSpaceAddPostStepCallback(cpSpace *space, cpPostStepFunc func, void *key, void *data);
+bool cpSpaceAddPostStepCallback(phy_space *space, cpPostStepFunc func, void *key, void *data);
 
 
 //MARK: Queries
@@ -173,66 +173,66 @@ CP_EXPORT bool cpSpaceAddPostStepCallback(cpSpace *space, cpPostStepFunc func, v
 // TODO: They should also be abortable.
 
 /// Nearest point query callback function type.
-typedef void (*cpSpacePointQueryFunc)(cpShape *shape, cpVect point, float distance, cpVect gradient, void *data);
+typedef void (*cpSpacePointQueryFunc)(phy_shape *shape, phy_vect point, float distance, phy_vect gradient, void *data);
 /// Query the space at a point and call @c func for each shape found.
-CP_EXPORT void cpSpacePointQuery(cpSpace *space, cpVect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryFunc func, void *data);
+void cpSpacePointQuery(phy_space *space, phy_vect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryFunc func, void *data);
 /// Query the space at a point and return the nearest shape found. Returns NULL if no shapes were found.
-CP_EXPORT cpShape *cpSpacePointQueryNearest(cpSpace *space, cpVect point, float maxDistance, cpShapeFilter filter, cpPointQueryInfo *out);
+phy_shape *cpSpacePointQueryNearest(phy_space *space, phy_vect point, float maxDistance, cpShapeFilter filter, cpPointQueryInfo *out);
 
 /// Segment query callback function type.
-typedef void (*cpSpaceSegmentQueryFunc)(cpShape *shape, cpVect point, cpVect normal, float alpha, void *data);
+typedef void (*cpSpaceSegmentQueryFunc)(phy_shape *shape, phy_vect point, phy_vect normal, float alpha, void *data);
 /// Perform a directed line segment query (like a raycast) against the space calling @c func for each shape intersected.
-CP_EXPORT void cpSpaceSegmentQuery(cpSpace *space, cpVect start, cpVect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryFunc func, void *data);
+void cpSpaceSegmentQuery(phy_space *space, phy_vect start, phy_vect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryFunc func, void *data);
 /// Perform a directed line segment query (like a raycast) against the space and return the first shape hit. Returns NULL if no shapes were hit.
-CP_EXPORT cpShape *cpSpaceSegmentQueryFirst(cpSpace *space, cpVect start, cpVect end, float radius, cpShapeFilter filter, cpSegmentQueryInfo *out);
+phy_shape *cpSpaceSegmentQueryFirst(phy_space *space, phy_vect start, phy_vect end, float radius, cpShapeFilter filter, cpSegmentQueryInfo *out);
 
 /// Rectangle Query callback function type.
-typedef void (*cpSpaceBBQueryFunc)(cpShape *shape, void *data);
+typedef void (*cpSpaceBBQueryFunc)(phy_shape *shape, void *data);
 /// Perform a fast rectangle query on the space calling @c func for each shape found.
 /// Only the shape's bounding boxes are checked for overlap, not their full shape.
-CP_EXPORT void cpSpaceBBQuery(cpSpace *space, cpBB bb, cpShapeFilter filter, cpSpaceBBQueryFunc func, void *data);
+void cpSpaceBBQuery(phy_space *space, phy_bb bb, cpShapeFilter filter, cpSpaceBBQueryFunc func, void *data);
 
 /// Shape query callback function type.
-typedef void (*cpSpaceShapeQueryFunc)(cpShape *shape, phy_contact_point_set *points, void *data);
+typedef void (*cpSpaceShapeQueryFunc)(phy_shape *shape, phy_contact_point_set *points, void *data);
 /// Query a space for any shapes overlapping the given shape and call @c func for each shape found.
-CP_EXPORT bool cpSpaceShapeQuery(cpSpace *space, cpShape *shape, cpSpaceShapeQueryFunc func, void *data);
+bool cpSpaceShapeQuery(phy_space *space, phy_shape *shape, cpSpaceShapeQueryFunc func, void *data);
 
 
 //MARK: Iteration
 
 /// Space/body iterator callback function type.
-typedef void (*cpSpaceBodyIteratorFunc)(cpBody *body, void *data);
+typedef void (*cpSpaceBodyIteratorFunc)(phy_body *body, void *data);
 /// Call @c func for each body in the space.
-CP_EXPORT void cpSpaceEachBody(cpSpace *space, cpSpaceBodyIteratorFunc func, void *data);
+void cpSpaceEachBody(phy_space *space, cpSpaceBodyIteratorFunc func, void *data);
 
 /// Space/body iterator callback function type.
-typedef void (*cpSpaceShapeIteratorFunc)(cpShape *shape, void *data);
+typedef void (*cpSpaceShapeIteratorFunc)(phy_shape *shape, void *data);
 /// Call @c func for each shape in the space.
-CP_EXPORT void cpSpaceEachShape(cpSpace *space, cpSpaceShapeIteratorFunc func, void *data);
+void cpSpaceEachShape(phy_space *space, cpSpaceShapeIteratorFunc func, void *data);
 
 /// Space/constraint iterator callback function type.
-typedef void (*cpSpaceConstraintIteratorFunc)(cpConstraint *constraint, void *data);
+typedef void (*cpSpaceConstraintIteratorFunc)(phy_constraint *constraint, void *data);
 /// Call @c func for each shape in the space.
-CP_EXPORT void cpSpaceEachConstraint(cpSpace *space, cpSpaceConstraintIteratorFunc func, void *data);
+void cpSpaceEachConstraint(phy_space *space, cpSpaceConstraintIteratorFunc func, void *data);
 
 
 //MARK: Indexing
 
 /// Update the collision detection info for the static shapes in the space.
-CP_EXPORT void cpSpaceReindexStatic(cpSpace *space);
+void cpSpaceReindexStatic(phy_space *space);
 /// Update the collision detection data for a specific shape in the space.
-CP_EXPORT void cpSpaceReindexShape(cpSpace *space, cpShape *shape);
+void cpSpaceReindexShape(phy_space *space, phy_shape *shape);
 /// Update the collision detection data for all shapes attached to a body.
-CP_EXPORT void cpSpaceReindexShapesForBody(cpSpace *space, cpBody *body);
+void cpSpaceReindexShapesForBody(phy_space *space, phy_body *body);
 
 /// Switch the space to use a spatial has as it's spatial index.
-CP_EXPORT void cpSpaceUseSpatialHash(cpSpace *space, float dim, int count);
+void cpSpaceUseSpatialHash(phy_space *space, float dim, int count);
 
 
 //MARK: Time Stepping
 
 /// Step the space forward in time by @c dt.
-CP_EXPORT void cpSpaceStep(cpSpace *space, float dt);
+void cpSpaceStep(phy_space *space, float dt);
 
 
 //MARK: Debug API
@@ -245,17 +245,17 @@ typedef struct cpSpaceDebugColor {
 } cpSpaceDebugColor;
 
 /// Callback type for a function that draws a filled, stroked circle.
-typedef void (*cpSpaceDebugDrawCircleImpl)(cpVect pos, float angle, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawCircleImpl)(phy_vect pos, float angle, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, phy_data_pointer data);
 /// Callback type for a function that draws a line segment.
-typedef void (*cpSpaceDebugDrawSegmentImpl)(cpVect a, cpVect b, cpSpaceDebugColor color, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawSegmentImpl)(phy_vect a, phy_vect b, cpSpaceDebugColor color, phy_data_pointer data);
 /// Callback type for a function that draws a thick line segment.
-typedef void (*cpSpaceDebugDrawFatSegmentImpl)(cpVect a, cpVect b, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawFatSegmentImpl)(phy_vect a, phy_vect b, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, phy_data_pointer data);
 /// Callback type for a function that draws a convex polygon.
-typedef void (*cpSpaceDebugDrawPolygonImpl)(int count, const cpVect *verts, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawPolygonImpl)(int count, const phy_vect *verts, float radius, cpSpaceDebugColor outlineColor, cpSpaceDebugColor fillColor, phy_data_pointer data);
 /// Callback type for a function that draws a dot.
-typedef void (*cpSpaceDebugDrawDotImpl)(float size, cpVect pos, cpSpaceDebugColor color, cpDataPointer data);
+typedef void (*cpSpaceDebugDrawDotImpl)(float size, phy_vect pos, cpSpaceDebugColor color, phy_data_pointer data);
 /// Callback type for a function that returns a color for a given shape. This gives you an opportunity to color shapes based on how they are used in your engine.
-typedef cpSpaceDebugColor (*cpSpaceDebugDrawColorForShapeImpl)(cpShape *shape, cpDataPointer data);
+typedef cpSpaceDebugColor (*cpSpaceDebugDrawColorForShapeImpl)(phy_shape *shape, phy_data_pointer data);
 
 typedef enum cpSpaceDebugDrawFlags {
 	CP_SPACE_DEBUG_DRAW_SHAPES = 1<<0,
@@ -288,10 +288,10 @@ typedef struct cpSpaceDebugDrawOptions {
 	cpSpaceDebugColor collisionPointColor;
 	
 	/// User defined context pointer passed to all of the callback functions as the 'data' argument.
-	cpDataPointer data;
+	phy_data_pointer data;
 } cpSpaceDebugDrawOptions;
 
 /// Debug draw the current state of the space using the supplied drawing options.
-CP_EXPORT void cpSpaceDebugDraw(cpSpace *space, cpSpaceDebugDrawOptions *options);
+void cpSpaceDebugDraw(phy_space *space, cpSpaceDebugDrawOptions *options);
 
 #endif

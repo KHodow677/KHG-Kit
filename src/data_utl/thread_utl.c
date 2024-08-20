@@ -1,4 +1,5 @@
 #include "data_utl/thread_utl.h"
+#include "khg_thd/thread.h"
 #include <stdio.h>
 
 int THREAD_COUNT;
@@ -15,4 +16,3 @@ void set_optimal_thread_count() {
   printf("Number of Threads: %i\n", THREAD_COUNT);
 #endif
 }
-

@@ -2,165 +2,122 @@
 
 #include "khg_phy/phy_types.h"
 
-typedef enum cpBodyType {
-	/// A dynamic body is one that is affected by gravity, forces, and collisions.
-	/// This is the default body type.
+typedef enum phy_body_type {
 	CP_BODY_TYPE_DYNAMIC,
-	/// A kinematic body is an infinite mass, user controlled body that is not affected by gravity, forces or collisions.
-	/// Instead the body only moves based on it's velocity.
-	/// Dynamic bodies collide normally with kinematic bodies, though the kinematic body will be unaffected.
-	/// Collisions between two kinematic bodies, or a kinematic body and a static body produce collision callbacks, but no collision response.
 	CP_BODY_TYPE_KINEMATIC,
-	/// A static body is a body that never (or rarely) moves. If you move a static body, you must call one of the cpSpaceReindex*() functions.
-	/// Chipmunk uses this information to optimize the collision detection.
-	/// Static bodies do not produce collision callbacks when colliding with other static bodies.
 	CP_BODY_TYPE_STATIC,
-} cpBodyType;
+} phy_body_type;
 
-/// Rigid body velocity update function type.
-typedef void (*cpBodyVelocityFunc)(cpBody *body, cpVect gravity, float damping, float dt);
-/// Rigid body position update function type.
-typedef void (*cpBodyPositionFunc)(cpBody *body, float dt);
+typedef void (*phy_body_velocity_func)(phy_body *body, phy_vect gravity, float damping, float dt);
+typedef void (*phy_body_position_func)(phy_body *body, float dt);
 
-/// Allocate a cpBody.
-CP_EXPORT cpBody* cpBodyAlloc(void);
-/// Initialize a cpBody.
-CP_EXPORT cpBody* cpBodyInit(cpBody *body, float mass, float moment);
-/// Allocate and initialize a cpBody.
-CP_EXPORT cpBody* cpBodyNew(float mass, float moment);
+phy_body *phy_body_alloc(void);
+phy_body *phy_body_init(phy_body *body, float mass, float moment);
+phy_body *phy_body_new(float mass, float moment);
 
-/// Allocate and initialize a cpBody, and set it as a kinematic body.
-CP_EXPORT cpBody* cpBodyNewKinematic(void);
-/// Allocate and initialize a cpBody, and set it as a static body.
-CP_EXPORT cpBody* cpBodyNewStatic(void);
+phy_body *phy_body_new_kinematic(void);
+phy_body *phy_body_new_static(void);
 
-/// Destroy a cpBody.
-CP_EXPORT void cpBodyDestroy(cpBody *body);
-/// Destroy and free a cpBody.
-CP_EXPORT void cpBodyFree(cpBody *body);
+void phy_body_destroy(phy_body *body);
+void phy_body_free(phy_body *body);
 
-// Defined in cpSpace.c
-/// Wake up a sleeping or idle body.
-CP_EXPORT void cpBodyActivate(cpBody *body);
-/// Wake up any sleeping or idle bodies touching a static body.
-CP_EXPORT void cpBodyActivateStatic(cpBody *body, cpShape *filter);
+void phy_body_activate(phy_body *body);
+void phy_body_activate_static(phy_body *body, phy_shape *filter);
 
-/// Force a body to fall asleep immediately.
-CP_EXPORT void cpBodySleep(cpBody *body);
-/// Force a body to fall asleep immediately along with other bodies in a group.
-CP_EXPORT void cpBodySleepWithGroup(cpBody *body, cpBody *group);
+void phy_body_sleep(phy_body *body);
+void phy_body_sleep_with_group(phy_body *body, phy_body *group);
 
-/// Returns true if the body is sleeping.
-CP_EXPORT bool cpBodyIsSleeping(const cpBody *body);
+bool phy_body_is_sleeping(const phy_body *body);
 
-/// Get the type of the body.
-CP_EXPORT cpBodyType cpBodyGetType(cpBody *body);
-/// Set the type of the body.
-CP_EXPORT void cpBodySetType(cpBody *body, cpBodyType type);
+phy_body_type phy_body_get_type(phy_body *body);
+void phy_body_set_type(phy_body *body, phy_body_type type);
 
-/// Get the space this body is added to.
-CP_EXPORT cpSpace* cpBodyGetSpace(const cpBody *body);
+phy_space *phy_body_get_space(const phy_body *body);
 
-/// Get the mass of the body.
-CP_EXPORT float cpBodyGetMass(const cpBody *body);
-/// Set the mass of the body.
-CP_EXPORT void cpBodySetMass(cpBody *body, float m);
+float phy_body_get_mass(const phy_body *body);
+void phy_body_set_mass(phy_body *body, float m);
 
-/// Get the moment of inertia of the body.
-CP_EXPORT float cpBodyGetMoment(const cpBody *body);
-/// Set the moment of inertia of the body.
-CP_EXPORT void cpBodySetMoment(cpBody *body, float i);
+float phy_body_get_moment(const phy_body *body);
+void phy_body_set_moment(phy_body *body, float i);
 
-/// Set the position of a body.
-CP_EXPORT cpVect cpBodyGetPosition(const cpBody *body);
-/// Set the position of the body.
-CP_EXPORT void cpBodySetPosition(cpBody *body, cpVect pos);
+phy_vect phy_body_get_position(const phy_body *body);
+void phy_body_set_position(phy_body *body, phy_vect pos);
 
-/// Get the offset of the center of gravity in body local coordinates.
-CP_EXPORT cpVect cpBodyGetCenterOfGravity(const cpBody *body);
-/// Set the offset of the center of gravity in body local coordinates.
-CP_EXPORT void cpBodySetCenterOfGravity(cpBody *body, cpVect cog);
+phy_vect phy_body_get_center_of_gravity(const phy_body *body);
+void phy_body_set_center_of_gravity(phy_body *body, phy_vect cog);
 
-/// Get the velocity of the body.
-CP_EXPORT cpVect cpBodyGetVelocity(const cpBody *body);
-/// Set the velocity of the body.
-CP_EXPORT void cpBodySetVelocity(cpBody *body, cpVect velocity);
+phy_vect phy_body_get_velocity(const phy_body *body);
+void phy_body_set_velocity(phy_body *body, phy_vect velocity);
 
-/// Get the force applied to the body for the next time step.
-CP_EXPORT cpVect cpBodyGetForce(const cpBody *body);
-/// Set the force applied to the body for the next time step.
-CP_EXPORT void cpBodySetForce(cpBody *body, cpVect force);
+phy_vect phy_body_get_force(const phy_body *body);
+void phy_body_set_force(phy_body *body, phy_vect force);
 
-/// Get the angle of the body.
-CP_EXPORT float cpBodyGetAngle(const cpBody *body);
-/// Set the angle of a body.
-CP_EXPORT void cpBodySetAngle(cpBody *body, float a);
+float phy_body_get_angle(const phy_body *body);
+void phy_body_set_angle(phy_body *body, float a);
 
-/// Get the angular velocity of the body.
-CP_EXPORT float cpBodyGetAngularVelocity(const cpBody *body);
-/// Set the angular velocity of the body.
-CP_EXPORT void cpBodySetAngularVelocity(cpBody *body, float angularVelocity);
+float phy_body_get_angular_velocity(const phy_body *body);
+void phy_body_set_angular_velocity(phy_body *body, float angularVelocity);
 
 /// Get the torque applied to the body for the next time step.
-CP_EXPORT float cpBodyGetTorque(const cpBody *body);
+float cpBodyGetTorque(const phy_body *body);
 /// Set the torque applied to the body for the next time step.
-CP_EXPORT void cpBodySetTorque(cpBody *body, float torque);
+void cpBodySetTorque(phy_body *body, float torque);
 
 /// Get the rotation vector of the body. (The x basis vector of it's transform.)
-CP_EXPORT cpVect cpBodyGetRotation(const cpBody *body);
+phy_vect cpBodyGetRotation(const phy_body *body);
 
 /// Get the user data pointer assigned to the body.
-CP_EXPORT cpDataPointer cpBodyGetUserData(const cpBody *body);
+phy_data_pointer cpBodyGetUserData(const phy_body *body);
 /// Set the user data pointer assigned to the body.
-CP_EXPORT void cpBodySetUserData(cpBody *body, cpDataPointer userData);
+void cpBodySetUserData(phy_body *body, phy_data_pointer userData);
 
 /// Set the callback used to update a body's velocity.
-CP_EXPORT void cpBodySetVelocityUpdateFunc(cpBody *body, cpBodyVelocityFunc velocityFunc);
+void cpBodySetVelocityUpdateFunc(phy_body *body, phy_body_velocity_func velocityFunc);
 /// Set the callback used to update a body's position.
 /// NOTE: It's not generally recommended to override this unless you call the default position update function.
-CP_EXPORT void cpBodySetPositionUpdateFunc(cpBody *body, cpBodyPositionFunc positionFunc);
+void cpBodySetPositionUpdateFunc(phy_body *body, phy_body_position_func positionFunc);
 
 /// Default velocity integration function..
-CP_EXPORT void cpBodyUpdateVelocity(cpBody *body, cpVect gravity, float damping, float dt);
+void cpBodyUpdateVelocity(phy_body *body, phy_vect gravity, float damping, float dt);
 /// Default position integration function.
-CP_EXPORT void cpBodyUpdatePosition(cpBody *body, float dt);
+void cpBodyUpdatePosition(phy_body *body, float dt);
 
 /// Convert body relative/local coordinates to absolute/world coordinates.
-CP_EXPORT cpVect cpBodyLocalToWorld(const cpBody *body, const cpVect point);
+phy_vect cpBodyLocalToWorld(const phy_body *body, const phy_vect point);
 /// Convert body absolute/world coordinates to  relative/local coordinates.
-CP_EXPORT cpVect cpBodyWorldToLocal(const cpBody *body, const cpVect point);
+phy_vect cpBodyWorldToLocal(const phy_body *body, const phy_vect point);
 
 /// Apply a force to a body. Both the force and point are expressed in world coordinates.
-CP_EXPORT void cpBodyApplyForceAtWorldPoint(cpBody *body, cpVect force, cpVect point);
+void cpBodyApplyForceAtWorldPoint(phy_body *body, phy_vect force, phy_vect point);
 /// Apply a force to a body. Both the force and point are expressed in body local coordinates.
-CP_EXPORT void cpBodyApplyForceAtLocalPoint(cpBody *body, cpVect force, cpVect point);
+void cpBodyApplyForceAtLocalPoint(phy_body *body, phy_vect force, phy_vect point);
 
 /// Apply an impulse to a body. Both the impulse and point are expressed in world coordinates.
-CP_EXPORT void cpBodyApplyImpulseAtWorldPoint(cpBody *body, cpVect impulse, cpVect point);
+void cpBodyApplyImpulseAtWorldPoint(phy_body *body, phy_vect impulse, phy_vect point);
 /// Apply an impulse to a body. Both the impulse and point are expressed in body local coordinates.
-CP_EXPORT void cpBodyApplyImpulseAtLocalPoint(cpBody *body, cpVect impulse, cpVect point);
+void cpBodyApplyImpulseAtLocalPoint(phy_body *body, phy_vect impulse, phy_vect point);
 
 /// Get the velocity on a body (in world units) at a point on the body in world coordinates.
-CP_EXPORT cpVect cpBodyGetVelocityAtWorldPoint(const cpBody *body, cpVect point);
+phy_vect cpBodyGetVelocityAtWorldPoint(const phy_body *body, phy_vect point);
 /// Get the velocity on a body (in world units) at a point on the body in local coordinates.
-CP_EXPORT cpVect cpBodyGetVelocityAtLocalPoint(const cpBody *body, cpVect point);
+phy_vect cpBodyGetVelocityAtLocalPoint(const phy_body *body, phy_vect point);
 
 /// Get the amount of kinetic energy contained by the body.
-CP_EXPORT float cpBodyKineticEnergy(const cpBody *body);
+float cpBodyKineticEnergy(const phy_body *body);
 
 /// Body/shape iterator callback function type. 
-typedef void (*cpBodyShapeIteratorFunc)(cpBody *body, cpShape *shape, void *data);
+typedef void (*cpBodyShapeIteratorFunc)(phy_body *body, phy_shape *shape, void *data);
 /// Call @c func once for each shape attached to @c body and added to the space.
-CP_EXPORT void cpBodyEachShape(cpBody *body, cpBodyShapeIteratorFunc func, void *data);
+void cpBodyEachShape(phy_body *body, cpBodyShapeIteratorFunc func, void *data);
 
 /// Body/constraint iterator callback function type. 
-typedef void (*cpBodyConstraintIteratorFunc)(cpBody *body, cpConstraint *constraint, void *data);
+typedef void (*cpBodyConstraintIteratorFunc)(phy_body *body, phy_constraint *constraint, void *data);
 /// Call @c func once for each constraint attached to @c body and added to the space.
-CP_EXPORT void cpBodyEachConstraint(cpBody *body, cpBodyConstraintIteratorFunc func, void *data);
+void cpBodyEachConstraint(phy_body *body, cpBodyConstraintIteratorFunc func, void *data);
 
 /// Body/arbiter iterator callback function type. 
-typedef void (*cpBodyArbiterIteratorFunc)(cpBody *body, cpArbiter *arbiter, void *data);
+typedef void (*cpBodyArbiterIteratorFunc)(phy_body *body, phy_arbiter *arbiter, void *data);
 /// Call @c func once for each arbiter that is currently active on the body.
-CP_EXPORT void cpBodyEachArbiter(cpBody *body, cpBodyArbiterIteratorFunc func, void *data);
+void cpBodyEachArbiter(phy_body *body, cpBodyArbiterIteratorFunc func, void *data);
 
 ///@}

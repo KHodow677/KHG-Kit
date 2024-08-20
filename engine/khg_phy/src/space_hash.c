@@ -32,13 +32,13 @@ struct cpSpaceHash {
 	float celldim;
 	
 	cpSpaceHashBin **table;
-	cpHashSet *handleSet;
+	phy_hash_set *handleSet;
 	
 	cpSpaceHashBin *pooledBins;
-	cpArray *pooledHandles;
-	cpArray *allocatedBuffers;
+	phy_array *pooledHandles;
+	phy_array *allocatedBuffers;
 	
-	cpTimestamp stamp;
+	phy_timestamp stamp;
 };
 
 
@@ -47,7 +47,7 @@ struct cpSpaceHash {
 struct cpHandle {
 	void *obj;
 	int retain;
-	cpTimestamp stamp;
+	phy_timestamp stamp;
 };
 
 static cpHandle*
@@ -63,7 +63,7 @@ cpHandleInit(cpHandle *hand, void *obj)
 static inline void cpHandleRetain(cpHandle *hand){hand->retain++;}
 
 static inline void
-cpHandleRelease(cpHandle *hand, cpArray *pooledHandles)
+cpHandleRelease(cpHandle *hand, phy_array *pooledHandles)
 {
 	hand->retain--;
 	if(hand->retain == 0) cpArrayPush(pooledHandles, hand);
@@ -76,10 +76,10 @@ handleSetTrans(void *obj, cpSpaceHash *hash)
 {
 	if(hash->pooledHandles->num == 0){
 		// handle pool is exhausted, make more
-		int count = CP_BUFFER_BYTES/sizeof(cpHandle);
+		int count = PHY_BUFFER_BYTES/sizeof(cpHandle);
 		cpAssertHard(count, "Internal Error: Buffer size is too small.");
 		
-		cpHandle *buffer = (cpHandle *)cpcalloc(1, CP_BUFFER_BYTES);
+		cpHandle *buffer = (cpHandle *)calloc(1, PHY_BUFFER_BYTES);
 		cpArrayPush(hash->allocatedBuffers, buffer);
 		
 		for(int i=0; i<count; i++) cpArrayPush(hash->pooledHandles, buffer + i);
@@ -138,10 +138,10 @@ getEmptyBin(cpSpaceHash *hash)
 		return bin;
 	} else {
 		// Pool is exhausted, make more
-		int count = CP_BUFFER_BYTES/sizeof(cpSpaceHashBin);
+		int count = PHY_BUFFER_BYTES/sizeof(cpSpaceHashBin);
 		cpAssertHard(count, "Internal Error: Buffer size is too small.");
 		
-		cpSpaceHashBin *buffer = (cpSpaceHashBin *)cpcalloc(1, CP_BUFFER_BYTES);
+		cpSpaceHashBin *buffer = (cpSpaceHashBin *)calloc(1, PHY_BUFFER_BYTES);
 		cpArrayPush(hash->allocatedBuffers, buffer);
 		
 		// push all but the first one, return the first instead
@@ -155,17 +155,17 @@ getEmptyBin(cpSpaceHash *hash)
 cpSpaceHash *
 cpSpaceHashAlloc(void)
 {
-	return (cpSpaceHash *)cpcalloc(1, sizeof(cpSpaceHash));
+	return (cpSpaceHash *)calloc(1, sizeof(cpSpaceHash));
 }
 
 // Frees the old table, and allocate a new one.
 static void
 cpSpaceHashAllocTable(cpSpaceHash *hash, int numcells)
 {
-	cpfree(hash->table);
+	free(hash->table);
 	
 	hash->numcells = numcells;
-	hash->table = (cpSpaceHashBin **)cpcalloc(numcells, sizeof(cpSpaceHashBin *));
+	hash->table = (cpSpaceHashBin **)calloc(numcells, sizeof(cpSpaceHashBin *));
 }
 
 static inline cpSpatialIndexClass *Klass(void);
@@ -200,11 +200,11 @@ static void
 cpSpaceHashDestroy(cpSpaceHash *hash)
 {
 	if(hash->table) clearTable(hash);
-	cpfree(hash->table);
+	free(hash->table);
 	
 	cpHashSetFree(hash->handleSet);
 	
-	cpArrayFreeEach(hash->allocatedBuffers, cpfree);
+	cpArrayFreeEach(hash->allocatedBuffers, free);
 	cpArrayFree(hash->allocatedBuffers);
 	cpArrayFree(hash->pooledHandles);
 }
@@ -239,7 +239,7 @@ floor_int(float f)
 }
 
 static inline void
-hashHandle(cpSpaceHash *hash, cpHandle *hand, cpBB bb)
+hashHandle(cpSpaceHash *hash, cpHandle *hand, phy_bb bb)
 {
 	// Find the dimensions in cell coordinates.
 	float dim = hash->celldim;
@@ -374,7 +374,7 @@ query_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSpatialIn
 }
 
 static void
-cpSpaceHashQuery(cpSpaceHash *hash, void *obj, cpBB bb, cpSpatialIndexQueryFunc func, void *data)
+cpSpaceHashQuery(cpSpaceHash *hash, void *obj, phy_bb bb, cpSpatialIndexQueryFunc func, void *data)
 {
 	// Get the dimensions in cell coordinates.
 	float dim = hash->celldim;
@@ -415,7 +415,7 @@ queryRehash_helper(cpHandle *hand, queryRehashContext *context)
 	int n = hash->numcells;
 
 	void *obj = hand->obj;
-	cpBB bb = hash->spatialIndex.bbfunc(obj);
+	phy_bb bb = hash->spatialIndex.bbfunc(obj);
 
 	int l = floor_int(bb.l/dim);
 	int r = floor_int(bb.r/dim);
@@ -485,7 +485,7 @@ segmentQuery_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSp
 
 // modified from http://playtechs.blogspot.com/2007/03/raytracing-on-grid.html
 static void
-cpSpaceHashSegmentQuery(cpSpaceHash *hash, void *obj, cpVect a, cpVect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+cpSpaceHashSegmentQuery(cpSpaceHash *hash, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
 {
 	a = cpvmult(a, 1.0f/hash->celldim);
 	b = cpvmult(b, 1.0f/hash->celldim);

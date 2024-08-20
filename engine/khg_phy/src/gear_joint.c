@@ -20,12 +20,13 @@
  */
 
 #include "khg_phy/phy_private.h"
+#include "khg_phy/phy_types.h"
 
 static void
-preStep(cpGearJoint *joint, float dt)
+preStep(phy_gear_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	// calculate moment of inertia coefficient.
 	joint->iSum = 1.0f/(a->i_inv*joint->ratio_inv + joint->ratio*b->i_inv);
@@ -36,10 +37,10 @@ preStep(cpGearJoint *joint, float dt)
 }
 
 static void
-applyCachedImpulse(cpGearJoint *joint, float dt_coef)
+applyCachedImpulse(phy_gear_joint *joint, float dt_coef)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	float j = joint->jAcc*dt_coef;
 	a->w -= j*a->i_inv*joint->ratio_inv;
@@ -47,10 +48,10 @@ applyCachedImpulse(cpGearJoint *joint, float dt_coef)
 }
 
 static void
-applyImpulse(cpGearJoint *joint, float dt)
+applyImpulse(phy_gear_joint *joint, float dt)
 {
-	cpBody *a = joint->constraint.a;
-	cpBody *b = joint->constraint.b;
+	phy_body *a = joint->constraint.a;
+	phy_body *b = joint->constraint.b;
 	
 	// compute relative rotational velocity
 	float wr = b->w*joint->ratio - a->w;
@@ -69,7 +70,7 @@ applyImpulse(cpGearJoint *joint, float dt)
 }
 
 static float
-getImpulse(cpGearJoint *joint)
+getImpulse(phy_gear_joint *joint)
 {
 	return phy_abs(joint->jAcc);
 }
@@ -81,16 +82,16 @@ static const cpConstraintClass klass = {
 	(cpConstraintGetImpulseImpl)getImpulse,
 };
 
-cpGearJoint *
+phy_gear_joint *
 cpGearJointAlloc(void)
 {
-	return (cpGearJoint *)cpcalloc(1, sizeof(cpGearJoint));
+	return (phy_gear_joint *)calloc(1, sizeof(phy_gear_joint));
 }
 
-cpGearJoint *
-cpGearJointInit(cpGearJoint *joint, cpBody *a, cpBody *b, float phase, float ratio)
+phy_gear_joint *
+cpGearJointInit(phy_gear_joint *joint, phy_body *a, phy_body *b, float phase, float ratio)
 {
-	cpConstraintInit((cpConstraint *)joint, &klass, a, b);
+	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
 	joint->phase = phase;
 	joint->ratio = ratio;
@@ -101,45 +102,45 @@ cpGearJointInit(cpGearJoint *joint, cpBody *a, cpBody *b, float phase, float rat
 	return joint;
 }
 
-cpConstraint *
-cpGearJointNew(cpBody *a, cpBody *b, float phase, float ratio)
+phy_constraint *
+cpGearJointNew(phy_body *a, phy_body *b, float phase, float ratio)
 {
-	return (cpConstraint *)cpGearJointInit(cpGearJointAlloc(), a, b, phase, ratio);
+	return (phy_constraint *)cpGearJointInit(cpGearJointAlloc(), a, b, phase, ratio);
 }
 
 bool
-cpConstraintIsGearJoint(const cpConstraint *constraint)
+cpConstraintIsGearJoint(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
 float
-cpGearJointGetPhase(const cpConstraint *constraint)
+cpGearJointGetPhase(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
-	return ((cpGearJoint *)constraint)->phase;
+	return ((phy_gear_joint *)constraint)->phase;
 }
 
 void
-cpGearJointSetPhase(cpConstraint *constraint, float phase)
+cpGearJointSetPhase(phy_constraint *constraint, float phase)
 {
 	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpGearJoint *)constraint)->phase = phase;
+	((phy_gear_joint *)constraint)->phase = phase;
 }
 
 float
-cpGearJointGetRatio(const cpConstraint *constraint)
+cpGearJointGetRatio(const phy_constraint *constraint)
 {
 	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
-	return ((cpGearJoint *)constraint)->ratio;
+	return ((phy_gear_joint *)constraint)->ratio;
 }
 
 void
-cpGearJointSetRatio(cpConstraint *constraint, float ratio)
+cpGearJointSetRatio(phy_constraint *constraint, float ratio)
 {
 	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
 	cpConstraintActivateBodies(constraint);
-	((cpGearJoint *)constraint)->ratio = ratio;
-	((cpGearJoint *)constraint)->ratio_inv = 1.0f/ratio;
+	((phy_gear_joint *)constraint)->ratio = ratio;
+	((phy_gear_joint *)constraint)->ratio_inv = 1.0f/ratio;
 }

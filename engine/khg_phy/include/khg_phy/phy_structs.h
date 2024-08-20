@@ -7,15 +7,15 @@
 #include "khg_phy/space.h"
 #include "khg_phy/spatial_index.h"
 
-struct cpArray {
+struct phy_array {
 	int num, max;
 	void **arr;
 };
 
-struct cpBody {
+struct phy_body {
 	// Integration functions
-	cpBodyVelocityFunc velocity_func;
-	cpBodyPositionFunc position_func;
+	phy_body_velocity_func velocity_func;
+	phy_body_position_func position_func;
 	
 	// mass and it's inverse
 	float m;
@@ -26,36 +26,36 @@ struct cpBody {
 	float i_inv;
 	
 	// center of gravity
-	cpVect cog;
+	phy_vect cog;
 	
 	// position, velocity, force
-	cpVect p;
-	cpVect v;
-	cpVect f;
+	phy_vect p;
+	phy_vect v;
+	phy_vect f;
 	
 	// Angle, angular velocity, torque (radians)
 	float a;
 	float w;
 	float t;
 	
-	cpTransform transform;
+	phy_transform transform;
 	
-	cpDataPointer userData;
+	phy_data_pointer userData;
 	
 	// "pseudo-velocities" used for eliminating overlap.
 	// Erin Catto has some papers that talk about what these are.
-	cpVect v_bias;
+	phy_vect v_bias;
 	float w_bias;
 	
-	cpSpace *space;
+	phy_space *space;
 	
-	cpShape *shapeList;
-	cpArbiter *arbiterList;
-	cpConstraint *constraintList;
+	phy_shape *shapeList;
+	phy_arbiter *arbiterList;
+	phy_constraint *constraintList;
 	
 	struct {
-		cpBody *root;
-		cpBody *next;
+		phy_body *root;
+		phy_body *next;
 		float idleTime;
 	} sleeping;
 };
@@ -75,11 +75,11 @@ enum cpArbiterState {
 };
 
 struct cpArbiterThread {
-	struct cpArbiter *next, *prev;
+	struct phy_arbiter *next, *prev;
 };
 
 struct cpContact {
-	cpVect r1, r2;
+	phy_vect r1, r2;
 	
 	float nMass, tMass;
 	float bounce; // TODO: look for an alternate bounce solution.
@@ -91,43 +91,43 @@ struct cpContact {
 };
 
 struct cpCollisionInfo {
-	const cpShape *a, *b;
+	const phy_shape *a, *b;
 	phy_collision_id id;
 	
-	cpVect n;
+	phy_vect n;
 	
 	int count;
 	// TODO Should this be a unique struct type?
 	struct cpContact *arr;
 };
 
-struct cpArbiter {
+struct phy_arbiter {
 	float e;
 	float u;
-	cpVect surface_vr;
+	phy_vect surface_vr;
 	
-	cpDataPointer data;
+	phy_data_pointer data;
 	
-	const cpShape *a, *b;
-	cpBody *body_a, *body_b;
+	const phy_shape *a, *b;
+	phy_body *body_a, *body_b;
 	struct cpArbiterThread thread_a, thread_b;
 	
 	int count;
 	struct cpContact *contacts;
-	cpVect n;
+	phy_vect n;
 	
 	// Regular, wildcard A and wildcard B collision handlers.
-	cpCollisionHandler *handler, *handlerA, *handlerB;
+	phy_collision_handler *handler, *handlerA, *handlerB;
 	bool swapped;
 	
-	cpTimestamp stamp;
+	phy_timestamp stamp;
 	enum cpArbiterState state;
 };
 
 struct cpShapeMassInfo {
 	float m;
 	float i;
-	cpVect cog;
+	phy_vect cog;
 	float area;
 };
 
@@ -138,10 +138,10 @@ typedef enum cpShapeType{
 	CP_NUM_SHAPES
 } cpShapeType;
 
-typedef cpBB (*cpShapeCacheDataImpl)(cpShape *shape, cpTransform transform);
-typedef void (*cpShapeDestroyImpl)(cpShape *shape);
-typedef void (*cpShapePointQueryImpl)(const cpShape *shape, cpVect p, cpPointQueryInfo *info);
-typedef void (*cpShapeSegmentQueryImpl)(const cpShape *shape, cpVect a, cpVect b, float radius, cpSegmentQueryInfo *info);
+typedef phy_bb (*cpShapeCacheDataImpl)(phy_shape *shape, phy_transform transform);
+typedef void (*cpShapeDestroyImpl)(phy_shape *shape);
+typedef void (*cpShapePointQueryImpl)(const phy_shape *shape, phy_vect p, cpPointQueryInfo *info);
+typedef void (*cpShapeSegmentQueryImpl)(const phy_shape *shape, phy_vect a, phy_vect b, float radius, cpSegmentQueryInfo *info);
 
 typedef struct cpShapeClass cpShapeClass;
 
@@ -154,56 +154,56 @@ struct cpShapeClass {
 	cpShapeSegmentQueryImpl segmentQuery;
 };
 
-struct cpShape {
+struct phy_shape {
 	const cpShapeClass *klass;
 	
-	cpSpace *space;
-	cpBody *body;
+	phy_space *space;
+	phy_body *body;
 	struct cpShapeMassInfo massInfo;
-	cpBB bb;
+	phy_bb bb;
 	
 	bool sensor;
 	
 	float e;
 	float u;
-	cpVect surfaceV;
+	phy_vect surfaceV;
 
-	cpDataPointer userData;
+	phy_data_pointer userData;
 	
-	cpCollisionType type;
+	phy_collision_type type;
 	cpShapeFilter filter;
 	
-	cpShape *next;
-	cpShape *prev;
+	phy_shape *next;
+	phy_shape *prev;
 	
 	phy_hash_value hashid;
 };
 
-struct cpCircleShape {
-	cpShape shape;
+struct phy_circle_shape {
+	phy_shape shape;
 	
-	cpVect c, tc;
+	phy_vect c, tc;
 	float r;
 };
 
-struct cpSegmentShape {
-	cpShape shape;
+struct phy_segment_shape {
+	phy_shape shape;
 	
-	cpVect a, b, n;
-	cpVect ta, tb, tn;
+	phy_vect a, b, n;
+	phy_vect ta, tb, tn;
 	float r;
 	
-	cpVect a_tangent, b_tangent;
+	phy_vect a_tangent, b_tangent;
 };
 
 struct cpSplittingPlane {
-	cpVect v0, n;
+	phy_vect v0, n;
 };
 
 #define CP_POLY_SHAPE_INLINE_ALLOC 6
 
-struct cpPolyShape {
-	cpShape shape;
+struct phy_poly_shape {
+	phy_shape shape;
 	
 	float r;
 	
@@ -215,10 +215,10 @@ struct cpPolyShape {
 	struct cpSplittingPlane _planes[2*CP_POLY_SHAPE_INLINE_ALLOC];
 };
 
-typedef void (*cpConstraintPreStepImpl)(cpConstraint *constraint, float dt);
-typedef void (*cpConstraintApplyCachedImpulseImpl)(cpConstraint *constraint, float dt_coef);
-typedef void (*cpConstraintApplyImpulseImpl)(cpConstraint *constraint, float dt);
-typedef float (*cpConstraintGetImpulseImpl)(cpConstraint *constraint);
+typedef void (*cpConstraintPreStepImpl)(phy_constraint *constraint, float dt);
+typedef void (*cpConstraintApplyCachedImpulseImpl)(phy_constraint *constraint, float dt_coef);
+typedef void (*cpConstraintApplyImpulseImpl)(phy_constraint *constraint, float dt);
+typedef float (*cpConstraintGetImpulseImpl)(phy_constraint *constraint);
 
 typedef struct cpConstraintClass {
 	cpConstraintPreStepImpl preStep;
@@ -227,13 +227,13 @@ typedef struct cpConstraintClass {
 	cpConstraintGetImpulseImpl getImpulse;
 } cpConstraintClass;
 
-struct cpConstraint {
+struct phy_constraint {
 	const cpConstraintClass *klass;
 	
-	cpSpace *space;
+	phy_space *space;
 	
-	cpBody *a, *b;
-	cpConstraint *next_a, *next_b;
+	phy_body *a, *b;
+	phy_constraint *next_a, *next_b;
 	
 	float maxForce;
 	float errorBias;
@@ -244,63 +244,63 @@ struct cpConstraint {
 	cpConstraintPreSolveFunc preSolve;
 	cpConstraintPostSolveFunc postSolve;
 	
-	cpDataPointer userData;
+	phy_data_pointer userData;
 };
 
-struct cpPinJoint {
-	cpConstraint constraint;
-	cpVect anchorA, anchorB;
+struct phy_pin_joint {
+	phy_constraint constraint;
+	phy_vect anchorA, anchorB;
 	float dist;
 	
-	cpVect r1, r2;
-	cpVect n;
+	phy_vect r1, r2;
+	phy_vect n;
 	float nMass;
 	
 	float jnAcc;
 	float bias;
 };
 
-struct cpSlideJoint {
-	cpConstraint constraint;
-	cpVect anchorA, anchorB;
+struct phy_slide_joint {
+	phy_constraint constraint;
+	phy_vect anchorA, anchorB;
 	float min, max;
 	
-	cpVect r1, r2;
-	cpVect n;
+	phy_vect r1, r2;
+	phy_vect n;
 	float nMass;
 	
 	float jnAcc;
 	float bias;
 };
 
-struct cpPivotJoint {
-	cpConstraint constraint;
-	cpVect anchorA, anchorB;
+struct phy_pivot_joint {
+	phy_constraint constraint;
+	phy_vect anchorA, anchorB;
 	
-	cpVect r1, r2;
-	cpMat2x2 k;
+	phy_vect r1, r2;
+	phy_mat2x2 k;
 	
-	cpVect jAcc;
-	cpVect bias;
+	phy_vect jAcc;
+	phy_vect bias;
 };
 
-struct cpGrooveJoint {
-	cpConstraint constraint;
-	cpVect grv_n, grv_a, grv_b;
-	cpVect  anchorB;
+struct phy_groove_joint {
+	phy_constraint constraint;
+	phy_vect grv_n, grv_a, grv_b;
+	phy_vect  anchorB;
 	
-	cpVect grv_tn;
+	phy_vect grv_tn;
 	float clamp;
-	cpVect r1, r2;
-	cpMat2x2 k;
+	phy_vect r1, r2;
+	phy_mat2x2 k;
 	
-	cpVect jAcc;
-	cpVect bias;
+	phy_vect jAcc;
+	phy_vect bias;
 };
 
-struct cpDampedSpring {
-	cpConstraint constraint;
-	cpVect anchorA, anchorB;
+struct phy_damped_spring {
+	phy_constraint constraint;
+	phy_vect anchorA, anchorB;
 	float restLength;
 	float stiffness;
 	float damping;
@@ -309,15 +309,15 @@ struct cpDampedSpring {
 	float target_vrn;
 	float v_coef;
 	
-	cpVect r1, r2;
+	phy_vect r1, r2;
 	float nMass;
-	cpVect n;
+	phy_vect n;
 	
 	float jAcc;
 };
 
-struct cpDampedRotarySpring {
-	cpConstraint constraint;
+struct phy_damped_rotary_spring {
+	phy_constraint constraint;
 	float restAngle;
 	float stiffness;
 	float damping;
@@ -330,8 +330,8 @@ struct cpDampedRotarySpring {
 	float jAcc;
 };
 
-struct cpRotaryLimitJoint {
-	cpConstraint constraint;
+struct rotary_limit_joint {
+	phy_constraint constraint;
 	float min, max;
 	
 	float iSum;
@@ -340,8 +340,8 @@ struct cpRotaryLimitJoint {
 	float jAcc;
 };
 
-struct cpRatchetJoint {
-	cpConstraint constraint;
+struct phy_ratchet_joint {
+	phy_constraint constraint;
 	float angle, phase, ratchet;
 	
 	float iSum;
@@ -350,8 +350,8 @@ struct cpRatchetJoint {
 	float jAcc;
 };
 
-struct cpGearJoint {
-	cpConstraint constraint;
+struct phy_gear_joint {
+	phy_constraint constraint;
 	float phase, ratio;
 	float ratio_inv;
 	
@@ -361,8 +361,8 @@ struct cpGearJoint {
 	float jAcc;
 };
 
-struct cpSimpleMotor {
-	cpConstraint constraint;
+struct phy_simple_motor_joint {
+	phy_constraint constraint;
 	float rate;
 	
 	float iSum;
@@ -371,12 +371,12 @@ struct cpSimpleMotor {
 };
 
 typedef struct cpContactBufferHeader cpContactBufferHeader;
-typedef void (*cpSpaceArbiterApplyImpulseFunc)(cpArbiter *arb);
+typedef void (*cpSpaceArbiterApplyImpulseFunc)(phy_arbiter *arb);
 
-struct cpSpace {
+struct phy_space {
 	int iterations;
 	
-	cpVect gravity;
+	phy_vect gravity;
 	float damping;
 	
 	float idleSpeedThreshold;
@@ -384,41 +384,41 @@ struct cpSpace {
 	
 	float collisionSlop;
 	float collisionBias;
-	cpTimestamp collisionPersistence;
+	phy_timestamp collisionPersistence;
 	
-	cpDataPointer userData;
+	phy_data_pointer userData;
 	
-	cpTimestamp stamp;
+	phy_timestamp stamp;
 	float curr_dt;
 
-	cpArray *dynamicBodies;
-	cpArray *staticBodies;
-	cpArray *rousedBodies;
-	cpArray *sleepingComponents;
+	phy_array *dynamicBodies;
+	phy_array *staticBodies;
+	phy_array *rousedBodies;
+	phy_array *sleepingComponents;
 	
 	phy_hash_value shapeIDCounter;
 	cpSpatialIndex *staticShapes;
 	cpSpatialIndex *dynamicShapes;
 	
-	cpArray *constraints;
+	phy_array *constraints;
 	
-	cpArray *arbiters;
+	phy_array *arbiters;
 	cpContactBufferHeader *contactBuffersHead;
-	cpHashSet *cachedArbiters;
-	cpArray *pooledArbiters;
+	phy_hash_set *cachedArbiters;
+	phy_array *pooledArbiters;
 	
-	cpArray *allocatedBuffers;
+	phy_array *allocatedBuffers;
 	int locked;
 	
 	bool usesWildcards;
-	cpHashSet *collisionHandlers;
-	cpCollisionHandler defaultHandler;
+	phy_hash_set *collisionHandlers;
+	phy_collision_handler defaultHandler;
 	
 	bool skipPostStep;
-	cpArray *postStepCallbacks;
+	phy_array *postStepCallbacks;
 	
-	cpBody *staticBody;
-	cpBody _staticBody;
+	phy_body *staticBody;
+	phy_body _staticBody;
 };
 
 typedef struct cpPostStepCallback {

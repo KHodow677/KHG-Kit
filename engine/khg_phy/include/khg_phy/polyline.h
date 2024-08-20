@@ -7,29 +7,29 @@
 // cpPolyline structs are intended to be passed by value and destroyed when you are done with them.
 typedef struct cpPolyline {
   int count, capacity;
-  cpVect verts[];
+  phy_vect verts[];
 } cpPolyline;
 
 /// Destroy and free a polyline instance.
-CP_EXPORT void cpPolylineFree(cpPolyline *line);
+void cpPolylineFree(cpPolyline *line);
 
 /// Returns true if the first vertex is equal to the last.
-CP_EXPORT bool cpPolylineIsClosed(cpPolyline *line);
+bool cpPolylineIsClosed(cpPolyline *line);
 
 /**
 	Returns a copy of a polyline simplified by using the Douglas-Peucker algorithm.
 	This works very well on smooth or gently curved shapes, but not well on straight edged or angular shapes.
 */
-CP_EXPORT cpPolyline *cpPolylineSimplifyCurves(cpPolyline *line, float tol);
+cpPolyline *cpPolylineSimplifyCurves(cpPolyline *line, float tol);
 
 /**
 	Returns a copy of a polyline simplified by discarding "flat" vertexes.
 	This works well on straight edged or angular shapes, not as well on smooth shapes.
 */
-CP_EXPORT cpPolyline *cpPolylineSimplifyVertexes(cpPolyline *line, float tol);
+cpPolyline *cpPolylineSimplifyVertexes(cpPolyline *line, float tol);
 
 /// Get the convex hull of a polyline as a looped polyline.
-CP_EXPORT cpPolyline *cpPolylineToConvexHull(cpPolyline *line, float tol);
+cpPolyline *cpPolylineToConvexHull(cpPolyline *line, float tol);
 
 
 /// Polyline sets are collections of polylines, generally built by cpMarchSoft() or cpMarchHard().
@@ -39,26 +39,26 @@ typedef struct cpPolylineSet {
 } cpPolylineSet;
 
 /// Allocate a new polyline set.
-CP_EXPORT cpPolylineSet *cpPolylineSetAlloc(void);
+cpPolylineSet *cpPolylineSetAlloc(void);
 
 /// Initialize a new polyline set.
-CP_EXPORT cpPolylineSet *cpPolylineSetInit(cpPolylineSet *set);
+cpPolylineSet *cpPolylineSetInit(cpPolylineSet *set);
 
 /// Allocate and initialize a polyline set.
-CP_EXPORT cpPolylineSet *cpPolylineSetNew(void);
+cpPolylineSet *cpPolylineSetNew(void);
 
 /// Destroy a polyline set.
-CP_EXPORT void cpPolylineSetDestroy(cpPolylineSet *set, bool freePolylines);
+void cpPolylineSetDestroy(cpPolylineSet *set, bool freePolylines);
 
 /// Destroy and free a polyline set.
-CP_EXPORT void cpPolylineSetFree(cpPolylineSet *set, bool freePolylines);
+void cpPolylineSetFree(cpPolylineSet *set, bool freePolylines);
 
 /**
 	Add a line segment to a polyline set.
 	A segment will either start a new polyline, join two others, or add to or loop an existing polyline.
 	This is mostly intended to be used as a callback directly from cpMarchSoft() or cpMarchHard().
 */
-CP_EXPORT void cpPolylineSetCollectSegment(cpVect v0, cpVect v1, cpPolylineSet *lines);
+void cpPolylineSetCollectSegment(phy_vect v0, phy_vect v1, cpPolylineSet *lines);
 
 /**
 	Get an approximate convex decomposition from a polyline.
@@ -66,7 +66,7 @@ CP_EXPORT void cpPolylineSetCollectSegment(cpVect v0, cpVect v1, cpPolylineSet *
 	NOTE: If the input is a self intersecting polygon, the output might end up overly simplified.
 */
 
-CP_EXPORT cpPolylineSet *cpPolylineConvexDecomposition(cpPolyline *line, float tol);
+cpPolylineSet *cpPolylineConvexDecomposition(cpPolyline *line, float tol);
 
 #define cpPolylineConvexDecomposition_BETA cpPolylineConvexDecomposition
 
