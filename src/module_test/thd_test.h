@@ -1,0 +1,2 @@
+
+int thd_test();
