@@ -31,16 +31,14 @@ static void func_producer(t_data* t) {
   thd_mutex_lock(&t->mutex);
   //! Wait the condition to write the data
   verbose_printf("func_producer wait...\n");
-  while(t->occupied)
-  {
-      thd_condition_wait(&t->condwrite, &t->mutex);
+  while(t->occupied) {
+    thd_condition_wait(&t->condwrite, &t->mutex);
   }
   assert(!t->occupied);
   verbose_printf("func_producer run...\n");
   //! Write to the buffer.
-  for(i = 0; i < BUFSIZE; i++)
-  {
-      t->buffer[i] = i;
+  for(i = 0; i < BUFSIZE; i++) {
+    t->buffer[i] = i;
   }
   t->occupied = NCONSUMER;
   //! Signal that the buffer can be read
@@ -59,28 +57,24 @@ static void func_consumer(t_data* t) {
   thd_mutex_lock(&t->mutex);
   //! Wait the condition to write the data
   verbose_printf("func_consumer wait...\n");
-  while(!t->occupied)
-  {
+  while(!t->occupied) {
       thd_condition_wait(&t->condread, &t->mutex);
   }
   assert(t->occupied);
   verbose_printf("func_consumer run...\n");
   //! Write to the buffer.
-  for(i = 0; i < BUFSIZE; i++)
-  {
-      assert(t->buffer[i] == (char)i);
+  for(i = 0; i < BUFSIZE; i++) {
+    assert(t->buffer[i] == (char)i);
   }
   t->occupied--;
   verbose_printf("func_consumer signal\n");
-  if(t->occupied)
-  {
-      //! Signal that the buffer can be read by another thread
-      thd_condition_signal(&t->condread);
+  if(t->occupied) {
+    //! Signal that the buffer can be read by another thread
+    thd_condition_signal(&t->condread);
   }
-  else
-  {
-      //! Signal that the buffer can be write
-      thd_condition_signal(&t->condwrite);
+  else {
+    //! Signal that the buffer can be write
+    thd_condition_signal(&t->condwrite);
   }
   //! Unlocks the access to the data
   thd_mutex_unlock(&t->mutex);
