@@ -24,10 +24,10 @@ extern ecs_id ANIMATOR_COMPONENT_SIGNATURE;
 extern animator_info NO_ANIMATOR;
 extern utl_vector *ANIMATOR_INFO;
 
-void comp_animator_register(comp_animator *ca, ecs_ecs *ecs);
+void comp_animator_register(comp_animator *ca);
 
-void sys_animator_register(sys_animator *sa, ecs_ecs *ecs);
-void sys_animator_add(ecs_ecs *ecs, ecs_id *eid, animator_info *info);
+void sys_animator_register(sys_animator *sa);
+void sys_animator_add(ecs_id *eid, animator_info *info);
 void sys_animator_free(bool need_free);
 
 ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);

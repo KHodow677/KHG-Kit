@@ -3,6 +3,7 @@
 #include "controllers/elements/element_controller.h"
 #include "entity/comp_physics.h"
 #include "data_utl/map_utl.h"
+#include "game_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/map.h"
@@ -11,21 +12,21 @@
 ecs_id ROTATOR_COMPONENT_SIGNATURE;
 utl_map *ROTATOR_INFO_MAP = NULL;
 
-void comp_rotator_register(comp_rotator *cr, ecs_ecs *ecs) {
-  cr->id = ecs_register_component(ecs, sizeof(comp_rotator), NULL, NULL);
+void comp_rotator_register(comp_rotator *cr) {
+  cr->id = ecs_register_component(ECS, sizeof(comp_rotator), NULL, NULL);
   ROTATOR_COMPONENT_SIGNATURE = cr->id; 
 }
 
-void sys_rotator_register(sys_rotator *sr, ecs_ecs *ecs) {
-  sr->id = ecs_register_system(ecs, sys_rotator_update, NULL, NULL, NULL);
-  ecs_require_component(ecs, sr->id, ROTATOR_COMPONENT_SIGNATURE);
-  ecs_require_component(ecs, sr->id, PHYSICS_COMPONENT_SIGNATURE);
-  sr->ecs = *ecs;
+void sys_rotator_register(sys_rotator *sr) {
+  sr->id = ecs_register_system(ECS, sys_rotator_update, NULL, NULL, NULL);
+  ecs_require_component(ECS, sr->id, ROTATOR_COMPONENT_SIGNATURE);
+  ecs_require_component(ECS, sr->id, PHYSICS_COMPONENT_SIGNATURE);
+  sr->ecs = *ECS;
   ROTATOR_INFO_MAP = utl_map_create(compare_ints, no_deallocator, no_deallocator);
 }
 
-void sys_rotator_add(ecs_ecs *ecs, ecs_id *eid, rotator_info *info) {
-  ecs_add(ecs, *eid, ROTATOR_COMPONENT_SIGNATURE, NULL);
+void sys_rotator_add(ecs_id *eid, rotator_info *info) {
+  ecs_add(ECS, *eid, ROTATOR_COMPONENT_SIGNATURE, NULL);
   utl_map_insert(ROTATOR_INFO_MAP, eid, info);
 }
 
@@ -49,4 +50,3 @@ ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   }
   return 0;
 }
-

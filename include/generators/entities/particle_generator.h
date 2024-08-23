@@ -16,6 +16,5 @@ typedef struct {
   follower_info follower_info;
 } particle;
 
-void generate_particle(particle *p, physics_info *barrel_info, ecs_ecs *ecs, float x, float y);
+void generate_particle(particle *p, physics_info *source_info, float x, float y);
 void free_particle(particle *p);
-

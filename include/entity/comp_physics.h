@@ -27,10 +27,10 @@ extern ecs_id PHYSICS_COMPONENT_SIGNATURE;
 extern physics_info NO_PHYSICS;
 extern utl_vector* PHYSICS_INFO;
 
-void comp_physics_register(comp_physics *cp, ecs_ecs *ecs);
+void comp_physics_register(comp_physics *cp);
 
-void sys_physics_register(sys_physics *sp, ecs_ecs *ecs);
-void sys_physics_add(ecs_ecs *ecs, ecs_id *eid, physics_info *info);
+void sys_physics_register(sys_physics *sp);
+void sys_physics_add(ecs_id *eid, physics_info *info);
 void sys_physics_free(bool need_free);
 
 ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);

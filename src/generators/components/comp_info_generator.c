@@ -6,7 +6,7 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
-#include "entity/ecs_manager.h"
+#include "game_manager.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"

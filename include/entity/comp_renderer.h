@@ -21,10 +21,10 @@ typedef struct {
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;
 extern utl_map *RENDERER_INFO_MAP;
 
-void comp_renderer_register(comp_renderer *cr, ecs_ecs *ecs);
+void comp_renderer_register(comp_renderer *cr);
 
-void sys_renderer_register(sys_renderer *sr, ecs_ecs *ecs);
-void sys_renderer_add(ecs_ecs *ecs, ecs_id *eid, renderer_info *info);
+void sys_renderer_register(sys_renderer *sr);
+void sys_renderer_add(ecs_id *eid, renderer_info *info);
 void sys_renderer_free(bool need_free);
 
 ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);

@@ -2,7 +2,7 @@
 #include "controllers/input/mouse_controller.h"
 #include "controllers/elements/element_controller.h"
 #include "entity/comp_physics.h"
-#include "entity/ecs_manager.h"
+#include "game_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
@@ -12,24 +12,24 @@ ecs_id MOVER_COMPONENT_SIGNATURE;
 mover_info NO_MOVER = { 0 };
 utl_vector *MOVER_INFO = NULL;
 
-void comp_mover_register(comp_mover *cm, ecs_ecs *ecs) {
-  cm->id = ecs_register_component(ecs, sizeof(comp_mover), NULL, NULL);
+void comp_mover_register(comp_mover *cm) {
+  cm->id = ecs_register_component(ECS, sizeof(comp_mover), NULL, NULL);
   MOVER_COMPONENT_SIGNATURE = cm->id; 
 }
 
-void sys_mover_register(sys_mover *sm, ecs_ecs *ecs) {
-  sm->id = ecs_register_system(ecs, sys_mover_update, NULL, NULL, NULL);
-  ecs_require_component(ecs, sm->id, MOVER_COMPONENT_SIGNATURE);
-  ecs_require_component(ecs, sm->id, PHYSICS_COMPONENT_SIGNATURE);
-  sm->ecs = *ecs;
+void sys_mover_register(sys_mover *sm) {
+  sm->id = ecs_register_system(ECS, sys_mover_update, NULL, NULL, NULL);
+  ecs_require_component(ECS, sm->id, MOVER_COMPONENT_SIGNATURE);
+  ecs_require_component(ECS, sm->id, PHYSICS_COMPONENT_SIGNATURE);
+  sm->ecs = *ECS;
   MOVER_INFO = utl_vector_create(sizeof(mover_info));
   for (int i = 0; i < ECS->entity_count; i++) {
     utl_vector_push_back(MOVER_INFO, &NO_MOVER);
   }
 }
 
-void sys_mover_add(ecs_ecs *ecs, ecs_id *eid, mover_info *info) {
-  ecs_add(ecs, *eid, MOVER_COMPONENT_SIGNATURE, NULL);
+void sys_mover_add(ecs_id *eid, mover_info *info) {
+  ecs_add(ECS, *eid, MOVER_COMPONENT_SIGNATURE, NULL);
   utl_vector_assign(MOVER_INFO, *eid, info);
 }
 

@@ -1,5 +1,5 @@
 #include "entity/entity.h"
-#include "entity/ecs_manager.h"
+#include "game_manager.h"
 #include "khg_utl/vector.h"
 #include <stdlib.h>
 

@@ -1,8 +1,7 @@
 #include "generators/components/texture_generator.h"
-#include "entity/ecs_manager.h"
+#include "game_manager.h"
 #include "khg_gfx/texture.h"
 #include "khg_utl/vector.h"
-#include <stdio.h>
 
 int get_current_texture() {
   return CURRENT_TEXTURE_ID++; 

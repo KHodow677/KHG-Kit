@@ -1,7 +1,6 @@
 #include "game.h"
 #include "controllers/elements/element_controller.h"
-#include "data_utl/thread_utl.h"
-#include "entity/ecs_manager.h"
+#include "game_manager.h"
 #include "physics/physics_setup.h"
 #include "spawners/spawn_tank.h"
 #include "khg_ecs/ecs.h"
@@ -11,6 +10,7 @@
 #include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "threading/thread_manager.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -36,7 +36,7 @@ int game_run() {
   glfwMakeContextCurrent(window);
   gfx_init_glfw(800, 600, window);
   log_info();
-  set_optimal_thread_count();
+  setup_worker_threads();
   SPACE = physics_setup(cpv(0.0f, 0.0f));
   ecs_setup();
   spawn_tank(600, 300);

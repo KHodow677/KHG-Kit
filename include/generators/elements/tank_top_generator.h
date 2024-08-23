@@ -19,6 +19,6 @@ typedef struct {
   shooter_info shooter_info;
 } tank_top;
 
-void generate_tank_top(tank_top *tt, ecs_ecs *ecs, tank_body *tb, float x, float y);
+void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y);
 void free_tank_top(tank_top *tt);
 
