@@ -11,13 +11,13 @@
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/texture.h"
 #include "khg_utl/vector.h"
-#include "threading/thread_manager.h"
+#include "khg_thd/thread.h"
 
 extern phy_space *SPACE;
 extern ecs_ecs *ECS;
 extern utl_vector *ENTITY_LOOKUP;
 extern utl_vector *TEXTURE_LOOKUP;
-extern thread_data *WORKER_THREADS;
+extern thd_thread *WORKER_THREADS;
 
 extern gfx_texture NO_TEXTURE;
 extern int MAX_TEXTURES;

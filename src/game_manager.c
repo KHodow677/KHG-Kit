@@ -9,9 +9,10 @@
 #include "entity/comp_shooter.h"
 #include "entity/entity.h"
 #include "generators/components/texture_generator.h"
-#include "khg_utl/vector.h"
 #include "physics/physics_setup.h"
+#include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
+#include "khg_utl/vector.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -19,7 +20,7 @@ phy_space *SPACE;
 ecs_ecs *ECS;
 utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;
-thread_data *WORKER_THREADS;
+thd_thread *WORKER_THREADS;
 
 gfx_texture NO_TEXTURE = { 0 };
 int MAX_TEXTURES = 1024;

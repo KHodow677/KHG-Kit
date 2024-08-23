@@ -1,10 +1,11 @@
 #include "threading/thread_manager.h"
 #include "game_manager.h"
+#include "khg_thd/thread.h"
 #include <stdio.h>
 
 void setup_worker_threads(void) {
   THREAD_COUNT = get_optimal_thread_count();
-  WORKER_THREADS = (thread_data *)malloc(THREAD_COUNT * sizeof(thread_data));
+  WORKER_THREADS = (thd_thread *)malloc(THREAD_COUNT * sizeof(thd_thread));
 }
 
 void free_worker_threads(void) {

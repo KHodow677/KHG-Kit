@@ -109,7 +109,7 @@ int thd_test() {
     thd_thread_join(&producer);
     for(i = 0; i < NCONSUMER; i++) {
       thd_thread_join(consumers+i);
-    }        
+    }
   }
   //! Destroy the conditions of the data structure
   thd_condition_destroy(&data.condread);

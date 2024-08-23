@@ -10,10 +10,10 @@
 
 typedef struct _data {
   thd_mutex mutex;
-  thd_condition condwrite;
-  thd_condition condread;
+  thd_condition ready;
   char occupied;
-  char buffer[256];
+  char *entities;
+  char *entity_count;
 } thread_data;
 
 void setup_worker_threads(void);
