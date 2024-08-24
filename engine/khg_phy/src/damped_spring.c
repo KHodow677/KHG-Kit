@@ -1,25 +1,6 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_phy/transform.h"
+#include "khg_utl/error_func.h"
 
 static float
 defaultSpringForce(phy_damped_spring *spring, float dist){
@@ -40,7 +21,9 @@ preStep(phy_damped_spring *spring, float dt)
 	spring->n = cpvmult(delta, 1.0f/(dist ? dist : INFINITY));
 	
 	float k = k_scalar(a, b, spring->r1, spring->r2, spring->n);
-	cpAssertSoft(k != 0.0, "Unsolvable spring.");
+	if (k == 0.0) {
+    utl_error_func("Unsolvable spring", utl_user_defined_data);
+  }
 	spring->nMass = 1.0f/k;
 	
 	spring->target_vrn = 0.0f;
@@ -90,13 +73,13 @@ static const cpConstraintClass klass = {
 };
 
 phy_damped_spring *
-cpDampedSpringAlloc(void)
+phy_damped_spring_alloc(void)
 {
 	return (phy_damped_spring *)calloc(1, sizeof(phy_damped_spring));
 }
 
 phy_damped_spring *
-cpDampedSpringInit(phy_damped_spring *spring, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float restLength, float stiffness, float damping)
+phy_damped_spring_init(phy_damped_spring *spring, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float restLength, float stiffness, float damping)
 {
 	cpConstraintInit((phy_constraint *)spring, &klass, a, b);
 	
@@ -106,7 +89,7 @@ cpDampedSpringInit(phy_damped_spring *spring, phy_body *a, phy_body *b, phy_vect
 	spring->restLength = restLength;
 	spring->stiffness = stiffness;
 	spring->damping = damping;
-	spring->springForceFunc = (cpDampedSpringForceFunc)defaultSpringForce;
+	spring->springForceFunc = (phy_damped_spring_force_func)defaultSpringForce;
 	
 	spring->jAcc = 0.0f;
 	
@@ -114,103 +97,127 @@ cpDampedSpringInit(phy_damped_spring *spring, phy_body *a, phy_body *b, phy_vect
 }
 
 phy_constraint *
-cpDampedSpringNew(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float restLength, float stiffness, float damping)
+phy_damped_spring_new(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float restLength, float stiffness, float damping)
 {
-	return (phy_constraint *)cpDampedSpringInit(cpDampedSpringAlloc(), a, b, anchorA, anchorB, restLength, stiffness, damping);
+	return (phy_constraint *)phy_damped_spring_init(phy_damped_spring_alloc(), a, b, anchorA, anchorB, restLength, stiffness, damping);
 }
 
 bool
-cpConstraintIsDampedSpring(const phy_constraint *constraint)
+phy_constraint_is_damped_spring(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
 phy_vect
-cpDampedSpringGetAnchorA(const phy_constraint *constraint)
+phy_damped_spring_get_anchor_A(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	return ((phy_damped_spring *)constraint)->anchorA;
 }
 
 void
-cpDampedSpringSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
+phy_damped_spring_set_anchor_A(phy_constraint *constraint, phy_vect anchorA)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_damped_spring *)constraint)->anchorA = anchorA;
 }
 
 phy_vect
-cpDampedSpringGetAnchorB(const phy_constraint *constraint)
+phy_damped_spring_get_anchor_B(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	return ((phy_damped_spring *)constraint)->anchorB;
 }
 
 void
-cpDampedSpringSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
+phy_damped_spring_set_anchor_B(phy_constraint *constraint, phy_vect anchorB)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_damped_spring *)constraint)->anchorB = anchorB;
 }
 
 float
-cpDampedSpringGetRestLength(const phy_constraint *constraint)
+phy_damped_spring_get_rest_length(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	return ((phy_damped_spring *)constraint)->restLength;
 }
 
 void
-cpDampedSpringSetRestLength(phy_constraint *constraint, float restLength)
+phy_damped_spring_set_rest_length(phy_constraint *constraint, float restLength)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_damped_spring *)constraint)->restLength = restLength;
 }
 
 float
-cpDampedSpringGetStiffness(const phy_constraint *constraint)
+phy_damped_spring_get_stiffness(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	return ((phy_damped_spring *)constraint)->stiffness;
 }
 
 void
-cpDampedSpringSetStiffness(phy_constraint *constraint, float stiffness)
+phy_damped_spring_set_stiffness(phy_constraint *constraint, float stiffness)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_damped_spring *)constraint)->stiffness = stiffness;
 }
 
 float
-cpDampedSpringGetDamping(const phy_constraint *constraint)
+phy_damped_spring_get_damping(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	return ((phy_damped_spring *)constraint)->damping;
 }
 
 void
-cpDampedSpringSetDamping(phy_constraint *constraint, float damping)
+phy_damped_spring_set_damping(phy_constraint *constraint, float damping)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_damped_spring *)constraint)->damping = damping;
 }
 
-cpDampedSpringForceFunc
-cpDampedSpringGetSpringForceFunc(const phy_constraint *constraint)
+phy_damped_spring_force_func
+phy_damped_spring_get_spring_force_func(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	return ((phy_damped_spring *)constraint)->springForceFunc;
 }
 
 void
-cpDampedSpringSetSpringForceFunc(phy_constraint *constraint, cpDampedSpringForceFunc springForceFunc)
+phy_damped_spring_set_spring_force_func(phy_constraint *constraint, phy_damped_spring_force_func springForceFunc)
 {
-	cpAssertHard(cpConstraintIsDampedSpring(constraint), "Constraint is not a damped spring.");
+	if (!phy_constraint_is_damped_spring(constraint)) {
+    utl_error_func("Constraint is not a damped spring", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_damped_spring *)constraint)->springForceFunc = springForceFunc;
 }

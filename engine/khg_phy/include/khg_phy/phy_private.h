@@ -2,6 +2,7 @@
 
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_structs.h"
+#include "khg_utl/error_func.h"
 
 #define CP_HASH_COEF (3344921057ul)
 #define CP_HASH_PAIR(A, B) ((phy_hash_value)(A)*CP_HASH_COEF ^ (phy_hash_value)(B)*CP_HASH_COEF)
@@ -195,11 +196,11 @@ k_scalar_body(phy_body *body, phy_vect r, phy_vect n)
 }
 
 static inline float
-k_scalar(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2, phy_vect n)
-{
+k_scalar(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2, phy_vect n) {
 	float value = k_scalar_body(a, r1, n) + k_scalar_body(b, r2, n);
-	cpAssertSoft(value != 0.0, "Unsolvable collision or constraint.");
-	
+  if (value == 0.0) {
+    utl_error_func("Unsolvable collision or constraint", utl_user_defined_data);
+  }
 	return value;
 }
 
@@ -230,7 +231,9 @@ k_tensor(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2)
 	
 	// invert
 	float det = k11*k22 - k12*k21;
-	cpAssertSoft(det != 0.0, "Unsolvable constraint.");
+  if (det == 0.0) {
+    utl_error_func("Unsolvable constraint", utl_user_defined_data);  
+  }
 	
 	float det_inv = 1.0f/det;
 	return cpMat2x2New(
@@ -247,12 +250,6 @@ bias_coef(float errorBias, float dt)
 
 
 //MARK: Spaces
-
-#define cpAssertSpaceUnlocked(space) \
-	cpAssertHard(!space->locked, \
-		"This operation cannot be done safely during a call to cpSpaceStep() or during a query. " \
-		"Put these calls into a post-step callback." \
-	);
 
 void cpSpaceSetStaticBody(phy_space *space, phy_body *body);
 
@@ -286,7 +283,7 @@ cpSpaceUncacheArbiter(phy_space *space, phy_arbiter *arb)
 static inline phy_array *
 cpSpaceArrayForBodyType(phy_space *space, phy_body_type type)
 {
-	return (type == CP_BODY_TYPE_STATIC ? space->staticBodies : space->dynamicBodies);
+	return (type == PHY_BODY_TYPE_STATIC ? space->staticBodies : space->dynamicBodies);
 }
 
 void cpShapeUpdateFunc(phy_shape *shape, void *unused);

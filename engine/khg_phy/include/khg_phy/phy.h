@@ -1,74 +1,11 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-#ifndef CHIPMUNK_H
-#define CHIPMUNK_H
-
-#include <stdlib.h>
-#include <math.h>
+#pragma once
 
 #include "khg_phy/phy_types.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void cpMessage(const char *condition, const char *file, int line, int isError, int isHardError, const char *message, ...);
-#ifdef NDEBUG
-	#define	cpAssertWarn(__condition__, ...)
-	#define	cpAssertSoft(__condition__, ...)
-#else
-	#define cpAssertSoft(__condition__, ...) if(!(__condition__)){cpMessage(#__condition__, __FILE__, __LINE__, 1, 0, __VA_ARGS__); abort();}
-	#define cpAssertWarn(__condition__, ...) if(!(__condition__)) cpMessage(#__condition__, __FILE__, __LINE__, 0, 0, __VA_ARGS__)
-#endif
-
-// Hard assertions are used in situations where the program definitely will crash anyway, and the reason is inexpensive to detect.
-#define cpAssertHard(__condition__, ...) if(!(__condition__)){cpMessage(#__condition__, __FILE__, __LINE__, 1, 1, __VA_ARGS__); abort();}
-
-
 #include "khg_phy/vect.h"
 #include "khg_phy/bb.h"
-#include "khg_phy/transform.h"
-#include "khg_phy/spatial_index.h"
+#include <stdlib.h>
 
-#include "khg_phy/arbiter.h"	
-
-#include "khg_phy/body.h"
-#include "khg_phy/shape.h"
-#include "khg_phy/poly_shape.h"
-
-#include "khg_phy/constraint.h"
-
-#include "khg_phy/space.h"
-
-// Chipmunk 7.0.3
-#define CP_VERSION_MAJOR 7
-#define CP_VERSION_MINOR 0
-#define CP_VERSION_RELEASE 3
-
-/// Version string.
-extern const char *cpVersionString;
-
-/// Calculate the moment of inertia for a circle.
-/// @c r1 and @c r2 are the inner and outer diameters. A solid circle has an inner diameter of 0.
 float cpMomentForCircle(float m, float r1, float r2, phy_vect offset);
 
 /// Calculate area of a hollow circle.
@@ -121,46 +58,3 @@ cpClosetPointOnSegment(const phy_vect p, const phy_vect a, const phy_vect b)
 	return cpvadd(b, cpvmult(delta, t));
 }
 
-#if defined(__has_extension)
-#if __has_extension(blocks)
-// Define alternate block based alternatives for a few of the callback heavy functions.
-// Collision handlers are post-step callbacks are not included to avoid memory management issues.
-// If you want to use blocks for those and are aware of how to correctly manage the memory, the implementation is trivial. 
-
-void cpSpaceEachBody_b(cpSpace *space, void (^block)(cpBody *body));
-void cpSpaceEachShape_b(cpSpace *space, void (^block)(cpShape *shape));
-void cpSpaceEachConstraint_b(cpSpace *space, void (^block)(cpConstraint *constraint));
-
-void cpBodyEachShape_b(cpBody *body, void (^block)(cpShape *shape));
-void cpBodyEachConstraint_b(cpBody *body, void (^block)(cpConstraint *constraint));
-void cpBodyEachArbiter_b(cpBody *body, void (^block)(cpArbiter *arbiter));
-
-typedef void (^cpSpacePointQueryBlock)(cpShape *shape, phy_vect point, float distance, phy_vect gradient);
-void cpSpacePointQuery_b(cpSpace *space, phy_vect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryBlock block);
-
-typedef void (^cpSpaceSegmentQueryBlock)(cpShape *shape, phy_vect point, phy_vect normal, float alpha);
-void cpSpaceSegmentQuery_b(cpSpace *space, phy_vect start, phy_vect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryBlock block);
-
-typedef void (^cpSpaceBBQueryBlock)(cpShape *shape);
-void cpSpaceBBQuery_b(cpSpace *space, cpBB bb, cpShapeFilter filter, cpSpaceBBQueryBlock block);
-
-typedef void (^cpSpaceShapeQueryBlock)(cpShape *shape, cpContactPointSet *points);
-bool cpSpaceShapeQuery_b(cpSpace *space, cpShape *shape, cpSpaceShapeQueryBlock block);
-
-#endif
-#endif
-
-
-//@}
-
-#ifdef __cplusplus
-}
-
-static inline phy_vect operator *(const phy_vect v, const float s){return cpvmult(v, s);}
-static inline phy_vect operator +(const phy_vect v1, const phy_vect v2){return cpvadd(v1, v2);}
-static inline phy_vect operator -(const phy_vect v1, const phy_vect v2){return cpvsub(v1, v2);}
-static inline bool operator ==(const phy_vect v1, const phy_vect v2){return cpveql(v1, v2);}
-static inline phy_vect operator -(const phy_vect v){return cpvneg(v);}
-
-#endif
-#endif

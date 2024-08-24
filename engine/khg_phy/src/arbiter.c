@@ -1,25 +1,6 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_phy/arbiter.h"	
+#include "khg_utl/error_func.h"
 
 // TODO: make this generic so I can reuse it for constraints also.
 static inline void
@@ -76,22 +57,27 @@ phy_arbiter_get_normal(const phy_arbiter *arb)
 phy_vect
 phy_arbiter_get_point_A(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
+  if (!(0 <= i && i < phy_arbiter_get_count(arb))) {
+	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
+  }
 	return cpvadd(arb->body_a->p, arb->contacts[i].r1);
 }
 
 phy_vect
 phy_arbiter_get_point_B(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
+  if (!(0 <= i && i < phy_arbiter_get_count(arb))) {
+	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
+  }
 	return cpvadd(arb->body_b->p, arb->contacts[i].r2);
 }
 
 float
 phy_arbiter_get_depth(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
-	
+  if (!(0 <= i && i < phy_arbiter_get_count(arb))) {
+	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
+  }
 	struct cpContact *con = &arb->contacts[i];
 	return cpvdot(cpvadd(cpvsub(con->r2, con->r1), cpvsub(arb->body_b->p, arb->body_a->p)), arb->n);
 }
@@ -123,8 +109,9 @@ void
 phy_arbiter_set_contact_point_set(phy_arbiter *arb, phy_contact_point_set *set)
 {
 	int count = set->count;
-	cpAssertHard(count == arb->count, "The number of contact points cannot be changed.");
-	
+  if (count != arb->count) {
+    utl_error_func("The number of contact points cannot be changed", utl_user_defined_data);
+  }
 	bool swapped = arb->swapped;
 	arb->n = (swapped ? cpvneg(set->normal) : set->normal);
 	

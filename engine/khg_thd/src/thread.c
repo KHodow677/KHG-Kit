@@ -6,24 +6,24 @@
 #include <stdlib.h>
 #include <assert.h>
 
-typedef struct _internal_parameters {
+typedef struct internal_parameters {
   thd_thread_method i_method;
   void *i_data;
-} t_internal_parameters;
+} thd_internal_parameters;
 
-static DWORD WINAPI internal_method_ptr(LPVOID arg) {
-  t_internal_parameters *params = (t_internal_parameters *)arg;
+static DWORD WINAPI thd_internal_method_ptr(LPVOID arg) {
+  thd_internal_parameters *params = (thd_internal_parameters *)arg;
   params->i_method(params->i_data);
   free(params);
   return 0;
 }
 
 int thd_thread_detach(thd_thread *thread, thd_thread_method method, void *data) {
-  t_internal_parameters *params = (t_internal_parameters *)malloc(sizeof(t_internal_parameters));
+  thd_internal_parameters *params = (thd_internal_parameters *)malloc(sizeof(thd_internal_parameters));
   if(params) {
     params->i_method = method;
     params->i_data = data;
-    *thread = CreateThread(NULL, 0, internal_method_ptr, params, 0, NULL);
+    *thread = CreateThread(NULL, 0, thd_internal_method_ptr, params, 0, NULL);
     if(*thread == NULL) {
       free(params);
       return 1;

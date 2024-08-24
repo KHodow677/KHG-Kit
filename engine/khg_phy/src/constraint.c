@@ -1,14 +1,13 @@
 #include "khg_phy/phy_private.h"
+#include "khg_utl/error_func.h"
 
-// TODO: Comment me!
-
-void cpConstraintDestroy(phy_constraint *constraint){}
+void phy_constraint_destroy(phy_constraint *constraint){}
 
 void
-cpConstraintFree(phy_constraint *constraint)
+phy_constraint_free(phy_constraint *constraint)
 {
 	if(constraint){
-		cpConstraintDestroy(constraint);
+		phy_constraint_destroy(constraint);
 		free(constraint);
 	}
 }
@@ -36,117 +35,123 @@ cpConstraintInit(phy_constraint *constraint, const cpConstraintClass *klass, phy
 }
 
 phy_space *
-cpConstraintGetSpace(const phy_constraint *constraint)
+phy_constraint_get_space(const phy_constraint *constraint)
 {
 	return constraint->space;
 }
 
 phy_body *
-cpConstraintGetBodyA(const phy_constraint *constraint)
+phy_constraint_get_body_A(const phy_constraint *constraint)
 {
 	return constraint->a;
 }
 
 phy_body *
-cpConstraintGetBodyB(const phy_constraint *constraint)
+phy_constraint_get_body_B(const phy_constraint *constraint)
 {
 	return constraint->b;
 }
 
 float
-cpConstraintGetMaxForce(const phy_constraint *constraint)
+phy_constraint_get_max_force(const phy_constraint *constraint)
 {
 	return constraint->maxForce;
 }
 
 void
-cpConstraintSetMaxForce(phy_constraint *constraint, float maxForce)
+phy_constraint_set_max_force(phy_constraint *constraint, float maxForce)
 {
-	cpAssertHard(maxForce >= 0.0f, "maxForce must be positive.");
+	if (maxForce < 0.0f) {
+    utl_error_func("Max foce must be positive", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	constraint->maxForce = maxForce;
 }
 
 float
-cpConstraintGetErrorBias(const phy_constraint *constraint)
+phy_constraint_get_error_bias(const phy_constraint *constraint)
 {
 	return constraint->errorBias;
 }
 
 void
-cpConstraintSetErrorBias(phy_constraint *constraint, float errorBias)
+phy_constraint_set_error_bias(phy_constraint *constraint, float errorBias)
 {
-	cpAssertHard(errorBias >= 0.0f, "errorBias must be positive.");
+	if (errorBias < 0.0f) {
+	  utl_error_func("Bias must be positive", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	constraint->errorBias = errorBias;
 }
 
 float
-cpConstraintGetMaxBias(const phy_constraint *constraint)
+phy_constraint_get_max_bias(const phy_constraint *constraint)
 {
 	return constraint->maxBias;
 }
 
 void
-cpConstraintSetMaxBias(phy_constraint *constraint, float maxBias)
+phy_constraint_set_max_bias(phy_constraint *constraint, float maxBias)
 {
-	cpAssertHard(maxBias >= 0.0f, "maxBias must be positive.");
+	if (maxBias < 0.0f) {
+	  utl_error_func("Bias must be positive", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	constraint->maxBias = maxBias;
 }
 
 bool
-cpConstraintGetCollideBodies(const phy_constraint *constraint)
+phy_constraint_get_collide_bodies(const phy_constraint *constraint)
 {
 	return constraint->collideBodies;
 }
 
 void
-cpConstraintSetCollideBodies(phy_constraint *constraint, bool collideBodies)
+phy_constraint_set_collide_bodies(phy_constraint *constraint, bool collideBodies)
 {
 	cpConstraintActivateBodies(constraint);
 	constraint->collideBodies = collideBodies;
 }
 
-cpConstraintPreSolveFunc
-cpConstraintGetPreSolveFunc(const phy_constraint *constraint)
+phy_constraint_pre_solve_func
+phy_constraint_get_pre_solve_func(const phy_constraint *constraint)
 {
 	return constraint->preSolve;
 }
 
 void
-cpConstraintSetPreSolveFunc(phy_constraint *constraint, cpConstraintPreSolveFunc preSolveFunc)
+phy_constraint_set_pre_solve_func(phy_constraint *constraint, phy_constraint_pre_solve_func preSolveFunc)
 {
 	constraint->preSolve = preSolveFunc;
 }
 
-cpConstraintPostSolveFunc
-cpConstraintGetPostSolveFunc(const phy_constraint *constraint)
+phy_constraint_post_solve_func
+phy_constraint_get_post_solve_func(const phy_constraint *constraint)
 {
 	return constraint->postSolve;
 }
 
 void
-cpConstraintSetPostSolveFunc(phy_constraint *constraint, cpConstraintPostSolveFunc postSolveFunc)
+phy_constraint_set_post_solve_func(phy_constraint *constraint, phy_constraint_post_solve_func postSolveFunc)
 {
 	constraint->postSolve = postSolveFunc;
 }
 
 phy_data_pointer
-cpConstraintGetUserData(const phy_constraint *constraint)
+phy_constraint_get_user_data(const phy_constraint *constraint)
 {
 	return constraint->userData;
 }
 
 void
-cpConstraintSetUserData(phy_constraint *constraint, phy_data_pointer userData)
+phy_constraint_set_user_data(phy_constraint *constraint, phy_data_pointer userData)
 {
 	constraint->userData = userData;
 }
 
-
 float
-cpConstraintGetImpulse(phy_constraint *constraint)
+phy_constraint_get_impulse(phy_constraint *constraint)
 {
 	return constraint->klass->getImpulse(constraint);
 }
+

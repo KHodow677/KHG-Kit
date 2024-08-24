@@ -1,5 +1,5 @@
-#include "controllers/elements//element_destruction_controller.h"
-#include "entity/ecs_manager.h"
+#include "controllers/elements/element_destruction_controller.h"
+#include "game_manager.h"
 #include "entity/entity.h"
 #include "khg_utl/vector.h"
 #include <stdlib.h>

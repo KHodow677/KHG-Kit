@@ -1,25 +1,6 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_phy/transform.h"
+#include "khg_utl/error_func.h"
 
 static void
 preStep(phy_pivot_joint *joint, float dt)
@@ -110,8 +91,8 @@ cpPivotJointNew2(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB)
 phy_constraint *
 cpPivotJointNew(phy_body *a, phy_body *b, phy_vect pivot)
 {
-	phy_vect anchorA = (a ? cpBodyWorldToLocal(a, pivot) : pivot);
-	phy_vect anchorB = (b ? cpBodyWorldToLocal(b, pivot) : pivot);
+	phy_vect anchorA = (a ? phy_body_world_to_local(a, pivot) : pivot);
+	phy_vect anchorB = (b ? phy_body_world_to_local(b, pivot) : pivot);
 	return cpPivotJointNew2(a, b, anchorA, anchorB);
 }
 
@@ -124,14 +105,18 @@ cpConstraintIsPivotJoint(const phy_constraint *constraint)
 phy_vect
 cpPivotJointGetAnchorA(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsPivotJoint(constraint), "Constraint is not a pivot joint.");
+	if (!cpConstraintIsPivotJoint(constraint)) {
+    utl_error_func("Constraint is not a pivot joint", utl_user_defined_data);
+  }
 	return ((phy_pivot_joint *)constraint)->anchorA;
 }
 
 void
 cpPivotJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
 {
-	cpAssertHard(cpConstraintIsPivotJoint(constraint), "Constraint is not a pivot joint.");
+	if (!cpConstraintIsPivotJoint(constraint)) {
+    utl_error_func("Constraint is not a pivot joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_pivot_joint *)constraint)->anchorA = anchorA;
 }
@@ -139,14 +124,18 @@ cpPivotJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
 phy_vect
 cpPivotJointGetAnchorB(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsPivotJoint(constraint), "Constraint is not a pivot joint.");
+	if (!cpConstraintIsPivotJoint(constraint)) {
+    utl_error_func("Constraint is not a pivot joint", utl_user_defined_data);
+  }
 	return ((phy_pivot_joint *)constraint)->anchorB;
 }
 
 void
 cpPivotJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
 {
-	cpAssertHard(cpConstraintIsPivotJoint(constraint), "Constraint is not a pivot joint.");
+	if (!cpConstraintIsPivotJoint(constraint)) {
+    utl_error_func("Constraint is not a pivot joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_pivot_joint *)constraint)->anchorB = anchorB;
 }

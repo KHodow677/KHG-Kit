@@ -1,31 +1,15 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
+#include "khg_phy/arbiter.h"	
 #include "khg_phy/phy_private.h"
+#include "khg_phy/transform.h"
 #include "khg_phy/phy_unsafe.h"
+#include "khg_utl/error_func.h"
 
 #define CP_DefineShapeGetter(struct, type, member, name) \
 CP_DeclareShapeGetter(struct, type, name){ \
-	cpAssertHard(shape->klass == &struct##Class, "shape is not a "#struct); \
-	return ((struct *)shape)->member; \
+	if (shape->klass != &struct##Class) {\
+    utl_error_func("shape is not a "#struct, utl_user_defined_data);\
+  }\
+	return ((struct *)shape)->member;\
 }
 
 phy_shape *
@@ -87,7 +71,9 @@ cpShapeGetBody(const phy_shape *shape)
 void
 cpShapeSetBody(phy_shape *shape, phy_body *body)
 {
-	cpAssertHard(!cpShapeActive(shape), "You cannot change the body on an active shape. You must remove the shape from the space before changing the body.");
+	if (cpShapeActive(shape)) {
+    utl_error_func("You cannot change the body on an active shape, you must remove the shape from the space before changing the body", utl_user_defined_data);
+  }
 	shape->body = body;
 }
 
@@ -137,7 +123,9 @@ cpShapeGetElasticity(const phy_shape *shape)
 void
 cpShapeSetElasticity(phy_shape *shape, float elasticity)
 {
-	cpAssertHard(elasticity >= 0.0f, "Elasticity must be positive.");
+	if (elasticity < 0.0f) {
+    utl_error_func("Elasticity must be positive", utl_user_defined_data);
+  }
 	phy_body_activate(shape->body);
 	shape->e = elasticity;
 }
@@ -151,7 +139,9 @@ cpShapeGetFriction(const phy_shape *shape)
 void
 cpShapeSetFriction(phy_shape *shape, float friction)
 {
-	cpAssertHard(friction >= 0.0f, "Friction must be postive.");
+	if (friction < 0.0f) {
+    utl_error_func("Friction must be postive", utl_user_defined_data);
+  }
 	phy_body_activate(shape->body);
 	shape->u = friction;
 }
@@ -357,14 +347,18 @@ cpCircleShapeNew(phy_body *body, float radius, phy_vect offset)
 phy_vect
 cpCircleShapeGetOffset(const phy_shape *shape)
 {
-	cpAssertHard(shape->klass == &cpCircleShapeClass, "Shape is not a circle shape.");
+	if (shape->klass != &cpCircleShapeClass) {
+    utl_error_func("Shape is not a circle shape", utl_user_defined_data);
+  }
 	return ((phy_circle_shape *)shape)->c;
 }
 
 float
 cpCircleShapeGetRadius(const phy_shape *shape)
 {
-	cpAssertHard(shape->klass == &cpCircleShapeClass, "Shape is not a circle shape.");
+	if (shape->klass != &cpCircleShapeClass) {
+    utl_error_func("Shape is not a circle shape", utl_user_defined_data);
+  }
 	return ((phy_circle_shape *)shape)->r;
 }
 
@@ -510,35 +504,45 @@ cpSegmentShapeNew(phy_body *body, phy_vect a, phy_vect b, float r)
 phy_vect
 cpSegmentShapeGetA(const phy_shape *shape)
 {
-	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
+	if (shape->klass != &cpSegmentShapeClass) {
+    utl_error_func("Shape is not a segment shape", utl_user_defined_data);
+  }
 	return ((phy_segment_shape *)shape)->a;
 }
 
 phy_vect
 cpSegmentShapeGetB(const phy_shape *shape)
 {
-	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
+	if (shape->klass != &cpSegmentShapeClass) {
+    utl_error_func("Shape is not a segment shape", utl_user_defined_data);
+  }
 	return ((phy_segment_shape *)shape)->b;
 }
 
 phy_vect
 cpSegmentShapeGetNormal(const phy_shape *shape)
 {
-	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
+	if (shape->klass != &cpSegmentShapeClass) {
+    utl_error_func("Shape is not a segment shape", utl_user_defined_data);
+  }
 	return ((phy_segment_shape *)shape)->n;
 }
 
 float
 cpSegmentShapeGetRadius(const phy_shape *shape)
 {
-	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
+	if (shape->klass != &cpSegmentShapeClass) {
+    utl_error_func("Shape is not a segment shape", utl_user_defined_data);
+  }
 	return ((phy_segment_shape *)shape)->r;
 }
 
 void
 cpSegmentShapeSetNeighbors(phy_shape *shape, phy_vect prev, phy_vect next)
 {
-	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
+	if (shape->klass != &cpSegmentShapeClass) {
+    utl_error_func("Shape is not a segment shape", utl_user_defined_data);
+  }
 	phy_segment_shape *seg = (phy_segment_shape *)shape;
 	
 	seg->a_tangent = cpvsub(prev, seg->a);
@@ -552,7 +556,9 @@ cpSegmentShapeSetNeighbors(phy_shape *shape, phy_vect prev, phy_vect next)
 void
 cpCircleShapeSetRadius(phy_shape *shape, float radius)
 {
-	cpAssertHard(shape->klass == &cpCircleShapeClass, "Shape is not a circle shape.");
+	if (shape->klass != &cpCircleShapeClass) {
+    utl_error_func("Shape is not a circle shape", utl_error_func);
+  }
 	phy_circle_shape *circle = (phy_circle_shape *)shape;
 	
 	circle->r = radius;
@@ -565,7 +571,9 @@ cpCircleShapeSetRadius(phy_shape *shape, float radius)
 void
 cpCircleShapeSetOffset(phy_shape *shape, phy_vect offset)
 {
-	cpAssertHard(shape->klass == &cpCircleShapeClass, "Shape is not a circle shape.");
+	if (shape->klass != &cpCircleShapeClass) {
+    utl_error_func("Shape is not a circle shape", utl_user_defined_data);
+  }
 	phy_circle_shape *circle = (phy_circle_shape *)shape;
 	
 	circle->c = offset;
@@ -578,7 +586,9 @@ cpCircleShapeSetOffset(phy_shape *shape, phy_vect offset)
 void
 cpSegmentShapeSetEndpoints(phy_shape *shape, phy_vect a, phy_vect b)
 {
-	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
+	if (shape->klass != &cpSegmentShapeClass) {
+    utl_error_func("Shape is not a segment shape", utl_user_defined_data);
+  }
 	phy_segment_shape *seg = (phy_segment_shape *)shape;
 	
 	seg->a = a;
@@ -593,7 +603,9 @@ cpSegmentShapeSetEndpoints(phy_shape *shape, phy_vect a, phy_vect b)
 void
 cpSegmentShapeSetRadius(phy_shape *shape, float radius)
 {
-	cpAssertHard(shape->klass == &cpSegmentShapeClass, "Shape is not a segment shape.");
+	if (shape->klass != &cpSegmentShapeClass) {
+    utl_error_func("Shape is not a segment shape", utl_user_defined_data);
+  }
 	phy_segment_shape *seg = (phy_segment_shape *)shape;
 	
 	seg->r = radius;

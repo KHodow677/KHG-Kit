@@ -2,37 +2,23 @@
 
 #include "khg_phy/phy_types.h"
 
-/// Check if a constraint is a damped rotary springs.
-bool cpConstraintIsDampedRotarySpring(const phy_constraint *constraint);
+bool phy_constraint_is_damped_rotary_spring(const phy_constraint *constraint);
 
-/// Function type used for damped rotary spring force callbacks.
-typedef float (*cpDampedRotarySpringTorqueFunc)(struct phy_constraint *spring, float relativeAngle);
+typedef float (*phy_damped_rotary_spring_torque_func)(struct phy_constraint *spring, float relative_angle);
 
-/// Allocate a damped rotary spring.
-phy_damped_rotary_spring* cpDampedRotarySpringAlloc(void);
-/// Initialize a damped rotary spring.
-phy_damped_rotary_spring* cpDampedRotarySpringInit(phy_damped_rotary_spring *joint, phy_body *a, phy_body *b, float restAngle, float stiffness, float damping);
-/// Allocate and initialize a damped rotary spring.
-phy_constraint* cpDampedRotarySpringNew(phy_body *a, phy_body *b, float restAngle, float stiffness, float damping);
+phy_damped_rotary_spring *phy_damped_rotary_spring_alloc(void);
+phy_damped_rotary_spring *phy_damped_rotary_spring_init(phy_damped_rotary_spring *joint, phy_body *a, phy_body *b, float rest_angle, float stiffness, float damping);
+phy_constraint *phy_damped_rotary_spring_new(phy_body *a, phy_body *b, float rest_angle, float stiffness, float damping);
 
-/// Get the rest length of the spring.
-float cpDampedRotarySpringGetRestAngle(const phy_constraint *constraint);
-/// Set the rest length of the spring.
-void cpDampedRotarySpringSetRestAngle(phy_constraint *constraint, float restAngle);
+float phy_damped_rotary_spring_get_rest_angle(const phy_constraint *constraint);
+void phy_damped_rotary_spring_set_rest_angle(phy_constraint *constraint, float rest_angle);
 
-/// Get the stiffness of the spring in force/distance.
-float cpDampedRotarySpringGetStiffness(const phy_constraint *constraint);
-/// Set the stiffness of the spring in force/distance.
-void cpDampedRotarySpringSetStiffness(phy_constraint *constraint, float stiffness);
+float phy_damped_rotary_spring_get_stiffness(const phy_constraint *constraint);
+void phy_damped_rotary_spring_set_stiffness(phy_constraint *constraint, float stiffness);
 
-/// Get the damping of the spring.
-float cpDampedRotarySpringGetDamping(const phy_constraint *constraint);
-/// Set the damping of the spring.
-void cpDampedRotarySpringSetDamping(phy_constraint *constraint, float damping);
+float phy_damped_rotary_spring_get_damping(const phy_constraint *constraint);
+void phy_damped_rotary_spring_set_damping(phy_constraint *constraint, float damping);
 
-/// Get the damping of the spring.
-cpDampedRotarySpringTorqueFunc cpDampedRotarySpringGetSpringTorqueFunc(const phy_constraint *constraint);
-/// Set the damping of the spring.
-void cpDampedRotarySpringSetSpringTorqueFunc(phy_constraint *constraint, cpDampedRotarySpringTorqueFunc springTorqueFunc);
+phy_damped_rotary_spring_torque_func phy_damped_rotary_spring_get_spring_torque_func(const phy_constraint *constraint);
+void phy_damped_rotary_spring_set_spring_torque_func(phy_constraint *constraint, phy_damped_rotary_spring_torque_func spring_torque_func);
 
-/// @}

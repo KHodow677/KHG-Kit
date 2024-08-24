@@ -1,25 +1,5 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_utl/error_func.h"
 
 static void
 preStep(rotary_limit_joint *joint, float dt)
@@ -132,14 +112,18 @@ cpConstraintIsRotaryLimitJoint(const phy_constraint *constraint)
 float
 cpRotaryLimitJointGetMin(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
+	if (!cpConstraintIsRotaryLimitJoint(constraint)) {
+    utl_error_func("Constraint is not a rotary limit joint", utl_user_defined_data);
+  }
 	return ((rotary_limit_joint *)constraint)->min;
 }
 
 void
 cpRotaryLimitJointSetMin(phy_constraint *constraint, float min)
 {
-	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
+	if (!cpConstraintIsRotaryLimitJoint(constraint)) {
+    utl_error_func("Constraint is not a rotary limit joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((rotary_limit_joint *)constraint)->min = min;
 }
@@ -147,14 +131,18 @@ cpRotaryLimitJointSetMin(phy_constraint *constraint, float min)
 float
 cpRotaryLimitJointGetMax(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
+	if (!cpConstraintIsRotaryLimitJoint(constraint)) {
+    utl_error_func("Constraint is not a rotary limit joint", utl_user_defined_data);
+  }
 	return ((rotary_limit_joint *)constraint)->max;
 }
 
 void
 cpRotaryLimitJointSetMax(phy_constraint *constraint, float max)
 {
-	cpAssertHard(cpConstraintIsRotaryLimitJoint(constraint), "Constraint is not a rotary limit joint.");
+	if (!cpConstraintIsRotaryLimitJoint(constraint)) {
+    utl_error_func("Constraint is not a rotary limit joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((rotary_limit_joint *)constraint)->max = max;
 }

@@ -1,40 +1,23 @@
-/* Copyright (c) 2007 Scott Lembcke
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
- 
-#include <string.h>
-
 #include "khg_phy/phy_private.h"
+#include "khg_utl/error_func.h"
+#include <string.h>
 
 //MARK: Sleeping Functions
 
 void
 cpSpaceActivateBody(phy_space *space, phy_body *body)
 {
-	cpAssertHard(phy_body_get_type(body) == CP_BODY_TYPE_DYNAMIC, "Internal error: Attempting to activate a non-dynamic body.");
+	if (phy_body_get_type(body) != PHY_BODY_TYPE_DYNAMIC) {
+    utl_error_func("Attempting to activate a non-dynamic body", utl_user_defined_data);
+  }
 		
 	if(space->locked){
 		// cpSpaceActivateBody() is called again once the space is unlocked
 		if(!cpArrayContains(space->rousedBodies, body)) cpArrayPush(space->rousedBodies, body);
 	} else {
-		cpAssertSoft(body->sleeping.root == NULL && body->sleeping.next == NULL, "Internal error: Activating body non-NULL node pointers.");
+		if (!(body->sleeping.root == NULL && body->sleeping.next == NULL)) {
+      utl_error_func("Activating body non-NULL node pointers", utl_user_defined_data);
+    }
 		cpArrayPush(space->dynamicBodies, body);
 
 		CP_BODY_FOREACH_SHAPE(body, shape){
@@ -49,7 +32,7 @@ cpSpaceActivateBody(phy_space *space, phy_body *body)
 			// You only want to restore the arbiter once, so bodyA is arbitrarily chosen to own the arbiter.
 			// The edge case is when static bodies are involved as the static bodies never actually sleep.
 			// If the static body is bodyB then all is good. If the static body is bodyA, that can easily be checked.
-			if(body == bodyA || phy_body_get_type(bodyA) == CP_BODY_TYPE_STATIC){
+			if(body == bodyA || phy_body_get_type(bodyA) == PHY_BODY_TYPE_STATIC){
 				int numContacts = arb->count;
 				struct cpContact *contacts = arb->contacts;
 				
@@ -74,7 +57,7 @@ cpSpaceActivateBody(phy_space *space, phy_body *body)
 		
 		CP_BODY_FOREACH_CONSTRAINT(body, constraint){
 			phy_body *bodyA = constraint->a;
-			if(body == bodyA || phy_body_get_type(bodyA) == CP_BODY_TYPE_STATIC) cpArrayPush(space->constraints, constraint);
+			if(body == bodyA || phy_body_get_type(bodyA) == PHY_BODY_TYPE_STATIC) cpArrayPush(space->constraints, constraint);
 		}
 	}
 }
@@ -82,7 +65,9 @@ cpSpaceActivateBody(phy_space *space, phy_body *body)
 static void
 cpSpaceDeactivateBody(phy_space *space, phy_body *body)
 {
-	cpAssertHard(phy_body_get_type(body) == CP_BODY_TYPE_DYNAMIC, "Internal error: Attempting to deactivate a non-dynamic body.");
+	if (phy_body_get_type(body) != PHY_BODY_TYPE_DYNAMIC) {
+    utl_error_func("Attempting to deactivate a non-dynamic body", utl_user_defined_data);
+  }
 	
 	cpArrayDeleteObj(space->dynamicBodies, body);
 	
@@ -93,7 +78,7 @@ cpSpaceDeactivateBody(phy_space *space, phy_body *body)
 	
 	CP_BODY_FOREACH_ARBITER(body, arb){
 		phy_body *bodyA = arb->body_a;
-		if(body == bodyA || phy_body_get_type(bodyA) == CP_BODY_TYPE_STATIC){
+		if(body == bodyA || phy_body_get_type(bodyA) == PHY_BODY_TYPE_STATIC){
 			cpSpaceUncacheArbiter(space, arb);
 			
 			// Save contact values to a new block of memory so they won't time out
@@ -106,7 +91,7 @@ cpSpaceDeactivateBody(phy_space *space, phy_body *body)
 		
 	CP_BODY_FOREACH_CONSTRAINT(body, constraint){
 		phy_body *bodyA = constraint->a;
-		if(body == bodyA || phy_body_get_type(bodyA) == CP_BODY_TYPE_STATIC) cpArrayDeleteObj(space->constraints, constraint);
+		if(body == bodyA || phy_body_get_type(bodyA) == PHY_BODY_TYPE_STATIC) cpArrayDeleteObj(space->constraints, constraint);
 	}
 }
 
@@ -119,13 +104,15 @@ ComponentRoot(phy_body *body)
 void
 phy_body_activate(phy_body *body)
 {
-	if(body != NULL && phy_body_get_type(body) == CP_BODY_TYPE_DYNAMIC){
+	if(body != NULL && phy_body_get_type(body) == PHY_BODY_TYPE_DYNAMIC){
 		body->sleeping.idleTime = 0.0f;
 		
 		phy_body *root = ComponentRoot(body);
 		if(root && phy_body_is_sleeping(root)){
 			// TODO should cpBodyIsSleeping(root) be an assertion?
-			cpAssertSoft(phy_body_get_type(root) == CP_BODY_TYPE_DYNAMIC, "Internal Error: Non-dynamic body component root detected.");
+			if (phy_body_get_type(root) != PHY_BODY_TYPE_DYNAMIC) {
+        utl_error_func("Non-dynamic body component root detected", utl_user_defined_data);
+      }
 			
 			phy_space *space = root->space;
 			phy_body *body = root;
@@ -147,7 +134,7 @@ phy_body_activate(phy_body *body)
 			// Reset the idle timer of things the body is touching as well.
 			// That way things don't get left hanging in the air.
 			phy_body *other = (arb->body_a == body ? arb->body_b : arb->body_a);
-			if(phy_body_get_type(other) != CP_BODY_TYPE_STATIC) other->sleeping.idleTime = 0.0f;
+			if(phy_body_get_type(other) != PHY_BODY_TYPE_STATIC) other->sleeping.idleTime = 0.0f;
 		}
 	}
 }
@@ -155,7 +142,9 @@ phy_body_activate(phy_body *body)
 void
 phy_body_activate_static(phy_body *body, phy_shape *filter)
 {
-	cpAssertHard(phy_body_get_type(body) == CP_BODY_TYPE_STATIC, "cpBodyActivateStatic() called on a non-static body.");
+	if (phy_body_get_type(body) != PHY_BODY_TYPE_STATIC) {
+    utl_error_func("Called on a non-static body", utl_user_defined_data);
+  }
 	
 	CP_BODY_FOREACH_ARBITER(body, arb){
 		if(!filter || filter == arb->a || filter == arb->b){
@@ -169,11 +158,17 @@ phy_body_activate_static(phy_body *body, phy_shape *filter)
 static inline void
 cpBodyPushArbiter(phy_body *body, phy_arbiter *arb)
 {
-	cpAssertSoft(cpArbiterThreadForBody(arb, body)->next == NULL, "Internal Error: Dangling contact graph pointers detected. (A)");
-	cpAssertSoft(cpArbiterThreadForBody(arb, body)->prev == NULL, "Internal Error: Dangling contact graph pointers detected. (B)");
+	if (cpArbiterThreadForBody(arb, body)->next != NULL) {
+    utl_error_func("Dangling contact graph pointers detected", utl_user_defined_data);
+  }
+	if (cpArbiterThreadForBody(arb, body)->prev != NULL) {
+    utl_error_func("Dangling contact graph pointers detected", utl_user_defined_data);
+  }
 	
 	phy_arbiter *next = body->arbiterList;
-	cpAssertSoft(next == NULL || cpArbiterThreadForBody(next, body)->prev == NULL, "Internal Error: Dangling contact graph pointers detected. (C)");
+	if (!(next == NULL || cpArbiterThreadForBody(next, body)->prev == NULL)) {
+    utl_error_func("Dangling contact graph pointers detected", utl_user_defined_data);
+  }
 	cpArbiterThreadForBody(arb, body)->next = next;
 	
 	if(next) cpArbiterThreadForBody(next, body)->prev = arb;
@@ -195,14 +190,16 @@ FloodFillComponent(phy_body *root, phy_body *body)
 {
 	// Kinematic bodies cannot be put to sleep and prevent bodies they are touching from sleeping.
 	// Static bodies are effectively sleeping all the time.
-	if(phy_body_get_type(body) == CP_BODY_TYPE_DYNAMIC){
+	if(phy_body_get_type(body) == PHY_BODY_TYPE_DYNAMIC){
 		phy_body *other_root = ComponentRoot(body);
 		if(other_root == NULL){
 			ComponentAdd(root, body);
 			CP_BODY_FOREACH_ARBITER(body, arb) FloodFillComponent(root, (body == arb->body_a ? arb->body_b : arb->body_a));
 			CP_BODY_FOREACH_CONSTRAINT(body, constraint) FloodFillComponent(root, (body == constraint->a ? constraint->b : constraint->a));
 		} else {
-			cpAssertSoft(other_root == root, "Internal Error: Inconsistency dectected in the contact graph.");
+			if (other_root != root) {
+        utl_error_func("Inconsistency dectected in the contact graph", utl_user_defined_data);
+      }
 		}
 	}
 }
@@ -227,8 +224,12 @@ cpSpaceProcessComponents(phy_space *space, float dt)
 	for(int i=0; i<bodies->num; i++){
 		phy_body *body = (phy_body *)bodies->arr[i];
 		
-		cpAssertSoft(body->sleeping.next == NULL, "Internal Error: Dangling next pointer detected in contact graph.");
-		cpAssertSoft(body->sleeping.root == NULL, "Internal Error: Dangling root pointer detected in contact graph.");
+		if (body->sleeping.next != NULL) {
+      utl_error_func("Dangling next pointer detected in contact graph", utl_user_defined_data);
+    }
+		if (body->sleeping.root != NULL) {
+      utl_error_func("Dangling root pointer detected in contact graph", utl_user_defined_data);
+    }
 	}
 #endif
 	
@@ -242,11 +243,11 @@ cpSpaceProcessComponents(phy_space *space, float dt)
 			phy_body *body = (phy_body *)bodies->arr[i];
 			
 			// TODO should make a separate array for kinematic bodies.
-			if(phy_body_get_type(body) != CP_BODY_TYPE_DYNAMIC) continue;
+			if(phy_body_get_type(body) != PHY_BODY_TYPE_DYNAMIC) continue;
 			
 			// Need to deal with infinite mass objects
 			float keThreshold = (dvsq ? body->m*dvsq : 0.0f);
-			body->sleeping.idleTime = (cpBodyKineticEnergy(body) > keThreshold ? 0.0f : body->sleeping.idleTime + dt);
+			body->sleeping.idleTime = (phy_body_kinetic_energy(body) > keThreshold ? 0.0f : body->sleeping.idleTime + dt);
 		}
 	}
 	
@@ -258,8 +259,8 @@ cpSpaceProcessComponents(phy_space *space, float dt)
 		
 		if(sleep){
 			// TODO checking cpBodyIsSleepin() redundant?
-			if(phy_body_get_type(b) == CP_BODY_TYPE_KINEMATIC || phy_body_is_sleeping(a)) phy_body_activate(a);
-			if(phy_body_get_type(a) == CP_BODY_TYPE_KINEMATIC || phy_body_is_sleeping(b)) phy_body_activate(b);
+			if(phy_body_get_type(b) == PHY_BODY_TYPE_KINEMATIC || phy_body_is_sleeping(a)) phy_body_activate(a);
+			if(phy_body_get_type(a) == PHY_BODY_TYPE_KINEMATIC || phy_body_is_sleeping(b)) phy_body_activate(b);
 		}
 		
 		cpBodyPushArbiter(a, arb);
@@ -273,8 +274,8 @@ cpSpaceProcessComponents(phy_space *space, float dt)
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			phy_body *a = constraint->a, *b = constraint->b;
 			
-			if(phy_body_get_type(b) == CP_BODY_TYPE_KINEMATIC) phy_body_activate(a);
-			if(phy_body_get_type(a) == CP_BODY_TYPE_KINEMATIC) phy_body_activate(b);
+			if(phy_body_get_type(b) == PHY_BODY_TYPE_KINEMATIC) phy_body_activate(a);
+			if(phy_body_get_type(a) == PHY_BODY_TYPE_KINEMATIC) phy_body_activate(b);
 		}
 		
 		// Generate components and deactivate sleeping ones
@@ -314,15 +315,25 @@ phy_body_sleep(phy_body *body)
 
 void
 phy_body_sleep_with_group(phy_body *body, phy_body *group){
-	cpAssertHard(phy_body_get_type(body) == CP_BODY_TYPE_DYNAMIC, "Non-dynamic bodies cannot be put to sleep.");
+	if (phy_body_get_type(body) != PHY_BODY_TYPE_DYNAMIC) {
+    utl_error_func("Non-dynamic bodies cannot be put to sleep", utl_user_defined_data);
+  }
 	
 	phy_space *space = body->space;
-	cpAssertHard(!cpSpaceIsLocked(space), "Bodies cannot be put to sleep during a query or a call to cpSpaceStep(). Put these calls into a post-step callback.");
-	cpAssertHard(cpSpaceGetSleepTimeThreshold(space) < INFINITY, "Sleeping is not enabled on the space. You cannot sleep a body without setting a sleep time threshold on the space.");
-	cpAssertHard(group == NULL || phy_body_is_sleeping(group), "Cannot use a non-sleeping body as a group identifier.");
+	if (cpSpaceIsLocked(space)) {
+    utl_error_func("Bodies cannot be put to sleep during a query or a call step, put these calls into a post-step callback", utl_user_defined_data);
+  }
+	if (cpSpaceGetSleepTimeThreshold(space) >= INFINITY) {
+    utl_error_func("Sleeping is not enabled on the space, you cannot sleep a body without setting a sleep time threshold on the space", utl_user_defined_data);
+  }
+	if (!(group == NULL || phy_body_is_sleeping(group))) {
+    utl_error_func("Cannot use a non-sleeping body as a group identifier", utl_user_defined_data);
+  }
 	
 	if(phy_body_is_sleeping(body)){
-		cpAssertHard(ComponentRoot(body) == ComponentRoot(group), "The body is already sleeping and it's group cannot be reassigned.");
+		if (ComponentRoot(body) != ComponentRoot(group)) {
+      utl_error_func("The body is already sleeping and it's group cannot be reassigned", utl_user_defined_data);
+    }
 		return;
 	}
 	

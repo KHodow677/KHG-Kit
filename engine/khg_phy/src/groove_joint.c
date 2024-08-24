@@ -1,25 +1,6 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_phy/transform.h"
+#include "khg_utl/error_func.h"
 
 static void
 preStep(phy_groove_joint *joint, float dt)
@@ -111,13 +92,13 @@ static const cpConstraintClass klass = {
 };
 
 phy_groove_joint *
-cpGrooveJointAlloc(void)
+phy_groove_joint_alloc(void)
 {
 	return (phy_groove_joint *)calloc(1, sizeof(phy_groove_joint));
 }
 
 phy_groove_joint *
-cpGrooveJointInit(phy_groove_joint *joint, phy_body *a, phy_body *b, phy_vect groove_a, phy_vect groove_b, phy_vect anchorB)
+phy_groove_joint_init(phy_groove_joint *joint, phy_body *a, phy_body *b, phy_vect groove_a, phy_vect groove_b, phy_vect anchorB)
 {
 	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
@@ -132,28 +113,32 @@ cpGrooveJointInit(phy_groove_joint *joint, phy_body *a, phy_body *b, phy_vect gr
 }
 
 phy_constraint *
-cpGrooveJointNew(phy_body *a, phy_body *b, phy_vect groove_a, phy_vect groove_b, phy_vect anchorB)
+phy_groove_joint_new(phy_body *a, phy_body *b, phy_vect groove_a, phy_vect groove_b, phy_vect anchorB)
 {
-	return (phy_constraint *)cpGrooveJointInit(cpGrooveJointAlloc(), a, b, groove_a, groove_b, anchorB);
+	return (phy_constraint *)phy_groove_joint_init(phy_groove_joint_alloc(), a, b, groove_a, groove_b, anchorB);
 }
 
 bool
-cpConstraintIsGrooveJoint(const phy_constraint *constraint)
+phy_constraint_is_groove_joint(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
 phy_vect
-cpGrooveJointGetGrooveA(const phy_constraint *constraint)
+phy_groove_joint_get_groove_A(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
+	if (!phy_constraint_is_groove_joint(constraint)) {
+    utl_error_func("Constraint is not a groove joint", utl_user_defined_data);
+  }
 	return ((phy_groove_joint *)constraint)->grv_a;
 }
 
 void
-cpGrooveJointSetGrooveA(phy_constraint *constraint, phy_vect value)
+phy_groove_joint_set_groove_A(phy_constraint *constraint, phy_vect value)
 {
-	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
+	if (!phy_constraint_is_groove_joint(constraint)) {
+    utl_error_func("Constraint is not a groove joint", utl_user_defined_data);
+  }
 	phy_groove_joint *g = (phy_groove_joint *)constraint;
 	
 	g->grv_a = value;
@@ -163,16 +148,20 @@ cpGrooveJointSetGrooveA(phy_constraint *constraint, phy_vect value)
 }
 
 phy_vect
-cpGrooveJointGetGrooveB(const phy_constraint *constraint)
+phy_groove_joint_get_groove_B(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
+	if (!phy_constraint_is_groove_joint(constraint)) {
+    utl_error_func("Constraint is not a groove joint", utl_user_defined_data);
+  }
 	return ((phy_groove_joint *)constraint)->grv_b;
 }
 
 void
-cpGrooveJointSetGrooveB(phy_constraint *constraint, phy_vect value)
+phy_groove_joint_set_groove_B(phy_constraint *constraint, phy_vect value)
 {
-	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
+	if (!phy_constraint_is_groove_joint(constraint)) {
+    utl_error_func("Constraint is not a groove joint", utl_user_defined_data);
+  }
 	phy_groove_joint *g = (phy_groove_joint *)constraint;
 	
 	g->grv_b = value;
@@ -182,16 +171,20 @@ cpGrooveJointSetGrooveB(phy_constraint *constraint, phy_vect value)
 }
 
 phy_vect
-cpGrooveJointGetAnchorB(const phy_constraint *constraint)
+phy_groove_joint_get_anchor_B(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
+	if (!phy_constraint_is_groove_joint(constraint)) {
+    utl_error_func("Constraint is not a groove joint", utl_user_defined_data);
+  }
 	return ((phy_groove_joint *)constraint)->anchorB;
 }
 
 void
-cpGrooveJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
+phy_groove_joint_set_anchor_B(phy_constraint *constraint, phy_vect anchorB)
 {
-	cpAssertHard(cpConstraintIsGrooveJoint(constraint), "Constraint is not a groove joint.");
+	if (!phy_constraint_is_groove_joint(constraint)) {
+    utl_error_func("Constraint is not a groove joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_groove_joint *)constraint)->anchorB = anchorB;
 }

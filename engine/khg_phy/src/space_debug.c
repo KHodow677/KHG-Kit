@@ -1,25 +1,10 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_phy/pin_joint.h"
+#include "khg_phy/slide_joint.h"
+#include "khg_phy/pivot_joint.h"
+#include "khg_phy/groove_joint.h"
+#include "khg_phy/damped_spring.h"
+#include "khg_phy/transform.h"
 
 #ifndef CP_SPACE_DISABLE_DEBUG_API
 
@@ -112,7 +97,7 @@ cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *
 
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
-	} else if(cpConstraintIsGrooveJoint(constraint)){
+	} else if(phy_constraint_is_groove_joint(constraint)){
 		phy_groove_joint *joint = (phy_groove_joint *)constraint;
 	
 		phy_vect a = cpTransformPoint(body_a->transform, joint->grv_a);
@@ -121,7 +106,7 @@ cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *
 		
 		options->drawDot(5, c, color, data);
 		options->drawSegment(a, b, color, data);
-	} else if(cpConstraintIsDampedSpring(constraint)){
+	} else if(phy_constraint_is_damped_spring(constraint)){
 		phy_damped_spring *spring = (phy_damped_spring *)constraint;
 		
 		phy_vect a = cpTransformPoint(body_a->transform, spring->anchorA);

@@ -3,6 +3,8 @@
 #include "khg_phy/bb.h"
 #include "khg_phy/body.h"
 #include "khg_phy/constraint.h"
+#include "khg_phy/damped_spring.h"
+#include "khg_phy/damped_rotary_spring.h"
 #include "khg_phy/shape.h"
 #include "khg_phy/space.h"
 #include "khg_phy/spatial_index.h"
@@ -241,8 +243,8 @@ struct phy_constraint {
 	
 	bool collideBodies;
 	
-	cpConstraintPreSolveFunc preSolve;
-	cpConstraintPostSolveFunc postSolve;
+	phy_constraint_pre_solve_func preSolve;
+	phy_constraint_post_solve_func postSolve;
 	
 	phy_data_pointer userData;
 };
@@ -304,7 +306,7 @@ struct phy_damped_spring {
 	float restLength;
 	float stiffness;
 	float damping;
-	cpDampedSpringForceFunc springForceFunc;
+	phy_damped_spring_force_func springForceFunc;
 	
 	float target_vrn;
 	float v_coef;
@@ -321,7 +323,7 @@ struct phy_damped_rotary_spring {
 	float restAngle;
 	float stiffness;
 	float damping;
-	cpDampedRotarySpringTorqueFunc springTorqueFunc;
+	phy_damped_rotary_spring_torque_func springTorqueFunc;
 	
 	float target_wrn;
 	float w_coef;

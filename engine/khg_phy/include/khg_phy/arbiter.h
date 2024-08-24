@@ -15,7 +15,7 @@ extern phy_vect phy_arbiter_get_surface_velocity(phy_arbiter *arb);
 extern void phy_arbiter_set_surface_velocity(phy_arbiter *arb, phy_vect vr);
 
 extern phy_data_pointer phy_arbiter_get_user_data(const phy_arbiter *arb);
-extern void phy_arbiter_set_user_data(phy_arbiter *arb, phy_data_pointer userData);
+extern void phy_arbiter_set_user_data(phy_arbiter *arb, phy_data_pointer user_data);
 
 extern phy_vect phy_arbiter_total_impulse(const phy_arbiter *arb);
 extern float phy_arbiter_total_ke(const phy_arbiter *arb);

@@ -3,9 +3,9 @@
 #include "khg_phy/phy_types.h"
 
 typedef enum phy_body_type {
-	CP_BODY_TYPE_DYNAMIC,
-	CP_BODY_TYPE_KINEMATIC,
-	CP_BODY_TYPE_STATIC,
+	PHY_BODY_TYPE_DYNAMIC,
+	PHY_BODY_TYPE_KINEMATIC,
+	PHY_BODY_TYPE_STATIC,
 } phy_body_type;
 
 typedef void (*phy_body_velocity_func)(phy_body *body, phy_vect gravity, float damping, float dt);
@@ -56,68 +56,42 @@ float phy_body_get_angle(const phy_body *body);
 void phy_body_set_angle(phy_body *body, float a);
 
 float phy_body_get_angular_velocity(const phy_body *body);
-void phy_body_set_angular_velocity(phy_body *body, float angularVelocity);
+void phy_body_set_angular_velocity(phy_body *body, float angular_velocity);
 
-/// Get the torque applied to the body for the next time step.
-float cpBodyGetTorque(const phy_body *body);
-/// Set the torque applied to the body for the next time step.
-void cpBodySetTorque(phy_body *body, float torque);
+float phy_body_get_torque(const phy_body *body);
+void phy_body_set_torque(phy_body *body, float torque);
 
-/// Get the rotation vector of the body. (The x basis vector of it's transform.)
-phy_vect cpBodyGetRotation(const phy_body *body);
+phy_vect phy_body_get_rotation(const phy_body *body);
 
-/// Get the user data pointer assigned to the body.
-phy_data_pointer cpBodyGetUserData(const phy_body *body);
-/// Set the user data pointer assigned to the body.
-void cpBodySetUserData(phy_body *body, phy_data_pointer userData);
+phy_data_pointer phy_body_get_user_data(const phy_body *body);
+void phy_body_set_user_data(phy_body *body, phy_data_pointer user_data);
 
-/// Set the callback used to update a body's velocity.
-void cpBodySetVelocityUpdateFunc(phy_body *body, phy_body_velocity_func velocityFunc);
-/// Set the callback used to update a body's position.
-/// NOTE: It's not generally recommended to override this unless you call the default position update function.
-void cpBodySetPositionUpdateFunc(phy_body *body, phy_body_position_func positionFunc);
+void phy_body_set_velocity_update_func(phy_body *body, phy_body_velocity_func velocity_func);
+void phy_body_set_position_update_func(phy_body *body, phy_body_position_func position_func);
 
-/// Default velocity integration function..
-void cpBodyUpdateVelocity(phy_body *body, phy_vect gravity, float damping, float dt);
-/// Default position integration function.
-void cpBodyUpdatePosition(phy_body *body, float dt);
+void phy_body_update_velocity(phy_body *body, phy_vect gravity, float damping, float dt);
+void phy_body_update_position(phy_body *body, float dt);
 
-/// Convert body relative/local coordinates to absolute/world coordinates.
-phy_vect cpBodyLocalToWorld(const phy_body *body, const phy_vect point);
-/// Convert body absolute/world coordinates to  relative/local coordinates.
-phy_vect cpBodyWorldToLocal(const phy_body *body, const phy_vect point);
+phy_vect phy_body_local_to_world(const phy_body *body, const phy_vect point);
+phy_vect phy_body_world_to_local(const phy_body *body, const phy_vect point);
 
-/// Apply a force to a body. Both the force and point are expressed in world coordinates.
-void cpBodyApplyForceAtWorldPoint(phy_body *body, phy_vect force, phy_vect point);
-/// Apply a force to a body. Both the force and point are expressed in body local coordinates.
-void cpBodyApplyForceAtLocalPoint(phy_body *body, phy_vect force, phy_vect point);
+void phy_body_apply_force_at_world_point(phy_body *body, phy_vect force, phy_vect point);
+void phy_body_apply_force_at_local_point(phy_body *body, phy_vect force, phy_vect point);
 
-/// Apply an impulse to a body. Both the impulse and point are expressed in world coordinates.
-void cpBodyApplyImpulseAtWorldPoint(phy_body *body, phy_vect impulse, phy_vect point);
-/// Apply an impulse to a body. Both the impulse and point are expressed in body local coordinates.
-void cpBodyApplyImpulseAtLocalPoint(phy_body *body, phy_vect impulse, phy_vect point);
+void phy_body_apply_impulse_at_world_point(phy_body *body, phy_vect impulse, phy_vect point);
+void phy_body_apply_impulse_at_local_point(phy_body *body, phy_vect impulse, phy_vect point);
 
-/// Get the velocity on a body (in world units) at a point on the body in world coordinates.
-phy_vect cpBodyGetVelocityAtWorldPoint(const phy_body *body, phy_vect point);
-/// Get the velocity on a body (in world units) at a point on the body in local coordinates.
-phy_vect cpBodyGetVelocityAtLocalPoint(const phy_body *body, phy_vect point);
+phy_vect phy_body_get_velocity_at_world_point(const phy_body *body, phy_vect point);
+phy_vect phy_body_get_velocity_at_local_point(const phy_body *body, phy_vect point);
 
-/// Get the amount of kinetic energy contained by the body.
-float cpBodyKineticEnergy(const phy_body *body);
+float phy_body_kinetic_energy(const phy_body *body);
 
-/// Body/shape iterator callback function type. 
-typedef void (*cpBodyShapeIteratorFunc)(phy_body *body, phy_shape *shape, void *data);
-/// Call @c func once for each shape attached to @c body and added to the space.
-void cpBodyEachShape(phy_body *body, cpBodyShapeIteratorFunc func, void *data);
+typedef void (*phy_body_shape_iterator_func)(phy_body *body, phy_shape *shape, void *data);
+void phy_body_each_shape(phy_body *body, phy_body_shape_iterator_func func, void *data);
 
-/// Body/constraint iterator callback function type. 
-typedef void (*cpBodyConstraintIteratorFunc)(phy_body *body, phy_constraint *constraint, void *data);
-/// Call @c func once for each constraint attached to @c body and added to the space.
-void cpBodyEachConstraint(phy_body *body, cpBodyConstraintIteratorFunc func, void *data);
+typedef void (*phy_body_constraint_iterator_func)(phy_body *body, phy_constraint *constraint, void *data);
+void phy_body_each_constraint(phy_body *body, phy_body_constraint_iterator_func func, void *data);
 
-/// Body/arbiter iterator callback function type. 
-typedef void (*cpBodyArbiterIteratorFunc)(phy_body *body, phy_arbiter *arbiter, void *data);
-/// Call @c func once for each arbiter that is currently active on the body.
-void cpBodyEachArbiter(phy_body *body, cpBodyArbiterIteratorFunc func, void *data);
+typedef void (*phy_body_arbiter_iterator_func)(phy_body *body, phy_arbiter *arbiter, void *data);
+void phy_body_each_arbiter(phy_body *body, phy_body_arbiter_iterator_func func, void *data);
 
-///@}

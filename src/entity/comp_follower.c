@@ -1,7 +1,7 @@
 #include "entity/comp_follower.h"
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_physics.h"
-#include "entity/ecs_manager.h"
+#include "game_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
@@ -13,16 +13,16 @@ ecs_id FOLLOWER_COMPONENT_SIGNATURE;
 follower_info NO_FOLLOWER = { 0 };
 utl_vector *FOLLOWER_INFO = NULL;
 
-void comp_follower_register(comp_follower *cf, ecs_ecs *ecs) {
-  cf->id = ecs_register_component(ecs, sizeof(comp_follower), NULL, NULL);
+void comp_follower_register(comp_follower *cf) {
+  cf->id = ecs_register_component(ECS, sizeof(comp_follower), NULL, NULL);
   FOLLOWER_COMPONENT_SIGNATURE = cf->id; 
 }
 
-void sys_follower_register(sys_follower *sf, ecs_ecs *ecs) {
-  sf->id = ecs_register_system(ecs, sys_follower_update, NULL, NULL, NULL);
-  ecs_require_component(ecs, sf->id, FOLLOWER_COMPONENT_SIGNATURE);
-  ecs_require_component(ecs, sf->id, PHYSICS_COMPONENT_SIGNATURE);
-  sf->ecs = *ecs;
+void sys_follower_register(sys_follower *sf) {
+  sf->id = ecs_register_system(ECS, sys_follower_update, NULL, NULL, NULL);
+  ecs_require_component(ECS, sf->id, FOLLOWER_COMPONENT_SIGNATURE);
+  ecs_require_component(ECS, sf->id, PHYSICS_COMPONENT_SIGNATURE);
+  sf->ecs = *ECS;
   sf->current_degree = 1;
   FOLLOWER_INFO = utl_vector_create(sizeof(follower_info));
   for (int i = 0; i < ECS->entity_count; i++) {
@@ -30,8 +30,8 @@ void sys_follower_register(sys_follower *sf, ecs_ecs *ecs) {
   }
 }
 
-void sys_follower_add(ecs_ecs *ecs, ecs_id *eid, follower_info *info) {
-  ecs_add(ecs, *eid, FOLLOWER_COMPONENT_SIGNATURE, NULL);
+void sys_follower_add(ecs_id *eid, follower_info *info) {
+  ecs_add(ECS, *eid, FOLLOWER_COMPONENT_SIGNATURE, NULL);
   utl_vector_assign(FOLLOWER_INFO, *eid, info);
 }
 

@@ -1,26 +1,8 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_phy/poly_shape.h"
+#include "khg_phy/transform.h"
 #include "khg_phy/phy_unsafe.h"
+#include "khg_utl/error_func.h"
 
 phy_poly_shape *
 cpPolyShapeAlloc(void)
@@ -259,17 +241,23 @@ cpBoxShapeNew2(phy_body *body, phy_bb box, float radius)
 int
 cpPolyShapeGetCount(const phy_shape *shape)
 {
-	cpAssertHard(shape->klass == &polyClass, "Shape is not a poly shape.");
+	if (shape->klass != &polyClass) {
+    utl_error_func("Shape is not a poly shape", utl_user_defined_data);
+  }
 	return ((phy_poly_shape *)shape)->count;
 }
 
 phy_vect
 cpPolyShapeGetVert(const phy_shape *shape, int i)
 {
-	cpAssertHard(shape->klass == &polyClass, "Shape is not a poly shape.");
+	if (shape->klass != &polyClass) {
+    utl_error_func("Shape is not a poly shape", utl_user_defined_data);
+  }
 	
 	int count = cpPolyShapeGetCount(shape);
-	cpAssertHard(0 <= i && i < count, "Index out of range.");
+	if (!(0 <= i && i < count)) {
+    utl_error_func("Index out of range", utl_user_defined_data);
+  }
 	
 	return ((phy_poly_shape *)shape)->planes[i + count].v0;
 }
@@ -277,7 +265,9 @@ cpPolyShapeGetVert(const phy_shape *shape, int i)
 float
 cpPolyShapeGetRadius(const phy_shape *shape)
 {
-	cpAssertHard(shape->klass == &polyClass, "Shape is not a poly shape.");
+	if (shape->klass != &polyClass) {
+    utl_error_func("Shape is not a poly shape", utl_user_defined_data);
+  }
 	return ((phy_poly_shape *)shape)->r;
 }
 
@@ -298,7 +288,9 @@ cpPolyShapeSetVerts(phy_shape *shape, int count, phy_vect *verts, phy_transform 
 void
 cpPolyShapeSetVertsRaw(phy_shape *shape, int count, phy_vect *verts)
 {
-	cpAssertHard(shape->klass == &polyClass, "Shape is not a poly shape.");
+	if (shape->klass != &polyClass) {
+    utl_error_func("Shape is not a poly shape", utl_user_defined_data);
+  }
 	phy_poly_shape *poly = (phy_poly_shape *)shape;
 	cpPolyShapeDestroy(poly);
 	
@@ -312,7 +304,9 @@ cpPolyShapeSetVertsRaw(phy_shape *shape, int count, phy_vect *verts)
 void
 cpPolyShapeSetRadius(phy_shape *shape, float radius)
 {
-	cpAssertHard(shape->klass == &polyClass, "Shape is not a poly shape.");
+	if (shape->klass != &polyClass) {
+    utl_error_func("Shape is not a poly shape", utl_user_defined_data);
+  }
 	phy_poly_shape *poly = (phy_poly_shape *)shape;
 	poly->r = radius;
 	

@@ -1,28 +1,8 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
+#include "khg_phy/arbiter.h"	
+#include "khg_phy/phy_private.h"
+#include "khg_utl/error_func.h"
 #include <stdio.h>
 #include <string.h>
-
-#include "khg_phy/phy_private.h"
 
 //MARK: Contact Set Helpers
 
@@ -119,15 +99,6 @@ cpSpaceAlloc(void)
 phy_space*
 cpSpaceInit(phy_space *space)
 {
-#ifndef NDEBUG
-	static bool done = false;
-	if(!done){
-		printf("Initializing cpSpace - Chipmunk v%s (Debug Enabled)\n", cpVersionString);
-		printf("Compile with -DNDEBUG defined to disable debug mode and runtime assertion checks\n");
-		done = true;
-	}
-#endif
-
 	space->iterations = 10;
 	
 	space->gravity = cpvzero;
@@ -171,7 +142,7 @@ cpSpaceInit(phy_space *space)
 	space->skipPostStep = false;
 	
 	phy_body *staticBody = phy_body_init(&space->_staticBody, 0.0f, 0.0f);
-	phy_body_set_type(staticBody, CP_BODY_TYPE_STATIC);
+	phy_body_set_type(staticBody, PHY_BODY_TYPE_STATIC);
 	cpSpaceSetStaticBody(space, staticBody);
 	
 	return space;
@@ -240,7 +211,9 @@ cpSpaceGetIterations(const phy_space *space)
 void
 cpSpaceSetIterations(phy_space *space, int iterations)
 {
-	cpAssertHard(iterations > 0, "Iterations must be positive and non-zero.");
+	if (iterations <= 0) {
+    utl_error_func("Iterations must be positive and non-zero", utl_user_defined_data);
+  }
 	space->iterations = iterations;
 }
 
@@ -271,7 +244,9 @@ cpSpaceGetDamping(const phy_space *space)
 void
 cpSpaceSetDamping(phy_space *space, float damping)
 {
-	cpAssertHard(damping >= 0.0, "Damping must be positive.");
+	if (damping < 0.0) {
+    utl_error_func("Damping must be positive", utl_user_defined_data);
+  }
 	space->damping = damping;
 }
 
@@ -363,7 +338,9 @@ void
 cpSpaceSetStaticBody(phy_space *space, phy_body *body)
 {
 	if(space->staticBody != NULL){
-		cpAssertHard(space->staticBody->shapeList == NULL, "Internal Error: Changing the designated static body while the old one still had shapes attached.");
+		if (space->staticBody->shapeList != NULL) {
+      utl_error_func("Changing the designated static body while the old one still had shapes attached", utl_user_defined_data);
+    }
 		space->staticBody->space = NULL;
 	}
 	
@@ -417,15 +394,25 @@ cpSpaceAddWildcardHandler(phy_space *space, phy_collision_type type)
 phy_shape *
 cpSpaceAddShape(phy_space *space, phy_shape *shape)
 {
-	cpAssertHard(shape->space != space, "You have already added this shape to this space. You must not add it a second time.");
-	cpAssertHard(!shape->space, "You have already added this shape to another space. You cannot add it to a second.");
-	cpAssertHard(shape->body, "The shape's body is not defined.");
-	cpAssertHard(shape->body->space == space, "The shape's body must be added to the space before the shape.");
-	cpAssertSpaceUnlocked(space);
+	if (shape->space == space) {
+    utl_error_func("You have already added this shape to this space, you must not add it a second time", utl_user_defined_data);
+  }
+	if (shape->space) {
+    utl_error_func("You have already added this shape to another space, you cannot add it to a second", utl_user_defined_data);
+  }
+	if (!shape->body) {
+    utl_error_func("The shape's body is not defined", utl_user_defined_data);
+  }
+	if (shape->body->space != space) {
+    utl_error_func("The shape's body must be added to the space before the shape", utl_user_defined_data);
+  }
+  if (space->locked) {
+    utl_error_func("This operation cannot be done safely during a step call or during a query", utl_user_defined_data);
+  }
 	
 	phy_body *body = shape->body;
 	
-	bool isStatic = (phy_body_get_type(body) == CP_BODY_TYPE_STATIC);
+	bool isStatic = (phy_body_get_type(body) == PHY_BODY_TYPE_STATIC);
 	if(!isStatic) phy_body_activate(body);
 	cpBodyAddShape(body, shape);
 	
@@ -440,9 +427,15 @@ cpSpaceAddShape(phy_space *space, phy_shape *shape)
 phy_body *
 cpSpaceAddBody(phy_space *space, phy_body *body)
 {
-	cpAssertHard(body->space != space, "You have already added this body to this space. You must not add it a second time.");
-	cpAssertHard(!body->space, "You have already added this body to another space. You cannot add it to a second.");
-	cpAssertSpaceUnlocked(space);
+	if (body->space == space) {
+    utl_error_func("You have already added this body to this space, you must not add it a second time", utl_user_defined_data);
+  }
+	if (body->space) {
+    utl_error_func("You have already added this body to another space, you cannot add it to a second", utl_user_defined_data);
+  }
+  if (space->locked) {
+    utl_error_func("This operation cannot be done safely during a step call or during a query", utl_user_defined_data);
+  }
 	
 	cpArrayPush(cpSpaceArrayForBodyType(space, phy_body_get_type(body)), body);
 	body->space = space;
@@ -453,13 +446,20 @@ cpSpaceAddBody(phy_space *space, phy_body *body)
 phy_constraint *
 cpSpaceAddConstraint(phy_space *space, phy_constraint *constraint)
 {
-	cpAssertHard(constraint->space != space, "You have already added this constraint to this space. You must not add it a second time.");
-	cpAssertHard(!constraint->space, "You have already added this constraint to another space. You cannot add it to a second.");
-	cpAssertSpaceUnlocked(space);
+	if (constraint->space == space) {
+    utl_error_func("You have already added this constraint to this space, you must not add it a second time", utl_user_defined_data);
+  }
+	if (constraint->space) {
+    utl_error_func("You have already added this constraint to another space, you cannot add it to a second", utl_user_defined_data);
+  }
+  if (space->locked) {
+    utl_error_func("This operation cannot be done safely during a step call or during a query", utl_user_defined_data);
+  }
 	
 	phy_body *a = constraint->a, *b = constraint->b;
-	cpAssertHard(a != NULL && b != NULL, "Constraint is attached to a NULL body.");
-//	cpAssertHard(a->space == space && b->space == space, "The constraint's bodies must be added to the space before the constraint.");
+	if (!(a != NULL && b != NULL)) {
+    utl_error_func("Constraint is attached to a NULL body", utl_user_defined_data);
+  }
 	
 	phy_body_activate(a);
 	phy_body_activate(b);
@@ -523,10 +523,14 @@ void
 cpSpaceRemoveShape(phy_space *space, phy_shape *shape)
 {
 	phy_body *body = shape->body;
-	cpAssertHard(cpSpaceContainsShape(space, shape), "Cannot remove a shape that was not added to the space. (Removed twice maybe?)");
-	cpAssertSpaceUnlocked(space);
+	if (!cpSpaceContainsShape(space, shape)) {
+    utl_error_func("Cannot remove a shape that was not added to the space, likely removed twice", utl_user_defined_data);
+  }
+  if (space->locked) {
+    utl_error_func("This operation cannot be done safely during a step call or during a query", utl_user_defined_data);
+  }
 	
-	bool isStatic = (phy_body_get_type(body) == CP_BODY_TYPE_STATIC);
+	bool isStatic = (phy_body_get_type(body) == PHY_BODY_TYPE_STATIC);
 	if(isStatic){
 		phy_body_activate_static(body, shape);
 	} else {
@@ -543,11 +547,15 @@ cpSpaceRemoveShape(phy_space *space, phy_shape *shape)
 void
 cpSpaceRemoveBody(phy_space *space, phy_body *body)
 {
-	cpAssertHard(body != cpSpaceGetStaticBody(space), "Cannot remove the designated static body for the space.");
-	cpAssertHard(cpSpaceContainsBody(space, body), "Cannot remove a body that was not added to the space. (Removed twice maybe?)");
-//	cpAssertHard(body->shapeList == NULL, "Cannot remove a body from the space before removing the bodies attached to it.");
-//	cpAssertHard(body->constraintList == NULL, "Cannot remove a body from the space before removing the constraints attached to it.");
-	cpAssertSpaceUnlocked(space);
+	if (body == cpSpaceGetStaticBody(space)) {
+    utl_error_func("Cannot remove the designated static body for the space", utl_user_defined_data);
+  }
+	if (!cpSpaceContainsBody(space, body)) {
+    utl_error_func("Cannot remove a body that was not added to the space, likely removed twice", utl_user_defined_data);
+  }
+  if (space->locked) {
+    utl_error_func("This operation cannot be done safely during a step call or during a query", utl_user_defined_data);
+  }
 	
 	phy_body_activate(body);
 //	cpSpaceFilterArbiters(space, body, NULL);
@@ -558,8 +566,12 @@ cpSpaceRemoveBody(phy_space *space, phy_body *body)
 void
 cpSpaceRemoveConstraint(phy_space *space, phy_constraint *constraint)
 {
-	cpAssertHard(cpSpaceContainsConstraint(space, constraint), "Cannot remove a constraint that was not added to the space. (Removed twice maybe?)");
-	cpAssertSpaceUnlocked(space);
+	if (!cpSpaceContainsConstraint(space, constraint)) {
+    utl_error_func("Cannot remove a constraint that was not added to the space, likely removed twice", utl_user_defined_data);
+  }
+  if (space->locked) {
+    utl_error_func("This operation cannot be done safely during a step call or during a query", utl_user_defined_data);
+  }
 	
 	phy_body_activate(constraint->a);
 	phy_body_activate(constraint->b);
@@ -653,7 +665,9 @@ cpSpaceEachConstraint(phy_space *space, cpSpaceConstraintIteratorFunc func, void
 void 
 cpSpaceReindexStatic(phy_space *space)
 {
-	cpAssertHard(!space->locked, "You cannot manually reindex objects while the space is locked. Wait until the current query or step is complete.");
+	if (space->locked) {
+    utl_error_func("You cannot manually reindex objects while the space is locked, wait until the current query or step is complete", utl_user_defined_data);
+  }
 	
 	cpSpatialIndexEach(space->staticShapes, (cpSpatialIndexIteratorFunc)&cpShapeUpdateFunc, NULL);
 	cpSpatialIndexReindex(space->staticShapes);
@@ -662,7 +676,9 @@ cpSpaceReindexStatic(phy_space *space)
 void
 cpSpaceReindexShape(phy_space *space, phy_shape *shape)
 {
-	cpAssertHard(!space->locked, "You cannot manually reindex objects while the space is locked. Wait until the current query or step is complete.");
+  if (space->locked) {
+    utl_error_func("You cannot manually reindex objects while the space is locked, wait until the current query or step is complete", utl_user_defined_data);
+  }
 	
 	cpShapeCacheBB(shape);
 	

@@ -1,8 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-
 #include "khg_phy/phy_private.h"
+#include "khg_phy/arbiter.h"	
 #include "khg_phy/robust.h"
+#include "khg_utl/error_func.h"
 
 #if DEBUG && 0
 #include "ChipmunkDemo.h"
@@ -23,7 +22,9 @@
 static inline void
 cpCollisionInfoPushContact(struct cpCollisionInfo *info, phy_vect p1, phy_vect p2, phy_hash_value hash)
 {
-	cpAssertSoft(info->count <= PHY_MAX_CONTACTS_PER_ARBITER, "Internal error: Tried to push too many contacts.");
+	if (info->count > PHY_MAX_CONTACTS_PER_ARBITER) {
+    utl_error_func("Tried to push too many contacts", utl_user_defined_data);
+  }
 	
 	struct cpContact *con = &info->arr[info->count];
 	con->r1 = p1;
@@ -264,7 +265,9 @@ EPARecurse(const struct SupportContext *ctx, const int count, const struct Minko
 	
 	struct MinkowskiPoint v0 = hull[mini];
 	struct MinkowskiPoint v1 = hull[(mini + 1)%count];
-	cpAssertSoft(!cpveql(v0.ab, v1.ab), "Internal Error: EPA vertexes are the same (%d and %d)", mini, (mini + 1)%count);
+	if (cpveql(v0.ab, v1.ab)) {
+    utl_error_func("Internal Error: EPA vertices are the same", utl_user_defined_data);
+  }
 	
 	// Check if there is a point on the minkowski difference beyond this edge.
 	struct MinkowskiPoint p = Support(ctx, cpvperp(cpvsub(v1.ab, v0.ab)));
@@ -305,7 +308,9 @@ EPARecurse(const struct SupportContext *ctx, const int count, const struct Minko
 		return EPARecurse(ctx, count2, hull2, iteration + 1);
 	} else {
 		// Could not find a new point to insert, so we have found the closest edge of the minkowski difference.
-		cpAssertWarn(iteration < WARN_EPA_ITERATIONS, "High EPA iterations: %d", iteration);
+		if (iteration >= WARN_EPA_ITERATIONS) {
+      utl_error_func("High EPA iterations", utl_user_defined_data);
+    }
 		return ClosestPointsNew(v0, v1);
 	}
 }
@@ -328,7 +333,7 @@ static inline struct ClosestPoints
 GJKRecurse(const struct SupportContext *ctx, const struct MinkowskiPoint v0, const struct MinkowskiPoint v1, const int iteration)
 {
 	if(iteration > MAX_GJK_ITERATIONS){
-		cpAssertWarn(iteration < WARN_GJK_ITERATIONS, "High GJK iterations: %d", iteration);
+		utl_error_func("High GJK iterations", utl_user_defined_data);
 		return ClosestPointsNew(v0, v1);
 	}
 	
@@ -350,12 +355,16 @@ GJKRecurse(const struct SupportContext *ctx, const struct MinkowskiPoint v0, con
 		
 		if(cpCheckPointGreater(p.ab, v0.ab, cpvzero) && cpCheckPointGreater(v1.ab, p.ab, cpvzero)){
 			// The triangle v0, p, v1 contains the origin. Use EPA to find the MSA.
-			cpAssertWarn(iteration < WARN_GJK_ITERATIONS, "High GJK->EPA iterations: %d", iteration);
+			if (iteration >= WARN_GJK_ITERATIONS) {
+        utl_error_func("High GJK->EPA iterations", utl_user_defined_data);
+      }
 			return EPA(ctx, v0, p, v1);
 		} else {
 			if(cpCheckAxis(v0.ab, v1.ab, p.ab, n)){
 				// The edge v0, v1 that we already have is the closest to (0, 0) since p was not closer.
-				cpAssertWarn(iteration < WARN_GJK_ITERATIONS, "High GJK iterations: %d", iteration);
+			  if (iteration >= WARN_GJK_ITERATIONS) {
+				  utl_error_func("High GJK iterations", utl_user_defined_data);
+        }
 				return ClosestPointsNew(v0, v1);
 			} else {
 				// p was closer to the origin than our existing edge.
@@ -537,7 +546,7 @@ CircleToSegment(const phy_circle_shape *circle, const phy_segment_shape *segment
 		phy_vect n = info->n = (dist ? cpvmult(delta, 1.0f/dist) : segment->tn);
 		
 		// Reject endcap collisions if tangents are provided.
-		phy_vect rot = cpBodyGetRotation(segment->shape.body);
+		phy_vect rot = phy_body_get_rotation(segment->shape.body);
 		if(
 			(closest_t != 0.0f || cpvdot(n, cpvrotate(segment->a_tangent, rot)) >= 0.0) &&
 			(closest_t != 1.0f || cpvdot(n, cpvrotate(segment->b_tangent, rot)) >= 0.0)
@@ -565,8 +574,8 @@ SegmentToSegment(const phy_segment_shape *seg1, const phy_segment_shape *seg2, s
 #endif
 	
 	phy_vect n = points.n;
-	phy_vect rot1 = cpBodyGetRotation(seg1->shape.body);
-	phy_vect rot2 = cpBodyGetRotation(seg2->shape.body);
+	phy_vect rot1 = phy_body_get_rotation(seg1->shape.body);
+	phy_vect rot2 = phy_body_get_rotation(seg2->shape.body);
 	
 	// If the closest points are nearer than the sum of the radii...
 	if(
@@ -623,7 +632,7 @@ SegmentToPoly(const phy_segment_shape *seg, const phy_poly_shape *poly, struct c
 #endif
 	
 	phy_vect n = points.n;
-	phy_vect rot = cpBodyGetRotation(seg->shape.body);
+	phy_vect rot = phy_body_get_rotation(seg->shape.body);
 	
 	if(
 		// If the closest points are nearer than the sum of the radii...
@@ -660,9 +669,8 @@ CircleToPoly(const phy_circle_shape *circle, const phy_poly_shape *poly, struct 
 static void
 CollisionError(const phy_shape *circle, const phy_shape *poly, struct cpCollisionInfo *info)
 {
-	cpAssertHard(false, "Internal Error: Shape types are not sorted.");
+	utl_error_func("Shape types are not sorted", utl_user_defined_data);
 }
-
 
 static const CollisionFunc BuiltinCollisionFuncs[9] = {
 	(CollisionFunc)CircleToCircle,

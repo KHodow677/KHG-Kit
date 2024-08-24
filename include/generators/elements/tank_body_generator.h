@@ -14,6 +14,6 @@ typedef struct {
   mover_info mover_info;
 } tank_body;
 
-void generate_tank_body(tank_body *tb, ecs_ecs *ecs, float x, float y);
+void generate_tank_body(tank_body *tb, float x, float y);
 void free_tank_body(tank_body *tb);
 

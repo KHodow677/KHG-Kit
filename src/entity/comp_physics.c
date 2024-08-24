@@ -1,6 +1,6 @@
 #include "entity/comp_physics.h"
+#include "game_manager.h"
 #include "data_utl/kinematic_utl.h"
-#include "entity/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/vect.h"
@@ -12,23 +12,23 @@ ecs_id PHYSICS_COMPONENT_SIGNATURE;
 physics_info NO_PHYSICS = { 0 };
 utl_vector *PHYSICS_INFO = NULL;
 
-void comp_physics_register(comp_physics *cp, ecs_ecs *ecs) {
-  cp->id = ecs_register_component(ecs, sizeof(comp_physics), NULL, NULL);
+void comp_physics_register(comp_physics *cp) {
+  cp->id = ecs_register_component(ECS, sizeof(comp_physics), NULL, NULL);
   PHYSICS_COMPONENT_SIGNATURE = cp->id; 
 }
 
-void sys_physics_register(sys_physics *sp, ecs_ecs *ecs) {
-  sp->id = ecs_register_system(ecs, sys_physics_update, NULL, NULL, NULL);
-  ecs_require_component(ecs, sp->id, PHYSICS_COMPONENT_SIGNATURE);
-  sp->ecs = *ecs;
+void sys_physics_register(sys_physics *sp) {
+  sp->id = ecs_register_system(ECS, sys_physics_update, NULL, NULL, NULL);
+  ecs_require_component(ECS, sp->id, PHYSICS_COMPONENT_SIGNATURE);
+  sp->ecs = *ECS;
   PHYSICS_INFO = utl_vector_create(sizeof(physics_info));
   for (int i = 0; i < ECS->entity_count; i++) {
     utl_vector_push_back(PHYSICS_INFO, &NO_PHYSICS);
   }
 }
 
-void sys_physics_add(ecs_ecs *ecs, ecs_id *eid, physics_info *info) {
-  ecs_add(ecs, *eid, PHYSICS_COMPONENT_SIGNATURE, NULL);
+void sys_physics_add(ecs_id *eid, physics_info *info) {
+  ecs_add(ECS, *eid, PHYSICS_COMPONENT_SIGNATURE, NULL);
   utl_vector_assign(PHYSICS_INFO, *eid, info);
 }
 

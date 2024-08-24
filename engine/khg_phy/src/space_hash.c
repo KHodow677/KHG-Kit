@@ -1,26 +1,6 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
 #include "khg_phy/prime.h"
+#include "khg_utl/error_func.h"
 
 typedef struct cpSpaceHashBin cpSpaceHashBin;
 typedef struct cpHandle cpHandle;
@@ -77,7 +57,9 @@ handleSetTrans(void *obj, cpSpaceHash *hash)
 	if(hash->pooledHandles->num == 0){
 		// handle pool is exhausted, make more
 		int count = PHY_BUFFER_BYTES/sizeof(cpHandle);
-		cpAssertHard(count, "Internal Error: Buffer size is too small.");
+		if (!count) {
+      utl_error_func("Buffer size is too small", utl_user_defined_data);
+    }
 		
 		cpHandle *buffer = (cpHandle *)calloc(1, PHY_BUFFER_BYTES);
 		cpArrayPush(hash->allocatedBuffers, buffer);
@@ -139,7 +121,9 @@ getEmptyBin(cpSpaceHash *hash)
 	} else {
 		// Pool is exhausted, make more
 		int count = PHY_BUFFER_BYTES/sizeof(cpSpaceHashBin);
-		cpAssertHard(count, "Internal Error: Buffer size is too small.");
+		if (!count) {
+      utl_error_func("Buffer size is too small", utl_user_defined_data);
+    }
 		
 		cpSpaceHashBin *buffer = (cpSpaceHashBin *)calloc(1, PHY_BUFFER_BYTES);
 		cpArrayPush(hash->allocatedBuffers, buffer);
@@ -548,7 +532,7 @@ void
 cpSpaceHashResize(cpSpaceHash *hash, float celldim, int numcells)
 {
 	if(hash->spatialIndex.klass != Klass()){
-		cpAssertWarn(false, "Ignoring cpSpaceHashResize() call to non-cpSpaceHash spatial index.");
+		utl_error_func("Ignoring call to non-cpSpaceHash spatial index", utl_user_defined_data);
 		return;
 	}
 	
@@ -602,7 +586,7 @@ void
 cpSpaceHashRenderDebug(cpSpatialIndex *index)
 {
 	if(index->klass != &klass){
-		cpAssertWarn(false, "Ignoring cpSpaceHashRenderDebug() call to non-spatial hash spatial index.");
+		utl_error_func("Ignoring call to non-spatial hash spatial index", utl_user_defined_data);
 		return;
 	}
 	

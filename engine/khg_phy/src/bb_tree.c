@@ -19,6 +19,7 @@
  * SOFTWARE.
  */
 
+#include "khg_utl/error_func.h"
 #include "stdlib.h"
 #include "stdio.h"
 
@@ -154,7 +155,9 @@ PairFromPool(cpBBTree *tree)
 	} else {
 		// Pool is exhausted, make more
 		int count = PHY_BUFFER_BYTES/sizeof(Pair);
-		cpAssertHard(count, "Internal Error: Buffer size is too small.");
+    if (!count) {
+		  utl_error_func("Buffer size is too small", utl_user_defined_data);
+    }
 		
 		Pair *buffer = (Pair *)calloc(1, PHY_BUFFER_BYTES);
 		cpArrayPush(tree->allocatedBuffers, buffer);
@@ -243,7 +246,9 @@ NodeFromPool(cpBBTree *tree)
 	} else {
 		// Pool is exhausted, make more
 		int count = PHY_BUFFER_BYTES/sizeof(Node);
-		cpAssertHard(count, "Internal Error: Buffer size is too small.");
+    if (!count) {
+		  utl_error_func("Buffer size is too small", utl_user_defined_data);
+    }
 		
 		Node *buffer = (Node *)calloc(1, PHY_BUFFER_BYTES);
 		cpArrayPush(tree->allocatedBuffers, buffer);
@@ -298,9 +303,12 @@ NodeOther(Node *node, Node *child)
 static inline void
 NodeReplaceChild(Node *parent, Node *child, Node *value, cpBBTree *tree)
 {
-	cpAssertSoft(!NodeIsLeaf(parent), "Internal Error: Cannot replace child of a leaf.");
-	cpAssertSoft(child == parent->A || child == parent->B, "Internal Error: Node is not a child of parent.");
-	
+  if (NodeIsLeaf(parent)) {
+	  utl_error_func("Cannot replace child of a leaf", utl_user_defined_data);
+  }
+  if (!(child == parent->A || child == parent->B)) {
+	  utl_error_func("Node is not a child of parent.", utl_user_defined_data);
+  }
 	if(parent->A == child){
 		NodeRecycle(tree, parent->A);
 		NodeSetA(parent, value);
@@ -577,11 +585,10 @@ cpBBTreeInit(cpBBTree *tree, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *static
 void
 cpBBTreeSetVelocityFunc(cpSpatialIndex *index, cpBBTreeVelocityFunc func)
 {
-	if(index->klass != Klass()){
-		cpAssertWarn(false, "Ignoring cpBBTreeSetVelocityFunc() call to non-tree spatial index.");
+	if(index->klass == Klass()){
+		utl_error_func("Ignoring call to non-tree spatial index", utl_user_defined_data);
 		return;
 	}
-	
 	((cpBBTree *)index)->velocityFunc = func;
 }
 
@@ -827,8 +834,8 @@ partitionNodes(cpBBTree *tree, Node **nodes, int count)
 void
 cpBBTreeOptimize(cpSpatialIndex *index)
 {
-	if(index->klass != &klass){
-		cpAssertWarn(false, "Ignoring cpBBTreeOptimize() call to non-tree spatial index.");
+	if(index->klass == &klass){
+		utl_error_func("Ignoring call to non-tree spatial index", utl_user_defined_data);
 		return;
 	}
 	

@@ -7,6 +7,7 @@
 #include <math.h>
 
 #include "khg_phy/phy_private.h"
+#include "khg_utl/error_func.h"
 #include "khg_phy/polyline.h"
 
 
@@ -451,7 +452,9 @@ FindSteiner(int count, phy_vect *verts, struct Notch notch)
 //		}
 //	}
 //	
-//	cpAssertSoft(feature >= 0.0, "No closest features detected. This is likely due to a self intersecting polygon.");
+//	if (feature < 0.0) {
+//	  utl_error_func("No closest features detected, this is likely due to a self intersecting polygon", utl_user_defined_data);
+//	}
 //	return feature;
 //}
 
@@ -514,7 +517,9 @@ FindSteiner(int count, phy_vect *verts, struct Notch notch)
 //		}
 //	}
 //	
-//	cpAssertWarn(feature >= 0.0, "Internal Error: No closest features detected.");
+//	if (feature < 0.0) {
+//	  utl_error_func("No closest features detected", utl_user_defined_data);
+//	}
 //	return feature;
 //}
 
@@ -554,7 +559,9 @@ FindSteiner(int count, phy_vect *verts, struct Notch notch)
 //		}
 //	}
 //	
-//	cpAssertSoft(feature >= 0.0, "No closest features detected. This is likely due to a self intersecting polygon.");
+//	if (feature < 0.0) {
+//	  utl_error_func("No closest features detected, this is likely due to a self intersecting polygon", utl_user_defined_data);
+//	}
 //	return feature;
 //}
 
@@ -642,8 +649,12 @@ ApproximateConcaveDecomposition(phy_vect *verts, int count, float tol, cpPolylin
 cpPolylineSet *
 cpPolylineConvexDecomposition_BETA(cpPolyline *line, float tol)
 {
-	cpAssertSoft(cpPolylineIsClosed(line), "Cannot decompose an open polygon.");
-	cpAssertSoft(cpAreaForPoly(line->count, line->verts, 0.0) >= 0.0, "Winding is backwards. (Are you passing a hole?)");
+	if (!cpPolylineIsClosed(line)) {
+    utl_error_func("Cannot decompose an open polygon", utl_user_defined_data);
+  }
+	if (cpAreaForPoly(line->count, line->verts, 0.0) < 0.0) {
+    utl_error_func("Winding is backwards, likely because you are passing a hole", utl_user_defined_data);
+  }
 	
 	cpPolylineSet *set = cpPolylineSetNew();
 	ApproximateConcaveDecomposition(line->verts, line->count - 1, tol, set);

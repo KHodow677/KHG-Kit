@@ -4,7 +4,7 @@
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_rotator.h"
-#include "entity/ecs_manager.h"
+#include "game_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
@@ -19,25 +19,25 @@ ecs_id SHOOTER_COMPONENT_SIGNATURE;
 shooter_info NO_SHOOTER = { 0 };
 utl_vector *SHOOTER_INFO = NULL;
 
-void comp_shooter_register(comp_shooter *cs, ecs_ecs *ecs) {
-  cs->id = ecs_register_component(ecs, sizeof(comp_shooter), NULL, NULL);
+void comp_shooter_register(comp_shooter *cs) {
+  cs->id = ecs_register_component(ECS, sizeof(comp_shooter), NULL, NULL);
   SHOOTER_COMPONENT_SIGNATURE = cs->id; 
 }
 
-void sys_shooter_register(sys_shooter *ss, ecs_ecs *ecs) {
-  ss->id = ecs_register_system(ecs, sys_shooter_update, NULL, NULL, NULL);
-  ecs_require_component(ecs, ss->id, SHOOTER_COMPONENT_SIGNATURE);
-  ecs_require_component(ecs, ss->id, ROTATOR_COMPONENT_SIGNATURE);
-  ecs_require_component(ecs, ss->id, PHYSICS_COMPONENT_SIGNATURE);
-  ss->ecs = *ecs;
+void sys_shooter_register(sys_shooter *ss) {
+  ss->id = ecs_register_system(ECS, sys_shooter_update, NULL, NULL, NULL);
+  ecs_require_component(ECS, ss->id, SHOOTER_COMPONENT_SIGNATURE);
+  ecs_require_component(ECS, ss->id, ROTATOR_COMPONENT_SIGNATURE);
+  ecs_require_component(ECS, ss->id, PHYSICS_COMPONENT_SIGNATURE);
+  ss->ecs = *ECS;
   SHOOTER_INFO = utl_vector_create(sizeof(shooter_info));
   for (int i = 0; i < ECS->entity_count; i++) {
     utl_vector_push_back(SHOOTER_INFO, &NO_SHOOTER);
   }
 }
 
-void sys_shooter_add(ecs_ecs *ecs, ecs_id *eid, shooter_info *info) {
-  ecs_add(ecs, *eid, SHOOTER_COMPONENT_SIGNATURE, NULL);
+void sys_shooter_add(ecs_id *eid, shooter_info *info) {
+  ecs_add(ECS, *eid, SHOOTER_COMPONENT_SIGNATURE, NULL);
   utl_vector_assign(SHOOTER_INFO, *eid, info);
 }
 

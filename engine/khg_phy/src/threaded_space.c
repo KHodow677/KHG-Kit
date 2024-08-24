@@ -217,7 +217,7 @@ int pthread_join(pthread_t thread, void **value_ptr)
 #endif
 
 #include "khg_phy/phy_private.h"
-#include "khg_phy/hasty_space.h"
+#include "khg_phy/threaded_space.h"
 
 
 //MARK: ARM NEON Solver
@@ -388,13 +388,13 @@ cpArbiterApplyImpulse_NEON(cpArbiter *arb)
 
 struct ThreadContext {
 	pthread_t thread;
-	cpHastySpace *space;
+	phy_hasty_space *space;
 	unsigned long thread_num;
 };
 
 typedef	void (*cpHastySpaceWorkFunction)(phy_space *space, unsigned long worker, unsigned long worker_count);
 
-struct cpHastySpace {
+struct phy_hasty_space {
 	phy_space space;
 	
 	// Number of worker threads (including the main thread)
@@ -418,7 +418,7 @@ struct cpHastySpace {
 static void *
 WorkerThreadLoop(struct ThreadContext *context)
 {
-	cpHastySpace *hasty = context->space;
+	phy_hasty_space *hasty = context->space;
 	
 	unsigned long thread = context->thread_num;
 	unsigned long num_threads = hasty->num_threads;
@@ -444,7 +444,7 @@ WorkerThreadLoop(struct ThreadContext *context)
 }
 
 static void
-RunWorkers(cpHastySpace *hasty, cpHastySpaceWorkFunction func)
+RunWorkers(phy_hasty_space *hasty, cpHastySpaceWorkFunction func)
 {
 	hasty->num_working = hasty->num_threads - 1;
 	hasty->work = func;
@@ -497,7 +497,7 @@ Solver(phy_space *space, unsigned long worker, unsigned long worker_count)
 //MARK: Thread Management Functions
 
 static void
-HaltThreads(cpHastySpace *hasty)
+HaltThreads(phy_hasty_space *hasty)
 {
 	pthread_mutex_t *mutex = &hasty->mutex;
 	pthread_mutex_lock(mutex); {
@@ -511,7 +511,7 @@ HaltThreads(cpHastySpace *hasty)
 }
 
 void
-cpHastySpaceSetThreads(phy_space *space, unsigned long threads)
+phy_threaded_space_set_threads(phy_space *space, unsigned long threads)
 {
 #if TARGET_IPHONE_SIMULATOR == 1
 	// Individual values appear to be written non-atomically when compiled as debug for the simulator.
@@ -519,7 +519,7 @@ cpHastySpaceSetThreads(phy_space *space, unsigned long threads)
 	threads = 1;
 #endif	
 	
-	cpHastySpace *hasty = (cpHastySpace *)space;
+	phy_hasty_space *hasty = (phy_hasty_space *)space;
 	HaltThreads(hasty);
 	
 #ifdef __APPLE__
@@ -550,17 +550,17 @@ cpHastySpaceSetThreads(phy_space *space, unsigned long threads)
 }
 
 unsigned long
-cpHastySpaceGetThreads(phy_space *space)
+phy_threaded_space_get_threads(phy_space *space)
 {
-	return ((cpHastySpace *)space)->num_threads;
+	return ((phy_hasty_space *)space)->num_threads;
 }
 
 //MARK: Overriden cpSpace Functions.
 
 phy_space *
-cpHastySpaceNew(void)
+phy_threaded_space_new(void)
 {
-	cpHastySpace *hasty = (cpHastySpace *)calloc(1, sizeof(cpHastySpace));
+	phy_hasty_space *hasty = (phy_hasty_space *)calloc(1, sizeof(phy_hasty_space));
 	cpSpaceInit((phy_space *)hasty);
 	
 	pthread_mutex_init(&hasty->mutex, NULL);
@@ -572,15 +572,15 @@ cpHastySpaceNew(void)
 	
 	// Default to 1 thread for determinism.
 	hasty->num_threads = 1;
-	cpHastySpaceSetThreads((phy_space *)hasty, 1);
+	phy_threaded_space_set_threads((phy_space *)hasty, 1);
 
 	return (phy_space *)hasty;
 }
 
 void
-cpHastySpaceFree(phy_space *space)
+phy_threaded_space_free(phy_space *space)
 {
-	cpHastySpace *hasty = (cpHastySpace *)space;
+	phy_hasty_space *hasty = (phy_hasty_space *)space;
 	
 	HaltThreads(hasty);
 	
@@ -592,7 +592,7 @@ cpHastySpaceFree(phy_space *space)
 }
 
 void
-cpHastySpaceStep(phy_space *space, float dt)
+phy_threaded_space_step(phy_space *space, float dt)
 {
 	// don't step if the timestep is 0!
 	if(dt == 0.0f) return;
@@ -648,7 +648,7 @@ cpHastySpaceStep(phy_space *space, float dt)
 		for(int i=0; i<constraints->num; i++){
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			
-			cpConstraintPreSolveFunc preSolve = constraint->preSolve;
+			phy_constraint_pre_solve_func preSolve = constraint->preSolve;
 			if(preSolve) preSolve(constraint, space);
 			
 			constraint->klass->preStep(constraint, dt);
@@ -674,7 +674,7 @@ cpHastySpaceStep(phy_space *space, float dt)
 		}
 		
 		// Run the impulse solver.
-		cpHastySpace *hasty = (cpHastySpace *)space;
+		phy_hasty_space *hasty = (phy_hasty_space *)space;
 		if((unsigned long)(arbiters->num + constraints->num) > hasty->constraint_count_threshold){
 			RunWorkers(hasty, Solver);
 		} else {
@@ -685,7 +685,7 @@ cpHastySpaceStep(phy_space *space, float dt)
 		for(int i=0; i<constraints->num; i++){
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			
-			cpConstraintPostSolveFunc postSolve = constraint->postSolve;
+			phy_constraint_post_solve_func postSolve = constraint->postSolve;
 			if(postSolve) postSolve(constraint, space);
 		}
 		

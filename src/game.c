@@ -1,16 +1,16 @@
 #include "game.h"
 #include "controllers/elements/element_controller.h"
-#include "data_utl/thread_utl.h"
-#include "entity/ecs_manager.h"
+#include "game_manager.h"
+#include "khg_phy/threaded_space.h"
 #include "physics/physics_setup.h"
 #include "spawners/spawn_tank.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
-#include "khg_phy/space.h"
 #include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "threading/thread_manager.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -36,7 +36,7 @@ int game_run() {
   glfwMakeContextCurrent(window);
   gfx_init_glfw(800, 600, window);
   log_info();
-  set_optimal_thread_count();
+  setup_worker_threads();
   SPACE = physics_setup(cpv(0.0f, 0.0f));
   ecs_setup();
   spawn_tank(600, 300);
@@ -61,5 +61,5 @@ void gfx_loop() {
   ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, DESTROYER_SYSTEM.id, 0.0f);
-  cpSpaceStep(SPACE, 1.0f/60.0f);
+  phy_threaded_space_step(SPACE, 1.0f/60.0f);
 }
