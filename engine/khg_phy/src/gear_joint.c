@@ -1,26 +1,6 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
 #include "khg_phy/phy_types.h"
+#include "khg_utl/error_func.h"
 
 static void
 preStep(phy_gear_joint *joint, float dt)
@@ -83,13 +63,13 @@ static const cpConstraintClass klass = {
 };
 
 phy_gear_joint *
-cpGearJointAlloc(void)
+phy_gear_joint_alloc(void)
 {
 	return (phy_gear_joint *)calloc(1, sizeof(phy_gear_joint));
 }
 
 phy_gear_joint *
-cpGearJointInit(phy_gear_joint *joint, phy_body *a, phy_body *b, float phase, float ratio)
+phy_gear_joint_init(phy_gear_joint *joint, phy_body *a, phy_body *b, float phase, float ratio)
 {
 	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
 	
@@ -103,43 +83,51 @@ cpGearJointInit(phy_gear_joint *joint, phy_body *a, phy_body *b, float phase, fl
 }
 
 phy_constraint *
-cpGearJointNew(phy_body *a, phy_body *b, float phase, float ratio)
+phy_gear_joint_new(phy_body *a, phy_body *b, float phase, float ratio)
 {
-	return (phy_constraint *)cpGearJointInit(cpGearJointAlloc(), a, b, phase, ratio);
+	return (phy_constraint *)phy_gear_joint_init(phy_gear_joint_alloc(), a, b, phase, ratio);
 }
 
 bool
-cpConstraintIsGearJoint(const phy_constraint *constraint)
+phy_constraint_is_gear_joint(const phy_constraint *constraint)
 {
 	return (constraint->klass == &klass);
 }
 
 float
-cpGearJointGetPhase(const phy_constraint *constraint)
+phy_gear_joint_get_phase(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
+	if (!phy_constraint_is_gear_joint(constraint)) {
+    utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
+  }
 	return ((phy_gear_joint *)constraint)->phase;
 }
 
 void
-cpGearJointSetPhase(phy_constraint *constraint, float phase)
+phy_gear_joint_set_phase(phy_constraint *constraint, float phase)
 {
-	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
+	if (!phy_constraint_is_gear_joint(constraint)) {
+    utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_gear_joint *)constraint)->phase = phase;
 }
 
 float
-cpGearJointGetRatio(const phy_constraint *constraint)
+phy_gear_joint_get_ratio(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
+	if (!phy_constraint_is_gear_joint(constraint)) {
+    utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
+  }
 	return ((phy_gear_joint *)constraint)->ratio;
 }
 
 void
-cpGearJointSetRatio(phy_constraint *constraint, float ratio)
+phy_gear_joint_set_ratio(phy_constraint *constraint, float ratio)
 {
-	cpAssertHard(cpConstraintIsGearJoint(constraint), "Constraint is not a ratchet joint.");
+	if (!phy_constraint_is_gear_joint(constraint)) {
+    utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_gear_joint *)constraint)->ratio = ratio;
 	((phy_gear_joint *)constraint)->ratio_inv = 1.0f/ratio;

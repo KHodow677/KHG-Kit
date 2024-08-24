@@ -1,12 +1,12 @@
 #include "game.h"
 #include "controllers/elements/element_controller.h"
 #include "game_manager.h"
+#include "khg_phy/threaded_space.h"
 #include "physics/physics_setup.h"
 #include "spawners/spawn_tank.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
-#include "khg_phy/space.h"
 #include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
@@ -61,5 +61,5 @@ void gfx_loop() {
   ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
   ecs_update_system(ECS, DESTROYER_SYSTEM.id, 0.0f);
-  cpSpaceStep(SPACE, 1.0f/60.0f);
+  phy_threaded_space_step(SPACE, 1.0f/60.0f);
 }

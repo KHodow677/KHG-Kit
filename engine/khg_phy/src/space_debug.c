@@ -20,6 +20,11 @@
  */
 
 #include "khg_phy/phy_private.h"
+#include "khg_phy/pin_joint.h"
+#include "khg_phy/slide_joint.h"
+#include "khg_phy/pivot_joint.h"
+#include "khg_phy/groove_joint.h"
+#include "khg_phy/damped_spring.h"
 
 #ifndef CP_SPACE_DISABLE_DEBUG_API
 
@@ -112,7 +117,7 @@ cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *
 
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
-	} else if(cpConstraintIsGrooveJoint(constraint)){
+	} else if(phy_constraint_is_groove_joint(constraint)){
 		phy_groove_joint *joint = (phy_groove_joint *)constraint;
 	
 		phy_vect a = cpTransformPoint(body_a->transform, joint->grv_a);
@@ -121,7 +126,7 @@ cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *
 		
 		options->drawDot(5, c, color, data);
 		options->drawSegment(a, b, color, data);
-	} else if(cpConstraintIsDampedSpring(constraint)){
+	} else if(phy_constraint_is_damped_spring(constraint)){
 		phy_damped_spring *spring = (phy_damped_spring *)constraint;
 		
 		phy_vect a = cpTransformPoint(body_a->transform, spring->anchorA);

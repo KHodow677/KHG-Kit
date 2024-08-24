@@ -1,25 +1,5 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_utl/error_func.h"
 
 static void
 preStep(phy_pin_joint *joint, float dt)
@@ -107,7 +87,9 @@ cpPinJointInit(phy_pin_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA,
 	phy_vect p2 = (b ? cpTransformPoint(b->transform, anchorB) : anchorB);
 	joint->dist = cpvlength(cpvsub(p2, p1));
 	
-	cpAssertWarn(joint->dist > 0.0, "You created a 0 length pin joint. A pivot joint will be much more stable.");
+	if (joint->dist <= 0.0) {
+    utl_error_func("You created a 0 length pin joint, a pivot joint will be much more stable", utl_user_defined_data);
+  }
 
 	joint->jnAcc = 0.0f;
 	
@@ -129,14 +111,18 @@ cpConstraintIsPinJoint(const phy_constraint *constraint)
 phy_vect
 cpPinJointGetAnchorA(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsPinJoint(constraint), "Constraint is not a pin joint.");
+	if (!cpConstraintIsPinJoint(constraint)) {
+    utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
+  }
 	return ((phy_pin_joint *)constraint)->anchorA;
 }
 
 void
 cpPinJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
 {
-	cpAssertHard(cpConstraintIsPinJoint(constraint), "Constraint is not a pin joint.");
+	if (!cpConstraintIsPinJoint(constraint)) {
+    utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_pin_joint *)constraint)->anchorA = anchorA;
 }
@@ -144,14 +130,18 @@ cpPinJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
 phy_vect
 cpPinJointGetAnchorB(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsPinJoint(constraint), "Constraint is not a pin joint.");
+	if (!cpConstraintIsPinJoint(constraint)) {
+    utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
+  }
 	return ((phy_pin_joint *)constraint)->anchorB;
 }
 
 void
 cpPinJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
 {
-	cpAssertHard(cpConstraintIsPinJoint(constraint), "Constraint is not a pin joint.");
+	if (!cpConstraintIsPinJoint(constraint)) {
+    utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_pin_joint *)constraint)->anchorB = anchorB;
 }
@@ -159,14 +149,18 @@ cpPinJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
 float
 cpPinJointGetDist(const phy_constraint *constraint)
 {
-	cpAssertHard(cpConstraintIsPinJoint(constraint), "Constraint is not a pin joint.");
+	if (!cpConstraintIsPinJoint(constraint)) {
+    utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
+  }
 	return ((phy_pin_joint *)constraint)->dist;
 }
 
 void
 cpPinJointSetDist(phy_constraint *constraint, float dist)
 {
-	cpAssertHard(cpConstraintIsPinJoint(constraint), "Constraint is not a pin joint.");
+	if (!cpConstraintIsPinJoint(constraint)) {
+    utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
+  }
 	cpConstraintActivateBodies(constraint);
 	((phy_pin_joint *)constraint)->dist = dist;
 }

@@ -20,6 +20,7 @@
  */
 
 #include "khg_phy/phy_private.h"
+#include "khg_utl/error_func.h"
 
 // TODO: make this generic so I can reuse it for constraints also.
 static inline void
@@ -76,22 +77,27 @@ phy_arbiter_get_normal(const phy_arbiter *arb)
 phy_vect
 phy_arbiter_get_point_A(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
+  if (!(0 <= i && i < phy_arbiter_get_count(arb))) {
+	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
+  }
 	return cpvadd(arb->body_a->p, arb->contacts[i].r1);
 }
 
 phy_vect
 phy_arbiter_get_point_B(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
+  if (!(0 <= i && i < phy_arbiter_get_count(arb))) {
+	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
+  }
 	return cpvadd(arb->body_b->p, arb->contacts[i].r2);
 }
 
 float
 phy_arbiter_get_depth(const phy_arbiter *arb, int i)
 {
-	cpAssertHard(0 <= i && i < phy_arbiter_get_count(arb), "Index error: The specified contact index is invalid for this arbiter");
-	
+  if (!(0 <= i && i < phy_arbiter_get_count(arb))) {
+	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
+  }
 	struct cpContact *con = &arb->contacts[i];
 	return cpvdot(cpvadd(cpvsub(con->r2, con->r1), cpvsub(arb->body_b->p, arb->body_a->p)), arb->n);
 }
@@ -123,8 +129,9 @@ void
 phy_arbiter_set_contact_point_set(phy_arbiter *arb, phy_contact_point_set *set)
 {
 	int count = set->count;
-	cpAssertHard(count == arb->count, "The number of contact points cannot be changed.");
-	
+  if (count != arb->count) {
+    utl_error_func("The number of contact points cannot be changed", utl_user_defined_data);
+  }
 	bool swapped = arb->swapped;
 	arb->n = (swapped ? cpvneg(set->normal) : set->normal);
 	

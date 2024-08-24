@@ -1,6 +1,7 @@
 #pragma once
 
 #include "khg_phy/phy.h"
+#include "khg_utl/error_func.h"
 
 static int primes[] = {
 	5,
@@ -41,8 +42,9 @@ next_prime(int n)
 	int i = 0;
 	while(n > primes[i]){
 		i++;
-		cpAssertHard(primes[i], "Tried to resize a hash table to a size greater than 1610612741 O_o"); // realistically this should never happen
+    if (!primes[i]) {
+		  utl_error_func("Tried to resize a hash table to a size greater than 1610612741 O_o", utl_user_defined_data);
+    }
 	}
-	
 	return primes[i];
 }

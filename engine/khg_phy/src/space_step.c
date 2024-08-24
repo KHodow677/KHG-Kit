@@ -1,25 +1,5 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 #include "khg_phy/phy_private.h"
+#include "khg_utl/error_func.h"
 
 //MARK: Post Step Callback Functions
 
@@ -40,9 +20,10 @@ static void PostStepDoNothing(phy_space *space, void *obj, void *data){}
 bool
 cpSpaceAddPostStepCallback(phy_space *space, cpPostStepFunc func, void *key, void *data)
 {
-	cpAssertWarn(space->locked,
-		"Adding a post-step callback when the space is not locked is unnecessary. "
-		"Post-step callbacks will not called until the end of the next call to cpSpaceStep() or the next query.");
+	if (!space->locked) {
+    utl_error_func("Adding a post-step callback when the space is not locked is unnecessary", utl_user_defined_data);
+		utl_error_func("Post-step callbacks will not called until the end of the next call to step or the next query", utl_user_defined_data);
+  }
 	
 	if(!cpSpaceGetPostStepCallback(space, key)){
 		cpPostStepCallback *callback = (cpPostStepCallback *)calloc(1, sizeof(cpPostStepCallback));
@@ -69,7 +50,9 @@ void
 cpSpaceUnlock(phy_space *space, bool runPostStep)
 {
 	space->locked--;
-	cpAssertHard(space->locked >= 0, "Internal Error: Space lock underflow.");
+	if (space->locked < 0) {
+    utl_error_func("Space lock underflow", utl_user_defined_data);
+  }
 	
 	if(space->locked == 0){
 		phy_array *waking = space->rousedBodies;
@@ -173,7 +156,9 @@ cpContactBufferGetArray(phy_space *space)
 void
 cpSpacePushContacts(phy_space *space, int count)
 {
-	cpAssertHard(count <= PHY_MAX_CONTACTS_PER_ARBITER, "Internal Error: Contact buffer overflow!");
+	if (count > PHY_MAX_CONTACTS_PER_ARBITER) {
+    utl_error_func("Contact buffer overflow", utl_user_defined_data);
+  }
 	space->contactBuffersHead->numContacts += count;
 }
 
@@ -190,7 +175,9 @@ cpSpaceArbiterSetTrans(phy_shape **shapes, phy_space *space)
 	if(space->pooledArbiters->num == 0){
 		// arbiter pool is exhausted, make more
 		int count = PHY_BUFFER_BYTES/sizeof(phy_arbiter);
-		cpAssertHard(count, "Internal Error: Buffer size too small.");
+		if (!count) {
+      utl_error_func("Buffer size too small", utl_user_defined_data);
+    }
 		
 		phy_arbiter *buffer = (phy_arbiter *)calloc(1, PHY_BUFFER_BYTES);
 		cpArrayPush(space->allocatedBuffers, buffer);
@@ -300,8 +287,8 @@ cpSpaceArbiterSetFilter(phy_arbiter *arb, phy_space *space)
 	// Preserve arbiters on sensors and rejected arbiters for sleeping objects.
 	// This prevents errant separate callbacks from happenening.
 	if(
-		(phy_body_get_type(a) == CP_BODY_TYPE_STATIC || phy_body_is_sleeping(a)) &&
-		(phy_body_get_type(b) == CP_BODY_TYPE_STATIC || phy_body_is_sleeping(b))
+		(phy_body_get_type(a) == PHY_BODY_TYPE_STATIC || phy_body_is_sleeping(a)) &&
+		(phy_body_get_type(b) == PHY_BODY_TYPE_STATIC || phy_body_is_sleeping(b))
 	){
 		return true;
 	}
@@ -389,7 +376,7 @@ cpSpaceStep(phy_space *space, float dt)
 		for(int i=0; i<constraints->num; i++){
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			
-			cpConstraintPreSolveFunc preSolve = constraint->preSolve;
+			phy_constraint_pre_solve_func preSolve = constraint->preSolve;
 			if(preSolve) preSolve(constraint, space);
 			
 			constraint->klass->preStep(constraint, dt);
@@ -430,7 +417,7 @@ cpSpaceStep(phy_space *space, float dt)
 		for(int i=0; i<constraints->num; i++){
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			
-			cpConstraintPostSolveFunc postSolve = constraint->postSolve;
+			phy_constraint_post_solve_func postSolve = constraint->postSolve;
 			if(postSolve) postSolve(constraint, space);
 		}
 		

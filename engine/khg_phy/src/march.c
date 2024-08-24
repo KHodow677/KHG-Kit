@@ -12,15 +12,15 @@
 typedef void (*cpMarchCellFunc)(
 	float t, float a, float b, float c, float d,
 	float x0, float x1, float y0, float y1,
-	cpMarchSegmentFunc segment, void *segment_data
+	phy_march_segment_func segment, void *segment_data
 );
 
 // The looping and sample caching code is shared between cpMarchHard() and cpMarchSoft().
 static void
 cpMarchCells(
   phy_bb bb, unsigned long x_samples, unsigned long y_samples, float t,
-  cpMarchSegmentFunc segment, void *segment_data,
-  cpMarchSampleFunc sample, void *sample_data,
+  phy_march_segment_func segment, void *segment_data,
+  phy_march_sample_func sample, void *sample_data,
 	cpMarchCellFunc cell
 ){
 	float x_denom = 1.0/(float)(x_samples - 1);
@@ -58,7 +58,7 @@ cpMarchCells(
 
 // TODO should flip this around eventually.
 static inline void
-seg(phy_vect v0, phy_vect v1, cpMarchSegmentFunc f, void *data)
+seg(phy_vect v0, phy_vect v1, phy_march_segment_func f, void *data)
 {
 	if(!cpveql(v0, v1)) f(v1, v0, data);
 }
@@ -74,7 +74,7 @@ static void
 cpMarchCellSoft(
 	float t, float a, float b, float c, float d,
 	float x0, float x1, float y0, float y1,
-	cpMarchSegmentFunc segment, void *segment_data
+	phy_march_segment_func segment, void *segment_data
 ){
 	// TODO this switch part is super expensive, can it be NEONized?
 	switch((a>t)<<0 | (b>t)<<1 | (c>t)<<2 | (d>t)<<3){
@@ -99,10 +99,10 @@ cpMarchCellSoft(
 }
 
 void
-cpMarchSoft(
+phy_march_soft(
   phy_bb bb, unsigned long x_samples, unsigned long y_samples, float t,
-  cpMarchSegmentFunc segment, void *segment_data,
-  cpMarchSampleFunc sample, void *sample_data
+  phy_march_segment_func segment, void *segment_data,
+  phy_march_sample_func sample, void *sample_data
 ){
 	cpMarchCells(bb, x_samples, y_samples, t, segment, segment_data, sample, sample_data, cpMarchCellSoft);
 }
@@ -110,7 +110,7 @@ cpMarchSoft(
 
 // TODO should flip this around eventually.
 static inline void
-segs(phy_vect a, phy_vect b, phy_vect c, cpMarchSegmentFunc f, void *data)
+segs(phy_vect a, phy_vect b, phy_vect c, phy_march_segment_func f, void *data)
 {
 	seg(b, c, f, data);
 	seg(a, b, f, data);
@@ -120,7 +120,7 @@ static void
 cpMarchCellHard(
 	float t, float a, float b, float c, float d,
 	float x0, float x1, float y0, float y1,
-	cpMarchSegmentFunc segment, void *segment_data
+	phy_march_segment_func segment, void *segment_data
 ){
 	// midpoints
 	float xm = phy_lerp(x0, x1, 0.5f);
@@ -148,10 +148,10 @@ cpMarchCellHard(
 }
 
 void
-cpMarchHard(
+phy_march_hard(
   phy_bb bb, unsigned long x_samples, unsigned long y_samples, float t,
-  cpMarchSegmentFunc segment, void *segment_data,
-  cpMarchSampleFunc sample, void *sample_data
+  phy_march_segment_func segment, void *segment_data,
+  phy_march_sample_func sample, void *sample_data
 ){
 	cpMarchCells(bb, x_samples, y_samples, t, segment, segment_data, sample, sample_data, cpMarchCellHard);
 }

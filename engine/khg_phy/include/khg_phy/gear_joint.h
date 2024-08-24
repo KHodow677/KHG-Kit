@@ -2,24 +2,15 @@
 
 #include "khg_phy/phy_types.h"
 
-/// Check if a constraint is a damped rotary springs.
-bool cpConstraintIsGearJoint(const phy_constraint *constraint);
+bool phy_constraint_is_gear_joint(const phy_constraint *constraint);
 
-/// Allocate a gear joint.
-phy_gear_joint* cpGearJointAlloc(void);
-/// Initialize a gear joint.
-phy_gear_joint* cpGearJointInit(phy_gear_joint *joint, phy_body *a, phy_body *b, float phase, float ratio);
-/// Allocate and initialize a gear joint.
-phy_constraint* cpGearJointNew(phy_body *a, phy_body *b, float phase, float ratio);
+phy_gear_joint *phy_gear_joint_alloc(void);
+phy_gear_joint *phy_gear_joint_init(phy_gear_joint *joint, phy_body *a, phy_body *b, float phase, float ratio);
+phy_constraint *phy_gear_joint_new(phy_body *a, phy_body *b, float phase, float ratio);
 
-/// Get the phase offset of the gears.
-float cpGearJointGetPhase(const phy_constraint *constraint);
-/// Set the phase offset of the gears.
-void cpGearJointSetPhase(phy_constraint *constraint, float phase);
+float phy_gear_joint_get_phase(const phy_constraint *constraint);
+void phy_gear_joint_set_phase(phy_constraint *constraint, float phase);
 
-/// Get the angular distance of each ratchet.
-float cpGearJointGetRatio(const phy_constraint *constraint);
-/// Set the ratio of a gear joint.
-void cpGearJointSetRatio(phy_constraint *constraint, float ratio);
+float phy_gear_joint_get_ratio(const phy_constraint *constraint);
+void phy_gear_joint_set_ratio(phy_constraint *constraint, float ratio);
 
-/// @}
