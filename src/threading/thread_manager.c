@@ -2,6 +2,7 @@
 #include "game_manager.h"
 #include "khg_thd/thread.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 void setup_worker_threads(void) {
   THREAD_COUNT = get_optimal_thread_count();
