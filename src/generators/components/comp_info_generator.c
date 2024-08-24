@@ -10,6 +10,8 @@
 #include "khg_phy/body.h"
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"
+#include "khg_phy/poly_shape.h"
+#include "khg_phy/space.h"
 #include "khg_phy/vect.h"
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {

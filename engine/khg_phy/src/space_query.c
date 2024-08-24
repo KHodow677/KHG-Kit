@@ -1,4 +1,9 @@
+#include "khg_phy/arbiter.h"
 #include "khg_phy/phy_private.h"
+#include "khg_phy/phy_types.h"
+#include "khg_phy/shape.h"
+#include <stdbool.h>
+#include <stdlib.h>
 
 //MARK: Nearest Point Query Functions
 
@@ -199,7 +204,7 @@ static phy_collision_id
 ShapeQuery(phy_shape *a, phy_shape *b, phy_collision_id id, struct ShapeQueryContext *context)
 {
 	if(cpShapeFilterReject(a->filter, b->filter) || a == b) return id;
-	
+
 	phy_contact_point_set set = cpShapesCollide(a, b);
 	if(set.count){
 		if(context->func) context->func(b, &set, context->data);

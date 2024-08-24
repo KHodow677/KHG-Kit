@@ -1,4 +1,6 @@
 #include "khg_phy/phy_private.h"
+#include "khg_phy/poly_shape.h"
+#include "khg_phy/transform.h"
 #include "khg_phy/phy_unsafe.h"
 #include "khg_utl/error_func.h"
 

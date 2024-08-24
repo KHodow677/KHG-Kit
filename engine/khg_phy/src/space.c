@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <string.h>
-
+#include "khg_phy/arbiter.h"	
 #include "khg_phy/phy_private.h"
 #include "khg_utl/error_func.h"
+#include <stdio.h>
+#include <string.h>
 
 //MARK: Contact Set Helpers
 
@@ -99,15 +99,6 @@ cpSpaceAlloc(void)
 phy_space*
 cpSpaceInit(phy_space *space)
 {
-#ifndef NDEBUG
-	static bool done = false;
-	if(!done){
-		printf("Initializing cpSpace - Chipmunk v%s (Debug Enabled)\n", cpVersionString);
-		printf("Compile with -DNDEBUG defined to disable debug mode and runtime assertion checks\n");
-		done = true;
-	}
-#endif
-
 	space->iterations = 10;
 	
 	space->gravity = cpvzero;

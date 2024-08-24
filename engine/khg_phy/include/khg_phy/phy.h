@@ -1,30 +1,11 @@
 #pragma once
 
-#include <stdlib.h>
-#include <math.h>
-
 #include "khg_phy/phy_types.h"
 
 #include "khg_phy/vect.h"
 #include "khg_phy/bb.h"
-#include "khg_phy/transform.h"
-#include "khg_phy/spatial_index.h"
-#include "khg_phy/arbiter.h"	
-#include "khg_phy/body.h"
-#include "khg_phy/shape.h"
-#include "khg_phy/poly_shape.h"
-#include "khg_phy/constraint.h"
-#include "khg_phy/space.h"
+#include <stdlib.h>
 
-#define CP_VERSION_MAJOR 7
-#define CP_VERSION_MINOR 0
-#define CP_VERSION_RELEASE 3
-
-/// Version string.
-extern const char *cpVersionString;
-
-/// Calculate the moment of inertia for a circle.
-/// @c r1 and @c r2 are the inner and outer diameters. A solid circle has an inner diameter of 0.
 float cpMomentForCircle(float m, float r1, float r2, phy_vect offset);
 
 /// Calculate area of a hollow circle.

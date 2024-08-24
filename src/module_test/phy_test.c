@@ -1,6 +1,8 @@
 #include "phy_test.h"
 #include "khg_phy/phy.h"
+#include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
+#include "khg_phy/space.h"
 #include <stdio.h>
 
 int phy_test() {

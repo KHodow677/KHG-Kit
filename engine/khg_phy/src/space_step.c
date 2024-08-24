@@ -1,3 +1,4 @@
+#include "khg_phy/arbiter.h"
 #include "khg_phy/phy_private.h"
 #include "khg_utl/error_func.h"
 
