@@ -1,6 +1,5 @@
 #pragma once
 
-#include "khg_phy/phy.h"
 #include "khg_phy/phy_structs.h"
 #include "khg_utl/error_func.h"
 

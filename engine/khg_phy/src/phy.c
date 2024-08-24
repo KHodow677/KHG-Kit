@@ -61,19 +61,19 @@ const char *cpVersionString = XSTR(CP_VERSION_MAJOR) "." XSTR(CP_VERSION_MINOR) 
 //MARK: Misc Functions
 
 float
-cpMomentForCircle(float m, float r1, float r2, phy_vect offset)
+phy_moment_for_circle(float m, float r1, float r2, phy_vect offset)
 {
 	return m*(0.5f*(r1*r1 + r2*r2) + cpvlengthsq(offset));
 }
 
 float
-cpAreaForCircle(float r1, float r2)
+phy_area_for_circle(float r1, float r2)
 {
 	return (float)CP_PI*phy_abs(r1*r1 - r2*r2);
 }
 
 float
-cpMomentForSegment(float m, phy_vect a, phy_vect b, float r)
+phy_moment_for_segment(float m, phy_vect a, phy_vect b, float r)
 {
 	phy_vect offset = cpvlerp(a, b, 0.5f);
 	
@@ -83,16 +83,16 @@ cpMomentForSegment(float m, phy_vect a, phy_vect b, float r)
 }
 
 float
-cpAreaForSegment(phy_vect a, phy_vect b, float r)
+phy_area_for_segment(phy_vect a, phy_vect b, float r)
 {
 	return r*((float)CP_PI*r + 2.0f*cpvdist(a, b));
 }
 
 float
-cpMomentForPoly(float m, int count, const phy_vect *verts, phy_vect offset, float r)
+phy_moment_for_poly(float m, int count, const phy_vect *verts, phy_vect offset, float r)
 {
 	// TODO account for radius.
-	if(count == 2) return cpMomentForSegment(m, verts[0], verts[1], 0.0f);
+	if(count == 2) return phy_moment_for_segment(m, verts[0], verts[1], 0.0f);
 	
 	float sum1 = 0.0f;
 	float sum2 = 0.0f;
@@ -111,7 +111,7 @@ cpMomentForPoly(float m, int count, const phy_vect *verts, phy_vect offset, floa
 }
 
 float
-cpAreaForPoly(const int count, const phy_vect *verts, float r)
+phy_area_for_poly(const int count, const phy_vect *verts, float r)
 {
 	float area = 0.0f;
 	float perimeter = 0.0f;
@@ -127,7 +127,7 @@ cpAreaForPoly(const int count, const phy_vect *verts, float r)
 }
 
 phy_vect
-cpCentroidForPoly(const int count, const phy_vect *verts)
+phy_centroid_for_poly(const int count, const phy_vect *verts)
 {
 	float sum = 0.0f;
 	phy_vect vsum = cpvzero;
@@ -154,20 +154,20 @@ cpCentroidForPoly(const int count, const phy_vect *verts)
 //}
 
 float
-cpMomentForBox(float m, float width, float height)
+phy_moment_for_box(float m, float width, float height)
 {
 	return m*(width*width + height*height)/12.0f;
 }
 
 float
-cpMomentForBox2(float m, phy_bb box)
+phy_moment_for_box_2(float m, phy_bb box)
 {
 	float width = box.r - box.l;
 	float height = box.t - box.b;
 	phy_vect offset = cpvmult(cpv(box.l + box.r, box.b + box.t), 0.5f);
 	
 	// TODO: NaN when offset is 0 and m is INFINITY
-	return cpMomentForBox(m, width, height) + m*cpvlengthsq(offset);
+	return phy_moment_for_box(m, width, height) + m*cpvlengthsq(offset);
 }
 
 //MARK: Quick Hull
@@ -248,7 +248,7 @@ QHullReduce(float tol, phy_vect *verts, int count, phy_vect a, phy_vect pivot, p
 // QuickHull seemed like a neat algorithm, and efficient-ish for large input sets.
 // My implementation performs an in place reduction using the result array as scratch space.
 int
-cpConvexHull(int count, const phy_vect *verts, phy_vect *result, int *first, float tol)
+phy_convex_hull(int count, const phy_vect *verts, phy_vect *result, int *first, float tol)
 {
 	if(verts != result){
 		// Copy the line vertexes into the empty part of the result polyline to use as a scratch buffer.

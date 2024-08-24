@@ -30,7 +30,7 @@ int phy_test() {
   
   // The moment of inertia is like mass for rotation
   // Use the cpMomentFor*() functions to help you approximate it.
-  float moment = cpMomentForCircle(mass, 0, radius, cpvzero);
+  float moment = phy_moment_for_circle(mass, 0, radius, cpvzero);
   
   // The cpSpaceAdd*() functions return the thing that you are adding.
   // It's convenient to create and add an object in one line.

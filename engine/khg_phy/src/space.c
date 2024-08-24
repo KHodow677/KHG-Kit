@@ -2,6 +2,7 @@
 #include "khg_phy/phy_private.h"
 #include "khg_utl/error_func.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 //MARK: Contact Set Helpers

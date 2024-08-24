@@ -1,7 +1,8 @@
 #include "khg_phy/arbiter.h"	
+#include "khg_phy/phy.h"
 #include "khg_phy/phy_private.h"
-#include "khg_phy/transform.h"
 #include "khg_phy/phy_unsafe.h"
+#include "khg_phy/transform.h"
 #include "khg_utl/error_func.h"
 
 #define CP_DefineShapeGetter(struct, type, member, name) \
@@ -311,9 +312,9 @@ static struct cpShapeMassInfo
 cpCircleShapeMassInfo(float mass, float radius, phy_vect center)
 {
 	struct cpShapeMassInfo info = {
-		mass, cpMomentForCircle(1.0f, 0.0f, radius, cpvzero),
+		mass, phy_moment_for_circle(1.0f, 0.0f, radius, cpvzero),
 		center,
-		cpAreaForCircle(0.0f, radius),
+		phy_area_for_circle(0.0f, radius),
 	};
 	
 	return info;
@@ -401,7 +402,7 @@ cpSegmentShapeCacheData(phy_segment_shape *seg, phy_transform transform)
 static void
 cpSegmentShapePointQuery(phy_segment_shape *seg, phy_vect p, cpPointQueryInfo *info)
 {
-	phy_vect closest = cpClosetPointOnSegment(p, seg->ta, seg->tb);
+	phy_vect closest = phy_closest_point_on_segment(p, seg->ta, seg->tb);
 	
 	phy_vect delta = cpvsub(p, closest);
 	float d = cpvlength(delta);
@@ -462,9 +463,9 @@ static struct cpShapeMassInfo
 cpSegmentShapeMassInfo(float mass, phy_vect a, phy_vect b, float r)
 {
 	struct cpShapeMassInfo info = {
-		mass, cpMomentForBox(1.0f, cpvdist(a, b) + 2.0f*r, 2.0f*r), // TODO is an approximation.
+		mass, phy_moment_for_box(1.0f, cpvdist(a, b) + 2.0f*r, 2.0f*r), // TODO is an approximation.
 		cpvlerp(a, b, 0.5f),
-		cpAreaForSegment(a, b, r),
+		phy_area_for_segment(a, b, r),
 	};
 	
 	return info;

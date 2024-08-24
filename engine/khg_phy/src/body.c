@@ -1,8 +1,9 @@
 #include "khg_phy/phy_private.h"
 #include "khg_phy/transform.h"
 #include "khg_utl/error_func.h"
-#include <float.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <float.h>
 
 phy_body*
 phy_body_alloc(void)

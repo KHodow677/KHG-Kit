@@ -486,16 +486,16 @@ ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPo
 		// Project the endpoints of the two edges onto the opposing edge, clamping them as necessary.
 		// Compare the projected points to the collision normal to see if the shapes overlap there.
 		{
-			phy_vect p1 = cpvadd(cpvmult(n,  e1.r), cpvlerp(e1.a.p, e1.b.p, phy_clamp01((d_e2_b - d_e1_a)*e1_denom)));
-			phy_vect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, phy_clamp01((d_e1_a - d_e2_a)*e2_denom)));
+			phy_vect p1 = cpvadd(cpvmult(n,  e1.r), cpvlerp(e1.a.p, e1.b.p, phy_clamp_01((d_e2_b - d_e1_a)*e1_denom)));
+			phy_vect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, phy_clamp_01((d_e1_a - d_e2_a)*e2_denom)));
 			float dist = cpvdot(cpvsub(p2, p1), n);
 			if(dist <= 0.0f){
 				phy_hash_value hash_1a2b = CP_HASH_PAIR(e1.a.hash, e2.b.hash);
 				cpCollisionInfoPushContact(info, p1, p2, hash_1a2b);
 			}
 		}{
-			phy_vect p1 = cpvadd(cpvmult(n,  e1.r), cpvlerp(e1.a.p, e1.b.p, phy_clamp01((d_e2_a - d_e1_a)*e1_denom)));
-			phy_vect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, phy_clamp01((d_e1_b - d_e2_a)*e2_denom)));
+			phy_vect p1 = cpvadd(cpvmult(n,  e1.r), cpvlerp(e1.a.p, e1.b.p, phy_clamp_01((d_e2_a - d_e1_a)*e1_denom)));
+			phy_vect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, phy_clamp_01((d_e1_b - d_e2_a)*e2_denom)));
 			float dist = cpvdot(cpvsub(p2, p1), n);
 			if(dist <= 0.0f){
 				phy_hash_value hash_1b2a = CP_HASH_PAIR(e1.b.hash, e2.a.hash);
@@ -533,7 +533,7 @@ CircleToSegment(const phy_circle_shape *circle, const phy_segment_shape *segment
 	
 	// Find the closest point on the segment to the circle.
 	phy_vect seg_delta = cpvsub(seg_b, seg_a);
-	float closest_t = phy_clamp01(cpvdot(seg_delta, cpvsub(center, seg_a))/cpvlengthsq(seg_delta));
+	float closest_t = phy_clamp_01(cpvdot(seg_delta, cpvsub(center, seg_a))/cpvlengthsq(seg_delta));
 	phy_vect closest = cpvadd(seg_a, cpvmult(seg_delta, closest_t));
 	
 	// Compare the radii of the two shapes to see if they are colliding.

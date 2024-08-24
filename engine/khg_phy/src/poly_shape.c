@@ -1,8 +1,10 @@
+#include "khg_phy/transform.h"
+#include "khg_phy/phy.h"
 #include "khg_phy/phy_private.h"
 #include "khg_phy/poly_shape.h"
-#include "khg_phy/transform.h"
 #include "khg_phy/phy_unsafe.h"
 #include "khg_utl/error_func.h"
+#include <stdlib.h>
 
 phy_poly_shape *
 cpPolyShapeAlloc(void)
@@ -61,7 +63,7 @@ cpPolyShapePointQuery(phy_poly_shape *poly, phy_vect p, cpPointQueryInfo *info){
 		phy_vect v1 = planes[i].v0;
 		outside = outside || (cpvdot(planes[i].n, cpvsub(p,v1)) > 0.0f);
 		
-		phy_vect closest = cpClosetPointOnSegment(p, v0, v1);
+		phy_vect closest = phy_closest_point_on_segment(p, v0, v1);
 		
 		float dist = cpvdist(p, closest);
 		if(dist < minDist){
@@ -151,11 +153,11 @@ cpPolyShapeMassInfo(float mass, int count, const phy_vect *verts, float radius)
 {
 	// TODO moment is approximate due to radius.
 	
-	phy_vect centroid = cpCentroidForPoly(count, verts);
+	phy_vect centroid = phy_centroid_for_poly(count, verts);
 	struct cpShapeMassInfo info = {
-		mass, cpMomentForPoly(1.0f, count, verts, cpvneg(centroid), radius),
+		mass, phy_moment_for_poly(1.0f, count, verts, cpvneg(centroid), radius),
 		centroid,
-		cpAreaForPoly(count, verts, radius),
+		phy_area_for_poly(count, verts, radius),
 	};
 	
 	return info;
@@ -177,7 +179,7 @@ cpPolyShapeInit(phy_poly_shape *poly, phy_body *body, int count, const phy_vect 
 	// Transform the verts before building the hull in case of a negative scale.
 	for(int i=0; i<count; i++) hullVerts[i] = cpTransformPoint(transform, verts[i]);
 	
-	unsigned int hullCount = cpConvexHull(count, hullVerts, hullVerts, NULL, 0.0);
+	unsigned int hullCount = phy_convex_hull(count, hullVerts, hullVerts, NULL, 0.0);
 	return cpPolyShapeInitRaw(poly, body, hullCount, hullVerts, radius);
 }
 
@@ -281,7 +283,7 @@ cpPolyShapeSetVerts(phy_shape *shape, int count, phy_vect *verts, phy_transform 
 	// Transform the verts before building the hull in case of a negative scale.
 	for(int i=0; i<count; i++) hullVerts[i] = cpTransformPoint(transform, verts[i]);
 	
-	unsigned int hullCount = cpConvexHull(count, hullVerts, hullVerts, NULL, 0.0);
+	unsigned int hullCount = phy_convex_hull(count, hullVerts, hullVerts, NULL, 0.0);
 	cpPolyShapeSetVertsRaw(shape, hullCount, hullVerts);
 }
 

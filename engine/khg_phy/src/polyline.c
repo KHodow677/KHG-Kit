@@ -1,15 +1,11 @@
-// Copyright 2013 Howling Moon Software. All rights reserved.
-// See http://chipmunk2d.net/legal.php for more information.
-
+#include "khg_phy/phy.h"
+#include "khg_phy/phy_private.h"
+#include "khg_phy/polyline.h"
+#include "khg_utl/error_func.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
-#include "khg_phy/phy_private.h"
-#include "khg_utl/error_func.h"
-#include "khg_phy/polyline.h"
-
 
 static inline int Next(int i, int count){return (i+1)%count;}
 
@@ -380,7 +376,7 @@ cpPolyline *
 cpPolylineToConvexHull(cpPolyline *line, float tol)
 {
 	cpPolyline *hull = cpPolylineMake(line->count + 1);
-	hull->count = cpConvexHull(line->count, line->verts, hull->verts, NULL, tol);
+	hull->count = phy_convex_hull(line->count, line->verts, hull->verts, NULL, tol);
 	hull = cpPolylinePush(hull, hull->verts[0]);
 	
 	return cpPolylineShrink(hull);
@@ -607,7 +603,7 @@ ApproximateConcaveDecomposition(phy_vect *verts, int count, float tol, cpPolylin
 {
 	int first;
 	phy_vect *hullVerts = (phy_vect*) alloca(count*sizeof(phy_vect));
-	int hullCount = cpConvexHull(count, verts, hullVerts, &first, 0.0);
+	int hullCount = phy_convex_hull(count, verts, hullVerts, &first, 0.0);
 	
 	if(hullCount != count){
 		struct Notch notch = DeepestNotch(count, verts, hullCount, hullVerts, first, tol);
@@ -652,7 +648,7 @@ cpPolylineConvexDecomposition_BETA(cpPolyline *line, float tol)
 	if (!cpPolylineIsClosed(line)) {
     utl_error_func("Cannot decompose an open polygon", utl_user_defined_data);
   }
-	if (cpAreaForPoly(line->count, line->verts, 0.0) < 0.0) {
+	if (phy_area_for_poly(line->count, line->verts, 0.0) < 0.0) {
     utl_error_func("Winding is backwards, likely because you are passing a hole", utl_user_defined_data);
   }
 	

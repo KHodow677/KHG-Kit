@@ -22,7 +22,7 @@ static inline float phy_clamp(float f, float min, float max) {
 	return phy_min(phy_max(f, min), max);
 }
 
-static inline float phy_clamp01(float f) {
+static inline float phy_clamp_01(float f) {
 	return phy_max(0.0f, phy_min(f, 1.0f));
 }
 

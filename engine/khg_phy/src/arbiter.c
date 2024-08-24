@@ -1,6 +1,7 @@
 #include "khg_phy/phy_private.h"
 #include "khg_phy/arbiter.h"	
 #include "khg_utl/error_func.h"
+#include <stdlib.h>
 
 // TODO: make this generic so I can reuse it for constraints also.
 static inline void

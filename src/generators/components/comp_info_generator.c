@@ -15,7 +15,7 @@
 #include "khg_phy/vect.h"
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
-  float moment = cpMomentForBox(mass, width, height);
+  float moment = phy_moment_for_box(mass, width, height);
   info->body = cpSpaceAddBody(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
   phy_body_set_center_of_gravity(info->body, cog);
