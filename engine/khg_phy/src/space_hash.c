@@ -1,12 +1,14 @@
 #include "khg_phy/phy_private.h"
 #include "khg_phy/prime.h"
+#include "khg_phy/spatial_index.h"
 #include "khg_utl/error_func.h"
+#include <stdlib.h>
 
 typedef struct cpSpaceHashBin cpSpaceHashBin;
 typedef struct cpHandle cpHandle;
 
-struct cpSpaceHash {
-	cpSpatialIndex spatialIndex;
+struct phy_space_hash {
+	phy_spatial_index spatialIndex;
 	
 	int numcells;
 	float celldim;
@@ -46,13 +48,13 @@ static inline void
 cpHandleRelease(cpHandle *hand, phy_array *pooledHandles)
 {
 	hand->retain--;
-	if(hand->retain == 0) cpArrayPush(pooledHandles, hand);
+	if(hand->retain == 0) phy_array_push(pooledHandles, hand);
 }
 
 static int handleSetEql(void *obj, cpHandle *hand){return (obj == hand->obj);}
 
 static void *
-handleSetTrans(void *obj, cpSpaceHash *hash)
+handleSetTrans(void *obj, phy_space_hash *hash)
 {
 	if(hash->pooledHandles->num == 0){
 		// handle pool is exhausted, make more
@@ -62,12 +64,12 @@ handleSetTrans(void *obj, cpSpaceHash *hash)
     }
 		
 		cpHandle *buffer = (cpHandle *)calloc(1, PHY_BUFFER_BYTES);
-		cpArrayPush(hash->allocatedBuffers, buffer);
+		phy_array_push(hash->allocatedBuffers, buffer);
 		
-		for(int i=0; i<count; i++) cpArrayPush(hash->pooledHandles, buffer + i);
+		for(int i=0; i<count; i++) phy_array_push(hash->pooledHandles, buffer + i);
 	}
 	
-	cpHandle *hand = cpHandleInit((cpHandle *)cpArrayPop(hash->pooledHandles), obj);
+	cpHandle *hand = cpHandleInit((cpHandle *)phy_array_pop(hash->pooledHandles), obj);
 	cpHandleRetain(hand);
 	
 	return hand;
@@ -81,14 +83,14 @@ struct cpSpaceHashBin {
 };
 
 static inline void
-recycleBin(cpSpaceHash *hash, cpSpaceHashBin *bin)
+recycleBin(phy_space_hash *hash, cpSpaceHashBin *bin)
 {
 	bin->next = hash->pooledBins;
 	hash->pooledBins = bin;
 }
 
 static inline void
-clearTableCell(cpSpaceHash *hash, int idx)
+clearTableCell(phy_space_hash *hash, int idx)
 {
 	cpSpaceHashBin *bin = hash->table[idx];
 	while(bin){
@@ -104,14 +106,14 @@ clearTableCell(cpSpaceHash *hash, int idx)
 }
 
 static void
-clearTable(cpSpaceHash *hash)
+clearTable(phy_space_hash *hash)
 {
 	for(int i=0; i<hash->numcells; i++) clearTableCell(hash, i);
 }
 
 // Get a recycled or new bin.
 static inline cpSpaceHashBin *
-getEmptyBin(cpSpaceHash *hash)
+getEmptyBin(phy_space_hash *hash)
 {
 	cpSpaceHashBin *bin = hash->pooledBins;
 	
@@ -126,7 +128,7 @@ getEmptyBin(cpSpaceHash *hash)
     }
 		
 		cpSpaceHashBin *buffer = (cpSpaceHashBin *)calloc(1, PHY_BUFFER_BYTES);
-		cpArrayPush(hash->allocatedBuffers, buffer);
+		phy_array_push(hash->allocatedBuffers, buffer);
 		
 		// push all but the first one, return the first instead
 		for(int i=1; i<count; i++) recycleBin(hash, buffer + i);
@@ -136,15 +138,15 @@ getEmptyBin(cpSpaceHash *hash)
 
 //MARK: Memory Management Functions
 
-cpSpaceHash *
-cpSpaceHashAlloc(void)
+phy_space_hash *
+phy_space_hash_alloc(void)
 {
-	return (cpSpaceHash *)calloc(1, sizeof(cpSpaceHash));
+	return (phy_space_hash *)calloc(1, sizeof(phy_space_hash));
 }
 
 // Frees the old table, and allocate a new one.
 static void
-cpSpaceHashAllocTable(cpSpaceHash *hash, int numcells)
+cpSpaceHashAllocTable(phy_space_hash *hash, int numcells)
 {
 	free(hash->table);
 	
@@ -152,45 +154,45 @@ cpSpaceHashAllocTable(cpSpaceHash *hash, int numcells)
 	hash->table = (cpSpaceHashBin **)calloc(numcells, sizeof(cpSpaceHashBin *));
 }
 
-static inline cpSpatialIndexClass *Klass(void);
+static inline phy_spatial_index_class *Klass(void);
 
-cpSpatialIndex *
-cpSpaceHashInit(cpSpaceHash *hash, float celldim, int numcells, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
+phy_spatial_index *
+phy_space_hash_init(phy_space_hash *hash, float celldim, int numcells, phy_spatial_index_BB_func bbfunc, phy_spatial_index *staticIndex)
 {
-	cpSpatialIndexInit((cpSpatialIndex *)hash, Klass(), bbfunc, staticIndex);
+	phy_spatial_index_init((phy_spatial_index *)hash, Klass(), bbfunc, staticIndex);
 	
 	cpSpaceHashAllocTable(hash, next_prime(numcells));
 	hash->celldim = celldim;
 	
-	hash->handleSet = cpHashSetNew(0, (cpHashSetEqlFunc)handleSetEql);
+	hash->handleSet = cp_hash_set_new(0, (phy_hash_set_eql_func)handleSetEql);
 	
-	hash->pooledHandles = cpArrayNew(0);
+	hash->pooledHandles = phy_array_new(0);
 	
 	hash->pooledBins = NULL;
-	hash->allocatedBuffers = cpArrayNew(0);
+	hash->allocatedBuffers = phy_array_new(0);
 	
 	hash->stamp = 1;
 	
-	return (cpSpatialIndex *)hash;
+	return (phy_spatial_index *)hash;
 }
 
-cpSpatialIndex *
-cpSpaceHashNew(float celldim, int cells, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
+phy_spatial_index *
+phy_space_hash_new(float celldim, int cells, phy_spatial_index_BB_func bbfunc, phy_spatial_index *staticIndex)
 {
-	return cpSpaceHashInit(cpSpaceHashAlloc(), celldim, cells, bbfunc, staticIndex);
+	return phy_space_hash_init(phy_space_hash_alloc(), celldim, cells, bbfunc, staticIndex);
 }
 
 static void
-cpSpaceHashDestroy(cpSpaceHash *hash)
+cpSpaceHashDestroy(phy_space_hash *hash)
 {
 	if(hash->table) clearTable(hash);
 	free(hash->table);
 	
-	cpHashSetFree(hash->handleSet);
+	phy_hash_set_free(hash->handleSet);
 	
-	cpArrayFreeEach(hash->allocatedBuffers, free);
-	cpArrayFree(hash->allocatedBuffers);
-	cpArrayFree(hash->pooledHandles);
+	phy_array_free_each(hash->allocatedBuffers, free);
+	phy_array_free(hash->allocatedBuffers);
+	phy_array_free(hash->pooledHandles);
 }
 
 //MARK: Helper Functions
@@ -223,7 +225,7 @@ floor_int(float f)
 }
 
 static inline void
-hashHandle(cpSpaceHash *hash, cpHandle *hand, phy_bb bb)
+hashHandle(phy_space_hash *hash, cpHandle *hand, phy_bb bb)
 {
 	// Find the dimensions in cell coordinates.
 	float dim = hash->celldim;
@@ -254,16 +256,16 @@ hashHandle(cpSpaceHash *hash, cpHandle *hand, phy_bb bb)
 //MARK: Basic Operations
 
 static void
-cpSpaceHashInsert(cpSpaceHash *hash, void *obj, phy_hash_value hashid)
+cpSpaceHashInsert(phy_space_hash *hash, void *obj, phy_hash_value hashid)
 {
-	cpHandle *hand = (cpHandle *)cpHashSetInsert(hash->handleSet, hashid, obj, (cpHashSetTransFunc)handleSetTrans, hash);
+	cpHandle *hand = (cpHandle *)phy_hash_set_insert(hash->handleSet, hashid, obj, (phy_hash_set_trans_func)handleSetTrans, hash);
 	hashHandle(hash, hand, hash->spatialIndex.bbfunc(obj));
 }
 
 static void
-cpSpaceHashRehashObject(cpSpaceHash *hash, void *obj, phy_hash_value hashid)
+cpSpaceHashRehashObject(phy_space_hash *hash, void *obj, phy_hash_value hashid)
 {
-	cpHandle *hand = (cpHandle *)cpHashSetRemove(hash->handleSet, hashid, obj);
+	cpHandle *hand = (cpHandle *)phy_hash_set_remove(hash->handleSet, hashid, obj);
 	
 	if(hand){
 		hand->obj = NULL;
@@ -274,22 +276,22 @@ cpSpaceHashRehashObject(cpSpaceHash *hash, void *obj, phy_hash_value hashid)
 }
 
 static void
-rehash_helper(cpHandle *hand, cpSpaceHash *hash)
+rehash_helper(cpHandle *hand, phy_space_hash *hash)
 {
 	hashHandle(hash, hand, hash->spatialIndex.bbfunc(hand->obj));
 }
 
 static void
-cpSpaceHashRehash(cpSpaceHash *hash)
+cpSpaceHashRehash(phy_space_hash *hash)
 {
 	clearTable(hash);
-	cpHashSetEach(hash->handleSet, (cpHashSetIteratorFunc)rehash_helper, hash);
+	phy_hash_set_each(hash->handleSet, (phy_hash_set_iterator_func)rehash_helper, hash);
 }
 
 static void
-cpSpaceHashRemove(cpSpaceHash *hash, void *obj, phy_hash_value hashid)
+cpSpaceHashRemove(phy_space_hash *hash, void *obj, phy_hash_value hashid)
 {
-	cpHandle *hand = (cpHandle *)cpHashSetRemove(hash->handleSet, hashid, obj);
+	cpHandle *hand = (cpHandle *)phy_hash_set_remove(hash->handleSet, hashid, obj);
 	
 	if(hand){
 		hand->obj = NULL;
@@ -298,21 +300,21 @@ cpSpaceHashRemove(cpSpaceHash *hash, void *obj, phy_hash_value hashid)
 }
 
 typedef struct eachContext {
-	cpSpatialIndexIteratorFunc func;
+	phy_spatial_index_iterator_func func;
 	void *data;
 } eachContext;
 
 static void eachHelper(cpHandle *hand, eachContext *context){context->func(hand->obj, context->data);}
 
 static void
-cpSpaceHashEach(cpSpaceHash *hash, cpSpatialIndexIteratorFunc func, void *data)
+cpSpaceHashEach(phy_space_hash *hash, phy_spatial_index_iterator_func func, void *data)
 {
 	eachContext context = {func, data};
-	cpHashSetEach(hash->handleSet, (cpHashSetIteratorFunc)eachHelper, &context);
+	phy_hash_set_each(hash->handleSet, (phy_hash_set_iterator_func)eachHelper, &context);
 }
 
 static void
-remove_orphaned_handles(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr)
+remove_orphaned_handles(phy_space_hash *hash, cpSpaceHashBin **bin_ptr)
 {
 	cpSpaceHashBin *bin = *bin_ptr;
 	while(bin){
@@ -336,7 +338,7 @@ remove_orphaned_handles(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr)
 //MARK: Query Functions
 
 static inline void
-query_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSpatialIndexQueryFunc func, void *data)
+query_helper(phy_space_hash *hash, cpSpaceHashBin **bin_ptr, void *obj, phy_spatial_index_query_func func, void *data)
 {
 	restart:
 	for(cpSpaceHashBin *bin = *bin_ptr; bin; bin = bin->next){
@@ -358,7 +360,7 @@ query_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSpatialIn
 }
 
 static void
-cpSpaceHashQuery(cpSpaceHash *hash, void *obj, phy_bb bb, cpSpatialIndexQueryFunc func, void *data)
+cpSpaceHashQuery(phy_space_hash *hash, void *obj, phy_bb bb, phy_spatial_index_query_func func, void *data)
 {
 	// Get the dimensions in cell coordinates.
 	float dim = hash->celldim;
@@ -382,8 +384,8 @@ cpSpaceHashQuery(cpSpaceHash *hash, void *obj, phy_bb bb, cpSpatialIndexQueryFun
 
 // Similar to struct eachPair above.
 typedef struct queryRehashContext {
-	cpSpaceHash *hash;
-	cpSpatialIndexQueryFunc func;
+	phy_space_hash *hash;
+	phy_spatial_index_query_func func;
 	void *data;
 } queryRehashContext;
 
@@ -391,8 +393,8 @@ typedef struct queryRehashContext {
 static void
 queryRehash_helper(cpHandle *hand, queryRehashContext *context)
 {
-	cpSpaceHash *hash = context->hash;
-	cpSpatialIndexQueryFunc func = context->func;
+	phy_space_hash *hash = context->hash;
+	phy_spatial_index_query_func func = context->func;
 	void *data = context->data;
 
 	float dim = hash->celldim;
@@ -430,18 +432,18 @@ queryRehash_helper(cpHandle *hand, queryRehashContext *context)
 }
 
 static void
-cpSpaceHashReindexQuery(cpSpaceHash *hash, cpSpatialIndexQueryFunc func, void *data)
+cpSpaceHashReindexQuery(phy_space_hash *hash, phy_spatial_index_query_func func, void *data)
 {
 	clearTable(hash);
 	
 	queryRehashContext context = {hash, func, data};
-	cpHashSetEach(hash->handleSet, (cpHashSetIteratorFunc)queryRehash_helper, &context);
+	phy_hash_set_each(hash->handleSet, (phy_hash_set_iterator_func)queryRehash_helper, &context);
 	
-	cpSpatialIndexCollideStatic((cpSpatialIndex *)hash, hash->spatialIndex.staticIndex, func, data);
+	phy_spatial_index_collide_static((phy_spatial_index *)hash, hash->spatialIndex.static_index, func, data);
 }
 
 static inline float
-segmentQuery_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSpatialIndexSegmentQueryFunc func, void *data)
+segmentQuery_helper(phy_space_hash *hash, cpSpaceHashBin **bin_ptr, void *obj, phy_spatial_index_segment_query_func func, void *data)
 {
 	float t = 1.0f;
 	 
@@ -469,10 +471,10 @@ segmentQuery_helper(cpSpaceHash *hash, cpSpaceHashBin **bin_ptr, void *obj, cpSp
 
 // modified from http://playtechs.blogspot.com/2007/03/raytracing-on-grid.html
 static void
-cpSpaceHashSegmentQuery(cpSpaceHash *hash, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+cpSpaceHashSegmentQuery(phy_space_hash *hash, void *obj, phy_vect a, phy_vect b, float t_exit, phy_spatial_index_segment_query_func func, void *data)
 {
-	a = cpvmult(a, 1.0f/hash->celldim);
-	b = cpvmult(b, 1.0f/hash->celldim);
+	a = phy_v_mult(a, 1.0f/hash->celldim);
+	b = phy_v_mult(b, 1.0f/hash->celldim);
 	
 	int cell_x = floor_int(a.x), cell_y = floor_int(a.y);
 
@@ -529,9 +531,9 @@ cpSpaceHashSegmentQuery(cpSpaceHash *hash, void *obj, phy_vect a, phy_vect b, fl
 //MARK: Misc
 
 void
-cpSpaceHashResize(cpSpaceHash *hash, float celldim, int numcells)
+phy_space_hash_resize(phy_space_hash *hash, float celldim, int numcells)
 {
-	if(hash->spatialIndex.klass != Klass()){
+	if(hash->spatialIndex.class != Klass()){
 		utl_error_func("Ignoring call to non-cpSpaceHash spatial index", utl_user_defined_data);
 		return;
 	}
@@ -543,36 +545,36 @@ cpSpaceHashResize(cpSpaceHash *hash, float celldim, int numcells)
 }
 
 static int
-cpSpaceHashCount(cpSpaceHash *hash)
+cpSpaceHashCount(phy_space_hash *hash)
 {
-	return cpHashSetCount(hash->handleSet);
+	return phy_hash_set_count(hash->handleSet);
 }
 
 static int
-cpSpaceHashContains(cpSpaceHash *hash, void *obj, phy_hash_value hashid)
+cpSpaceHashContains(phy_space_hash *hash, void *obj, phy_hash_value hashid)
 {
-	return cpHashSetFind(hash->handleSet, hashid, obj) != NULL;
+	return phy_hash_set_find(hash->handleSet, hashid, obj) != NULL;
 }
 
-static cpSpatialIndexClass klass = {
-	(cpSpatialIndexDestroyImpl)cpSpaceHashDestroy,
+static phy_spatial_index_class klass = {
+	(phy_spatial_index_destroy_impl)cpSpaceHashDestroy,
 	
-	(cpSpatialIndexCountImpl)cpSpaceHashCount,
-	(cpSpatialIndexEachImpl)cpSpaceHashEach,
-	(cpSpatialIndexContainsImpl)cpSpaceHashContains,
+	(phy_spatial_index_count_impl)cpSpaceHashCount,
+	(phy_spatial_index_each_impl)cpSpaceHashEach,
+	(phy_spatial_index_contains_impl)cpSpaceHashContains,
 	
-	(cpSpatialIndexInsertImpl)cpSpaceHashInsert,
-	(cpSpatialIndexRemoveImpl)cpSpaceHashRemove,
+	(phy_spatial_index_insert_impl)cpSpaceHashInsert,
+	(phy_spatial_index_remove_impl)cpSpaceHashRemove,
 	
-	(cpSpatialIndexReindexImpl)cpSpaceHashRehash,
-	(cpSpatialIndexReindexObjectImpl)cpSpaceHashRehashObject,
-	(cpSpatialIndexReindexQueryImpl)cpSpaceHashReindexQuery,
+	(phy_spatial_index_reindex_impl)cpSpaceHashRehash,
+	(phy_spatial_index_reindex_object_impl)cpSpaceHashRehashObject,
+	(phy_spatial_index_reindex_query_impl)cpSpaceHashReindexQuery,
 	
-	(cpSpatialIndexQueryImpl)cpSpaceHashQuery,
-	(cpSpatialIndexSegmentQueryImpl)cpSpaceHashSegmentQuery,
+	(phy_spatial_index_query_impl)cpSpaceHashQuery,
+	(phy_spatial_index_segment_query_impl)cpSpaceHashSegmentQuery,
 };
 
-static inline cpSpatialIndexClass *Klass(){return &klass;}
+static inline phy_spatial_index_class *Klass(){return &klass;}
 
 //MARK: Debug Drawing
 

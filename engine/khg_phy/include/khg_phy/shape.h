@@ -3,177 +3,98 @@
 #include "khg_phy/phy_types.h"
 #include "khg_phy/bb.h"
 
-/// Point query info struct.
-typedef struct cpPointQueryInfo {
-	/// The nearest shape, NULL if no shape was within range.
+typedef struct phy_point_query_info {
 	const phy_shape *shape;
-	/// The closest point on the shape's surface. (in world space coordinates)
 	phy_vect point;
-	/// The distance to the point. The distance is negative if the point is inside the shape.
 	float distance;
-	/// The gradient of the signed distance function.
-	/// The value should be similar to info.p/info.d, but accurate even for very small values of info.d.
 	phy_vect gradient;
-} cpPointQueryInfo;
+} phy_point_query_info;
 
-/// Segment query info struct.
-typedef struct cpSegmentQueryInfo {
-	/// The shape that was hit, or NULL if no collision occured.
+typedef struct phy_segment_query_info {
 	const phy_shape *shape;
-	/// The point of impact.
 	phy_vect point;
-	/// The normal of the surface hit.
 	phy_vect normal;
-	/// The normalized distance along the query segment in the range [0, 1].
 	float alpha;
-} cpSegmentQueryInfo;
+} phy_segment_query_info;
 
-/// Fast collision filtering type that is used to determine if two objects collide before calling collision or query callbacks.
-typedef struct cpShapeFilter {
-	/// Two objects with the same non-zero group value do not collide.
-	/// This is generally used to group objects in a composite object together to disable self collisions.
+typedef struct phy_shape_filter {
 	phy_group group;
-	/// A bitmask of user definable categories that this object belongs to.
-	/// The category/mask combinations of both objects in a collision must agree for a collision to occur.
 	phy_bitmask categories;
-	/// A bitmask of user definable category types that this object object collides with.
-	/// The category/mask combinations of both objects in a collision must agree for a collision to occur.
 	phy_bitmask mask;
-} cpShapeFilter;
+} phy_shape_filter;
 
-/// Collision filter value for a shape that will collide with anything except CP_SHAPE_FILTER_NONE.
-static const cpShapeFilter CP_SHAPE_FILTER_ALL = {PHY_NO_GROUP, PHY_ALL_CATEGORIES, PHY_ALL_CATEGORIES};
-/// Collision filter value for a shape that does not collide with anything.
-static const cpShapeFilter CP_SHAPE_FILTER_NONE = {PHY_NO_GROUP, ~PHY_ALL_CATEGORIES, ~PHY_ALL_CATEGORIES};
+static const phy_shape_filter PHY_SHAPE_FILTER_ALL = { PHY_NO_GROUP, PHY_ALL_CATEGORIES, PHY_ALL_CATEGORIES };
+static const phy_shape_filter PHY_SHAPE_FILTER_NONE = { PHY_NO_GROUP, ~PHY_ALL_CATEGORIES, ~PHY_ALL_CATEGORIES };
 
-/// Create a new collision filter.
-static inline cpShapeFilter
-cpShapeFilterNew(phy_group group, phy_bitmask categories, phy_bitmask mask)
-{
-	cpShapeFilter filter = {group, categories, mask};
+static inline phy_shape_filter phy_shape_filter_new(phy_group group, phy_bitmask categories, phy_bitmask mask) {
+	phy_shape_filter filter = { group, categories, mask };
 	return filter;
 }
 
-/// Destroy a shape.
-void cpShapeDestroy(phy_shape *shape);
-/// Destroy and Free a shape.
-void cpShapeFree(phy_shape *shape);
+void phy_shape_destroy(phy_shape *shape);
+void phy_shape_free(phy_shape *shape);
 
-/// Update, cache and return the bounding box of a shape based on the body it's attached to.
-phy_bb cpShapeCacheBB(phy_shape *shape);
-/// Update, cache and return the bounding box of a shape with an explicit transformation.
-phy_bb cpShapeUpdate(phy_shape *shape, phy_transform transform);
+phy_bb phy_shape_cache_BB(phy_shape *shape);
+phy_bb phy_shape_update(phy_shape *shape, phy_transform transform);
 
-/// Perform a nearest point query. It finds the closest point on the surface of shape to a specific point.
-/// The value returned is the distance between the points. A negative distance means the point is inside the shape.
-float cpShapePointQuery(const phy_shape *shape, phy_vect p, cpPointQueryInfo *out);
+float phy_shape_point_query(const phy_shape *shape, phy_vect p, phy_point_query_info *out);
+bool phy_shape_segment_query(const phy_shape *shape, phy_vect a, phy_vect b, float radius, phy_segment_query_info *info);
 
-/// Perform a segment query against a shape. @c info must be a pointer to a valid cpSegmentQueryInfo structure.
-bool cpShapeSegmentQuery(const phy_shape *shape, phy_vect a, phy_vect b, float radius, cpSegmentQueryInfo *info);
+phy_contact_point_set phy_shapes_collide(const phy_shape *a, const phy_shape *b);
+phy_space* phy_shape_get_space(const phy_shape *shape);
 
-/// Return contact information about two shapes.
-phy_contact_point_set cpShapesCollide(const phy_shape *a, const phy_shape *b);
+phy_body* phy_shape_get_body(const phy_shape *shape);
+void phy_shape_set_body(phy_shape *shape, phy_body *body);
 
-/// The cpSpace this body is added to.
-phy_space* cpShapeGetSpace(const phy_shape *shape);
+float phy_shape_get_mass(phy_shape *shape);
+void phy_shape_set_mass(phy_shape *shape, float mass);
 
-/// The cpBody this shape is connected to.
-phy_body* cpShapeGetBody(const phy_shape *shape);
-/// Set the cpBody this shape is connected to.
-/// Can only be used if the shape is not currently added to a space.
-void cpShapeSetBody(phy_shape *shape, phy_body *body);
+float phy_shape_get_density(phy_shape *shape);
+void phy_shape_set_density(phy_shape *shape, float density);
 
-/// Get the mass of the shape if you are having Chipmunk calculate mass properties for you.
-float cpShapeGetMass(phy_shape *shape);
-/// Set the mass of this shape to have Chipmunk calculate mass properties for you.
-void cpShapeSetMass(phy_shape *shape, float mass);
+float phy_shape_get_moment(phy_shape *shape);
+float phy_shape_get_area(phy_shape *shape);
+phy_vect phy_shape_get_center_of_gravity(phy_shape *shape);
 
-/// Get the density of the shape if you are having Chipmunk calculate mass properties for you.
-float cpShapeGetDensity(phy_shape *shape);
-/// Set the density  of this shape to have Chipmunk calculate mass properties for you.
-void cpShapeSetDensity(phy_shape *shape, float density);
+phy_bb phy_shape_get_BB(const phy_shape *shape);
 
-/// Get the calculated moment of inertia for this shape.
-float cpShapeGetMoment(phy_shape *shape);
-/// Get the calculated area of this shape.
-float cpShapeGetArea(phy_shape *shape);
-/// Get the centroid of this shape.
-phy_vect cpShapeGetCenterOfGravity(phy_shape *shape);
+bool phy_shape_get_sensor(const phy_shape *shape);
+void phy_shape_set_sensor(phy_shape *shape, bool sensor);
 
-/// Get the bounding box that contains the shape given it's current position and angle.
-phy_bb cpShapeGetBB(const phy_shape *shape);
+float phy_shape_get_elasticity(const phy_shape *shape);
+void phy_shape_set_elasticity(phy_shape *shape, float elasticity);
 
-/// Get if the shape is set to be a sensor or not.
-bool cpShapeGetSensor(const phy_shape *shape);
-/// Set if the shape is a sensor or not.
-void cpShapeSetSensor(phy_shape *shape, bool sensor);
+float phy_shape_get_friction(const phy_shape *shape);
+void phy_shape_set_friction(phy_shape *shape, float friction);
 
-/// Get the elasticity of this shape.
-float cpShapeGetElasticity(const phy_shape *shape);
-/// Set the elasticity of this shape.
-void cpShapeSetElasticity(phy_shape *shape, float elasticity);
+phy_vect phy_shape_get_surface_velocity(const phy_shape *shape);
+void phy_shape_set_surface_velocity(phy_shape *shape, phy_vect surface_velocity);
 
-/// Get the friction of this shape.
-float cpShapeGetFriction(const phy_shape *shape);
-/// Set the friction of this shape.
-void cpShapeSetFriction(phy_shape *shape, float friction);
+phy_data_pointer phy_shape_get_user_data(const phy_shape *shape);
+void phy_shape_set_user_data(phy_shape *shape, phy_data_pointer user_data);
 
-/// Get the surface velocity of this shape.
-phy_vect cpShapeGetSurfaceVelocity(const phy_shape *shape);
-/// Set the surface velocity of this shape.
-void cpShapeSetSurfaceVelocity(phy_shape *shape, phy_vect surfaceVelocity);
+phy_collision_type phy_shape_get_collision_type(const phy_shape *shape);
+void phy_shape_set_collision_type(phy_shape *shape, phy_collision_type collision_type);
 
-/// Get the user definable data pointer of this shape.
-phy_data_pointer cpShapeGetUserData(const phy_shape *shape);
-/// Set the user definable data pointer of this shape.
-void cpShapeSetUserData(phy_shape *shape, phy_data_pointer userData);
+phy_shape_filter phy_shape_get_filter(const phy_shape *shape);
+void phy_shape_set_filter(phy_shape *shape, phy_shape_filter filter);
 
-/// Set the collision type of this shape.
-phy_collision_type cpShapeGetCollisionType(const phy_shape *shape);
-/// Get the collision type of this shape.
-void cpShapeSetCollisionType(phy_shape *shape, phy_collision_type collisionType);
+phy_circle_shape *cpCircleShapeAlloc(void);
+phy_shape *cpCircleShapeNew(phy_body *body, float radius, phy_vect offset);
+phy_circle_shape *cpCircleShapeInit(phy_circle_shape *circle, phy_body *body, float radius, phy_vect offset);
 
-/// Get the collision filtering parameters of this shape.
-cpShapeFilter cpShapeGetFilter(const phy_shape *shape);
-/// Set the collision filtering parameters of this shape.
-void cpShapeSetFilter(phy_shape *shape, cpShapeFilter filter);
+phy_vect phy_circle_shape_get_offset(const phy_shape *shape);
+float phy_circle_shape_get_radius(const phy_shape *shape);
 
+phy_segment_shape *phy_segment_shape_alloc(void);
+phy_shape *phy_segment_shape_new(phy_body *body, phy_vect a, phy_vect b, float radius);
+phy_segment_shape *phy_segment_shape_init(phy_segment_shape *seg, phy_body *body, phy_vect a, phy_vect b, float radius);
 
-/// @}
-/// @defgroup cpCircleShape cpCircleShape
+void phy_segment_shape_set_neighbors(phy_shape *shape, phy_vect prev, phy_vect next);
 
-/// Allocate a circle shape.
-phy_circle_shape* cpCircleShapeAlloc(void);
-/// Initialize a circle shape.
-phy_circle_shape* cpCircleShapeInit(phy_circle_shape *circle, phy_body *body, float radius, phy_vect offset);
-/// Allocate and initialize a circle shape.
-phy_shape* cpCircleShapeNew(phy_body *body, float radius, phy_vect offset);
+phy_vect phy_segment_shape_get_A(const phy_shape *shape);
+phy_vect phy_segment_shape_get_B(const phy_shape *shape);
 
-/// Get the offset of a circle shape.
-phy_vect cpCircleShapeGetOffset(const phy_shape *shape);
-/// Get the radius of a circle shape.
-float cpCircleShapeGetRadius(const phy_shape *shape);
+phy_vect phy_segment_shape_get_normal(const phy_shape *shape);
+float phy_segment_shape_get_radius(const phy_shape *shape);
 
-/// @}
-/// @defgroup cpSegmentShape cpSegmentShape
-
-/// Allocate a segment shape.
-phy_segment_shape* cpSegmentShapeAlloc(void);
-/// Initialize a segment shape.
-phy_segment_shape* cpSegmentShapeInit(phy_segment_shape *seg, phy_body *body, phy_vect a, phy_vect b, float radius);
-/// Allocate and initialize a segment shape.
-phy_shape* cpSegmentShapeNew(phy_body *body, phy_vect a, phy_vect b, float radius);
-
-/// Let Chipmunk know about the geometry of adjacent segments to avoid colliding with endcaps.
-void cpSegmentShapeSetNeighbors(phy_shape *shape, phy_vect prev, phy_vect next);
-
-/// Get the first endpoint of a segment shape.
-phy_vect cpSegmentShapeGetA(const phy_shape *shape);
-/// Get the second endpoint of a segment shape.
-phy_vect cpSegmentShapeGetB(const phy_shape *shape);
-/// Get the normal of a segment shape.
-phy_vect cpSegmentShapeGetNormal(const phy_shape *shape);
-/// Get the first endpoint of a segment shape.
-float cpSegmentShapeGetRadius(const phy_shape *shape);
-
-/// @}

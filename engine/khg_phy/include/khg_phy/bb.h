@@ -41,7 +41,7 @@ static inline phy_bb phy_bb_expand(const phy_bb bb, const phy_vect v){
 }
 
 static inline phy_vect phy_bb_center(phy_bb bb) {
-	return cpvlerp(cpv(bb.l, bb.b), cpv(bb.r, bb.t), 0.5f);
+	return phy_v_lerp(phy_v(bb.l, bb.b), phy_v(bb.r, bb.t), 0.5f);
 }
 
 static inline float phy_bb_area(phy_bb bb) {
@@ -53,7 +53,7 @@ static inline float phy_bb_merged_area(phy_bb a, phy_bb b) {
 }
 
 static inline float phy_bb_segment_query(phy_bb bb, phy_vect a, phy_vect b) {
-	phy_vect delta = cpvsub(b, a);
+	phy_vect delta = phy_v_sub(b, a);
 	float tmin = -INFINITY, tmax = INFINITY;
   if (delta.x == 0.0f) {
 		if(a.x < bb.l || bb.r < a.x) {
@@ -90,7 +90,7 @@ static inline bool phy_bb_intersects_segment(phy_bb bb, phy_vect a, phy_vect b) 
 }
 
 static inline phy_vect phy_bb_clamp_vect(const phy_bb bb, const phy_vect v) {
-	return cpv(phy_clamp(v.x, bb.l, bb.r), phy_clamp(v.y, bb.b, bb.t));
+	return phy_v(phy_clamp(v.x, bb.l, bb.r), phy_clamp(v.y, bb.b, bb.t));
 }
 
 static inline phy_vect phy_bb_wrap_vect(const phy_bb bb, const phy_vect v) {
@@ -100,7 +100,7 @@ static inline phy_vect phy_bb_wrap_vect(const phy_bb bb, const phy_vect v) {
 	float dy = phy_abs(bb.t - bb.b);
 	float mody = fmodf(v.y - bb.b, dy);
 	float y = (mody > 0.0f) ? mody : mody + dy;
-	return cpv(x + bb.l, y + bb.b);
+	return phy_v(x + bb.l, y + bb.b);
 }
 
 static inline phy_bb phy_bb_offset(const phy_bb bb, const phy_vect v) {

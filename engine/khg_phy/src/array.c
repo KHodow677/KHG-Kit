@@ -1,31 +1,10 @@
-/* Copyright (c) 2013 Scott Lembcke and Howling Moon Software
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-#include <string.h>
-
 #include "khg_phy/phy_private.h"
+#include <stdlib.h>
+#include <string.h>
 
 
 phy_array *
-cpArrayNew(int size)
+phy_array_new(int size)
 {
 	phy_array *arr = (phy_array *)calloc(1, sizeof(phy_array));
 	
@@ -37,7 +16,7 @@ cpArrayNew(int size)
 }
 
 void
-cpArrayFree(phy_array *arr)
+phy_array_free(phy_array *arr)
 {
 	if(arr){
 		free(arr->arr);
@@ -48,7 +27,7 @@ cpArrayFree(phy_array *arr)
 }
 
 void
-cpArrayPush(phy_array *arr, void *object)
+phy_array_push(phy_array *arr, void *object)
 {
 	if(arr->num == arr->max){
 		arr->max = 3*(arr->max + 1)/2;
@@ -60,7 +39,7 @@ cpArrayPush(phy_array *arr, void *object)
 }
 
 void *
-cpArrayPop(phy_array *arr)
+phy_array_pop(phy_array *arr)
 {
 	arr->num--;
 	
@@ -71,7 +50,7 @@ cpArrayPop(phy_array *arr)
 }
 
 void
-cpArrayDeleteObj(phy_array *arr, void *obj)
+phy_array_delete_obj(phy_array *arr, void *obj)
 {
 	for(int i=0; i<arr->num; i++){
 		if(arr->arr[i] == obj){
@@ -86,13 +65,13 @@ cpArrayDeleteObj(phy_array *arr, void *obj)
 }
 
 void
-cpArrayFreeEach(phy_array *arr, void (freeFunc)(void*))
+phy_array_free_each(phy_array *arr, void (freeFunc)(void*))
 {
 	for(int i=0; i<arr->num; i++) freeFunc(arr->arr[i]);
 }
 
 bool
-cpArrayContains(phy_array *arr, void *ptr)
+phy_array_contains(phy_array *arr, void *ptr)
 {
 	for(int i=0; i<arr->num; i++)
 		if(arr->arr[i] == ptr) return true;

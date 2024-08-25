@@ -11,7 +11,7 @@
 #include "khg_utl/vector.h"
 
 void generate_tank_body(tank_body *tb, float x, float y) {
-  generate_physics_box(&tb->physics_info, false, 145.0f, 184.0f, 1.0f, cpv(x, y), 0.0f, cpv(0.0f, 0.0f));
+  generate_physics_box(&tb->physics_info, false, 145.0f, 184.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
   generate_renderer(&tb->renderer_info, &tb->physics_info, TANK_BODY);
   generate_destroyer(&tb->destroyer_info);
   generate_mover(&tb->mover_info, &tb->physics_info);

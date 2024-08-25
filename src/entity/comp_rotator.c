@@ -42,7 +42,7 @@ ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    if (!cpveql(handle_right_mouse_controls(), cpv(-1.0f, -1.0f))) {
+    if (!phy_v_eql(handle_right_mouse_controls(), phy_v(-1.0f, -1.0f))) {
       info->target_look_pos = handle_right_mouse_controls();
       p_info->is_locked_on = false;
     }

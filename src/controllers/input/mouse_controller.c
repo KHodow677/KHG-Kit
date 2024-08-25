@@ -6,15 +6,15 @@
 
 phy_vect handle_left_mouse_controls() {
   if (gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT)) {
-    return cpv(gfx_get_mouse_x(), gfx_get_mouse_y());
+    return phy_v(gfx_get_mouse_x(), gfx_get_mouse_y());
   }
-  return cpv(-1.0f, -1.0f);
+  return phy_v(-1.0f, -1.0f);
 }
 
 phy_vect handle_right_mouse_controls(void) {
   if (gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_RIGHT)) {
-    return cpv(gfx_get_mouse_x(), gfx_get_mouse_y());
+    return phy_v(gfx_get_mouse_x(), gfx_get_mouse_y());
   }
-  return cpv(-1.0f, -1.0f);
+  return phy_v(-1.0f, -1.0f);
 }
 

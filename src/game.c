@@ -37,7 +37,7 @@ int game_run() {
   gfx_init_glfw(800, 600, window);
   log_info();
   setup_worker_threads();
-  SPACE = physics_setup(cpv(0.0f, 0.0f));
+  SPACE = physics_setup(phy_v(0.0f, 0.0f));
   ecs_setup();
   spawn_tank(600, 300);
   int res = gfx_loop_manager(window);

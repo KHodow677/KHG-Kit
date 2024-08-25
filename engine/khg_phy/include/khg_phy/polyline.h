@@ -2,71 +2,30 @@
 
 #include "khg_phy/phy_types.h"
 
-// Polylines are just arrays of vertexes.
-// They are looped if the first vertex is equal to the last.
-// cpPolyline structs are intended to be passed by value and destroyed when you are done with them.
-typedef struct cpPolyline {
+typedef struct phy_polyline {
   int count, capacity;
   phy_vect verts[];
-} cpPolyline;
+} phy_polyline;
 
-/// Destroy and free a polyline instance.
-void cpPolylineFree(cpPolyline *line);
+void phy_polyline_free(phy_polyline *line);
+bool phy_polyline_is_closed(phy_polyline *line);
 
-/// Returns true if the first vertex is equal to the last.
-bool cpPolylineIsClosed(cpPolyline *line);
+phy_polyline *phy_polyline_simplify_curves(phy_polyline *line, float tol);
+phy_polyline *phy_polyline_simplify_vertices(phy_polyline *line, float tol);
+phy_polyline *phy_polyline_to_convex_hull(phy_polyline *line, float tol);
 
-/**
-	Returns a copy of a polyline simplified by using the Douglas-Peucker algorithm.
-	This works very well on smooth or gently curved shapes, but not well on straight edged or angular shapes.
-*/
-cpPolyline *cpPolylineSimplifyCurves(cpPolyline *line, float tol);
-
-/**
-	Returns a copy of a polyline simplified by discarding "flat" vertexes.
-	This works well on straight edged or angular shapes, not as well on smooth shapes.
-*/
-cpPolyline *cpPolylineSimplifyVertexes(cpPolyline *line, float tol);
-
-/// Get the convex hull of a polyline as a looped polyline.
-cpPolyline *cpPolylineToConvexHull(cpPolyline *line, float tol);
-
-
-/// Polyline sets are collections of polylines, generally built by cpMarchSoft() or cpMarchHard().
-typedef struct cpPolylineSet {
+typedef struct phy_polyline_set {
   int count, capacity;
-  cpPolyline **lines;
-} cpPolylineSet;
+  phy_polyline **lines;
+} phy_polyline_set;
 
-/// Allocate a new polyline set.
-cpPolylineSet *cpPolylineSetAlloc(void);
+phy_polyline_set *phy_polyline_set_alloc(void);
+phy_polyline_set *phy_polyline_set_new(void);
+phy_polyline_set *phy_polyline_set_init(phy_polyline_set *set);
 
-/// Initialize a new polyline set.
-cpPolylineSet *cpPolylineSetInit(cpPolylineSet *set);
+void phy_polyline_set_destroy(phy_polyline_set *set, bool free_polylines);
+void phy_polyline_set_free(phy_polyline_set *set, bool free_polylines);
 
-/// Allocate and initialize a polyline set.
-cpPolylineSet *cpPolylineSetNew(void);
-
-/// Destroy a polyline set.
-void cpPolylineSetDestroy(cpPolylineSet *set, bool freePolylines);
-
-/// Destroy and free a polyline set.
-void cpPolylineSetFree(cpPolylineSet *set, bool freePolylines);
-
-/**
-	Add a line segment to a polyline set.
-	A segment will either start a new polyline, join two others, or add to or loop an existing polyline.
-	This is mostly intended to be used as a callback directly from cpMarchSoft() or cpMarchHard().
-*/
-void cpPolylineSetCollectSegment(phy_vect v0, phy_vect v1, cpPolylineSet *lines);
-
-/**
-	Get an approximate convex decomposition from a polyline.
-	Returns a cpPolylineSet of convex hulls that match the original shape to within 'tol'.
-	NOTE: If the input is a self intersecting polygon, the output might end up overly simplified.
-*/
-
-cpPolylineSet *cpPolylineConvexDecomposition(cpPolyline *line, float tol);
-
-#define cpPolylineConvexDecomposition_BETA cpPolylineConvexDecomposition
+void phy_polyline_set_collect_segment(phy_vect v0, phy_vect v1, phy_polyline_set *lines);
+phy_polyline_set *phy_polyline_convex_decomposition(phy_polyline *line, float tol);
 

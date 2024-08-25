@@ -1,6 +1,7 @@
 #include "khg_phy/phy_private.h"
 #include "khg_phy/prime.h"
 #include "khg_utl/error_func.h"
+#include <stdlib.h>
 
 typedef struct cpHashSetBin {
 	void *elt;
@@ -11,7 +12,7 @@ typedef struct cpHashSetBin {
 struct phy_hash_set {
 	unsigned int entries, size;
 	
-	cpHashSetEqlFunc eql;
+	phy_hash_set_eql_func eql;
 	void *default_value;
 	
 	cpHashSetBin **table;
@@ -21,20 +22,20 @@ struct phy_hash_set {
 };
 
 void
-cpHashSetFree(phy_hash_set *set)
+phy_hash_set_free(phy_hash_set *set)
 {
 	if(set){
 		free(set->table);
 		
-		cpArrayFreeEach(set->allocatedBuffers, free);
-		cpArrayFree(set->allocatedBuffers);
+		phy_array_free_each(set->allocatedBuffers, free);
+		phy_array_free(set->allocatedBuffers);
 		
 		free(set);
 	}
 }
 
 phy_hash_set *
-cpHashSetNew(int size, cpHashSetEqlFunc eqlFunc)
+cp_hash_set_new(int size, phy_hash_set_eql_func eqlFunc)
 {
 	phy_hash_set *set = (phy_hash_set *)calloc(1, sizeof(phy_hash_set));
 	
@@ -47,13 +48,13 @@ cpHashSetNew(int size, cpHashSetEqlFunc eqlFunc)
 	set->table = (cpHashSetBin **)calloc(set->size, sizeof(cpHashSetBin *));
 	set->pooledBins = NULL;
 	
-	set->allocatedBuffers = cpArrayNew(0);
+	set->allocatedBuffers = phy_array_new(0);
 	
 	return set;
 }
 
 void
-cpHashSetSetDefaultValue(phy_hash_set *set, void *default_value)
+phy_hash_set_set__default_value(phy_hash_set *set, void *default_value)
 {
 	set->default_value = default_value;
 }
@@ -117,7 +118,7 @@ getUnusedBin(phy_hash_set *set)
     }
 		
 		cpHashSetBin *buffer = (cpHashSetBin *)calloc(1, PHY_BUFFER_BYTES);
-		cpArrayPush(set->allocatedBuffers, buffer);
+		phy_array_push(set->allocatedBuffers, buffer);
 		
 		// push all but the first one, return it instead
 		for(int i=1; i<count; i++) recycleBin(set, buffer + i);
@@ -126,13 +127,13 @@ getUnusedBin(phy_hash_set *set)
 }
 
 int
-cpHashSetCount(phy_hash_set *set)
+phy_hash_set_count(phy_hash_set *set)
 {
 	return set->entries;
 }
 
 const void *
-cpHashSetInsert(phy_hash_set *set, phy_hash_value hash, const void *ptr, cpHashSetTransFunc trans, void *data)
+phy_hash_set_insert(phy_hash_set *set, phy_hash_value hash, const void *ptr, phy_hash_set_trans_func trans, void *data)
 {
 	phy_hash_value idx = hash%set->size;
 	
@@ -158,7 +159,7 @@ cpHashSetInsert(phy_hash_set *set, phy_hash_value hash, const void *ptr, cpHashS
 }
 
 const void *
-cpHashSetRemove(phy_hash_set *set, phy_hash_value hash, const void *ptr)
+phy_hash_set_remove(phy_hash_set *set, phy_hash_value hash, const void *ptr)
 {
 	phy_hash_value idx = hash%set->size;
 	
@@ -187,7 +188,7 @@ cpHashSetRemove(phy_hash_set *set, phy_hash_value hash, const void *ptr)
 }
 
 const void *
-cpHashSetFind(phy_hash_set *set, phy_hash_value hash, const void *ptr)
+phy_hash_set_find(phy_hash_set *set, phy_hash_value hash, const void *ptr)
 {	
 	phy_hash_value idx = hash%set->size;
 	cpHashSetBin *bin = set->table[idx];
@@ -198,7 +199,7 @@ cpHashSetFind(phy_hash_set *set, phy_hash_value hash, const void *ptr)
 }
 
 void
-cpHashSetEach(phy_hash_set *set, cpHashSetIteratorFunc func, void *data)
+phy_hash_set_each(phy_hash_set *set, phy_hash_set_iterator_func func, void *data)
 {
 	for(unsigned int i=0; i<set->size; i++){
 		cpHashSetBin *bin = set->table[i];
@@ -211,7 +212,7 @@ cpHashSetEach(phy_hash_set *set, cpHashSetIteratorFunc func, void *data)
 }
 
 void
-cpHashSetFilter(phy_hash_set *set, cpHashSetFilterFunc func, void *data)
+phy_hash_set_filter(phy_hash_set *set, phy_hash_set_filter_func func, void *data)
 {
 	for(unsigned int i=0; i<set->size; i++){
 		// The rest works similarly to cpHashSetRemove() above.

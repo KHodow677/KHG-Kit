@@ -2,24 +2,15 @@
 
 #include "khg_phy/phy_types.h"
 
-/// Check if a constraint is a damped rotary springs.
-bool cpConstraintIsRotaryLimitJoint(const phy_constraint *constraint);
+bool phy_constraint_is_rotary_limit_joint(const phy_constraint *constraint);
 
-/// Allocate a damped rotary limit joint.
-rotary_limit_joint* cpRotaryLimitJointAlloc(void);
-/// Initialize a damped rotary limit joint.
-rotary_limit_joint* cpRotaryLimitJointInit(rotary_limit_joint *joint, phy_body *a, phy_body *b, float min, float max);
-/// Allocate and initialize a damped rotary limit joint.
-phy_constraint* cpRotaryLimitJointNew(phy_body *a, phy_body *b, float min, float max);
+rotary_limit_joint* phy_rotary_limit_joint_alloc(void);
+phy_constraint* phy_rotary_limit_joint_new(phy_body *a, phy_body *b, float min, float max);
+rotary_limit_joint* phy_rotary_limit_joint_init(rotary_limit_joint *joint, phy_body *a, phy_body *b, float min, float max);
 
-/// Get the minimum distance the joint will maintain between the two anchors.
-float cpRotaryLimitJointGetMin(const phy_constraint *constraint);
-/// Set the minimum distance the joint will maintain between the two anchors.
-void cpRotaryLimitJointSetMin(phy_constraint *constraint, float min);
+float phy_rotary_limit_joint_get_min(const phy_constraint *constraint);
+void phy_rotary_limit_joint_set_min(phy_constraint *constraint, float min);
 
-/// Get the maximum distance the joint will maintain between the two anchors.
-float cpRotaryLimitJointGetMax(const phy_constraint *constraint);
-/// Set the maximum distance the joint will maintain between the two anchors.
-void cpRotaryLimitJointSetMax(phy_constraint *constraint, float max);
+float phy_rotary_limit_joint_get_max(const phy_constraint *constraint);
+void phy_rotary_limit_joint_set_max(phy_constraint *constraint, float max);
 
-/// @}

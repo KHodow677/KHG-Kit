@@ -1,10 +1,16 @@
 #pragma once
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <malloc.h>
+#else
+#include <alloca.h>
+#endif
+
 #include <float.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-#define CP_PI ((float)3.14159265358979323846264338327950288)
+#define PHY_PI ((float)3.14159265358979323846264338327950288)
 
 static inline float phy_max(float a, float b) {
 	return (a > b) ? a : b;
@@ -22,7 +28,7 @@ static inline float phy_clamp(float f, float min, float max) {
 	return phy_min(phy_max(f, min), max);
 }
 
-static inline float phy_clamp01(float f) {
+static inline float phy_clamp_01(float f) {
 	return phy_max(0.0f, phy_min(f, 1.0f));
 }
 
@@ -86,12 +92,4 @@ typedef struct phy_contact_point_set phy_contact_point_set;
 typedef struct phy_arbiter phy_arbiter;
 
 typedef struct phy_space phy_space;
-
-#ifndef alloca
-#if defined(_WIN32) || defined(_WIN64)
-#include <malloc.h>
-#else
-#include <alloca.h>
-#endif
-#endif
 

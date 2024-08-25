@@ -14,10 +14,10 @@ phy_vect phy_damped_spring_get_anchor_A(const phy_constraint *constraint);
 void phy_damped_spring_set_anchor_A(phy_constraint *constraint, phy_vect anchor_A);
 
 phy_vect phy_damped_spring_get_anchor_B(const phy_constraint *constraint);
-void phy_damped_spring_set_anchor_B(phy_constraint *constraint, phy_vect anchorB);
+void phy_damped_spring_set_anchor_B(phy_constraint *constraint, phy_vect anchor_B);
 
 float phy_damped_spring_get_rest_length(const phy_constraint *constraint);
-void phy_damped_spring_set_rest_length(phy_constraint *constraint, float restLength);
+void phy_damped_spring_set_rest_length(phy_constraint *constraint, float rest_length);
 
 float phy_damped_spring_get_stiffness(const phy_constraint *constraint);
 void phy_damped_spring_set_stiffness(phy_constraint *constraint, float stiffness);
@@ -26,5 +26,5 @@ float phy_damped_spring_get_damping(const phy_constraint *constraint);
 void phy_damped_spring_set_damping(phy_constraint *constraint, float damping);
 
 phy_damped_spring_force_func phy_damped_spring_get_spring_force_func(const phy_constraint *constraint);
-void phy_damped_spring_set_spring_force_func(phy_constraint *constraint, phy_damped_spring_force_func springForceFunc);
+void phy_damped_spring_set_spring_force_func(phy_constraint *constraint, phy_damped_spring_force_func spring_force_func);
 

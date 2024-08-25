@@ -10,18 +10,18 @@
 struct PointQueryContext {
 	phy_vect point;
 	float maxDistance;
-	cpShapeFilter filter;
-	cpSpacePointQueryFunc func;
+	phy_shape_filter filter;
+	phy_space_point_query_func func;
 };
 
 static phy_collision_id
 NearestPointQuery(struct PointQueryContext *context, phy_shape *shape, phy_collision_id id, void *data)
 {
 	if(
-		!cpShapeFilterReject(shape->filter, context->filter)
+		!phy_shape_filter_reject(shape->filter, context->filter)
 	){
-		cpPointQueryInfo info;
-		cpShapePointQuery(shape, context->point, &info);
+		phy_point_query_info info;
+		phy_shape_point_query(shape, context->point, &info);
 		
 		if(info.shape && info.distance < context->maxDistance) context->func(shape, info.point, info.distance, info.gradient, data);
 	}
@@ -30,25 +30,25 @@ NearestPointQuery(struct PointQueryContext *context, phy_shape *shape, phy_colli
 }
 
 void
-cpSpacePointQuery(phy_space *space, phy_vect point, float maxDistance, cpShapeFilter filter, cpSpacePointQueryFunc func, void *data)
+phy_space_point_query(phy_space *space, phy_vect point, float maxDistance, phy_shape_filter filter, phy_space_point_query_func func, void *data)
 {
 	struct PointQueryContext context = {point, maxDistance, filter, func};
 	phy_bb bb = phy_bb_new_for_circle(point, phy_max(maxDistance, 0.0f));
 	
-	cpSpaceLock(space); {
-		cpSpatialIndexQuery(space->dynamicShapes, &context, bb, (cpSpatialIndexQueryFunc)NearestPointQuery, data);
-		cpSpatialIndexQuery(space->staticShapes, &context, bb, (cpSpatialIndexQueryFunc)NearestPointQuery, data);
-	} cpSpaceUnlock(space, true);
+	phy_space_lock(space); {
+		phy_spatial_index_query(space->dynamic_shapes, &context, bb, (phy_spatial_index_query_func)NearestPointQuery, data);
+		phy_spatial_index_query(space->static_shapes, &context, bb, (phy_spatial_index_query_func)NearestPointQuery, data);
+	} phy_space_unlock(space, true);
 }
 
 static phy_collision_id
-NearestPointQueryNearest(struct PointQueryContext *context, phy_shape *shape, phy_collision_id id, cpPointQueryInfo *out)
+NearestPointQueryNearest(struct PointQueryContext *context, phy_shape *shape, phy_collision_id id, phy_point_query_info *out)
 {
 	if(
-		!cpShapeFilterReject(shape->filter, context->filter) && !shape->sensor
+		!phy_shape_filter_reject(shape->filter, context->filter) && !shape->sensor
 	){
-		cpPointQueryInfo info;
-		cpShapePointQuery(shape, context->point, &info);
+		phy_point_query_info info;
+		phy_shape_point_query(shape, context->point, &info);
 		
 		if(info.distance < out->distance) (*out) = info;
 	}
@@ -57,9 +57,9 @@ NearestPointQueryNearest(struct PointQueryContext *context, phy_shape *shape, ph
 }
 
 phy_shape *
-cpSpacePointQueryNearest(phy_space *space, phy_vect point, float maxDistance, cpShapeFilter filter, cpPointQueryInfo *out)
+phy_space_point_query_nearest(phy_space *space, phy_vect point, float maxDistance, phy_shape_filter filter, phy_point_query_info *out)
 {
-	cpPointQueryInfo info = {NULL, cpvzero, maxDistance, cpvzero};
+	phy_point_query_info info = {NULL, phy_v_zero, maxDistance, phy_v_zero};
 	if(out){
 		(*out) = info;
   } else {
@@ -73,8 +73,8 @@ cpSpacePointQueryNearest(phy_space *space, phy_vect point, float maxDistance, cp
 	};
 	
 	phy_bb bb = phy_bb_new_for_circle(point, phy_max(maxDistance, 0.0f));
-	cpSpatialIndexQuery(space->dynamicShapes, &context, bb, (cpSpatialIndexQueryFunc)NearestPointQueryNearest, out);
-	cpSpatialIndexQuery(space->staticShapes, &context, bb, (cpSpatialIndexQueryFunc)NearestPointQueryNearest, out);
+	phy_spatial_index_query(space->dynamic_shapes, &context, bb, (phy_spatial_index_query_func)NearestPointQueryNearest, out);
+	phy_spatial_index_query(space->static_shapes, &context, bb, (phy_spatial_index_query_func)NearestPointQueryNearest, out);
 	
 	return (phy_shape *)out->shape;
 }
@@ -85,18 +85,18 @@ cpSpacePointQueryNearest(phy_space *space, phy_vect point, float maxDistance, cp
 struct SegmentQueryContext {
 	phy_vect start, end;
 	float radius;
-	cpShapeFilter filter;
-	cpSpaceSegmentQueryFunc func;
+	phy_shape_filter filter;
+	phy_space_segment_query_func func;
 };
 
 static float
 SegmentQuery(struct SegmentQueryContext *context, phy_shape *shape, void *data)
 {
-	cpSegmentQueryInfo info;
+	phy_segment_query_info info;
 	
 	if(
-		!cpShapeFilterReject(shape->filter, context->filter) &&
-		cpShapeSegmentQuery(shape, context->start, context->end, context->radius, &info)
+		!phy_shape_filter_reject(shape->filter, context->filter) &&
+		phy_shape_segment_query(shape, context->start, context->end, context->radius, &info)
 	){
 		context->func(shape, info.point, info.normal, info.alpha, data);
 	}
@@ -105,7 +105,7 @@ SegmentQuery(struct SegmentQueryContext *context, phy_shape *shape, void *data)
 }
 
 void
-cpSpaceSegmentQuery(phy_space *space, phy_vect start, phy_vect end, float radius, cpShapeFilter filter, cpSpaceSegmentQueryFunc func, void *data)
+phy_space_segment_query(phy_space *space, phy_vect start, phy_vect end, float radius, phy_shape_filter filter, phy_space_segment_query_func func, void *data)
 {
 	struct SegmentQueryContext context = {
 		start, end,
@@ -114,20 +114,20 @@ cpSpaceSegmentQuery(phy_space *space, phy_vect start, phy_vect end, float radius
 		func,
 	};
 	
-	cpSpaceLock(space); {
-    cpSpatialIndexSegmentQuery(space->staticShapes, &context, start, end, 1.0f, (cpSpatialIndexSegmentQueryFunc)SegmentQuery, data);
-    cpSpatialIndexSegmentQuery(space->dynamicShapes, &context, start, end, 1.0f, (cpSpatialIndexSegmentQueryFunc)SegmentQuery, data);
-	} cpSpaceUnlock(space, true);
+	phy_space_lock(space); {
+    phy_spatial_index_segment_query(space->static_shapes, &context, start, end, 1.0f, (phy_spatial_index_segment_query_func)SegmentQuery, data);
+    phy_spatial_index_segment_query(space->dynamic_shapes, &context, start, end, 1.0f, (phy_spatial_index_segment_query_func)SegmentQuery, data);
+	} phy_space_unlock(space, true);
 }
 
 static float
-SegmentQueryFirst(struct SegmentQueryContext *context, phy_shape *shape, cpSegmentQueryInfo *out)
+SegmentQueryFirst(struct SegmentQueryContext *context, phy_shape *shape, phy_segment_query_info *out)
 {
-	cpSegmentQueryInfo info;
+	phy_segment_query_info info;
 	
 	if(
-		!cpShapeFilterReject(shape->filter, context->filter) && !shape->sensor &&
-		cpShapeSegmentQuery(shape, context->start, context->end, context->radius, &info) &&
+		!phy_shape_filter_reject(shape->filter, context->filter) && !shape->sensor &&
+		phy_shape_segment_query(shape, context->start, context->end, context->radius, &info) &&
 		info.alpha < out->alpha
 	){
 		(*out) = info;
@@ -137,9 +137,9 @@ SegmentQueryFirst(struct SegmentQueryContext *context, phy_shape *shape, cpSegme
 }
 
 phy_shape *
-cpSpaceSegmentQueryFirst(phy_space *space, phy_vect start, phy_vect end, float radius, cpShapeFilter filter, cpSegmentQueryInfo *out)
+phy_space_segment_query_first(phy_space *space, phy_vect start, phy_vect end, float radius, phy_shape_filter filter, phy_segment_query_info *out)
 {
-	cpSegmentQueryInfo info = {NULL, end, cpvzero, 1.0f};
+	phy_segment_query_info info = {NULL, end, phy_v_zero, 1.0f};
 	if(out){
 		(*out) = info;
   } else {
@@ -153,8 +153,8 @@ cpSpaceSegmentQueryFirst(phy_space *space, phy_vect start, phy_vect end, float r
 		NULL
 	};
 	
-	cpSpatialIndexSegmentQuery(space->staticShapes, &context, start, end, 1.0f, (cpSpatialIndexSegmentQueryFunc)SegmentQueryFirst, out);
-	cpSpatialIndexSegmentQuery(space->dynamicShapes, &context, start, end, out->alpha, (cpSpatialIndexSegmentQueryFunc)SegmentQueryFirst, out);
+	phy_spatial_index_segment_query(space->static_shapes, &context, start, end, 1.0f, (phy_spatial_index_segment_query_func)SegmentQueryFirst, out);
+	phy_spatial_index_segment_query(space->dynamic_shapes, &context, start, end, out->alpha, (phy_spatial_index_segment_query_func)SegmentQueryFirst, out);
 	
 	return (phy_shape *)out->shape;
 }
@@ -163,15 +163,15 @@ cpSpaceSegmentQueryFirst(phy_space *space, phy_vect start, phy_vect end, float r
 
 struct BBQueryContext {
 	phy_bb bb;
-	cpShapeFilter filter;
-	cpSpaceBBQueryFunc func;
+	phy_shape_filter filter;
+	phy_space_BB_query_func func;
 };
 
 static phy_collision_id
 BBQuery(struct BBQueryContext *context, phy_shape *shape, phy_collision_id id, void *data)
 {
 	if(
-		!cpShapeFilterReject(shape->filter, context->filter) &&
+		!phy_shape_filter_reject(shape->filter, context->filter) &&
 		phy_bb_intersects(context->bb, shape->bb)
 	){
 		context->func(shape, data);
@@ -181,20 +181,20 @@ BBQuery(struct BBQueryContext *context, phy_shape *shape, phy_collision_id id, v
 }
 
 void
-cpSpaceBBQuery(phy_space *space, phy_bb bb, cpShapeFilter filter, cpSpaceBBQueryFunc func, void *data)
+phy_space_BB_query(phy_space *space, phy_bb bb, phy_shape_filter filter, phy_space_BB_query_func func, void *data)
 {
 	struct BBQueryContext context = {bb, filter, func};
 	
-	cpSpaceLock(space); {
-    cpSpatialIndexQuery(space->dynamicShapes, &context, bb, (cpSpatialIndexQueryFunc)BBQuery, data);
-    cpSpatialIndexQuery(space->staticShapes, &context, bb, (cpSpatialIndexQueryFunc)BBQuery, data);
-	} cpSpaceUnlock(space, true);
+	phy_space_lock(space); {
+    phy_spatial_index_query(space->dynamic_shapes, &context, bb, (phy_spatial_index_query_func)BBQuery, data);
+    phy_spatial_index_query(space->static_shapes, &context, bb, (phy_spatial_index_query_func)BBQuery, data);
+	} phy_space_unlock(space, true);
 }
 
 //MARK: Shape Query Functions
 
 struct ShapeQueryContext {
-	cpSpaceShapeQueryFunc func;
+	phy_space_shape_query_func func;
 	void *data;
 	bool anyCollision;
 };
@@ -203,9 +203,9 @@ struct ShapeQueryContext {
 static phy_collision_id
 ShapeQuery(phy_shape *a, phy_shape *b, phy_collision_id id, struct ShapeQueryContext *context)
 {
-	if(cpShapeFilterReject(a->filter, b->filter) || a == b) return id;
+	if(phy_shape_filter_reject(a->filter, b->filter) || a == b) return id;
 
-	phy_contact_point_set set = cpShapesCollide(a, b);
+	phy_contact_point_set set = phy_shapes_collide(a, b);
 	if(set.count){
 		if(context->func) context->func(b, &set, context->data);
 		context->anyCollision = !(a->sensor || b->sensor);
@@ -215,16 +215,16 @@ ShapeQuery(phy_shape *a, phy_shape *b, phy_collision_id id, struct ShapeQueryCon
 }
 
 bool
-cpSpaceShapeQuery(phy_space *space, phy_shape *shape, cpSpaceShapeQueryFunc func, void *data)
+phy_space_shape_query(phy_space *space, phy_shape *shape, phy_space_shape_query_func func, void *data)
 {
 	phy_body *body = shape->body;
-	phy_bb bb = (body ? cpShapeUpdate(shape, body->transform) : shape->bb);
+	phy_bb bb = (body ? phy_shape_update(shape, body->transform) : shape->bb);
 	struct ShapeQueryContext context = {func, data, false};
 	
-	cpSpaceLock(space); {
-    cpSpatialIndexQuery(space->dynamicShapes, shape, bb, (cpSpatialIndexQueryFunc)ShapeQuery, &context);
-    cpSpatialIndexQuery(space->staticShapes, shape, bb, (cpSpatialIndexQueryFunc)ShapeQuery, &context);
-	} cpSpaceUnlock(space, true);
+	phy_space_lock(space); {
+    phy_spatial_index_query(space->dynamic_shapes, shape, bb, (phy_spatial_index_query_func)ShapeQuery, &context);
+    phy_spatial_index_query(space->static_shapes, shape, bb, (phy_spatial_index_query_func)ShapeQuery, &context);
+	} phy_space_unlock(space, true);
 	
 	return context.anyCollision;
 }
