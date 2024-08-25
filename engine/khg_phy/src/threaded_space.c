@@ -483,13 +483,13 @@ Solver(phy_space *space, unsigned long worker, unsigned long worker_count)
 			#ifdef __ARM_NEON__
 				cpArbiterApplyImpulse_NEON(arb);
 			#else
-				cpArbiterApplyImpulse(arb);
+				phy_arbiter_apply_impulse(arb);
 			#endif
 		}
 			
 		for(int j=0; j<constraints->num; j++){
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[j];
-			constraint->klass->applyImpulse(constraint, dt);
+			constraint->class->apply_impulse(constraint, dt);
 		}
 	}
 }
@@ -602,23 +602,23 @@ phy_threaded_space_step(phy_space *space, float dt)
 	float prev_dt = space->curr_dt;
 	space->curr_dt = dt;
 		
-	phy_array *bodies = space->dynamicBodies;
+	phy_array *bodies = space->dynamic_bodies;
 	phy_array *constraints = space->constraints;
 	phy_array *arbiters = space->arbiters;
 	
 	// Reset and empty the arbiter list.
 	for(int i=0; i<arbiters->num; i++){
 		phy_arbiter *arb = (phy_arbiter *)arbiters->arr[i];
-		arb->state = CP_ARBITER_STATE_NORMAL;
+		arb->state = PHY_ARBITER_STATE_NORMAL;
 		
 		// If both bodies are awake, unthread the arbiter from the contact graph.
 		if(!phy_body_is_sleeping(arb->body_a) && !phy_body_is_sleeping(arb->body_b)){
-			cpArbiterUnthread(arb);
+			phy_arbiter_unthread(arb);
 		}
 	}
 	arbiters->num = 0;
 	
-	cpSpaceLock(space); {
+	phy_space_lock(space); {
 		// Integrate positions
 		for(int i=0; i<bodies->num; i++){
 			phy_body *body = (phy_body *)bodies->arr[i];
@@ -626,32 +626,32 @@ phy_threaded_space_step(phy_space *space, float dt)
 		}
 		
 		// Find colliding pairs.
-		cpSpacePushFreshContactBuffer(space);
-		cpSpatialIndexEach(space->dynamicShapes, (cpSpatialIndexIteratorFunc)cpShapeUpdateFunc, NULL);
-		cpSpatialIndexReindexQuery(space->dynamicShapes, (cpSpatialIndexQueryFunc)cpSpaceCollideShapes, space);
-	} cpSpaceUnlock(space, false);
+		phy_space_push_fresh_contact_buffer(space);
+		cpSpatialIndexEach(space->dynamic_shapes, (cpSpatialIndexIteratorFunc)phy_shape_update_func, NULL);
+		cpSpatialIndexReindexQuery(space->dynamic_shapes, (cpSpatialIndexQueryFunc)phy_space_collide_shapes, space);
+	} phy_space_unlock(space, false);
 	
 	// Rebuild the contact graph (and detect sleeping components if sleeping is enabled)
-	cpSpaceProcessComponents(space, dt);
+	phy_space_process_components(space, dt);
 	
-	cpSpaceLock(space); {
+	phy_space_lock(space); {
 		// Clear out old cached arbiters and call separate callbacks
-		cpHashSetFilter(space->cachedArbiters, (cpHashSetFilterFunc)cpSpaceArbiterSetFilter, space);
+		phy_hash_set_filter(space->cached_arbiters, (phy_hash_set_filter_func)phy_space_arbiter_set_filter, space);
 
 		// Prestep the arbiters and constraints.
-		float slop = space->collisionSlop;
-		float biasCoef = 1.0f - powf(space->collisionBias, dt);
+		float slop = space->collision_slop;
+		float biasCoef = 1.0f - powf(space->collision_bias, dt);
 		for(int i=0; i<arbiters->num; i++){
-			cpArbiterPreStep((phy_arbiter *)arbiters->arr[i], dt, slop, biasCoef);
+			phy_arbiter_pre_step((phy_arbiter *)arbiters->arr[i], dt, slop, biasCoef);
 		}
 
 		for(int i=0; i<constraints->num; i++){
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			
-			phy_constraint_pre_solve_func preSolve = constraint->preSolve;
+			phy_constraint_pre_solve_func preSolve = constraint->pre_solve;
 			if(preSolve) preSolve(constraint, space);
 			
-			constraint->klass->preStep(constraint, dt);
+			constraint->class->pre_step(constraint, dt);
 		}
 	
 		// Integrate velocities.
@@ -665,12 +665,12 @@ phy_threaded_space_step(phy_space *space, float dt)
 		// Apply cached impulses
 		float dt_coef = (prev_dt == 0.0f ? 0.0f : dt/prev_dt);
 		for(int i=0; i<arbiters->num; i++){
-			cpArbiterApplyCachedImpulse((phy_arbiter *)arbiters->arr[i], dt_coef);
+			phy_arbiter_apply_cached_impulse((phy_arbiter *)arbiters->arr[i], dt_coef);
 		}
 		
 		for(int i=0; i<constraints->num; i++){
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
-			constraint->klass->applyCachedImpulse(constraint, dt_coef);
+			constraint->class->apply_cached_impulse(constraint, dt_coef);
 		}
 		
 		// Run the impulse solver.
@@ -685,7 +685,7 @@ phy_threaded_space_step(phy_space *space, float dt)
 		for(int i=0; i<constraints->num; i++){
 			phy_constraint *constraint = (phy_constraint *)constraints->arr[i];
 			
-			phy_constraint_post_solve_func postSolve = constraint->postSolve;
+			phy_constraint_post_solve_func postSolve = constraint->post_solve;
 			if(postSolve) postSolve(constraint, space);
 		}
 		
@@ -696,5 +696,5 @@ phy_threaded_space_step(phy_space *space, float dt)
 			phy_collision_handler *handler = arb->handler;
 			handler->postSolveFunc(arb, space, handler->userData);
 		}
-	} cpSpaceUnlock(space, true);
+	} phy_space_unlock(space, true);
 }

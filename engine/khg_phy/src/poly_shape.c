@@ -15,7 +15,7 @@ cpPolyShapeAlloc(void)
 static void
 cpPolyShapeDestroy(phy_poly_shape *poly)
 {
-	if(poly->count > CP_POLY_SHAPE_INLINE_ALLOC){
+	if(poly->count > PHY_POLY_SHAPE_INLINE_ALLOC){
 		free(poly->planes);
 	}
 }
@@ -24,8 +24,8 @@ static phy_bb
 cpPolyShapeCacheData(phy_poly_shape *poly, phy_transform transform)
 {
 	int count = poly->count;
-	struct cpSplittingPlane *dst = poly->planes;
-	struct cpSplittingPlane *src = dst + count;
+	struct phy_splitting_plane *dst = poly->planes;
+	struct phy_splitting_plane *src = dst + count;
 	
 	float l = (float)INFINITY, r = -(float)INFINITY;
 	float b = (float)INFINITY, t = -(float)INFINITY;
@@ -50,7 +50,7 @@ cpPolyShapeCacheData(phy_poly_shape *poly, phy_transform transform)
 static void
 cpPolyShapePointQuery(phy_poly_shape *poly, phy_vect p, cpPointQueryInfo *info){
 	int count = poly->count;
-	struct cpSplittingPlane *planes = poly->planes;
+	struct phy_splitting_plane *planes = poly->planes;
 	float r = poly->r;
 	
 	phy_vect v0 = planes[count - 1].v0;
@@ -83,13 +83,13 @@ cpPolyShapePointQuery(phy_poly_shape *poly, phy_vect p, cpPointQueryInfo *info){
 	info->distance = dist - r;
 	
 	// Use the normal of the closest segment if the distance is small.
-	info->gradient = (minDist > MAGIC_EPSILON ? g : closestNormal);
+	info->gradient = (minDist > PHY_EPSILON ? g : closestNormal);
 }
 
 static void
 cpPolyShapeSegmentQuery(phy_poly_shape *poly, phy_vect a, phy_vect b, float r2, cpSegmentQueryInfo *info)
 {
-	struct cpSplittingPlane *planes = poly->planes;
+	struct phy_splitting_plane *planes = poly->planes;
 	int count = poly->count;
 	float r = poly->r;
 	float rsum = r + r2;
@@ -122,7 +122,7 @@ cpPolyShapeSegmentQuery(phy_poly_shape *poly, phy_vect a, phy_vect b, float r2, 
 	if(rsum > 0.0f){
 		for(int i=0; i<count; i++){
 			cpSegmentQueryInfo circle_info = {NULL, b, cpvzero, 1.0f};
-			CircleSegmentQuery(&poly->shape, planes[i].v0, r, a, b, r2, &circle_info);
+			phy_circle_segment_query(&poly->shape, planes[i].v0, r, a, b, r2, &circle_info);
 			if(circle_info.alpha < info->alpha) (*info) = circle_info;
 		}
 	}
@@ -132,10 +132,10 @@ static void
 SetVerts(phy_poly_shape *poly, int count, const phy_vect *verts)
 {
 	poly->count = count;
-	if(count <= CP_POLY_SHAPE_INLINE_ALLOC){
-		poly->planes = poly->_planes;
+	if(count <= PHY_POLY_SHAPE_INLINE_ALLOC){
+		poly->planes = poly->fixed_planes;
 	} else {
-		poly->planes = (struct cpSplittingPlane *)calloc(2*count, sizeof(struct cpSplittingPlane));
+		poly->planes = (struct phy_splitting_plane *)calloc(2*count, sizeof(struct phy_splitting_plane));
 	}
 	
 	for(int i=0; i<count; i++){
@@ -148,13 +148,13 @@ SetVerts(phy_poly_shape *poly, int count, const phy_vect *verts)
 	}
 }
 
-static struct cpShapeMassInfo
+static struct phy_shape_mass_info
 cpPolyShapeMassInfo(float mass, int count, const phy_vect *verts, float radius)
 {
 	// TODO moment is approximate due to radius.
 	
 	phy_vect centroid = phy_centroid_for_poly(count, verts);
-	struct cpShapeMassInfo info = {
+	struct phy_shape_mass_info info = {
 		mass, phy_moment_for_poly(1.0f, count, verts, cpvneg(centroid), radius),
 		centroid,
 		phy_area_for_poly(count, verts, radius),
@@ -163,12 +163,12 @@ cpPolyShapeMassInfo(float mass, int count, const phy_vect *verts, float radius)
 	return info;
 }
 
-static const cpShapeClass polyClass = {
-	CP_POLY_SHAPE,
-	(cpShapeCacheDataImpl)cpPolyShapeCacheData,
-	(cpShapeDestroyImpl)cpPolyShapeDestroy,
-	(cpShapePointQueryImpl)cpPolyShapePointQuery,
-	(cpShapeSegmentQueryImpl)cpPolyShapeSegmentQuery,
+static const phy_shape_class polyClass = {
+	PHY_POLY_SHAPE,
+	(phy_shape_cache_data_impl)cpPolyShapeCacheData,
+	(phy_shape_destroy_impl)cpPolyShapeDestroy,
+	(phy_shape_point_query_impl)cpPolyShapePointQuery,
+	(phy_shape_segment_query_impl)cpPolyShapeSegmentQuery,
 };
 
 phy_poly_shape *
@@ -186,7 +186,7 @@ cpPolyShapeInit(phy_poly_shape *poly, phy_body *body, int count, const phy_vect 
 phy_poly_shape *
 cpPolyShapeInitRaw(phy_poly_shape *poly, phy_body *body, int count, const phy_vect *verts, float radius)
 {
-	cpShapeInit((phy_shape *)poly, &polyClass, body, cpPolyShapeMassInfo(0.0f, count, verts, radius));
+	phy_shape_init((phy_shape *)poly, &polyClass, body, cpPolyShapeMassInfo(0.0f, count, verts, radius));
 	
 	SetVerts(poly, count, verts);
 	poly->r = radius;
@@ -243,7 +243,7 @@ cpBoxShapeNew2(phy_body *body, phy_bb box, float radius)
 int
 cpPolyShapeGetCount(const phy_shape *shape)
 {
-	if (shape->klass != &polyClass) {
+	if (shape->class != &polyClass) {
     utl_error_func("Shape is not a poly shape", utl_user_defined_data);
   }
 	return ((phy_poly_shape *)shape)->count;
@@ -252,7 +252,7 @@ cpPolyShapeGetCount(const phy_shape *shape)
 phy_vect
 cpPolyShapeGetVert(const phy_shape *shape, int i)
 {
-	if (shape->klass != &polyClass) {
+	if (shape->class != &polyClass) {
     utl_error_func("Shape is not a poly shape", utl_user_defined_data);
   }
 	
@@ -267,7 +267,7 @@ cpPolyShapeGetVert(const phy_shape *shape, int i)
 float
 cpPolyShapeGetRadius(const phy_shape *shape)
 {
-	if (shape->klass != &polyClass) {
+	if (shape->class != &polyClass) {
     utl_error_func("Shape is not a poly shape", utl_user_defined_data);
   }
 	return ((phy_poly_shape *)shape)->r;
@@ -290,7 +290,7 @@ cpPolyShapeSetVerts(phy_shape *shape, int count, phy_vect *verts, phy_transform 
 void
 cpPolyShapeSetVertsRaw(phy_shape *shape, int count, phy_vect *verts)
 {
-	if (shape->klass != &polyClass) {
+	if (shape->class != &polyClass) {
     utl_error_func("Shape is not a poly shape", utl_user_defined_data);
   }
 	phy_poly_shape *poly = (phy_poly_shape *)shape;
@@ -300,13 +300,13 @@ cpPolyShapeSetVertsRaw(phy_shape *shape, int count, phy_vect *verts)
 	
 	float mass = shape->massInfo.m;
 	shape->massInfo = cpPolyShapeMassInfo(shape->massInfo.m, count, verts, poly->r);
-	if(mass > 0.0f) cpBodyAccumulateMassFromShapes(shape->body);
+	if(mass > 0.0f) phy_body_accumulate_mass_from_shapes(shape->body);
 }
 
 void
 cpPolyShapeSetRadius(phy_shape *shape, float radius)
 {
-	if (shape->klass != &polyClass) {
+	if (shape->class != &polyClass) {
     utl_error_func("Shape is not a poly shape", utl_user_defined_data);
   }
 	phy_poly_shape *poly = (phy_poly_shape *)shape;

@@ -12,7 +12,7 @@ cpSpatialIndexFree(cpSpatialIndex *index)
 }
 
 cpSpatialIndex *
-cpSpatialIndexInit(cpSpatialIndex *index, cpSpatialIndexClass *klass, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
+phy_spatial_index_init(cpSpatialIndex *index, cpSpatialIndexClass *klass, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
 {
 	index->klass = klass;
 	index->bbfunc = bbfunc;

@@ -173,7 +173,7 @@ phy_moment_for_box_2(float m, phy_bb box)
 //MARK: Quick Hull
 
 void
-cpLoopIndexes(const phy_vect *verts, int count, int *start, int *end)
+cp_loop_indexes(const phy_vect *verts, int count, int *start, int *end)
 {
 	(*start) = (*end) = 0;
 	phy_vect min = verts[0];
@@ -257,7 +257,7 @@ phy_convex_hull(int count, const phy_vect *verts, phy_vect *result, int *first, 
 	
 	// Degenerate case, all points are the same.
 	int start, end;
-	cpLoopIndexes(verts, count, &start, &end);
+	cp_loop_indexes(verts, count, &start, &end);
 	if(start == end){
 		if(first) (*first) = 0;
 		return 1;

@@ -20,13 +20,13 @@
 #define WARN_EPA_ITERATIONS 20
 
 static inline void
-cpCollisionInfoPushContact(struct cpCollisionInfo *info, phy_vect p1, phy_vect p2, phy_hash_value hash)
+cpCollisionInfoPushContact(struct phy_collision_info *info, phy_vect p1, phy_vect p2, phy_hash_value hash)
 {
 	if (info->count > PHY_MAX_CONTACTS_PER_ARBITER) {
     utl_error_func("Tried to push too many contacts", utl_user_defined_data);
   }
 	
-	struct cpContact *con = &info->arr[info->count];
+	struct phy_contact *con = &info->arr[info->count];
 	con->r1 = p1;
 	con->r2 = p2;
 	con->hash = hash;
@@ -40,7 +40,7 @@ cpCollisionInfoPushContact(struct cpCollisionInfo *info, phy_vect p1, phy_vect p
 // The GJK and EPA algorithms use support points to iteratively sample the surface of the two shapes' minkowski difference.
 
 static inline int
-PolySupportPointIndex(const int count, const struct cpSplittingPlane *planes, const phy_vect n)
+PolySupportPointIndex(const int count, const struct phy_splitting_plane *planes, const phy_vect n)
 {
 	float max = -INFINITY;
 	int index = 0;
@@ -91,7 +91,7 @@ SegmentSupportPoint(const phy_segment_shape *seg, const phy_vect n)
 static inline struct SupportPoint
 PolySupportPoint(const phy_poly_shape *poly, const phy_vect n)
 {
-	const struct cpSplittingPlane *planes = poly->planes;
+	const struct phy_splitting_plane *planes = poly->planes;
 	int i = PolySupportPointIndex(poly->count, planes, n);
 	return SupportPointNew(planes[i].v0, i);
 }
@@ -150,13 +150,13 @@ SupportEdgeForPoly(const phy_poly_shape *poly, const phy_vect n)
 	int i0 = (i1 - 1 + count)%count;
 	int i2 = (i1 + 1)%count;
 	
-	const struct cpSplittingPlane *planes = poly->planes;
+	const struct phy_splitting_plane *planes = poly->planes;
 	phy_hash_value hashid = poly->shape.hashid;
 	if(cpvdot(n, planes[i1].n) > cpvdot(n, planes[i2].n)){
-		struct Edge edge = {{planes[i0].v0, CP_HASH_PAIR(hashid, i0)}, {planes[i1].v0, CP_HASH_PAIR(hashid, i1)}, poly->r, planes[i1].n};
+		struct Edge edge = {{planes[i0].v0, PHY_HASH_PAIR(hashid, i0)}, {planes[i1].v0, PHY_HASH_PAIR(hashid, i1)}, poly->r, planes[i1].n};
 		return edge;
 	} else {
-		struct Edge edge = {{planes[i1].v0, CP_HASH_PAIR(hashid, i1)}, {planes[i2].v0, CP_HASH_PAIR(hashid, i2)}, poly->r, planes[i2].n};
+		struct Edge edge = {{planes[i1].v0, PHY_HASH_PAIR(hashid, i1)}, {planes[i2].v0, PHY_HASH_PAIR(hashid, i2)}, poly->r, planes[i2].n};
 		return edge;
 	}
 }
@@ -166,10 +166,10 @@ SupportEdgeForSegment(const phy_segment_shape *seg, const phy_vect n)
 {
 	phy_hash_value hashid = seg->shape.hashid;
 	if(cpvdot(seg->tn, n) > 0.0){
-		struct Edge edge = {{seg->ta, CP_HASH_PAIR(hashid, 0)}, {seg->tb, CP_HASH_PAIR(hashid, 1)}, seg->r, seg->tn};
+		struct Edge edge = {{seg->ta, PHY_HASH_PAIR(hashid, 0)}, {seg->tb, PHY_HASH_PAIR(hashid, 1)}, seg->r, seg->tn};
 		return edge;
 	} else {
-		struct Edge edge = {{seg->tb, CP_HASH_PAIR(hashid, 1)}, {seg->ta, CP_HASH_PAIR(hashid, 0)}, seg->r, cpvneg(seg->tn)};
+		struct Edge edge = {{seg->tb, PHY_HASH_PAIR(hashid, 1)}, {seg->ta, PHY_HASH_PAIR(hashid, 0)}, seg->r, cpvneg(seg->tn)};
 		return edge;
 	}
 }
@@ -383,13 +383,13 @@ GJKRecurse(const struct SupportContext *ctx, const struct MinkowskiPoint v0, con
 static struct SupportPoint
 ShapePoint(const phy_shape *shape, const int i)
 {
-	switch(shape->klass->type){
-		case CP_CIRCLE_SHAPE: {
+	switch(shape->class->type){
+		case PHY_CIRCLE_SHAPE: {
 			return SupportPointNew(((phy_circle_shape *)shape)->tc, 0);
-		} case CP_SEGMENT_SHAPE: {
+		} case PHY_SEGMENT_SHAPE: {
 			phy_segment_shape *seg = (phy_segment_shape *)shape;
 			return SupportPointNew(i == 0 ? seg->ta : seg->tb, i);
-		} case CP_POLY_SHAPE: {
+		} case PHY_POLY_SHAPE: {
 			phy_poly_shape *poly = (phy_poly_shape *)shape;
 			// Poly shapes may change vertex count.
 			int index = (i < poly->count ? i : 0);
@@ -409,14 +409,14 @@ GJK(const struct SupportContext *ctx, phy_collision_id *id)
 	int count2 = 1;
 	
 	switch(ctx->shape1->klass->type){
-		case CP_SEGMENT_SHAPE: count1 = 2; break;
-		case CP_POLY_SHAPE: count1 = ((cpPolyShape *)ctx->shape1)->count; break;
+		case PHY_SEGMENT_SHAPE: count1 = 2; break;
+		case PHY_POLY_SHAPE: count1 = ((cpPolyShape *)ctx->shape1)->count; break;
 		default: break;
 	}
 	
 	switch(ctx->shape2->klass->type){
-		case CP_SEGMENT_SHAPE: count1 = 2; break;
-		case CP_POLY_SHAPE: count2 = ((cpPolyShape *)ctx->shape2)->count; break;
+		case PHY_SEGMENT_SHAPE: count1 = 2; break;
+		case PHY_POLY_SHAPE: count2 = ((cpPolyShape *)ctx->shape2)->count; break;
 		default: break;
 	}
 	
@@ -463,7 +463,7 @@ GJK(const struct SupportContext *ctx, phy_collision_id *id)
 
 // Given two support edges, find contact point pairs on their surfaces.
 static inline void
-ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPoints points, struct cpCollisionInfo *info)
+ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPoints points, struct phy_collision_info *info)
 {
 	float mindist = e1.r + e2.r;
 	if(points.d <= mindist){
@@ -490,7 +490,7 @@ ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPo
 			phy_vect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, phy_clamp_01((d_e1_a - d_e2_a)*e2_denom)));
 			float dist = cpvdot(cpvsub(p2, p1), n);
 			if(dist <= 0.0f){
-				phy_hash_value hash_1a2b = CP_HASH_PAIR(e1.a.hash, e2.b.hash);
+				phy_hash_value hash_1a2b = PHY_HASH_PAIR(e1.a.hash, e2.b.hash);
 				cpCollisionInfoPushContact(info, p1, p2, hash_1a2b);
 			}
 		}{
@@ -498,7 +498,7 @@ ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPo
 			phy_vect p2 = cpvadd(cpvmult(n, -e2.r), cpvlerp(e2.a.p, e2.b.p, phy_clamp_01((d_e1_b - d_e2_a)*e2_denom)));
 			float dist = cpvdot(cpvsub(p2, p1), n);
 			if(dist <= 0.0f){
-				phy_hash_value hash_1b2a = CP_HASH_PAIR(e1.b.hash, e2.a.hash);
+				phy_hash_value hash_1b2a = PHY_HASH_PAIR(e1.b.hash, e2.a.hash);
 				cpCollisionInfoPushContact(info, p1, p2, hash_1b2a);
 			}
 		}
@@ -507,11 +507,11 @@ ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPo
 
 //MARK: Collision Functions
 
-typedef void (*CollisionFunc)(const phy_shape *a, const phy_shape *b, struct cpCollisionInfo *info);
+typedef void (*CollisionFunc)(const phy_shape *a, const phy_shape *b, struct phy_collision_info *info);
 
 // Collide circle shapes.
 static void
-CircleToCircle(const phy_circle_shape *c1, const phy_circle_shape *c2, struct cpCollisionInfo *info)
+CircleToCircle(const phy_circle_shape *c1, const phy_circle_shape *c2, struct phy_collision_info *info)
 {
 	float mindist = c1->r + c2->r;
 	phy_vect delta = cpvsub(c2->tc, c1->tc);
@@ -525,7 +525,7 @@ CircleToCircle(const phy_circle_shape *c1, const phy_circle_shape *c2, struct cp
 }
 
 static void
-CircleToSegment(const phy_circle_shape *circle, const phy_segment_shape *segment, struct cpCollisionInfo *info)
+CircleToSegment(const phy_circle_shape *circle, const phy_segment_shape *segment, struct phy_collision_info *info)
 {
 	phy_vect seg_a = segment->ta;
 	phy_vect seg_b = segment->tb;
@@ -557,7 +557,7 @@ CircleToSegment(const phy_circle_shape *circle, const phy_segment_shape *segment
 }
 
 static void
-SegmentToSegment(const phy_segment_shape *seg1, const phy_segment_shape *seg2, struct cpCollisionInfo *info)
+SegmentToSegment(const phy_segment_shape *seg1, const phy_segment_shape *seg2, struct phy_collision_info *info)
 {
 	struct SupportContext context = {(phy_shape *)seg1, (phy_shape *)seg2, (SupportPointFunc)SegmentSupportPoint, (SupportPointFunc)SegmentSupportPoint};
 	struct ClosestPoints points = GJK(&context, &info->id);
@@ -592,7 +592,7 @@ SegmentToSegment(const phy_segment_shape *seg1, const phy_segment_shape *seg2, s
 }
 
 static void
-PolyToPoly(const phy_poly_shape *poly1, const phy_poly_shape *poly2, struct cpCollisionInfo *info)
+PolyToPoly(const phy_poly_shape *poly1, const phy_poly_shape *poly2, struct phy_collision_info *info)
 {
 	struct SupportContext context = {(phy_shape *)poly1, (phy_shape *)poly2, (SupportPointFunc)PolySupportPoint, (SupportPointFunc)PolySupportPoint};
 	struct ClosestPoints points = GJK(&context, &info->id);
@@ -615,7 +615,7 @@ PolyToPoly(const phy_poly_shape *poly1, const phy_poly_shape *poly2, struct cpCo
 }
 
 static void
-SegmentToPoly(const phy_segment_shape *seg, const phy_poly_shape *poly, struct cpCollisionInfo *info)
+SegmentToPoly(const phy_segment_shape *seg, const phy_poly_shape *poly, struct phy_collision_info *info)
 {
 	struct SupportContext context = {(phy_shape *)seg, (phy_shape *)poly, (SupportPointFunc)SegmentSupportPoint, (SupportPointFunc)PolySupportPoint};
 	struct ClosestPoints points = GJK(&context, &info->id);
@@ -647,7 +647,7 @@ SegmentToPoly(const phy_segment_shape *seg, const phy_poly_shape *poly, struct c
 }
 
 static void
-CircleToPoly(const phy_circle_shape *circle, const phy_poly_shape *poly, struct cpCollisionInfo *info)
+CircleToPoly(const phy_circle_shape *circle, const phy_poly_shape *poly, struct phy_collision_info *info)
 {
 	struct SupportContext context = {(phy_shape *)circle, (phy_shape *)poly, (SupportPointFunc)CircleSupportPoint, (SupportPointFunc)PolySupportPoint};
 	struct ClosestPoints points = GJK(&context, &info->id);
@@ -667,7 +667,7 @@ CircleToPoly(const phy_circle_shape *circle, const phy_poly_shape *poly, struct 
 }
 
 static void
-CollisionError(const phy_shape *circle, const phy_shape *poly, struct cpCollisionInfo *info)
+CollisionError(const phy_shape *circle, const phy_shape *poly, struct phy_collision_info *info)
 {
 	utl_error_func("Shape types are not sorted", utl_user_defined_data);
 }
@@ -685,18 +685,18 @@ static const CollisionFunc BuiltinCollisionFuncs[9] = {
 };
 static const CollisionFunc *CollisionFuncs = BuiltinCollisionFuncs;
 
-struct cpCollisionInfo
-cpCollide(const phy_shape *a, const phy_shape *b, phy_collision_id id, struct cpContact *contacts)
+struct phy_collision_info
+phy_collide(const phy_shape *a, const phy_shape *b, phy_collision_id id, struct phy_contact *contacts)
 {
-	struct cpCollisionInfo info = {a, b, id, cpvzero, 0, contacts};
+	struct phy_collision_info info = {a, b, id, cpvzero, 0, contacts};
 	
 	// Make sure the shape types are in order.
-	if(a->klass->type > b->klass->type){
+	if(a->class->type > b->class->type){
 		info.a = b;
 		info.b = a;
 	}
 	
-	CollisionFuncs[info.a->klass->type + info.b->klass->type*CP_NUM_SHAPES](info.a, info.b, &info);
+	CollisionFuncs[info.a->class->type + info.b->class->type*PHY_NUM_SHAPES](info.a, info.b, &info);
 	
 //	if(0){
 //		for(int i=0; i<info.count; i++){

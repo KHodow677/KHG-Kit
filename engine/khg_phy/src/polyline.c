@@ -212,7 +212,7 @@ cpPolylineSimplifyCurves(cpPolyline *line, float tol)
   
   if(cpPolylineIsClosed(line)){
 		int start, end;
-    cpLoopIndexes(line->verts, line->count - 1, &start, &end);
+    cp_loop_indexes(line->verts, line->count - 1, &start, &end);
     
 		reduced = cpPolylinePush(reduced, line->verts[start]);
 		reduced = DouglasPeucker(line->verts, reduced, line->count - 1, start, end, min, tol);

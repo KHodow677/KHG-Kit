@@ -17,22 +17,22 @@ cpSpaceDebugDrawShape(phy_shape *shape, cpSpaceDebugDrawOptions *options)
 	cpSpaceDebugColor outline_color = options->shapeOutlineColor;
 	cpSpaceDebugColor fill_color = options->colorForShape(shape, data);
 	
-	switch(shape->klass->type){
-		case CP_CIRCLE_SHAPE: {
+	switch(shape->class->type){
+		case PHY_CIRCLE_SHAPE: {
 			phy_circle_shape *circle = (phy_circle_shape *)shape;
 			options->drawCircle(circle->tc, body->a, circle->r, outline_color, fill_color, data);
 			break;
 		}
-		case CP_SEGMENT_SHAPE: {
+		case PHY_SEGMENT_SHAPE: {
 			phy_segment_shape *seg = (phy_segment_shape *)shape;
 			options->drawFatSegment(seg->ta, seg->tb, seg->r, outline_color, fill_color, data);
 			break;
 		}
-		case CP_POLY_SHAPE: {
+		case PHY_POLY_SHAPE: {
 			phy_poly_shape *poly = (phy_poly_shape *)shape;
 			
 			int count = poly->count;
-			struct cpSplittingPlane *planes = poly->planes;
+			struct phy_splitting_plane *planes = poly->planes;
 			phy_vect *verts = (phy_vect *)alloca(count*sizeof(phy_vect));
 			
 			for(int i=0; i<count; i++) verts[i] = planes[i].v0;
@@ -74,8 +74,8 @@ cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *
 	if(cpConstraintIsPinJoint(constraint)){
 		phy_pin_joint *joint = (phy_pin_joint *)constraint;
 		
-		phy_vect a = cpTransformPoint(body_a->transform, joint->anchorA);
-		phy_vect b = cpTransformPoint(body_b->transform, joint->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, joint->anchor_A);
+		phy_vect b = cpTransformPoint(body_b->transform, joint->anchor_B);
 		
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
@@ -83,8 +83,8 @@ cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *
 	} else if(cpConstraintIsSlideJoint(constraint)){
 		phy_slide_joint *joint = (phy_slide_joint *)constraint;
 	
-		phy_vect a = cpTransformPoint(body_a->transform, joint->anchorA);
-		phy_vect b = cpTransformPoint(body_b->transform, joint->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, joint->anchor_A);
+		phy_vect b = cpTransformPoint(body_b->transform, joint->anchor_B);
 		
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
@@ -92,8 +92,8 @@ cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *
 	} else if(cpConstraintIsPivotJoint(constraint)){
 		phy_pivot_joint *joint = (phy_pivot_joint *)constraint;
 	
-		phy_vect a = cpTransformPoint(body_a->transform, joint->anchorA);
-		phy_vect b = cpTransformPoint(body_b->transform, joint->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, joint->anchor_A);
+		phy_vect b = cpTransformPoint(body_b->transform, joint->anchor_B);
 
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);
@@ -102,15 +102,15 @@ cpSpaceDebugDrawConstraint(phy_constraint *constraint, cpSpaceDebugDrawOptions *
 	
 		phy_vect a = cpTransformPoint(body_a->transform, joint->grv_a);
 		phy_vect b = cpTransformPoint(body_a->transform, joint->grv_b);
-		phy_vect c = cpTransformPoint(body_b->transform, joint->anchorB);
+		phy_vect c = cpTransformPoint(body_b->transform, joint->anchor_B);
 		
 		options->drawDot(5, c, color, data);
 		options->drawSegment(a, b, color, data);
 	} else if(phy_constraint_is_damped_spring(constraint)){
 		phy_damped_spring *spring = (phy_damped_spring *)constraint;
 		
-		phy_vect a = cpTransformPoint(body_a->transform, spring->anchorA);
-		phy_vect b = cpTransformPoint(body_b->transform, spring->anchorB);
+		phy_vect a = cpTransformPoint(body_a->transform, spring->anchor_A);
+		phy_vect b = cpTransformPoint(body_b->transform, spring->anchor_B);
 		
 		options->drawDot(5, a, color, data);
 		options->drawDot(5, b, color, data);

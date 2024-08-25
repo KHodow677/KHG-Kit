@@ -61,7 +61,7 @@ ResizeTable(cpSweep1D *sweep, int size)
 cpSpatialIndex *
 cpSweep1DInit(cpSweep1D *sweep, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
 {
-	cpSpatialIndexInit((cpSpatialIndex *)sweep, Klass(), bbfunc, staticIndex);
+	phy_spatial_index_init((cpSpatialIndex *)sweep, Klass(), bbfunc, staticIndex);
 	
 	sweep->num = 0;
 	ResizeTable(sweep, 32);

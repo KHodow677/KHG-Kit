@@ -1,4 +1,5 @@
 #include "khg_phy/phy_private.h"
+#include "khg_phy/phy_structs.h"
 #include "khg_utl/error_func.h"
 #include <stdlib.h>
 
@@ -23,14 +24,14 @@ preStep(phy_ratchet_joint *joint, float dt)
 	}
 	
 	// calculate moment of inertia coefficient.
-	joint->iSum = 1.0f/(a->i_inv + b->i_inv);
+	joint->i_sum = 1.0f/(a->i_inv + b->i_inv);
 	
 	// calculate bias velocity
-	float maxBias = joint->constraint.maxBias;
-	joint->bias = phy_clamp(-bias_coef(joint->constraint.errorBias, dt)*pdist/dt, -maxBias, maxBias);
+	float maxBias = joint->constraint.max_bias;
+	joint->bias = phy_clamp(-phy_bias_coef(joint->constraint.error_bias, dt)*pdist/dt, -maxBias, maxBias);
 
 	// If the bias is 0, the joint is not at a limit. Reset the impulse.
-	if(!joint->bias) joint->jAcc = 0.0f;
+	if(!joint->bias) joint->j_acc = 0.0f;
 }
 
 static void
@@ -39,7 +40,7 @@ applyCachedImpulse(phy_ratchet_joint *joint, float dt_coef)
 	phy_body *a = joint->constraint.a;
 	phy_body *b = joint->constraint.b;
 	
-	float j = joint->jAcc*dt_coef;
+	float j = joint->j_acc*dt_coef;
 	a->w -= j*a->i_inv;
 	b->w += j*b->i_inv;
 }
@@ -56,13 +57,13 @@ applyImpulse(phy_ratchet_joint *joint, float dt)
 	float wr = b->w - a->w;
 	float ratchet = joint->ratchet;
 	
-	float jMax = joint->constraint.maxForce*dt;
+	float jMax = joint->constraint.max_force*dt;
 	
 	// compute normal impulse	
-	float j = -(joint->bias + wr)*joint->iSum;
-	float jOld = joint->jAcc;
-	joint->jAcc = phy_clamp((jOld + j)*ratchet, 0.0f, jMax*phy_abs(ratchet))/ratchet;
-	j = joint->jAcc - jOld;
+	float j = -(joint->bias + wr)*joint->i_sum;
+	float jOld = joint->j_acc;
+	joint->j_acc = phy_clamp((jOld + j)*ratchet, 0.0f, jMax*phy_abs(ratchet))/ratchet;
+	j = joint->j_acc - jOld;
 	
 	// apply impulse
 	a->w -= j*a->i_inv;
@@ -72,14 +73,14 @@ applyImpulse(phy_ratchet_joint *joint, float dt)
 static float
 getImpulse(phy_ratchet_joint *joint)
 {
-	return phy_abs(joint->jAcc);
+	return phy_abs(joint->j_acc);
 }
 
-static const cpConstraintClass klass = {
-	(cpConstraintPreStepImpl)preStep,
-	(cpConstraintApplyCachedImpulseImpl)applyCachedImpulse,
-	(cpConstraintApplyImpulseImpl)applyImpulse,
-	(cpConstraintGetImpulseImpl)getImpulse,
+static const phy_constraint_class klass = {
+	(phy_constraint_pre_step_impl)preStep,
+	(phy_constraint_apply_cached_impulse_impl)applyCachedImpulse,
+	(phy_constraint_apply_impulse_impl)applyImpulse,
+	(phy_constraint_get_impulse_impl)getImpulse,
 };
 
 phy_ratchet_joint *
@@ -91,7 +92,7 @@ cpRatchetJointAlloc(void)
 phy_ratchet_joint *
 cpRatchetJointInit(phy_ratchet_joint *joint, phy_body *a, phy_body *b, float phase, float ratchet)
 {
-	cpConstraintInit((phy_constraint *)joint, &klass, a, b);
+	cp_constraint_init((phy_constraint *)joint, &klass, a, b);
 	
 	joint->angle = 0.0f;
 	joint->phase = phase;
@@ -112,7 +113,7 @@ cpRatchetJointNew(phy_body *a, phy_body *b, float phase, float ratchet)
 bool
 cpConstraintIsRatchetJoint(const phy_constraint *constraint)
 {
-	return (constraint->klass == &klass);
+	return (constraint->class == &klass);
 }
 
 float
@@ -130,7 +131,7 @@ cpRatchetJointSetAngle(phy_constraint *constraint, float angle)
 	if (!cpConstraintIsRatchetJoint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
-	cpConstraintActivateBodies(constraint);
+	phy_constraint_activate_bodies(constraint);
 	((phy_ratchet_joint *)constraint)->angle = angle;
 }
 
@@ -149,7 +150,7 @@ cpRatchetJointSetPhase(phy_constraint *constraint, float phase)
 	if (!cpConstraintIsRatchetJoint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
-	cpConstraintActivateBodies(constraint);
+	phy_constraint_activate_bodies(constraint);
 	((phy_ratchet_joint *)constraint)->phase = phase;
 }
 float
@@ -167,6 +168,6 @@ cpRatchetJointSetRatchet(phy_constraint *constraint, float ratchet)
 	if (!cpConstraintIsRatchetJoint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
-	cpConstraintActivateBodies(constraint);
+	phy_constraint_activate_bodies(constraint);
 	((phy_ratchet_joint *)constraint)->ratchet = ratchet;
 }
