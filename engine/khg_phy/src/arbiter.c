@@ -52,7 +52,7 @@ int phy_arbiter_get_count(const phy_arbiter *arb)
 phy_vect
 phy_arbiter_get_normal(const phy_arbiter *arb)
 {
-	return cpvmult(arb->n, arb->swapped ? -1.0f : 1.0);
+	return phy_v_mult(arb->n, arb->swapped ? -1.0f : 1.0);
 }
 
 phy_vect
@@ -61,7 +61,7 @@ phy_arbiter_get_point_A(const phy_arbiter *arb, int i)
   if (!(0 <= i && i < phy_arbiter_get_count(arb))) {
 	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
   }
-	return cpvadd(arb->body_a->p, arb->contacts[i].r1);
+	return phy_v_add(arb->body_a->p, arb->contacts[i].r1);
 }
 
 phy_vect
@@ -70,7 +70,7 @@ phy_arbiter_get_point_B(const phy_arbiter *arb, int i)
   if (!(0 <= i && i < phy_arbiter_get_count(arb))) {
 	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
   }
-	return cpvadd(arb->body_b->p, arb->contacts[i].r2);
+	return phy_v_add(arb->body_b->p, arb->contacts[i].r2);
 }
 
 float
@@ -80,7 +80,7 @@ phy_arbiter_get_depth(const phy_arbiter *arb, int i)
 	  utl_error_func("The specified contact index is invalid for this arbiter", utl_user_defined_data);
   }
 	struct phy_contact *con = &arb->contacts[i];
-	return cpvdot(cpvadd(cpvsub(con->r2, con->r1), cpvsub(arb->body_b->p, arb->body_a->p)), arb->n);
+	return phy_v_dot(phy_v_add(phy_v_sub(con->r2, con->r1), phy_v_sub(arb->body_b->p, arb->body_a->p)), arb->n);
 }
 
 phy_contact_point_set
@@ -91,16 +91,16 @@ phy_arbiter_get_contact_point_set(const phy_arbiter *arb)
 	
 	bool swapped = arb->swapped;
 	phy_vect n = arb->n;
-	set.normal = (swapped ? cpvneg(n) : n);
+	set.normal = (swapped ? phy_v_neg(n) : n);
 	
 	for(int i=0; i<set.count; i++){
 		// Contact points are relative to body CoGs;
-		phy_vect p1 = cpvadd(arb->body_a->p, arb->contacts[i].r1);
-		phy_vect p2 = cpvadd(arb->body_b->p, arb->contacts[i].r2);
+		phy_vect p1 = phy_v_add(arb->body_a->p, arb->contacts[i].r1);
+		phy_vect p2 = phy_v_add(arb->body_b->p, arb->contacts[i].r2);
 		
 		set.points[i].pointA = (swapped ? p2 : p1);
 		set.points[i].pointB = (swapped ? p1 : p2);
-		set.points[i].distance = cpvdot(cpvsub(p2, p1), n);
+		set.points[i].distance = phy_v_dot(phy_v_sub(p2, p1), n);
 	}
 	
 	return set;
@@ -114,15 +114,15 @@ phy_arbiter_set_contact_point_set(phy_arbiter *arb, phy_contact_point_set *set)
     utl_error_func("The number of contact points cannot be changed", utl_user_defined_data);
   }
 	bool swapped = arb->swapped;
-	arb->n = (swapped ? cpvneg(set->normal) : set->normal);
+	arb->n = (swapped ? phy_v_neg(set->normal) : set->normal);
 	
 	for(int i=0; i<count; i++){
 		// Convert back to CoG relative offsets.
 		phy_vect p1 = set->points[i].pointA;
 		phy_vect p2 = set->points[i].pointB;
 		
-		arb->contacts[i].r1 = cpvsub(swapped ? p2 : p1, arb->body_a->p);
-		arb->contacts[i].r2 = cpvsub(swapped ? p1 : p2, arb->body_b->p);
+		arb->contacts[i].r1 = phy_v_sub(swapped ? p2 : p1, arb->body_a->p);
+		arb->contacts[i].r2 = phy_v_sub(swapped ? p1 : p2, arb->body_b->p);
 	}
 }
 
@@ -131,15 +131,15 @@ phy_arbiter_total_impulse(const phy_arbiter *arb)
 {
 	struct phy_contact *contacts = arb->contacts;
 	phy_vect n = arb->n;
-	phy_vect sum = cpvzero;
+	phy_vect sum = phy_v_zero;
 	
 	for(int i=0, count=phy_arbiter_get_count(arb); i<count; i++){
 		struct phy_contact *con = &contacts[i];
-		sum = cpvadd(sum, cpvrotate(n, cpv(con->jn_acc, con->jt_acc)));
+		sum = phy_v_add(sum, phy_v_rotate(n, phy_v(con->jn_acc, con->jt_acc)));
 	}
 		
-	return (arb->swapped ? sum : cpvneg(sum));
-	return cpvzero;
+	return (arb->swapped ? sum : phy_v_neg(sum));
+	return phy_v_zero;
 }
 
 float
@@ -194,13 +194,13 @@ phy_arbiter_set_friction(phy_arbiter *arb, float friction)
 phy_vect
 phy_arbiter_get_surface_velocity(phy_arbiter *arb)
 {
-	return cpvmult(arb->surface_vr, arb->swapped ? -1.0f : 1.0);
+	return phy_v_mult(arb->surface_vr, arb->swapped ? -1.0f : 1.0);
 }
 
 void
 phy_arbiter_set_surface_velocity(phy_arbiter *arb, phy_vect vr)
 {
-	arb->surface_vr = cpvmult(vr, arb->swapped ? -1.0f : 1.0);
+	arb->surface_vr = phy_v_mult(vr, arb->swapped ? -1.0f : 1.0);
 }
 
 phy_data_pointer
@@ -238,7 +238,7 @@ bool
 phy_arbiter_call_wildcard_begin_A(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handler_A;
-	return handler->beginFunc(arb, space, handler->userData);
+	return handler->begin_func(arb, space, handler->user_data);
 }
 
 bool
@@ -246,7 +246,7 @@ phy_arbiter_call_wildcard_begin_B(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handler_B;
 	arb->swapped = !arb->swapped;
-	bool retval = handler->beginFunc(arb, space, handler->userData);
+	bool retval = handler->begin_func(arb, space, handler->user_data);
 	arb->swapped = !arb->swapped;
 	return retval;
 }
@@ -255,7 +255,7 @@ bool
 phy_arbiter_call_wildcard_pre_solve_A(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handler_A;
-	return handler->preSolveFunc(arb, space, handler->userData);
+	return handler->pre_solve_func(arb, space, handler->user_data);
 }
 
 bool
@@ -263,7 +263,7 @@ phy_arbiter_call_wildcard_pre_solve_B(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handler_B;
 	arb->swapped = !arb->swapped;
-	bool retval = handler->preSolveFunc(arb, space, handler->userData);
+	bool retval = handler->pre_solve_func(arb, space, handler->user_data);
 	arb->swapped = !arb->swapped;
 	return retval;
 }
@@ -272,7 +272,7 @@ void
 phy_arbiter_call_wildcard_post_solve_A(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handler_A;
-	handler->postSolveFunc(arb, space, handler->userData);
+	handler->post_solve_func(arb, space, handler->user_data);
 }
 
 void
@@ -280,7 +280,7 @@ phy_arbiter_call_wildcard_post_solve_B(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handler_B;
 	arb->swapped = !arb->swapped;
-	handler->postSolveFunc(arb, space, handler->userData);
+	handler->post_solve_func(arb, space, handler->user_data);
 	arb->swapped = !arb->swapped;
 }
 
@@ -288,7 +288,7 @@ void
 phy_arbiter_call_wildcard_separate_A(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handler_A;
-	handler->separateFunc(arb, space, handler->userData);
+	handler->separate_func(arb, space, handler->user_data);
 }
 
 void
@@ -296,7 +296,7 @@ phy_arbiter_call_wildcard_separate_B(phy_arbiter *arb, phy_space *space)
 {
 	phy_collision_handler *handler = arb->handler_B;
 	arb->swapped = !arb->swapped;
-	handler->separateFunc(arb, space, handler->userData);
+	handler->separate_func(arb, space, handler->user_data);
 	arb->swapped = !arb->swapped;
 }
 
@@ -312,7 +312,7 @@ phy_arbiter_init(phy_arbiter *arb, phy_shape *a, phy_shape *b)
 	
 	arb->e = 0.0f;
 	arb->u = 0.0f;
-	arb->surface_vr = cpvzero;
+	arb->surface_vr = phy_v_zero;
 	
 	arb->count = 0;
 	arb->contacts = NULL;
@@ -356,8 +356,8 @@ phy_arbiter_update(phy_arbiter *arb, struct phy_collision_info *info, phy_space 
 		
 		// r1 and r2 store absolute offsets at init time.
 		// Need to convert them to relative offsets.
-		con->r1 = cpvsub(con->r1, a->body->p);
-		con->r2 = cpvsub(con->r2, b->body->p);
+		con->r1 = phy_v_sub(con->r1, a->body->p);
+		con->r2 = phy_v_sub(con->r2, b->body->p);
 		
 		// Cached impulses are not zeroed at init time.
 		con->jn_acc = con->jt_acc = 0.0f;
@@ -381,15 +381,15 @@ phy_arbiter_update(phy_arbiter *arb, struct phy_collision_info *info, phy_space 
 	arb->e = a->e * b->e;
 	arb->u = a->u * b->u;
 	
-	phy_vect surface_vr = cpvsub(b->surfaceV, a->surfaceV);
-	arb->surface_vr = cpvsub(surface_vr, cpvmult(info->n, cpvdot(surface_vr, info->n)));
+	phy_vect surface_vr = phy_v_sub(b->surfaceV, a->surfaceV);
+	arb->surface_vr = phy_v_sub(surface_vr, phy_v_mult(info->n, phy_v_dot(surface_vr, info->n)));
 	
 	phy_collision_type typeA = info->a->type, typeB = info->b->type;
 	phy_collision_handler *defaultHandler = &space->default_handler;
 	phy_collision_handler *handler = arb->handler = cpSpaceLookupHandler(space, typeA, typeB, defaultHandler);
 	
 	// Check if the types match, but don't swap for a default handler which use the wildcard for type A.
-	bool swapped = arb->swapped = (typeA != handler->typeA && handler->typeA != PHY_WILDCARD_COLLISION_TYPE);
+	bool swapped = arb->swapped = (typeA != handler->type_A && handler->type_A != PHY_WILDCARD_COLLISION_TYPE);
 	
 	if(handler != defaultHandler || space->uses_wildcards){
 		// The order of the main handler swaps the wildcard handlers too. Uffda.
@@ -407,17 +407,17 @@ phy_arbiter_pre_step(phy_arbiter *arb, float dt, float slop, float bias)
 	phy_body *a = arb->body_a;
 	phy_body *b = arb->body_b;
 	phy_vect n = arb->n;
-	phy_vect body_delta = cpvsub(b->p, a->p);
+	phy_vect body_delta = phy_v_sub(b->p, a->p);
 	
 	for(int i=0; i<arb->count; i++){
 		struct phy_contact *con = &arb->contacts[i];
 		
 		// Calculate the mass normal and mass tangent.
 		con->n_mass = 1.0f/phy_k_scalar(a, b, con->r1, con->r2, n);
-		con->t_mass = 1.0f/phy_k_scalar(a, b, con->r1, con->r2, cpvperp(n));
+		con->t_mass = 1.0f/phy_k_scalar(a, b, con->r1, con->r2, phy_v_perp(n));
 				
 		// Calculate the target bias velocity.
-		float dist = cpvdot(cpvadd(cpvsub(con->r2, con->r1), body_delta), n);
+		float dist = phy_v_dot(phy_v_add(phy_v_sub(con->r2, con->r1), body_delta), n);
 		con->bias = -bias*phy_min(0.0f, dist + slop)/dt;
 		con->j_bias = 0.0f;
 		
@@ -437,8 +437,8 @@ phy_arbiter_apply_cached_impulse(phy_arbiter *arb, float dt_coef)
 	
 	for(int i=0; i<arb->count; i++){
 		struct phy_contact *con = &arb->contacts[i];
-		phy_vect j = cpvrotate(n, cpv(con->jn_acc, con->jt_acc));
-		phy_apply_impulses(a, b, con->r1, con->r2, cpvmult(j, dt_coef));
+		phy_vect j = phy_v_rotate(n, phy_v(con->jn_acc, con->jt_acc));
+		phy_apply_impulses(a, b, con->r1, con->r2, phy_v_mult(j, dt_coef));
 	}
 }
 
@@ -459,13 +459,13 @@ phy_arbiter_apply_impulse(phy_arbiter *arb)
 		phy_vect r1 = con->r1;
 		phy_vect r2 = con->r2;
 		
-		phy_vect vb1 = cpvadd(a->v_bias, cpvmult(cpvperp(r1), a->w_bias));
-		phy_vect vb2 = cpvadd(b->v_bias, cpvmult(cpvperp(r2), b->w_bias));
-		phy_vect vr = cpvadd(phy_relative_velocity(a, b, r1, r2), surface_vr);
+		phy_vect vb1 = phy_v_add(a->v_bias, phy_v_mult(phy_v_perp(r1), a->w_bias));
+		phy_vect vb2 = phy_v_add(b->v_bias, phy_v_mult(phy_v_perp(r2), b->w_bias));
+		phy_vect vr = phy_v_add(phy_relative_velocity(a, b, r1, r2), surface_vr);
 		
-		float vbn = cpvdot(cpvsub(vb2, vb1), n);
-		float vrn = cpvdot(vr, n);
-		float vrt = cpvdot(vr, cpvperp(n));
+		float vbn = phy_v_dot(phy_v_sub(vb2, vb1), n);
+		float vrn = phy_v_dot(vr, n);
+		float vrt = phy_v_dot(vr, phy_v_perp(n));
 		
 		float jbn = (con->bias - vbn)*nMass;
 		float jbnOld = con->j_bias;
@@ -480,7 +480,7 @@ phy_arbiter_apply_impulse(phy_arbiter *arb)
 		float jtOld = con->jt_acc;
 		con->jt_acc = phy_clamp(jtOld + jt, -jtMax, jtMax);
 		
-		phy_apply_bias_impulses(a, b, r1, r2, cpvmult(n, con->j_bias - jbnOld));
-		phy_apply_impulses(a, b, r1, r2, cpvrotate(n, cpv(con->jn_acc - jnOld, con->jt_acc - jtOld)));
+		phy_apply_bias_impulses(a, b, r1, r2, phy_v_mult(n, con->j_bias - jbnOld));
+		phy_apply_impulses(a, b, r1, r2, phy_v_rotate(n, phy_v(con->jn_acc - jnOld, con->jt_acc - jtOld)));
 	}
 }

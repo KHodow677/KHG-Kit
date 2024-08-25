@@ -16,17 +16,17 @@
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = phy_moment_for_box(mass, width, height);
-  info->body = cpSpaceAddBody(SPACE, phy_body_new(mass, moment));
+  info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
   phy_body_set_center_of_gravity(info->body, cog);
   phy_body_set_angle(info->body, ang);
   if (collides) {
-    info->shape = cpSpaceAddShape(SPACE, cpBoxShapeNew(info->body, width, height, 0.0f));
+    info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, width, height, 0.0f));
   }
   else {
-    info->shape = cpSpaceAddShape(SPACE, cpBoxShapeNew(info->body, 0.0f, 0.0f, 0.0f));
+    info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, 0.0f, 0.0f, 0.0f));
   }
-  cpShapeSetFriction(info->shape, 0.0f);
+  phy_shape_set_friction(info->shape, 0.0f);
   info->is_moving = false;
   info->is_turning = false;
   info->target_vel = 0.0f;
@@ -34,9 +34,9 @@ void generate_physics_box(physics_info *info, bool collides, float width, float 
 }
 
 void free_physics(physics_info *info) {
-  cpSpaceRemoveShape(SPACE, info->shape);
-  cpSpaceRemoveBody(SPACE, info->body);
-  cpShapeFree(info->shape);
+  phy_space_remove_shape(SPACE, info->shape);
+  phy_space_remove_body(SPACE, info->body);
+  phy_shape_free(info->shape);
   phy_body_free(info->body);
 }
 
@@ -68,13 +68,13 @@ void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int 
 void generate_mover(mover_info *info, physics_info *p_info) {
   info->body = p_info->body;
   info->target_move_pos = phy_body_get_position(info->body);
-  info->target_look_pos = cpvadd(info->target_move_pos, cpv(0.0f, -50.0f));
+  info->target_look_pos = phy_v_add(info->target_move_pos, phy_v(0.0f, -50.0f));
 }
 
 void generate_rotator(rotator_info *info, physics_info *p_info) {
   info->body = p_info->body;
   info->target_move_pos = phy_body_get_position(info->body);
-  info->target_look_pos = cpvadd(info->target_move_pos, cpv(0.0f, -50.0f));
+  info->target_look_pos = phy_v_add(info->target_move_pos, phy_v(0.0f, -50.0f));
 }
 
 void generate_shooter(shooter_info *info) {

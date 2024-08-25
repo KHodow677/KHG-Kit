@@ -3,187 +3,118 @@
 #include "khg_phy/phy_types.h"
 #include "khg_phy/bb.h"
 
-/// Spatial index bounding box callback function type.
-/// The spatial index calls this function and passes you a pointer to an object you added
-/// when it needs to get the bounding box associated with that object.
-typedef phy_bb (*cpSpatialIndexBBFunc)(void *obj);
-/// Spatial index/object iterator callback function type.
-typedef void (*cpSpatialIndexIteratorFunc)(void *obj, void *data);
-/// Spatial query callback function type.
-typedef phy_collision_id (*cpSpatialIndexQueryFunc)(void *obj1, void *obj2, phy_collision_id id, void *data);
-/// Spatial segment query callback function type.
-typedef float (*cpSpatialIndexSegmentQueryFunc)(void *obj1, void *obj2, void *data);
+typedef phy_bb (*phy_spatial_index_BB_func)(void *obj);
+typedef void (*phy_spatial_index_iterator_func)(void *obj, void *data);
+typedef phy_collision_id (*phy_spatial_index_query_func)(void *obj_1, void *obj_2, phy_collision_id id, void *data);
+typedef float (*phy_spatial_index_segment_query_func)(void *obj_1, void *obj_2, void *data);
 
+typedef struct phy_spatial_index_class phy_spatial_index_class;
+typedef struct phy_spatial_index phy_spatial_index;
 
-typedef struct cpSpatialIndexClass cpSpatialIndexClass;
-typedef struct cpSpatialIndex cpSpatialIndex;
-
-/// @private
-struct cpSpatialIndex {
-	cpSpatialIndexClass *klass;
-	
-	cpSpatialIndexBBFunc bbfunc;
-	
-	cpSpatialIndex *staticIndex, *dynamicIndex;
+struct phy_spatial_index {
+	phy_spatial_index_class *class;
+	phy_spatial_index_BB_func bbfunc;
+	phy_spatial_index *static_index, *dynamic_index;
 };
 
+typedef struct phy_space_hash phy_space_hash;
 
-//MARK: Spatial Hash
+phy_space_hash *phy_space_hash_alloc(void);
+phy_spatial_index *phy_space_hash_new(float celldim, int cells, phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
+phy_spatial_index *phy_space_hash_init(phy_space_hash *hash, float celldim, int numcells, phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
 
-typedef struct cpSpaceHash cpSpaceHash;
+void phy_space_hash_resize(phy_space_hash *hash, float celldim, int numcells);
 
-/// Allocate a spatial hash.
-cpSpaceHash* cpSpaceHashAlloc(void);
-/// Initialize a spatial hash. 
-cpSpatialIndex* cpSpaceHashInit(cpSpaceHash *hash, float celldim, int numcells, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex);
-/// Allocate and initialize a spatial hash.
-cpSpatialIndex* cpSpaceHashNew(float celldim, int cells, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex);
+typedef struct phy_BB_tree phy_BB_tree;
 
-/// Change the cell dimensions and table size of the spatial hash to tune it.
-/// The cell dimensions should roughly match the average size of your objects
-/// and the table size should be ~10 larger than the number of objects inserted.
-/// Some trial and error is required to find the optimum numbers for efficiency.
-void cpSpaceHashResize(cpSpaceHash *hash, float celldim, int numcells);
+phy_BB_tree *phy_BB_tree_alloc(void);
+phy_spatial_index *phy_BB_tree_new(phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
+phy_spatial_index *phy_BB_tree_init(phy_BB_tree *tree, phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
 
-//MARK: AABB Tree
+void phy_BB_tree_optimize(phy_spatial_index *index);
 
-typedef struct cpBBTree cpBBTree;
+typedef phy_vect (*phy_BB_tree_velocity_func)(void *obj);
+void phy_BB_tree_set_velocity_func(phy_spatial_index *index, phy_BB_tree_velocity_func func);
 
-/// Allocate a bounding box tree.
-cpBBTree* cpBBTreeAlloc(void);
-/// Initialize a bounding box tree.
-cpSpatialIndex* cpBBTreeInit(cpBBTree *tree, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex);
-/// Allocate and initialize a bounding box tree.
-cpSpatialIndex* cpBBTreeNew(cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex);
+typedef struct phy_sweep_1d phy_sweep_1d;
 
-/// Perform a static top down optimization of the tree.
-void cpBBTreeOptimize(cpSpatialIndex *index);
+phy_sweep_1d *phy_sweep_1d_alloc(void);
+phy_spatial_index *phy_sweep_1d_init(phy_sweep_1d *sweep, phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
+phy_spatial_index *phy_sweep_1D_new(phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
 
-/// Bounding box tree velocity callback function.
-/// This function should return an estimate for the object's velocity.
-typedef phy_vect (*cpBBTreeVelocityFunc)(void *obj);
-/// Set the velocity function for the bounding box tree to enable temporal coherence.
-void cpBBTreeSetVelocityFunc(cpSpatialIndex *index, cpBBTreeVelocityFunc func);
+typedef void (*phy_spatial_index_destroy_impl)(phy_spatial_index *index);
+typedef int (*phy_spatial_index_count_impl)(phy_spatial_index *index);
+typedef void (*phy_spatial_index_each_impl)(phy_spatial_index *index, phy_spatial_index_iterator_func func, void *data);
 
-//MARK: Single Axis Sweep
+typedef bool (*phy_spatial_index_contains_impl)(phy_spatial_index *index, void *obj, phy_hash_value hashid);
+typedef void (*phy_spatial_index_insert_impl)(phy_spatial_index *index, void *obj, phy_hash_value hashid);
+typedef void (*phy_spatial_index_remove_impl)(phy_spatial_index *index, void *obj, phy_hash_value hashid);
 
-typedef struct cpSweep1D cpSweep1D;
+typedef void (*phy_spatial_index_reindex_impl)(phy_spatial_index *index);
+typedef void (*phy_spatial_index_reindex_object_impl)(phy_spatial_index *index, void *obj, phy_hash_value hashid);
+typedef void (*phy_spatial_index_reindex_query_impl)(phy_spatial_index *index, phy_spatial_index_query_func func, void *data);
 
-/// Allocate a 1D sort and sweep broadphase.
-cpSweep1D* cpSweep1DAlloc(void);
-/// Initialize a 1D sort and sweep broadphase.
-cpSpatialIndex* cpSweep1DInit(cpSweep1D *sweep, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex);
-/// Allocate and initialize a 1D sort and sweep broadphase.
-cpSpatialIndex* cpSweep1DNew(cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex);
+typedef void (*phy_spatial_index_query_impl)(phy_spatial_index *index, void *obj, phy_bb bb, phy_spatial_index_query_func func, void *data);
+typedef void (*phy_spatial_index_segment_query_impl)(phy_spatial_index *index, void *obj, phy_vect a, phy_vect b, float t_exit, phy_spatial_index_segment_query_func func, void *data);
 
-//MARK: Spatial Index Implementation
-
-typedef void (*cpSpatialIndexDestroyImpl)(cpSpatialIndex *index);
-
-typedef int (*cpSpatialIndexCountImpl)(cpSpatialIndex *index);
-typedef void (*cpSpatialIndexEachImpl)(cpSpatialIndex *index, cpSpatialIndexIteratorFunc func, void *data);
-
-typedef bool (*cpSpatialIndexContainsImpl)(cpSpatialIndex *index, void *obj, phy_hash_value hashid);
-typedef void (*cpSpatialIndexInsertImpl)(cpSpatialIndex *index, void *obj, phy_hash_value hashid);
-typedef void (*cpSpatialIndexRemoveImpl)(cpSpatialIndex *index, void *obj, phy_hash_value hashid);
-
-typedef void (*cpSpatialIndexReindexImpl)(cpSpatialIndex *index);
-typedef void (*cpSpatialIndexReindexObjectImpl)(cpSpatialIndex *index, void *obj, phy_hash_value hashid);
-typedef void (*cpSpatialIndexReindexQueryImpl)(cpSpatialIndex *index, cpSpatialIndexQueryFunc func, void *data);
-
-typedef void (*cpSpatialIndexQueryImpl)(cpSpatialIndex *index, void *obj, phy_bb bb, cpSpatialIndexQueryFunc func, void *data);
-typedef void (*cpSpatialIndexSegmentQueryImpl)(cpSpatialIndex *index, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data);
-
-struct cpSpatialIndexClass {
-	cpSpatialIndexDestroyImpl destroy;
-	
-	cpSpatialIndexCountImpl count;
-	cpSpatialIndexEachImpl each;
-	
-	cpSpatialIndexContainsImpl contains;
-	cpSpatialIndexInsertImpl insert;
-	cpSpatialIndexRemoveImpl remove;
-	
-	cpSpatialIndexReindexImpl reindex;
-	cpSpatialIndexReindexObjectImpl reindexObject;
-	cpSpatialIndexReindexQueryImpl reindexQuery;
-	
-	cpSpatialIndexQueryImpl query;
-	cpSpatialIndexSegmentQueryImpl segmentQuery;
+struct phy_spatial_index_class {
+	phy_spatial_index_destroy_impl destroy;
+	phy_spatial_index_count_impl count;
+	phy_spatial_index_each_impl each;
+	phy_spatial_index_contains_impl contains;
+	phy_spatial_index_insert_impl insert;
+	phy_spatial_index_remove_impl remove;
+	phy_spatial_index_reindex_impl reindex;
+	phy_spatial_index_reindex_object_impl reindexObject;
+	phy_spatial_index_reindex_query_impl reindexQuery;
+	phy_spatial_index_query_impl query;
+	phy_spatial_index_segment_query_impl segmentQuery;
 };
 
-/// Destroy and free a spatial index.
-void cpSpatialIndexFree(cpSpatialIndex *index);
-/// Collide the objects in @c dynamicIndex against the objects in @c staticIndex using the query callback function.
-void cpSpatialIndexCollideStatic(cpSpatialIndex *dynamicIndex, cpSpatialIndex *staticIndex, cpSpatialIndexQueryFunc func, void *data);
+void phy_spatial_index_free(phy_spatial_index *index);
+void phy_spatial_index_collide_static(phy_spatial_index *dynamic_index, phy_spatial_index *static_index, phy_spatial_index_query_func func, void *data);
 
-/// Destroy a spatial index.
-static inline void cpSpatialIndexDestroy(cpSpatialIndex *index)
-{
-	if(index->klass) index->klass->destroy(index);
+static inline void phy_spatial_index_destroy(phy_spatial_index *index) {
+	if(index->class) index->class->destroy(index);
 }
 
-/// Get the number of objects in the spatial index.
-static inline int cpSpatialIndexCount(cpSpatialIndex *index)
-{
-	return index->klass->count(index);
+static inline int phy_spatial_index_count(phy_spatial_index *index) {
+	return index->class->count(index);
 }
 
-/// Iterate the objects in the spatial index. @c func will be called once for each object.
-static inline void cpSpatialIndexEach(cpSpatialIndex *index, cpSpatialIndexIteratorFunc func, void *data)
-{
-	index->klass->each(index, func, data);
+static inline void phy_spatial_index_each(phy_spatial_index *index, phy_spatial_index_iterator_func func, void *data) {
+	index->class->each(index, func, data);
 }
 
-/// Returns true if the spatial index contains the given object.
-/// Most spatial indexes use hashed storage, so you must provide a hash value too.
-static inline bool cpSpatialIndexContains(cpSpatialIndex *index, void *obj, phy_hash_value hashid)
-{
-	return index->klass->contains(index, obj, hashid);
+static inline bool phy_spatial_index_contains(phy_spatial_index *index, void *obj, phy_hash_value hashid) {
+	return index->class->contains(index, obj, hashid);
 }
 
-/// Add an object to a spatial index.
-/// Most spatial indexes use hashed storage, so you must provide a hash value too.
-static inline void cpSpatialIndexInsert(cpSpatialIndex *index, void *obj, phy_hash_value hashid)
-{
-	index->klass->insert(index, obj, hashid);
+static inline void phy_spatial_index_insert(phy_spatial_index *index, void *obj, phy_hash_value hashid) {
+	index->class->insert(index, obj, hashid);
 }
 
-/// Remove an object from a spatial index.
-/// Most spatial indexes use hashed storage, so you must provide a hash value too.
-static inline void cpSpatialIndexRemove(cpSpatialIndex *index, void *obj, phy_hash_value hashid)
-{
-	index->klass->remove(index, obj, hashid);
+static inline void phy_spatial_index_remove(phy_spatial_index *index, void *obj, phy_hash_value hashid) {
+	index->class->remove(index, obj, hashid);
 }
 
-/// Perform a full reindex of a spatial index.
-static inline void cpSpatialIndexReindex(cpSpatialIndex *index)
-{
-	index->klass->reindex(index);
+static inline void phy_spatial_index_reindex(phy_spatial_index *index) {
+	index->class->reindex(index);
 }
 
-/// Reindex a single object in the spatial index.
-static inline void cpSpatialIndexReindexObject(cpSpatialIndex *index, void *obj, phy_hash_value hashid)
-{
-	index->klass->reindexObject(index, obj, hashid);
+static inline void phy_spatial_index_reindex_object(phy_spatial_index *index, void *obj, phy_hash_value hashid) {
+	index->class->reindexObject(index, obj, hashid);
 }
 
-/// Perform a rectangle query against the spatial index, calling @c func for each potential match.
-static inline void cpSpatialIndexQuery(cpSpatialIndex *index, void *obj, phy_bb bb, cpSpatialIndexQueryFunc func, void *data)
-{
-	index->klass->query(index, obj, bb, func, data);
+static inline void phy_spatial_index_query(phy_spatial_index *index, void *obj, phy_bb bb, phy_spatial_index_query_func func, void *data) {
+	index->class->query(index, obj, bb, func, data);
 }
 
-/// Perform a segment query against the spatial index, calling @c func for each potential match.
-static inline void cpSpatialIndexSegmentQuery(cpSpatialIndex *index, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
-{
-	index->klass->segmentQuery(index, obj, a, b, t_exit, func, data);
+static inline void phy_spatial_index_segment_query(phy_spatial_index *index, void *obj, phy_vect a, phy_vect b, float t_exit, phy_spatial_index_segment_query_func func, void *data) {
+	index->class->segmentQuery(index, obj, a, b, t_exit, func, data);
 }
 
-/// Simultaneously reindex and find all colliding objects.
-/// @c func will be called once for each potentially overlapping pair of objects found.
-/// If the spatial index was initialized with a static index, it will collide it's objects against that as well.
-static inline void cpSpatialIndexReindexQuery(cpSpatialIndex *index, cpSpatialIndexQueryFunc func, void *data)
-{
-	index->klass->reindexQuery(index, func, data);
+static inline void phy_spatial_index_reindex_query(phy_spatial_index *index, phy_spatial_index_query_func func, void *data) {
+	index->class->reindexQuery(index, func, data);
 }
+

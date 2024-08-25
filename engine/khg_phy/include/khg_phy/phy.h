@@ -24,8 +24,8 @@ int phy_convex_hull(int count, const phy_vect *verts, phy_vect *result, int *fir
   int count_var = phy_convex_hull(count, verts, verts_var, NULL, 0.0);\
 
 static inline phy_vect phy_closest_point_on_segment(const phy_vect p, const phy_vect a, const phy_vect b) {
-	phy_vect delta = cpvsub(a, b);
-	float t = phy_clamp_01(cpvdot(delta, cpvsub(p, b))/cpvlengthsq(delta));
-	return cpvadd(b, cpvmult(delta, t));
+	phy_vect delta = phy_v_sub(a, b);
+	float t = phy_clamp_01(phy_v_dot(delta, phy_v_sub(p, b))/phy_v_length_sq(delta));
+	return phy_v_add(b, phy_v_mult(delta, t));
 }
 

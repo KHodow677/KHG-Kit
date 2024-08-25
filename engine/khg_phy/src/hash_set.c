@@ -1,6 +1,7 @@
 #include "khg_phy/phy_private.h"
 #include "khg_phy/prime.h"
 #include "khg_utl/error_func.h"
+#include <stdlib.h>
 
 typedef struct cpHashSetBin {
 	void *elt;

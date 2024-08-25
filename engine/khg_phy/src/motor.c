@@ -61,13 +61,13 @@ static const phy_constraint_class klass = {
 };
 
 phy_simple_motor_joint *
-cpSimpleMotorAlloc(void)
+phy_motor_alloc(void)
 {
 	return (phy_simple_motor_joint *)calloc(1, sizeof(phy_simple_motor_joint));
 }
 
 phy_simple_motor_joint *
-cpSimpleMotorInit(phy_simple_motor_joint *joint, phy_body *a, phy_body *b, float rate)
+phy_motor_init(phy_simple_motor_joint *joint, phy_body *a, phy_body *b, float rate)
 {
 	cp_constraint_init((phy_constraint *)joint, &klass, a, b);
 	
@@ -79,30 +79,30 @@ cpSimpleMotorInit(phy_simple_motor_joint *joint, phy_body *a, phy_body *b, float
 }
 
 phy_constraint *
-cpSimpleMotorNew(phy_body *a, phy_body *b, float rate)
+phy_motor_new(phy_body *a, phy_body *b, float rate)
 {
-	return (phy_constraint *)cpSimpleMotorInit(cpSimpleMotorAlloc(), a, b, rate);
+	return (phy_constraint *)phy_motor_init(phy_motor_alloc(), a, b, rate);
 }
 
 bool
-cpConstraintIsSimpleMotor(const phy_constraint *constraint)
+phy_constraint_is_motor(const phy_constraint *constraint)
 {
 	return (constraint->class == &klass);
 }
 
 float
-cpSimpleMotorGetRate(const phy_constraint *constraint)
+phy_motor_get_rate(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsSimpleMotor(constraint)) {
+	if (!phy_constraint_is_motor(constraint)) {
     utl_error_func("Constraint is not a SimpleMotor", utl_user_defined_data);
   }
 	return ((phy_simple_motor_joint *)constraint)->rate;
 }
 
 void
-cpSimpleMotorSetRate(phy_constraint *constraint, float rate)
+phy_motor_set_rate(phy_constraint *constraint, float rate)
 {
-	if (!cpConstraintIsSimpleMotor(constraint)) {
+	if (!phy_constraint_is_motor(constraint)) {
     utl_error_func("Constraint is not a SimpleMotor", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);

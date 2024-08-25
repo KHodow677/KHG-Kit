@@ -107,8 +107,8 @@ typedef enum phy_shape_type{
 
 typedef phy_bb (*phy_shape_cache_data_impl)(phy_shape *shape, phy_transform transform);
 typedef void (*phy_shape_destroy_impl)(phy_shape *shape);
-typedef void (*phy_shape_point_query_impl)(const phy_shape *shape, phy_vect p, cpPointQueryInfo *info);
-typedef void (*phy_shape_segment_query_impl)(const phy_shape *shape, phy_vect a, phy_vect b, float radius, cpSegmentQueryInfo *info);
+typedef void (*phy_shape_point_query_impl)(const phy_shape *shape, phy_vect p, phy_point_query_info *info);
+typedef void (*phy_shape_segment_query_impl)(const phy_shape *shape, phy_vect a, phy_vect b, float radius, phy_segment_query_info *info);
 
 typedef struct phy_shape_class {
 	phy_shape_type type;
@@ -130,7 +130,7 @@ struct phy_shape {
 	phy_vect surfaceV;
 	phy_data_pointer userData;
 	phy_collision_type type;
-	cpShapeFilter filter;
+	phy_shape_filter filter;
 	phy_shape *next;
 	phy_shape *prev;
 	phy_hash_value hashid;
@@ -310,8 +310,8 @@ struct phy_space {
 	phy_array *roused_bodies;
 	phy_array *sleeping_components;
 	phy_hash_value shape_id_Counter;
-	cpSpatialIndex *static_shapes;
-	cpSpatialIndex *dynamic_shapes;
+	phy_spatial_index *static_shapes;
+	phy_spatial_index *dynamic_shapes;
 	phy_array *constraints;
 	phy_array *arbiters;
 	phy_contact_buffer_header *contact_buffers_head;
@@ -329,7 +329,7 @@ struct phy_space {
 };
 
 typedef struct phy_post_step_callback {
-	cpPostStepFunc func;
+	phy_post_step_func func;
 	void *key;
 	void *data;
 } phy_post_step_callback;

@@ -81,13 +81,13 @@ static const phy_constraint_class klass = {
 };
 
 rotary_limit_joint *
-cpRotaryLimitJointAlloc(void)
+phy_rotary_limit_joint_alloc(void)
 {
 	return (rotary_limit_joint *)calloc(1, sizeof(rotary_limit_joint));
 }
 
 rotary_limit_joint *
-cpRotaryLimitJointInit(rotary_limit_joint *joint, phy_body *a, phy_body *b, float min, float max)
+phy_rotary_limit_joint_init(rotary_limit_joint *joint, phy_body *a, phy_body *b, float min, float max)
 {
 	cp_constraint_init((phy_constraint *)joint, &klass, a, b);
 	
@@ -100,30 +100,30 @@ cpRotaryLimitJointInit(rotary_limit_joint *joint, phy_body *a, phy_body *b, floa
 }
 
 phy_constraint *
-cpRotaryLimitJointNew(phy_body *a, phy_body *b, float min, float max)
+phy_rotary_limit_joint_new(phy_body *a, phy_body *b, float min, float max)
 {
-	return (phy_constraint *)cpRotaryLimitJointInit(cpRotaryLimitJointAlloc(), a, b, min, max);
+	return (phy_constraint *)phy_rotary_limit_joint_init(phy_rotary_limit_joint_alloc(), a, b, min, max);
 }
 
 bool
-cpConstraintIsRotaryLimitJoint(const phy_constraint *constraint)
+phy_constraint_is_rotary_limit_joint(const phy_constraint *constraint)
 {
 	return (constraint->class == &klass);
 }
 
 float
-cpRotaryLimitJointGetMin(const phy_constraint *constraint)
+phy_rotary_limit_joint_get_min(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsRotaryLimitJoint(constraint)) {
+	if (!phy_constraint_is_rotary_limit_joint(constraint)) {
     utl_error_func("Constraint is not a rotary limit joint", utl_user_defined_data);
   }
 	return ((rotary_limit_joint *)constraint)->min;
 }
 
 void
-cpRotaryLimitJointSetMin(phy_constraint *constraint, float min)
+phy_rotary_limit_joint_set_min(phy_constraint *constraint, float min)
 {
-	if (!cpConstraintIsRotaryLimitJoint(constraint)) {
+	if (!phy_constraint_is_rotary_limit_joint(constraint)) {
     utl_error_func("Constraint is not a rotary limit joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
@@ -131,18 +131,18 @@ cpRotaryLimitJointSetMin(phy_constraint *constraint, float min)
 }
 
 float
-cpRotaryLimitJointGetMax(const phy_constraint *constraint)
+phy_rotary_limit_joint_get_max(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsRotaryLimitJoint(constraint)) {
+	if (!phy_constraint_is_rotary_limit_joint(constraint)) {
     utl_error_func("Constraint is not a rotary limit joint", utl_user_defined_data);
   }
 	return ((rotary_limit_joint *)constraint)->max;
 }
 
 void
-cpRotaryLimitJointSetMax(phy_constraint *constraint, float max)
+phy_rotary_limit_joint_set_max(phy_constraint *constraint, float max)
 {
-	if (!cpConstraintIsRotaryLimitJoint(constraint)) {
+	if (!phy_constraint_is_rotary_limit_joint(constraint)) {
     utl_error_func("Constraint is not a rotary limit joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);

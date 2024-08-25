@@ -24,8 +24,8 @@ static bool
 handlerSetEql(phy_collision_handler *check, phy_collision_handler *pair)
 {
 	return (
-		(check->typeA == pair->typeA && check->typeB == pair->typeB) ||
-		(check->typeB == pair->typeA && check->typeA == pair->typeB)
+		(check->type_A == pair->type_A && check->type_B == pair->type_B) ||
+		(check->type_B == pair->type_A && check->type_A == pair->type_B)
 	);
 }
 
@@ -92,17 +92,17 @@ static void FreeWrap(void *ptr, void *unused){free(ptr);}
 //MARK: Memory Management Functions
 
 phy_space *
-cpSpaceAlloc(void)
+phy_space_alloc(void)
 {
 	return (phy_space *)calloc(1, sizeof(phy_space));
 }
 
 phy_space*
-cpSpaceInit(phy_space *space)
+phy_space_init(phy_space *space)
 {
 	space->iterations = 10;
 	
-	space->gravity = cpvzero;
+	space->gravity = phy_v_zero;
 	space->damping = 1.0f;
 	
 	space->collision_slop = 0.1f;
@@ -113,9 +113,9 @@ cpSpaceInit(phy_space *space)
 	space->stamp = 0;
 	
 	space->shape_id_Counter = 0;
-	space->static_shapes = cpBBTreeNew((cpSpatialIndexBBFunc)cpShapeGetBB, NULL);
-	space->dynamic_shapes = cpBBTreeNew((cpSpatialIndexBBFunc)cpShapeGetBB, space->static_shapes);
-	cpBBTreeSetVelocityFunc(space->dynamic_shapes, (cpBBTreeVelocityFunc)ShapeVelocityFunc);
+	space->static_shapes = phy_BB_tree_new((phy_spatial_index_BB_func)phy_shape_get_BB, NULL);
+	space->dynamic_shapes = phy_BB_tree_new((phy_spatial_index_BB_func)phy_shape_get_BB, space->static_shapes);
+	phy_BB_tree_set_velocity_func(space->dynamic_shapes, (phy_BB_tree_velocity_func)ShapeVelocityFunc);
 	
 	space->allocated_buffers = phy_array_new(0);
 	
@@ -150,20 +150,20 @@ cpSpaceInit(phy_space *space)
 }
 
 phy_space*
-cpSpaceNew(void)
+phy_space_new(void)
 {
-	return cpSpaceInit(cpSpaceAlloc());
+	return phy_space_init(phy_space_alloc());
 }
 
 static void cpBodyActivateWrap(phy_body *body, void *unused){phy_body_activate(body);}
 
 void
-cpSpaceDestroy(phy_space *space)
+phy_space_destroy(phy_space *space)
 {
-	cpSpaceEachBody(space, (cpSpaceBodyIteratorFunc)cpBodyActivateWrap, NULL);
+	phy_space_each_body(space, (phy_space_body_iterator_func)cpBodyActivateWrap, NULL);
 	
-	cpSpatialIndexFree(space->static_shapes);
-	cpSpatialIndexFree(space->dynamic_shapes);
+	phy_spatial_index_free(space->static_shapes);
+	phy_spatial_index_free(space->dynamic_shapes);
 	
 	phy_array_free(space->dynamic_bodies);
 	phy_array_free(space->static_bodies);
@@ -192,10 +192,10 @@ cpSpaceDestroy(phy_space *space)
 }
 
 void
-cpSpaceFree(phy_space *space)
+phy_space_free(phy_space *space)
 {
 	if(space){
-		cpSpaceDestroy(space);
+		phy_space_destroy(space);
 		free(space);
 	}
 }
@@ -204,13 +204,13 @@ cpSpaceFree(phy_space *space)
 //MARK: Basic properties:
 
 int
-cpSpaceGetIterations(const phy_space *space)
+phy_space_get_iterations(const phy_space *space)
 {
 	return space->iterations;
 }
 
 void
-cpSpaceSetIterations(phy_space *space, int iterations)
+phy_space_set_iterations(phy_space *space, int iterations)
 {
 	if (iterations <= 0) {
     utl_error_func("Iterations must be positive and non-zero", utl_user_defined_data);
@@ -219,13 +219,13 @@ cpSpaceSetIterations(phy_space *space, int iterations)
 }
 
 phy_vect
-cpSpaceGetGravity(const phy_space *space)
+phy_space_get_gravity(const phy_space *space)
 {
 	return space->gravity;
 }
 
 void
-cpSpaceSetGravity(phy_space *space, phy_vect gravity)
+phy_space_set_gravity(phy_space *space, phy_vect gravity)
 {
 	space->gravity = gravity;
 	
@@ -237,13 +237,13 @@ cpSpaceSetGravity(phy_space *space, phy_vect gravity)
 }
 
 float
-cpSpaceGetDamping(const phy_space *space)
+phy_space_get_damping(const phy_space *space)
 {
 	return space->damping;
 }
 
 void
-cpSpaceSetDamping(phy_space *space, float damping)
+phy_space_set_damping(phy_space *space, float damping)
 {
 	if (damping < 0.0) {
     utl_error_func("Damping must be positive", utl_user_defined_data);
@@ -252,85 +252,85 @@ cpSpaceSetDamping(phy_space *space, float damping)
 }
 
 float
-cpSpaceGetIdleSpeedThreshold(const phy_space *space)
+phy_space_get_idle_speed_threshold(const phy_space *space)
 {
 	return space->idle_speed_threshold;
 }
 
 void
-cpSpaceSetIdleSpeedThreshold(phy_space *space, float idleSpeedThreshold)
+phy_space_set_idle_speed_threshold(phy_space *space, float idleSpeedThreshold)
 {
 	space->idle_speed_threshold = idleSpeedThreshold;
 }
 
 float
-cpSpaceGetSleepTimeThreshold(const phy_space *space)
+phy_space_get_sleep_time_threshold(const phy_space *space)
 {
 	return space->sleep_time_threshold;
 }
 
 void
-cpSpaceSetSleepTimeThreshold(phy_space *space, float sleepTimeThreshold)
+phy_space_set_sleep_time_threshold(phy_space *space, float sleepTimeThreshold)
 {
 	space->sleep_time_threshold = sleepTimeThreshold;
 }
 
 float
-cpSpaceGetCollisionSlop(const phy_space *space)
+phy_space_get_collision_slop(const phy_space *space)
 {
 	return space->collision_slop;
 }
 
 void
-cpSpaceSetCollisionSlop(phy_space *space, float collisionSlop)
+phy_space_set_collision_slop(phy_space *space, float collisionSlop)
 {
 	space->collision_slop = collisionSlop;
 }
 
 float
-cpSpaceGetCollisionBias(const phy_space *space)
+phy_space_get_collision_bias(const phy_space *space)
 {
 	return space->collision_bias;
 }
 
 void
-cpSpaceSetCollisionBias(phy_space *space, float collisionBias)
+phy_space_set_collision_bias(phy_space *space, float collisionBias)
 {
 	space->collision_bias = collisionBias;
 }
 
 phy_timestamp
-cpSpaceGetCollisionPersistence(const phy_space *space)
+phy_space_get_collision_persistence(const phy_space *space)
 {
 	return space->collision_persistence;
 }
 
 void
-cpSpaceSetCollisionPersistence(phy_space *space, phy_timestamp collisionPersistence)
+phy_space_set_collision_persistence(phy_space *space, phy_timestamp collisionPersistence)
 {
 	space->collision_persistence = collisionPersistence;
 }
 
 phy_data_pointer
-cpSpaceGetUserData(const phy_space *space)
+phy_space_get_user_data(const phy_space *space)
 {
 	return space->user_data;
 }
 
 void
-cpSpaceSetUserData(phy_space *space, phy_data_pointer userData)
+phy_space_set_user_data(phy_space *space, phy_data_pointer userData)
 {
 	space->user_data = userData;
 }
 
 phy_body *
-cpSpaceGetStaticBody(const phy_space *space)
+phy_space_get_static_body(const phy_space *space)
 {
 	return space->static_body;
 }
 
 float
-cpSpaceGetCurrentTimeStep(const phy_space *space)
+phy_space_get_current_time_step(const phy_space *space)
 {
 	return space->curr_dt;
 }
@@ -350,7 +350,7 @@ phy_space_set_static_body(phy_space *space, phy_body *body)
 }
 
 bool
-cpSpaceIsLocked(phy_space *space)
+phy_space_is_locked(phy_space *space)
 {
 	return (space->locked > 0);
 }
@@ -367,13 +367,13 @@ cpSpaceUseWildcardDefaultHandler(phy_space *space)
 	}
 }
 
-phy_collision_handler *cpSpaceAddDefaultCollisionHandler(phy_space *space)
+phy_collision_handler *phy_space_add_default_collision_handler(phy_space *space)
 {
 	cpSpaceUseWildcardDefaultHandler(space);
 	return &space->default_handler;
 }
 
-phy_collision_handler *cpSpaceAddCollisionHandler(phy_space *space, phy_collision_type a, phy_collision_type b)
+phy_collision_handler *phy_space_add_collision_handler(phy_space *space, phy_collision_type a, phy_collision_type b)
 {
 	phy_hash_value hash = PHY_HASH_PAIR(a, b);
 	phy_collision_handler handler = {a, b, DefaultBegin, DefaultPreSolve, DefaultPostSolve, DefaultSeparate, NULL};
@@ -381,7 +381,7 @@ phy_collision_handler *cpSpaceAddCollisionHandler(phy_space *space, phy_collisio
 }
 
 phy_collision_handler *
-cpSpaceAddWildcardHandler(phy_space *space, phy_collision_type type)
+phy_space_add_wildcard_handler(phy_space *space, phy_collision_type type)
 {
 	cpSpaceUseWildcardDefaultHandler(space);
 	
@@ -393,7 +393,7 @@ cpSpaceAddWildcardHandler(phy_space *space, phy_collision_type type)
 
 //MARK: Body, Shape, and Joint Management
 phy_shape *
-cpSpaceAddShape(phy_space *space, phy_shape *shape)
+phy_space_add_shape(phy_space *space, phy_shape *shape)
 {
 	if (shape->space == space) {
     utl_error_func("You have already added this shape to this space, you must not add it a second time", utl_user_defined_data);
@@ -418,15 +418,15 @@ cpSpaceAddShape(phy_space *space, phy_shape *shape)
 	phy_body_add_shape(body, shape);
 	
 	shape->hashid = space->shape_id_Counter++;
-	cpShapeUpdate(shape, body->transform);
-	cpSpatialIndexInsert(isStatic ? space->static_shapes : space->dynamic_shapes, shape, shape->hashid);
+	phy_shape_update(shape, body->transform);
+	phy_spatial_index_insert(isStatic ? space->static_shapes : space->dynamic_shapes, shape, shape->hashid);
 	shape->space = space;
 		
 	return shape;
 }
 
 phy_body *
-cpSpaceAddBody(phy_space *space, phy_body *body)
+phy_space_add_body(phy_space *space, phy_body *body)
 {
 	if (body->space == space) {
     utl_error_func("You have already added this body to this space, you must not add it a second time", utl_user_defined_data);
@@ -445,7 +445,7 @@ cpSpaceAddBody(phy_space *space, phy_body *body)
 }
 
 phy_constraint *
-cpSpaceAddConstraint(phy_space *space, phy_constraint *constraint)
+phy_space_add_constraint(phy_space *space, phy_constraint *constraint)
 {
 	if (constraint->space == space) {
     utl_error_func("You have already added this constraint to this space, you must not add it a second time", utl_user_defined_data);
@@ -498,7 +498,7 @@ cachedArbitersFilter(phy_arbiter *arb, struct arbiterFilterContext *context)
 			arb->state = PHY_ARBITER_STATE_INVALIDATED;
 			
 			phy_collision_handler *handler = arb->handler;
-			handler->separateFunc(arb, context->space, handler->userData);
+			handler->separate_func(arb, context->space, handler->user_data);
 		}
 		
 		phy_arbiter_unthread(arb);
@@ -521,10 +521,10 @@ phy_space_filter_arbiters(phy_space *space, phy_body *body, phy_shape *filter)
 }
 
 void
-cpSpaceRemoveShape(phy_space *space, phy_shape *shape)
+phy_space_remove_shape(phy_space *space, phy_shape *shape)
 {
 	phy_body *body = shape->body;
-	if (!cpSpaceContainsShape(space, shape)) {
+	if (!phy_space_contains_shape(space, shape)) {
     utl_error_func("Cannot remove a shape that was not added to the space, likely removed twice", utl_user_defined_data);
   }
   if (space->locked) {
@@ -540,18 +540,18 @@ cpSpaceRemoveShape(phy_space *space, phy_shape *shape)
 
 	phy_body_remove_shape(body, shape);
 	phy_space_filter_arbiters(space, body, shape);
-	cpSpatialIndexRemove(isStatic ? space->static_shapes : space->dynamic_shapes, shape, shape->hashid);
+	phy_spatial_index_remove(isStatic ? space->static_shapes : space->dynamic_shapes, shape, shape->hashid);
 	shape->space = NULL;
 	shape->hashid = 0;
 }
 
 void
-cpSpaceRemoveBody(phy_space *space, phy_body *body)
+phy_space_remove_body(phy_space *space, phy_body *body)
 {
-	if (body == cpSpaceGetStaticBody(space)) {
+	if (body == phy_space_get_static_body(space)) {
     utl_error_func("Cannot remove the designated static body for the space", utl_user_defined_data);
   }
-	if (!cpSpaceContainsBody(space, body)) {
+	if (!phy_space_contains_body(space, body)) {
     utl_error_func("Cannot remove a body that was not added to the space, likely removed twice", utl_user_defined_data);
   }
   if (space->locked) {
@@ -565,9 +565,9 @@ cpSpaceRemoveBody(phy_space *space, phy_body *body)
 }
 
 void
-cpSpaceRemoveConstraint(phy_space *space, phy_constraint *constraint)
+phy_space_remove_constraint(phy_space *space, phy_constraint *constraint)
 {
-	if (!cpSpaceContainsConstraint(space, constraint)) {
+	if (!phy_space_contains_constraint(space, constraint)) {
     utl_error_func("Cannot remove a constraint that was not added to the space, likely removed twice", utl_user_defined_data);
   }
   if (space->locked) {
@@ -583,25 +583,24 @@ cpSpaceRemoveConstraint(phy_space *space, phy_constraint *constraint)
 	constraint->space = NULL;
 }
 
-bool cpSpaceContainsShape(phy_space *space, phy_shape *shape)
+bool phy_space_contains_shape(phy_space *space, phy_shape *shape)
 {
 	return (shape->space == space);
 }
 
-bool cpSpaceContainsBody(phy_space *space, phy_body *body)
+bool phy_space_contains_body(phy_space *space, phy_body *body)
 {
 	return (body->space == space);
 }
 
-bool cpSpaceContainsConstraint(phy_space *space, phy_constraint *constraint)
+bool phy_space_contains_constraint(phy_space *space, phy_constraint *constraint)
 {
 	return (constraint->space == space);
 }
 
 //MARK: Iteration
 
-void
-cpSpaceEachBody(phy_space *space, cpSpaceBodyIteratorFunc func, void *data)
+void phy_space_each_body(phy_space *space, phy_space_body_iterator_func func, void *data)
 {
 	phy_space_lock(space); {
 		phy_array *bodies = space->dynamic_bodies;
@@ -629,7 +628,7 @@ cpSpaceEachBody(phy_space *space, cpSpaceBodyIteratorFunc func, void *data)
 }
 
 typedef struct spaceShapeContext {
-	cpSpaceShapeIteratorFunc func;
+	phy_space_shape_iterator_func func;
 	void *data;
 } spaceShapeContext;
 
@@ -640,17 +639,17 @@ spaceEachShapeIterator(phy_shape *shape, spaceShapeContext *context)
 }
 
 void
-cpSpaceEachShape(phy_space *space, cpSpaceShapeIteratorFunc func, void *data)
+phy_space_each_shape(phy_space *space, phy_space_shape_iterator_func func, void *data)
 {
 	phy_space_lock(space); {
 		spaceShapeContext context = {func, data};
-		cpSpatialIndexEach(space->dynamic_shapes, (cpSpatialIndexIteratorFunc)spaceEachShapeIterator, &context);
-		cpSpatialIndexEach(space->static_shapes, (cpSpatialIndexIteratorFunc)spaceEachShapeIterator, &context);
+		phy_spatial_index_each(space->dynamic_shapes, (phy_spatial_index_iterator_func)spaceEachShapeIterator, &context);
+		phy_spatial_index_each(space->static_shapes, (phy_spatial_index_iterator_func)spaceEachShapeIterator, &context);
 	} phy_space_unlock(space, true);
 }
 
 void
-cpSpaceEachConstraint(phy_space *space, cpSpaceConstraintIteratorFunc func, void *data)
+phy_space_each_constraint(phy_space *space, phy_space_constraint_iterator_func func, void *data)
 {
 	phy_space_lock(space); {
 		phy_array *constraints = space->constraints;
@@ -664,54 +663,54 @@ cpSpaceEachConstraint(phy_space *space, cpSpaceConstraintIteratorFunc func, void
 //MARK: Spatial Index Management
 
 void 
-cpSpaceReindexStatic(phy_space *space)
+phy_space_reindex_static(phy_space *space)
 {
 	if (space->locked) {
     utl_error_func("You cannot manually reindex objects while the space is locked, wait until the current query or step is complete", utl_user_defined_data);
   }
 	
-	cpSpatialIndexEach(space->static_shapes, (cpSpatialIndexIteratorFunc)&phy_shape_update_func, NULL);
-	cpSpatialIndexReindex(space->static_shapes);
+	phy_spatial_index_each(space->static_shapes, (phy_spatial_index_iterator_func)&phy_shape_update_func, NULL);
+	phy_spatial_index_reindex(space->static_shapes);
 }
 
 void
-cpSpaceReindexShape(phy_space *space, phy_shape *shape)
+phy_space_reindex_shape(phy_space *space, phy_shape *shape)
 {
   if (space->locked) {
     utl_error_func("You cannot manually reindex objects while the space is locked, wait until the current query or step is complete", utl_user_defined_data);
   }
 	
-	cpShapeCacheBB(shape);
+	phy_shape_cache_BB(shape);
 	
 	// attempt to rehash the shape in both hashes
-	cpSpatialIndexReindexObject(space->dynamic_shapes, shape, shape->hashid);
-	cpSpatialIndexReindexObject(space->static_shapes, shape, shape->hashid);
+	phy_spatial_index_reindex_object(space->dynamic_shapes, shape, shape->hashid);
+	phy_spatial_index_reindex_object(space->static_shapes, shape, shape->hashid);
 }
 
 void
-cpSpaceReindexShapesForBody(phy_space *space, phy_body *body)
+phy_space_reindex_shapes_for_body(phy_space *space, phy_body *body)
 {
-	PHY_BODY_FOREACH_SHAPE(body, shape) cpSpaceReindexShape(space, shape);
+	PHY_BODY_FOREACH_SHAPE(body, shape) phy_space_reindex_shape(space, shape);
 }
 
 
 static void
-copyShapes(phy_shape *shape, cpSpatialIndex *index)
+copyShapes(phy_shape *shape, phy_spatial_index *index)
 {
-	cpSpatialIndexInsert(index, shape, shape->hashid);
+	phy_spatial_index_insert(index, shape, shape->hashid);
 }
 
 void
-cpSpaceUseSpatialHash(phy_space *space, float dim, int count)
+phy_space_use_spatial_hash(phy_space *space, float dim, int count)
 {
-	cpSpatialIndex *staticShapes = cpSpaceHashNew(dim, count, (cpSpatialIndexBBFunc)cpShapeGetBB, NULL);
-	cpSpatialIndex *dynamicShapes = cpSpaceHashNew(dim, count, (cpSpatialIndexBBFunc)cpShapeGetBB, staticShapes);
+	phy_spatial_index *staticShapes = phy_space_hash_new(dim, count, (phy_spatial_index_BB_func)phy_shape_get_BB, NULL);
+	phy_spatial_index *dynamicShapes = phy_space_hash_new(dim, count, (phy_spatial_index_BB_func)phy_shape_get_BB, staticShapes);
 	
-	cpSpatialIndexEach(space->static_shapes, (cpSpatialIndexIteratorFunc)copyShapes, staticShapes);
-	cpSpatialIndexEach(space->dynamic_shapes, (cpSpatialIndexIteratorFunc)copyShapes, dynamicShapes);
+	phy_spatial_index_each(space->static_shapes, (phy_spatial_index_iterator_func)copyShapes, staticShapes);
+	phy_spatial_index_each(space->dynamic_shapes, (phy_spatial_index_iterator_func)copyShapes, dynamicShapes);
 	
-	cpSpatialIndexFree(space->static_shapes);
-	cpSpatialIndexFree(space->dynamic_shapes);
+	phy_spatial_index_free(space->static_shapes);
+	phy_spatial_index_free(space->dynamic_shapes);
 	
 	space->static_shapes = staticShapes;
 	space->dynamic_shapes = dynamicShapes;

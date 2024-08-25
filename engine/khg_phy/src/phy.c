@@ -63,29 +63,29 @@ const char *cpVersionString = XSTR(CP_VERSION_MAJOR) "." XSTR(CP_VERSION_MINOR) 
 float
 phy_moment_for_circle(float m, float r1, float r2, phy_vect offset)
 {
-	return m*(0.5f*(r1*r1 + r2*r2) + cpvlengthsq(offset));
+	return m*(0.5f*(r1*r1 + r2*r2) + phy_v_length_sq(offset));
 }
 
 float
 phy_area_for_circle(float r1, float r2)
 {
-	return (float)CP_PI*phy_abs(r1*r1 - r2*r2);
+	return (float)PHY_PI*phy_abs(r1*r1 - r2*r2);
 }
 
 float
 phy_moment_for_segment(float m, phy_vect a, phy_vect b, float r)
 {
-	phy_vect offset = cpvlerp(a, b, 0.5f);
+	phy_vect offset = phy_v_lerp(a, b, 0.5f);
 	
 	// This approximates the shape as a box for rounded segments, but it's quite close.
-	float length = cpvdist(b, a) + 2.0f*r;
-	return m*((length*length + 4.0f*r*r)/12.0f + cpvlengthsq(offset));
+	float length = phy_v_dist(b, a) + 2.0f*r;
+	return m*((length*length + 4.0f*r*r)/12.0f + phy_v_length_sq(offset));
 }
 
 float
 phy_area_for_segment(phy_vect a, phy_vect b, float r)
 {
-	return r*((float)CP_PI*r + 2.0f*cpvdist(a, b));
+	return r*((float)PHY_PI*r + 2.0f*phy_v_dist(a, b));
 }
 
 float
@@ -97,11 +97,11 @@ phy_moment_for_poly(float m, int count, const phy_vect *verts, phy_vect offset, 
 	float sum1 = 0.0f;
 	float sum2 = 0.0f;
 	for(int i=0; i<count; i++){
-		phy_vect v1 = cpvadd(verts[i], offset);
-		phy_vect v2 = cpvadd(verts[(i+1)%count], offset);
+		phy_vect v1 = phy_v_add(verts[i], offset);
+		phy_vect v2 = phy_v_add(verts[(i+1)%count], offset);
 		
-		float a = cpvcross(v2, v1);
-		float b = cpvdot(v1, v1) + cpvdot(v1, v2) + cpvdot(v2, v2);
+		float a = phy_v_cross(v2, v1);
+		float b = phy_v_dot(v1, v1) + phy_v_dot(v1, v2) + phy_v_dot(v2, v2);
 		
 		sum1 += a*b;
 		sum2 += a;
@@ -119,29 +119,29 @@ phy_area_for_poly(const int count, const phy_vect *verts, float r)
 		phy_vect v1 = verts[i];
 		phy_vect v2 = verts[(i+1)%count];
 		
-		area += cpvcross(v1, v2);
-		perimeter += cpvdist(v1, v2);
+		area += phy_v_cross(v1, v2);
+		perimeter += phy_v_dist(v1, v2);
 	}
 	
-	return r*(CP_PI*phy_abs(r) + perimeter) + area/2.0f;
+	return r*(PHY_PI*phy_abs(r) + perimeter) + area/2.0f;
 }
 
 phy_vect
 phy_centroid_for_poly(const int count, const phy_vect *verts)
 {
 	float sum = 0.0f;
-	phy_vect vsum = cpvzero;
+	phy_vect vsum = phy_v_zero;
 	
 	for(int i=0; i<count; i++){
 		phy_vect v1 = verts[i];
 		phy_vect v2 = verts[(i+1)%count];
-		float cross = cpvcross(v1, v2);
+		float cross = phy_v_cross(v1, v2);
 		
 		sum += cross;
-		vsum = cpvadd(vsum, cpvmult(cpvadd(v1, v2), cross));
+		vsum = phy_v_add(vsum, phy_v_mult(phy_v_add(v1, v2), cross));
 	}
 	
-	return cpvmult(vsum, 1.0f/(3.0f*sum));
+	return phy_v_mult(vsum, 1.0f/(3.0f*sum));
 }
 
 //void
@@ -164,10 +164,10 @@ phy_moment_for_box_2(float m, phy_bb box)
 {
 	float width = box.r - box.l;
 	float height = box.t - box.b;
-	phy_vect offset = cpvmult(cpv(box.l + box.r, box.b + box.t), 0.5f);
+	phy_vect offset = phy_v_mult(phy_v(box.l + box.r, box.b + box.t), 0.5f);
 	
 	// TODO: NaN when offset is 0 and m is INFINITY
-	return phy_moment_for_box(m, width, height) + m*cpvlengthsq(offset);
+	return phy_moment_for_box(m, width, height) + m*phy_v_length_sq(offset);
 }
 
 //MARK: Quick Hull
@@ -202,12 +202,12 @@ QHullPartition(phy_vect *verts, int count, phy_vect a, phy_vect b, float tol)
 	float max = 0;
 	int pivot = 0;
 	
-	phy_vect delta = cpvsub(b, a);
-	float valueTol = tol*cpvlength(delta);
+	phy_vect delta = phy_v_sub(b, a);
+	float valueTol = tol*phy_v_length(delta);
 	
 	int head = 0;
 	for(int tail = count-1; head <= tail;){
-		float value = cpvcross(cpvsub(verts[head], a), delta);
+		float value = phy_v_cross(phy_v_sub(verts[head], a), delta);
 		if(value > valueTol){
 			if(value > max){
 				max = value;

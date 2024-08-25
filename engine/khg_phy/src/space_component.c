@@ -22,8 +22,8 @@ phy_space_activate_body(phy_space *space, phy_body *body)
 		phy_array_push(space->dynamic_bodies, body);
 
 		PHY_BODY_FOREACH_SHAPE(body, shape){
-			cpSpatialIndexRemove(space->static_shapes, shape, shape->hashid);
-			cpSpatialIndexInsert(space->dynamic_shapes, shape, shape->hashid);
+			phy_spatial_index_remove(space->static_shapes, shape, shape->hashid);
+			phy_spatial_index_insert(space->dynamic_shapes, shape, shape->hashid);
 		}
 		
 		PHY_BODY_FOREACH_ARBITER(body, arb){
@@ -73,8 +73,8 @@ cpSpaceDeactivateBody(phy_space *space, phy_body *body)
 	phy_array_delete_obj(space->dynamic_bodies, body);
 	
 	PHY_BODY_FOREACH_SHAPE(body, shape){
-		cpSpatialIndexRemove(space->dynamic_shapes, shape, shape->hashid);
-		cpSpatialIndexInsert(space->static_shapes, shape, shape->hashid);
+		phy_spatial_index_remove(space->dynamic_shapes, shape, shape->hashid);
+		phy_spatial_index_insert(space->static_shapes, shape, shape->hashid);
 	}
 	
 	PHY_BODY_FOREACH_ARBITER(body, arb){
@@ -237,7 +237,7 @@ phy_space_process_components(phy_space *space, float dt)
 	// Calculate the kinetic energy of all the bodies.
 	if(sleep){
 		float dv = space->idle_speed_threshold;
-		float dvsq = (dv ? dv*dv : cpvlengthsq(space->gravity)*dt*dt);
+		float dvsq = (dv ? dv*dv : phy_v_length_sq(space->gravity)*dt*dt);
 		
 		// update idling and reset component nodes
 		for(int i=0; i<bodies->num; i++){
@@ -321,10 +321,10 @@ phy_body_sleep_with_group(phy_body *body, phy_body *group){
   }
 	
 	phy_space *space = body->space;
-	if (cpSpaceIsLocked(space)) {
+	if (phy_space_is_locked(space)) {
     utl_error_func("Bodies cannot be put to sleep during a query or a call step, put these calls into a post-step callback", utl_user_defined_data);
   }
-	if (cpSpaceGetSleepTimeThreshold(space) >= INFINITY) {
+	if (phy_space_get_sleep_time_threshold(space) >= INFINITY) {
     utl_error_func("Sleeping is not enabled on the space, you cannot sleep a body without setting a sleep time threshold on the space", utl_user_defined_data);
   }
 	if (!(group == NULL || phy_body_is_sleeping(group))) {
@@ -338,7 +338,7 @@ phy_body_sleep_with_group(phy_body *body, phy_body *group){
 		return;
 	}
 	
-	PHY_BODY_FOREACH_SHAPE(body, shape) cpShapeCacheBB(shape);
+	PHY_BODY_FOREACH_SHAPE(body, shape) phy_shape_cache_BB(shape);
 	cpSpaceDeactivateBody(space, body);
 	
 	if(group){

@@ -43,7 +43,7 @@ void phy_body_accumulate_mass_from_shapes(phy_body *body);
 
 void phy_body_remove_constraint(phy_body *body, phy_constraint *constraint);
 
-cpSpatialIndex *phy_spatial_index_init(cpSpatialIndex *index, cpSpatialIndexClass *klass, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *static_index);
+phy_spatial_index *phy_spatial_index_init(phy_spatial_index *index, phy_spatial_index_class *klass, phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
 
 phy_arbiter* phy_arbiter_init(phy_arbiter *arb, phy_shape *a, phy_shape *b);
 
@@ -65,26 +65,26 @@ static inline bool phy_shape_active(phy_shape *shape) {
 
 struct phy_collision_info phy_collide(const phy_shape *a, const phy_shape *b, phy_collision_id id, struct phy_contact *contacts);
 
-static inline void phy_circle_segment_query(phy_shape *shape, phy_vect center, float r1, phy_vect a, phy_vect b, float r2, cpSegmentQueryInfo *info) {
-	phy_vect da = cpvsub(a, center);
-	phy_vect db = cpvsub(b, center);
+static inline void phy_circle_segment_query(phy_shape *shape, phy_vect center, float r1, phy_vect a, phy_vect b, float r2, phy_segment_query_info *info) {
+	phy_vect da = phy_v_sub(a, center);
+	phy_vect db = phy_v_sub(b, center);
 	float rsum = r1 + r2;
-	float qa = cpvdot(da, da) - 2.0f*cpvdot(da, db) + cpvdot(db, db);
-	float qb = cpvdot(da, db) - cpvdot(da, da);
-	float det = qb*qb - qa*(cpvdot(da, da) - rsum*rsum);
+	float qa = phy_v_dot(da, da) - 2.0f*phy_v_dot(da, db) + phy_v_dot(db, db);
+	float qb = phy_v_dot(da, db) - phy_v_dot(da, da);
+	float det = qb*qb - qa*(phy_v_dot(da, da) - rsum*rsum);
 	if(det >= 0.0f){
 		float t = (-qb - sqrtf(det))/(qa);
 		if(0.0f<= t && t <= 1.0f){
-			phy_vect n = cpvnormalize(cpvlerp(da, db, t));
+			phy_vect n = phy_v_normalize(phy_v_lerp(da, db, t));
 			info->shape = shape;
-			info->point = cpvsub(cpvlerp(a, b, t), cpvmult(n, r2));
+			info->point = phy_v_sub(phy_v_lerp(a, b, t), phy_v_mult(n, r2));
 			info->normal = n;
 			info->alpha = t;
 		}
 	}
 }
 
-static inline bool phy_shape_filter_reject(cpShapeFilter a, cpShapeFilter b) {
+static inline bool phy_shape_filter_reject(phy_shape_filter a, phy_shape_filter b) {
 	return ( (a.group != 0 && a.group == b.group) || (a.categories & b.mask) == 0 || (b.categories & a.mask) == 0);
 }
 
@@ -98,37 +98,37 @@ static inline void phy_constraint_activate_bodies(phy_constraint *constraint) {
 }
 
 static inline phy_vect phy_relative_velocity(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2) {
-	phy_vect v1_sum = cpvadd(a->v, cpvmult(cpvperp(r1), a->w));
-	phy_vect v2_sum = cpvadd(b->v, cpvmult(cpvperp(r2), b->w));
-	return cpvsub(v2_sum, v1_sum);
+	phy_vect v1_sum = phy_v_add(a->v, phy_v_mult(phy_v_perp(r1), a->w));
+	phy_vect v2_sum = phy_v_add(b->v, phy_v_mult(phy_v_perp(r2), b->w));
+	return phy_v_sub(v2_sum, v1_sum);
 }
 
 static inline float phy_normal_relative_velocity(phy_body *a, phy_body *b, phy_vect r1, phy_vect r2, phy_vect n){
-	return cpvdot(phy_relative_velocity(a, b, r1, r2), n);
+	return phy_v_dot(phy_relative_velocity(a, b, r1, r2), n);
 }
 
 static inline void phy_apply_impulse(phy_body *body, phy_vect j, phy_vect r){
-	body->v = cpvadd(body->v, cpvmult(j, body->m_inv));
-	body->w += body->i_inv*cpvcross(r, j);
+	body->v = phy_v_add(body->v, phy_v_mult(j, body->m_inv));
+	body->w += body->i_inv*phy_v_cross(r, j);
 }
 
 static inline void phy_apply_impulses(phy_body *a , phy_body *b, phy_vect r1, phy_vect r2, phy_vect j) {
-	phy_apply_impulse(a, cpvneg(j), r1);
+	phy_apply_impulse(a, phy_v_neg(j), r1);
 	phy_apply_impulse(b, j, r2);
 }
 
 static inline void phy_apply_bias_impulse(phy_body *body, phy_vect j, phy_vect r) {
-	body->v_bias = cpvadd(body->v_bias, cpvmult(j, body->m_inv));
-	body->w_bias += body->i_inv*cpvcross(r, j);
+	body->v_bias = phy_v_add(body->v_bias, phy_v_mult(j, body->m_inv));
+	body->w_bias += body->i_inv*phy_v_cross(r, j);
 }
 
 static inline void phy_apply_bias_impulses(phy_body *a , phy_body *b, phy_vect r1, phy_vect r2, phy_vect j) {
-	phy_apply_bias_impulse(a, cpvneg(j), r1);
+	phy_apply_bias_impulse(a, phy_v_neg(j), r1);
 	phy_apply_bias_impulse(b, j, r2);
 }
 
 static inline float phy_k_scalar_body(phy_body *body, phy_vect r, phy_vect n) {
-	float rcn = cpvcross(r, n);
+	float rcn = phy_v_cross(r, n);
 	return body->m_inv + body->i_inv*rcn*rcn;
 }
 
@@ -161,7 +161,7 @@ static inline phy_mat2x2 phy_k_tensor(phy_body *a, phy_body *b, phy_vect r1, phy
     utl_error_func("Unsolvable constraint", utl_user_defined_data);  
   }
 	float det_inv = 1.0f/det;
-	return cpMat2x2New(k22*det_inv, -k12*det_inv, -k21*det_inv,  k11*det_inv);
+	return phy_mat2x2_new(k22*det_inv, -k12*det_inv, -k21*det_inv,  k11*det_inv);
 }
 
 static inline float phy_bias_coef(float error_bias, float dt) {

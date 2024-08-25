@@ -84,13 +84,13 @@ static const phy_constraint_class klass = {
 };
 
 phy_ratchet_joint *
-cpRatchetJointAlloc(void)
+phy_ratchet_joint_alloc(void)
 {
 	return (phy_ratchet_joint *)calloc(1, sizeof(phy_ratchet_joint));
 }
 
 phy_ratchet_joint *
-cpRatchetJointInit(phy_ratchet_joint *joint, phy_body *a, phy_body *b, float phase, float ratchet)
+phy_ratchet_joint_init(phy_ratchet_joint *joint, phy_body *a, phy_body *b, float phase, float ratchet)
 {
 	cp_constraint_init((phy_constraint *)joint, &klass, a, b);
 	
@@ -105,30 +105,30 @@ cpRatchetJointInit(phy_ratchet_joint *joint, phy_body *a, phy_body *b, float pha
 }
 
 phy_constraint *
-cpRatchetJointNew(phy_body *a, phy_body *b, float phase, float ratchet)
+phy_ratchet_joint_new(phy_body *a, phy_body *b, float phase, float ratchet)
 {
-	return (phy_constraint *)cpRatchetJointInit(cpRatchetJointAlloc(), a, b, phase, ratchet);
+	return (phy_constraint *)phy_ratchet_joint_init(phy_ratchet_joint_alloc(), a, b, phase, ratchet);
 }
 
 bool
-cpConstraintIsRatchetJoint(const phy_constraint *constraint)
+phy_constraint_is_ratchet_joint(const phy_constraint *constraint)
 {
 	return (constraint->class == &klass);
 }
 
 float
-cpRatchetJointGetAngle(const phy_constraint *constraint)
+phy_ratchet_joint_get_angle(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsRatchetJoint(constraint)) {
+	if (!phy_constraint_is_ratchet_joint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
 	return ((phy_ratchet_joint *)constraint)->angle;
 }
 
 void
-cpRatchetJointSetAngle(phy_constraint *constraint, float angle)
+phy_ratchet_joint_set_angle(phy_constraint *constraint, float angle)
 {
-	if (!cpConstraintIsRatchetJoint(constraint)) {
+	if (!phy_constraint_is_ratchet_joint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
@@ -136,36 +136,36 @@ cpRatchetJointSetAngle(phy_constraint *constraint, float angle)
 }
 
 float
-cpRatchetJointGetPhase(const phy_constraint *constraint)
+phy_ratchet_joint_get_phase(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsRatchetJoint(constraint)) {
+	if (!phy_constraint_is_ratchet_joint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
 	return ((phy_ratchet_joint *)constraint)->phase;
 }
 
 void
-cpRatchetJointSetPhase(phy_constraint *constraint, float phase)
+phy_ratchet_joint_set_phase(phy_constraint *constraint, float phase)
 {
-	if (!cpConstraintIsRatchetJoint(constraint)) {
+	if (!phy_constraint_is_ratchet_joint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
 	((phy_ratchet_joint *)constraint)->phase = phase;
 }
 float
-cpRatchetJointGetRatchet(const phy_constraint *constraint)
+phy_ratchet_joint_get_ratchet(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsRatchetJoint(constraint)) {
+	if (!phy_constraint_is_ratchet_joint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
 	return ((phy_ratchet_joint *)constraint)->ratchet;
 }
 
 void
-cpRatchetJointSetRatchet(phy_constraint *constraint, float ratchet)
+phy_ratchet_joint_set_ratchet(phy_constraint *constraint, float ratchet)
 {
-	if (!cpConstraintIsRatchetJoint(constraint)) {
+	if (!phy_constraint_is_ratchet_joint(constraint)) {
     utl_error_func("Constraint is not a ratchet joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);

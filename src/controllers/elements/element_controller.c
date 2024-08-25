@@ -46,7 +46,7 @@ void element_rotate_to_position(physics_info *info, float max_vel, float body_an
 }
 
 void element_move_to_position(physics_info *info, float max_vel, phy_vect body_pos, phy_vect target_pos, float easing_factor) {
-  float pos_diff = cpvdist(body_pos, target_pos);
+  float pos_diff = phy_v_dist(body_pos, target_pos);
   if (fabsf(pos_diff) < POSITION_TOLERANCE) {
     element_set_position(info, target_pos);
     return;
@@ -81,7 +81,7 @@ bool element_is_targeting_position(physics_info *info, phy_vect pos, float toler
 
 bool element_is_at_position(physics_info *info, phy_vect pos, float tolerance) {
   phy_vect body_pos = phy_body_get_position(info->body);
-  float pos_diff = cpvdist(pos, body_pos);
+  float pos_diff = phy_v_dist(pos, body_pos);
   if (pos_diff <= tolerance) {
     return true;
   }

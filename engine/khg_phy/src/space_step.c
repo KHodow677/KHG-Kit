@@ -20,7 +20,7 @@ phy_space_get_post_step_callback(phy_space *space, void *key)
 static void PostStepDoNothing(phy_space *space, void *obj, void *data){}
 
 bool
-cpSpaceAddPostStepCallback(phy_space *space, cpPostStepFunc func, void *key, void *data)
+phy_space_add_post_step_callback(phy_space *space, phy_post_step_func func, void *key, void *data)
 {
 	if (!space->locked) {
     utl_error_func("Adding a post-step callback when the space is not locked is unnecessary", utl_user_defined_data);
@@ -72,7 +72,7 @@ phy_space_unlock(phy_space *space, bool runPostStep)
 			phy_array *arr = space->post_step_callbacks;
 			for(int i=0; i<arr->num; i++){
 				phy_post_step_callback *callback = (phy_post_step_callback *)arr->arr[i];
-				cpPostStepFunc func = callback->func;
+				phy_post_step_func func = callback->func;
 				
 				// Mark the func as NULL in case calling it calls cpSpaceRunPostStepCallbacks() again.
 				// TODO: need more tests around this case I think.
@@ -243,7 +243,7 @@ phy_space_collide_shapes(phy_shape *a, phy_shape *b, phy_collision_id id, phy_sp
 	phy_collision_handler *handler = arb->handler;
 	
 	// Call the begin function first if it's the first step
-	if(arb->state == PHY_ARBITER_STATE_FIRST_COLLISION && !handler->beginFunc(arb, space, handler->userData)){
+	if(arb->state == PHY_ARBITER_STATE_FIRST_COLLISION && !handler->begin_func(arb, space, handler->user_data)){
 		phy_arbiter_ignore(arb); // permanently ignore the collision until separation
 	}
 	
@@ -251,7 +251,7 @@ phy_space_collide_shapes(phy_shape *a, phy_shape *b, phy_collision_id id, phy_sp
 		// Ignore the arbiter if it has been flagged
 		(arb->state != PHY_ARBITER_STATE_IGNORE) && 
 		// Call preSolve
-		handler->preSolveFunc(arb, space, handler->userData) &&
+		handler->pre_solve_func(arb, space, handler->user_data) &&
 		// Check (again) in case the pre-solve() callback called cpArbiterIgnored().
 		arb->state != PHY_ARBITER_STATE_IGNORE &&
 		// Process, but don't add collisions for sensors.
@@ -299,7 +299,7 @@ phy_space_arbiter_set_filter(phy_arbiter *arb, phy_space *space)
 	if(ticks >= 1 && arb->state != PHY_ARBITER_STATE_CACHED){
 		arb->state = PHY_ARBITER_STATE_CACHED;
 		phy_collision_handler *handler = arb->handler;
-		handler->separateFunc(arb, space, handler->userData);
+		handler->separate_func(arb, space, handler->user_data);
 	}
 	
 	if(ticks >= space->collision_persistence){
@@ -318,11 +318,11 @@ phy_space_arbiter_set_filter(phy_arbiter *arb, phy_space *space)
  void
 phy_shape_update_func(phy_shape *shape, void *unused)
 {
-	cpShapeCacheBB(shape);
+	phy_shape_cache_BB(shape);
 }
 
 void
-cpSpaceStep(phy_space *space, float dt)
+phy_space_step(phy_space *space, float dt)
 {
 	// don't step if the timestep is 0!
 	if(dt == 0.0f) return;
@@ -357,8 +357,8 @@ cpSpaceStep(phy_space *space, float dt)
 		
 		// Find colliding pairs.
 		phy_space_push_fresh_contact_buffer(space);
-		cpSpatialIndexEach(space->dynamic_shapes, (cpSpatialIndexIteratorFunc)phy_shape_update_func, NULL);
-		cpSpatialIndexReindexQuery(space->dynamic_shapes, (cpSpatialIndexQueryFunc)phy_space_collide_shapes, space);
+		phy_spatial_index_each(space->dynamic_shapes, (phy_spatial_index_iterator_func)phy_shape_update_func, NULL);
+		phy_spatial_index_reindex_query(space->dynamic_shapes, (phy_spatial_index_query_func)phy_space_collide_shapes, space);
 	} phy_space_unlock(space, false);
 	
 	// Rebuild the contact graph (and detect sleeping components if sleeping is enabled)
@@ -428,7 +428,7 @@ cpSpaceStep(phy_space *space, float dt)
 			phy_arbiter *arb = (phy_arbiter *) arbiters->arr[i];
 			
 			phy_collision_handler *handler = arb->handler;
-			handler->postSolveFunc(arb, space, handler->userData);
+			handler->post_solve_func(arb, space, handler->user_data);
 		}
 	} phy_space_unlock(space, true);
 }

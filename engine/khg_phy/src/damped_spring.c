@@ -14,12 +14,12 @@ preStep(phy_damped_spring *spring, float dt)
 	phy_body *a = spring->constraint.a;
 	phy_body *b = spring->constraint.b;
 	
-	spring->r1 = cpTransformVect(a->transform, cpvsub(spring->anchor_A, a->cog));
-	spring->r2 = cpTransformVect(b->transform, cpvsub(spring->anchor_B, b->cog));
+	spring->r1 = phy_transform_vect(a->transform, phy_v_sub(spring->anchor_A, a->cog));
+	spring->r2 = phy_transform_vect(b->transform, phy_v_sub(spring->anchor_B, b->cog));
 	
-	phy_vect delta = cpvsub(cpvadd(b->p, spring->r2), cpvadd(a->p, spring->r1));
-	float dist = cpvlength(delta);
-	spring->n = cpvmult(delta, 1.0f/(dist ? dist : INFINITY));
+	phy_vect delta = phy_v_sub(phy_v_add(b->p, spring->r2), phy_v_add(a->p, spring->r1));
+	float dist = phy_v_length(delta);
+	spring->n = phy_v_mult(delta, 1.0f/(dist ? dist : INFINITY));
 	
 	float k = phy_k_scalar(a, b, spring->r1, spring->r2, spring->n);
 	if (k == 0.0) {
@@ -33,7 +33,7 @@ preStep(phy_damped_spring *spring, float dt)
 	// apply spring force
 	float f_spring = spring->spring_force_func((phy_constraint *)spring, dist);
 	float j_spring = spring->j_acc = f_spring*dt;
-	phy_apply_impulses(a, b, spring->r1, spring->r2, cpvmult(spring->n, j_spring));
+	phy_apply_impulses(a, b, spring->r1, spring->r2, phy_v_mult(spring->n, j_spring));
 }
 
 static void applyCachedImpulse(phy_damped_spring *spring, float dt_coef){}
@@ -57,7 +57,7 @@ applyImpulse(phy_damped_spring *spring, float dt)
 	
 	float j_damp = v_damp*spring->n_mass;
 	spring->j_acc += j_damp;
-	phy_apply_impulses(a, b, spring->r1, spring->r2, cpvmult(spring->n, j_damp));
+	phy_apply_impulses(a, b, spring->r1, spring->r2, phy_v_mult(spring->n, j_damp));
 }
 
 static float

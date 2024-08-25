@@ -1,7 +1,8 @@
 #include "khg_phy/phy_private.h"
+#include "khg_phy/spatial_index.h"
 #include <stdlib.h>
 
-static inline cpSpatialIndexClass *Klass(void);
+static inline phy_spatial_index_class *Klass(void);
 
 //MARK: Basic Structures
 
@@ -14,9 +15,9 @@ typedef struct TableCell {
 	Bounds bounds;
 } TableCell;
 
-struct cpSweep1D
+struct phy_sweep_1d
 {
-	cpSpatialIndex spatialIndex;
+	phy_spatial_index spatialIndex;
 	
 	int num;
 	int max;
@@ -30,14 +31,14 @@ BoundsOverlap(Bounds a, Bounds b)
 }
 
 static inline Bounds
-BBToBounds(cpSweep1D *sweep, phy_bb bb)
+BBToBounds(phy_sweep_1d *sweep, phy_bb bb)
 {
 	Bounds bounds = {bb.l, bb.r};
 	return bounds;
 }
 
 static inline TableCell
-MakeTableCell(cpSweep1D *sweep, void *obj)
+MakeTableCell(phy_sweep_1d *sweep, void *obj)
 {
 	TableCell cell = {obj, BBToBounds(sweep, sweep->spatialIndex.bbfunc(obj))};
 	return cell;
@@ -45,38 +46,38 @@ MakeTableCell(cpSweep1D *sweep, void *obj)
 
 //MARK: Memory Management Functions
 
-cpSweep1D *
-cpSweep1DAlloc(void)
+phy_sweep_1d *
+phy_sweep_1d_alloc(void)
 {
-	return (cpSweep1D *)calloc(1, sizeof(cpSweep1D));
+	return (phy_sweep_1d *)calloc(1, sizeof(phy_sweep_1d));
 }
 
 static void
-ResizeTable(cpSweep1D *sweep, int size)
+ResizeTable(phy_sweep_1d *sweep, int size)
 {
 	sweep->max = size;
 	sweep->table = (TableCell *)realloc(sweep->table, size*sizeof(TableCell));
 }
 
-cpSpatialIndex *
-cpSweep1DInit(cpSweep1D *sweep, cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
+phy_spatial_index *
+phy_sweep_1d_init(phy_sweep_1d *sweep, phy_spatial_index_BB_func bbfunc, phy_spatial_index *staticIndex)
 {
-	phy_spatial_index_init((cpSpatialIndex *)sweep, Klass(), bbfunc, staticIndex);
+	phy_spatial_index_init((phy_spatial_index *)sweep, Klass(), bbfunc, staticIndex);
 	
 	sweep->num = 0;
 	ResizeTable(sweep, 32);
 	
-	return (cpSpatialIndex *)sweep;
+	return (phy_spatial_index *)sweep;
 }
 
-cpSpatialIndex *
-cpSweep1DNew(cpSpatialIndexBBFunc bbfunc, cpSpatialIndex *staticIndex)
+phy_spatial_index *
+phy_sweep_1D_new(phy_spatial_index_BB_func bbfunc, phy_spatial_index *staticIndex)
 {
-	return cpSweep1DInit(cpSweep1DAlloc(), bbfunc, staticIndex);
+	return phy_sweep_1d_init(phy_sweep_1d_alloc(), bbfunc, staticIndex);
 }
 
 static void
-cpSweep1DDestroy(cpSweep1D *sweep)
+cpSweep1DDestroy(phy_sweep_1d *sweep)
 {
 	free(sweep->table);
 	sweep->table = NULL;
@@ -85,20 +86,20 @@ cpSweep1DDestroy(cpSweep1D *sweep)
 //MARK: Misc
 
 static int
-cpSweep1DCount(cpSweep1D *sweep)
+cpSweep1DCount(phy_sweep_1d *sweep)
 {
 	return sweep->num;
 }
 
 static void
-cpSweep1DEach(cpSweep1D *sweep, cpSpatialIndexIteratorFunc func, void *data)
+cpSweep1DEach(phy_sweep_1d *sweep, phy_spatial_index_iterator_func func, void *data)
 {
 	TableCell *table = sweep->table;
 	for(int i=0, count=sweep->num; i<count; i++) func(table[i].obj, data);
 }
 
 static int
-cpSweep1DContains(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
+cpSweep1DContains(phy_sweep_1d *sweep, void *obj, phy_hash_value hashid)
 {
 	TableCell *table = sweep->table;
 	for(int i=0, count=sweep->num; i<count; i++){
@@ -111,7 +112,7 @@ cpSweep1DContains(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
 //MARK: Basic Operations
 
 static void
-cpSweep1DInsert(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
+cpSweep1DInsert(phy_sweep_1d *sweep, void *obj, phy_hash_value hashid)
 {
 	if(sweep->num == sweep->max) ResizeTable(sweep, sweep->max*2);
 	
@@ -120,7 +121,7 @@ cpSweep1DInsert(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
 }
 
 static void
-cpSweep1DRemove(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
+cpSweep1DRemove(phy_sweep_1d *sweep, void *obj, phy_hash_value hashid)
 {
 	TableCell *table = sweep->table;
 	for(int i=0, count=sweep->num; i<count; i++){
@@ -138,13 +139,13 @@ cpSweep1DRemove(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
 //MARK: Reindexing Functions
 
 static void
-cpSweep1DReindexObject(cpSweep1D *sweep, void *obj, phy_hash_value hashid)
+cpSweep1DReindexObject(phy_sweep_1d *sweep, void *obj, phy_hash_value hashid)
 {
 	// Nothing to do here
 }
 
 static void
-cpSweep1DReindex(cpSweep1D *sweep)
+cpSweep1DReindex(phy_sweep_1d *sweep)
 {
 	// Nothing to do here
 	// Could perform a sort, but queries are not accelerated anyway.
@@ -153,7 +154,7 @@ cpSweep1DReindex(cpSweep1D *sweep)
 //MARK: Query Functions
 
 static void
-cpSweep1DQuery(cpSweep1D *sweep, void *obj, phy_bb bb, cpSpatialIndexQueryFunc func, void *data)
+cpSweep1DQuery(phy_sweep_1d *sweep, void *obj, phy_bb bb, phy_spatial_index_query_func func, void *data)
 {
 	// Implementing binary search here would allow you to find an upper limit
 	// but not a lower limit. Probably not worth the hassle.
@@ -168,7 +169,7 @@ cpSweep1DQuery(cpSweep1D *sweep, void *obj, phy_bb bb, cpSpatialIndexQueryFunc f
 }
 
 static void
-cpSweep1DSegmentQuery(cpSweep1D *sweep, void *obj, phy_vect a, phy_vect b, float t_exit, cpSpatialIndexSegmentQueryFunc func, void *data)
+cpSweep1DSegmentQuery(phy_sweep_1d *sweep, void *obj, phy_vect a, phy_vect b, float t_exit, phy_spatial_index_segment_query_func func, void *data)
 {
 	phy_bb bb = phy_bb_expand(phy_bb_new(a.x, a.y, a.x, a.y), b);
 	Bounds bounds = BBToBounds(sweep, bb);
@@ -189,7 +190,7 @@ TableSort(TableCell *a, TableCell *b)
 }
 
 static void
-cpSweep1DReindexQuery(cpSweep1D *sweep, cpSpatialIndexQueryFunc func, void *data)
+cpSweep1DReindexQuery(phy_sweep_1d *sweep, phy_spatial_index_query_func func, void *data)
 {
 	TableCell *table = sweep->table;
 	int count = sweep->num;
@@ -209,26 +210,26 @@ cpSweep1DReindexQuery(cpSweep1D *sweep, cpSpatialIndexQueryFunc func, void *data
 	
 	// Reindex query is also responsible for colliding against the static index.
 	// Fortunately there is a helper function for that.
-	cpSpatialIndexCollideStatic((cpSpatialIndex *)sweep, sweep->spatialIndex.staticIndex, func, data);
+	phy_spatial_index_collide_static((phy_spatial_index *)sweep, sweep->spatialIndex.static_index, func, data);
 }
 
-static cpSpatialIndexClass klass = {
-	(cpSpatialIndexDestroyImpl)cpSweep1DDestroy,
+static phy_spatial_index_class klass = {
+	(phy_spatial_index_destroy_impl)cpSweep1DDestroy,
 	
-	(cpSpatialIndexCountImpl)cpSweep1DCount,
-	(cpSpatialIndexEachImpl)cpSweep1DEach,
-	(cpSpatialIndexContainsImpl)cpSweep1DContains,
+	(phy_spatial_index_count_impl)cpSweep1DCount,
+	(phy_spatial_index_each_impl)cpSweep1DEach,
+	(phy_spatial_index_contains_impl)cpSweep1DContains,
 	
-	(cpSpatialIndexInsertImpl)cpSweep1DInsert,
-	(cpSpatialIndexRemoveImpl)cpSweep1DRemove,
+	(phy_spatial_index_insert_impl)cpSweep1DInsert,
+	(phy_spatial_index_remove_impl)cpSweep1DRemove,
 	
-	(cpSpatialIndexReindexImpl)cpSweep1DReindex,
-	(cpSpatialIndexReindexObjectImpl)cpSweep1DReindexObject,
-	(cpSpatialIndexReindexQueryImpl)cpSweep1DReindexQuery,
+	(phy_spatial_index_reindex_impl)cpSweep1DReindex,
+	(phy_spatial_index_reindex_object_impl)cpSweep1DReindexObject,
+	(phy_spatial_index_reindex_query_impl)cpSweep1DReindexQuery,
 	
-	(cpSpatialIndexQueryImpl)cpSweep1DQuery,
-	(cpSpatialIndexSegmentQueryImpl)cpSweep1DSegmentQuery,
+	(phy_spatial_index_query_impl)cpSweep1DQuery,
+	(phy_spatial_index_segment_query_impl)cpSweep1DSegmentQuery,
 };
 
-static inline cpSpatialIndexClass *Klass(){return &klass;}
+static inline phy_spatial_index_class *Klass(){return &klass;}
 

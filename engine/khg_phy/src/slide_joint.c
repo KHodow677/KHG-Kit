@@ -10,20 +10,20 @@ preStep(phy_slide_joint *joint, float dt)
 	phy_body *a = joint->constraint.a;
 	phy_body *b = joint->constraint.b;
 	
-	joint->r1 = cpTransformVect(a->transform, cpvsub(joint->anchor_A, a->cog));
-	joint->r2 = cpTransformVect(b->transform, cpvsub(joint->anchor_B, b->cog));
+	joint->r1 = phy_transform_vect(a->transform, phy_v_sub(joint->anchor_A, a->cog));
+	joint->r2 = phy_transform_vect(b->transform, phy_v_sub(joint->anchor_B, b->cog));
 	
-	phy_vect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
-	float dist = cpvlength(delta);
+	phy_vect delta = phy_v_sub(phy_v_add(b->p, joint->r2), phy_v_add(a->p, joint->r1));
+	float dist = phy_v_length(delta);
 	float pdist = 0.0f;
 	if(dist > joint->max) {
 		pdist = dist - joint->max;
-		joint->n = cpvnormalize(delta);
+		joint->n = phy_v_normalize(delta);
 	} else if(dist < joint->min) {
 		pdist = joint->min - dist;
-		joint->n = cpvneg(cpvnormalize(delta));
+		joint->n = phy_v_neg(phy_v_normalize(delta));
 	} else {
-		joint->n = cpvzero;
+		joint->n = phy_v_zero;
 		joint->jn_acc = 0.0f;
 	}
 	
@@ -41,14 +41,14 @@ applyCachedImpulse(phy_slide_joint *joint, float dt_coef)
 	phy_body *a = joint->constraint.a;
 	phy_body *b = joint->constraint.b;
 	
-	phy_vect j = cpvmult(joint->n, joint->jn_acc*dt_coef);
+	phy_vect j = phy_v_mult(joint->n, joint->jn_acc*dt_coef);
 	phy_apply_impulses(a, b, joint->r1, joint->r2, j);
 }
 
 static void
 applyImpulse(phy_slide_joint *joint, float dt)
 {
-	if(cpveql(joint->n, cpvzero)) return;  // early exit
+	if(phy_v_eql(joint->n, phy_v_zero)) return;  // early exit
 
 	phy_body *a = joint->constraint.a;
 	phy_body *b = joint->constraint.b;
@@ -59,7 +59,7 @@ applyImpulse(phy_slide_joint *joint, float dt)
 		
 	// compute relative velocity
 	phy_vect vr = phy_relative_velocity(a, b, r1, r2);
-	float vrn = cpvdot(vr, n);
+	float vrn = phy_v_dot(vr, n);
 	
 	// compute normal impulse
 	float jn = (joint->bias - vrn)*joint->n_mass;
@@ -68,7 +68,7 @@ applyImpulse(phy_slide_joint *joint, float dt)
 	jn = joint->jn_acc - jnOld;
 	
 	// apply impulse
-	phy_apply_impulses(a, b, joint->r1, joint->r2, cpvmult(n, jn));
+	phy_apply_impulses(a, b, joint->r1, joint->r2, phy_v_mult(n, jn));
 }
 
 static float
@@ -85,13 +85,13 @@ static const phy_constraint_class klass = {
 };
 
 phy_slide_joint *
-cpSlideJointAlloc(void)
+phy_slide_joint_alloc(void)
 {
 	return (phy_slide_joint *)calloc(1, sizeof(phy_slide_joint));
 }
 
 phy_slide_joint *
-cpSlideJointInit(phy_slide_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float min, float max)
+phy_slide_joint_init(phy_slide_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float min, float max)
 {
 	cp_constraint_init((phy_constraint *)joint, &klass, a, b);
 	
@@ -106,30 +106,30 @@ cpSlideJointInit(phy_slide_joint *joint, phy_body *a, phy_body *b, phy_vect anch
 }
 
 phy_constraint *
-cpSlideJointNew(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float min, float max)
+phy_slide_joint_new(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB, float min, float max)
 {
-	return (phy_constraint *)cpSlideJointInit(cpSlideJointAlloc(), a, b, anchorA, anchorB, min, max);
+	return (phy_constraint *)phy_slide_joint_init(phy_slide_joint_alloc(), a, b, anchorA, anchorB, min, max);
 }
 
 bool
-cpConstraintIsSlideJoint(const phy_constraint *constraint)
+phy_constraint_is_slide_joint(const phy_constraint *constraint)
 {
 	return (constraint->class == &klass);
 }
 
 phy_vect
-cpSlideJointGetAnchorA(const phy_constraint *constraint)
+phy_slide_joint_get_anchor_A(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsSlideJoint(constraint)) {
+	if (!phy_constraint_is_slide_joint(constraint)) {
     utl_error_func("Constraint is not a slide joint", utl_user_defined_data);
   }
 	return ((phy_slide_joint *)constraint)->anchor_A;
 }
 
 void
-cpSlideJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
+phy_slide_joint_set_anchor_A(phy_constraint *constraint, phy_vect anchorA)
 {
-	if (!cpConstraintIsSlideJoint(constraint)) {
+	if (!phy_constraint_is_slide_joint(constraint)) {
     utl_error_func("Constraint is not a slide joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
@@ -137,18 +137,18 @@ cpSlideJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
 }
 
 phy_vect
-cpSlideJointGetAnchorB(const phy_constraint *constraint)
+phy_slide_joint_get_anchor_B(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsSlideJoint(constraint)) {
+	if (!phy_constraint_is_slide_joint(constraint)) {
     utl_error_func("Constraint is not a slide joint", utl_user_defined_data);
   }
 	return ((phy_slide_joint *)constraint)->anchor_B;
 }
 
 void
-cpSlideJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
+phy_slide_joint_set_anchor_B(phy_constraint *constraint, phy_vect anchorB)
 {
-	if (!cpConstraintIsSlideJoint(constraint)) {
+	if (!phy_constraint_is_slide_joint(constraint)) {
     utl_error_func("Constraint is not a slide joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
@@ -156,18 +156,18 @@ cpSlideJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
 }
 
 float
-cpSlideJointGetMin(const phy_constraint *constraint)
+phy_slide_joint_get_min(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsSlideJoint(constraint)) {
+	if (!phy_constraint_is_slide_joint(constraint)) {
     utl_error_func("Constraint is not a slide joint", utl_user_defined_data);
   }
 	return ((phy_slide_joint *)constraint)->min;
 }
 
 void
-cpSlideJointSetMin(phy_constraint *constraint, float min)
+phy_slide_joint_set_min(phy_constraint *constraint, float min)
 {
-	if (!cpConstraintIsSlideJoint(constraint)) {
+	if (!phy_constraint_is_slide_joint(constraint)) {
     utl_error_func("Constraint is not a slide joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
@@ -175,18 +175,18 @@ cpSlideJointSetMin(phy_constraint *constraint, float min)
 }
 
 float
-cpSlideJointGetMax(const phy_constraint *constraint)
+phy_slide_joint_get_max(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsSlideJoint(constraint)) {
+	if (!phy_constraint_is_slide_joint(constraint)) {
     utl_error_func("Constraint is not a slide joint", utl_user_defined_data);
   }
 	return ((phy_slide_joint *)constraint)->max;
 }
 
 void
-cpSlideJointSetMax(phy_constraint *constraint, float max)
+phy_slide_joint_set_max(phy_constraint *constraint, float max)
 {
-	if (!cpConstraintIsSlideJoint(constraint)) {
+	if (!phy_constraint_is_slide_joint(constraint)) {
     utl_error_func("Constraint is not a slide joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);

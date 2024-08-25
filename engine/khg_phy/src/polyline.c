@@ -16,25 +16,25 @@ static inline int Next(int i, int count){return (i+1)%count;}
 static int
 cpPolylineSizeForCapacity(int capacity)
 {
-	return sizeof(cpPolyline) + capacity*sizeof(phy_vect);
+	return sizeof(phy_polyline) + capacity*sizeof(phy_vect);
 }
 
-static cpPolyline *
+static phy_polyline *
 cpPolylineMake(int capacity)
 {
 	capacity = (capacity > DEFAULT_POLYLINE_CAPACITY ? capacity : DEFAULT_POLYLINE_CAPACITY);
 	
-	cpPolyline *line = (cpPolyline *)calloc(1, cpPolylineSizeForCapacity(capacity));
+	phy_polyline *line = (phy_polyline *)calloc(1, cpPolylineSizeForCapacity(capacity));
 	line->count = 0;
 	line->capacity = capacity;
 	
 	return line;
 }
 
-static cpPolyline *
+static phy_polyline *
 cpPolylineMake2(int capacity, phy_vect a, phy_vect b)
 {
-	cpPolyline *line = cpPolylineMake(capacity);
+	phy_polyline *line = cpPolylineMake(capacity);
 	line->count = 2;
 	line->verts[0] = a;
 	line->verts[1] = b;
@@ -42,22 +42,22 @@ cpPolylineMake2(int capacity, phy_vect a, phy_vect b)
 	return line;
 }
 
-static cpPolyline *
-cpPolylineShrink(cpPolyline *line)
+static phy_polyline *
+cpPolylineShrink(phy_polyline *line)
 {
 	line->capacity = line->count;
-	return (cpPolyline*)realloc(line, cpPolylineSizeForCapacity(line->count));
+	return (phy_polyline*)realloc(line, cpPolylineSizeForCapacity(line->count));
 }
 
 void
-cpPolylineFree(cpPolyline *line)
+phy_polyline_free(phy_polyline *line)
 {
 	free(line);
 }
 
 // Grow the allocated memory for a polyline.
-static cpPolyline *
-cpPolylineGrow(cpPolyline *line, int count)
+static phy_polyline *
+cpPolylineGrow(phy_polyline *line, int count)
 {
   line->count += count;
   
@@ -66,15 +66,15 @@ cpPolylineGrow(cpPolyline *line, int count)
   
   if(line->capacity < capacity){
     line->capacity = capacity;
-		line = (cpPolyline*)realloc(line, cpPolylineSizeForCapacity(capacity));
+		line = (phy_polyline*)realloc(line, cpPolylineSizeForCapacity(capacity));
   }
 	
 	return line;
 }
 
 // Push v onto the end of line.
-static cpPolyline *
-cpPolylinePush(cpPolyline *line, phy_vect v)
+static phy_polyline *
+cpPolylinePush(phy_polyline *line, phy_vect v)
 {
   int count = line->count;
   line = cpPolylineGrow(line, 1);
@@ -84,8 +84,8 @@ cpPolylinePush(cpPolyline *line, phy_vect v)
 }
 
 // Push v onto the beginning of line.
-static cpPolyline *
-cpPolylineEnqueue(cpPolyline *line, phy_vect v)
+static phy_polyline *
+cpPolylineEnqueue(phy_polyline *line, phy_vect v)
 {
 	// TODO could optimize this to grow in both directions.
 	// Probably doesn't matter though.
@@ -99,9 +99,9 @@ cpPolylineEnqueue(cpPolyline *line, phy_vect v)
 
 // Returns true if the polyline starts and ends with the same vertex.
 bool
-cpPolylineIsClosed(cpPolyline *line)
+phy_polyline_is_closed(phy_polyline *line)
 {
-	return (line->count > 1 && cpveql(line->verts[0], line->verts[line->count-1]));
+	return (line->count > 1 && phy_v_eql(line->verts[0], line->verts[line->count-1]));
 }
 
 // Check if a cpPolyline is longer than a certain length
@@ -111,7 +111,7 @@ cpPolylineIsShort(phy_vect *points, int count, int start, int end, float min)
 {
   float length = 0.0f;
 	for(int i=start; i!=end; i=Next(i, count)){
-		length += cpvdist(points[i], points[Next(i, count)]);
+		length += phy_v_dist(points[i], points[Next(i, count)]);
 		if(length > min) return false;
 	}
   
@@ -124,15 +124,15 @@ static inline float
 Sharpness(phy_vect a, phy_vect b, phy_vect c)
 {
 	// TODO could speed this up by caching the normals instead of calculating each twice.
-  return cpvdot(cpvnormalize(cpvsub(a, b)), cpvnormalize(cpvsub(c, b)));
+  return phy_v_dot(phy_v_normalize(phy_v_sub(a, b)), phy_v_normalize(phy_v_sub(c, b)));
 }
 
 // Join similar adjacent line segments together. Works well for hard edged shapes.
 // 'tol' is the minimum anglular difference in radians of a vertex.
-cpPolyline *
-cpPolylineSimplifyVertexes(cpPolyline *line, float tol)
+phy_polyline *
+phy_polyline_simplify_vertices(phy_polyline *line, float tol)
 {
-	cpPolyline *reduced = cpPolylineMake2(0, line->verts[0], line->verts[1]);
+	phy_polyline *reduced = cpPolylineMake2(0, line->verts[0], line->verts[1]);
 	
 	float minSharp = -cosf(tol);
 	
@@ -148,7 +148,7 @@ cpPolylineSimplifyVertexes(cpPolyline *line, float tol)
 	}
 	
 	if(
-		cpPolylineIsClosed(line) &&
+		phy_polyline_is_closed(line) &&
 		Sharpness(reduced->verts[reduced->count - 2], reduced->verts[0], reduced->verts[1]) < minSharp
 	){
 		reduced->verts[0] = reduced->verts[reduced->count - 2];
@@ -160,9 +160,9 @@ cpPolylineSimplifyVertexes(cpPolyline *line, float tol)
 }
 
 // Recursive function used by cpPolylineSimplifyCurves().
-static cpPolyline *
+static phy_polyline *
 DouglasPeucker(
-	phy_vect *verts, cpPolyline *reduced,
+	phy_vect *verts, phy_polyline *reduced,
 	int length, int start, int end,
 	float min, float tol
 ){
@@ -173,17 +173,17 @@ DouglasPeucker(
 	phy_vect b = verts[end];
 	
 	// Check if the length is below the threshold
-	if(cpvnear(a, b, min) && cpPolylineIsShort(verts, length, start, end, min)) return reduced;
+	if(phy_v_near(a, b, min) && cpPolylineIsShort(verts, length, start, end, min)) return reduced;
 	
 	// Find the maximal vertex to split and recurse on
 	float max = 0.0;
 	int maxi = start;
 	
-	phy_vect n = cpvnormalize(cpvperp(cpvsub(b, a)));
-	float d = cpvdot(n, a);
+	phy_vect n = phy_v_normalize(phy_v_perp(phy_v_sub(b, a)));
+	float d = phy_v_dot(n, a);
 	
 	for(int i=Next(start, length); i!=end; i=Next(i, length)){
-		float dist = fabs(cpvdot(n, verts[i]) - d);
+		float dist = fabs(phy_v_dot(n, verts[i]) - d);
 		
 		if(dist > max){
 			max = dist;
@@ -203,14 +203,14 @@ DouglasPeucker(
 // Recursively reduce the vertex count on a polyline. Works best for smooth shapes.
 // 'tol' is the maximum error for the reduction.
 // The reduced polyline will never be farther than this distance from the original polyline.
-cpPolyline *
-cpPolylineSimplifyCurves(cpPolyline *line, float tol)
+phy_polyline *
+phy_polyline_simplify_curves(phy_polyline *line, float tol)
 {
-	cpPolyline *reduced = cpPolylineMake(line->count);
+	phy_polyline *reduced = cpPolylineMake(line->count);
 	
 	float min = tol/2.0f;
   
-  if(cpPolylineIsClosed(line)){
+  if(phy_polyline_is_closed(line)){
 		int start, end;
     cp_loop_indexes(line->verts, line->count - 1, &start, &end);
     
@@ -230,35 +230,35 @@ cpPolylineSimplifyCurves(cpPolyline *line, float tol)
 
 //MARK: Polyline Sets
 
-cpPolylineSet *
-cpPolylineSetAlloc(void)
+phy_polyline_set *
+phy_polyline_set_alloc(void)
 {
-	return (cpPolylineSet *)calloc(1, sizeof(cpPolylineSet));
+	return (phy_polyline_set *)calloc(1, sizeof(phy_polyline_set));
 }
 
-cpPolylineSet *
-cpPolylineSetInit(cpPolylineSet *set)
+phy_polyline_set *
+phy_polyline_set_init(phy_polyline_set *set)
 {
 	set->count = 0;
 	set->capacity = 8;
-	set->lines = (cpPolyline**)calloc(set->capacity, sizeof(cpPolyline));
+	set->lines = (phy_polyline**)calloc(set->capacity, sizeof(phy_polyline));
 	
   return set;
 }
 
 
-cpPolylineSet *
-cpPolylineSetNew(void)
+phy_polyline_set *
+phy_polyline_set_new(void)
 {
-	return cpPolylineSetInit(cpPolylineSetAlloc());
+	return phy_polyline_set_init(phy_polyline_set_alloc());
 }
 
 void
-cpPolylineSetDestroy(cpPolylineSet *set, bool freePolylines)
+phy_polyline_set_destroy(phy_polyline_set *set, bool freePolylines)
 {
 	if(freePolylines){
 		for(int i=0; i<set->count; i++){
-			cpPolylineFree(set->lines[i]);
+			phy_polyline_free(set->lines[i]);
 		}
 	}
 	
@@ -267,23 +267,23 @@ cpPolylineSetDestroy(cpPolylineSet *set, bool freePolylines)
 
 
 void
-cpPolylineSetFree(cpPolylineSet *set, bool freePolylines)
+phy_polyline_set_free(phy_polyline_set *set, bool freePolylines)
 {
 	if(set){
-		cpPolylineSetDestroy(set, freePolylines);
+		phy_polyline_set_destroy(set, freePolylines);
 		free(set);
 	}
 }
 
 // Find the polyline that ends with v.
 static int
-cpPolylineSetFindEnds(cpPolylineSet *set, phy_vect v){
+cpPolylineSetFindEnds(phy_polyline_set *set, phy_vect v){
 	int count = set->count;
-	cpPolyline **lines = set->lines;
+	phy_polyline **lines = set->lines;
 	
   for(int i=0; i<count; i++){
-		cpPolyline *line = lines[i];
-    if(cpveql(line->verts[line->count - 1], v)) return i;
+		phy_polyline *line = lines[i];
+    if(phy_v_eql(line->verts[line->count - 1], v)) return i;
   }
   
   return -1;
@@ -291,12 +291,12 @@ cpPolylineSetFindEnds(cpPolylineSet *set, phy_vect v){
 
 // Find the polyline that starts with v.
 static int
-cpPolylineSetFindStarts(cpPolylineSet *set, phy_vect v){
+cpPolylineSetFindStarts(phy_polyline_set *set, phy_vect v){
 	int count = set->count;
-	cpPolyline **lines = set->lines;
+	phy_polyline **lines = set->lines;
 	
   for(int i=0; i<count; i++){
-    if(cpveql(lines[i]->verts[0], v)) return i;
+    if(phy_v_eql(lines[i]->verts[0], v)) return i;
   }
   
   return -1;
@@ -304,13 +304,13 @@ cpPolylineSetFindStarts(cpPolylineSet *set, phy_vect v){
 
 // Add a new polyline to a polyline set.
 static void
-cpPolylineSetPush(cpPolylineSet *set, cpPolyline *line)
+cpPolylineSetPush(phy_polyline_set *set, phy_polyline *line)
 {
   // grow set
   set->count++;
   if(set->count > set->capacity){
     set->capacity *= 2;
-    set->lines = (cpPolyline**)realloc(set->lines, set->capacity*sizeof(cpPolyline));
+    set->lines = (phy_polyline**)realloc(set->lines, set->capacity*sizeof(phy_polyline));
   }
   
 	set->lines[set->count - 1] = line;
@@ -318,17 +318,17 @@ cpPolylineSetPush(cpPolylineSet *set, cpPolyline *line)
 
 // Add a new polyline to a polyline set.
 static void
-cpPolylineSetAdd(cpPolylineSet *set, phy_vect v0, phy_vect v1)
+cpPolylineSetAdd(phy_polyline_set *set, phy_vect v0, phy_vect v1)
 {
 	cpPolylineSetPush(set, cpPolylineMake2(DEFAULT_POLYLINE_CAPACITY, v0, v1));
 }
 
 // Join two cpPolylines in a polyline set together.
 static void
-cpPolylineSetJoin(cpPolylineSet *set, int before, int after)
+cpPolylineSetJoin(phy_polyline_set *set, int before, int after)
 {
-  cpPolyline *lbefore = set->lines[before];
-  cpPolyline *lafter = set->lines[after];
+  phy_polyline *lbefore = set->lines[before];
+  phy_polyline *lafter = set->lines[after];
   
   // append
   int count = lbefore->count;
@@ -338,14 +338,14 @@ cpPolylineSetJoin(cpPolylineSet *set, int before, int after)
   
   // delete lafter
   set->count--;
-	cpPolylineFree(set->lines[after]);
+	phy_polyline_free(set->lines[after]);
   set->lines[after] = set->lines[set->count];
 }
 
 // Add a segment to a polyline set.
 // A segment will either start a new polyline, join two others, or add to or loop an existing polyline.
 void
-cpPolylineSetCollectSegment(phy_vect v0, phy_vect v1, cpPolylineSet *lines)
+phy_polyline_set_collect_segment(phy_vect v0, phy_vect v1, phy_polyline_set *lines)
 {
   int before = cpPolylineSetFindEnds(lines, v0);
   int after = cpPolylineSetFindStarts(lines, v1);
@@ -372,10 +372,10 @@ cpPolylineSetCollectSegment(phy_vect v0, phy_vect v1, cpPolylineSet *lines)
 
 //MARK: Convex Hull Functions
 
-cpPolyline *
-cpPolylineToConvexHull(cpPolyline *line, float tol)
+phy_polyline *
+phy_polyline_to_convex_hull(phy_polyline *line, float tol)
 {
-	cpPolyline *hull = cpPolylineMake(line->count + 1);
+	phy_polyline *hull = cpPolylineMake(line->count + 1);
 	hull->count = phy_convex_hull(line->count, line->verts, hull->verts, NULL, tol);
 	hull = cpPolylinePush(hull, hull->verts[0]);
 	
@@ -403,11 +403,11 @@ FindSteiner(int count, phy_vect *verts, struct Notch notch)
 		phy_vect seg_a = verts[index];
 		phy_vect seg_b = verts[Next(index, count)];
 		
-		float thing_a = cpvcross(notch.n, cpvsub(seg_a, notch.v));
-		float thing_b = cpvcross(notch.n, cpvsub(seg_b, notch.v));
+		float thing_a = phy_v_cross(notch.n, phy_v_sub(seg_a, notch.v));
+		float thing_b = phy_v_cross(notch.n, phy_v_sub(seg_b, notch.v));
 		if(thing_a*thing_b <= 0.0){
 			float t = thing_a/(thing_a - thing_b);
-			float dist = cpvdot(notch.n, cpvsub(cpvlerp(seg_a, seg_b, t), notch.v));
+			float dist = phy_v_dot(notch.n, phy_v_sub(phy_v_lerp(seg_a, seg_b, t), notch.v));
 			
 			if(dist >= 0.0 && dist <= min){
 				min = dist;
@@ -572,12 +572,12 @@ DeepestNotch(int count, phy_vect *verts, int hullCount, phy_vect *hullVerts, int
 		phy_vect b = hullVerts[Next(i, hullCount)];
 		
 		// TODO use a cross check instead?
-		phy_vect n = cpvnormalize(cpvrperp(cpvsub(a, b)));
-		float d = cpvdot(n, a);
+		phy_vect n = phy_v_normalize(phy_v_rperp(phy_v_sub(a, b)));
+		float d = phy_v_dot(n, a);
 		
 		phy_vect v = verts[j];
-		while(!cpveql(v, b)){
-			float depth = cpvdot(n, v) - d;
+		while(!phy_v_eql(v, b)){
+			float depth = phy_v_dot(n, v) - d;
 			
 			if(depth > notch.d){
 				notch.d = depth;
@@ -599,7 +599,7 @@ DeepestNotch(int count, phy_vect *verts, int hullCount, phy_vect *hullVerts, int
 static inline int IMAX(int a, int b){return (a > b ? a : b);}
 
 static void
-ApproximateConcaveDecomposition(phy_vect *verts, int count, float tol, cpPolylineSet *set)
+ApproximateConcaveDecomposition(phy_vect *verts, int count, float tol, phy_polyline_set *set)
 {
 	int first;
 	phy_vect *hullVerts = (phy_vect*) alloca(count*sizeof(phy_vect));
@@ -613,7 +613,7 @@ ApproximateConcaveDecomposition(phy_vect *verts, int count, float tol, cpPolylin
 			
 			if(steiner_it >= 0.0){
 				int steiner_i = (int)steiner_it;
-				phy_vect steiner = cpvlerp(verts[steiner_i], verts[Next(steiner_i, count)], steiner_it - steiner_i);
+				phy_vect steiner = phy_v_lerp(verts[steiner_i], verts[Next(steiner_i, count)], steiner_it - steiner_i);
 				
 				// Vertex counts NOT including the steiner point.
 				int sub1_count = (steiner_i - notch.i + count)%count + 1;
@@ -633,7 +633,7 @@ ApproximateConcaveDecomposition(phy_vect *verts, int count, float tol, cpPolylin
 		}
 	}
 	
-	cpPolyline *hull = cpPolylineMake(hullCount + 1);
+	phy_polyline *hull = cpPolylineMake(hullCount + 1);
 	
 	memcpy(hull->verts, hullVerts, hullCount*sizeof(phy_vect));
 	hull->verts[hullCount] = hullVerts[0];
@@ -642,17 +642,17 @@ ApproximateConcaveDecomposition(phy_vect *verts, int count, float tol, cpPolylin
 	cpPolylineSetPush(set, hull);
 }
 
-cpPolylineSet *
-cpPolylineConvexDecomposition_BETA(cpPolyline *line, float tol)
+phy_polyline_set *
+cpPolylineConvexDecomposition_BETA(phy_polyline *line, float tol)
 {
-	if (!cpPolylineIsClosed(line)) {
+	if (!phy_polyline_is_closed(line)) {
     utl_error_func("Cannot decompose an open polygon", utl_user_defined_data);
   }
 	if (phy_area_for_poly(line->count, line->verts, 0.0) < 0.0) {
     utl_error_func("Winding is backwards, likely because you are passing a hole", utl_user_defined_data);
   }
 	
-	cpPolylineSet *set = cpPolylineSetNew();
+	phy_polyline_set *set = phy_polyline_set_new();
 	ApproximateConcaveDecomposition(line->verts, line->count - 1, tol, set);
 	
 	return set;

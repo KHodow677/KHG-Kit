@@ -45,7 +45,7 @@ ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_d
   for (int id = 0; id < entity_count; id++) {
     info = utl_vector_at(MOVER_INFO, entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    if (!cpveql(handle_left_mouse_controls(), cpv(-1.0f, -1.0f))) {
+    if (!phy_v_eql(handle_left_mouse_controls(), phy_v(-1.0f, -1.0f))) {
       info->target_move_pos = handle_left_mouse_controls();
     }
     element_target_position(p_info, info->target_move_pos, 300.0f, 16.0f);

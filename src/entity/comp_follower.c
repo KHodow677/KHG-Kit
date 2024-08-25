@@ -54,7 +54,7 @@ ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
       phy_body_set_angular_velocity(info->body, target_ang_vel);
     }
     if (info->follow_pos) {
-      phy_vect target_vel = cpvadd(phy_body_get_velocity(info->target_body), phy_body_get_velocity(info->body));
+      phy_vect target_vel = phy_v_add(phy_body_get_velocity(info->target_body), phy_body_get_velocity(info->body));
       phy_body_set_velocity(info->body, target_vel);
     }
   }

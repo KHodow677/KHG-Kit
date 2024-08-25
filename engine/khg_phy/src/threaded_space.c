@@ -561,7 +561,7 @@ phy_space *
 phy_threaded_space_new(void)
 {
 	phy_hasty_space *hasty = (phy_hasty_space *)calloc(1, sizeof(phy_hasty_space));
-	cpSpaceInit((phy_space *)hasty);
+	phy_space_init((phy_space *)hasty);
 	
 	pthread_mutex_init(&hasty->mutex, NULL);
 	pthread_cond_init(&hasty->cond_work, NULL);
@@ -588,7 +588,7 @@ phy_threaded_space_free(phy_space *space)
 	pthread_cond_destroy(&hasty->cond_work);
 	pthread_cond_destroy(&hasty->cond_resume);
 	
-	cpSpaceFree(space);
+	phy_space_free(space);
 }
 
 void
@@ -627,8 +627,8 @@ phy_threaded_space_step(phy_space *space, float dt)
 		
 		// Find colliding pairs.
 		phy_space_push_fresh_contact_buffer(space);
-		cpSpatialIndexEach(space->dynamic_shapes, (cpSpatialIndexIteratorFunc)phy_shape_update_func, NULL);
-		cpSpatialIndexReindexQuery(space->dynamic_shapes, (cpSpatialIndexQueryFunc)phy_space_collide_shapes, space);
+		phy_spatial_index_each(space->dynamic_shapes, (phy_spatial_index_iterator_func)phy_shape_update_func, NULL);
+		phy_spatial_index_reindex_query(space->dynamic_shapes, (phy_spatial_index_query_func)phy_space_collide_shapes, space);
 	} phy_space_unlock(space, false);
 	
 	// Rebuild the contact graph (and detect sleeping components if sleeping is enabled)
@@ -694,7 +694,7 @@ phy_threaded_space_step(phy_space *space, float dt)
 			phy_arbiter *arb = (phy_arbiter *) arbiters->arr[i];
 			
 			phy_collision_handler *handler = arb->handler;
-			handler->postSolveFunc(arb, space, handler->userData);
+			handler->post_solve_func(arb, space, handler->user_data);
 		}
 	} phy_space_unlock(space, true);
 }

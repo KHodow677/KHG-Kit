@@ -10,12 +10,12 @@ preStep(phy_pin_joint *joint, float dt)
 	phy_body *a = joint->constraint.a;
 	phy_body *b = joint->constraint.b;
 	
-	joint->r1 = cpTransformVect(a->transform, cpvsub(joint->anchor_A, a->cog));
-	joint->r2 = cpTransformVect(b->transform, cpvsub(joint->anchor_B, b->cog));
+	joint->r1 = phy_transform_vect(a->transform, phy_v_sub(joint->anchor_A, a->cog));
+	joint->r2 = phy_transform_vect(b->transform, phy_v_sub(joint->anchor_B, b->cog));
 	
-	phy_vect delta = cpvsub(cpvadd(b->p, joint->r2), cpvadd(a->p, joint->r1));
-	float dist = cpvlength(delta);
-	joint->n = cpvmult(delta, 1.0f/(dist ? dist : (float)INFINITY));
+	phy_vect delta = phy_v_sub(phy_v_add(b->p, joint->r2), phy_v_add(a->p, joint->r1));
+	float dist = phy_v_length(delta);
+	joint->n = phy_v_mult(delta, 1.0f/(dist ? dist : (float)INFINITY));
 	
 	// calculate mass normal
 	joint->n_mass = 1.0f/phy_k_scalar(a, b, joint->r1, joint->r2, joint->n);
@@ -31,7 +31,7 @@ applyCachedImpulse(phy_pin_joint *joint, float dt_coef)
 	phy_body *a = joint->constraint.a;
 	phy_body *b = joint->constraint.b;
 	
-	phy_vect j = cpvmult(joint->n, joint->jn_acc*dt_coef);
+	phy_vect j = phy_v_mult(joint->n, joint->jn_acc*dt_coef);
 	phy_apply_impulses(a, b, joint->r1, joint->r2, j);
 }
 
@@ -54,7 +54,7 @@ applyImpulse(phy_pin_joint *joint, float dt)
 	jn = joint->jn_acc - jnOld;
 	
 	// apply impulse
-	phy_apply_impulses(a, b, joint->r1, joint->r2, cpvmult(n, jn));
+	phy_apply_impulses(a, b, joint->r1, joint->r2, phy_v_mult(n, jn));
 }
 
 static float
@@ -72,13 +72,13 @@ static const phy_constraint_class klass = {
 
 
 phy_pin_joint *
-cpPinJointAlloc(void)
+phy_pin_joint_alloc(void)
 {
 	return (phy_pin_joint *)calloc(1, sizeof(phy_pin_joint));
 }
 
 phy_pin_joint *
-cpPinJointInit(phy_pin_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB)
+phy_pin_joint_init(phy_pin_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB)
 {
 	cp_constraint_init((phy_constraint *)joint, &klass, a, b);
 	
@@ -86,9 +86,9 @@ cpPinJointInit(phy_pin_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA,
 	joint->anchor_B = anchorB;
 	
 	// STATIC_BODY_CHECK
-	phy_vect p1 = (a ? cpTransformPoint(a->transform, anchorA) : anchorA);
-	phy_vect p2 = (b ? cpTransformPoint(b->transform, anchorB) : anchorB);
-	joint->dist = cpvlength(cpvsub(p2, p1));
+	phy_vect p1 = (a ? phy_transform_point(a->transform, anchorA) : anchorA);
+	phy_vect p2 = (b ? phy_transform_point(b->transform, anchorB) : anchorB);
+	joint->dist = phy_v_length(phy_v_sub(p2, p1));
 	
 	if (joint->dist <= 0.0) {
     utl_error_func("You created a 0 length pin joint, a pivot joint will be much more stable", utl_user_defined_data);
@@ -100,30 +100,30 @@ cpPinJointInit(phy_pin_joint *joint, phy_body *a, phy_body *b, phy_vect anchorA,
 }
 
 phy_constraint *
-cpPinJointNew(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB)
+phy_pin_joint_new(phy_body *a, phy_body *b, phy_vect anchorA, phy_vect anchorB)
 {
-	return (phy_constraint *)cpPinJointInit(cpPinJointAlloc(), a, b, anchorA, anchorB);
+	return (phy_constraint *)phy_pin_joint_init(phy_pin_joint_alloc(), a, b, anchorA, anchorB);
 }
 
 bool
-cpConstraintIsPinJoint(const phy_constraint *constraint)
+phy_constraint_is_pin_joint(const phy_constraint *constraint)
 {
 	return (constraint->class == &klass);
 }
 
 phy_vect
-cpPinJointGetAnchorA(const phy_constraint *constraint)
+phy_pin_joint_get_anchor_A(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsPinJoint(constraint)) {
+	if (!phy_constraint_is_pin_joint(constraint)) {
     utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
   }
 	return ((phy_pin_joint *)constraint)->anchor_A;
 }
 
 void
-cpPinJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
+phy_pin_joint_set_anchor_A(phy_constraint *constraint, phy_vect anchorA)
 {
-	if (!cpConstraintIsPinJoint(constraint)) {
+	if (!phy_constraint_is_pin_joint(constraint)) {
     utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
@@ -131,18 +131,18 @@ cpPinJointSetAnchorA(phy_constraint *constraint, phy_vect anchorA)
 }
 
 phy_vect
-cpPinJointGetAnchorB(const phy_constraint *constraint)
+phy_pin_joint_get_anchor_B(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsPinJoint(constraint)) {
+	if (!phy_constraint_is_pin_joint(constraint)) {
     utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
   }
 	return ((phy_pin_joint *)constraint)->anchor_B;
 }
 
 void
-cpPinJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
+phy_pin_joint_set_anchor_B(phy_constraint *constraint, phy_vect anchorB)
 {
-	if (!cpConstraintIsPinJoint(constraint)) {
+	if (!phy_constraint_is_pin_joint(constraint)) {
     utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
@@ -150,18 +150,18 @@ cpPinJointSetAnchorB(phy_constraint *constraint, phy_vect anchorB)
 }
 
 float
-cpPinJointGetDist(const phy_constraint *constraint)
+phy_pin_joint_get_dist(const phy_constraint *constraint)
 {
-	if (!cpConstraintIsPinJoint(constraint)) {
+	if (!phy_constraint_is_pin_joint(constraint)) {
     utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
   }
 	return ((phy_pin_joint *)constraint)->dist;
 }
 
 void
-cpPinJointSetDist(phy_constraint *constraint, float dist)
+phy_pin_joint_set_dist(phy_constraint *constraint, float dist)
 {
-	if (!cpConstraintIsPinJoint(constraint)) {
+	if (!phy_constraint_is_pin_joint(constraint)) {
     utl_error_func("Constraint is not a pin joint", utl_user_defined_data);
   }
 	phy_constraint_activate_bodies(constraint);
