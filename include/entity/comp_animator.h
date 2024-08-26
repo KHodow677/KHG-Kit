@@ -6,8 +6,8 @@
 typedef struct {
   int min_tex_id;
   int max_tex_id;
-  int frame_duration;
-  int frame_timer;
+  float frame_duration;
+  float frame_timer;
   bool destroy_on_max;
 } animator_info;
 
