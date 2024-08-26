@@ -80,4 +80,3 @@ void generate_rotator(rotator_info *info, physics_info *p_info) {
 void generate_shooter(shooter_info *info) {
   info->shoot_cooldown = 0;
 }
-

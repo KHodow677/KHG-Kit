@@ -16,6 +16,6 @@
 
 void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void *glfw_window);
 int gfx_loop_manager(GLFWwindow *window);
-void gfx_loop(void);
+void gfx_loop(float delta);
 void gfx_terminate(void);
 
