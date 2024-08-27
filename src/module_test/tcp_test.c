@@ -1,8 +1,12 @@
+#include "tcp_test.h"
 #include "khg_tcp/error.h"
 #include "khg_tcp/tcp.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define SERVER "localhost"
+#define PORT "12345"
 
 void process_error(tcp_error e, void *user_data) {
 	tcp_channel **channel = (tcp_channel **) user_data;

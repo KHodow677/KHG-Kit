@@ -20,7 +20,7 @@ void tcp_set_error_callback(tcp_error_callback_fn error_callback, void *user_dat
 
 tcp_error tcp_get_last_error() {
 #if defined(_WIN32) || defined(_WIN64)
-	return (stcp_error) WSAGetLastError();
+	return (tcp_error) WSAGetLastError();
 #else
 	return (tcp_error) errno;
 #endif
