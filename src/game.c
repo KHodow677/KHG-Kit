@@ -1,5 +1,5 @@
 #include "game.h"
-#include "controllers/elements/element_controller.h"
+#include "controllers/elements/camera_controller.h"
 #include "game_manager.h"
 #include "khg_phy/threaded_space.h"
 #include "physics/physics_setup.h"
@@ -21,7 +21,7 @@ void log_info() {
   if (vendor != NULL && version != NULL) {
     printf("Vendor: %s\n", vendor);
     printf("OpenGL Version: %s\n", version);
-  } 
+  }
 }
 
 int game_run() {
@@ -50,6 +50,7 @@ void gfx_loop(float delta) {
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
+  move_camera(&CAMERA, delta);
   ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
   ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);
   ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);
@@ -63,4 +64,3 @@ void gfx_loop(float delta) {
   ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
   phy_threaded_space_step(SPACE, delta);
 }
-
