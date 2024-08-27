@@ -47,7 +47,7 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   state.tex_tick = gfx_load_texture_asset("tick", "png");
 }
 
-int gfx_loop_manager(GLFWwindow *window) {
+int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
   double last_time = glfwGetTime();
   int frame_count = 0;
   double fps_start_time = last_time;
@@ -59,10 +59,12 @@ int gfx_loop_manager(GLFWwindow *window) {
     frame_count++;
     double fps_elapsed_time = current_time - fps_start_time;
     if (fps_elapsed_time > 0.0) {
-      double fps = frame_count / fps_elapsed_time;
-      char title[256];
-      snprintf(title, sizeof(title), "FPS: %.2f", fps);
-      gfx_text(title);
+      if (show_fps) {
+        double fps = frame_count / fps_elapsed_time;
+        char title[256];
+        snprintf(title, sizeof(title), "FPS: %.2f", fps);
+        gfx_text(title);
+      }
       frame_count = 0;
       fps_start_time = current_time;
     }

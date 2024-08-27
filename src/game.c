@@ -40,7 +40,7 @@ int game_run() {
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
   ecs_setup();
   spawn_tank(600, 300);
-  int res = gfx_loop_manager(window);
+  int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   return res;
 }

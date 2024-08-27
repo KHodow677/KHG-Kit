@@ -19,7 +19,7 @@ int gfx_test() {
   gfx_init_glfw(800, 600, window);
   test_body = gfx_load_texture_asset("Tank-Body-Blue", "png");
   test_top = gfx_load_texture_asset("Tank-Top-Blue", "png");
-  return gfx_loop_manager(window);
+  return gfx_loop_manager(window, false);
 }
 
 #ifdef TESTING_GFX
