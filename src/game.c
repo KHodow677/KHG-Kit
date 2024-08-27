@@ -63,3 +63,4 @@ void gfx_loop(float delta) {
   ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
   phy_threaded_space_step(SPACE, delta);
 }
+
