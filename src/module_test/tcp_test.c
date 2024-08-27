@@ -1,4 +1,5 @@
 #include "tcp_test.h"
+#include "khg_dbm/util.h"
 #include "khg_tcp/error.h"
 #include "khg_tcp/tcp.h"
 #include <stdio.h>
@@ -32,4 +33,30 @@ int tcp_test() {
 	tcp_close_channel(channel);
 	tcp_term();
 	return 0;
+}
+
+int tcp_server_test(int argc, char *argv[]) {
+  if (streq(argv[1], "host")) {
+    tcp_channel *channel = NULL;
+    tcp_set_error_callback(process_error, &channel);
+    tcp_init();
+    tcp_server *serv = tcp_open_server("localhost", "http", 1);
+    printf("Started Server\n");
+    tcp_channel *client = tcp_accept(serv, 5000);
+    printf("Connected a Client\n");
+    tcp_close_channel(channel);
+    tcp_term();
+    return 0;
+  }
+  else if (streq(argv[1], "client")) {
+    tcp_channel *channel = NULL;
+    tcp_set_error_callback(process_error, &channel);
+    tcp_init();
+    tcp_channel *server = tcp_connect("localhost", "http");
+    printf("Connected to Server\n");
+    tcp_close_channel(channel);
+    tcp_term();
+    return 0;
+  }
+  return 0;
 }
