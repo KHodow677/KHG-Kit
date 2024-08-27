@@ -40,10 +40,12 @@ int tcp_server_test(int argc, char *argv[]) {
     tcp_channel *channel = NULL;
     tcp_set_error_callback(process_error, &channel);
     tcp_init();
-    tcp_server *serv = tcp_open_server("localhost", "http", 1);
+    tcp_server *serv = tcp_open_server("localhost", "https", 1);
     printf("Started Server\n");
     tcp_channel *client = tcp_accept(serv, 5000);
     printf("Connected a Client\n");
+    tcp_send(client, "Hello World!", strlen("Hello World!"), 5000);
+    printf("Sent Message to Client\n");
     tcp_close_channel(channel);
     tcp_term();
     return 0;
@@ -52,8 +54,11 @@ int tcp_server_test(int argc, char *argv[]) {
     tcp_channel *channel = NULL;
     tcp_set_error_callback(process_error, &channel);
     tcp_init();
-    tcp_channel *server = tcp_connect("localhost", "http");
+    tcp_channel *server = tcp_connect("localhost", "https");
     printf("Connected to Server\n");
+    char buffer[TCP_STREAM_BUFFER_SIZE];
+    tcp_receive(server, buffer, strlen("Hello World!"), 5000);
+    printf("Received Message from Server: %s\n", buffer);
     tcp_close_channel(channel);
     tcp_term();
     return 0;

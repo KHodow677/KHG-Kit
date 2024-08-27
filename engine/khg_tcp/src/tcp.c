@@ -104,8 +104,8 @@ bool tcp_stream_receive(tcp_channel *channel, stream_output_fn stream_output, vo
 	if (!tcp_socket_poll_read(&channel->socket, timeout_ms)) {
 		return false;
   }
-	char buffer[STCP_STREAM_BUFFER_SIZE];
-	const int length = STCP_STREAM_BUFFER_SIZE;
+	char buffer[TCP_STREAM_BUFFER_SIZE];
+	const int length = TCP_STREAM_BUFFER_SIZE;
 	do {
 		int bytes_received = tcp_socket_read(&channel->socket, buffer, length);
 		if (bytes_received == 0) {

@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 
-#define STCP_STREAM_BUFFER_SIZE 2048
+#define TCP_STREAM_BUFFER_SIZE 2048
 
 typedef struct tcp_channel tcp_channel;
 typedef struct tcp_server tcp_server;
