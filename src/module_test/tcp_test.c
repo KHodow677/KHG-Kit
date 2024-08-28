@@ -19,7 +19,7 @@ void process_error(tcp_error e, void *user_data) {
 
 bool print_buffer(const char *buffer, int length, void *user_data) {
 	(void) user_data;
-  strcpy(BUFFER, buffer);
+  strncpy(BUFFER, buffer, length);
   printf("%s\n", BUFFER);
 	return strlen(buffer) == (size_t) length;
 }
@@ -46,18 +46,15 @@ int tcp_server_test(int argc, char *argv[]) {
     printf("Started Server\n");
     tcp_channel *client = tcp_accept(serv, 5000);
     printf("Connected a Client\n");
+    printf("Started HTTP Packet Stream\n");
     usleep(16000);
     tcp_send(client, "Hello World from Server!", 24, 0);
-    printf("Hello World from Server!\n");
     usleep(16000);
     tcp_send(client, "Hello World from Server!", 24, 0);
-    printf("Hello World from Server!\n");
     usleep(16000);
     tcp_send(client, "Hello World from Server!", 24, 0);
-    printf("Hello World from Server!\n");
     usleep(16000);
-    tcp_send(client, "exit", 24, 0);
-    printf("Sent Message to Client\n");
+    tcp_send(client, "exit                    ", 24, 0);
     tcp_close_channel(client);
     tcp_close_server(serv);
 	  tcp_close_channel(channel);
@@ -68,7 +65,8 @@ int tcp_server_test(int argc, char *argv[]) {
     tcp_init();
     tcp_channel *server = tcp_connect("localhost", "https");
     printf("Connected to Server\n");
-    while (strcmp(BUFFER, "exit") != 0) {
+    printf("Started HTTP Packet Stream\n");
+    while (strstr(BUFFER, "exit") == NULL) {
       tcp_stream_receive(server, print_buffer, NULL, 0);
     }
     tcp_close_channel(server);
