@@ -42,7 +42,7 @@ int tcp_server_test(int argc, char *argv[]) {
 	tcp_set_error_callback(process_error, &channel);
   if (streq(argv[1], "host")) {
     tcp_init();
-    tcp_server *serv = tcp_open_server("localhost", "https", 1);
+    tcp_server *serv = tcp_open_server("127.0.0.1", "https", 1);
     printf("Started Server\n");
     tcp_channel *client = tcp_accept(serv, 5000);
     printf("Connected a Client\n");
@@ -63,7 +63,7 @@ int tcp_server_test(int argc, char *argv[]) {
   }
   else if (streq(argv[1], "client")) {
     tcp_init();
-    tcp_channel *server = tcp_connect("localhost", "https");
+    tcp_channel *server = tcp_connect("127.0.0.1", "https");
     printf("Connected to Server\n");
     printf("Started HTTP Packet Stream\n");
     while (strstr(BUFFER, "exit") == NULL) {
