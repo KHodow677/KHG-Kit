@@ -1,4 +1,5 @@
 #include "game_manager.h"
+#include "entity/camera.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
@@ -26,6 +27,7 @@ gfx_texture NO_TEXTURE = { 0 };
 int MAX_TEXTURES = 1024;
 int CURRENT_TEXTURE_ID = 0;
 int THREAD_COUNT;
+camera CAMERA = { 0 };
 
 sys_physics PHYSICS_SYSTEM = { 0 };
 sys_renderer RENDERER_SYSTEM = { 0 };
@@ -46,6 +48,7 @@ comp_rotator ROTATOR_COMPONENT_TYPE;
 comp_shooter SHOOTER_COMPONENT_TYPE;
 
 void ecs_setup() {
+  camera_setup(&CAMERA);
   ECS = ecs_new(1024, NULL);
   comp_physics_register(&PHYSICS_COMPONENT_TYPE);
   comp_renderer_register(&RENDERER_COMPONENT_TYPE);

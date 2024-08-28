@@ -1,5 +1,5 @@
 #include "game.h"
-#include "controllers/elements/element_controller.h"
+#include "controllers/elements/camera_controller.h"
 #include "game_manager.h"
 #include "khg_phy/threaded_space.h"
 #include "physics/physics_setup.h"
@@ -21,7 +21,7 @@ void log_info() {
   if (vendor != NULL && version != NULL) {
     printf("Vendor: %s\n", vendor);
     printf("OpenGL Version: %s\n", version);
-  } 
+  }
 }
 
 int game_run() {
@@ -40,26 +40,27 @@ int game_run() {
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
   ecs_setup();
   spawn_tank(600, 300);
-  int res = gfx_loop_manager(window);
+  int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   return res;
 }
 
-void gfx_loop() {
+void gfx_loop(float delta) {
   glClear(GL_COLOR_BUFFER_BIT);
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
-  ecs_update_system(ECS, MOVER_SYSTEM.id, 0.0f);
-  ecs_update_system(ECS, ROTATOR_SYSTEM.id, 0.0f);
-  ecs_update_system(ECS, SHOOTER_SYSTEM.id, 0.0f);
-  ecs_update_system(ECS, PHYSICS_SYSTEM.id, 0.0f);
+  move_camera(&CAMERA, delta);
+  ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
+  ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);
+  ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);
+  ecs_update_system(ECS, PHYSICS_SYSTEM.id, delta);
   FOLLOWER_SYSTEM.current_degree = 1;
-  ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
+  ecs_update_system(ECS, FOLLOWER_SYSTEM.id, delta);
   FOLLOWER_SYSTEM.current_degree = 2;
-  ecs_update_system(ECS, FOLLOWER_SYSTEM.id, 0.0f);
-  ecs_update_system(ECS, ANIMATOR_SYSTEM.id, 0.0f);
-  ecs_update_system(ECS, RENDERER_SYSTEM.id, 0.0f);
-  ecs_update_system(ECS, DESTROYER_SYSTEM.id, 0.0f);
-  phy_threaded_space_step(SPACE, 1.0f/60.0f);
+  ecs_update_system(ECS, FOLLOWER_SYSTEM.id, delta);
+  ecs_update_system(ECS, ANIMATOR_SYSTEM.id, delta);
+  ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
+  ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
+  phy_threaded_space_step(SPACE, delta);
 }

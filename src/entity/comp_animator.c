@@ -52,10 +52,12 @@ ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     if (info->destroy_on_max && r_info->tex_id == info->max_tex_id) {
       d_info->destroy_now = true;
     }
-    else if (--info->frame_timer == 0) {
+    else if (info->frame_timer <= 0) {
       r_info->tex_id = r_info->tex_id < info->max_tex_id ? r_info->tex_id + 1 : info->min_tex_id;
       info->frame_timer = info->frame_duration;
     }
+    info->frame_timer -= dt;
   }
   return 0;
 }
+

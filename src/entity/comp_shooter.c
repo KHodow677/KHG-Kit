@@ -5,12 +5,13 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_rotator.h"
 #include "game_manager.h"
+#include "spawners/spawn_particles.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
 #include "khg_utl/map.h"
 #include "khg_utl/vector.h"
-#include "spawners/spawn_particles.h"
+#include "GLFW/glfw3.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,7 +56,7 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     info = utl_vector_at(SHOOTER_INFO, entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
     r_info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
-    if (handle_space_button() && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
+    if (handle_key_button_went_down(GLFW_KEY_SPACE) && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 11;
       phy_vect pos = phy_body_get_position(p_info->body);
       spawn_particle(p_info, pos.x, pos.y);

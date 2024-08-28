@@ -46,7 +46,7 @@ ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     float angle = phy_body_get_angle(info->body);
     gfx_texture *tex = utl_vector_at(TEXTURE_LOOKUP, info->tex_id);
     tex->angle = angle;
-    gfx_image_no_block(pos.x, pos.y, *tex);
+    gfx_image_no_block(pos.x, pos.y, *tex, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
   }
   return 0;
 }

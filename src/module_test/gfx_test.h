@@ -1,4 +1,4 @@
 #pragma once
 
-int gfx_test();
+int gfx_test(void);
 

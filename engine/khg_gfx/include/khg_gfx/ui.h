@@ -15,7 +15,7 @@
 #define gfx_blue (gfx_color){ 0, 0, 255, 255 }
 
 void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void *glfw_window);
-int gfx_loop_manager(GLFWwindow *window);
-void gfx_loop(void);
+int gfx_loop_manager(GLFWwindow *window, bool show_fps);
+void gfx_loop(float delta);
 void gfx_terminate(void);
 

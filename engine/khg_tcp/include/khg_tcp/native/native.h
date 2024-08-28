@@ -1,6 +1,4 @@
-// native.h
-#ifndef SRC_NATIVE_H_
-#define SRC_NATIVE_H_
+#pragma once
 
 #if defined(_WIN32) || defined(_WIN64)
 	#include <winsock2.h>
@@ -14,15 +12,14 @@
 #endif
 
 #if defined(_WIN32) || defined(_WIN64)
-	#define STCP_INVALID_SOCKET (~0ULL)
-	#define STCP_SET_NON_BLOCKING(s, value) ioctlsocket(s, FIONBIO, value)
-	#define STCP_SHUTDOWN_SOCKET(s) shutdown(s, SD_BOTH)
-	#define STCP_CLOSE_SOCKET(s) closesocket(s)
+	#define TCP_INVALID_SOCKET (~0ULL)
+	#define TCP_SET_NON_BLOCKING(s, value) ioctlsocket(s, FIONBIO, value)
+	#define TCP_SHUTDOWN_SOCKET(s) shutdown(s, SD_BOTH)
+	#define TCP_CLOSE_SOCKET(s) closesocket(s)
 #else
-	#define STCP_INVALID_SOCKET (-1LL)
-	#define STCP_SET_NON_BLOCKING(s, value) ioctl(s, FIONBIO, value)
-	#define STCP_SHUTDOWN_SOCKET(s) shutdown(s, SHUT_RDWR)
-	#define STCP_CLOSE_SOCKET(s) close(s)
+	#define TCP_INVALID_SOCKET (-1LL)
+	#define TCP_SET_NON_BLOCKING(s, value) ioctl(s, FIONBIO, value)
+	#define TCP_SHUTDOWN_SOCKET(s) shutdown(s, SHUT_RDWR)
+	#define TCP_CLOSE_SOCKET(s) close(s)
 #endif
 
-#endif /* SRC_NATIVE_H_ */

@@ -47,30 +47,29 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   state.tex_tick = gfx_load_texture_asset("tick", "png");
 }
 
-int gfx_loop_manager(GLFWwindow *window) {
+int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
   double last_time = glfwGetTime();
-  double frame_duration = 1.0 / 60.0; // Target frame duration for 60 FPS
   int frame_count = 0;
   double fps_start_time = last_time;
   while (!glfwWindowShouldClose(window)) {
     double current_time = glfwGetTime();
     double elapsed_time = current_time - last_time;
-    if (elapsed_time >= frame_duration) {
-      last_time = current_time;
-      gfx_loop();
-      gfx_end();
-      glfwSwapBuffers(window);
-      frame_count++;
-      double fps_elapsed_time = current_time - fps_start_time;
-      if (fps_elapsed_time >= 1.0) {
+    last_time = current_time;
+    gfx_loop(elapsed_time);
+    frame_count++;
+    double fps_elapsed_time = current_time - fps_start_time;
+    if (fps_elapsed_time > 0.0) {
+      if (show_fps) {
         double fps = frame_count / fps_elapsed_time;
         char title[256];
         snprintf(title, sizeof(title), "FPS: %.2f", fps);
-        glfwSetWindowTitle(window, title);
-        frame_count = 0;
-        fps_start_time = current_time;
+        gfx_text(title);
       }
+      frame_count = 0;
+      fps_start_time = current_time;
     }
+    gfx_end();
+    glfwSwapBuffers(window);
     glfwPollEvents();
   }
   gfx_terminate();

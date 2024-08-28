@@ -1,1 +1,3 @@
-int thd_test();
+#pragma once
+
+int thd_test(void);

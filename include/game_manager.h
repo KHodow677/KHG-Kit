@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entity/camera.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
@@ -23,6 +24,7 @@ extern gfx_texture NO_TEXTURE;
 extern int MAX_TEXTURES;
 extern int CURRENT_TEXTURE_ID;
 extern int THREAD_COUNT;
+extern camera CAMERA;
 
 extern sys_physics PHYSICS_SYSTEM;
 extern sys_renderer RENDERER_SYSTEM;

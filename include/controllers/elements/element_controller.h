@@ -1,3 +1,5 @@
+#pragma once
+
 #include "entity/comp_physics.h"
 #include "khg_phy/phy_types.h"
 

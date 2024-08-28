@@ -57,7 +57,7 @@ void generate_destroyer(destroyer_info *info) {
   info->destroy_now = false;
 }
 
-void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, int frame_duration, bool destroy_on_max) {
+void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, float frame_duration, bool destroy_on_max) {
   info->min_tex_id = min_tex_id;
   info->max_tex_id = max_tex_id;
   info->frame_duration = frame_duration;
@@ -80,4 +80,3 @@ void generate_rotator(rotator_info *info, physics_info *p_info) {
 void generate_shooter(shooter_info *info) {
   info->shoot_cooldown = 0;
 }
-
