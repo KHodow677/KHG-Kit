@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curl/curl.h>
+#include <unistd.h>
 
 struct memory_struct {
   char *memory;
@@ -36,8 +37,17 @@ int ipa_test() {
     curl_easy_setopt(curl, CURLOPT_URL, "https://icanhazip.com/");
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_cb);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &chunk);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYSTATUS, 1);            
+#if defined(_WIN32) || defined(_WIN64)
+    curl_easy_setopt(curl, CURLOPT_CAINFO, "res\\cacert.pem");
+    curl_easy_setopt(curl, CURLOPT_CAPATH, "res\\cacert.pem");
+#else
+    curl_easy_setopt(curl, CURLOPT_CAINFO, "res/cacert.pem");
+    curl_easy_setopt(curl, CURLOPT_CAPATH, "res/cacert.pem");
+#endif
     res = curl_easy_perform(curl);
     if(res != CURLE_OK) {
+      printf("ERROR: %s\n", curl_easy_strerror(res));
       utl_error_func("Curl failed", utl_user_defined_data);
       curl_easy_cleanup(curl);
       free(chunk.memory);
