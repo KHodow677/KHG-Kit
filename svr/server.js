@@ -1,28 +1,25 @@
-var connect = require('connect');
-var http = require('http');
-var bodyParser = require('body-parser');
-var serveStatic = require('serve-static');
-var app = connect();
-let clientData = {};
-app.use(serveStatic('app', {
-    'index': ['index.html', 'index.htm', 'default.html']
-}));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(function(req, res) {
-  if (req.method === 'POST' && req.url === '/send') {
-    console.log('Data received from client:', req.body);
-    clientData = req.body;
-    res.end('Data stored on the server');
-  } 
-  else if (req.method === 'GET' && req.url === '/receive') {
-    console.log('Client requested data.');
-    res.end(clientData.message || 'No message available');
-  } 
-  else {
-    res.end('Server not found');
-  }
+var net = require('net');
+var clients = [];
+var server = net.createServer(function(socket) {
+  console.log('Client connected');
+  clients.push(socket);
+  socket.on('data', function(data) {
+    console.log('Received:', data.toString());
+    clients.forEach(function(client) {
+      if (client !== socket) {
+        client.write(data);
+      }
+    });
+  });
+  socket.on('end', function() {
+    console.log('Client disconnected');
+    clients = clients.filter(client => client !== socket);
+  });
+  socket.on('error', function(err) {
+    console.error('Socket error:', err);
+    clients = clients.filter(client => client !== socket);
+  });
 });
-
-http.createServer(app).listen(80);
-console.log('Server started at http://localhost:80');
+server.listen(8080, function() {
+  console.log('TCP server started on port 8080');
+});
