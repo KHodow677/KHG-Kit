@@ -24,6 +24,20 @@ bool print_buffer(const char *buffer, int length, void *user_data) {
 	return strlen(buffer) == (size_t) length;
 }
 
+bool print_buffer_body(const char *buffer, int length, void *user_data) {
+  (void) user_data;
+  strncpy(BUFFER, buffer, length);
+  char *body = strstr(BUFFER, "\r\n\r\n");
+  if (body) {
+    body += 4;
+    printf("%s\n", body);
+  } 
+  else {
+    printf("No valid response body found.\n");
+  }
+  return strlen(buffer) == (size_t) length;
+}
+
 int tcp_test() {
 	tcp_channel *channel = NULL;
 	tcp_set_error_callback(process_error, &channel);
@@ -47,7 +61,7 @@ int tcp_client_send() {
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);
   channel = tcp_connect("khgsvr.fly.dev", "http");
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
-  tcp_stream_receive(channel, print_buffer, NULL, 500);
+  tcp_stream_receive(channel, print_buffer_body, NULL, 500);
   tcp_close_channel(channel);
   tcp_term();
   return 0;
@@ -60,7 +74,7 @@ int tcp_client_receive() {
   const char *request = "GET /receive HTTP/1.1\r\nHost: khgsvr.fly.dev\r\n\r\n";
   channel = tcp_connect("khgsvr.fly.dev", "http");
   tcp_send(channel, request, strlen(request), 500);
-  tcp_stream_receive(channel, print_buffer, NULL, 500);
+  tcp_stream_receive(channel, print_buffer_body, NULL, 500);
   tcp_close_channel(channel);
   tcp_term();
   return 0;
