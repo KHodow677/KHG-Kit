@@ -59,6 +59,10 @@ typedef struct phy_mark_context {
 	void *data;
 } phy_mark_context;
 
+typedef struct phy_each_context {
+	phy_spatial_index_iterator_func func;
+	void *data;
+} phy_each_context;
 
 static inline phy_bb phy_get_bb(phy_bb_tree *tree, void *obj) {
 	phy_bb bb = tree->spatial_index.bbfunc(obj);
@@ -455,360 +459,228 @@ static void phy_leaf_add_pairs(phy_node *leaf, phy_bb_tree *tree) {
 	}
 }
 
-//MARK: Memory Management Functions
-
-phy_bb_tree *
-phy_BB_tree_alloc(void)
-{
+phy_bb_tree *phy_bb_tree_alloc(void) {
 	return (phy_bb_tree *)calloc(1, sizeof(phy_bb_tree));
 }
 
-static int
-leafSetEql(void *obj, phy_node *node)
-{
+static int phy_leaf_set_eql(void *obj, phy_node *node) {
 	return (obj == node->obj);
 }
 
-static void *
-leafSetTrans(void *obj, phy_bb_tree *tree)
-{
+static void *phy_leaf_set_trans(void *obj, phy_bb_tree *tree) {
 	return phy_leaf_new(tree, obj, tree->spatial_index.bbfunc(obj));
 }
 
-phy_spatial_index *
-phy_BB_tree_init(phy_bb_tree *tree, phy_spatial_index_BB_func bbfunc, phy_spatial_index *staticIndex)
-{
+phy_spatial_index *phy_bb_tree_init(phy_bb_tree *tree, phy_spatial_index_BB_func bbfunc, phy_spatial_index *staticIndex) {
 	phy_spatial_index_init((phy_spatial_index *)tree, phy_class(), bbfunc, staticIndex);
-	
 	tree->velocity_func = NULL;
-	
-	tree->leaves = cp_hash_set_new(0, (phy_hash_set_eql_func)leafSetEql);
+	tree->leaves = cp_hash_set_new(0, (phy_hash_set_eql_func)phy_leaf_set_eql);
 	tree->root = NULL;
-	
 	tree->pooled_nodes = NULL;
 	tree->allocated_buffers = phy_array_new(0);
-	
 	tree->stamp = 0;
-	
 	return (phy_spatial_index *)tree;
 }
 
-void
-phy_BB_tree_set_velocity_func(phy_spatial_index *index, phy_bb_tree_velocity_func func)
-{
-	if(index->class != phy_class()){
+void phy_bb_tree_set_velocity_func(phy_spatial_index *index, phy_bb_tree_velocity_func func) {
+	if (index->class != phy_class()) {
 		utl_error_func("Ignoring velocity set call to non-tree spatial index", utl_user_defined_data);
-		// return;
+    return;
 	}
 	((phy_bb_tree *)index)->velocity_func = func;
 }
 
-phy_spatial_index *
-phy_BB_tree_new(phy_spatial_index_BB_func bbfunc, phy_spatial_index *staticIndex)
-{
-	return phy_BB_tree_init(phy_BB_tree_alloc(), bbfunc, staticIndex);
+phy_spatial_index *phy_bb_tree_new(phy_spatial_index_BB_func bbfunc, phy_spatial_index *staticIndex) {
+	return phy_bb_tree_init(phy_bb_tree_alloc(), bbfunc, staticIndex);
 }
 
-static void
-cpBBTreeDestroy(phy_bb_tree *tree)
-{
+static void phy_bb_tree_destroy(phy_bb_tree *tree) {
 	phy_hash_set_free(tree->leaves);
-	
-	if(tree->allocated_buffers) phy_array_free_each(tree->allocated_buffers, free);
+	if (tree->allocated_buffers) {
+    phy_array_free_each(tree->allocated_buffers, free);
+  }
 	phy_array_free(tree->allocated_buffers);
 }
 
-//MARK: Insert/Remove
-
-static void
-cpBBTreeInsert(phy_bb_tree *tree, void *obj, phy_hash_value hashid)
-{
-	phy_node *leaf = (phy_node *)phy_hash_set_insert(tree->leaves, hashid, obj, (phy_hash_set_trans_func)leafSetTrans, tree);
-	
+static void phy_bb_tree_insert(phy_bb_tree *tree, void *obj, phy_hash_value hashid) {
+	phy_node *leaf = (phy_node *)phy_hash_set_insert(tree->leaves, hashid, obj, (phy_hash_set_trans_func)phy_leaf_set_trans, tree);
 	phy_node *root = tree->root;
 	tree->root = phy_subtree_insert(root, leaf, tree);
-	
 	leaf->STAMP = get_master_tree(tree)->stamp;
 	phy_leaf_add_pairs(leaf, tree);
 	phy_increment_stamp(tree);
 }
 
-static void
-cpBBTreeRemove(phy_bb_tree *tree, void *obj, phy_hash_value hashid)
-{
+static void phy_bb_tree_remove(phy_bb_tree *tree, void *obj, phy_hash_value hashid) {
 	phy_node *leaf = (phy_node *)phy_hash_set_remove(tree->leaves, hashid, obj);
-	
 	tree->root = phy_subtree_remove(tree->root, leaf, tree);
 	phy_pairs_clear(leaf, tree);
 	phy_node_recycle(tree, leaf);
 }
 
-static bool
-cpBBTreeContains(phy_bb_tree *tree, void *obj, phy_hash_value hashid)
-{
+static bool phy_bb_tree_contains(phy_bb_tree *tree, void *obj, phy_hash_value hashid) {
 	return (phy_hash_set_find(tree->leaves, hashid, obj) != NULL);
 }
 
-//MARK: Reindex
+static void phy_leaf_update_wrap(phy_node *leaf, phy_bb_tree *tree) { 
+  phy_leaf_update(leaf, tree); 
+}
 
-static void LeafUpdateWrap(phy_node *leaf, phy_bb_tree *tree) {phy_leaf_update(leaf, tree);}
-
-static void
-cpBBTreeReindexQuery(phy_bb_tree *tree, phy_spatial_index_query_func func, void *data)
-{
-	if(!tree->root) return;
-	
-	// LeafUpdate() may modify tree->root. Don't cache it.
-	phy_hash_set_each(tree->leaves, (phy_hash_set_iterator_func)LeafUpdateWrap, tree);
-	
+static void phy_bb_tree_reindex_query(phy_bb_tree *tree, phy_spatial_index_query_func func, void *data) {
+	if (!tree->root) {
+    return;
+  }
+	phy_hash_set_each(tree->leaves, (phy_hash_set_iterator_func)phy_leaf_update_wrap, tree);
 	phy_spatial_index *staticIndex = tree->spatial_index.static_index;
 	phy_node *staticRoot = (staticIndex && staticIndex->class == phy_class() ? ((phy_bb_tree *)staticIndex)->root : NULL);
-	
 	phy_mark_context context = {tree, staticRoot, func, data};
 	MarkSubtree(tree->root, &context);
-	if(staticIndex && !staticRoot) phy_spatial_index_collide_static((phy_spatial_index *)tree, staticIndex, func, data);
-	
+	if (staticIndex && !staticRoot) {
+    phy_spatial_index_collide_static((phy_spatial_index *)tree, staticIndex, func, data);
+  }
 	phy_increment_stamp(tree);
 }
 
-static void
-cpBBTreeReindex(phy_bb_tree *tree)
-{
-	cpBBTreeReindexQuery(tree, phy_void_query_func, NULL);
+static void phy_bb_tree_reindex(phy_bb_tree *tree) {
+	phy_bb_tree_reindex_query(tree, phy_void_query_func, NULL);
 }
 
-static void
-cpBBTreeReindexObject(phy_bb_tree *tree, void *obj, phy_hash_value hashid)
-{
+static void phy_bb_tree_reindex_object(phy_bb_tree *tree, void *obj, phy_hash_value hashid) {
 	phy_node *leaf = (phy_node *)phy_hash_set_find(tree->leaves, hashid, obj);
-	if(leaf){
-		if(phy_leaf_update(leaf, tree)) phy_leaf_add_pairs(leaf, tree);
+	if (leaf) {
+		if (phy_leaf_update(leaf, tree)) {
+      phy_leaf_add_pairs(leaf, tree);
+    }
 		phy_increment_stamp(tree);
 	}
 }
 
-//MARK: Query
-
-static void
-cpBBTreeSegmentQuery(phy_bb_tree *tree, void *obj, phy_vect a, phy_vect b, float t_exit, phy_spatial_index_segment_query_func func, void *data)
-{
+static void phy_bb_tree_segment_query(phy_bb_tree *tree, void *obj, phy_vect a, phy_vect b, float t_exit, phy_spatial_index_segment_query_func func, void *data) {
 	phy_node *root = tree->root;
-	if(root) phy_subtree_segment_query(root, obj, a, b, t_exit, func, data);
+	if (root) {
+    phy_subtree_segment_query(root, obj, a, b, t_exit, func, data);
+  }
 }
 
-static void
-cpBBTreeQuery(phy_bb_tree *tree, void *obj, phy_bb bb, phy_spatial_index_query_func func, void *data)
-{
-	if(tree->root) phy_subtree_query(tree->root, obj, bb, func, data);
+static void phy_bb_tree_query(phy_bb_tree *tree, void *obj, phy_bb bb, phy_spatial_index_query_func func, void *data) {
+	if (tree->root) {
+    phy_subtree_query(tree->root, obj, bb, func, data);
+  }
 }
 
-//MARK: Misc
-
-static int
-cpBBTreeCount(phy_bb_tree *tree)
-{
+static int phy_bb_tree_count(phy_bb_tree *tree) {
 	return phy_hash_set_count(tree->leaves);
 }
 
-typedef struct eachContext {
-	phy_spatial_index_iterator_func func;
-	void *data;
-} eachContext;
-
-static void each_helper(phy_node *node, eachContext *context){context->func(node->obj, context->data);}
-
-static void
-cpBBTreeEach(phy_bb_tree *tree, phy_spatial_index_iterator_func func, void *data)
-{
-	eachContext context = {func, data};
-	phy_hash_set_each(tree->leaves, (phy_hash_set_iterator_func)each_helper, &context);
+static void phy_each_helper(phy_node *node, phy_each_context *context) {
+  context->func(node->obj, context->data);
 }
 
-static phy_spatial_index_class klass = {
-	(phy_spatial_index_destroy_impl)cpBBTreeDestroy,
-	
-	(phy_spatial_index_count_impl)cpBBTreeCount,
-	(phy_spatial_index_each_impl)cpBBTreeEach,
-	
-	(phy_spatial_index_contains_impl)cpBBTreeContains,
-	(phy_spatial_index_insert_impl)cpBBTreeInsert,
-	(phy_spatial_index_remove_impl)cpBBTreeRemove,
-	
-	(phy_spatial_index_reindex_impl)cpBBTreeReindex,
-	(phy_spatial_index_reindex_object_impl)cpBBTreeReindexObject,
-	(phy_spatial_index_reindex_query_impl)cpBBTreeReindexQuery,
-	
-	(phy_spatial_index_query_impl)cpBBTreeQuery,
-	(phy_spatial_index_segment_query_impl)cpBBTreeSegmentQuery,
+static void phy_bb_tree_each(phy_bb_tree *tree, phy_spatial_index_iterator_func func, void *data) {
+	phy_each_context context = { func, data };
+	phy_hash_set_each(tree->leaves, (phy_hash_set_iterator_func)phy_each_helper, &context);
+}
+
+static phy_spatial_index_class class = {
+	(phy_spatial_index_destroy_impl)phy_bb_tree_destroy,
+	(phy_spatial_index_count_impl)phy_bb_tree_count,
+	(phy_spatial_index_each_impl)phy_bb_tree_each,
+	(phy_spatial_index_contains_impl)phy_bb_tree_contains,
+	(phy_spatial_index_insert_impl)phy_bb_tree_insert,
+	(phy_spatial_index_remove_impl)phy_bb_tree_remove,
+	(phy_spatial_index_reindex_impl)phy_bb_tree_reindex,
+	(phy_spatial_index_reindex_object_impl)phy_bb_tree_reindex_object,
+	(phy_spatial_index_reindex_query_impl)phy_bb_tree_reindex_query,
+	(phy_spatial_index_query_impl)phy_bb_tree_query,
+	(phy_spatial_index_segment_query_impl)phy_bb_tree_segment_query,
 };
 
-static inline phy_spatial_index_class *phy_class(){return &klass;}
+static inline phy_spatial_index_class *phy_class(){ 
+  return &class;
+}
 
-
-//MARK: Tree Optimization
-
-static int
-cpfcompare(const float *a, const float *b){
+static int phy_cpfcompare(const float *a, const float *b){
 	return (*a < *b ? -1 : (*b < *a ? 1 : 0));
 }
 
-static void
-fillNodeArray(phy_node *node, phy_node ***cursor){
+static void phy_fill_node_array(phy_node *node, phy_node ***cursor){
 	(**cursor) = node;
 	(*cursor)++;
 }
 
-static phy_node *
-partitionNodes(phy_bb_tree *tree, phy_node **nodes, int count)
-{
-	if(count == 1){
+static phy_node *phy_partition_nodes(phy_bb_tree *tree, phy_node **nodes, int count) {
+  if (count == 1) {
 		return nodes[0];
-	} else if(count == 2) {
+	} 
+  else if(count == 2) {
 		return phy_node_new(tree, nodes[0], nodes[1]);
 	}
-	
-	// Find the AABB for these nodes
 	phy_bb bb = nodes[0]->bb;
-	for(int i=1; i<count; i++) bb = phy_bb_merge(bb, nodes[i]->bb);
-	
-	// Split it on it's longest axis
+	for(int i=1; i<count; i++) {
+    bb = phy_bb_merge(bb, nodes[i]->bb);
+  }
 	bool splitWidth = (bb.r - bb.l > bb.t - bb.b);
-	
-	// Sort the bounds and use the median as the splitting point
 	float *bounds = (float *)calloc(count*2, sizeof(float));
-	if(splitWidth){
-		for(int i=0; i<count; i++){
+  if (splitWidth) {
+		for (int i=0; i<count; i++) {
 			bounds[2*i + 0] = nodes[i]->bb.l;
 			bounds[2*i + 1] = nodes[i]->bb.r;
 		}
-	} else {
-		for(int i=0; i<count; i++){
+	} 
+  else {
+		for (int i=0; i<count; i++) {
 			bounds[2*i + 0] = nodes[i]->bb.b;
 			bounds[2*i + 1] = nodes[i]->bb.t;
 		}
 	}
-	
-	qsort(bounds, count*2, sizeof(float), (int (*)(const void *, const void *))cpfcompare);
-	float split = (bounds[count - 1] + bounds[count])*0.5f; // use the medain as the split
+	qsort(bounds, count*2, sizeof(float), (int (*)(const void *, const void *))phy_cpfcompare);
+	float split = (bounds[count - 1] + bounds[count]) * 0.5f; 
 	free(bounds);
-
-	// Generate the child BBs
 	phy_bb a = bb, b = bb;
-	if(splitWidth) a.r = b.l = split; else a.t = b.b = split;
-	
-	// Partition the nodes
+  if (splitWidth) {
+    a.r = b.l = split; 
+  }
+  else {
+    a.t = b.b = split;
+  }
 	int right = count;
-	for(int left=0; left < right;){
+	for (int left=0; left < right;) {
 		phy_node *node = nodes[left];
-		if(phy_bb_merged_area(node->bb, b) < phy_bb_merged_area(node->bb, a)){
-//		if(cpBBProximity(node->bb, b) < cpBBProximity(node->bb, a)){
+    if (phy_bb_merged_area(node->bb, b) < phy_bb_merged_area(node->bb, a)) {
 			right--;
 			nodes[left] = nodes[right];
 			nodes[right] = node;
-		} else {
+		} 
+    else {
 			left++;
 		}
 	}
-	
-	if(right == count){
+	if (right == count) {
 		phy_node *node = NULL;
-		for(int i=0; i<count; i++) node = phy_subtree_insert(node, nodes[i], tree);
+		for (int i=0; i<count; i++) {
+      node = phy_subtree_insert(node, nodes[i], tree);
+    }
 		return node;
 	}
-	
-	// Recurse and build the node!
-	return phy_node_new(tree,
-		partitionNodes(tree, nodes, right),
-		partitionNodes(tree, nodes + right, count - right)
-	);
+	return phy_node_new(tree, phy_partition_nodes(tree, nodes, right), phy_partition_nodes(tree, nodes + right, count - right));
 }
 
-//static void
-//cpBBTreeOptimizeIncremental(cpBBTree *tree, int passes)
-//{
-//	for(int i=0; i<passes; i++){
-//		Node *root = tree->root;
-//		Node *node = root;
-//		int bit = 0;
-//		unsigned int path = tree->opath;
-//		
-//		while(!NodeIsLeaf(node)){
-//			node = (path&(1<<bit) ? node->a : node->b);
-//			bit = (bit + 1)&(sizeof(unsigned int)*8 - 1);
-//		}
-//		
-//		root = subtreeRemove(root, node, tree);
-//		tree->root = subtreeInsert(root, node, tree);
-//	}
-//}
-
-void
-phy_BB_tree_optimize(phy_spatial_index *index)
-{
-	if(index->class != &klass){
+void phy_bb_tree_optimize(phy_spatial_index *index) {
+	if (index->class != &class) {
 		utl_error_func("Ignoring optimize call to non-tree spatial index", utl_user_defined_data);
 		return;
 	}
-	
 	phy_bb_tree *tree = (phy_bb_tree *)index;
 	phy_node *root = tree->root;
-	if(!root) return;
-	
-	int count = cpBBTreeCount(tree);
+	if(!root) {
+    return;
+  }
+	int count = phy_bb_tree_count(tree);
 	phy_node **nodes = (phy_node **)calloc(count, sizeof(phy_node *));
 	phy_node **cursor = nodes;
-	
-	phy_hash_set_each(tree->leaves, (phy_hash_set_iterator_func)fillNodeArray, &cursor);
-	
+	phy_hash_set_each(tree->leaves, (phy_hash_set_iterator_func)phy_fill_node_array, &cursor);
 	phy_subtree_recycle(tree, root);
-	tree->root = partitionNodes(tree, nodes, count);
+	tree->root = phy_partition_nodes(tree, nodes, count);
 	free(nodes);
 }
 
-//MARK: Debug Draw
-
-//#define CP_BBTREE_DEBUG_DRAW
-#ifdef CP_BBTREE_DEBUG_DRAW
-#include "OpenGL/gl.h"
-#include "OpenGL/glu.h"
-#include <GLUT/glut.h>
-
-static void
-NodeRender(Node *node, int depth)
-{
-	if(!NodeIsLeaf(node) && depth <= 10){
-		NodeRender(node->a, depth + 1);
-		NodeRender(node->b, depth + 1);
-	}
-	
-	cpBB bb = node->bb;
-	
-//	GLfloat v = depth/2.0f;	
-//	glColor3f(1.0f - v, v, 0.0f);
-	glLineWidth(cpfmax(5.0f - depth, 1.0f));
-	glBegin(GL_LINES); {
-		glVertex2f(bb.l, bb.b);
-		glVertex2f(bb.l, bb.t);
-		
-		glVertex2f(bb.l, bb.t);
-		glVertex2f(bb.r, bb.t);
-		
-		glVertex2f(bb.r, bb.t);
-		glVertex2f(bb.r, bb.b);
-		
-		glVertex2f(bb.r, bb.b);
-		glVertex2f(bb.l, bb.b);
-	}; glEnd();
-}
-
-void
-cpBBTreeRenderDebug(cpSpatialIndex *index){
-	if(index->klass != &klass){
-		cpAssertWarn(cpFalse, "Ignoring cpBBTreeRenderDebug() call to non-tree spatial index.");
-		return;
-	}
-	
-	cpBBTree *tree = (cpBBTree *)index;
-	if(tree->root) NodeRender(tree->root, 0);
-}
-#endif

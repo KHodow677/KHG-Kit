@@ -27,14 +27,14 @@ void phy_space_hash_resize(phy_space_hash *hash, float celldim, int numcells);
 
 typedef struct phy_bb_tree phy_bb_tree;
 
-phy_bb_tree *phy_BB_tree_alloc(void);
-phy_spatial_index *phy_BB_tree_new(phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
-phy_spatial_index *phy_BB_tree_init(phy_bb_tree *tree, phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
+phy_bb_tree *phy_bb_tree_alloc(void);
+phy_spatial_index *phy_bb_tree_new(phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
+phy_spatial_index *phy_bb_tree_init(phy_bb_tree *tree, phy_spatial_index_BB_func bbfunc, phy_spatial_index *static_index);
 
-void phy_BB_tree_optimize(phy_spatial_index *index);
+void phy_bb_tree_optimize(phy_spatial_index *index);
 
 typedef phy_vect (*phy_bb_tree_velocity_func)(void *obj);
-void phy_BB_tree_set_velocity_func(phy_spatial_index *index, phy_bb_tree_velocity_func func);
+void phy_bb_tree_set_velocity_func(phy_spatial_index *index, phy_bb_tree_velocity_func func);
 
 typedef struct phy_sweep_1d phy_sweep_1d;
 

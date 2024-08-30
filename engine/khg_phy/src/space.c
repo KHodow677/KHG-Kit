@@ -113,9 +113,9 @@ phy_space_init(phy_space *space)
 	space->stamp = 0;
 	
 	space->shape_id_Counter = 0;
-	space->static_shapes = phy_BB_tree_new((phy_spatial_index_BB_func)phy_shape_get_BB, NULL);
-	space->dynamic_shapes = phy_BB_tree_new((phy_spatial_index_BB_func)phy_shape_get_BB, space->static_shapes);
-	phy_BB_tree_set_velocity_func(space->dynamic_shapes, (phy_bb_tree_velocity_func)ShapeVelocityFunc);
+	space->static_shapes = phy_bb_tree_new((phy_spatial_index_BB_func)phy_shape_get_BB, NULL);
+	space->dynamic_shapes = phy_bb_tree_new((phy_spatial_index_BB_func)phy_shape_get_BB, space->static_shapes);
+	phy_bb_tree_set_velocity_func(space->dynamic_shapes, (phy_bb_tree_velocity_func)ShapeVelocityFunc);
 	
 	space->allocated_buffers = phy_array_new(0);
 	
