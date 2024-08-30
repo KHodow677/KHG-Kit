@@ -16,11 +16,11 @@ var server = net.createServer(function(socket) {
     clients = clients.filter(client => client !== socket);
   });
   socket.on('error', function(err) {
-    console.error('Socket error:', err);
+    console.error('KHG Error: ', err);
     clients = clients.filter(client => client !== socket);
   });
 });
 server.listen(8080, function() {
-  console.log('TCP server started on port 8080');
+  console.log('HTTP server started on port 8080');
 });
 

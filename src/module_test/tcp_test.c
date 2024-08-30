@@ -71,7 +71,6 @@ int tcp_client_receive() {
   channel = tcp_connect("localhost", "8080");
   while (1) {
     tcp_stream_receive_no_timeout(channel, print_buffer, NULL);
-    sleep(2);
   }
   tcp_close_channel(channel);
   tcp_term();

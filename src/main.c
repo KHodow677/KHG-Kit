@@ -12,7 +12,6 @@ int main(int argc, char *argv[]) {
       return tcp_client_receive();
     }
   }
-  return ipa_test();
   return game_run();
 }
 
