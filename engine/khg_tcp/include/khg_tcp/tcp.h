@@ -20,6 +20,7 @@ tcp_channel *tcp_connect(const char *address, const char *protocol);
 bool tcp_send(tcp_channel *channel, const char *buffer, int length, int timeout_ms);
 int tcp_receive(tcp_channel *channel, char *buffer, int length, int timeout_ms);
 bool tcp_stream_receive(tcp_channel *channel, stream_output_fn stream_output, void *user_data, int timeout_ms);
+bool tcp_stream_receive_no_timeout(tcp_channel *channel, stream_output_fn stream_output, void *user_data);
 
 void tcp_close_channel(tcp_channel *channel);
 

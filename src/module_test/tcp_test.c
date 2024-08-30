@@ -19,6 +19,7 @@ void process_error(tcp_error e, void *user_data) {
 
 bool print_buffer(const char *buffer, int length, void *user_data) {
 	(void) user_data;
+  memset(BUFFER, 0, sizeof(BUFFER));
   strncpy(BUFFER, buffer, length);
   printf("%s\n", BUFFER);
 	return strlen(buffer) == (size_t) length;
@@ -69,7 +70,8 @@ int tcp_client_receive() {
   tcp_init();
   channel = tcp_connect("localhost", "8080");
   while (1) {
-    tcp_stream_receive(channel, print_buffer_body, NULL, 500);
+    tcp_stream_receive_no_timeout(channel, print_buffer, NULL);
+    sleep(2);
   }
   tcp_close_channel(channel);
   tcp_term();
