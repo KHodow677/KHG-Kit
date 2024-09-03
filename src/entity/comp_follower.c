@@ -21,9 +21,7 @@ void comp_follower_register(comp_follower *cf) {
 void sys_follower_register(sys_follower *sf) {
   sf->id = ecs_register_system(ECS, sys_follower_update, NULL, NULL, NULL);
   ecs_require_component(ECS, sf->id, FOLLOWER_COMPONENT_SIGNATURE);
-  ecs_require_component(ECS, sf->id, PHYSICS_COMPONENT_SIGNATURE);
   sf->ecs = *ECS;
-  sf->current_degree = 1;
   FOLLOWER_INFO = utl_vector_create(sizeof(follower_info));
   for (int i = 0; i < ECS->entity_count; i++) {
     utl_vector_push_back(FOLLOWER_INFO, &NO_FOLLOWER);
@@ -43,20 +41,20 @@ void sys_follower_free(bool need_free) {
 
 ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   follower_info *info;
-  int current_degree = FOLLOWER_SYSTEM.current_degree;
   for (int id = 0; id < entity_count; id++) {
     info = utl_vector_at(FOLLOWER_INFO, entities[id]);
-    if (info->degree != current_degree) {
-      continue;
-    }
-    if (info->follow_ang) {
-      float target_ang_vel = phy_body_get_angular_velocity(info->target_body) + phy_body_get_angular_velocity(info->body);
-      phy_body_set_angular_velocity(info->body, target_ang_vel);
-    }
-    if (info->follow_pos) {
-      phy_vect target_vel = phy_v_add(phy_body_get_velocity(info->target_body), phy_body_get_velocity(info->body));
-      phy_body_set_velocity(info->body, target_vel);
-    }
+    phy_vect target_pos = phy_body_get_position(info->target_body);
+    phy_vect pos = phy_body_get_position(info->body);
+    printf("TARGET -> x: %f y: %f\n", target_pos.x, target_pos.y);
+    printf("CURRENT -> x: %f y: %f\n", pos.x, pos.y);
+    /*if (info->follow_ang) {*/
+    /*  float target_ang_vel = phy_body_get_angular_velocity(info->target_body) + phy_body_get_angular_velocity(info->body);*/
+    /*  phy_body_set_angular_velocity(info->body, target_ang_vel);*/
+    /*}*/
+    /*if (info->follow_pos) {*/
+    /*  phy_vect target_vel = phy_v_add(phy_body_get_velocity(info->target_body), phy_body_get_velocity(info->body));*/
+    /*  phy_body_set_velocity(info->body, target_vel);*/
+    /*}*/
   }
   return 0;
 }

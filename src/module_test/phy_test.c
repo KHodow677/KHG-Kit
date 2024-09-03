@@ -48,7 +48,7 @@ static phy_body *add_box(phy_space *space, float size, float mass) {
 	return body;
 }
 
-static phy_space* init(void) {
+static phy_space *init(void) {
 	phy_space *space = phy_space_new();
 	phy_space_set_iterations(space, 10);
 	phy_space_set_sleep_time_threshold(space, 0.5f);

@@ -22,7 +22,6 @@ void comp_renderer_register(comp_renderer *cr) {
 void sys_renderer_register(sys_renderer *sr) {
   sr->id = ecs_register_system(ECS, sys_renderer_update, NULL, NULL, NULL);
   ecs_require_component(ECS, sr->id, RENDERER_COMPONENT_SIGNATURE);
-  ecs_require_component(ECS, sr->id, PHYSICS_COMPONENT_SIGNATURE);
   sr->ecs = *ECS;
   RENDERER_INFO_MAP = utl_map_create(compare_ints, no_deallocator, no_deallocator);
 }

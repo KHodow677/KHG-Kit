@@ -7,7 +7,7 @@
 typedef struct {
   phy_body *body;
   phy_body *target_body;
-  int degree;
+  phy_constraint *pivot;
   bool follow_pos;
   bool follow_ang;
 } follower_info;
@@ -19,7 +19,6 @@ typedef struct {
 typedef struct {
   ecs_id id;
   ecs_ecs ecs;
-  int current_degree;
 } sys_follower;
 
 extern ecs_id FOLLOWER_COMPONENT_SIGNATURE;

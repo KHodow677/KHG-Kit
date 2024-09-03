@@ -8,11 +8,14 @@
 #include "entity/comp_rotator.h"
 #include "game_manager.h"
 #include "khg_phy/body.h"
+#include "khg_phy/constraint.h"
 #include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"
+#include "khg_phy/pivot_joint.h"
 #include "khg_phy/poly_shape.h"
 #include "khg_phy/space.h"
 #include "khg_phy/vect.h"
+#include <stdio.h>
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = phy_moment_for_box(mass, width, height);
@@ -40,17 +43,26 @@ void free_physics(physics_info *info) {
   phy_body_free(info->body);
 }
 
-void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id) {
+void generate_renderer(renderer_info *info, phy_body *body, int tex_id) {
   info->tex_id = tex_id;
-  info->body = p_info->body;
+  info->body = body;
 }
 
-void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info, int degree, bool follow_pos, bool follow_ang) {
-  info->body = p_info->body;
+void generate_follower(follower_info *info, physics_info *target_p_info, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
+  float moment = phy_moment_for_box(mass, width, height);
+  info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
+  phy_body_set_position(info->body, pos);
+  phy_body_set_center_of_gravity(info->body, cog);
+  phy_body_set_angle(info->body, ang);
   info->target_body = target_p_info->body;
-  info->degree = degree;
-  info->follow_pos = follow_pos;
-  info->follow_ang = follow_ang;
+  info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_v_zero, cog));
+}
+
+void free_follower(follower_info *info) {
+  phy_space_remove_constraint(SPACE, info->pivot);
+  phy_space_remove_body(SPACE, info->body);
+  phy_constraint_free(info->pivot);
+  phy_body_free(info->body);
 }
 
 void generate_destroyer(destroyer_info *info) {

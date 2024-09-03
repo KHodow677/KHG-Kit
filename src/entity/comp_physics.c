@@ -48,3 +48,4 @@ ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   }
   return 0;
 }
+
