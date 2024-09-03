@@ -10,9 +10,9 @@
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
 void free_physics(physics_info *info);
 
-void generate_renderer(renderer_info *info, phy_body *body, int tex_id);
+void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id);
 
-void generate_follower(follower_info *info, physics_info *target_p_info, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
+void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info);
 void free_follower(follower_info *info);
 
 void generate_destroyer(destroyer_info *info);

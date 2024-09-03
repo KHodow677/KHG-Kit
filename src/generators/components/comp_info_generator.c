@@ -34,6 +34,7 @@ void generate_physics_box(physics_info *info, bool collides, float width, float 
   info->is_turning = false;
   info->target_vel = 0.0f;
   info->target_ang_vel = 0.0f;
+  info->active = true;
 }
 
 void free_physics(physics_info *info) {
@@ -43,26 +44,21 @@ void free_physics(physics_info *info) {
   phy_body_free(info->body);
 }
 
-void generate_renderer(renderer_info *info, phy_body *body, int tex_id) {
+void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id) {
   info->tex_id = tex_id;
-  info->body = body;
+  info->body = p_info->body;
 }
 
-void generate_follower(follower_info *info, physics_info *target_p_info, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
-  float moment = phy_moment_for_box(mass, width, height);
-  info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
-  phy_body_set_position(info->body, pos);
-  phy_body_set_center_of_gravity(info->body, cog);
-  phy_body_set_angle(info->body, ang);
+void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info) {
+  p_info->active = false; 
+  info->body = p_info->body; 
   info->target_body = target_p_info->body;
-  info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_v_zero, cog));
+  info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_v_zero, phy_body_get_center_of_gravity(p_info->body)));
 }
 
 void free_follower(follower_info *info) {
   phy_space_remove_constraint(SPACE, info->pivot);
-  phy_space_remove_body(SPACE, info->body);
   phy_constraint_free(info->pivot);
-  phy_body_free(info->body);
 }
 
 void generate_destroyer(destroyer_info *info) {
