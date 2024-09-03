@@ -43,11 +43,12 @@ ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   for (int id = 0; id < entity_count; id++) {
     info = utl_vector_at(PHYSICS_INFO, entities[id]);
     float current_ang = normalize_angle(phy_body_get_angle(info->body));
-    if (!info->active) {
-      continue;
+    if (info->move_enabled) {
+      phy_body_set_velocity(info->body, phy_v(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
     }
-    phy_body_set_velocity(info->body, phy_v(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
-    phy_body_set_angular_velocity(info->body, info->target_ang_vel);
+    if (info->rotate_enabled) {
+      phy_body_set_angular_velocity(info->body, info->target_ang_vel);
+    }
   }
   return 0;
 }

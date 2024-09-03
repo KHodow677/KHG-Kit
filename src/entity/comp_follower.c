@@ -3,9 +3,6 @@
 #include "entity/comp_physics.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/body.h"
-#include "khg_phy/phy_types.h"
-#include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
 #include <stdio.h>
 
@@ -40,21 +37,5 @@ void sys_follower_free(bool need_free) {
 }
 
 ecs_ret sys_follower_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  follower_info *info;
-  for (int id = 0; id < entity_count; id++) {
-    info = utl_vector_at(FOLLOWER_INFO, entities[id]);
-    phy_vect target_pos = phy_body_get_position(info->target_body);
-    phy_vect pos = phy_body_get_position(info->body);
-    printf("TARGET -> x: %f y: %f\n", target_pos.x, target_pos.y);
-    printf("CURRENT -> x: %f y: %f\n", pos.x, pos.y);
-    /*if (info->follow_ang) {*/
-    /*  float target_ang_vel = phy_body_get_angular_velocity(info->target_body) + phy_body_get_angular_velocity(info->body);*/
-    /*  phy_body_set_angular_velocity(info->body, target_ang_vel);*/
-    /*}*/
-    /*if (info->follow_pos) {*/
-    /*  phy_vect target_vel = phy_v_add(phy_body_get_velocity(info->target_body), phy_body_get_velocity(info->body));*/
-    /*  phy_body_set_velocity(info->body, target_vel);*/
-    /*}*/
-  }
   return 0;
 }

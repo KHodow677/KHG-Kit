@@ -1,5 +1,5 @@
-#include "data_utl/kinematic_utl.h"
 #include "generators/entities/particle_generator.h"
+#include "data_utl/kinematic_utl.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_follower.h"
@@ -19,7 +19,6 @@ void generate_particle(particle *p, physics_info *source_info, float x, float y)
   generate_renderer(&p->renderer_info, &p->physics_info, PARTICLE_2_0);
   generate_destroyer(&p->destroyer_info);
   generate_animator(&p->animator_info, PARTICLE_2_0, PARTICLE_2_4, 0.032f, true);
-  generate_follower(&p->follower_info, &p->physics_info, source_info);
   phy_body_set_center_of_gravity(p->physics_info.body, phy_v(-145.0f, -5.0f));
   float ang = normalize_angle(phy_body_get_angle(source_info->body));
   phy_body_set_angle(p->physics_info.body, ang - M_PI / 2);
@@ -28,7 +27,6 @@ void generate_particle(particle *p, physics_info *source_info, float x, float y)
   sys_renderer_add(&p->entity, &p->renderer_info);
   sys_destroyer_add(&p->entity, &p->destroyer_info);
   sys_animator_add(&p->entity, &p->animator_info);
-  sys_follower_add(&p->entity, &p->follower_info);
 }
 
 void free_particle(particle *p) {

@@ -1,7 +1,5 @@
 #include "physics/physics_setup.h"
 #include "game_manager.h"
-#include "khg_phy/body.h"
-#include "khg_phy/constraint.h"
 #include "khg_phy/phy_types.h"
 #include "khg_phy/space.h"
 #include "khg_phy/threaded_space.h"

@@ -9,7 +9,8 @@ typedef struct {
   phy_shape *shape;
   float target_vel;
   float target_ang_vel;
-  bool active;
+  bool move_enabled;
+  bool rotate_enabled;
   bool is_moving;
   bool is_turning;
   bool is_locked_on;
