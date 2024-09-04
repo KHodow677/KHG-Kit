@@ -1,6 +1,5 @@
 #include "entity/comp_follower.h"
 #include "data_utl/kinematic_utl.h"
-#include "entity/comp_physics.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/vector.h"

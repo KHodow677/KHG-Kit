@@ -12,7 +12,7 @@ void free_physics(physics_info *info);
 
 void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id);
 
-void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info, bool move_enabled, bool rotate_enabled);
+void generate_follower(follower_info *info, physics_info *p_info, phy_body *target_body, bool move_enabled, bool rotate_enabled);
 void free_follower(follower_info *info);
 
 void generate_destroyer(destroyer_info *info);

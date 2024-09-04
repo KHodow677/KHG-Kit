@@ -13,7 +13,7 @@
 
 void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y) {
   generate_physics_box(&tt->physics_info, false, 102.0f, 209.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 55.5f));
-  generate_follower(&tt->follower_info, &tt->physics_info, &tb->physics_info, false, true);
+  generate_follower(&tt->follower_info, &tt->physics_info, tb->physics_info.body, false, true);
   generate_renderer(&tt->renderer_info, &tt->physics_info, TANK_TOP);
   generate_destroyer(&tt->destroyer_info);
   generate_rotator(&tt->rotator_info, &tt->physics_info);

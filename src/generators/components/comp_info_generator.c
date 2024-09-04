@@ -49,12 +49,13 @@ void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id) {
   info->body = p_info->body;
 }
 
-void generate_follower(follower_info *info, physics_info *p_info, physics_info *target_p_info, bool move_enabled, bool rotate_enabled) {
+void generate_follower(follower_info *info, physics_info *p_info, phy_body *target_body, bool move_enabled, bool rotate_enabled) {
   p_info->move_enabled = move_enabled; 
   p_info->rotate_enabled = rotate_enabled; 
   info->body = p_info->body; 
-  info->target_body = target_p_info->body;
-  info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_v_zero, phy_body_get_center_of_gravity(p_info->body)));
+  info->target_body = target_body;
+  info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_body_get_center_of_gravity(target_body), phy_body_get_center_of_gravity(p_info->body)));
+	phy_constraint_set_max_bias(info->pivot, 0);
 }
 
 void free_follower(follower_info *info) {
