@@ -2,7 +2,6 @@
 #include "controllers/elements/element_controller.h"
 #include "controllers/input/key_controllers.h"
 #include "data_utl/kinematic_utl.h"
-#include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_rotator.h"
 #include "game_manager.h"
@@ -31,7 +30,6 @@ void sys_shooter_register(sys_shooter *ss) {
   ecs_require_component(ECS, ss->id, SHOOTER_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, ROTATOR_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, PHYSICS_COMPONENT_SIGNATURE);
-  ecs_require_component(ECS, ss->id, FOLLOWER_COMPONENT_SIGNATURE);
   ss->ecs = *ECS;
   SHOOTER_INFO = utl_vector_create(sizeof(shooter_info));
   for (int i = 0; i < ECS->entity_count; i++) {
@@ -54,16 +52,14 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   shooter_info *info;
   rotator_info *r_info;
   physics_info *p_info;
-  follower_info *f_info;
   for (int id = 0; id < entity_count; id++) {
     info = utl_vector_at(SHOOTER_INFO, entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    f_info = utl_vector_at(FOLLOWER_INFO, entities[id]);
     r_info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
     if (handle_key_button_went_down(GLFW_KEY_SPACE) && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 11;
-      phy_vect pos = phy_body_get_position(f_info->body);
-      spawn_particle(f_info->target_body, f_info->body, pos.x, pos.y);
+      phy_vect pos = phy_body_get_position(p_info->body);
+      spawn_particle(p_info->target_body, p_info->body, pos.x, pos.y);
     }
     else {
       info->shoot_cooldown = fmaxf(info->shoot_cooldown - 1, 0.0f);

@@ -7,6 +7,8 @@
 typedef struct {
   phy_body *body;
   phy_shape *shape;
+  phy_body *target_body;
+  phy_constraint *pivot;
   float target_vel;
   float target_ang_vel;
   bool move_enabled;

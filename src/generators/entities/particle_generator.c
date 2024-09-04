@@ -2,7 +2,6 @@
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
-#include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "game_manager.h"
@@ -34,11 +33,10 @@ void generate_particle(particle *p, phy_body *body_body, phy_body *top_body, flo
 
 void free_particle(particle *p) {
   p->destroyer_info.destroy_now = true;
-  free_physics(&p->physics_info);
+  free_physics(&p->physics_info, false);
   utl_vector_assign(PHYSICS_INFO, p->entity, &NO_PHYSICS);
   utl_vector_assign(DESTROYER_INFO, p->entity, &NO_DESTROYER);
   utl_vector_assign(ANIMATOR_INFO, p->entity, &NO_ANIMATOR);
   utl_map_erase(RENDERER_INFO_MAP, &p->entity);
-  utl_vector_assign(FOLLOWER_INFO, p->entity, &NO_FOLLOWER);
 }
 
