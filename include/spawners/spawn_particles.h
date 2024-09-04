@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entity/comp_physics.h"
+#include "khg_phy/phy_types.h"
 
-void spawn_particle(physics_info *source_info, float x, float y);
+void spawn_particle(phy_body *body_body, phy_body *top_body, float x, float y);
 

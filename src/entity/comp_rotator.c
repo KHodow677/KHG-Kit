@@ -50,3 +50,4 @@ ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   }
   return 0;
 }
+

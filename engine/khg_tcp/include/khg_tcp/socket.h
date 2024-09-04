@@ -17,7 +17,9 @@ void tcp_socket_shutdown(const socket_t *s);
 bool tcp_socket_poll_write(const socket_t *socket, int timeout_ms);
 bool tcp_socket_poll_write_n(const socket_t *sockets, int n, int timeout_ms);
 bool tcp_socket_poll_read(const socket_t *s, int timeout_ms);
+bool tcp_socket_poll_read_no_timeout(const socket_t *s);
 bool tcp_socket_poll_read_n(const socket_t *sockets, int n, int timeout_ms);
+bool tcp_socket_poll_read_n_no_timeout(const socket_t *sockets, int n);
 
 int tcp_socket_write(const socket_t *s, const char *buffer, int n);
 int tcp_socket_read(const socket_t *s, char* buffer, int n);

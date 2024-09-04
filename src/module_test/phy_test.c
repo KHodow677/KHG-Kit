@@ -1,65 +1,126 @@
 #include "phy_test.h"
-#include "khg_phy/phy.h"
 #include "khg_phy/body.h"
+#include "khg_phy/constraint.h"
+#include "khg_phy/gear_joint.h"
+#include "khg_phy/phy.h"
 #include "khg_phy/phy_types.h"
+#include "khg_phy/pivot_joint.h"
+#include "khg_phy/poly_shape.h"
+#include "khg_phy/shape.h"
 #include "khg_phy/space.h"
+#include "khg_phy/vect.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+static phy_body *tankBody, *tankControlBody;
+static phy_constraint *pivot, *gear;
+
+static inline float frand(void) {
+	return (float)rand()/(float)RAND_MAX;
+}
+
+static void update(phy_space *space, double dt) {
+	phy_vect mouseDelta = phy_v(0.5f, 0.5f);
+	float turn = phy_v_to_angle(phy_v_unrotate(phy_body_get_rotation(tankBody), mouseDelta));
+	phy_body_set_angle(tankControlBody, phy_body_get_angle(tankBody) - turn);
+  if(phy_v_near(phy_v(0.0f, 0.0f), phy_body_get_position(tankBody), 30.0)){
+		phy_body_set_velocity(tankControlBody, phy_v_zero);
+	} 
+  else {
+		float direction = (phy_v_dot(mouseDelta, phy_body_get_position(tankBody)) > 0.0 ? 1.0 : -1.0);
+		phy_body_set_velocity(tankControlBody, phy_v_rotate(phy_body_get_rotation(tankBody), phy_v(30.0f*direction, 0.0f)));
+	}
+  phy_vect tank_body_pos = phy_body_get_position(tankBody);
+  printf("Body -> x: %f, y: %f\n", tank_body_pos.x, tank_body_pos.y);
+  phy_vect tank_control_body_pos = phy_body_get_position(tankControlBody);
+  printf("Control -> x: %f, y: %f\n", tank_control_body_pos.x, tank_control_body_pos.y);
+	phy_space_step(space, dt);
+}
+
+static phy_body *add_box(phy_space *space, float size, float mass) {
+	float radius = phy_v_length(phy_v(size, size));
+	phy_body *body = phy_space_add_body(space, phy_body_new(mass, phy_moment_for_box(mass, size, size)));
+	phy_body_set_position(body, phy_v(frand()*(640 - 2*radius) - (320 - radius), frand()*(480 - 2*radius) - (240 - radius)));
+	phy_shape *shape = phy_space_add_shape(space, phy_box_shape_new(body, size, size, 0.0));
+	phy_shape_set_elasticity(shape, 0.0f);
+	phy_shape_set_friction(shape, 0.7f);
+	return body;
+}
+
+static phy_space *init(void) {
+	phy_space *space = phy_space_new();
+	phy_space_set_iterations(space, 10);
+	phy_space_set_sleep_time_threshold(space, 0.5f);
+	phy_body *staticBody = phy_space_get_static_body(space);
+	phy_shape *shape;
+	for(int i=0; i<50; i++) {
+		phy_body *body = add_box(space, 20, 1);
+		phy_constraint *pivot = phy_space_add_constraint(space, phy_pivot_joint_new_2(staticBody, body, phy_v_zero, phy_v_zero));
+		phy_constraint_set_max_bias(pivot, 0);
+		phy_constraint_set_max_force(pivot, 1000.0f);
+		phy_constraint *gear = phy_space_add_constraint(space, phy_gear_joint_new(staticBody, body, 0.0f, 1.0f));
+		phy_constraint_set_max_bias(gear, 0);
+		phy_constraint_set_max_force(gear, 5000.0f);
+	}
+	tankControlBody = phy_space_add_body(space, phy_body_new_kinematic());
+	tankBody = add_box(space, 30, 10);
+	pivot = phy_space_add_constraint(space, phy_pivot_joint_new_2(tankControlBody, tankBody, phy_v_zero, phy_v_zero));
+	phy_constraint_set_max_bias(pivot, 0);
+	phy_constraint_set_max_force(pivot, 10000.0f);
+	gear = phy_space_add_constraint(space, phy_gear_joint_new(tankControlBody, tankBody, 0.0f, 1.0f));
+	phy_constraint_set_error_bias(gear, 0);
+	phy_constraint_set_max_bias(gear, 1.2f);
+	phy_constraint_set_max_force(gear, 50000.0f);
+	return space;
+}
+
+static void ShapeFreeWrap(phy_space *space, phy_shape *shape, void *unused){
+	phy_space_remove_shape(space, shape);
+	phy_shape_free(shape);
+}
+
+static void PostShapeFree(phy_shape *shape, phy_space *space){
+	phy_space_add_post_step_callback(space, (phy_post_step_func)ShapeFreeWrap, shape, NULL);
+}
+
+static void ConstraintFreeWrap(phy_space *space, phy_constraint *constraint, void *unused){
+	phy_space_remove_constraint(space, constraint);
+	phy_constraint_free(constraint);
+}
+
+static void PostConstraintFree(phy_constraint *constraint, phy_space *space){
+	phy_space_add_post_step_callback(space, (phy_post_step_func)ConstraintFreeWrap, constraint, NULL);
+}
+
+static void BodyFreeWrap(phy_space *space, phy_body *body, void *unused){
+	phy_space_remove_body(space, body);
+	phy_body_free(body);
+}
+
+static void PostBodyFree(phy_body *body, phy_space *space){
+	phy_space_add_post_step_callback(space, (phy_post_step_func)BodyFreeWrap, body, NULL);
+}
+
+static void free_space_children(phy_space *space) {
+	phy_space_each_shape(space, (phy_space_shape_iterator_func)PostShapeFree, space);
+	phy_space_each_constraint(space, (phy_space_constraint_iterator_func)PostConstraintFree, space);
+	phy_space_each_body(space, (phy_space_body_iterator_func)PostBodyFree, space);
+}
+
+static void destroy(phy_space *space) {
+	free_space_children(space);
+	phy_space_free(space);
+}
 
 int phy_test() {
-  // phy_vect is a 2D vector and cpv() is a shortcut for initializing them.
-  phy_vect gravity = phy_v(0, -100);
-  
-  // Create an empty space.
-  phy_space *space = phy_space_new();
-  phy_space_set_gravity(space, gravity);
-  
-  // Add a static line segment shape for the ground.
-  // We'll make it slightly tilted so the ball will roll off.
-  // We attach it to a static body to tell Chipmunk it shouldn't be movable.
-  phy_shape *ground = phy_segment_shape_new(phy_space_get_static_body(space), phy_v(-20, 5), phy_v(20, -5), 0);
-  phy_shape_set_friction(ground, 1);
-  phy_space_add_shape(space, ground);
-  
-  // Now let's make a ball that falls onto the line and rolls off.
-  // First we need to make a cpBody to hold the physical properties of the object.
-  // These include the mass, position, velocity, angle, etc. of the object.
-  // Then we attach collision shapes to the cpBody to give it a size and shape.
-  
-  float radius = 5;
-  float mass = 1;
-  
-  // The moment of inertia is like mass for rotation
-  // Use the cpMomentFor*() functions to help you approximate it.
-  float moment = phy_moment_for_circle(mass, 0, radius, phy_v_zero);
-  
-  // The cpSpaceAdd*() functions return the thing that you are adding.
-  // It's convenient to create and add an object in one line.
-  phy_body *ballBody = phy_space_add_body(space, phy_body_new(mass, moment));
-  phy_body_set_position(ballBody, phy_v(0, 15));
-  
-  // Now we create the collision shape for the ball.
-  // You can create multiple collision shapes that point to the same body.
-  // They will all be attached to the body and move around to follow it.
-  phy_shape *ballShape = phy_space_add_shape(space, cpCircleShapeNew(ballBody, radius, phy_v_zero));
-  phy_shape_set_friction(ballShape, 0.7);
-  
-  // Now that it's all set up, we simulate all the objects in the space by
-  // stepping forward through time in small increments called steps.
-  // It is *highly* recommended to use a fixed size time step.
-  float timeStep = 1.0/60.0;
-  for(float time = 0; time < 2; time += timeStep){
-    phy_vect pos = phy_body_get_position(ballBody);
-    phy_vect vel = phy_body_get_velocity(ballBody);
-    printf( "Time is %5.2f. ballBody is at (%5.2f, %5.2f). It's velocity is (%5.2f, %5.2f)\n", time, pos.x, pos.y, vel.x, vel.y);
-    phy_space_step(space, timeStep);
+  float dt = 0.016;
+  phy_space *space = init();
+  while (1) {
+    update(space, dt);
+    usleep(dt*1000000);
   }
-  
-  // Clean up our objects and exit!
-  phy_shape_free(ballShape);
-  phy_body_free(ballBody);
-  phy_shape_free(ground);
-  phy_space_free(space);
-  
+  destroy(space);
   return 0;
 }
 

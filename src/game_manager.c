@@ -3,7 +3,6 @@
 #include "entity/comp_mover.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
-#include "entity/comp_follower.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
@@ -31,7 +30,6 @@ camera CAMERA = { 0 };
 
 sys_physics PHYSICS_SYSTEM = { 0 };
 sys_renderer RENDERER_SYSTEM = { 0 };
-sys_follower FOLLOWER_SYSTEM = { 0 };
 sys_destroyer DESTROYER_SYSTEM = { 0 };
 sys_animator ANIMATOR_SYSTEM = { 0 };
 sys_mover MOVER_SYSTEM = { 0 };
@@ -40,7 +38,6 @@ sys_shooter SHOOTER_SYSTEM = { 0 };
 
 comp_physics PHYSICS_COMPONENT_TYPE;
 comp_renderer RENDERER_COMPONENT_TYPE;
-comp_follower FOLLOWER_COMPONENT_TYPE;
 comp_destroyer DESTROYER_COMPONENT_TYPE;
 comp_animator ANIMATOR_COMPONENT_TYPE;
 comp_mover MOVER_COMPONENT_TYPE;
@@ -52,7 +49,6 @@ void ecs_setup() {
   ECS = ecs_new(1024, NULL);
   comp_physics_register(&PHYSICS_COMPONENT_TYPE);
   comp_renderer_register(&RENDERER_COMPONENT_TYPE);
-  comp_follower_register(&FOLLOWER_COMPONENT_TYPE);
   comp_destroyer_register(&DESTROYER_COMPONENT_TYPE);
   comp_animator_register(&ANIMATOR_COMPONENT_TYPE);
   comp_mover_register(&MOVER_COMPONENT_TYPE);
@@ -60,7 +56,6 @@ void ecs_setup() {
   comp_shooter_register(&SHOOTER_COMPONENT_TYPE);
   sys_physics_register(&PHYSICS_SYSTEM);
   sys_renderer_register(&RENDERER_SYSTEM);
-  sys_follower_register(&FOLLOWER_SYSTEM);
   sys_destroyer_register(&DESTROYER_SYSTEM);
   sys_animator_register(&ANIMATOR_SYSTEM);
   sys_mover_register(&MOVER_SYSTEM);
@@ -73,7 +68,6 @@ void ecs_setup() {
 void ecs_cleanup() {
   sys_physics_free(false);
   sys_renderer_free(false);
-  sys_follower_free(false);
   sys_destroyer_free(false);
   sys_mover_free(false);
   sys_rotator_free(false);

@@ -50,8 +50,8 @@ void sys_shooter_free(bool need_free) {
 
 ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   shooter_info *info;
-  physics_info *p_info;
   rotator_info *r_info;
+  physics_info *p_info;
   for (int id = 0; id < entity_count; id++) {
     info = utl_vector_at(SHOOTER_INFO, entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
@@ -59,7 +59,7 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     if (handle_key_button_went_down(GLFW_KEY_SPACE) && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 11;
       phy_vect pos = phy_body_get_position(p_info->body);
-      spawn_particle(p_info, pos.x, pos.y);
+      spawn_particle(p_info->target_body, p_info->body, pos.x, pos.y);
     }
     else {
       info->shoot_cooldown = fmaxf(info->shoot_cooldown - 1, 0.0f);
