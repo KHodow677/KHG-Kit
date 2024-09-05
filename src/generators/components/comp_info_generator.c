@@ -5,6 +5,7 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
+#include "entity/comp_selector.h"
 #include "game_manager.h"
 #include "khg_phy/body.h"
 #include "khg_phy/constraint.h"
@@ -102,4 +103,8 @@ void generate_rotator(rotator_info *info, physics_info *p_info) {
 
 void generate_shooter(shooter_info *info) {
   info->shoot_cooldown = 0;
+}
+
+void generate_selector(selector_info *info) {
+  info->selected = false;
 }

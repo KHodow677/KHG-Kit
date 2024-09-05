@@ -42,8 +42,8 @@ ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
   for (int id = 0; id < entity_count; id++) {
     info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    if (!phy_v_eql(handle_right_mouse_controls(), phy_v(-1.0f, -1.0f))) {
-      info->target_look_pos = handle_right_mouse_controls();
+    if (!phy_v_eql(MOUSE_STATE.right_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
+      info->target_look_pos = MOUSE_STATE.right_mouse_click_controls;
       p_info->is_locked_on = false;
     }
     element_lock_on_position(p_info, info->target_look_pos, 16.0f);
