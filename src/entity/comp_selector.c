@@ -3,6 +3,7 @@
 #include "entity/comp_physics.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
+#include "khg_phy/shape.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
 #include <stdio.h>
@@ -45,9 +46,12 @@ ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ec
     info = utl_vector_at(SELECTOR_INFO, entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
     if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
-      info->selected = !info->selected;
-      printf("Selected: %i\n", info->selected);
+      if (phy_shape_point_query(p_info->shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f) {
+        info->selected = !info->selected;
+        printf("Selected: %i\n", info->selected);
+      }
     }
   }
   return 0;
 }
+

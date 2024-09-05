@@ -13,6 +13,7 @@
 #include "khg_phy/phy_types.h"
 #include "khg_phy/pivot_joint.h"
 #include "khg_phy/poly_shape.h"
+#include "khg_phy/shape.h"
 #include "khg_phy/space.h"
 #include "khg_phy/vect.h"
 
@@ -24,11 +25,8 @@ void generate_physics_box(physics_info *info, bool collides, float width, float 
   phy_body_set_angle(info->body, ang);
   if (collides) {
     info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, width, height, 0.0f));
+    phy_shape_set_friction(info->shape, 0.0f);
   }
-  else {
-    info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, 0.0f, 0.0f, 0.0f));
-  }
-  phy_shape_set_friction(info->shape, 0.0f);
   info->is_moving = false;
   info->is_turning = false;
   info->target_vel = 0.0f;
@@ -45,11 +43,8 @@ void generate_physics_pivot(physics_info *info, bool collides, float width, floa
   phy_body_set_angle(info->body, ang);
   if (collides) {
     info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, width, height, 0.0f));
+    phy_shape_set_friction(info->shape, 0.0f);
   }
-  else {
-    info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, 0.0f, 0.0f, 0.0f));
-  }
-  phy_shape_set_friction(info->shape, 0.0f);
   info->is_moving = false;
   info->is_turning = false;
   info->target_vel = 0.0f;
@@ -66,9 +61,11 @@ void free_physics(physics_info *info, bool has_constraint) {
     phy_space_remove_constraint(SPACE, info->pivot);
     phy_constraint_free(info->pivot);
   }
-  phy_space_remove_shape(SPACE, info->shape);
+  if (info->shape) {
+    phy_space_remove_shape(SPACE, info->shape);
+    phy_shape_free(info->shape);
+  }
   phy_space_remove_body(SPACE, info->body);
-  phy_shape_free(info->shape);
   phy_body_free(info->body);
 }
 
