@@ -32,12 +32,6 @@ void sys_physics_add(ecs_id *eid, physics_info *info) {
   utl_vector_assign(PHYSICS_INFO, *eid, info);
 }
 
-void sys_physics_free(bool need_free) {
-  if (need_free) {
-    utl_vector_deallocate(PHYSICS_INFO);
-  }
-}
-
 ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   physics_info *info;
   for (int id = 0; id < entity_count; id++) {

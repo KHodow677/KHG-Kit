@@ -26,6 +26,8 @@ typedef enum {
   PARTICLE_2_2,
   PARTICLE_2_3,
   PARTICLE_2_4,
+  TANK_BODY_OUTLINE,
+  TANK_TOP_OUTLINE
 } TEXTURE_ID;
 
 gfx_texture generate_texture(char *file_name, char *file_type, float width, float height);

@@ -69,9 +69,10 @@ void free_physics(physics_info *info, bool has_constraint) {
   phy_body_free(info->body);
 }
 
-void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id) {
+void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, int render_layer) {
   info->tex_id = tex_id;
   info->body = p_info->body;
+  info->render_layer = render_layer;
 }
 
 void generate_destroyer(destroyer_info *info) {

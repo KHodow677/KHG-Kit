@@ -30,17 +30,12 @@ void sys_destroyer_add(ecs_id *eid, destroyer_info *info) {
   utl_vector_assign(DESTROYER_INFO, *eid, info);
 }
 
-void sys_destroyer_free(bool need_free) {
-  if (need_free) {
-    utl_vector_deallocate(DESTROYER_INFO);
-  }
-}
-
 ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   destroyer_info *info;
   for (int id = 0; id < entity_count; id++) {
     info = utl_vector_at(DESTROYER_INFO, entities[id]);
     if (info->destroy_now) {
+      printf("%i\n", entities[id]);
       element_destroy(entities[id]);
     }
   }

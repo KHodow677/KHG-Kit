@@ -3,11 +3,15 @@
 #include "khg_utl/vector.h"
 #include <stdlib.h>
 
-bool generic_entity_is_particle(generic_entity *entity) {
+static bool generic_entity_is_particle(generic_entity *entity) {
   return entity->type == ENTITY_TYPE_PARTICLE;
 }
 
-bool generic_entity_is_tank(generic_entity *entity) {
+static bool generic_entity_is_tank(generic_entity *entity) {
+  return entity->type == ENTITY_TYPE_TANK;
+}
+
+static bool generic_entity_is_tank_outline(generic_entity *entity) {
   return entity->type == ENTITY_TYPE_TANK;
 }
 
@@ -17,6 +21,9 @@ void free_entity(generic_entity *ge) {
   }
   else if (generic_entity_is_tank(ge)) {
     free_tank(&ge->tank);
+  }
+  else if (generic_entity_is_tank_outline(ge)) {
+    free_tank_outline(&ge->tank_outline);
   }
   free(ge);
 }

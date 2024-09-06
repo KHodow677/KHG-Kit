@@ -33,12 +33,6 @@ void sys_mover_add(ecs_id *eid, mover_info *info) {
   utl_vector_assign(MOVER_INFO, *eid, info);
 }
 
-void sys_mover_free(bool need_free) {
-  if (need_free) {
-    utl_vector_deallocate(MOVER_INFO);
-  }
-}
-
 ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   mover_info *info;
   physics_info *p_info;

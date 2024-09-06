@@ -30,12 +30,6 @@ void sys_rotator_add(ecs_id *eid, rotator_info *info) {
   utl_map_insert(ROTATOR_INFO_MAP, eid, info);
 }
 
-void sys_rotator_free(bool need_free) {
-  if (need_free) {
-    utl_map_deallocate(ROTATOR_INFO_MAP);
-  }
-}
-
 ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   rotator_info *info;
   physics_info *p_info;

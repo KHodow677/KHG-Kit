@@ -24,7 +24,6 @@ void comp_destroyer_register(comp_destroyer *cd);
 
 void sys_destroyer_register(sys_destroyer *sd);
 void sys_destroyer_add(ecs_id *eid, destroyer_info *info);
-void sys_destroyer_free(bool need_free);
 
 ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

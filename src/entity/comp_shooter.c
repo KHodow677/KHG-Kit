@@ -42,12 +42,6 @@ void sys_shooter_add(ecs_id *eid, shooter_info *info) {
   utl_vector_assign(SHOOTER_INFO, *eid, info);
 }
 
-void sys_shooter_free(bool need_free) {
-  if (need_free) {
-    utl_vector_deallocate(SHOOTER_INFO);
-  }
-}
-
 ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   shooter_info *info;
   rotator_info *r_info;
@@ -57,12 +51,12 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
     r_info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
     if (handle_key_button_went_down(GLFW_KEY_SPACE) && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
-      info->shoot_cooldown = 11;
+      info->shoot_cooldown = 0.16f;
       phy_vect pos = phy_body_get_position(p_info->body);
       spawn_particle(p_info->target_body, p_info->body, pos.x, pos.y);
     }
     else {
-      info->shoot_cooldown = fmaxf(info->shoot_cooldown - 1, 0.0f);
+      info->shoot_cooldown = fmaxf(info->shoot_cooldown - dt, 0.0f);
     }
   }
   return 0;

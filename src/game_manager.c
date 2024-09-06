@@ -72,13 +72,6 @@ void ecs_setup() {
 }
 
 void ecs_cleanup() {
-  sys_physics_free(false);
-  sys_renderer_free(false);
-  sys_destroyer_free(false);
-  sys_mover_free(false);
-  sys_rotator_free(false);
-  sys_shooter_free(false);
-  sys_selector_free(false);
   free_entity_lookup();
   free_textures();
   physics_free(SPACE);
