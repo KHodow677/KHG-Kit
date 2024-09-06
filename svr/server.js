@@ -57,7 +57,7 @@ var server = net.createServer(function(socket) {
   });
 });
 
-server.listen(80, function() {
-  console.log("HTTP server started on port 80");
+server.listen(3000, function() {
+  console.log("HTTP server started on port 3000");
 });
 
