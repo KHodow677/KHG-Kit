@@ -3,7 +3,6 @@
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
-#include "entity/comp_selector.h"
 #include "game_manager.h"
 #include "generators/components/comp_info_generator.h"
 #include "generators/components/texture_generator.h"
@@ -16,13 +15,11 @@ void generate_tank_body(tank_body *tb, float x, float y) {
   generate_renderer(&tb->renderer_info, &tb->physics_info, TANK_BODY, 1);
   generate_destroyer(&tb->destroyer_info);
   generate_mover(&tb->mover_info, &tb->physics_info);
-  generate_selector(&tb->selector_info);
   tb->entity = ecs_create(ECS);
   sys_physics_add(&tb->entity, &tb->physics_info);
   sys_renderer_add(&tb->entity, &tb->renderer_info);
   sys_destroyer_add(&tb->entity, &tb->destroyer_info);
   sys_mover_add(&tb->entity, &tb->mover_info);
-  sys_selector_add(&tb->entity, &tb->selector_info);
 }
 
 void free_tank_body(tank_body *tb) {
@@ -31,6 +28,5 @@ void free_tank_body(tank_body *tb) {
   utl_vector_assign(RENDERER_INFO, tb->entity, &NO_RENDERER);
   utl_vector_assign(DESTROYER_INFO, tb->entity, &NO_DESTROYER);
   utl_vector_assign(MOVER_INFO, tb->entity, &NO_MOVER);
-  utl_vector_assign(SELECTOR_INFO, tb->entity, &NO_SELECTOR);
 }
 

@@ -64,7 +64,7 @@ utl_vector *utl_vector_create(size_t itemSize) {
   vec->size = 0;
   vec->capacitySize = 32;
   vec->itemSize = itemSize;
-  size_t initialPoolSize = 100000;
+  size_t initialPoolSize = 1000000;
   vec->pool = utl_memory_pool_create(initialPoolSize);
   if (!vec->pool) {
     free(vec);

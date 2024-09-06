@@ -35,7 +35,7 @@ void generate_physics_box(physics_info *info, bool collides, float width, float 
   info->rotate_enabled = true;
 }
 
-void generate_physics_pivot(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, phy_body *target_body) {
+void generate_physics_pivot(physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = phy_moment_for_box(mass, width, height);
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -51,8 +51,11 @@ void generate_physics_pivot(physics_info *info, bool collides, float width, floa
   info->target_ang_vel = 0.0f;
   info->move_enabled = false; 
   info->rotate_enabled = true; 
-  info->target_body = target_body;
-  info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_body_get_center_of_gravity(target_body), phy_body_get_center_of_gravity(info->body)));
+  info->target_body = p_info->body;
+  if (p_info->shape) {
+    info->target_shape = p_info->shape;
+  }
+  info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_body_get_center_of_gravity(p_info->body), phy_body_get_center_of_gravity(info->body)));
 	phy_constraint_set_max_bias(info->pivot, 0);
 }
 
