@@ -22,10 +22,11 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
         continue;
       }
       phy_vect pos = phy_body_get_position(info->body);
+      phy_vect offset = phy_body_get_center_of_gravity(info->body);
       float angle = phy_body_get_angle(info->body);
       gfx_texture *tex = utl_vector_at(TEXTURE_LOOKUP, info->tex_id);
       tex->angle = angle;
-      gfx_image_no_block(pos.x, pos.y, *tex, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
+      gfx_image_no_block(pos.x, pos.y, *tex, offset.x, offset.y, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
     }
   }
   return 0;

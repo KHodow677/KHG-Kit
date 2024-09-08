@@ -246,7 +246,7 @@ gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file,
   state.pos_ptr.y += margin_top;
   gfx_clickable_item_state ret = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ img.width + padding * 2, img.height + padding * 2 }, props, color, props.border_width, true, true);
   gfx_color imageColor = gfx_white;
-  gfx_image_render((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 1.0f);
+  gfx_image_render((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
   state.pos_ptr.x += img.width + margin_right + padding * 2.0f;
   state.pos_ptr.y -= margin_top;
   return ret; 
@@ -267,7 +267,7 @@ gfx_clickable_item_state gfx_image_button_fixed_loc(gfx_texture img, float width
   state.pos_ptr.y += margin_top;
   gfx_clickable_item_state ret = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ render_width + padding * 2, render_height + padding * 2 }, props, color, props.border_width, true, true);
   gfx_color imageColor = gfx_white; 
-  gfx_image_render((vec2s){ state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 1.0f);
+  gfx_image_render((vec2s){ state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
   state.pos_ptr.x += render_width + margin_right + padding * 2.0f;
   state.pos_ptr.y -= margin_top;
   return ret;
@@ -671,15 +671,21 @@ void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_co
   state.render.index_count += 6;
 }
 
-void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle, float cam_x, float cam_y, float cam_zoom) {
+void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle, float pos_x, float pos_y, float cam_x, float cam_y, float cam_zoom) {
   if (!state.renderer_render) {
     return;
   }
+  uint32_t old_width = tex.width, old_height = tex.height;
+  tex.width *= cam_zoom;
+  tex.height *= cam_zoom;
+  uint32_t delta_width = tex.width - old_width, delta_height = tex.height - old_height;
   pos.x -= cam_x;
   pos.y -= cam_y;
-  float boundingWidth, boundingHeight;
-  compute_bounding_box(tex.width, tex.height, rotation_angle, &boundingWidth, &boundingHeight);
-  if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ boundingWidth, boundingHeight } })) {
+  pos.x -= delta_width * ((old_width / 2.0f + pos_x) / old_width);
+  pos.y -= delta_height * ((old_height / 2.0f + pos_y) / old_height);
+  float bounding_width, bounding_height;
+  compute_bounding_box(tex.width, tex.height, rotation_angle, &bounding_width, &bounding_height);
+  if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ bounding_width, bounding_height } })) {
     return;
   }
   if (state.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
@@ -873,12 +879,12 @@ void gfx_image(gfx_texture tex) {
   gfx_internal_next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left; 
   state.pos_ptr.y += margin_top;
-  gfx_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle, 0.0f, 0.0f, 1.0f);
+  gfx_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
   state.pos_ptr.x += w + margin_right;
   state.pos_ptr.y -= margin_top;
 }
 
-void gfx_image_no_block(float x, float y, gfx_texture tex, float cam_x, float cam_y, float cam_zoom) {
+void gfx_image_no_block(float x, float y, gfx_texture tex, float pos_x, float pos_y, float cam_x, float cam_y, float cam_zoom) {
   float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
@@ -888,7 +894,7 @@ void gfx_image_no_block(float x, float y, gfx_texture tex, float cam_x, float ca
   gfx_internal_next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left; 
   state.pos_ptr.y += margin_top;
-  gfx_image_render((vec2s){ x - tex.width / 2.0f, y - tex.height / 2.0f}, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle, cam_x, cam_y, cam_zoom);
+  gfx_image_render((vec2s){ x - tex.width / 2.0f, y - tex.height / 2.0f}, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle, pos_x, pos_y, cam_x, cam_y, cam_zoom);
   state.pos_ptr.x += w + margin_right;
   state.pos_ptr.y -= margin_top;
   state.pos_ptr.x = init_x;
