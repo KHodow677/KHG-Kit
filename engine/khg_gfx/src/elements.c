@@ -1,4 +1,6 @@
 #include "khg_gfx/elements.h"
+#include "cglm/types-struct.h"
+#include "cglm/vec2.h"
 #include "khg_gfx/font.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/internal.h"
@@ -8,6 +10,7 @@
 #include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "libclipboard/libclipboard.h"
+#include <math.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -675,6 +678,10 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
   if (!state.renderer_render) {
     return;
   }
+  vec2s offset = { pos_x, pos_y };
+  float offset_mag = glm_vec2_norm(offset.raw);
+  pos_x = offset_mag * cosf(rotation_angle + M_PI * 0.5f);
+  pos_y = offset_mag * sinf(rotation_angle + M_PI * 0.5f);
   uint32_t old_width = tex.width, old_height = tex.height;
   tex.width *= cam_zoom;
   tex.height *= cam_zoom;
