@@ -23,3 +23,4 @@ void update_mouse_controls(mouse_state *ms) {
   ms->left_mouse_click_controls = handle_left_mouse_controls();
   ms->right_mouse_click_controls = handle_right_mouse_controls();
 }
+

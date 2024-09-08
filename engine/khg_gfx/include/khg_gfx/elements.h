@@ -260,7 +260,7 @@ void gfx_rect_no_block(float x, float y, float width, float height, gfx_color co
 void gfx_seperator(void);
 
 void gfx_set_clipboard_text(const char *text);
-char* gfx_get_clipboard_text(void);
+char *gfx_get_clipboard_text(void);
 
 void gfx_set_no_render(bool no_render);
 
