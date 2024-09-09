@@ -1,103 +1,23 @@
-#pragma once
-
-#include <type_traits>
-
-/// @file Compare.h Definition of comparison utilities
-
-namespace Zelus
-{
 /**
- * Generic less comparison that avoids always true or always false comparisons
+ * Calculates the number of bits required to store the value using 2s complement
+ * encoding.
  * 
- * @tparam L type of the left value
- * @tparam R type of the right value
- * @param lhs the left value
- * @param rhs the right value
- * @return `lhs < rhs`
+ * @param value the value to check the bit width of
+ * @return the number of bits required to store the value using 2s complement encoding
  */
-template <typename L, typename R>
-constexpr auto less(L lhs, R rhs) -> bool
+template <typename T, std::enable_if_t<std::is_signed_v<T> && std::is_integral_v<T>, bool> = true>
+constexpr auto signed_bit_width(T value) -> int
 {
-   if constexpr (std::is_integral_v<L> && std::is_integral_v<R>)
+   using signed_t = std::make_unsigned_t<T>;
+   if (value < 0)
    {
-      if constexpr (std::is_signed_v<L> == std::is_signed_v<R>)
-      {
-         return lhs < rhs;
-      }
-      else if constexpr (std::is_signed_v<L>)
-      {
-         static_assert(!std::is_signed_v<R>);
-         if (lhs < L {0})
-         {
-            return true;
-         }
-         else
-         {
-            return less(static_cast<std::make_unsigned_t<L>>(lhs), rhs);
-         }
-      }
-      else
-      {
-         static_assert(!std::is_signed_v<L>);
-         static_assert(std::is_signed_v<R>);
-         if (rhs < R {0})
-         {
-            return false;
-         }
-         else
-         {
-            return less(lhs, static_cast<std::make_unsigned_t<R>>(rhs));
-         }
-      }
+      const auto positive = static_cast<signed_t>(-(value + 1)) + 1u;  // prevent overflow when value == std::numeric_limits<signed_t>::lowest()
+      const auto bw1 = bit_width(positive);
+      const auto bw2 = bit_width(positive - 1u);
+      return (bw2 < bw1) ? bw1 : (bw1 + 1);
    }
    else
    {
-      return lhs < rhs;
+      return bit_width(static_cast<signed_t>(value)) + 1;
    }
 }
-
-/**
- * Generic greater comparison that avoids always true or always false comparisons
- * 
- * @tparam L type of the left value
- * @tparam R type of the right value
- * @param lhs the left value
- * @param rhs the right value
- * @return `lhs > rhs`
- */
-template <typename L, typename R>
-constexpr auto greater(L lhs, R rhs) -> bool
-{
-   return less(rhs, lhs);
-}
-
-/**
- * Generic less-equal comparison that avoids always true or always false comparisons
- * 
- * @tparam L type of the left value
- * @tparam R type of the right value
- * @param lhs the left value
- * @param rhs the right value
- * @return `lhs <= rhs`
- */
-template <typename L, typename R>
-constexpr auto less_equal(L lhs, R rhs) -> bool
-{
-   return !greater(lhs, rhs);
-}
-
-/**
- * Generic greater-equal comparison that avoids always true or always false comparisons
- * 
- * @tparam L type of the left value
- * @tparam R type of the right value
- * @param lhs the left value
- * @param rhs the right value
- * @return `lhs <= rhs`
- */
-template <typename L, typename R>
-constexpr auto greater_equal(L lhs, R rhs) -> bool
-{
-   return !less(lhs, rhs);
-}
-}  // namespace Zelus
