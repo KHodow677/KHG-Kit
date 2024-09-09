@@ -674,22 +674,22 @@ void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_co
   state.render.index_count += 6;
 }
 
-void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle, float pos_x, float pos_y, float cam_x, float cam_y, float cam_zoom) {
+void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle, float offset_x, float offset_y, float cam_x, float cam_y, float cam_zoom) {
   if (!state.renderer_render) {
     return;
   }
-  vec2s offset = { pos_x, pos_y };
-  float offset_mag = glm_vec2_norm(offset.raw);
-  pos_x = offset_mag * cosf(rotation_angle + M_PI * 0.5f);
-  pos_y = offset_mag * sinf(rotation_angle + M_PI * 0.5f);
+  float offset_mag = glm_vec2_norm((vec2){offset_x, offset_y});
+  offset_x = offset_mag * cosf(rotation_angle + M_PI * 0.5f);
+  offset_y = offset_mag * sinf(rotation_angle + M_PI * 0.5f);
   uint32_t old_width = tex.width, old_height = tex.height;
   tex.width *= cam_zoom;
   tex.height *= cam_zoom;
-  uint32_t delta_width = tex.width - old_width, delta_height = tex.height - old_height;
+  float delta_width = (float)tex.width - old_width;
+  float delta_height = (float)tex.height - old_height;
   pos.x -= cam_x;
   pos.y -= cam_y;
-  pos.x -= delta_width * ((old_width / 2.0f + pos_x) / old_width);
-  pos.y -= delta_height * ((old_height / 2.0f + pos_y) / old_height);
+  pos.x -= delta_width * ((old_width / 2.0f + offset_x) / old_width);
+  pos.y -= delta_height * ((old_height / 2.0f + offset_y) / old_height);
   float bounding_width, bounding_height;
   compute_bounding_box(tex.width, tex.height, rotation_angle, &bounding_width, &bounding_height);
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ bounding_width, bounding_height } })) {

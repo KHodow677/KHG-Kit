@@ -5,6 +5,7 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_rotator.h"
 #include "game_manager.h"
+#include "khg_phy/vect.h"
 #include "spawners/spawn_particles.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
@@ -13,7 +14,6 @@
 #include "khg_utl/vector.h"
 #include "GLFW/glfw3.h"
 #include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 ecs_id SHOOTER_COMPONENT_SIGNATURE;
@@ -53,7 +53,13 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     if (handle_key_button_went_down(GLFW_KEY_SPACE) && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 0.16f;
       phy_vect pos = phy_body_get_position(p_info->body);
-      spawn_particle(p_info->target_body, p_info->body, pos.x, pos.y);
+      float ang = phy_body_get_angle(p_info->body);
+      float length = 145.0f;
+      float spawn_x = pos.x + length * sinf(normalize_angle(ang));
+      float spawn_y = pos.y + length * -cosf(normalize_angle(ang));
+      spawn_x += 5.0f * cosf(ang);
+      spawn_y += 5.0f * sinf(ang);
+      spawn_particle(p_info->target_body, p_info->body, spawn_x, spawn_y);
     }
     else {
       info->shoot_cooldown = fmaxf(info->shoot_cooldown - dt, 0.0f);

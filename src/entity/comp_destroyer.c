@@ -35,7 +35,6 @@ ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, e
   for (int id = 0; id < entity_count; id++) {
     info = utl_vector_at(DESTROYER_INFO, entities[id]);
     if (info->destroy_now) {
-      printf("%i\n", entities[id]);
       element_destroy(entities[id]);
     }
   }

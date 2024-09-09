@@ -219,7 +219,7 @@ void gfx_pop_font(void);
 gfx_text_props gfx_text_render(vec2s pos, const char *str, gfx_font font, gfx_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);
 
 void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_color, float border_width, float corner_radius, float rotation_angle);
-void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle, float pos_x, float pos_y, float cam_x, float cam_y, float cam_zoom);
+void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle, float offset_x, float offset_y, float cam_x, float cam_y, float cam_zoom);
 
 bool gfx_point_intersects_aabb(vec2s p, gfx_aabb aabb);
 bool gfx_aabb_intersects_aabb(gfx_aabb a, gfx_aabb b);
