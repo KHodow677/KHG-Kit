@@ -678,18 +678,21 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
   if (!state.renderer_render) {
     return;
   }
-  float offset_mag = glm_vec2_norm((vec2){offset_x, offset_y});
+  float offset_mag = glm_vec2_norm((vec2){ offset_x, offset_y });
+  float window_center_x = gfx_get_display_width() / 2.0f;
+  float window_center_y = gfx_get_display_height() / 2.0f;
   offset_x = offset_mag * cosf(rotation_angle + M_PI * 0.5f);
   offset_y = offset_mag * sinf(rotation_angle + M_PI * 0.5f);
-  uint32_t old_width = tex.width, old_height = tex.height;
+  uint32_t old_width = tex.width;
+  uint32_t old_height = tex.height;
   tex.width *= cam_zoom;
   tex.height *= cam_zoom;
   float delta_width = (float)tex.width - old_width;
   float delta_height = (float)tex.height - old_height;
+  pos.x = (pos.x - window_center_x) * cam_zoom + window_center_x;
+  pos.y = (pos.y - window_center_y) * cam_zoom + window_center_y;
   pos.x -= cam_x;
   pos.y -= cam_y;
-  pos.x -= delta_width * ((old_width / 2.0f + offset_x) / old_width);
-  pos.y -= delta_height * ((old_height / 2.0f + offset_y) / old_height);
   float bounding_width, bounding_height;
   compute_bounding_box(tex.width, tex.height, rotation_angle, &bounding_width, &bounding_height);
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ bounding_width, bounding_height } })) {
