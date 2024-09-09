@@ -1,0 +1,103 @@
+#pragma once
+
+#include <type_traits>
+
+/// @file Compare.h Definition of comparison utilities
+
+namespace Zelus
+{
+/**
+ * Generic less comparison that avoids always true or always false comparisons
+ * 
+ * @tparam L type of the left value
+ * @tparam R type of the right value
+ * @param lhs the left value
+ * @param rhs the right value
+ * @return `lhs < rhs`
+ */
+template <typename L, typename R>
+constexpr auto less(L lhs, R rhs) -> bool
+{
+   if constexpr (std::is_integral_v<L> && std::is_integral_v<R>)
+   {
+      if constexpr (std::is_signed_v<L> == std::is_signed_v<R>)
+      {
+         return lhs < rhs;
+      }
+      else if constexpr (std::is_signed_v<L>)
+      {
+         static_assert(!std::is_signed_v<R>);
+         if (lhs < L {0})
+         {
+            return true;
+         }
+         else
+         {
+            return less(static_cast<std::make_unsigned_t<L>>(lhs), rhs);
+         }
+      }
+      else
+      {
+         static_assert(!std::is_signed_v<L>);
+         static_assert(std::is_signed_v<R>);
+         if (rhs < R {0})
+         {
+            return false;
+         }
+         else
+         {
+            return less(lhs, static_cast<std::make_unsigned_t<R>>(rhs));
+         }
+      }
+   }
+   else
+   {
+      return lhs < rhs;
+   }
+}
+
+/**
+ * Generic greater comparison that avoids always true or always false comparisons
+ * 
+ * @tparam L type of the left value
+ * @tparam R type of the right value
+ * @param lhs the left value
+ * @param rhs the right value
+ * @return `lhs > rhs`
+ */
+template <typename L, typename R>
+constexpr auto greater(L lhs, R rhs) -> bool
+{
+   return less(rhs, lhs);
+}
+
+/**
+ * Generic less-equal comparison that avoids always true or always false comparisons
+ * 
+ * @tparam L type of the left value
+ * @tparam R type of the right value
+ * @param lhs the left value
+ * @param rhs the right value
+ * @return `lhs <= rhs`
+ */
+template <typename L, typename R>
+constexpr auto less_equal(L lhs, R rhs) -> bool
+{
+   return !greater(lhs, rhs);
+}
+
+/**
+ * Generic greater-equal comparison that avoids always true or always false comparisons
+ * 
+ * @tparam L type of the left value
+ * @tparam R type of the right value
+ * @param lhs the left value
+ * @param rhs the right value
+ * @return `lhs <= rhs`
+ */
+template <typename L, typename R>
+constexpr auto greater_equal(L lhs, R rhs) -> bool
+{
+   return !less(lhs, rhs);
+}
+}  // namespace Zelus
