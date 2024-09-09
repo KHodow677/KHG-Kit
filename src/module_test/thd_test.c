@@ -15,11 +15,15 @@ static void verbose_printf(char const* buf) {
 //! @details The structure is passed by void pointer to the thread so it can be any data type.
 //! The structure owns a mutex to synchronize the access to the data.
 typedef struct _data {
-  thd_mutex       mutex;          //!< The mutex.
-  thd_condition   condwrite;      //!< The condition.
-  thd_condition   condread;       //!< The condition.
-  char            occupied;       //!< The state.
-  char            buffer[BUFSIZE];//!< The buffer.
+  thd_mutex mutex;          //!< The mutex.
+  // The condition
+  thd_condition condwrite;      
+  // The condition
+  thd_condition condread;       
+  // The state
+  char occupied; 
+  // The buffer
+  char buffer[BUFSIZE];
 } t_data;
 
 //! @brief The function that writes in the buffer.
@@ -58,11 +62,11 @@ static void func_consumer(t_data* t) {
   //! Wait the condition to write the data
   verbose_printf("func_consumer wait...\n");
   while(!t->occupied) {
-      thd_condition_wait(&t->condread, &t->mutex);
+    thd_condition_wait(&t->condread, &t->mutex);
   }
   assert(t->occupied);
   verbose_printf("func_consumer run...\n");
-  //! Write to the buffer.
+  //! Read from the buffer
   for(i = 0; i < BUFSIZE; i++) {
     assert(t->buffer[i] == (char)i);
   }
@@ -73,7 +77,7 @@ static void func_consumer(t_data* t) {
     thd_condition_signal(&t->condread);
   }
   else {
-    //! Signal that the buffer can be write
+    //! Signal that the buffer can be written
     thd_condition_signal(&t->condwrite);
   }
   //! Unlocks the access to the data
