@@ -16,6 +16,7 @@
 #include "khg_phy/shape.h"
 #include "khg_phy/space.h"
 #include "khg_phy/vect.h"
+#include "khg_utl/queue.h"
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = phy_moment_for_box(mass, width, height);
@@ -92,8 +93,11 @@ void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, floa
 
 void generate_mover(mover_info *info, physics_info *p_info) {
   info->body = p_info->body;
-  info->target_move_pos = phy_body_get_position(info->body);
-  info->target_look_pos = phy_v_add(info->target_move_pos, phy_v(0.0f, -50.0f));
+  info->target_pos_queue = utl_queue_create(sizeof(phy_vect));
+}
+
+void free_mover(mover_info *info) {
+  utl_queue_deallocate(info->target_pos_queue);
 }
 
 void generate_rotator(rotator_info *info, physics_info *p_info) {

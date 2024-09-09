@@ -88,6 +88,10 @@ bool element_is_at_position(physics_info *info, phy_vect pos, float tolerance) {
   return false;
 }
 
+bool element_is_at_position_default(physics_info *info, phy_vect pos) {
+  return element_is_at_position(info, pos, POSITION_TOLERANCE);
+}
+
 void element_target_position(physics_info *info, phy_vect pos, float max_vel, float max_ang_vel) {
   phy_vect body_pos = phy_body_get_position(info->body);
   float body_ang = normalize_angle(phy_body_get_angle(info->body));

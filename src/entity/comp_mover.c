@@ -4,13 +4,37 @@
 #include "entity/comp_physics.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
+#include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
+#include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
+#include <stdlib.h>
 #include <stdio.h>
 
 ecs_id MOVER_COMPONENT_SIGNATURE;
 mover_info NO_MOVER = { 0 };
 utl_vector *MOVER_INFO = NULL;
+
+static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  mover_info *info;
+  physics_info *p_info;
+  for (int id = 0; id < entity_count; id++) {
+    info = utl_vector_at(MOVER_INFO, entities[id]);
+    p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+    if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
+      phy_vect new_pos = phy_v(MOUSE_STATE.left_mouse_click_controls.x, MOUSE_STATE.left_mouse_click_controls.y);
+      utl_queue_push(info->target_pos_queue, &new_pos);
+    }
+    if (utl_queue_empty(info->target_pos_queue)) {
+      continue;
+    }
+    element_target_position(p_info, *(phy_vect *)utl_queue_front(info->target_pos_queue), 300.0f, 16.0f);
+    if (element_is_at_position_default(p_info, *(phy_vect *)utl_queue_front(info->target_pos_queue))) {
+      utl_queue_pop(info->target_pos_queue);
+    }
+  }
+  return 0;
+}
 
 void comp_mover_register(comp_mover *cm) {
   cm->id = ecs_register_component(ECS, sizeof(comp_mover), NULL, NULL);
@@ -33,16 +57,3 @@ void sys_mover_add(ecs_id *eid, mover_info *info) {
   utl_vector_assign(MOVER_INFO, *eid, info);
 }
 
-ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  mover_info *info;
-  physics_info *p_info;
-  for (int id = 0; id < entity_count; id++) {
-    info = utl_vector_at(MOVER_INFO, entities[id]);
-    p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
-      info->target_move_pos = MOUSE_STATE.left_mouse_click_controls;
-    }
-    element_target_position(p_info, info->target_move_pos, 300.0f, 16.0f);
-  }
-  return 0;
-}
