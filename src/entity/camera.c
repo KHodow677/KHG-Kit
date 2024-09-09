@@ -5,4 +5,3 @@ void camera_setup(camera *cam) {
   cam->position = phy_v(0.0f, 0.0f);
   cam->zoom = 1.0f;
 }
-
