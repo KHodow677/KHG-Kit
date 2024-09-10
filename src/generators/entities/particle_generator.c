@@ -9,13 +9,12 @@
 #include "generators/components/texture_generator.h"
 #include "khg_phy/body.h"
 #include "khg_phy/vect.h"
-#include "khg_utl/map.h"
 #include "khg_utl/vector.h"
 #include <math.h>
 
 void generate_particle(particle *p, phy_body *body_body, phy_body *top_body, float x, float y) {
-  generate_physics_box(&p->physics_info, false, 80, 80, 1.0f, phy_v(x, y), 0.0f, phy_v(-145.0f, -5.0f));
-  generate_renderer(&p->renderer_info, &p->physics_info, PARTICLE_2_0);
+  generate_physics_box(&p->physics_info, false, 80, 80, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
+  generate_renderer(&p->renderer_info, &p->physics_info, PARTICLE_2_0, 3);
   generate_destroyer(&p->destroyer_info);
   generate_animator(&p->animator_info, PARTICLE_2_0, PARTICLE_2_4, 0.032f, true);
   float ang = normalize_angle(phy_body_get_angle(top_body));
@@ -34,9 +33,10 @@ void generate_particle(particle *p, phy_body *body_body, phy_body *top_body, flo
 void free_particle(particle *p) {
   p->destroyer_info.destroy_now = true;
   free_physics(&p->physics_info, false);
+  free_renderer(&p->renderer_info);
   utl_vector_assign(PHYSICS_INFO, p->entity, &NO_PHYSICS);
+  utl_vector_assign(RENDERER_INFO, p->entity, &NO_RENDERER);
   utl_vector_assign(DESTROYER_INFO, p->entity, &NO_DESTROYER);
   utl_vector_assign(ANIMATOR_INFO, p->entity, &NO_ANIMATOR);
-  utl_map_erase(RENDERER_INFO_MAP, &p->entity);
 }
 

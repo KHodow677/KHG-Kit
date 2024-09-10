@@ -4,7 +4,7 @@
 #include "khg_utl/vector.h"
 
 typedef struct {
-  int shoot_cooldown;
+  float shoot_cooldown;
 } shooter_info;
 
 typedef struct {
@@ -24,7 +24,6 @@ void comp_shooter_register(comp_shooter *cs);
 
 void sys_shooter_register(sys_shooter *ss);
 void sys_shooter_add(ecs_id *eid, shooter_info *info);
-void sys_shooter_free(bool need_free);
 
 ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

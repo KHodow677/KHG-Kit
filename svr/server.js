@@ -1,72 +1,3 @@
-//var http = require("http");
-//var net = require("net");
-//let client_id_counter = 16777215;
-//var clients = [];
-//
-//function get_client_id(socket) {
-//  const client = clients.find(client => client.sock === socket);
-//  return client ? client.id : undefined;
-//}
-//
-//var server = net.createServer(function(socket) {
-//  const client_id = client_id_counter.toString(16).padStart(6, "0").toUpperCase();
-//  client_id_counter--;
-//  const client = { id: client_id, sock: socket };
-//  clients.push(client);
-//  console.log("Client " + client_id + " connected");
-//  socket.on("data", function(data) {
-//    const data_split = data.toString().split(":");
-//    console.log("Received:", data_split[0]);
-//    clients.forEach(function(client) {
-//      if (client.id == data_split[0]) {
-//        client.sock.write(data_split[1]);
-//      }
-//    });
-//  });
-//  socket.on("end", function() {
-//    console.log("Client " + get_client_id(socket) + " disconnected");
-//    clients = clients.filter(client => client.sock !== socket);
-//    client_id_counter++;
-//  });
-//  socket.on("error", function(err) {
-//    console.error("KHG Error: ", err);
-//    clients = clients.filter(client => client.sock !== socket);
-//  });
-//});
-//
-////server.listen(80, function() {
-////  console.log("HTTP server started on port 80");
-////});
-//
-//
-//var connect = require('connect');
-//var http = require('http');
-//var bodyParser = require('body-parser');
-//var serveStatic = require('serve-static');
-//var app = connect();
-//let clientData = {};
-//app.use(serveStatic('app', {
-//    'index': ['index.html', 'index.htm', 'default.html']
-//}));
-//app.use(bodyParser.urlencoded({ extended: true }));
-//app.use(bodyParser.json());
-//app.use(function(req, res) {
-//  if (req.method === 'POST' && req.url === '/send') {
-//    console.log('Data received from client:', req.body);
-//    clientData = req.body;
-//    res.end('Data stored on the server');
-//  } 
-//  else if (req.method === 'GET' && req.url === '/receive') {
-//    console.log('Client requested data.');
-//    res.end(clientData.message || 'No message available');
-//  } 
-//  else {
-//    res.end('Server not found');
-//  }
-//});
-//http.createServer(app).listen(80);
-//console.log('Server started at http://localhost:80');
-
 var net = require("net");
 var clients = [];
 var clientData = {};
@@ -126,7 +57,7 @@ var server = net.createServer(function(socket) {
   });
 });
 
-server.listen(80, function() {
-  console.log("HTTP server started on port 80");
+server.listen(3000, function() {
+  console.log("HTTP server started on port 3000");
 });
 

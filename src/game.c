@@ -1,5 +1,6 @@
 #include "game.h"
 #include "controllers/elements/camera_controller.h"
+#include "controllers/input/mouse_controller.h"
 #include "game_manager.h"
 #include "khg_phy/threaded_space.h"
 #include "physics/physics_setup.h"
@@ -46,11 +47,13 @@ int game_run() {
 }
 
 void gfx_loop(float delta) {
+  update_mouse_controls(&MOUSE_STATE);
   glClear(GL_COLOR_BUFFER_BIT);
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
   move_camera(&CAMERA, delta);
+  ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
   ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
   ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);
   ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);

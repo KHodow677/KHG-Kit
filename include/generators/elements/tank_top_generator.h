@@ -4,6 +4,7 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
+#include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "generators/elements/tank_body_generator.h"
 #include "khg_ecs/ecs.h"
@@ -15,6 +16,7 @@ typedef struct {
   destroyer_info destroyer_info;
   rotator_info rotator_info;
   shooter_info shooter_info;
+  selector_info selector_info;
 } tank_top;
 
 void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y);

@@ -48,6 +48,10 @@ void generate_textures() {
   add_new_texture("particle/p2/02", "png", 80, 80);
   add_new_texture("particle/p2/03", "png", 80, 80);
   add_new_texture("particle/p2/04", "png", 80, 80);
+  add_new_texture("Tank-Body-Outline", "png", 154, 192);
+  add_new_texture("Tank-Top-Outline", "png", 111, 217);
+  add_new_texture("targeting/Point", "png", 56, 56);
+  add_new_texture("targeting/Line", "png", 38, 386);
 }
 
 void free_textures() {

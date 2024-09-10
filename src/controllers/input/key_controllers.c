@@ -10,3 +10,4 @@ bool handle_key_button_went_down(int key) {
   bool ret = gfx_key_went_down(key);
   return ret;
 }
+

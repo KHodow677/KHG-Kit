@@ -2,6 +2,9 @@
 
 #include "khg_phy/phy_types.h"
 
-phy_vect handle_left_mouse_controls(void);
-phy_vect handle_right_mouse_controls(void);
+typedef struct mouse_state {
+  phy_vect left_mouse_click_controls;
+  phy_vect right_mouse_click_controls;
+} mouse_state;
 
+void update_mouse_controls(mouse_state *ms);

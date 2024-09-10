@@ -6,6 +6,7 @@
 void generate_tank(tank *t, float x, float y) {
   generate_tank_body(&t->body, x, y);
   generate_tank_top(&t->top, &t->body, x, y);
+  t->entity = t->body.entity;
 }
 
 void free_tank(tank *t) {

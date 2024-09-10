@@ -8,6 +8,7 @@ typedef struct {
   phy_body *body;
   phy_shape *shape;
   phy_body *target_body;
+  phy_shape *target_shape;
   phy_constraint *pivot;
   float target_vel;
   float target_ang_vel;
@@ -35,6 +36,6 @@ void comp_physics_register(comp_physics *cp);
 
 void sys_physics_register(sys_physics *sp);
 void sys_physics_add(ecs_id *eid, physics_info *info);
-void sys_physics_free(bool need_free);
 
 ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
+
