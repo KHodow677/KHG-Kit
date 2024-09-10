@@ -97,8 +97,8 @@ void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, floa
   info->destroy_on_max = destroy_on_max;
 }
 
-void generate_mover(mover_info *info, physics_info *p_info) {
-  info->body = p_info->body;
+void generate_mover(mover_info *info, ecs_id entity) {
+  info->body_entity = entity;
   info->target_pos_queue = utl_queue_create(sizeof(phy_vect));
 }
 
@@ -118,5 +118,6 @@ void generate_shooter(shooter_info *info) {
 
 void generate_selector(selector_info *info) {
   info->selected = false;
+  info->just_selected = false;
 }
 

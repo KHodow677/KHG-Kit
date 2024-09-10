@@ -25,20 +25,24 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
     info = utl_vector_at(SELECTOR_INFO, entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
     r_info = utl_vector_at(RENDERER_INFO, entities[id]);
+    info->just_selected = false;
     if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
       if (!p_info->target_body || !p_info->target_shape) {
         continue;
       }
       if (phy_shape_point_query(p_info->target_shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f) {
-        info->selected = true;
-        phy_vect pos = phy_body_get_position(p_info->target_body);
-        float ang = phy_body_get_angle(p_info->target_body);
-        generate_outline(r_info, TANK_BODY_OUTLINE, pos, ang, true, true);
-        generate_outline(r_info, TANK_TOP_OUTLINE, pos, ang, true, false);
-      }
-      else if (info->selected) {
-        info->selected = false;
-        utl_vector_clear(r_info->indicators);
+        if (!info->selected) {
+          info->selected = true;
+          info->just_selected = true;
+          phy_vect pos = phy_body_get_position(p_info->target_body);
+          float ang = phy_body_get_angle(p_info->target_body);
+          generate_outline(r_info, TANK_BODY_OUTLINE, pos, ang, true, true);
+          generate_outline(r_info, TANK_TOP_OUTLINE, pos, ang, true, false);
+        }
+        else {
+          info->selected = false;
+          utl_vector_clear(r_info->indicators);
+        }
       }
     }
   }

@@ -1,13 +1,12 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy_types.h"
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
 
 typedef struct {
-  phy_body *body;
   utl_queue *target_pos_queue;
+  ecs_id body_entity;
 } mover_info;
 
 typedef struct {

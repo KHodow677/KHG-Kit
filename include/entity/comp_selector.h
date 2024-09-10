@@ -19,6 +19,7 @@ typedef struct indicator {
 
 typedef struct {
   bool selected;
+  bool just_selected;
 } selector_info;
 
 typedef struct {

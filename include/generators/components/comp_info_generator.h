@@ -18,7 +18,7 @@ void generate_destroyer(destroyer_info *info);
 
 void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, float frame_duration, bool destroy_on_max);
 
-void generate_mover(mover_info *info, physics_info *p_info);
+void generate_mover(mover_info *info, ecs_id entity);
 void free_mover(mover_info *info);
 
 void generate_rotator(rotator_info *info, physics_info *p_info);
