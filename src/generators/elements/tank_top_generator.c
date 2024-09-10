@@ -28,6 +28,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y) {
 
 void free_tank_top(tank_top *tt) {
   free_physics(&tt->physics_info, true);
+  free_renderer(&tt->renderer_info);
   utl_vector_assign(PHYSICS_INFO, tt->entity, &NO_PHYSICS);
   utl_vector_assign(RENDERER_INFO, tt->entity, &NO_RENDERER);
   utl_vector_assign(DESTROYER_INFO, tt->entity, &NO_DESTROYER);

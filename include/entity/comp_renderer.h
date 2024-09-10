@@ -7,7 +7,7 @@
 typedef struct {
   int tex_id;
   phy_body *body;
-  utl_vector *indicator_textures;
+  utl_vector *indicators;
   int render_layer;
 } renderer_info;
 

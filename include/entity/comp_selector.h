@@ -1,7 +1,21 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
+#include "khg_phy/phy_types.h"
 #include "khg_utl/vector.h"
+
+typedef enum {
+  OUTLINE,
+} indicator_type;
+
+typedef struct indicator {
+  indicator_type type;
+  bool follow;
+  bool is_target_body;
+  int tex_id;
+  phy_vect pos;
+  float ang;
+} indicator;
 
 typedef struct {
   bool selected;

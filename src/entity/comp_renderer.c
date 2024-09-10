@@ -1,4 +1,6 @@
 #include "entity/comp_renderer.h"
+#include "entity/comp_physics.h"
+#include "entity/comp_selector.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
@@ -13,9 +15,37 @@ ecs_id RENDERER_COMPONENT_SIGNATURE;
 renderer_info NO_RENDERER = { 0 };
 utl_vector *RENDERER_INFO = NULL;
 
+static void render_outline(renderer_info *info, physics_info *p_info, indicator *ind) {
+  phy_vect pos = ind->is_target_body ? phy_body_get_position(p_info->target_body) : phy_body_get_position(p_info->body);
+  float angle = ind->is_target_body ? phy_body_get_angle(p_info->target_body) : phy_body_get_angle(p_info->body);
+  if (ind->follow) {
+    ind->pos = pos;
+    ind->ang = angle;
+  }
+  gfx_texture *tex = utl_vector_at(TEXTURE_LOOKUP, ind->tex_id);
+  tex->angle = ind->ang;
+  gfx_image_no_block(ind->pos.x, ind->pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
+}
+
 static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   renderer_info *info;
+  physics_info *p_info;
   for (int layer = 0; layer < 10; layer++) {
+    if (layer == 1) {
+      for (int id = 0; id < entity_count; id++) {
+        info = utl_vector_at(RENDERER_INFO, entities[id]);
+        p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+        for (int i_index = 0; i_index < utl_vector_size(info->indicators); i_index++) {
+          indicator *ind = utl_vector_at(info->indicators, i_index);
+          switch (ind->type) {
+            case OUTLINE:
+              render_outline(info, p_info, ind);
+            default:
+              (void)0;
+          }
+        }
+      }
+    }
     for (int id = 0; id < entity_count; id++) {
       info = utl_vector_at(RENDERER_INFO, entities[id]);
       if (layer != info->render_layer) {
@@ -51,11 +81,5 @@ void sys_renderer_register(sys_renderer *sr) {
 void sys_renderer_add(ecs_id *eid, renderer_info *info) {
   ecs_add(ECS, *eid, RENDERER_COMPONENT_SIGNATURE, NULL);
   utl_vector_assign(RENDERER_INFO, *eid, info);
-}
-
-void sys_renderer_free(bool need_free) {
-  if (need_free) {
-    utl_vector_deallocate(RENDERER_INFO);
-  }
 }
 

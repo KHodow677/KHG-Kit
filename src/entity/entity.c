@@ -22,9 +22,6 @@ void free_entity(generic_entity *ge) {
   else if (generic_entity_is_tank(ge)) {
     free_tank(&ge->tank);
   }
-  else if (generic_entity_is_tank_outline(ge)) {
-    free_tank_outline(&ge->tank_outline);
-  }
   free(ge);
 }
 

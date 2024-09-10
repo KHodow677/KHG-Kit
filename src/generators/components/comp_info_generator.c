@@ -17,6 +17,7 @@
 #include "khg_phy/space.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/queue.h"
+#include "khg_utl/vector.h"
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = phy_moment_for_box(mass, width, height);
@@ -77,6 +78,11 @@ void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, in
   info->tex_id = tex_id;
   info->body = p_info->body;
   info->render_layer = render_layer;
+  info->indicators = utl_vector_create(sizeof(indicator));
+}
+
+void free_renderer(renderer_info *info) {
+  utl_vector_deallocate(info->indicators);
 }
 
 void generate_destroyer(destroyer_info *info) {
@@ -113,3 +119,4 @@ void generate_shooter(shooter_info *info) {
 void generate_selector(selector_info *info) {
   info->selected = false;
 }
+

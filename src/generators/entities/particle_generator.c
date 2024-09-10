@@ -33,6 +33,7 @@ void generate_particle(particle *p, phy_body *body_body, phy_body *top_body, flo
 void free_particle(particle *p) {
   p->destroyer_info.destroy_now = true;
   free_physics(&p->physics_info, false);
+  free_renderer(&p->renderer_info);
   utl_vector_assign(PHYSICS_INFO, p->entity, &NO_PHYSICS);
   utl_vector_assign(RENDERER_INFO, p->entity, &NO_RENDERER);
   utl_vector_assign(DESTROYER_INFO, p->entity, &NO_DESTROYER);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "generators/entities/outline_generator.h"
 #include "generators/entities/particle_generator.h"
 #include "generators/entities/tank_generator.h"
 
@@ -14,7 +13,6 @@ typedef struct {
   union {
     particle particle;
     tank tank;
-    tank_outline tank_outline;
   };
 } generic_entity;
 

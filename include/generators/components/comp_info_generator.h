@@ -12,6 +12,7 @@ void generate_physics_pivot(physics_info *info, physics_info *p_info, bool colli
 void free_physics(physics_info *info, bool has_constraint);
 
 void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, int render_layer);
+void free_renderer(renderer_info *info);
 
 void generate_destroyer(destroyer_info *info);
 

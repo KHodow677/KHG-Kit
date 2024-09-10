@@ -21,12 +21,6 @@ void element_destroy(ecs_id eid) {
         free(ge);
         break; 
       }
-      else if (ge->tank_outline.entity == eid) {
-        utl_vector_erase(ENTITY_LOOKUP, i, 1);
-        free_tank_outline(&ge->tank_outline);
-        free(ge);
-        break; 
-      }
     }
   }
   ecs_queue_destroy(ECS, eid);

@@ -25,6 +25,7 @@ void generate_tank_body(tank_body *tb, float x, float y) {
 void free_tank_body(tank_body *tb) {
   free_physics(&tb->physics_info, false);
   free_mover(&tb->mover_info);
+  free_renderer(&tb->renderer_info);
   utl_vector_assign(PHYSICS_INFO, tb->entity, &NO_PHYSICS);
   utl_vector_assign(RENDERER_INFO, tb->entity, &NO_RENDERER);
   utl_vector_assign(DESTROYER_INFO, tb->entity, &NO_DESTROYER);
