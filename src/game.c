@@ -2,6 +2,7 @@
 #include "controllers/elements/camera_controller.h"
 #include "controllers/input/mouse_controller.h"
 #include "game_manager.h"
+#include "khg_gfx/internal.h"
 #include "khg_phy/threaded_space.h"
 #include "physics/physics_setup.h"
 #include "spawners/spawn_tank.h"
@@ -62,4 +63,5 @@ void gfx_loop(float delta) {
   ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
   ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
   phy_threaded_space_step(SPACE, delta);
+  state.current_div.scrollable = false;
 }
