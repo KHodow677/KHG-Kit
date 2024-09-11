@@ -15,4 +15,3 @@ phy_space *physics_setup(phy_vect grav) {
 void physics_free(phy_space *sp) {
   phy_threaded_space_free(sp);
 }
-

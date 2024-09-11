@@ -1,16 +1,19 @@
 #include "entity/comp_mover.h"
 #include "controllers/input/mouse_controller.h"
 #include "controllers/elements/element_controller.h"
+#include "data_utl/kinematic_utl.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/comp_selector.h"
 #include "entity/indicators.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
+#include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -38,11 +41,12 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count
       }
       if (!phy_v_eql(MOUSE_STATE.right_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
         if (!utl_queue_empty(info->target_pos_queue)) {
-          phy_vect first_pos = *(phy_vect *)utl_queue_front(info->target_pos_queue);
           while (!utl_queue_empty(info->target_pos_queue)) {
             utl_queue_pop(info->target_pos_queue);
           }
-          utl_queue_push(info->target_pos_queue, &first_pos);
+          float body_angle = normalize_angle(phy_body_get_angle(body_info->body));
+          phy_vect new_pos = phy_v_add(phy_v(50 * sinf(body_angle), 50 * -cosf(body_angle)), phy_body_get_position(body_info->body));
+          utl_queue_push(info->target_pos_queue, &new_pos);
           generate_all_indicators(s_info, p_info, r_info, info);
         }
       }
