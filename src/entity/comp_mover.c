@@ -45,7 +45,9 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count
             utl_queue_pop(info->target_pos_queue);
           }
           float body_angle = normalize_angle(phy_body_get_angle(body_info->body));
-          phy_vect new_pos = phy_v_add(phy_v(50 * sinf(body_angle), 50 * -cosf(body_angle)), phy_body_get_position(body_info->body));
+          bool is_moving = phy_v_length(phy_body_get_velocity(body_info->body)) > 1.0f;
+          float offset_dist = is_moving ? 50.0f : 0.0f;
+          phy_vect new_pos = phy_v_add(phy_v(offset_dist * sinf(body_angle), offset_dist * -cosf(body_angle)), phy_body_get_position(body_info->body));
           utl_queue_push(info->target_pos_queue, &new_pos);
           generate_all_indicators(s_info, p_info, r_info, info);
         }

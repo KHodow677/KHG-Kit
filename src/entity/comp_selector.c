@@ -27,6 +27,15 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
       }
       if (phy_shape_point_query(p_info->target_shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f) {
         if (!info->selected) {
+          for (int i = 0; i < entity_count; i++) {
+            selector_info *info_s = utl_vector_at(SELECTOR_INFO, entities[i]);
+            renderer_info *info_r = utl_vector_at(RENDERER_INFO, entities[i]);
+            if (!info_s->selected) {
+              continue;
+            }
+            info_s->selected = false;
+            utl_vector_clear(info_r->indicators);
+          }
           info->selected = true;
           info->just_selected = true;
           generate_all_indicators(info, p_info, r_info, m_info);
