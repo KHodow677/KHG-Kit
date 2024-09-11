@@ -31,6 +31,12 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
           else if (ind->type == INDICATOR_POINT) {
             render_point(ind);
           }
+          else if (ind->type == INDICATOR_LINE) {
+            render_line(ind);
+          }
+          else if (ind->type == INDICATOR_BODY_LINE) {
+            render_body_line(info, p_info, ind);
+          }
         }
       }
     }
