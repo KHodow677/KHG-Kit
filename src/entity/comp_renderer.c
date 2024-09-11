@@ -25,13 +25,11 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
         p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
         for (int i_index = 0; i_index < utl_vector_size(info->indicators); i_index++) {
           indicator *ind = utl_vector_at(info->indicators, i_index);
-          switch (ind->type) {
-            case INDICATOR_OUTLINE:
-              render_outline(info, p_info, ind);
-            case INDICATOR_POINT:
-              render_point(ind);
-            default:
-              (void)0;
+          if (ind->type == INDICATOR_OUTLINE) {
+            render_outline(info, p_info, ind);
+          }
+          else if (ind->type == INDICATOR_POINT) {
+            render_point(ind);
           }
         }
       }

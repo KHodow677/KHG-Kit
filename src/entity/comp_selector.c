@@ -4,26 +4,11 @@
 #include "entity/comp_renderer.h"
 #include "entity/indicators.h"
 #include "game_manager.h"
-#include "generators/components/texture_generator.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/body.h"
-#include "khg_phy/phy_types.h"
 #include "khg_phy/shape.h"
 #include "khg_phy/vect.h"
-#include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
 #include <stdio.h>
-
-static void generate_all_indicators(selector_info *info, physics_info *p_info, renderer_info *r_info, mover_info *m_info) {
-  for (int i = 0; i < utl_queue_size(m_info->target_pos_queue); i++) {
-    phy_vect *point_pos = utl_vector_at(m_info->target_pos_queue->vec, i);
-    generate_indicator(r_info, INDICATOR_POINT, POINT, phy_v(point_pos->x, point_pos->y), 0, false, false);
-  }
-  phy_vect pos = phy_body_get_position(p_info->target_body);
-  float ang = phy_body_get_angle(p_info->target_body);
-  generate_indicator(r_info, INDICATOR_OUTLINE, TANK_BODY_OUTLINE, pos, ang, true, true);
-  generate_indicator(r_info, INDICATOR_OUTLINE, TANK_TOP_OUTLINE, pos, ang, true, false);
-}
 
 static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   selector_info *info;
