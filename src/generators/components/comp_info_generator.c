@@ -6,6 +6,7 @@
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
+#include "entity/indicators.h"
 #include "game_manager.h"
 #include "khg_phy/body.h"
 #include "khg_phy/constraint.h"

@@ -5,7 +5,6 @@
 #include "entity/comp_physics.h"
 #include "entity/comp_rotator.h"
 #include "game_manager.h"
-#include "khg_phy/vect.h"
 #include "spawners/spawn_particles.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
