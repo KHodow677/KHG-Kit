@@ -37,12 +37,14 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count
         generate_all_indicators(s_info, p_info, r_info, info);
       }
       if (!phy_v_eql(MOUSE_STATE.right_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
-        phy_vect first_pos = *(phy_vect *)utl_queue_front(info->target_pos_queue);
-        while (!utl_queue_empty(info->target_pos_queue)) {
-          utl_queue_pop(info->target_pos_queue);
+        if (!utl_queue_empty(info->target_pos_queue)) {
+          phy_vect first_pos = *(phy_vect *)utl_queue_front(info->target_pos_queue);
+          while (!utl_queue_empty(info->target_pos_queue)) {
+            utl_queue_pop(info->target_pos_queue);
+          }
+          utl_queue_push(info->target_pos_queue, &first_pos);
+          generate_all_indicators(s_info, p_info, r_info, info);
         }
-        utl_queue_push(info->target_pos_queue, &first_pos);
-        generate_all_indicators(s_info, p_info, r_info, info);
       }
     }
     if (utl_queue_empty(info->target_pos_queue)) {
@@ -51,7 +53,9 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count
     element_target_position(body_info, *(phy_vect *)utl_queue_front(info->target_pos_queue), 300.0f, 16.0f);
     if (element_is_at_position_default(body_info, *(phy_vect *)utl_queue_front(info->target_pos_queue))) {
       utl_queue_pop(info->target_pos_queue);
-      generate_all_indicators(s_info, p_info, r_info, info);
+      if (s_info->selected && !s_info->just_selected) {
+        generate_all_indicators(s_info, p_info, r_info, info);
+      }
     }
   }
   return 0;

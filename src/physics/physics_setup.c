@@ -8,6 +8,7 @@ phy_space *physics_setup(phy_vect grav) {
   phy_space *sp = phy_threaded_space_new();
   phy_threaded_space_set_threads(sp, THREAD_COUNT);
   phy_space_set_gravity(sp, grav);
+  phy_space_set_collision_bias(sp, 0.0f);
   return sp;
 }
 

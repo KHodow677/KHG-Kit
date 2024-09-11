@@ -59,7 +59,6 @@ void generate_physics_pivot(physics_info *info, physics_info *p_info, bool colli
     info->target_shape = p_info->shape;
   }
   info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_body_get_center_of_gravity(p_info->body), phy_body_get_center_of_gravity(info->body)));
-	phy_constraint_set_max_bias(info->pivot, 0);
 }
 
 void free_physics(physics_info *info, bool has_constraint) {
