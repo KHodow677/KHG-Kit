@@ -333,17 +333,13 @@ gfx_font gfx_load_font_asset(const char *asset_name, const char *file_extension,
 #else 
   char cwd[PATH_MAX];
   getcwd(cwd, sizeof(cwd));
-  char asset_dir[strlen(cwd) + strlen("/res")];
-  memset(asset_dir, 0, sizeof(asset_dir));
-  strcat(asset_dir, cwd);
-  strcat(asset_dir, "/res");
-  char path[strlen(asset_dir) + strlen("/assets/fonts/") + strlen(asset_name) + strlen(".") + strlen(file_extension)];
-  memset(path, 0, sizeof(path));
-  strcat(path, asset_dir);
-  strcat(path, "/assets/fonts/");
-  strcat(path, asset_name);
-  strcat(path, ".");
-  strcat(path, file_extension);
+  size_t cwd_len = strlen(cwd);
+  size_t asset_dir_len = cwd_len + strlen("/res") + 1;
+  size_t path_len = asset_dir_len + strlen("/assets/fonts/") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
+  char asset_dir[asset_dir_len];
+  char path[path_len];
+  snprintf(asset_dir, sizeof(asset_dir), "%s/res", cwd);
+  snprintf(path, sizeof(path), "%s/assets/textures/%s.%s", asset_dir, asset_name, file_extension);
   return gfx_load_font(path, font_size);
 #endif
 }
