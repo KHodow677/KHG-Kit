@@ -1,5 +1,6 @@
 #pragma once
 
+#include "controllers/input/key_controllers.h"
 #include "controllers/input/mouse_controller.h"
 #include "entity/camera.h"
 #include "entity/comp_animator.h"
@@ -27,6 +28,7 @@ extern int CURRENT_TEXTURE_ID;
 extern int THREAD_COUNT;
 extern camera CAMERA;
 extern mouse_state MOUSE_STATE;
+extern keyboard_state KEYBOARD_STATE;
 
 extern sys_physics PHYSICS_SYSTEM;
 extern sys_renderer RENDERER_SYSTEM;

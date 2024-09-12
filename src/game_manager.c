@@ -1,4 +1,5 @@
 #include "game_manager.h"
+#include "controllers/input/key_controllers.h"
 #include "entity/camera.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_animator.h"
@@ -29,6 +30,7 @@ int CURRENT_TEXTURE_ID = 0;
 int THREAD_COUNT;
 camera CAMERA = { 0 };
 mouse_state MOUSE_STATE = { 0 };
+keyboard_state KEYBOARD_STATE = { 0 };
 
 sys_physics PHYSICS_SYSTEM = { 0 };
 sys_renderer RENDERER_SYSTEM = { 0 };

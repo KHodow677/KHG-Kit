@@ -19,7 +19,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
   renderer_info *info;
   physics_info *p_info;
   for (int layer = 0; layer < 10; layer++) {
-    if (layer == 1) {
+    if (layer == 0) {
       for (int id = 0; id < entity_count; id++) {
         info = utl_vector_at(RENDERER_INFO, entities[id]);
         p_info = utl_vector_at(PHYSICS_INFO, entities[id]);

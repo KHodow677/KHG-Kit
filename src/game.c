@@ -1,5 +1,6 @@
 #include "game.h"
 #include "controllers/elements/camera_controller.h"
+#include "controllers/input/key_controllers.h"
 #include "controllers/input/mouse_controller.h"
 #include "game_manager.h"
 #include "khg_gfx/internal.h"
@@ -50,6 +51,7 @@ int game_run() {
 
 void gfx_loop(float delta) {
   update_mouse_controls(&MOUSE_STATE);
+  update_key_controls(&KEYBOARD_STATE);
   glClear(GL_COLOR_BUFFER_BIT);
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);

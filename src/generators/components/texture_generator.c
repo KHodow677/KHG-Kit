@@ -25,6 +25,8 @@ void generate_textures() {
   for (int i = 0; i < MAX_TEXTURES; i++) {
     utl_vector_push_back(TEXTURE_LOOKUP, &NO_TEXTURE);
   }
+  add_new_texture("environment/Grass1", "png", 256, 256);
+  add_new_texture("environment/Grass2", "png", 256, 256);
   add_new_texture("Tank-Body-Blue", "png", 145, 184);
   add_new_texture("Tank-Top-Blue", "png", 102, 209);
   add_new_texture("particle/p1/00", "png", 107, 100);

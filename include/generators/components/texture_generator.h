@@ -3,6 +3,8 @@
 #include "khg_gfx/texture.h"
 
 typedef enum {
+  GRASS_1,
+  GRASS_2,
   TANK_BODY,
   TANK_TOP,
   PARTICLE_1_0,
