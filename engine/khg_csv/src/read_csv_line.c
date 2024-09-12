@@ -16,7 +16,7 @@
   ch = *read_ptr++;\
 }\
 
-char *fread_csv_line(FILE *fp, int max_line_size, int *done, int *err) {
+char *read_csv_line(FILE *fp, int max_line_size, int *done, int *err) {
   static FILE *bookmark;
   static char read_buf[READ_BLOCK_SIZE], *read_ptr, *read_end;
   static int fread_len, prev_max_line_size = -1;
