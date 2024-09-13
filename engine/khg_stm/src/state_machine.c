@@ -1,6 +1,6 @@
 #include "khg_stm/state_machine.h"
 
-static void stm_go_to_error_state(struct stm_state_machine *fsm, struct stm_event *const event) {
+static void stm_go_to_error_state(stm_state_machine *fsm, stm_event *const event) {
   fsm->previous_state = fsm->current_state;
   fsm->current_state = fsm->error_state;
   if (fsm->current_state && fsm->current_state->entry_action) {
@@ -8,9 +8,9 @@ static void stm_go_to_error_state(struct stm_state_machine *fsm, struct stm_even
   }
 }
 
-static struct stm_transition *stm_get_transition(struct stm_state_machine *fsm, struct stm_state *state, struct stm_event *const event) {
+static stm_transition *stm_get_transition(stm_state_machine *fsm, stm_state *state, stm_event *const event) {
   for (size_t i = 0; i < state->num_transitions; i++) {
-    struct stm_transition *t = &state->transitions[ i ];
+    stm_transition *t = &state->transitions[ i ];
     if (t->event_type == event->type) {
       if ( !t->guard ) {
         return t;
@@ -23,7 +23,7 @@ static struct stm_transition *stm_get_transition(struct stm_state_machine *fsm, 
   return NULL;
 }
 
-void stm_init(struct stm_state_machine *fsm, struct stm_state *initial_state, struct stm_state *error_state) {
+void stm_init(stm_state_machine *fsm, stm_state *initial_state, stm_state *error_state) {
   if (!fsm) {
     return;
   }
@@ -32,7 +32,7 @@ void stm_init(struct stm_state_machine *fsm, struct stm_state *initial_state, st
   fsm->error_state = error_state;
 }
 
-int stm_handle_event( struct stm_state_machine *fsm, struct stm_event *event ) {
+int stm_handle_event(stm_state_machine *fsm, stm_event *event) {
   if (!fsm || !event) {
     return STM_ERR_ARG;
   }
@@ -43,9 +43,9 @@ int stm_handle_event( struct stm_state_machine *fsm, struct stm_event *event ) {
   if ( !fsm->current_state->num_transitions ) {
     return STM_NO_STATE_CHANGE;
   }
-  struct stm_state *next_state = fsm->current_state;
+  stm_state *next_state = fsm->current_state;
   do {
-    struct stm_transition *transition = stm_get_transition(fsm, next_state, event);
+    stm_transition *transition = stm_get_transition(fsm, next_state, event);
     if (!transition) {
       next_state = next_state->parent_state;
       continue;
@@ -83,21 +83,21 @@ int stm_handle_event( struct stm_state_machine *fsm, struct stm_event *event ) {
   return STM_NO_STATE_CHANGE;
 }
 
-struct stm_state *stm_current_state(struct stm_state_machine *fsm) {
+stm_state *stm_current_state(stm_state_machine *fsm) {
   if (!fsm) {
     return NULL;
   }
   return fsm->current_state;
 }
 
-struct stm_state *stm_previous_state(struct stm_state_machine *fsm) {
+stm_state *stm_previous_state(stm_state_machine *fsm) {
   if (!fsm) {
     return NULL;
   }
   return fsm->previous_state;
 }
 
-bool stm_stopped(struct stm_state_machine *fsm) {
+bool stm_stopped(stm_state_machine *fsm) {
   if (!fsm) {
     return true;
   }
