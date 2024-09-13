@@ -17,6 +17,7 @@
 #include "threading/thread_manager.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 void log_info() {
   printf("OS: %s\n", OS_NAME);
@@ -53,21 +54,26 @@ int game_run() {
 }
 
 void gfx_loop(float delta) {
-  update_mouse_controls(&MOUSE_STATE);
-  update_key_controls(&KEYBOARD_STATE);
   glClear(GL_COLOR_BUFFER_BIT);
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
-  move_camera(&CAMERA, delta);
-  ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
-  ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
-  ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);
-  ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);
-  ecs_update_system(ECS, PHYSICS_SYSTEM.id, delta);
-  ecs_update_system(ECS, ANIMATOR_SYSTEM.id, delta);
-  ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
-  ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
-  phy_threaded_space_step(SPACE, delta);
-  state.current_div.scrollable = false;
+  if (strcmp(stm_current_state(&SCENE_FSM)->data, "TITLE") == 0) {
+
+  }
+  else {
+    update_mouse_controls(&MOUSE_STATE);
+    update_key_controls(&KEYBOARD_STATE);
+    move_camera(&CAMERA, delta);
+    ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
+    ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
+    ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);
+    ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);
+    ecs_update_system(ECS, PHYSICS_SYSTEM.id, delta);
+    ecs_update_system(ECS, ANIMATOR_SYSTEM.id, delta);
+    ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
+    ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
+    phy_threaded_space_step(SPACE, delta);
+    state.current_div.scrollable = false;
+  }
 }

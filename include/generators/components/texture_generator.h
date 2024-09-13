@@ -31,7 +31,8 @@ typedef enum {
   TANK_BODY_OUTLINE,
   TANK_TOP_OUTLINE,
   COMMAND_POINT,
-  COMMAND_LINE
+  COMMAND_LINE,
+  NUM_TEXTURES
 } TEXTURE_ID;
 
 gfx_texture generate_texture(char *file_name, char *file_type, float width, float height);
