@@ -5,6 +5,7 @@
 #include "game_manager.h"
 #include "khg_gfx/internal.h"
 #include "khg_phy/threaded_space.h"
+#include "khg_stm/state_machine.h"
 #include "physics/physics_setup.h"
 #include "spawners/spawn_tank.h"
 #include "khg_ecs/ecs.h"
@@ -40,6 +41,8 @@ int game_run() {
   gfx_init_glfw(800, 600, window);
   log_info();
   setup_worker_threads();
+  stm_init(&SCENE_FSM, &TITLE_SCENE, &SANDBOX_SCENE);
+  printf("Current Scene: %s\n", (char *)stm_current_state(&SCENE_FSM)->data);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
   ecs_setup();
   spawn_tank(600, 300);

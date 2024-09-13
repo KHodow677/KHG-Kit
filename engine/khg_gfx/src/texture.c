@@ -339,7 +339,7 @@ gfx_font gfx_load_font_asset(const char *asset_name, const char *file_extension,
   char asset_dir[asset_dir_len];
   char path[path_len];
   snprintf(asset_dir, sizeof(asset_dir), "%s/res", cwd);
-  snprintf(path, sizeof(path), "%s/assets/textures/%s.%s", asset_dir, asset_name, file_extension);
+  snprintf(path, sizeof(path), "%s/assets/fonts/%s.%s", asset_dir, asset_name, file_extension);
   return gfx_load_font(path, font_size);
 #endif
 }

@@ -13,6 +13,7 @@
 #include "entity/comp_shooter.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/texture.h"
+#include "khg_stm/state_machine.h"
 #include "khg_utl/vector.h"
 #include "khg_thd/thread.h"
 
@@ -29,6 +30,11 @@ extern int THREAD_COUNT;
 extern camera CAMERA;
 extern mouse_state MOUSE_STATE;
 extern keyboard_state KEYBOARD_STATE;
+
+extern stm_state_machine SCENE_FSM;
+extern stm_state TITLE_SCENE;
+extern stm_state SANDBOX_SCENE;
+extern stm_state ERROR_SCENE;
 
 extern sys_physics PHYSICS_SYSTEM;
 extern sys_renderer RENDERER_SYSTEM;
