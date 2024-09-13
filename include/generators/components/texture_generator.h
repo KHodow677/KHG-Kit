@@ -42,7 +42,7 @@ typedef struct texture_asset {
   int tex_height;
 } texture_asset;
 
-extern texture_asset TEXTURE_REF[NUM_TEXTURES];
+extern texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
 
 gfx_texture generate_texture(char *file_name, char *file_type, float width, float height);
 bool check_texture_loaded(int tex_id);
