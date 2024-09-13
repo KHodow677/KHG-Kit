@@ -7,6 +7,7 @@
 #include "khg_phy/threaded_space.h"
 #include "khg_stm/state_machine.h"
 #include "physics/physics_setup.h"
+#include "scenes/scene_utl.h"
 #include "spawners/spawn_tank.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
@@ -58,10 +59,10 @@ void gfx_loop(float delta) {
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
-  if (strcmp(stm_current_state(&SCENE_FSM)->data, "TITLE") == 0) {
-
-  }
-  else {
+  /*if (check_current_scene("TITLE")) {*/
+  /**/
+  /*}*/
+  /*else {*/
     update_mouse_controls(&MOUSE_STATE);
     update_key_controls(&KEYBOARD_STATE);
     move_camera(&CAMERA, delta);
@@ -75,5 +76,5 @@ void gfx_loop(float delta) {
     ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
     state.current_div.scrollable = false;
-  }
+  /*}*/
 }

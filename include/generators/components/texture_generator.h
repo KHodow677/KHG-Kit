@@ -35,8 +35,19 @@ typedef enum {
   NUM_TEXTURES
 } TEXTURE_ID;
 
+typedef struct texture_asset {
+  char *tex_file_name;
+  char *tex_file_type;
+  int tex_width;
+  int tex_height;
+} texture_asset;
+
+extern texture_asset TEXTURE_REF[NUM_TEXTURES];
+
 gfx_texture generate_texture(char *file_name, char *file_type, float width, float height);
-void add_new_texture(char *file_name, char *file_type, float width, float height);
+bool check_texture_loaded(int tex_id);
+gfx_texture *get_or_add_texture(int tex_id);
+void add_new_texture(int tex_id, char *file_name, char *file_type, float width, float height);
 void generate_textures(void);
 void free_textures(void);
 
