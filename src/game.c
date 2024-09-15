@@ -3,11 +3,11 @@
 #include "controllers/input/key_controllers.h"
 #include "controllers/input/mouse_controller.h"
 #include "game_manager.h"
+#include "generators/components/map_generator.h"
 #include "khg_gfx/internal.h"
 #include "khg_phy/threaded_space.h"
 #include "khg_stm/state_machine.h"
 #include "physics/physics_setup.h"
-#include "scenes/scene_utl.h"
 #include "spawners/spawn_tank.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
@@ -47,6 +47,7 @@ int game_run() {
   printf("Current Scene: %s\n", (char *)stm_current_state(&SCENE_FSM)->data);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
   ecs_setup();
+  load_map("Map");
   spawn_tank(600, 300);
   spawn_tank(300, 300);
   int res = gfx_loop_manager(window, false);

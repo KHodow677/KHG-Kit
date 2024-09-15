@@ -10,6 +10,7 @@
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "entity/entity.h"
+#include "generators/components/map_generator.h"
 #include "generators/components/texture_generator.h"
 #include "khg_stm/state_machine.h"
 #include "physics/physics_setup.h"
@@ -110,6 +111,7 @@ void ecs_setup() {
 void ecs_cleanup() {
   free_entity_lookup();
   free_textures();
+  free_map();
   physics_free(SPACE);
   ecs_free(ECS);
   free_worker_threads();
