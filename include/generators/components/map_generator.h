@@ -2,4 +2,8 @@
 
 #define MAX_PATH 260
 
-int load_map(const char *filepath);
+int get_csv_rows(char *path);
+int get_csv_cols(char *path);
+
+void load_map(const char *filepath);
+

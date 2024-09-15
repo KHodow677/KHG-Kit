@@ -22,6 +22,7 @@ extern ecs_ecs *ECS;
 extern utl_vector *ENTITY_LOOKUP;
 extern utl_vector *TEXTURE_LOOKUP;
 extern thd_thread *WORKER_THREADS;
+extern utl_vector *GAME_MAP;
 
 extern gfx_texture NO_TEXTURE;
 extern int MAX_TEXTURES;

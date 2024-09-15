@@ -25,6 +25,7 @@ ecs_ecs *ECS;
 utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;
 thd_thread *WORKER_THREADS;
+utl_vector *GAME_MAP;
 
 gfx_texture NO_TEXTURE = { 0 };
 int MAX_TEXTURES = 1024;
