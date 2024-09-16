@@ -27,6 +27,7 @@ utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;
 thd_thread *WORKER_THREADS;
 utl_vector *GAME_MAP;
+int GAME_MAP_TILE_SIZE = 256;
 
 gfx_texture NO_TEXTURE = { 0 };
 int MAX_TEXTURES = 1024;

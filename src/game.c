@@ -2,6 +2,7 @@
 #include "controllers/elements/camera_controller.h"
 #include "controllers/input/key_controllers.h"
 #include "controllers/input/mouse_controller.h"
+#include "entity/map.h"
 #include "game_manager.h"
 #include "generators/components/map_generator.h"
 #include "khg_gfx/internal.h"
@@ -67,6 +68,7 @@ void gfx_loop(float delta) {
     update_mouse_controls(&MOUSE_STATE);
     update_key_controls(&KEYBOARD_STATE);
     move_camera(&CAMERA, delta);
+    render_map();
     ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
     ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
     ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);

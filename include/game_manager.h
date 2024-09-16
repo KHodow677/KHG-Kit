@@ -23,6 +23,7 @@ extern utl_vector *ENTITY_LOOKUP;
 extern utl_vector *TEXTURE_LOOKUP;
 extern thd_thread *WORKER_THREADS;
 extern utl_vector *GAME_MAP;
+extern int GAME_MAP_TILE_SIZE;
 
 extern gfx_texture NO_TEXTURE;
 extern int MAX_TEXTURES;
