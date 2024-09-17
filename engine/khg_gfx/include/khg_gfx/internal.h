@@ -190,6 +190,7 @@ extern void gfx_internal_props_stack_push(gfx_props_stack *stack, gfx_element_pr
 extern gfx_element_props gfx_internal_props_stack_pop(gfx_props_stack *stack); 
 extern gfx_element_props gfx_internal_props_stack_peak(gfx_props_stack *stack); 
 extern bool gfx_internal_props_stack_empty(gfx_props_stack *stack);
+extern void gfx_internal_props_stack_clear(gfx_props_stack *stack);
 
 extern gfx_element_props gfx_internal_get_props_for(gfx_element_props props);
 

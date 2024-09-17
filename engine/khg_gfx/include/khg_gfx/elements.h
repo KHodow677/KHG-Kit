@@ -226,6 +226,7 @@ bool gfx_aabb_intersects_aabb(gfx_aabb a, gfx_aabb b);
 
 void gfx_push_style_props(gfx_element_props props);
 void gfx_pop_style_props(void);
+void gfx_clear_style_props(void);
 
 bool gfx_hovered(vec2s pos, vec2s size);
 bool gfx_area_hovered(vec2s pos, vec2s size);

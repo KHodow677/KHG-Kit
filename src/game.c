@@ -67,9 +67,13 @@ bool gfx_loop(float delta) {
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
   if (check_current_scene("TITLE")) {
+    gfx_clear_style_props();
     return render_title_menu();
   }
   else {
+    gfx_clear_style_props();
+    gfx_element_props game_props = gfx_get_theme().image_props;
+    gfx_push_style_props(game_props);
     update_mouse_controls(&MOUSE_STATE);
     update_key_controls(&KEYBOARD_STATE);
     move_camera(&CAMERA, delta);
@@ -84,6 +88,7 @@ bool gfx_loop(float delta) {
     ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
     state.current_div.scrollable = false;
+    gfx_pop_style_props();
     return true;
   }
 }

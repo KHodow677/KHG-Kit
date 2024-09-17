@@ -1137,6 +1137,12 @@ bool gfx_internal_props_stack_empty(gfx_props_stack *stack) {
   return stack->count == 0;
 }
 
+void gfx_internal_props_stack_clear(gfx_props_stack *stack) {
+  while (stack->count > 0) {
+    gfx_internal_props_stack_pop(stack);
+  }
+}
+
 gfx_element_props gfx_internal_get_props_for(gfx_element_props props) {
   return (!gfx_internal_props_stack_empty(&state.props_stack)) ? gfx_internal_props_stack_peak(&state.props_stack) : props; 
 }

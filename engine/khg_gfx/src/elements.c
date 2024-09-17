@@ -791,6 +791,10 @@ void gfx_pop_style_props() {
   gfx_internal_props_stack_pop(&state.props_stack);
 }
 
+void gfx_clear_style_props() {
+  gfx_internal_props_stack_clear(&state.props_stack);
+}
+
 bool gfx_hovered(vec2s pos, vec2s size) {
   bool hovered = gfx_get_mouse_x() <= (pos.x + size.x) && gfx_get_mouse_x() >= (pos.x) && gfx_get_mouse_y() <= (pos.y + size.y) && gfx_get_mouse_y() >= (pos.y) && ((state.selected_div.id == state.current_div.id && state.grabbed_div.id == -1) || (state.grabbed_div.id == state.current_div.id && state.grabbed_div.id != -1));
   return hovered;
