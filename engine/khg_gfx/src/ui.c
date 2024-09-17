@@ -55,7 +55,9 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
     double current_time = glfwGetTime();
     double elapsed_time = current_time - last_time;
     last_time = current_time;
-    gfx_loop(elapsed_time);
+    if (!gfx_loop(elapsed_time)) {
+      break;
+    }
     frame_count++;
     double fps_elapsed_time = current_time - fps_start_time;
     if (fps_elapsed_time > 0.0) {

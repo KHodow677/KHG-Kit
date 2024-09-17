@@ -33,6 +33,9 @@ extern camera CAMERA;
 extern mouse_state MOUSE_STATE;
 extern keyboard_state KEYBOARD_STATE;
 
+extern gfx_font LARGE_FONT;
+extern gfx_font MEDIUM_FONT;
+
 extern stm_state_machine SCENE_FSM;
 extern stm_state TITLE_SCENE;
 extern stm_state SANDBOX_SCENE;

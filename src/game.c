@@ -6,9 +6,12 @@
 #include "game_manager.h"
 #include "generators/components/map_generator.h"
 #include "khg_gfx/internal.h"
+#include "khg_gfx/texture.h"
 #include "khg_phy/threaded_space.h"
 #include "khg_stm/state_machine.h"
+#include "menus/title_menu.h"
 #include "physics/physics_setup.h"
+#include "scenes/scene_utl.h"
 #include "spawners/spawn_tank.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
@@ -47,6 +50,8 @@ int game_run() {
   stm_init(&SCENE_FSM, &TITLE_SCENE, &SANDBOX_SCENE);
   printf("Current Scene: %s\n", (char *)stm_current_state(&SCENE_FSM)->data);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
+  LARGE_FONT = gfx_load_font_asset("Rubik", "ttf", 48);
+  MEDIUM_FONT = gfx_load_font_asset("Rubik", "ttf", 24);
   ecs_setup();
   load_map("Map");
   spawn_tank(600, 300);
@@ -56,15 +61,15 @@ int game_run() {
   return res;
 }
 
-void gfx_loop(float delta) {
+bool gfx_loop(float delta) {
   glClear(GL_COLOR_BUFFER_BIT);
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   gfx_begin();
-  /*if (check_current_scene("TITLE")) {*/
-  /**/
-  /*}*/
-  /*else {*/
+  if (check_current_scene("TITLE")) {
+    return render_title_menu();
+  }
+  else {
     update_mouse_controls(&MOUSE_STATE);
     update_key_controls(&KEYBOARD_STATE);
     move_camera(&CAMERA, delta);
@@ -79,5 +84,6 @@ void gfx_loop(float delta) {
     ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
     state.current_div.scrollable = false;
-  /*}*/
+    return false;
+  }
 }

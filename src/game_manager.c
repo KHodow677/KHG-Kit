@@ -37,6 +37,9 @@ camera CAMERA = { 0 };
 mouse_state MOUSE_STATE = { 0 };
 keyboard_state KEYBOARD_STATE = { 0 };
 
+gfx_font LARGE_FONT;
+gfx_font MEDIUM_FONT;
+
 stm_state_machine SCENE_FSM;
 
 stm_state PARENT_SCENE = {
