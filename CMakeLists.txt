@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-option(PRODUCTION_BUILD "Make this a production build" ON)
-
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
 project(executable)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -38,20 +33,10 @@ add_subdirectory(engine/khg_thd)
 add_subdirectory(engine/khg_utl)
 
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
-
 add_executable("${CMAKE_PROJECT_NAME}")
-
 set_property(TARGET "${CMAKE_PROJECT_NAME}" PROPERTY C_STANDARD 99)
-
 target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC GLFW_INCLUDE_NONE=1) 
-
-if (PRODUCTION_BUILD)
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./res/") 
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=1) 
-else()
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/")
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=0) 
-endif()
+target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./res/") 
 
 target_sources("${CMAKE_PROJECT_NAME}" PRIVATE ${MY_SOURCES} )
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -61,7 +46,7 @@ if (WIN32)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE Mswsock)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE AdvApi32)
   # set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "-mwindows")
-elseif (UNIX)
+else()
   target_compile_options("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address -fno-omit-frame-pointer)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address)
 endif()
