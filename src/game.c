@@ -50,8 +50,8 @@ int game_run() {
   stm_init(&SCENE_FSM, &TITLE_SCENE, &SANDBOX_SCENE);
   printf("Current Scene: %s\n", (char *)stm_current_state(&SCENE_FSM)->data);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
-  LARGE_FONT = gfx_load_font_asset("Rubik", "ttf", 48);
-  MEDIUM_FONT = gfx_load_font_asset("Rubik", "ttf", 24);
+  LARGE_FONT = gfx_load_font_asset("Rubik-Bold", "ttf", 48);
+  MEDIUM_FONT = gfx_load_font_asset("Rubik-Bold", "ttf", 32);
   ecs_setup();
   load_map("Map");
   spawn_tank(600, 300);
