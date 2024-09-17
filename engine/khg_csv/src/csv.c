@@ -1,4 +1,7 @@
 #include "khg_csv/csv.h"
+#include <errno.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -7,7 +10,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
 #endif
 
 #define CSV_GET_PAGE_ALIGNED( orig, page ) (((orig) + ((page) - 1)) & ~((page) - 1))
@@ -21,7 +23,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 
-static void *csv_map_mem(CsvHandle handle) {
+static void *csv_map_mem(csv_handle handle) {
   size_t size = handle->blockSize;
   if (handle->mapSize + size > handle->fileSize) {
     size = 0;
@@ -30,9 +32,9 @@ static void *csv_map_mem(CsvHandle handle) {
   return handle->mem;
 }
 
-static void csv_unmap_mem(CsvHandle handle) {
+static void csv_unmap_mem(csv_handle handle) {
   if (handle->mem) {
-    UnmapViewOfFileEx(handle->mem, 0);
+    UnmapViewOfFile(handle->mem);
   }
 }
 
@@ -139,11 +141,11 @@ csv_handle csv_open(const char *filename) {
 
 #if defined(_WIN32) || defined(_WIN64)
 
-CsvHandle csv_open_2(const char *filename, char delim, char quote, char escape) {
+csv_handle csv_open_2(const char *filename, char delim, char quote, char escape) {
   LARGE_INTEGER fsize;
   SYSTEM_INFO info;
   size_t pageSize = 0;
-  CsvHandle handle = calloc(1, sizeof(struct CsvHandle_));
+  csv_handle handle = calloc(1, sizeof(struct CsvHandle_));
   if (!handle) {
     return NULL;
   }
@@ -176,11 +178,11 @@ fail:
   return NULL;
 }
 
-void csv_close(CsvHandle handle) {
+void csv_close(csv_handle handle) {
   if (!handle) {
     return;
   }
-  UnmapMem(handle);
+  csv_unmap_mem(handle);
   CloseHandle(handle->fm);
   CloseHandle(handle->fh);
   free(handle->auxbuf);
