@@ -15,13 +15,10 @@ void render_map() {
         continue;
       }
       gfx_texture *tex = get_or_add_texture(*item);
-      int i_offset = i + 0.5f;
-      int j_offset = j + 0.5f;
       int half_map_size = 0.5 * GAME_MAP_SIZE;
-      int tile_pos_x = (j_offset - half_map_size) * GAME_MAP_TILE_SIZE - 4;
-      int tile_pos_y = (i_offset - half_map_size) * GAME_MAP_TILE_SIZE - 4;
+      int tile_pos_x = (j + 0.5f - half_map_size) * GAME_MAP_TILE_SIZE - 4;
+      int tile_pos_y = (i + 0.5f - half_map_size) * GAME_MAP_TILE_SIZE - 4;
       gfx_image_no_block(tile_pos_x, tile_pos_y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
     }
   }
 }
-

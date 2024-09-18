@@ -689,10 +689,8 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
   tex.height *= cam_zoom;
   float delta_width = (float)tex.width - old_width;
   float delta_height = (float)tex.height - old_height;
-  pos.x = (pos.x - window_center_x) * cam_zoom + window_center_x;
-  pos.y = (pos.y - window_center_y) * cam_zoom + window_center_y;
-  pos.x -= cam_x;
-  pos.y -= cam_y;
+  pos.x = (pos.x - window_center_x) * cam_zoom + window_center_x - cam_x;
+  pos.y = (pos.y - window_center_y) * cam_zoom + window_center_y - cam_y;
   float bounding_width, bounding_height;
   compute_bounding_box(tex.width, tex.height, rotation_angle, &bounding_width, &bounding_height);
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ bounding_width, bounding_height } }, cullable)) {
