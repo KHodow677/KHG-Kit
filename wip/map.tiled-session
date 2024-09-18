@@ -10,15 +10,15 @@
     "fileStates": {
         "Grass.tsx": {
             "dynamicWrapping": true,
-            "scaleInDock": 1,
+            "scaleInDock": 0.33,
             "scaleInEditor": 1
         },
         "Map.tmx": {
-            "scale": 0.33,
+            "scale": 0.0625,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1127.2727272727273,
-                "y": 127.27272727272725
+                "x": -1584,
+                "y": 2144
             }
         }
     },

@@ -37,8 +37,8 @@ void generate_textures() {
   for (int i = 0; i < MAX_TEXTURES; i++) {
     utl_vector_push_back(TEXTURE_LOOKUP, &NO_TEXTURE);
   }
-  TEXTURE_ASSET_REF[GRASS_1] = (texture_asset){ "environment/Grass1", "png", 256, 256 };
-  TEXTURE_ASSET_REF[GRASS_2] = (texture_asset){ "environment/Grass2", "png", 256, 256 };
+  TEXTURE_ASSET_REF[GRASS_1] = (texture_asset){ "environment/Grass1", "png", 264, 264 };
+  TEXTURE_ASSET_REF[GRASS_2] = (texture_asset){ "environment/Grass2", "png", 264, 264 };
   TEXTURE_ASSET_REF[TANK_BODY] = (texture_asset){ "Tank-Body-Blue", "png", 145, 184 };
   TEXTURE_ASSET_REF[TANK_TOP] = (texture_asset){ "Tank-Top-Blue", "png", 102, 209 };
   TEXTURE_ASSET_REF[PARTICLE_1_0] = (texture_asset){ "particle/p1/00", "png", 107, 100 };
