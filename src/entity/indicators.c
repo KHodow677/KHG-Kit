@@ -42,19 +42,19 @@ void render_outline(renderer_info *info, physics_info *p_info, indicator *ind) {
   float angle = ind->is_target_body ? phy_body_get_angle(p_info->target_body) : phy_body_get_angle(p_info->body);
   gfx_texture *tex = get_or_add_texture(ind->tex_id);
   tex->angle = angle;
-  gfx_image_no_block(pos.x, pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
+  gfx_image_no_block(pos.x, pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
 }
 
 void render_point(indicator *ind) {
   gfx_texture *tex = get_or_add_texture(ind->tex_id);
-  gfx_image_no_block(ind->pos.x, ind->pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
+  gfx_image_no_block(ind->pos.x, ind->pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
 }
 
 void render_line(indicator *ind) {
   gfx_texture *tex = get_or_add_texture(ind->tex_id);
   tex->angle = ind->ang;
   tex->height = ind->length;
-  gfx_image_no_block(ind->pos.x, ind->pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
+  gfx_image_no_block(ind->pos.x, ind->pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, false);
 }
 
 void render_body_line(renderer_info *info, physics_info *p_info, indicator *ind) {
@@ -65,5 +65,5 @@ void render_body_line(renderer_info *info, physics_info *p_info, indicator *ind)
   gfx_texture *tex = get_or_add_texture(ind->tex_id);
   tex->angle = ang;
   tex->height = len;
-  gfx_image_no_block(mid.x, mid.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
+  gfx_image_no_block(mid.x, mid.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, false);
 }

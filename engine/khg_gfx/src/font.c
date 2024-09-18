@@ -48,7 +48,7 @@ static void renderer_add_glyph(stbtt_aligned_quad q, int32_t max_descended_char_
 }
 
 gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font font, gfx_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index) {
-  bool culled = gfx_internal_item_should_cull((gfx_aabb){ .pos = (vec2s){ pos.x, pos.y + gfx_internal_get_current_font().font_size }, .size = (vec2s){ -1, -1 } });
+  bool culled = gfx_internal_item_should_cull((gfx_aabb){ .pos = (vec2s){ pos.x, pos.y + gfx_internal_get_current_font().font_size }, .size = (vec2s){ -1, -1 } }, true);
   float tex_index = -1.0f;
   if (!culled && !no_render) {
     if (state.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {

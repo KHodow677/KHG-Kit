@@ -9,8 +9,8 @@
 static phy_vect handle_left_mouse_controls() {
   float world_x, world_y;
   if (gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT)) {
-    float window_center_x = gfx_get_display_width() / 2.0f;
-    float window_center_y = gfx_get_display_height() / 2.0f;
+    float window_center_x = gfx_get_display_width() / 2.0f + CAMERA.position.x;
+    float window_center_y = gfx_get_display_height() / 2.0f + CAMERA.position.y;
     float world_x = gfx_get_mouse_x() + CAMERA.position.x;
     float world_y = gfx_get_mouse_y() + CAMERA.position.y;
     world_x = (world_x - window_center_x) / CAMERA.zoom + window_center_x;

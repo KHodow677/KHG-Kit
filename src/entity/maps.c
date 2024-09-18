@@ -20,7 +20,7 @@ void render_map() {
       int half_map_size = 0.5 * GAME_MAP_SIZE;
       int tile_pos_x = (j_offset - half_map_size) * GAME_MAP_TILE_SIZE - 4;
       int tile_pos_y = (i_offset - half_map_size) * GAME_MAP_TILE_SIZE - 4;
-      gfx_image_no_block(tile_pos_x, tile_pos_y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
+      gfx_image_no_block(tile_pos_x, tile_pos_y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
     }
   }
 }
