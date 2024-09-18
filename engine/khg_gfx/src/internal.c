@@ -7,7 +7,6 @@
 #include "libclipboard/libclipboard.h"
 #include <stdio.h>
 #include <string.h>
-#include <windows.h>
 
 gfx_state state;
 

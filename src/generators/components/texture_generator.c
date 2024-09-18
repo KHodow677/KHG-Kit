@@ -40,7 +40,7 @@ void generate_textures() {
   TEXTURE_ASSET_REF[GRASS_1] = (texture_asset){ "environment/Grass1", "png", 264, 264 };
   TEXTURE_ASSET_REF[GRASS_2] = (texture_asset){ "environment/Grass2", "png", 264, 264 };
   TEXTURE_ASSET_REF[TANK_BODY] = (texture_asset){ "Tank-Body-Blue", "png", 145, 184 };
-  TEXTURE_ASSET_REF[TANK_TOP] = (texture_asset){ "Tank-Top-Blue", "png", 102, 209 };
+  TEXTURE_ASSET_REF[TANK_TOP] = (texture_asset){ "Tank-Top-Blue", "png", 104, 211 };
   TEXTURE_ASSET_REF[PARTICLE_1_0] = (texture_asset){ "particle/p1/00", "png", 107, 100 };
   TEXTURE_ASSET_REF[PARTICLE_1_1] = (texture_asset){ "particle/p1/01", "png", 107, 100 };
   TEXTURE_ASSET_REF[PARTICLE_1_2] = (texture_asset){ "particle/p1/02", "png", 107, 100 };
@@ -62,8 +62,8 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PARTICLE_2_2] = (texture_asset){ "particle/p2/02", "png", 80, 80 };
   TEXTURE_ASSET_REF[PARTICLE_2_3] = (texture_asset){ "particle/p2/03", "png", 80, 80 };
   TEXTURE_ASSET_REF[PARTICLE_2_4] = (texture_asset){ "particle/p2/04", "png", 80, 80 };
-  TEXTURE_ASSET_REF[TANK_BODY_OUTLINE] = (texture_asset){ "Tank-Body-Outline", "png", 154, 192 };
-  TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Outline", "png", 111, 217 };
+  TEXTURE_ASSET_REF[TANK_BODY_OUTLINE] = (texture_asset){ "Tank-Body-Outline", "png", 163, 201 };
+  TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Outline", "png", 120, 226 };
   TEXTURE_ASSET_REF[COMMAND_POINT] = (texture_asset){ "targeting/Point", "png", 56, 56 };
   TEXTURE_ASSET_REF[COMMAND_LINE] = (texture_asset){ "targeting/Line", "png", 20, 1 };
 }
