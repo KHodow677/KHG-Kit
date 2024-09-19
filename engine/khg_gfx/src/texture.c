@@ -33,8 +33,8 @@ gfx_texture gfx_load_texture(const char *filepath, bool flip, gfx_texture_filter
   }
   glGenTextures(1, &tex.id);
   glBindTexture(GL_TEXTURE_2D, tex.id); 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   switch(filter) {
     case gfx_tex_filter_linear:
       glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
