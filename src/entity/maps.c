@@ -38,11 +38,26 @@ void add_map_collision_segments(utl_vector *map, utl_vector **segments) {
         continue;
       }
       gfx_texture *tex = get_or_add_texture(*item);
+      int collision_dir = TEXTURE_ASSET_REF[*item].collision_direction;
       int half_map_size = 0.5 * GAME_MAP_SIZE;
       phy_vect tile_pos_top_left = { (j - half_map_size) * GAME_MAP_TILE_SIZE, (i - half_map_size) * GAME_MAP_TILE_SIZE};
-      if (j < map_cols) {
-        phy_vect tile_pos_top_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE, 0.0f));
+      phy_vect tile_pos_top_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE, 0.0f));
+      phy_vect tile_pos_bottom_left = phy_v_add(tile_pos_top_left, phy_v(0.0f, GAME_MAP_TILE_SIZE));
+      phy_vect tile_pos_bottom_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE, GAME_MAP_TILE_SIZE));
+      if ((collision_dir == SEGMENT_TOP_LEFT || collision_dir == SEGMENT_TOP || collision_dir == SEGMENT_TOP_RIGHT)) {
         phy_shape *seg = physics_add_static_segment_shape(SPACE, tile_pos_top_left, tile_pos_top_right);
+        utl_vector_push_back(*segments, &seg);
+      }
+      if ((collision_dir == SEGMENT_TOP_LEFT || collision_dir == SEGMENT_LEFT || collision_dir == SEGMENT_BOTTOM_LEFT)) {
+        phy_shape *seg = physics_add_static_segment_shape(SPACE, tile_pos_top_left, tile_pos_bottom_left);
+        utl_vector_push_back(*segments, &seg);
+      }
+      if ((collision_dir == SEGMENT_TOP_RIGHT || collision_dir == SEGMENT_RIGHT || collision_dir == SEGMENT_BOTTOM_RIGHT)) {
+        phy_shape *seg = physics_add_static_segment_shape(SPACE, tile_pos_top_right, tile_pos_bottom_right);
+        utl_vector_push_back(*segments, &seg);
+      }
+      if ((collision_dir == SEGMENT_BOTTOM_LEFT || collision_dir == SEGMENT_BOTTOM || collision_dir == SEGMENT_BOTTOM_RIGHT)) {
+        phy_shape *seg = physics_add_static_segment_shape(SPACE, tile_pos_bottom_left, tile_pos_bottom_right);
         utl_vector_push_back(*segments, &seg);
       }
     }

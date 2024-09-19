@@ -53,6 +53,7 @@ typedef struct texture_asset {
   char *tex_file_type;
   int tex_width;
   int tex_height;
+  int collision_direction;
 } texture_asset;
 
 extern texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
