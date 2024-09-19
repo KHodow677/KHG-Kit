@@ -56,9 +56,8 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
       info->shoot_cooldown = 0.16f;
       phy_vect pos = phy_body_get_position(p_info->body);
       float ang = phy_body_get_angle(p_info->body);
-      float length = 145.0f;
-      float spawn_x = pos.x + length * sinf(normalize_angle(ang));
-      float spawn_y = pos.y + length * -cosf(normalize_angle(ang));
+      float spawn_x = pos.x + info->barrel_length * sinf(normalize_angle(ang));
+      float spawn_y = pos.y + info->barrel_length * -cosf(normalize_angle(ang));
       spawn_x += 5.0f * cosf(ang);
       spawn_y += 5.0f * sinf(ang);
       spawn_particle(p_info->target_body, p_info->body, spawn_x, spawn_y);

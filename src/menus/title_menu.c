@@ -43,14 +43,14 @@ bool render_title_menu() {
   gfx_element_props btn_props = gfx_get_theme().button_props;
   btn_props.margin_top = 10.0f;
   btn_props.margin_left = 0.0f;
-  btn_props.border_width = 7.5f;
+  btn_props.border_width = 4.0f;
   btn_props.text_color = gfx_black;
   btn_props.border_color = gfx_black;
   btn_props.color = (gfx_color){ 90, 90, 90, 255 };
   btn_props.padding = 10.0f;
   gfx_element_props div_props = gfx_get_theme().div_props;
   div_props.corner_radius = 0.0f;
-  div_props.border_width = 7.5f;
+  div_props.border_width = 4.0f;
   div_props.border_color = gfx_black;
   gfx_element_props text_props = gfx_get_theme().text_props;
   text_props.margin_left = 0.0f; 

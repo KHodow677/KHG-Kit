@@ -61,6 +61,23 @@ void generate_physics_pivot(physics_info *info, physics_info *p_info, bool colli
   info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_body_get_center_of_gravity(p_info->body), phy_body_get_center_of_gravity(info->body)));
 }
 
+void generate_static_physics_box(physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog) {
+  info->body = phy_space_get_static_body(SPACE);
+  phy_body_set_position(info->body, pos);
+  phy_body_set_center_of_gravity(info->body, cog);
+  phy_body_set_angle(info->body, ang);
+  if (collides) {
+    info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, width, height, 0.0f));
+    phy_shape_set_friction(info->shape, 0.0f);
+  }
+  info->is_moving = false;
+  info->is_turning = false;
+  info->target_vel = 0.0f;
+  info->target_ang_vel = 0.0f;
+  info->move_enabled = true;
+  info->rotate_enabled = true;
+}
+
 void free_physics(physics_info *info, bool has_constraint) {
   if (has_constraint) {
     phy_space_remove_constraint(SPACE, info->pivot);
@@ -112,8 +129,9 @@ void generate_rotator(rotator_info *info, physics_info *p_info) {
   info->target_look_pos = phy_v_add(info->target_move_pos, phy_v(0.0f, -50.0f));
 }
 
-void generate_shooter(shooter_info *info) {
+void generate_shooter(shooter_info *info, float barrel_length) {
   info->shoot_cooldown = 0;
+  info->barrel_length = barrel_length;
 }
 
 void generate_selector(selector_info *info) {

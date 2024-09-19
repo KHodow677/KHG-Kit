@@ -80,6 +80,8 @@ void generate_textures() {
   TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Outline", "png", 120, 226, SEGMENT_NONE };
   TEXTURE_ASSET_REF[COMMAND_POINT] = (texture_asset){ "targeting/Point", "png", 56, 56, SEGMENT_NONE };
   TEXTURE_ASSET_REF[COMMAND_LINE] = (texture_asset){ "targeting/Line", "png", 20, 1, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[TURRET_BASE] = (texture_asset){ "Turret-Base", "png", 100, 100, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[TURRET_TOP] = (texture_asset){ "Turret-Top", "png", 89, 137, SEGMENT_NONE };
 }
 
 void free_textures() {

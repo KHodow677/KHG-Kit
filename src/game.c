@@ -19,6 +19,7 @@
 #include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "spawners/spawn_turret.h"
 #include "threading/thread_manager.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -50,14 +51,15 @@ int game_run() {
   stm_init(&SCENE_FSM, &TITLE_SCENE, &SANDBOX_SCENE);
   printf("Current Scene: %s\n", (char *)stm_current_state(&SCENE_FSM)->data);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
-  LARGE_FONT = gfx_load_font_asset("Rubik-Bold", "ttf", 48);
-  MEDIUM_FONT = gfx_load_font_asset("Rubik-Bold", "ttf", 32);
+  LARGE_FONT = gfx_load_font_asset("Rubik", "ttf", 48);
+  MEDIUM_FONT = gfx_load_font_asset("Rubik", "ttf", 32);
   ecs_setup();
   load_map("Map_Floor", &GAME_FLOOR_MAP);
   load_map("Map_Building", &GAME_BUILDING_MAP);
   add_map_collision_segments(GAME_BUILDING_MAP, &GAME_MAP_SEGMENTS);
   spawn_tank(600, 300);
   spawn_tank(300, 300);
+  spawn_turret(0, 0);
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   return res;
