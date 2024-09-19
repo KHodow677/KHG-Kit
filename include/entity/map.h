@@ -1,3 +1,6 @@
 #pragma once
 
-void render_map(void);
+#include "khg_utl/vector.h"
+
+void render_map(utl_vector *map);
+

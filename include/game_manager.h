@@ -22,7 +22,8 @@ extern ecs_ecs *ECS;
 extern utl_vector *ENTITY_LOOKUP;
 extern utl_vector *TEXTURE_LOOKUP;
 extern thd_thread *WORKER_THREADS;
-extern utl_vector *GAME_MAP;
+extern utl_vector *GAME_FLOOR_MAP;
+extern utl_vector *GAME_BUILDING_MAP;
 extern int GAME_MAP_SIZE;
 extern int GAME_MAP_TILE_SIZE;
 

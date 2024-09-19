@@ -53,7 +53,8 @@ int game_run() {
   LARGE_FONT = gfx_load_font_asset("Rubik-Bold", "ttf", 48);
   MEDIUM_FONT = gfx_load_font_asset("Rubik-Bold", "ttf", 32);
   ecs_setup();
-  load_map("Map");
+  load_map("Map_Floor", &GAME_FLOOR_MAP);
+  load_map("Map_Building", &GAME_BUILDING_MAP);
   spawn_tank(600, 300);
   spawn_tank(300, 300);
   int res = gfx_loop_manager(window, false);
@@ -77,7 +78,8 @@ bool gfx_loop(float delta) {
     update_mouse_controls(&MOUSE_STATE);
     update_key_controls(&KEYBOARD_STATE);
     move_camera(&CAMERA, delta);
-    render_map();
+    render_map(GAME_FLOOR_MAP);
+    render_map(GAME_BUILDING_MAP);
     ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
     ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
     ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);

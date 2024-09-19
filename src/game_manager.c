@@ -26,12 +26,12 @@ ecs_ecs *ECS;
 utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;
 thd_thread *WORKER_THREADS;
-utl_vector *GAME_MAP;
+utl_vector *GAME_FLOOR_MAP;
+utl_vector *GAME_BUILDING_MAP;
 int GAME_MAP_SIZE = 32;
 int GAME_MAP_TILE_SIZE = 256;
 
 gfx_texture NO_TEXTURE = { 0 };
-int MAX_TEXTURES = 1024;
 int CURRENT_TEXTURE_ID = 0;
 int THREAD_COUNT;
 camera CAMERA = { 0 };
@@ -116,7 +116,8 @@ void ecs_setup() {
 void ecs_cleanup() {
   free_entity_lookup();
   free_textures();
-  free_map();
+  free_map(&GAME_FLOOR_MAP);
+  free_map(&GAME_BUILDING_MAP);
   physics_free(SPACE);
   ecs_free(ECS);
   free_worker_threads();

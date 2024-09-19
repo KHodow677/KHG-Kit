@@ -50,5 +50,5 @@ then
   ./test_runner
   ./executable
 else
-  echo "Command usage: ./build.sh command [command: build, run, build run]"
+  echo "Command usage: ./build.sh command [command: build, run, build run, test]"
 fi

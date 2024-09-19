@@ -1,5 +1,4 @@
 #include "generators/components/map_generator.h"
-#include "game_manager.h"
 #include "khg_csv/csv.h"
 #include "khg_utl/vector.h"
 #include <stdlib.h>
@@ -30,7 +29,7 @@ int get_csv_cols(char *path) {
   return cols;
 }
 
-void load_map(const char *filepath) {
+void load_map(const char *filepath, utl_vector **map) {
 #if defined(_WIN32) || defined(_WIN64)
   char cwd[MAX_PATH];
   _getcwd(cwd, sizeof(cwd));
@@ -56,11 +55,11 @@ void load_map(const char *filepath) {
   csv_handle handle = csv_open(path);
   int csv_row = get_csv_rows(path);
   int csv_col = get_csv_cols(path);
-  GAME_MAP = utl_vector_create(sizeof(utl_vector *));
+  *map = utl_vector_create(sizeof(utl_vector *));
   while ((row = csv_read_next_row(handle))) {
     char *col;
     utl_vector *int_row = utl_vector_create(sizeof(int));
-    utl_vector_push_back(GAME_MAP, &int_row);
+    utl_vector_push_back(*map, &int_row);
     while ((col = csv_read_next_col(row, handle))) {
       int val = atoi(col);
       utl_vector_push_back(int_row, &val);
@@ -69,11 +68,11 @@ void load_map(const char *filepath) {
   csv_close(handle);
 }
 
-void free_map() {
-  for (int i = 0; i < utl_vector_size(GAME_MAP); i++) {
-    utl_vector **row =  utl_vector_at(GAME_MAP, i);
+void free_map(utl_vector **map) {
+  for (int i = 0; i < utl_vector_size(*map); i++) {
+    utl_vector **row =  utl_vector_at(*map, i);
     utl_vector_deallocate(*row);
   }
-  utl_vector_deallocate(GAME_MAP);
+  utl_vector_deallocate(*map);
 }
 

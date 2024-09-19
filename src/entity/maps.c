@@ -4,10 +4,10 @@
 #include "khg_gfx/elements.h"
 #include "khg_utl/vector.h"
 
-void render_map() {
-  int map_rows = utl_vector_size(GAME_MAP);
+void render_map(utl_vector *map) {
+  int map_rows = utl_vector_size(map);
   for (int i = 0; i < map_rows; i++) {
-    utl_vector **row =  utl_vector_at(GAME_MAP, i);
+    utl_vector **row =  utl_vector_at(map, i);
     int map_cols = utl_vector_size(*row);
     for (int j = 0; j < map_cols; j++) { 
       int *item = utl_vector_at(*row, j);
