@@ -10,6 +10,7 @@
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "entity/entity.h"
+#include "entity/map.h"
 #include "generators/components/map_generator.h"
 #include "generators/components/texture_generator.h"
 #include "khg_stm/state_machine.h"
@@ -28,6 +29,7 @@ utl_vector *TEXTURE_LOOKUP;
 thd_thread *WORKER_THREADS;
 utl_vector *GAME_FLOOR_MAP;
 utl_vector *GAME_BUILDING_MAP;
+utl_vector *GAME_MAP_SEGMENTS;
 int GAME_MAP_SIZE = 32;
 int GAME_MAP_TILE_SIZE = 256;
 
@@ -116,6 +118,7 @@ void ecs_setup() {
 void ecs_cleanup() {
   free_entity_lookup();
   free_textures();
+  free_map_collision_segments(&GAME_MAP_SEGMENTS);
   free_map(&GAME_FLOOR_MAP);
   free_map(&GAME_BUILDING_MAP);
   physics_free(SPACE);

@@ -55,6 +55,7 @@ int game_run() {
   ecs_setup();
   load_map("Map_Floor", &GAME_FLOOR_MAP);
   load_map("Map_Building", &GAME_BUILDING_MAP);
+  add_map_collision_segments(GAME_BUILDING_MAP, &GAME_MAP_SEGMENTS);
   spawn_tank(600, 300);
   spawn_tank(300, 300);
   int res = gfx_loop_manager(window, false);
