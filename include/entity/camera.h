@@ -5,6 +5,7 @@
 typedef struct camera {
   phy_vect position;
   float zoom;
+  float speed;
 } camera;
 
 void camera_setup(camera *cam);

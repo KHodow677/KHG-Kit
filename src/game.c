@@ -59,7 +59,8 @@ int game_run() {
   add_map_collision_segments(GAME_BUILDING_MAP, &GAME_MAP_SEGMENTS);
   spawn_tank(600, 300);
   spawn_tank(300, 300);
-  spawn_turret(0, 0);
+  spawn_turret(3104, 3360);
+  spawn_turret(3360, 3104);
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   return res;

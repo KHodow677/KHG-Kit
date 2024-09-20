@@ -11,7 +11,7 @@
 
 void generate_turret_top(turret_top *tt, turret_base *tb, float x, float y) {
   generate_physics_pivot(&tt->physics_info, &tb->physics_info, false, 85.0f, 133.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 25.5f));
-  generate_renderer(&tt->renderer_info, &tt->physics_info, TURRET_TOP, 2);
+  generate_renderer(&tt->renderer_info, &tt->physics_info, TURRET_TOP, 3);
   generate_destroyer(&tt->destroyer_info);
   generate_rotator(&tt->rotator_info, &tt->physics_info);
   generate_shooter(&tt->shooter_info, 107.0f);

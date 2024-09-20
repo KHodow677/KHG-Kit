@@ -79,9 +79,9 @@ void phy_shape_set_collision_type(phy_shape *shape, phy_collision_type collision
 phy_shape_filter phy_shape_get_filter(const phy_shape *shape);
 void phy_shape_set_filter(phy_shape *shape, phy_shape_filter filter);
 
-phy_circle_shape *cpCircleShapeAlloc(void);
-phy_shape *cpCircleShapeNew(phy_body *body, float radius, phy_vect offset);
-phy_circle_shape *cpCircleShapeInit(phy_circle_shape *circle, phy_body *body, float radius, phy_vect offset);
+phy_circle_shape *phy_circle_shape_alloc(void);
+phy_shape *phy_circle_shape_new(phy_body *body, float radius, phy_vect offset);
+phy_circle_shape *phy_circle_shape_init(phy_circle_shape *circle, phy_body *body, float radius, phy_vect offset);
 
 phy_vect phy_circle_shape_get_offset(const phy_shape *shape);
 float phy_circle_shape_get_radius(const phy_shape *shape);

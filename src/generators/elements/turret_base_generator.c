@@ -10,7 +10,7 @@
 #include "khg_utl/vector.h"
 
 void generate_turret_base(turret_base *tb, float x, float y) {
-  generate_static_physics_box(&tb->physics_info, true, 135.0f, 128.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
+  generate_static_physics_circle(&tb->physics_info, true, 47.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
   generate_renderer(&tb->renderer_info, &tb->physics_info, TURRET_BASE, 1);
   generate_destroyer(&tb->destroyer_info);
   tb->entity = ecs_create(ECS);

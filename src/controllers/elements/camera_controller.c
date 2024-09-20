@@ -22,19 +22,20 @@ static void clamp_camera(camera *cam, float range_x, float range_y) {
 
 void move_camera(camera *cam, float delta) {
   if (handle_key_button_is_down(GLFW_KEY_A)) {
-    cam->position.x -= 1000 * delta;
+    cam->position.x -=  cam->speed * delta;
   }
   if (handle_key_button_is_down(GLFW_KEY_D)) {
-    cam->position.x += 1000 * delta;
+    cam->position.x +=  cam->speed * delta;
   }
   if (handle_key_button_is_down(GLFW_KEY_W)) {
-    cam->position.y -= 1000 * delta;
+    cam->position.y -= cam->speed * delta;
   }
   if (handle_key_button_is_down(GLFW_KEY_S)) {
-    cam->position.y += 1000 * delta;
+    cam->position.y += cam->speed * delta;
   }
   if (handle_key_button_is_down(GLFW_KEY_Q)) {
     cam->zoom = fminf(cam->zoom + delta, 4.0f);
+    cam->speed = (cam->zoom + 1.0f) * 1000.0f;
   }
   if (handle_key_button_is_down(GLFW_KEY_E)) {
     cam->zoom = fmaxf(cam->zoom - delta, 0.25f);
