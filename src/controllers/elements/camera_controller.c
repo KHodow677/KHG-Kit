@@ -8,19 +8,13 @@
 #include "khg_phy/vect.h"
 #include <math.h>
 
-static float CAM_POSITION_TOLERANCE = 1.0f;
-static float CAM_ZOOM_TOLERANCE = 0.0001f;
 static float CAM_POSITION_EASING = 3.0f;
-static float CAM_ZOOM_EASING = 30.0f;
+static float CAM_ZOOM_EASING = 15.0f;
 static float CAM_MAX_VELOCITY = 1000.0f;
-static float CAM_MAX_ZOOM_VELOCITY = 0.5f;
+static float CAM_MAX_ZOOM_VELOCITY = 1.0f;
 
 static void camera_move_to_position(camera *cam, float delta) {
   float pos_diff = phy_v_dist(cam->position, cam->target);
-  if (fabsf(pos_diff) < CAM_POSITION_TOLERANCE) {
-    cam->position = cam->target;
-    return;
-  }
   float speed = -fminf(fabsf(pos_diff) * CAM_POSITION_EASING, CAM_MAX_VELOCITY) * delta;
   float target_ang = normalize_angle(atan2f(cam->position.y - cam->target.y, cam->position.x - cam->target.x));
   cam->position = phy_v_add(cam->position, phy_v(speed * cosf(target_ang), speed * sinf(target_ang)));
@@ -28,10 +22,6 @@ static void camera_move_to_position(camera *cam, float delta) {
 
 static void camera_zoom_to_value(camera *cam, float delta) {
   float zoom_diff = fabsf(cam->zoom - cam->target_zoom);
-  if (fabsf(zoom_diff) < CAM_ZOOM_TOLERANCE) {
-    cam->zoom = cam->target_zoom;
-    return;
-  }
   float speed = fminf(fabsf(zoom_diff) * CAM_ZOOM_EASING, CAM_MAX_ZOOM_VELOCITY) * delta;
   cam->zoom = cam->zoom > cam->target_zoom ? cam->zoom - speed : cam->zoom + speed;
 }
