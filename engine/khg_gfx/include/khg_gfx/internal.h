@@ -154,7 +154,7 @@ extern gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t
 extern gfx_clickable_item_state gfx_internal_button(const char *file, int32_t line, vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color);
 extern gfx_clickable_item_state gfx_internal_div_container(vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color);
 extern void gfx_internal_next_line_on_overflow(vec2s size, float xoffset);
-extern bool gfx_internal_item_should_cull(gfx_aabb item);
+bool gfx_internal_item_should_cull(gfx_aabb item, bool cullable);
 extern void gfx_internal_draw_scrollbar_on(gfx_div *div);
 
 extern void gfx_internal_input_field(gfx_input_field *input, gfx_input_field_type type, const char *file, int32_t line);
@@ -190,6 +190,7 @@ extern void gfx_internal_props_stack_push(gfx_props_stack *stack, gfx_element_pr
 extern gfx_element_props gfx_internal_props_stack_pop(gfx_props_stack *stack); 
 extern gfx_element_props gfx_internal_props_stack_peak(gfx_props_stack *stack); 
 extern bool gfx_internal_props_stack_empty(gfx_props_stack *stack);
+extern void gfx_internal_props_stack_clear(gfx_props_stack *stack);
 
 extern gfx_element_props gfx_internal_get_props_for(gfx_element_props props);
 

@@ -274,7 +274,7 @@ phy_shapes_collide(const phy_shape *a, const phy_shape *b)
 }
 
 phy_circle_shape *
-cpCircleShapeAlloc(void)
+phy_circle_shape_alloc(void)
 {
 	return (phy_circle_shape *)calloc(1, sizeof(phy_circle_shape));
 }
@@ -329,7 +329,7 @@ static const phy_shape_class cpCircleShapeClass = {
 };
 
 phy_circle_shape *
-cpCircleShapeInit(phy_circle_shape *circle, phy_body *body, float radius, phy_vect offset)
+phy_circle_shape_init(phy_circle_shape *circle, phy_body *body, float radius, phy_vect offset)
 {
 	circle->c = offset;
 	circle->r = radius;
@@ -340,9 +340,9 @@ cpCircleShapeInit(phy_circle_shape *circle, phy_body *body, float radius, phy_ve
 }
 
 phy_shape *
-cpCircleShapeNew(phy_body *body, float radius, phy_vect offset)
+phy_circle_shape_new(phy_body *body, float radius, phy_vect offset)
 {
-	return (phy_shape *)cpCircleShapeInit(cpCircleShapeAlloc(), body, radius, offset);
+	return (phy_shape *)phy_circle_shape_init(phy_circle_shape_alloc(), body, radius, offset);
 }
 
 phy_vect

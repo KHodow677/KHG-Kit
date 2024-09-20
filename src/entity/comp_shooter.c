@@ -3,17 +3,17 @@
 #include "controllers/input/key_controllers.h"
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_physics.h"
+#include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
 #include "game_manager.h"
-#include "khg_phy/vect.h"
 #include "spawners/spawn_particles.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
 #include "khg_utl/map.h"
 #include "khg_utl/vector.h"
-#include "GLFW/glfw3.h"
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 ecs_id SHOOTER_COMPONENT_SIGNATURE;
@@ -39,6 +39,8 @@ void sys_shooter_register(sys_shooter *ss) {
 
 void sys_shooter_add(ecs_id *eid, shooter_info *info) {
   ecs_add(ECS, *eid, SHOOTER_COMPONENT_SIGNATURE, NULL);
+  ecs_add(ECS, *eid, RENDERER_COMPONENT_SIGNATURE, NULL);
+  ecs_add(ECS, *eid, PHYSICS_COMPONENT_SIGNATURE, NULL);
   utl_vector_assign(SHOOTER_INFO, *eid, info);
 }
 
@@ -50,13 +52,12 @@ ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
     info = utl_vector_at(SHOOTER_INFO, entities[id]);
     p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
     r_info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
-    if (handle_key_button_went_down(GLFW_KEY_SPACE) && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
+    if (KEYBOARD_STATE.space_key_went_down && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 0.16f;
       phy_vect pos = phy_body_get_position(p_info->body);
       float ang = phy_body_get_angle(p_info->body);
-      float length = 145.0f;
-      float spawn_x = pos.x + length * sinf(normalize_angle(ang));
-      float spawn_y = pos.y + length * -cosf(normalize_angle(ang));
+      float spawn_x = pos.x + info->barrel_length * sinf(normalize_angle(ang));
+      float spawn_y = pos.y + info->barrel_length * -cosf(normalize_angle(ang));
       spawn_x += 5.0f * cosf(ang);
       spawn_y += 5.0f * sinf(ang);
       spawn_particle(p_info->target_body, p_info->body, spawn_x, spawn_y);

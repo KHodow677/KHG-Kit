@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity/comp_destroyer.h"
+#include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
@@ -14,6 +15,7 @@ typedef struct {
   physics_info physics_info;
   renderer_info renderer_info;
   destroyer_info destroyer_info;
+  mover_info mover_info;
   rotator_info rotator_info;
   shooter_info shooter_info;
   selector_info selector_info;

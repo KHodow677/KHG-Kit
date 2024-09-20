@@ -3,6 +3,21 @@
 #include "khg_gfx/texture.h"
 
 typedef enum {
+  GRASS_0,
+  GRASS_1,
+  BUILDING_0,
+  BUILDING_1,
+  BUILDING_2,
+  BUILDING_3,
+  BUILDING_4,
+  BUILDING_5,
+  BUILDING_6,
+  BUILDING_7,
+  BUILDING_8,
+  BUILDING_9,
+  BUILDING_10,
+  BUILDING_11,
+  BUILDING_12,
   TANK_BODY,
   TANK_TOP,
   PARTICLE_1_0,
@@ -28,12 +43,27 @@ typedef enum {
   PARTICLE_2_4,
   TANK_BODY_OUTLINE,
   TANK_TOP_OUTLINE,
-  POINT,
-  LINE
+  COMMAND_POINT,
+  COMMAND_LINE,
+  TURRET_BASE,
+  TURRET_TOP,
+  NUM_TEXTURES
 } TEXTURE_ID;
 
+typedef struct texture_asset {
+  char *tex_file_name;
+  char *tex_file_type;
+  int tex_width;
+  int tex_height;
+  int collision_direction;
+} texture_asset;
+
+extern texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
+
 gfx_texture generate_texture(char *file_name, char *file_type, float width, float height);
-void add_new_texture(char *file_name, char *file_type, float width, float height);
+bool check_texture_loaded(int tex_id);
+gfx_texture *get_or_add_texture(int tex_id);
+void add_new_texture(int tex_id, char *file_name, char *file_type, float width, float height);
 void generate_textures(void);
 void free_textures(void);
 

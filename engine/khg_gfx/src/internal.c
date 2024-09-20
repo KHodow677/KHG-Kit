@@ -54,8 +54,8 @@ void gfx_internal_set_projection_matrix() {
   float right = state.dsp_w;
   float bottom = state.dsp_h;
   float top = 0.0f;
-  float near = 0.1f;
-  float far = 100.0f;
+  float near_val = 0.1f;
+  float far_val = 100.0f;
   mat4 orthoMatrix = GLM_MAT4_IDENTITY_INIT;
   orthoMatrix[0][0] = 2.0f / (right - left);
   orthoMatrix[1][1] = 2.0f / (top - bottom);
@@ -287,7 +287,7 @@ gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, 
   if (state.element_id_stack != -1) {
     id = gfx_internal_djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
   }
-  if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size= size })) {
+  if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size= size }, true)) {
     return gfx_clickable_idle;
   }
   gfx_color hover_color_rgb = hover_color ? (props.hover_color.a == 0.0f ? gfx_color_brightness(color, 1.2) : props.hover_color) : color; 
@@ -322,7 +322,7 @@ gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, 
 }
 
 gfx_clickable_item_state gfx_internal_div_container(vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color) {
-  if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = size })) {
+  if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = size }, true)) {
     return gfx_clickable_idle;
   }
   gfx_color hover_color_rgb = hover_color ? (props.hover_color.a == 0.0f ? gfx_color_brightness(color, 1.5) : props.hover_color) : color; 
@@ -359,7 +359,10 @@ void gfx_internal_next_line_on_overflow(vec2s size, float xoffset) {
   }
 }
 
-bool gfx_internal_item_should_cull(gfx_aabb item) {
+bool gfx_internal_item_should_cull(gfx_aabb item, bool cullable) {
+  if (!cullable) {
+    return false;
+  }
   bool intersect = true;
   gfx_aabb window =  (gfx_aabb){ .pos = (vec2s){ 0, 0 }, .size = (vec2s){ state.dsp_w, state.dsp_h } };
   if (item.size.x == -1 || item.size.y == -1) {
@@ -373,7 +376,6 @@ bool gfx_internal_item_should_cull(gfx_aabb item) {
     intersect = false;
   }
   return !intersect && state.current_div.id == state.scrollbar_div.id;
-  return false;
 }
 
 void gfx_internal_draw_scrollbar_on(gfx_div *div) {
@@ -784,7 +786,7 @@ gfx_clickable_item_state gfx_internal_checkbox_element_loc(void *text, bool *val
     *val = !*val;
   }
   if (*val) {
-    gfx_image_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, tex_color, (gfx_texture){ .id = state.tex_tick.id, .width = (uint32_t)(checkbox_size), .height = (uint32_t)(checkbox_size)}, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    gfx_image_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, tex_color, (gfx_texture){ .id = state.tex_tick.id, .width = (uint32_t)(checkbox_size), .height = (uint32_t)(checkbox_size)}, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true);
   }
   state.pos_ptr.x += checkbox_size + props.padding * 2.0f + margin_right + ((wide) ? gfx_text_dimension_wide((const wchar_t*)text).x : gfx_text_dimension((const char*)text).x) + margin_right;
   state.pos_ptr.y -= margin_top;
@@ -819,7 +821,7 @@ void gfx_internal_dropdown_menu_item_loc(void **items, void *placeholder, uint32
     gfx_internal_text_render_simple((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, (const char*)button_text, font, props.text_color, false);
   }
   vec2s image_size = (vec2s){ 20, 10 };
-  gfx_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (gfx_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, gfx_no_color, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+  gfx_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (gfx_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, gfx_no_color, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true);
   if (dropdown_button == gfx_clickable_clicked) {
     *opened = !*opened;
   }
@@ -1135,6 +1137,12 @@ gfx_element_props gfx_internal_props_stack_peak(gfx_props_stack *stack) {
 
 bool gfx_internal_props_stack_empty(gfx_props_stack *stack) {
   return stack->count == 0;
+}
+
+void gfx_internal_props_stack_clear(gfx_props_stack *stack) {
+  while (stack->count > 0) {
+    gfx_internal_props_stack_pop(stack);
+  }
 }
 
 gfx_element_props gfx_internal_get_props_for(gfx_element_props props) {

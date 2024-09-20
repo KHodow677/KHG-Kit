@@ -2,6 +2,7 @@
 
 #include "generators/entities/particle_generator.h"
 #include "generators/entities/tank_generator.h"
+#include "generators/entities/turret_generator.h"
 
 typedef struct {
   enum {
@@ -9,10 +10,12 @@ typedef struct {
     ENTITY_TYPE_PARTICLE,
     ENTITY_TYPE_TANK,
     ENTITY_TYPE_TANK_OUTLINE,
+    ENTITY_TYPE_TURRET,
   } type;
   union {
     particle particle;
     tank tank;
+    turret turret;
   };
 } generic_entity;
 

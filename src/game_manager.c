@@ -1,4 +1,5 @@
 #include "game_manager.h"
+#include "controllers/input/key_controllers.h"
 #include "entity/camera.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_animator.h"
@@ -9,8 +10,12 @@
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "entity/entity.h"
+#include "entity/map.h"
+#include "generators/components/map_generator.h"
 #include "generators/components/texture_generator.h"
+#include "khg_stm/state_machine.h"
 #include "physics/physics_setup.h"
+#include "scenes/scene_utl.h"
 #include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/vector.h"
@@ -22,13 +27,52 @@ ecs_ecs *ECS;
 utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;
 thd_thread *WORKER_THREADS;
+utl_vector *GAME_FLOOR_MAP;
+utl_vector *GAME_BUILDING_MAP;
+utl_vector *GAME_MAP_SEGMENTS;
+int GAME_MAP_SIZE = 32;
+int GAME_MAP_TILE_SIZE = 256;
 
 gfx_texture NO_TEXTURE = { 0 };
-int MAX_TEXTURES = 1024;
 int CURRENT_TEXTURE_ID = 0;
 int THREAD_COUNT;
 camera CAMERA = { 0 };
 mouse_state MOUSE_STATE = { 0 };
+keyboard_state KEYBOARD_STATE = { 0 };
+
+gfx_font LARGE_FONT;
+gfx_font MEDIUM_FONT;
+
+stm_state_machine SCENE_FSM;
+
+stm_state PARENT_SCENE = {
+  .parent_state = NULL,
+  .entry_state = &TITLE_SCENE,
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)'!', &compare_scene_switch_command, NULL, &TITLE_SCENE } },
+  .num_transitions = 2,
+  .data = "GROUP",
+};
+
+stm_state TITLE_SCENE = {
+  .parent_state = &PARENT_SCENE,
+  .entry_state = NULL,
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_SANDBOX_SCENE, &compare_scene_switch_command, NULL, &SANDBOX_SCENE } },
+  .num_transitions = 1,
+  .data = "TITLE",
+};
+
+stm_state SANDBOX_SCENE = {
+  .parent_state = &PARENT_SCENE,
+  .entry_state = NULL,
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TITLE_SCENE, &compare_scene_switch_command, NULL, &TITLE_SCENE } },
+  .num_transitions = 1,
+  .data = "SANDBOX",
+};
+
+stm_state ERROR_SCENE = {
+  .data = "ERROR",
+  .entry_action = &print_scene_error
+};
 
 sys_physics PHYSICS_SYSTEM = { 0 };
 sys_renderer RENDERER_SYSTEM = { 0 };
@@ -74,6 +118,9 @@ void ecs_setup() {
 void ecs_cleanup() {
   free_entity_lookup();
   free_textures();
+  free_map_collision_segments(&GAME_MAP_SEGMENTS);
+  free_map(&GAME_FLOOR_MAP);
+  free_map(&GAME_BUILDING_MAP);
   physics_free(SPACE);
   ecs_free(ECS);
   free_worker_threads();

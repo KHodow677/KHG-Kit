@@ -1,10 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-option(PRODUCTION_BUILD "Make this a production build" ON)
-
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Release>:Release>")
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-
 project(executable)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -26,51 +21,38 @@ add_subdirectory(engine/external/stb_truetype)
 add_subdirectory(engine/external/stb_vorbis)
 add_subdirectory(engine/external/libclipboard)
 add_subdirectory(engine/khg_aud)
+add_subdirectory(engine/khg_csv)
 add_subdirectory(engine/khg_dbm)
 add_subdirectory(engine/khg_ecs)
 add_subdirectory(engine/khg_gfx)
 add_subdirectory(engine/khg_phy)
+add_subdirectory(engine/khg_stm)
 add_subdirectory(engine/khg_tcp)
 add_subdirectory(engine/khg_tea)
 add_subdirectory(engine/khg_thd)
 add_subdirectory(engine/khg_utl)
 
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
-
 add_executable("${CMAKE_PROJECT_NAME}")
-
 set_property(TARGET "${CMAKE_PROJECT_NAME}" PROPERTY C_STANDARD 99)
-
 target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC GLFW_INCLUDE_NONE=1) 
-
-if (PRODUCTION_BUILD)
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./res/") 
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=1) 
-else()
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/")
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC PRODUCTION_BUILD=0) 
-endif()
+target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./res/") 
 
 target_sources("${CMAKE_PROJECT_NAME}" PRIVATE ${MY_SOURCES} )
-
-if (MSVC)
-  target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC _CRT_SECURE_NO_WARNINGS)
-  set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
-elseif (UNIX)
-  target_compile_options("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address -fno-omit-frame-pointer)
-  target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address)
-endif()
-
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_aud khg_dbm khg_ecs khg_gfx khg_phy khg_tcp khg_tea khg_thd khg_utl)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_aud khg_csv khg_dbm khg_ecs khg_gfx khg_phy khg_stm khg_tcp khg_tea khg_thd khg_utl)
 if (WIN32)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE Ws2_32)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE Mswsock)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE AdvApi32)
+  # set_target_properties("${CMAKE_PROJECT_NAME}" PROPERTIES LINK_FLAGS "-mwindows")
+else()
+  target_compile_options("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+  target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE -fsanitize=address)
 endif()
 
 enable_testing()
 file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")
 add_executable(test_runner ${TEST_SOURCES})
-target_link_libraries(test_runner PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_aud khg_dbm khg_ecs khg_gfx khg_phy khg_tcp khg_tea khg_thd khg_utl)
+target_link_libraries(test_runner PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_aud khg_csv khg_dbm khg_ecs khg_gfx khg_phy khg_stm khg_tcp khg_tea khg_thd khg_utl)
 add_test(NAME test_runner COMMAND test_runner)

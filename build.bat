@@ -78,6 +78,6 @@ if "%1"=="build" (
     )
 )
 
-echo Command usage: .\build.bat command [command: build, run, build run]
+echo Command usage: .\build.bat command [command: build, run, build run, test]
 
 :eof

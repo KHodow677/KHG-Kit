@@ -1,7 +1,8 @@
 #include "entity/comp_renderer.h"
 #include "entity/comp_physics.h"
-#include "entity/comp_selector.h"
+#include "entity/indicators.h"
 #include "game_manager.h"
+#include "generators/components/texture_generator.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
@@ -15,33 +16,27 @@ ecs_id RENDERER_COMPONENT_SIGNATURE;
 renderer_info NO_RENDERER = { 0 };
 utl_vector *RENDERER_INFO = NULL;
 
-static void render_outline(renderer_info *info, physics_info *p_info, indicator *ind) {
-  phy_vect pos = ind->is_target_body ? phy_body_get_position(p_info->target_body) : phy_body_get_position(p_info->body);
-  float angle = ind->is_target_body ? phy_body_get_angle(p_info->target_body) : phy_body_get_angle(p_info->body);
-  if (ind->follow) {
-    ind->pos = pos;
-    ind->ang = angle;
-  }
-  gfx_texture *tex = utl_vector_at(TEXTURE_LOOKUP, ind->tex_id);
-  tex->angle = ind->ang;
-  gfx_image_no_block(ind->pos.x, ind->pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
-}
-
 static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   renderer_info *info;
   physics_info *p_info;
   for (int layer = 0; layer < 10; layer++) {
-    if (layer == 1) {
+    if (layer == 0) {
       for (int id = 0; id < entity_count; id++) {
         info = utl_vector_at(RENDERER_INFO, entities[id]);
         p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
         for (int i_index = 0; i_index < utl_vector_size(info->indicators); i_index++) {
           indicator *ind = utl_vector_at(info->indicators, i_index);
-          switch (ind->type) {
-            case OUTLINE:
-              render_outline(info, p_info, ind);
-            default:
-              (void)0;
+          if (ind->type == INDICATOR_OUTLINE) {
+            render_outline(info, p_info, ind);
+          }
+          else if (ind->type == INDICATOR_POINT) {
+            render_point(ind);
+          }
+          else if (ind->type == INDICATOR_LINE) {
+            render_line(ind);
+          }
+          else if (ind->type == INDICATOR_BODY_LINE) {
+            render_body_line(info, p_info, ind);
           }
         }
       }
@@ -54,9 +49,9 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
       phy_vect pos = phy_body_get_position(info->body);
       phy_vect offset = phy_body_get_center_of_gravity(info->body);
       float angle = phy_body_get_angle(info->body);
-      gfx_texture *tex = utl_vector_at(TEXTURE_LOOKUP, info->tex_id);
+      gfx_texture *tex = get_or_add_texture(info->tex_id);
       tex->angle = angle;
-      gfx_image_no_block(pos.x, pos.y, *tex, offset.x, offset.y, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom);
+      gfx_image_no_block(pos.x, pos.y, *tex, offset.x, offset.y, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
     }
   }
   return 0;
