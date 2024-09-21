@@ -9,6 +9,7 @@
 #include "khg_gfx/texture.h"
 #include "khg_phy/threaded_space.h"
 #include "khg_stm/state_machine.h"
+#include "menus/game_menu_manager.h"
 #include "menus/title_menu.h"
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
@@ -88,6 +89,7 @@ bool gfx_loop(float delta) {
     render_map(GAME_FLOOR_MAP);
     render_map(GAME_BUILDING_MAP);
     ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
+    ecs_update_system(ECS, SPAWNER_SYSTEM.id, delta);
     ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
     ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);
     ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);
@@ -96,6 +98,7 @@ bool gfx_loop(float delta) {
     ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
     ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
+    mangage_game_overlays();
     state.current_div.scrollable = false;
     gfx_pop_style_props();
     return true;

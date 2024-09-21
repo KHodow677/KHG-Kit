@@ -9,11 +9,13 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
+#include "entity/comp_spawner.h"
 #include "entity/entity.h"
 #include "entity/map.h"
 #include "generators/components/map_generator.h"
 #include "generators/components/texture_generator.h"
 #include "khg_stm/state_machine.h"
+#include "menus/game_menu_manager.h"
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
 #include "threading/thread_manager.h"
@@ -32,6 +34,8 @@ utl_vector *GAME_BUILDING_MAP;
 utl_vector *GAME_MAP_SEGMENTS;
 int GAME_MAP_SIZE = 64;
 int GAME_MAP_TILE_SIZE = 128;
+
+bool GAME_OVERLAY_TRACKER[NUM_MENUS] = { 0 };
 
 gfx_texture NO_TEXTURE = { 0 };
 int CURRENT_TEXTURE_ID = 0;
@@ -82,15 +86,7 @@ sys_mover MOVER_SYSTEM = { 0 };
 sys_rotator ROTATOR_SYSTEM = { 0 };
 sys_shooter SHOOTER_SYSTEM = { 0 };
 sys_selector SELECTOR_SYSTEM = { 0 };
-
-comp_physics PHYSICS_COMPONENT_TYPE;
-comp_renderer RENDERER_COMPONENT_TYPE;
-comp_destroyer DESTROYER_COMPONENT_TYPE;
-comp_animator ANIMATOR_COMPONENT_TYPE;
-comp_mover MOVER_COMPONENT_TYPE;
-comp_rotator ROTATOR_COMPONENT_TYPE;
-comp_shooter SHOOTER_COMPONENT_TYPE;
-comp_selector SELECTOR_COMPONENT_TYPE;
+sys_spawner SPAWNER_SYSTEM = { 0 };
 
 void ecs_setup() {
   camera_setup(&CAMERA);
@@ -103,6 +99,7 @@ void ecs_setup() {
   comp_rotator_register(&ROTATOR_COMPONENT_TYPE);
   comp_shooter_register(&SHOOTER_COMPONENT_TYPE);
   comp_selector_register(&SELECTOR_COMPONENT_TYPE);
+  comp_spawner_register(&SPAWNER_COMPONENT_TYPE);
   sys_physics_register(&PHYSICS_SYSTEM);
   sys_renderer_register(&RENDERER_SYSTEM);
   sys_destroyer_register(&DESTROYER_SYSTEM);
@@ -111,6 +108,7 @@ void ecs_setup() {
   sys_rotator_register(&ROTATOR_SYSTEM);
   sys_shooter_register(&SHOOTER_SYSTEM);
   sys_selector_register(&SELECTOR_SYSTEM);
+  sys_spawner_register(&SPAWNER_SYSTEM);
   generate_entity_lookup();
   generate_textures();
 }

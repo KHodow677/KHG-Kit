@@ -7,7 +7,6 @@
 #include "khg_phy/shape.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
-#include <stdio.h>
 
 static void swap_render_info_texture(renderer_info *r_info, ecs_id current_id, int tex_id, int linked_tex_id) {
   r_info->tex_id = tex_id;

@@ -11,11 +11,13 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
+#include "entity/comp_spawner.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/texture.h"
 #include "khg_stm/state_machine.h"
 #include "khg_utl/vector.h"
 #include "khg_thd/thread.h"
+#include "menus/game_menu_manager.h"
 
 extern phy_space *SPACE;
 extern ecs_ecs *ECS;
@@ -27,6 +29,8 @@ extern utl_vector *GAME_BUILDING_MAP;
 extern utl_vector *GAME_MAP_SEGMENTS;
 extern int GAME_MAP_SIZE;
 extern int GAME_MAP_TILE_SIZE;
+
+extern bool GAME_OVERLAY_TRACKER[NUM_MENUS];
 
 extern gfx_texture NO_TEXTURE;
 extern int MAX_TEXTURES;
@@ -52,14 +56,17 @@ extern sys_mover MOVER_SYSTEM;
 extern sys_rotator ROTATOR_SYSTEM;
 extern sys_shooter SHOOTER_SYSTEM;
 extern sys_selector SELECTOR_SYSTEM;
+extern sys_spawner SPAWNER_SYSTEM;
 
-extern comp_physics PHYSICS_COMPONENT_TYPE;
-extern comp_renderer RENDERER_COMPONENT_TYPE;
-extern comp_destroyer DESTROYER_COMPONENT_TYPE;
-extern comp_animator ANIMATOR_COMPONENT_TYPE;
-extern comp_mover MOVER_COMPONENET_TYPE;
-extern comp_rotator ROTATOR_COMPONENT_TYPE;
-extern comp_shooter SHOOTER_COMPONENT_TYPE;
+static comp_physics PHYSICS_COMPONENT_TYPE;
+static comp_renderer RENDERER_COMPONENT_TYPE;
+static comp_destroyer DESTROYER_COMPONENT_TYPE;
+static comp_animator ANIMATOR_COMPONENT_TYPE;
+static comp_mover MOVER_COMPONENT_TYPE;
+static comp_rotator ROTATOR_COMPONENT_TYPE;
+static comp_shooter SHOOTER_COMPONENT_TYPE;
+static comp_selector SELECTOR_COMPONENT_TYPE;
+static comp_spawner SPAWNER_COMPONENT_TYPE;
 
 void ecs_setup();
 void ecs_cleanup();
