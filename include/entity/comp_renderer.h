@@ -12,6 +12,7 @@ typedef struct {
   utl_vector *indicators;
   phy_shape *segments[4];
   int render_layer;
+  ecs_id linked_ent;
 } renderer_info;
 
 typedef struct {

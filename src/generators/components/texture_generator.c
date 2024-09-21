@@ -76,8 +76,8 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PARTICLE_2_2] = (texture_asset){ "particle/p2/02", "png", 80, 80, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PARTICLE_2_3] = (texture_asset){ "particle/p2/03", "png", 80, 80, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PARTICLE_2_4] = (texture_asset){ "particle/p2/04", "png", 80, 80, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[TANK_BODY_OUTLINE] = (texture_asset){ "Tank-Body-Outline", "png", 163, 201, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Outline", "png", 120, 226, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[TANK_BODY_OUTLINE] = (texture_asset){ "Tank-Body-Outline", "png", 165, 204, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Outline", "png", 124, 231, SEGMENT_NONE };
   TEXTURE_ASSET_REF[COMMAND_POINT] = (texture_asset){ "targeting/Point", "png", 56, 56, SEGMENT_NONE };
   TEXTURE_ASSET_REF[COMMAND_LINE] = (texture_asset){ "targeting/Line", "png", 20, 1, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TURRET_BASE] = (texture_asset){ "Turret-Base", "png", 100, 100, SEGMENT_NONE };

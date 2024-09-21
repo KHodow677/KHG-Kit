@@ -5,10 +5,10 @@
 #include "khg_phy/vect.h"
 
 void generate_hangar(hangar *h, float x, float y) {
-  generate_physics_box(&h->physics_info, false, 80, 80, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
-  generate_static_renderer_segments(&h->renderer_info, &h->physics_info, phy_v(x, y), HANGAR, 1);
-  generate_destroyer(&h->destroyer_info);
   h->entity = ecs_create(ECS);
+  generate_physics_box(&h->physics_info, false, 80, 80, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
+  generate_static_renderer_segments(&h->renderer_info, &h->physics_info, phy_v(x, y), HANGAR, 1, h->entity);
+  generate_destroyer(&h->destroyer_info);
   sys_physics_add(&h->entity, &h->physics_info);
   sys_renderer_add(&h->entity, &h->renderer_info);
   sys_destroyer_add(&h->entity, &h->destroyer_info);

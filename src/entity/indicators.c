@@ -23,26 +23,17 @@ void generate_all_indicators(selector_info *info, physics_info *p_info, renderer
       float len = phy_v_dist(*point_pos_1, *point_pos_2);
       generate_indicator(r_info, INDICATOR_LINE, COMMAND_LINE, false, mid, ang, len);
     }
+    generate_indicator(r_info, INDICATOR_BODY_POINT, COMMAND_POINT, true, *first_point_pos, 0.0f, 0.0f);
     for (int i = 0; i < utl_queue_size(m_info->target_pos_queue); i++) {
       phy_vect *point_pos = utl_vector_at(m_info->target_pos_queue->vec, i);
       generate_indicator(r_info, INDICATOR_POINT, COMMAND_POINT, false, *point_pos, 0.0f, 0.0f);
     }
   }
-  generate_indicator(r_info, INDICATOR_OUTLINE, TANK_BODY_OUTLINE, true, phy_v(0.0f, 0.0f), 0.0f, 0.0f);
-  generate_indicator(r_info, INDICATOR_OUTLINE, TANK_TOP_OUTLINE, false, phy_v(0.0f, 0.0f), 0.0f, 0.0f);
 }
 
 void generate_indicator(renderer_info *r_info, indicator_type type, int tex, bool is_target_body, phy_vect pos, float ang, float length) {
   indicator ind = { type, is_target_body, tex, pos, ang, length};
   utl_vector_push_back(r_info->indicators, &ind);
-}
-
-void render_outline(renderer_info *info, physics_info *p_info, indicator *ind) {
-  phy_vect pos = ind->is_target_body ? phy_body_get_position(p_info->target_body) : phy_body_get_position(p_info->body);
-  float angle = ind->is_target_body ? phy_body_get_angle(p_info->target_body) : phy_body_get_angle(p_info->body);
-  gfx_texture *tex = get_or_add_texture(ind->tex_id);
-  tex->angle = angle;
-  gfx_image_no_block(pos.x, pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
 }
 
 void render_point(indicator *ind) {
@@ -57,7 +48,13 @@ void render_line(indicator *ind) {
   gfx_image_no_block(ind->pos.x, ind->pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, false);
 }
 
-void render_body_line(renderer_info *info, physics_info *p_info, indicator *ind) {
+void render_body_point(physics_info *p_info, indicator *ind) {
+  phy_vect pos = ind->is_target_body ? phy_body_get_position(p_info->target_body) : phy_body_get_position(p_info->body);
+  gfx_texture *tex = get_or_add_texture(ind->tex_id);
+  gfx_image_no_block(pos.x, pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
+}
+
+void render_body_line(physics_info *p_info, indicator *ind) {
   phy_vect pos = ind->is_target_body ? phy_body_get_position(p_info->target_body) : phy_body_get_position(p_info->body);
   float ang = normalize_angle(atan2f(pos.y - ind->pos.y, pos.x - ind->pos.x) - M_PI / 2);
   phy_vect mid = phy_v((pos.x + ind->pos.x) * 0.5f, (pos.y + ind->pos.y) * 0.5f);
@@ -67,3 +64,4 @@ void render_body_line(renderer_info *info, physics_info *p_info, indicator *ind)
   tex->height = len;
   gfx_image_no_block(mid.x, mid.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, false);
 }
+

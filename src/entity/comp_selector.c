@@ -4,11 +4,20 @@
 #include "entity/comp_renderer.h"
 #include "entity/indicators.h"
 #include "game_manager.h"
+#include "generators/components/texture_generator.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/shape.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
 #include <stdio.h>
+
+static void swap_render_info_texture(renderer_info *r_info, ecs_id current_id, int tex_id, int linked_tex_id) {
+  r_info->tex_id = tex_id;
+  if (r_info->linked_ent != current_id) {
+    renderer_info *linked_r_info = utl_vector_at(RENDERER_INFO, r_info->linked_ent);
+    linked_r_info->tex_id = linked_tex_id;
+  }
+}
 
 static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   selector_info *info;
@@ -39,10 +48,12 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
           info->selected = true;
           info->just_selected = true;
           generate_all_indicators(info, p_info, r_info, m_info);
+          swap_render_info_texture(r_info, entities[id], TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);
         }
         else {
           info->selected = false;
           utl_vector_clear(r_info->indicators);
+          swap_render_info_texture(r_info, entities[id], TANK_TOP, TANK_BODY);
         }
       }
     }

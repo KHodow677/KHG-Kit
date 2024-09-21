@@ -10,10 +10,10 @@
 #include "khg_utl/vector.h"
 
 void generate_tank_body(tank_body *tb, float x, float y) {
-  generate_physics_box(&tb->physics_info, true, 145.0f, 184.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
-  generate_renderer(&tb->renderer_info, &tb->physics_info, TANK_BODY, 2);
-  generate_destroyer(&tb->destroyer_info);
   tb->entity = ecs_create(ECS);
+  generate_physics_box(&tb->physics_info, true, 145.0f, 184.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
+  generate_renderer(&tb->renderer_info, &tb->physics_info, TANK_BODY, 2, tb->entity);
+  generate_destroyer(&tb->destroyer_info);
   sys_physics_add(&tb->entity, &tb->physics_info);
   sys_renderer_add(&tb->entity, &tb->renderer_info);
   sys_destroyer_add(&tb->entity, &tb->destroyer_info);
