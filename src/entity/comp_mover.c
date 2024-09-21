@@ -22,18 +22,19 @@ mover_info NO_MOVER = { 0 };
 utl_vector *MOVER_INFO = NULL;
 
 static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  mover_info *info;
-  physics_info *body_info;
-  selector_info *s_info;
-  physics_info *p_info;
-  renderer_info *r_info;
   for (int id = 0; id < entity_count; id++) {
-    info = utl_vector_at(MOVER_INFO, entities[id]);
-    body_info = utl_vector_at(PHYSICS_INFO, info->body_entity);
-    s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
-    p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    r_info = utl_vector_at(RENDERER_INFO, entities[id]);
-    if (s_info->selected && !s_info->just_selected) {
+    mover_info *info = utl_vector_at(MOVER_INFO, entities[id]);
+    physics_info *body_info = utl_vector_at(PHYSICS_INFO, info->body_entity);
+    selector_info *s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
+    physics_info *p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+    renderer_info *r_info = utl_vector_at(RENDERER_INFO, entities[id]);
+    if (s_info->selected && s_info->just_selected) {
+      if (info->target_pos_queue == NULL) {
+        printf("hi\n");
+      }
+      generate_all_indicators(s_info, p_info, r_info, info);
+    }
+    else if (s_info->selected && !s_info->just_selected) {
       if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
         phy_vect new_pos = phy_v(MOUSE_STATE.left_mouse_click_controls.x, MOUSE_STATE.left_mouse_click_controls.y);
         utl_queue_push(info->target_pos_queue, &new_pos);

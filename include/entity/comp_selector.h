@@ -6,6 +6,10 @@
 typedef struct {
   bool selected;
   bool just_selected;
+  int tex_id;
+  int linked_tex_id;
+  int selected_tex_id;
+  int selected_linked_tex_id;
 } selector_info;
 
 typedef struct {
