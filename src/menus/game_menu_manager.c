@@ -1,10 +1,12 @@
 #include "menus/game_menu_manager.h"
 #include "game_manager.h"
-#include <stdio.h>
+#include "menus/spawn_menu.h"
 
-void mangage_game_overlays() {
-  if (GAME_OVERLAY_TRACKER[SPAWN_MENU]) {
-    printf("Spawn Menu\n");
+bool mangage_game_overlays() {
+  bool res = true;
+  if (GAME_OVERLAY_TRACKER[SPAWN_MENU] == true) {
+    res = res && render_spawn_menu();
   }
+  return res;
 }
 

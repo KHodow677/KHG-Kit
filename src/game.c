@@ -51,7 +51,6 @@ int game_run() {
   log_info();
   setup_worker_threads();
   stm_init(&SCENE_FSM, &TITLE_SCENE, &SANDBOX_SCENE);
-  printf("Current Scene: %s\n", (char *)stm_current_state(&SCENE_FSM)->data);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
   LARGE_FONT = gfx_load_font_asset("Rubik", "ttf", 48);
   MEDIUM_FONT = gfx_load_font_asset("Rubik", "ttf", 32);
@@ -59,6 +58,9 @@ int game_run() {
   load_map("Map-Floor", &GAME_FLOOR_MAP);
   load_map("Map-Building", &GAME_BUILDING_MAP);
   add_map_collision_segments(GAME_BUILDING_MAP, &GAME_MAP_SEGMENTS);
+  for (int i = 0; i < NUM_MENUS; i++) {
+    GAME_OVERLAY_TRACKER[i] = false;
+  }
   spawn_tank(600, 300);
   spawn_tank(300, 300);
   spawn_turret(3232, 3616);
@@ -81,8 +83,6 @@ bool gfx_loop(float delta) {
   }
   else {
     gfx_clear_style_props();
-    gfx_element_props game_props = gfx_get_theme().image_props;
-    gfx_push_style_props(game_props);
     update_mouse_controls(&MOUSE_STATE);
     update_key_controls(&KEYBOARD_STATE);
     move_camera(&CAMERA, delta);
@@ -98,9 +98,8 @@ bool gfx_loop(float delta) {
     ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
     ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
-    mangage_game_overlays();
+    bool res = mangage_game_overlays();
     state.current_div.scrollable = false;
-    gfx_pop_style_props();
-    return true;
+    return res;
   }
 }

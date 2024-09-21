@@ -1,9 +1,11 @@
 #pragma once
 
+#include <stdbool.h>
+
 typedef enum {
   SPAWN_MENU,
   NUM_MENUS
 } game_overlay_types;
 
-void mangage_game_overlays();
+bool mangage_game_overlays();
 
