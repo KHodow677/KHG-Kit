@@ -38,21 +38,21 @@ void generate_textures() {
   for (int i = 0; i < NUM_TEXTURES; i++) {
     utl_vector_push_back(TEXTURE_LOOKUP, &NO_TEXTURE);
   }
-  TEXTURE_ASSET_REF[GRASS_0] = (texture_asset){ "environment/Grass1", "png", 264, 264, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[GRASS_1] = (texture_asset){ "environment/Grass2", "png", 264, 264, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[BUILDING_0] = (texture_asset){ "environment/Building00", "png", 264, 264, SEGMENT_TOP_LEFT };
-  TEXTURE_ASSET_REF[BUILDING_1] = (texture_asset){ "environment/Building01", "png", 264, 264, SEGMENT_TOP };
-  TEXTURE_ASSET_REF[BUILDING_2] = (texture_asset){ "environment/Building02", "png", 264, 264, SEGMENT_TOP_RIGHT };
-  TEXTURE_ASSET_REF[BUILDING_3] = (texture_asset){ "environment/Building03", "png", 264, 264, SEGMENT_LEFT };
-  TEXTURE_ASSET_REF[BUILDING_4] = (texture_asset){ "environment/Building04", "png", 264, 264, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[BUILDING_5] = (texture_asset){ "environment/Building05", "png", 264, 264, SEGMENT_RIGHT };
-  TEXTURE_ASSET_REF[BUILDING_6] = (texture_asset){ "environment/Building06", "png", 264, 264, SEGMENT_BOTTOM_LEFT };
-  TEXTURE_ASSET_REF[BUILDING_7] = (texture_asset){ "environment/Building07", "png", 264, 264, SEGMENT_BOTTOM };
-  TEXTURE_ASSET_REF[BUILDING_8] = (texture_asset){ "environment/Building08", "png", 264, 264, SEGMENT_BOTTOM_RIGHT };
-  TEXTURE_ASSET_REF[BUILDING_9] = (texture_asset){ "environment/Building09", "png", 264, 264, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[BUILDING_10] = (texture_asset){ "environment/Building10", "png", 264, 264, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[BUILDING_11] = (texture_asset){ "environment/Building11", "png", 264, 264, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[BUILDING_12] = (texture_asset){ "environment/Building12", "png", 264, 264, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[GRASS_0] = (texture_asset){ "environment/Grass00", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[GRASS_1] = (texture_asset){ "environment/Grass01", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[BUILDING_0] = (texture_asset){ "environment/Building00", "png", 136, 136, SEGMENT_TOP_LEFT };
+  TEXTURE_ASSET_REF[BUILDING_1] = (texture_asset){ "environment/Building01", "png", 136, 136, SEGMENT_TOP };
+  TEXTURE_ASSET_REF[BUILDING_2] = (texture_asset){ "environment/Building02", "png", 136, 136, SEGMENT_TOP_RIGHT };
+  TEXTURE_ASSET_REF[BUILDING_3] = (texture_asset){ "environment/Building03", "png", 136, 136, SEGMENT_LEFT };
+  TEXTURE_ASSET_REF[BUILDING_4] = (texture_asset){ "environment/Building04", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[BUILDING_5] = (texture_asset){ "environment/Building05", "png", 136, 136, SEGMENT_RIGHT };
+  TEXTURE_ASSET_REF[BUILDING_6] = (texture_asset){ "environment/Building06", "png", 136, 136, SEGMENT_BOTTOM_LEFT };
+  TEXTURE_ASSET_REF[BUILDING_7] = (texture_asset){ "environment/Building07", "png", 136, 136, SEGMENT_BOTTOM };
+  TEXTURE_ASSET_REF[BUILDING_8] = (texture_asset){ "environment/Building08", "png", 136, 136, SEGMENT_BOTTOM_RIGHT };
+  TEXTURE_ASSET_REF[BUILDING_9] = (texture_asset){ "environment/Building09", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[BUILDING_10] = (texture_asset){ "environment/Building10", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[BUILDING_11] = (texture_asset){ "environment/Building11", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[BUILDING_12] = (texture_asset){ "environment/Building12", "png", 136, 136, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TANK_BODY] = (texture_asset){ "Tank-Body-Blue", "png", 145, 184, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TANK_TOP] = (texture_asset){ "Tank-Top-Blue", "png", 104, 211, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PARTICLE_1_0] = (texture_asset){ "particle/p1/00", "png", 107, 100, SEGMENT_NONE };

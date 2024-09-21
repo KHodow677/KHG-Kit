@@ -30,8 +30,8 @@ thd_thread *WORKER_THREADS;
 utl_vector *GAME_FLOOR_MAP;
 utl_vector *GAME_BUILDING_MAP;
 utl_vector *GAME_MAP_SEGMENTS;
-int GAME_MAP_SIZE = 32;
-int GAME_MAP_TILE_SIZE = 256;
+int GAME_MAP_SIZE = 64;
+int GAME_MAP_TILE_SIZE = 128;
 
 gfx_texture NO_TEXTURE = { 0 };
 int CURRENT_TEXTURE_ID = 0;
