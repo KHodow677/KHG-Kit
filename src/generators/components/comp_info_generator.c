@@ -7,7 +7,10 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
 #include "entity/indicators.h"
+#include "entity/map.h"
 #include "game_manager.h"
+#include "generators/components/texture_generator.h"
+#include "physics/physics_setup.h"
 #include "khg_phy/body.h"
 #include "khg_phy/constraint.h"
 #include "khg_phy/phy.h"
@@ -19,6 +22,7 @@
 #include "khg_phy/vect.h"
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
+#include <stdio.h>
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = phy_moment_for_box(mass, width, height);
@@ -96,10 +100,42 @@ void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, in
   info->body = p_info->body;
   info->render_layer = render_layer;
   info->indicators = utl_vector_create(sizeof(indicator));
+  for (int i = 0; i < RENDERER_SEGMENTS; i++) {
+    info->segments[i] = NULL;
+  }
+}
+
+void generate_static_renderer_segments(renderer_info *info, physics_info *p_info, phy_vect pos, int tex_id, int render_layer) {
+  info->tex_id = tex_id;
+  info->body = p_info->body;
+  info->render_layer = render_layer;
+  info->indicators = utl_vector_create(sizeof(indicator));
+  for (int i = 0; i < RENDERER_SEGMENTS; i++) {
+    info->segments[i] = NULL;
+  }
+  texture_asset ta = TEXTURE_ASSET_REF[info->tex_id];
+  if (ta.collision_direction == SEGMENT_BOTTOM_LEFT_RIGHT) {
+    float half_width = ta.tex_width * 0.5f;
+    float half_height = ta.tex_height * 0.5f;
+    phy_vect top_left = phy_v(pos.x - half_width, pos.y - half_height);
+    phy_vect top_right = phy_v(pos.x + half_width, pos.y - half_height);
+    phy_vect bottom_left = phy_v(pos.x - half_width, pos.y + half_height);
+    phy_vect bottom_right = phy_v(pos.x + half_width, pos.y + half_height);
+    info->segments[0] = physics_add_static_segment_shape(SPACE, top_left, bottom_left);
+    info->segments[1] = physics_add_static_segment_shape(SPACE, top_right, bottom_right);
+    info->segments[2] = physics_add_static_segment_shape(SPACE, bottom_left, bottom_right);
+    info->segments[3] = physics_add_static_segment_shape(SPACE, top_left, top_right);
+  }
 }
 
 void free_renderer(renderer_info *info) {
   utl_vector_deallocate(info->indicators);
+  for (int i = 0; i < RENDERER_SEGMENTS; i++) {
+    if (info->segments[i] == NULL) {
+      continue;
+    }
+    physics_remove_static_segment_shape(SPACE, info->segments[i]);
+  }
 }
 
 void generate_destroyer(destroyer_info *info) {

@@ -11,8 +11,12 @@ static bool generic_entity_is_tank(generic_entity *entity) {
   return entity->type == ENTITY_TYPE_TANK;
 }
 
-static bool generic_entity_is_tank_outline(generic_entity *entity) {
-  return entity->type == ENTITY_TYPE_TANK;
+static bool generic_entity_is_turret(generic_entity *entity) {
+  return entity->type == ENTITY_TYPE_TURRET;
+}
+
+static bool generic_entity_is_hangar(generic_entity *entity) {
+  return entity->type == ENTITY_TYPE_HANGAR;
 }
 
 void free_entity(generic_entity *ge) {
@@ -21,6 +25,12 @@ void free_entity(generic_entity *ge) {
   }
   else if (generic_entity_is_tank(ge)) {
     free_tank(&ge->tank);
+  }
+  else if (generic_entity_is_turret(ge)) {
+    free_turret(&ge->turret);
+  }
+  else if (generic_entity_is_hangar(ge)) {
+    free_hangar(&ge->hangar);
   }
   free(ge);
 }

@@ -12,6 +12,7 @@
 #include "menus/title_menu.h"
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
+#include "spawners/spawn_hangar.h"
 #include "spawners/spawn_tank.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
@@ -61,6 +62,7 @@ int game_run() {
   spawn_tank(300, 300);
   spawn_turret(3104, 3360);
   spawn_turret(3360, 3104);
+  spawn_hangar(0, 0);
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   return res;

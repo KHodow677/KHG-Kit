@@ -47,6 +47,7 @@ typedef enum {
   COMMAND_LINE,
   TURRET_BASE,
   TURRET_TOP,
+  HANGAR,
   NUM_TEXTURES
 } TEXTURE_ID;
 

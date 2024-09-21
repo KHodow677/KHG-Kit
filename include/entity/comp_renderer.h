@@ -4,10 +4,13 @@
 #include "khg_phy/phy_types.h"
 #include "khg_utl/vector.h"
 
+static int RENDERER_SEGMENTS = 4;
+
 typedef struct {
   int tex_id;
   phy_body *body;
   utl_vector *indicators;
+  phy_shape *segments[4];
   int render_layer;
 } renderer_info;
 
