@@ -22,6 +22,7 @@
 #include "khg_phy/vect.h"
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
+#include <math.h>
 #include <stdio.h>
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
@@ -106,7 +107,7 @@ void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, in
   }
 }
 
-void generate_static_renderer_segments(renderer_info *info, physics_info *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent) {
+void generate_static_renderer_segments(renderer_info *info, physics_info *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle) {
   info->tex_id = tex_id;
   info->body = p_info->body;
   info->render_layer = render_layer;
@@ -119,14 +120,14 @@ void generate_static_renderer_segments(renderer_info *info, physics_info *p_info
   if (ta.collision_direction == SEGMENT_BOTTOM_LEFT_RIGHT) {
     float half_width = ta.tex_width * 0.5f;
     float half_height = ta.tex_height * 0.5f;
-    phy_vect top_left = phy_v(pos.x - half_width, pos.y - half_height);
-    phy_vect top_right = phy_v(pos.x + half_width, pos.y - half_height);
-    phy_vect bottom_left = phy_v(pos.x - half_width, pos.y + half_height);
-    phy_vect bottom_right = phy_v(pos.x + half_width, pos.y + half_height);
+    float radius = sqrtf(half_width * half_width + half_height * half_height);
+    phy_vect top_left = phy_v(pos.x + radius * cosf(angle + atan2f(-half_height, -half_width)), pos.y + radius * sinf(angle + atan2f(-half_height, -half_width)));
+    phy_vect top_right = phy_v(pos.x + radius * cosf(angle + atan2f(-half_height, half_width)), pos.y + radius * sinf(angle + atan2f(-half_height, half_width)));
+    phy_vect bottom_left = phy_v(pos.x + radius * cosf(angle +atan2f(half_height, -half_width)), pos.y + radius * sinf(angle + atan2f(half_height, -half_width)));
+    phy_vect bottom_right = phy_v(pos.x + radius * cosf(angle + atan2f(half_height, half_width)), pos.y + radius * sinf(angle + atan2f(half_height, half_width)));
     info->segments[0] = physics_add_static_segment_shape(SPACE, top_left, bottom_left);
     info->segments[1] = physics_add_static_segment_shape(SPACE, top_right, bottom_right);
     info->segments[2] = physics_add_static_segment_shape(SPACE, bottom_left, bottom_right);
-    info->segments[3] = physics_add_static_segment_shape(SPACE, top_left, top_right);
   }
 }
 

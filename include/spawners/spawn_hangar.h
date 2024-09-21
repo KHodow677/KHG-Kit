@@ -1,4 +1,4 @@
 #pragma once
 
-void spawn_hangar(float x, float y);
+void spawn_hangar(float x, float y, float angle);
 

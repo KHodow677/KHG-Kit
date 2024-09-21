@@ -13,7 +13,7 @@ void generate_static_physics_circle(physics_info *info, bool collides, float rad
 void free_physics(physics_info *info, bool has_constraint);
 
 void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, int render_layer, ecs_id linked_ent);
-void generate_static_renderer_segments(renderer_info *info, physics_info *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent);
+void generate_static_renderer_segments(renderer_info *info, physics_info *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle);
 void free_renderer(renderer_info *info);
 
 void generate_destroyer(destroyer_info *info);

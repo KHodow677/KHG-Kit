@@ -62,7 +62,7 @@ int game_run() {
   spawn_tank(300, 300);
   spawn_turret(3104, 3360);
   spawn_turret(3360, 3104);
-  spawn_hangar(0, 0);
+  spawn_hangar(2920, 3584, -0.5f * M_PI);
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   return res;

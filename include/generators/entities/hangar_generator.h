@@ -12,6 +12,6 @@ typedef struct {
   destroyer_info destroyer_info;
 } hangar;
 
-void generate_hangar(hangar *h, float x, float y);
+void generate_hangar(hangar *h, float x, float y, float angle);
 void free_hangar(hangar *h);
 
