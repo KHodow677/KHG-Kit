@@ -15,19 +15,19 @@
 #include "scenes/scene_utl.h"
 #include "spawners/spawn_hangar.h"
 #include "spawners/spawn_tank.h"
+#include "spawners/spawn_turret.h"
+#include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
-#include "spawners/spawn_turret.h"
-#include "threading/thread_manager.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-void log_info() {
+static void log_sys_info() {
   printf("OS: %s\n", OS_NAME);
   const GLubyte* vendor = glGetString(GL_VENDOR);
   const GLubyte* version = glGetString(GL_VERSION);
@@ -47,8 +47,8 @@ int game_run() {
     return -1;
   }
   glfwMakeContextCurrent(window);
-  gfx_init_glfw(800, 600, window);
-  log_info();
+  gfx_init_glfw(1280, 720, window);
+  log_sys_info();
   setup_worker_threads();
   stm_init(&SCENE_FSM, &TITLE_SCENE, &SANDBOX_SCENE);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));

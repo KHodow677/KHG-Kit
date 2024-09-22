@@ -53,7 +53,9 @@ void generate_textures() {
   TEXTURE_ASSET_REF[BUILDING_10] = (texture_asset){ "environment/Building10", "png", 136, 136, SEGMENT_NONE };
   TEXTURE_ASSET_REF[BUILDING_11] = (texture_asset){ "environment/Building11", "png", 136, 136, SEGMENT_NONE };
   TEXTURE_ASSET_REF[BUILDING_12] = (texture_asset){ "environment/Building12", "png", 136, 136, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[HANGAR_ICON] = (texture_asset){ "icons/Hangar-Icon", "png", 128, 128, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[HANGAR_ICON_BIG] = (texture_asset){ "icons/Hangar-Icon-Big", "png", 128, 128, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[TANK_BODY_ICON_SMALL] = (texture_asset){ "icons/Tank-Body-Icon-Small", "png", 64, 64, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[TANK_TOP_ICON_SMALL] = (texture_asset){ "icons/Tank-Top-Icon-Small", "png", 64, 64, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TANK_BODY] = (texture_asset){ "Tank-Body-Blue", "png", 145, 184, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TANK_TOP] = (texture_asset){ "Tank-Top-Blue", "png", 104, 211, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PARTICLE_1_0] = (texture_asset){ "particle/p1/00", "png", 107, 100, SEGMENT_NONE };
