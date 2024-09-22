@@ -30,7 +30,6 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   sys_rotator_add(&tt->entity, &tt->rotator_info);
   sys_shooter_add(&tt->entity, &tt->shooter_info);
   sys_selector_add(&tt->entity, &tt->selector_info);
-  printf("%f, %f\n", tt->rotator_info.target_look_pos.x , tt->rotator_info.target_look_pos.y);
 }
 
 void free_tank_top(tank_top *tt) {
