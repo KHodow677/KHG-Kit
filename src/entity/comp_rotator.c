@@ -4,8 +4,9 @@
 #include "entity/comp_physics.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
+#include "khg_phy/body.h"
 #include "khg_phy/vect.h"
-#include <stdio.h>
+#include <math.h>
 
 ecs_id ROTATOR_COMPONENT_SIGNATURE;
 rotator_info NO_ROTATOR = { 0 };
@@ -40,7 +41,13 @@ ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs
       info->target_look_pos = MOUSE_STATE.right_mouse_click_controls;
       p_info->is_locked_on = false;
     }
-    element_lock_on_position(p_info, info->target_look_pos, 16.0f);
+    if (info->target_look_pos.x == INFINITY) {
+      info->target_look_pos = phy_v(INFINITY, INFINITY);
+      element_lock_on_position(p_info, phy_body_get_position(p_info->body), 16.0f);
+    }
+    else {
+      element_lock_on_position(p_info, info->target_look_pos, 16.0f);
+    }
   }
   return 0;
 }

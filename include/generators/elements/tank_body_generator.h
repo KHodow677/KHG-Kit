@@ -12,6 +12,6 @@ typedef struct {
   destroyer_info destroyer_info;
 } tank_body;
 
-void generate_tank_body(tank_body *tb, float x, float y);
+void generate_tank_body(tank_body *tb, float x, float y, float angle);
 void free_tank_body(tank_body *tb);
 

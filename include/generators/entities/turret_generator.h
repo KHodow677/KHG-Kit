@@ -10,6 +10,6 @@ typedef struct {
   turret_top top;
 } turret;
 
-void generate_turret(turret *t, float x, float y);
+void generate_turret(turret *t, float x, float y, float angle);
 void free_turret(turret *t);
 

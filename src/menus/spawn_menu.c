@@ -162,11 +162,7 @@ bool render_spawn_menu() {
     physics_info *p_info = utl_vector_at(PHYSICS_INFO, SPAWN_SETTINGS.spawner_id);
     phy_vect pos = phy_body_get_position(p_info->body);
     float ang = phy_body_get_angle(p_info->body);
-    generic_entity *ge = spawn_tank(pos.x, pos.y);
-    phy_body *top_body = ge->tank.top.physics_info.body;
-    phy_body *body_body = ge->tank.body.physics_info.body;
-    phy_body_set_angle(top_body, ang);
-    phy_body_set_angle(body_body, ang);
+    generic_entity *ge = spawn_tank(pos.x, pos.y, ang);
   }
   gfx_div_end();
   gfx_pop_style_props();

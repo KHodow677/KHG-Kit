@@ -21,5 +21,5 @@ typedef struct {
   selector_info selector_info;
 } tank_top;
 
-void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y);
+void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angle);
 void free_tank_top(tank_top *tt);

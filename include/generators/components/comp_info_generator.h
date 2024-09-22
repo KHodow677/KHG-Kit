@@ -24,7 +24,7 @@ void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, floa
 void generate_mover(mover_info *info, ecs_id entity);
 void free_mover(mover_info *info);
 
-void generate_rotator(rotator_info *info, physics_info *p_info);
+void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang);
 
 void generate_shooter(shooter_info *info, float barrel_length);
 

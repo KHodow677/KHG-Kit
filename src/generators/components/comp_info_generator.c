@@ -1,4 +1,5 @@
 #include "generators/components/comp_info_generator.h"
+#include "data_utl/kinematic_utl.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_mover.h"
@@ -64,9 +65,7 @@ void generate_physics_pivot(physics_info *info, physics_info *p_info, bool colli
   info->move_enabled = false; 
   info->rotate_enabled = true; 
   info->target_body = p_info->body;
-  if (p_info->shape) {
-    info->target_shape = p_info->shape;
-  }
+  info->target_shape = p_info->shape;
   info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_body_get_center_of_gravity(p_info->body), phy_body_get_center_of_gravity(info->body)));
 }
 
@@ -87,6 +86,8 @@ void generate_static_physics_circle(physics_info *info, bool collides, float rad
   info->target_ang_vel = 0.0f;
   info->move_enabled = true;
   info->rotate_enabled = true;
+  info->target_body = info->body;
+  info->target_shape = info->shape;
 }
 
 void generate_static_physics_box(physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog) {
@@ -187,11 +188,10 @@ void free_mover(mover_info *info) {
   utl_queue_deallocate(info->target_pos_queue);
 }
 
-void generate_rotator(rotator_info *info, physics_info *p_info) {
+void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang) {
   info->body = p_info->body;
   info->target_move_pos = phy_body_get_position(info->body);
-  info->target_look_pos = phy_body_get_position(info->body);
-  /*info->target_look_pos = phy_v_add(info->target_move_pos, phy_v(0.0f, -50.0f));*/
+  info->target_look_pos = phy_v(INFINITY, INFINITY);
 }
 
 void generate_shooter(shooter_info *info, float barrel_length) {

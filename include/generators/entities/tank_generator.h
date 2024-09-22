@@ -10,5 +10,5 @@ typedef struct {
   tank_top top;
 } tank;
 
-void generate_tank(tank *t, float x, float y);
+void generate_tank(tank *t, float x, float y, float angle);
 void free_tank(tank *t);

@@ -3,9 +3,9 @@
 #include "generators/elements/turret_top_generator.h"
 #include "generators/components/comp_info_generator.h"
 
-void generate_turret(turret *t, float x, float y) {
-  generate_turret_base(&t->base, x, y);
-  generate_turret_top(&t->top, &t->base, x, y);
+void generate_turret(turret *t, float x, float y, float angle) {
+  generate_turret_base(&t->base, x, y, angle);
+  generate_turret_top(&t->top, &t->base, x, y, angle);
   t->entity = t->base.entity;
 }
 

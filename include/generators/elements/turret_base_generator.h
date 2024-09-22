@@ -12,6 +12,6 @@ typedef struct {
   destroyer_info destroyer_info;
 } turret_base;
 
-void generate_turret_base(turret_base *tb, float x, float y);
+void generate_turret_base(turret_base *tb, float x, float y, float angle);
 void free_turret_base(turret_base *tb);
 

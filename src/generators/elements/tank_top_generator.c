@@ -9,15 +9,18 @@
 #include "generators/components/texture_generator.h"
 #include "generators/elements/tank_body_generator.h"
 #include "khg_ecs/ecs.h"
+#include "khg_phy/body.h"
 #include "khg_phy/vect.h"
+#include <stdio.h>
 
-void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y) {
+void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angle) {
   tt->entity = ecs_create(ECS);
   generate_physics_pivot(&tt->physics_info, &tb->physics_info, false, 102.0f, 209.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 55.5f));
+  phy_body_set_angle(tt->physics_info.body, angle);
   generate_renderer(&tt->renderer_info, &tt->physics_info, TANK_TOP, 2, tb->entity);
   generate_destroyer(&tt->destroyer_info);
   generate_mover(&tt->mover_info, tb->entity);
-  generate_rotator(&tt->rotator_info, &tt->physics_info);
+  generate_rotator(&tt->rotator_info, &tt->physics_info, angle);
   generate_shooter(&tt->shooter_info, 145.0f);
   generate_selector(&tt->selector_info, TANK_TOP, TANK_BODY, TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);
   sys_physics_add(&tt->entity, &tt->physics_info);
@@ -27,6 +30,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y) {
   sys_rotator_add(&tt->entity, &tt->rotator_info);
   sys_shooter_add(&tt->entity, &tt->shooter_info);
   sys_selector_add(&tt->entity, &tt->selector_info);
+  printf("%f, %f\n", tt->rotator_info.target_look_pos.x , tt->rotator_info.target_look_pos.y);
 }
 
 void free_tank_top(tank_top *tt) {

@@ -19,6 +19,6 @@ typedef struct {
   selector_info selector_info;
 } turret_top;
 
-void generate_turret_top(turret_top *tt, turret_base *tb, float x, float y);
+void generate_turret_top(turret_top *tt, turret_base *tb, float x, float y, float angle);
 void free_turret_top(turret_top *tt);
 

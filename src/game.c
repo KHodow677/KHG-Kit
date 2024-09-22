@@ -14,7 +14,6 @@
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
 #include "spawners/spawn_hangar.h"
-#include "spawners/spawn_tank.h"
 #include "spawners/spawn_turret.h"
 #include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
@@ -61,10 +60,8 @@ int game_run() {
   for (int i = 0; i < NUM_MENUS; i++) {
     GAME_OVERLAY_TRACKER[i] = false;
   }
-  spawn_tank(600, 300);
-  spawn_tank(300, 300);
-  /*spawn_turret(3232, 3616);*/
-  /*spawn_turret(3616, 3360);*/
+  spawn_turret(3232, 3616, -M_PI * 0.25f);
+  spawn_turret(3616, 3360, -M_PI * 0.25f);
   spawn_hangar(3048, 3808, -0.5f * M_PI);
   spawn_hangar(3808, 3176, 0.0f);
   int res = gfx_loop_manager(window, false);
