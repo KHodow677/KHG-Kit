@@ -2,14 +2,14 @@
 #include "game_manager.h"
 #include "entity/entity.h"
 #include "generators/entities/turret_generator.h"
-#include <stdlib.h>
 
 generic_entity *spawn_turret(float x, float y) {
-  generic_entity *ge = malloc(sizeof(generic_entity));
-  ge->type = ENTITY_TYPE_TURRET;
-  ge->turret = (turret){ 0 };
-  generate_turret(&ge->turret, x, y);
+  generic_entity ge;
   utl_vector_push_back(ENTITY_LOOKUP, &ge);
-  return ge;
+  generic_entity *stored_ge = utl_vector_back(ENTITY_LOOKUP);
+  stored_ge->type = ENTITY_TYPE_TURRET;
+  stored_ge->turret = (turret){ 0 };
+  generate_turret(&stored_ge->turret, x, y);
+  return stored_ge;
 }
 

@@ -21,6 +21,18 @@ void element_destroy(ecs_id eid) {
         free(ge);
         break; 
       }
+      else if (ge->turret.entity == eid) {
+        utl_vector_erase(ENTITY_LOOKUP, i, 1);
+        free_turret(&ge->turret);
+        free(ge);
+        break; 
+      }
+      else if (ge->hangar.entity == eid) {
+        utl_vector_erase(ENTITY_LOOKUP, i, 1);
+        free_hangar(&ge->hangar);
+        free(ge);
+        break; 
+      }
     }
   }
   ecs_queue_destroy(ECS, eid);

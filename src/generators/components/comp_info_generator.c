@@ -115,10 +115,8 @@ void free_physics(physics_info *info, bool has_constraint) {
     phy_space_remove_constraint(SPACE, info->pivot);
     phy_constraint_free(info->pivot);
   }
-  if (info->shape) {
-    phy_space_remove_shape(SPACE, info->shape);
-    phy_shape_free(info->shape);
-  }
+  phy_space_remove_shape(SPACE, info->shape);
+  phy_shape_free(info->shape);
   phy_space_remove_body(SPACE, info->body);
   phy_body_free(info->body);
 }

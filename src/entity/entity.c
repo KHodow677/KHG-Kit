@@ -1,7 +1,6 @@
 #include "entity/entity.h"
 #include "game_manager.h"
 #include "khg_utl/vector.h"
-#include <stdlib.h>
 
 static bool generic_entity_is_particle(generic_entity *entity) {
   return entity->type == ENTITY_TYPE_PARTICLE;
@@ -32,16 +31,15 @@ void free_entity(generic_entity *ge) {
   else if (generic_entity_is_hangar(ge)) {
     free_hangar(&ge->hangar);
   }
-  free(ge);
 }
 
 void generate_entity_lookup() {
-  ENTITY_LOOKUP = utl_vector_create(sizeof(generic_entity *));
+  ENTITY_LOOKUP = utl_vector_create(sizeof(generic_entity));
 }
 
 void free_entity_lookup() {
   for (int i = 0; i < utl_vector_size(ENTITY_LOOKUP); i++) {
-    free_entity(*(generic_entity **)(utl_vector_at(ENTITY_LOOKUP, i)));
+    free_entity((generic_entity *)(utl_vector_at(ENTITY_LOOKUP, i)));
   }
   utl_vector_deallocate(ENTITY_LOOKUP);
 }

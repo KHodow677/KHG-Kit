@@ -2,14 +2,15 @@
 #include "entity/entity.h"
 #include "game_manager.h"
 #include "generators/entities/hangar_generator.h"
-#include <stdlib.h>
 
 generic_entity *spawn_hangar(float x, float y, float angle) {
-  generic_entity *ge = malloc(sizeof(generic_entity));
-  ge->type = ENTITY_TYPE_HANGAR;
-  ge->hangar = (hangar){ 0 };
-  generate_hangar(&ge->hangar, x, y, angle);
+  generic_entity ge;
   utl_vector_push_back(ENTITY_LOOKUP, &ge);
-  return ge;
+  generic_entity *stored_ge = utl_vector_back(ENTITY_LOOKUP);
+  stored_ge->type = ENTITY_TYPE_HANGAR;
+  stored_ge->hangar = (hangar){ 0 };
+  generate_hangar(&stored_ge->hangar, x, y, angle);
+  utl_vector_push_back(ENTITY_LOOKUP, &ge);
+  return stored_ge;
 }
 
