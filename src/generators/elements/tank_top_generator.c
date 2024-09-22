@@ -2,6 +2,7 @@
 #include "entity/comp_destroyer.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
+#include "entity/comp_rotator.h"
 #include "entity/comp_shooter.h"
 #include "game_manager.h"
 #include "generators/components/comp_info_generator.h"
@@ -36,7 +37,7 @@ void free_tank_top(tank_top *tt) {
   utl_vector_assign(RENDERER_INFO, tt->entity, &NO_RENDERER);
   utl_vector_assign(DESTROYER_INFO, tt->entity, &NO_DESTROYER);
   utl_vector_assign(MOVER_INFO, tt->entity, &NO_MOVER);
-  utl_map_erase(ROTATOR_INFO_MAP, &tt->entity);
+  utl_vector_assign(ROTATOR_INFO, tt->entity, &NO_ROTATOR);
   utl_vector_assign(SHOOTER_INFO, tt->entity, &NO_SHOOTER);
   utl_vector_assign(SELECTOR_INFO, tt->entity, &NO_SELECTOR);
 }

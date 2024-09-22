@@ -2,7 +2,7 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy_types.h"
-#include "khg_utl/map.h"
+#include "khg_utl/vector.h"
 
 typedef struct {
   phy_body *body;
@@ -20,7 +20,8 @@ typedef struct {
 } sys_rotator;
 
 extern ecs_id ROTATOR_COMPONENT_SIGNATURE;
-extern utl_map *ROTATOR_INFO_MAP;
+extern rotator_info NO_ROTATOR;
+extern utl_vector *ROTATOR_INFO;
 
 void comp_rotator_register(comp_rotator *cr);
 

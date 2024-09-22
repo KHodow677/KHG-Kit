@@ -31,9 +31,8 @@ void sys_destroyer_add(ecs_id *eid, destroyer_info *info) {
 }
 
 ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  destroyer_info *info;
   for (int id = 0; id < entity_count; id++) {
-    info = utl_vector_at(DESTROYER_INFO, entities[id]);
+    destroyer_info *info = utl_vector_at(DESTROYER_INFO, entities[id]);
     if (info->destroy_now) {
       element_destroy(entities[id]);
     }

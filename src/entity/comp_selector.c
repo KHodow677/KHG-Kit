@@ -8,6 +8,10 @@
 #include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
 
+ecs_id SELECTOR_COMPONENT_SIGNATURE;
+selector_info NO_SELECTOR = { 0 };
+utl_vector *SELECTOR_INFO = NULL;
+
 static void swap_render_info_texture(renderer_info *r_info, ecs_id current_id, int tex_id, int linked_tex_id) {
   r_info->tex_id = tex_id;
   if (r_info->linked_ent != current_id) {
@@ -51,10 +55,6 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
   }
   return 0;
 }
-
-ecs_id SELECTOR_COMPONENT_SIGNATURE;
-selector_info NO_SELECTOR = { 0 };
-utl_vector *SELECTOR_INFO = NULL;
 
 void comp_selector_register(comp_selector *cs) {
   cs->id = ecs_register_component(ECS, sizeof(comp_selector), NULL, NULL);

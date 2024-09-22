@@ -45,13 +45,10 @@ void sys_shooter_add(ecs_id *eid, shooter_info *info) {
 }
 
 ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  shooter_info *info;
-  rotator_info *r_info;
-  physics_info *p_info;
   for (int id = 0; id < entity_count; id++) {
-    info = utl_vector_at(SHOOTER_INFO, entities[id]);
-    p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    r_info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
+    shooter_info *info = utl_vector_at(SHOOTER_INFO, entities[id]);
+    physics_info *p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+    rotator_info *r_info = utl_vector_at(ROTATOR_INFO, entities[id]);
     if (KEYBOARD_STATE.space_key_went_down && element_is_targeting_position(p_info, r_info->target_look_pos, 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 0.16f;
       phy_vect pos = phy_body_get_position(p_info->body);

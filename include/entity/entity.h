@@ -21,7 +21,7 @@ typedef struct {
   };
 } generic_entity;
 
-void free_entity(generic_entity *ge);
+bool free_entity(generic_entity *ge, bool check_id, ecs_id id);
 void generate_entity_lookup(void);
 void free_entity_lookup(void);
 

@@ -1,10 +1,14 @@
 #include "menus/spawn_menu.h"
+#include "entity/comp_physics.h"
+#include "entity/entity.h"
 #include "game_manager.h"
 #include "generators/components/texture_generator.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/ui.h"
+#include "khg_phy/body.h"
+#include "khg_utl/vector.h"
+#include "spawners/spawn_tank.h"
 #include <stdint.h>
-#include <stdio.h>
 
 spawn_menu_info SPAWN_SETTINGS = { 0 };
 
@@ -155,6 +159,14 @@ bool render_spawn_menu() {
   render_body_text(width, height, "Select Hull", 350.0f);
   render_small_icon_buttons(width, height, SPAWN_SELECT_BODY, 380.0f, 20.0f);
   if (!render_button(width, height, "SPAWN", 500.0f)) {
+    physics_info *p_info = utl_vector_at(PHYSICS_INFO, SPAWN_SETTINGS.spawner_id);
+    phy_vect pos = phy_body_get_position(p_info->body);
+    float ang = phy_body_get_angle(p_info->body);
+    generic_entity *ge = spawn_tank(pos.x, pos.y);
+    phy_body *top_body = ge->tank.top.physics_info.body;
+    phy_body *body_body = ge->tank.body.physics_info.body;
+    phy_body_set_angle(top_body, ang);
+    phy_body_set_angle(body_body, ang);
   }
   gfx_div_end();
   gfx_pop_style_props();

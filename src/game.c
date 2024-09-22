@@ -63,8 +63,8 @@ int game_run() {
   }
   spawn_tank(600, 300);
   spawn_tank(300, 300);
-  spawn_turret(3232, 3616);
-  spawn_turret(3616, 3360);
+  /*spawn_turret(3232, 3616);*/
+  /*spawn_turret(3616, 3360);*/
   spawn_hangar(3048, 3808, -0.5f * M_PI);
   spawn_hangar(3808, 3176, 0.0f);
   int res = gfx_loop_manager(window, false);
@@ -88,6 +88,7 @@ bool gfx_loop(float delta) {
     move_camera(&CAMERA, delta);
     render_map(GAME_FLOOR_MAP);
     render_map(GAME_BUILDING_MAP);
+    ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
     ecs_update_system(ECS, SPAWNER_SYSTEM.id, delta);
     ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
@@ -96,7 +97,6 @@ bool gfx_loop(float delta) {
     ecs_update_system(ECS, PHYSICS_SYSTEM.id, delta);
     ecs_update_system(ECS, ANIMATOR_SYSTEM.id, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
-    ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
     bool res = mangage_game_overlays();
     state.current_div.scrollable = false;

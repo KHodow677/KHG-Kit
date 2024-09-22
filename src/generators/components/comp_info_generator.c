@@ -190,7 +190,8 @@ void free_mover(mover_info *info) {
 void generate_rotator(rotator_info *info, physics_info *p_info) {
   info->body = p_info->body;
   info->target_move_pos = phy_body_get_position(info->body);
-  info->target_look_pos = phy_v_add(info->target_move_pos, phy_v(0.0f, -50.0f));
+  info->target_look_pos = phy_body_get_position(info->body);
+  /*info->target_look_pos = phy_v_add(info->target_move_pos, phy_v(0.0f, -50.0f));*/
 }
 
 void generate_shooter(shooter_info *info, float barrel_length) {
