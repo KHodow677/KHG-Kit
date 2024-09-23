@@ -55,6 +55,14 @@ typedef enum {
   TURRET_TOP,
   HANGAR,
   HANGAR_OUTLINE,
+  SLUG_1_0,
+  SLUG_1_1,
+  SLUG_1_2,
+  SLUG_1_3,
+  SLUG_1_4,
+  SLUG_1_5,
+  SLUG_1_6,
+  SLUG_1_7,
   NUM_TEXTURES
 } TEXTURE_ID;
 

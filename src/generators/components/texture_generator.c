@@ -90,6 +90,14 @@ void generate_textures() {
   TEXTURE_ASSET_REF[TURRET_TOP] = (texture_asset){ "Turret-Top", "png", 89, 137, SEGMENT_NONE };
   TEXTURE_ASSET_REF[HANGAR] = (texture_asset){ "Hangar", "png", 276, 304, SEGMENT_BOTTOM_LEFT_RIGHT };
   TEXTURE_ASSET_REF[HANGAR_OUTLINE] = (texture_asset){ "Hangar-Outline", "png", 306, 334, SEGMENT_BOTTOM_LEFT_RIGHT };
+  TEXTURE_ASSET_REF[SLUG_1_0] = (texture_asset){ "creatures/slug1/00", "png", 240, 300, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_1] = (texture_asset){ "creatures/slug1/01", "png", 240, 300, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_2] = (texture_asset){ "creatures/slug1/02", "png", 240, 300, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_3] = (texture_asset){ "creatures/slug1/03", "png", 240, 300, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_4] = (texture_asset){ "creatures/slug1/04", "png", 240, 300, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_5] = (texture_asset){ "creatures/slug1/05", "png", 240, 300, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_6] = (texture_asset){ "creatures/slug1/06", "png", 240, 300, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_7] = (texture_asset){ "creatures/slug1/07", "png", 240, 300, SEGMENT_NONE };
 }
 
 void free_textures() {

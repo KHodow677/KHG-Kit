@@ -56,6 +56,7 @@ int game_run() {
   ecs_setup();
   load_map("Map-Floor", &GAME_FLOOR_MAP);
   load_map("Map-Building", &GAME_BUILDING_MAP);
+  load_map("Map-Path", &GAME_PATH_MAP);
   add_map_collision_segments(GAME_BUILDING_MAP, &GAME_MAP_SEGMENTS);
   for (int i = 0; i < NUM_MENUS; i++) {
     GAME_OVERLAY_TRACKER[i] = false;
@@ -85,6 +86,7 @@ bool gfx_loop(float delta) {
     move_camera(&CAMERA, delta);
     render_map(GAME_FLOOR_MAP);
     render_map(GAME_BUILDING_MAP);
+    render_map(GAME_PATH_MAP);
     ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
     ecs_update_system(ECS, SPAWNER_SYSTEM.id, delta);

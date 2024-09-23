@@ -31,6 +31,7 @@ utl_vector *TEXTURE_LOOKUP;
 thd_thread *WORKER_THREADS;
 utl_vector *GAME_FLOOR_MAP;
 utl_vector *GAME_BUILDING_MAP;
+utl_vector *GAME_PATH_MAP;
 utl_vector *GAME_MAP_SEGMENTS;
 int GAME_MAP_SIZE = 64;
 int GAME_MAP_TILE_SIZE = 128;
@@ -119,6 +120,7 @@ void ecs_cleanup() {
   free_map_collision_segments(&GAME_MAP_SEGMENTS);
   free_map(&GAME_FLOOR_MAP);
   free_map(&GAME_BUILDING_MAP);
+  free_map(&GAME_PATH_MAP);
   physics_free(SPACE);
   ecs_free(ECS);
   free_worker_threads();
