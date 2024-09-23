@@ -19,6 +19,9 @@
 #include "khg_thd/thread.h"
 #include "menus/game_menu_manager.h"
 
+extern int WINDOW_START_WIDTH;
+extern int WINDOW_START_HEIGHT;
+
 extern phy_space *SPACE;
 extern ecs_ecs *ECS;
 extern utl_vector *ENTITY_LOOKUP;

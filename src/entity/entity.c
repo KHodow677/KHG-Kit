@@ -18,6 +18,10 @@ static bool generic_entity_is_hangar(generic_entity *entity) {
   return entity->type == ENTITY_TYPE_HANGAR;
 }
 
+static bool generic_entity_is_slug(generic_entity *entity) {
+  return entity->type == ENTITY_TYPE_HANGAR;
+}
+
 bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
   if (generic_entity_is_particle(ge)) {
     if (!check_id || ge->particle.entity == id) {
@@ -40,6 +44,12 @@ bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
   else if (generic_entity_is_hangar(ge)) {
     if (!check_id || ge->hangar.entity == id) {
       free_hangar(&ge->hangar);
+      return true;
+    }
+  }
+  else if (generic_entity_is_slug(ge)) {
+    if (!check_id || ge->hangar.entity == id) {
+      free_slug(&ge->slug);
       return true;
     }
   }

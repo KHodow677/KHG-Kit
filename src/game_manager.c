@@ -24,6 +24,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+int WINDOW_START_WIDTH  = 1280;
+int WINDOW_START_HEIGHT = 720;
+
 phy_space *SPACE;
 ecs_ecs *ECS;
 utl_vector *ENTITY_LOOKUP;

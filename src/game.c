@@ -14,6 +14,7 @@
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
 #include "spawners/spawn_hangar.h"
+#include "spawners/spawn_slug.h"
 #include "spawners/spawn_turret.h"
 #include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
@@ -28,8 +29,8 @@
 
 static void log_sys_info() {
   printf("OS: %s\n", OS_NAME);
-  const GLubyte* vendor = glGetString(GL_VENDOR);
-  const GLubyte* version = glGetString(GL_VERSION);
+  const GLubyte *vendor = glGetString(GL_VENDOR);
+  const GLubyte *version = glGetString(GL_VERSION);
   if (vendor != NULL && version != NULL) {
     printf("Vendor: %s\n", vendor);
     printf("OpenGL Version: %s\n", version);
@@ -40,13 +41,13 @@ int game_run() {
   if (!glfwInit()) {
     return -1;
   }
-  GLFWwindow *window = glfwCreateWindow(800, 600, "Hello", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(WINDOW_START_WIDTH, WINDOW_START_HEIGHT, "Hello", NULL, NULL);
   if (!window) {
     glfwTerminate();
     return -1;
   }
   glfwMakeContextCurrent(window);
-  gfx_init_glfw(1280, 720, window);
+  gfx_init_glfw(WINDOW_START_WIDTH, WINDOW_START_HEIGHT, window);
   log_sys_info();
   setup_worker_threads();
   stm_init(&SCENE_FSM, &TITLE_SCENE, &SANDBOX_SCENE);
@@ -61,6 +62,7 @@ int game_run() {
   for (int i = 0; i < NUM_MENUS; i++) {
     GAME_OVERLAY_TRACKER[i] = false;
   }
+  spawn_slug(100, 100, 0);
   spawn_turret(3232, 3616, -M_PI * 0.25f);
   spawn_turret(3616, 3360, -M_PI * 0.25f);
   spawn_hangar(3048, 3808, -0.5f * M_PI);
