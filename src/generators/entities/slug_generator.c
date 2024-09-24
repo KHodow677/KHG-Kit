@@ -9,7 +9,7 @@ void generate_slug(slug *s, float x, float y, float angle) {
   generate_physics_box(&s->physics_info, false, 80, 80, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
   generate_renderer(&s->renderer_info, &s->physics_info, SLUG_1_0, 9, s->entity);
   generate_destroyer(&s->destroyer_info);
-  generate_animator(&s->animator_info, SLUG_1_0, SLUG_1_7, 0.128f, false);
+  generate_animator(&s->animator_info, SLUG_1_0, SLUG_1_28, 0.032f, false);
   sys_physics_add(&s->entity, &s->physics_info);
   sys_renderer_add(&s->entity, &s->renderer_info);
   sys_destroyer_add(&s->entity, &s->destroyer_info);

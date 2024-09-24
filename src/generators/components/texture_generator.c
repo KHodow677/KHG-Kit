@@ -38,8 +38,10 @@ void generate_textures() {
   for (int i = 0; i < NUM_TEXTURES; i++) {
     utl_vector_push_back(TEXTURE_LOOKUP, &NO_TEXTURE);
   }
-  TEXTURE_ASSET_REF[GRASS_0] = (texture_asset){ "environment/Grass00", "png", 136, 136, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[GRASS_1] = (texture_asset){ "environment/Grass01", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SOIL_0] = (texture_asset){ "environment/Soil00", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SOIL_1] = (texture_asset){ "environment/Soil01", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SOIL_2] = (texture_asset){ "environment/Soil02", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SOIL_3] = (texture_asset){ "environment/Soil03", "png", 136, 136, SEGMENT_NONE };
   TEXTURE_ASSET_REF[BUILDING_0] = (texture_asset){ "environment/Building00", "png", 136, 136, SEGMENT_TOP_LEFT };
   TEXTURE_ASSET_REF[BUILDING_1] = (texture_asset){ "environment/Building01", "png", 136, 136, SEGMENT_TOP };
   TEXTURE_ASSET_REF[BUILDING_2] = (texture_asset){ "environment/Building02", "png", 136, 136, SEGMENT_TOP_RIGHT };
@@ -56,6 +58,9 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PATH_0] = (texture_asset){ "environment/Path00", "png", 136, 136, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PATH_1] = (texture_asset){ "environment/Path01", "png", 136, 136, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PATH_2] = (texture_asset){ "environment/Path02", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[PATH_3] = (texture_asset){ "environment/Path03", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[PATH_4] = (texture_asset){ "environment/Path04", "png", 136, 136, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[PATH_5] = (texture_asset){ "environment/Path05", "png", 136, 136, SEGMENT_NONE };
   TEXTURE_ASSET_REF[HANGAR_ICON_BIG] = (texture_asset){ "icons/Hangar-Icon-Big", "png", 128, 128, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TANK_BODY_ICON_SMALL] = (texture_asset){ "icons/Tank-Body-Icon-Small", "png", 64, 64, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TANK_TOP_ICON_SMALL] = (texture_asset){ "icons/Tank-Top-Icon-Small", "png", 64, 64, SEGMENT_NONE };
@@ -90,14 +95,35 @@ void generate_textures() {
   TEXTURE_ASSET_REF[TURRET_TOP] = (texture_asset){ "Turret-Top", "png", 89, 137, SEGMENT_NONE };
   TEXTURE_ASSET_REF[HANGAR] = (texture_asset){ "Hangar", "png", 276, 304, SEGMENT_BOTTOM_LEFT_RIGHT };
   TEXTURE_ASSET_REF[HANGAR_OUTLINE] = (texture_asset){ "Hangar-Outline", "png", 306, 334, SEGMENT_BOTTOM_LEFT_RIGHT };
-  TEXTURE_ASSET_REF[SLUG_1_0] = (texture_asset){ "creatures/slug1/00", "png", 240, 300, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[SLUG_1_1] = (texture_asset){ "creatures/slug1/01", "png", 240, 300, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[SLUG_1_2] = (texture_asset){ "creatures/slug1/02", "png", 240, 300, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[SLUG_1_3] = (texture_asset){ "creatures/slug1/03", "png", 240, 300, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[SLUG_1_4] = (texture_asset){ "creatures/slug1/04", "png", 240, 300, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[SLUG_1_5] = (texture_asset){ "creatures/slug1/05", "png", 240, 300, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[SLUG_1_6] = (texture_asset){ "creatures/slug1/06", "png", 240, 300, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[SLUG_1_7] = (texture_asset){ "creatures/slug1/07", "png", 240, 300, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_0] = (texture_asset){ "creatures/slug1/00", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_1] = (texture_asset){ "creatures/slug1/01", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_2] = (texture_asset){ "creatures/slug1/02", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_3] = (texture_asset){ "creatures/slug1/03", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_4] = (texture_asset){ "creatures/slug1/04", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_5] = (texture_asset){ "creatures/slug1/05", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_6] = (texture_asset){ "creatures/slug1/06", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_7] = (texture_asset){ "creatures/slug1/07", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_8] = (texture_asset){ "creatures/slug1/08", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_9] = (texture_asset){ "creatures/slug1/09", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_10] = (texture_asset){ "creatures/slug1/10", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_11] = (texture_asset){ "creatures/slug1/11", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_12] = (texture_asset){ "creatures/slug1/12", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_13] = (texture_asset){ "creatures/slug1/13", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_14] = (texture_asset){ "creatures/slug1/14", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_15] = (texture_asset){ "creatures/slug1/15", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_16] = (texture_asset){ "creatures/slug1/16", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_17] = (texture_asset){ "creatures/slug1/17", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_18] = (texture_asset){ "creatures/slug1/18", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_19] = (texture_asset){ "creatures/slug1/19", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_20] = (texture_asset){ "creatures/slug1/20", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_21] = (texture_asset){ "creatures/slug1/21", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_22] = (texture_asset){ "creatures/slug1/22", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_23] = (texture_asset){ "creatures/slug1/23", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_24] = (texture_asset){ "creatures/slug1/24", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_25] = (texture_asset){ "creatures/slug1/25", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_26] = (texture_asset){ "creatures/slug1/26", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_27] = (texture_asset){ "creatures/slug1/27", "png", 180, 225, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[SLUG_1_28] = (texture_asset){ "creatures/slug1/28", "png", 180, 225, SEGMENT_NONE };
 }
 
 void free_textures() {
