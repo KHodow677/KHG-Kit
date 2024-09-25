@@ -226,8 +226,7 @@ void free_mover(mover_info *info) {
 
 void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang) {
   info->body = p_info->body;
-  info->target_move_pos = phy_body_get_position(info->body);
-  info->target_look_pos = phy_v(INFINITY, INFINITY);
+  info->target_aim_body = NULL;
 }
 
 void generate_shooter(shooter_info *info, float barrel_length) {

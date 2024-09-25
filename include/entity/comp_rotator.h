@@ -6,8 +6,7 @@
 
 typedef struct {
   phy_body *body;
-  phy_vect target_move_pos;
-  phy_vect target_look_pos;
+  phy_body *target_aim_body;
 } rotator_info;
 
 typedef struct {
@@ -27,6 +26,4 @@ void comp_rotator_register(comp_rotator *cr);
 
 void sys_rotator_register(sys_rotator *sr);
 void sys_rotator_add(ecs_id *eid, rotator_info *info);
-
-ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 
