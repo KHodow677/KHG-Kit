@@ -31,7 +31,6 @@ bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
   }
   else if (ge->type == ENTITY_TYPE_SPAWNER) {
     if (!check_id || ge->spawner.entity == id) {
-      printf("hi");
       free_spawner(&ge->spawner);
       return true;
     }
