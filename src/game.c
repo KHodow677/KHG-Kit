@@ -14,7 +14,6 @@
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
 #include "spawners/spawn_hangar.h"
-#include "spawners/spawn_slug.h"
 #include "spawners/spawn_spawner.h"
 #include "spawners/spawn_turret.h"
 #include "threading/thread_manager.h"
@@ -63,10 +62,9 @@ int game_run() {
   for (int i = 0; i < NUM_MENUS; i++) {
     GAME_OVERLAY_TRACKER[i] = false;
   }
-  spawn_spawner(3840, 0, -0.5f * M_PI);
-  spawn_spawner(0, 3840, -M_PI);
-  spawn_spawner(3840, -3840, -M_PI * 0.75f);
-  spawn_slug(100, 100, 0);
+  spawn_spawner(3840, 0, -0.5f * M_PI, (phy_vect[]){ phy_v(2432, 0), phy_v(2048, 384), phy_v(2048, 1920), phy_v(128, 3840), phy_v(-3840, 3840) }, 5);
+  spawn_spawner(0, -3840, -M_PI, (phy_vect[]){ phy_v(0, -2432), phy_v(-384, -2048), phy_v(-1920, -2048), phy_v(-3840, -128), phy_v(-3840, 3840) }, 5);
+  spawn_spawner(3840, -3840, -M_PI * 0.75f, (phy_vect[]){ phy_v(-3840, 3840) }, 1);
   spawn_turret(3232, 3616, -M_PI * 0.25f);
   spawn_turret(3616, 3360, -M_PI * 0.25f);
   spawn_hangar(3048, 3808, -0.5f * M_PI);

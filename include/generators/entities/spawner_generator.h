@@ -14,6 +14,6 @@ typedef struct {
   stream_spawner_info stream_spawner_info;
 } spawner;
 
-void generate_spawner(spawner *s, float x, float y, float angle);
+void generate_spawner(spawner *s, float x, float y, float angle, phy_vect *path, int path_length);
 void free_spawner(spawner *s);
 

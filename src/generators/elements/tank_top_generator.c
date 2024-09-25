@@ -19,7 +19,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   phy_body_set_angle(tt->physics_info.body, angle);
   generate_renderer(&tt->renderer_info, &tt->physics_info, TANK_TOP, 2, tb->entity);
   generate_destroyer(&tt->destroyer_info);
-  generate_mover(&tt->mover_info, tb->entity);
+  generate_mover(&tt->mover_info, tb->entity, 300.0f, 16.0f, NULL, 0);
   generate_rotator(&tt->rotator_info, &tt->physics_info, angle);
   generate_shooter(&tt->shooter_info, 145.0f);
   generate_selector(&tt->selector_info, TANK_TOP, TANK_BODY, TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);

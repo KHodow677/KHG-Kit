@@ -7,6 +7,8 @@
 typedef struct {
   utl_queue *target_pos_queue;
   ecs_id body_entity;
+  float max_vel;
+  float max_ang_vel;
 } mover_info;
 
 typedef struct {

@@ -1,12 +1,19 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
+#include "khg_phy/phy_types.h"
 #include "khg_utl/queue.h"
+
+typedef enum {
+  SPAWN_SLUG
+} spawn_type;
 
 typedef struct {
   float spawn_cooldown;
-  float spawn_count;
+  float spawn_timer;
+  phy_vect spawn_offset;
   utl_queue *spawn_queue;
+  utl_vector *path;
 } stream_spawner_info;
 
 typedef struct {

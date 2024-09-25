@@ -10,6 +10,7 @@
 #include "entity/comp_stream_spawner.h"
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
+void generate_physics_circle(physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog);
 void generate_physics_pivot(physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
 void generate_static_physics_circle(physics_info *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog);
 void generate_static_physics_box(physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog);
@@ -23,7 +24,7 @@ void generate_destroyer(destroyer_info *info);
 
 void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, float frame_duration, bool destroy_on_max);
 
-void generate_mover(mover_info *info, ecs_id entity);
+void generate_mover(mover_info *info, ecs_id entity, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length);
 void free_mover(mover_info *info);
 
 void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang);
@@ -32,7 +33,7 @@ void generate_shooter(shooter_info *info, float barrel_length);
 
 void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id);
 
-void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown);
+void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown, phy_vect spawn_offset);
 void free_stream_spawner(stream_spawner_info *info);
 
 void generate_commander(commander_info *info, mover_info *m_info);

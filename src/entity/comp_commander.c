@@ -34,10 +34,7 @@ static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_c
           while (!utl_queue_empty(m_info->target_pos_queue)) {
             utl_queue_pop(m_info->target_pos_queue);
           }
-          float body_angle = normalize_angle(phy_body_get_angle(body_info->body));
-          bool is_moving = phy_v_length(phy_body_get_velocity(body_info->body)) > 5.0f;
-          float offset_dist = is_moving ? 50.0f : 0.0f;
-          phy_vect new_pos = phy_v_add(phy_v(offset_dist * sinf(body_angle), offset_dist * -cosf(body_angle)), phy_body_get_position(body_info->body));
+          phy_vect new_pos = phy_body_get_position(body_info->body);
           utl_queue_push(m_info->target_pos_queue, &new_pos);
         }
       }

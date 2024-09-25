@@ -47,6 +47,26 @@ void generate_physics_box(physics_info *info, bool collides, float width, float 
   info->rotate_enabled = true;
 }
 
+void generate_physics_circle(physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog) {
+  float moment = phy_moment_for_circle(mass, 0.0f, radius, phy_v(0.0f, 0.0f));
+  info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
+  phy_body_set_position(info->body, pos);
+  phy_body_set_center_of_gravity(info->body, cog);
+  phy_body_set_angle(info->body, ang);
+  info->shape = phy_space_add_shape(SPACE, phy_circle_shape_new(info->body, radius, phy_v(0.0f, 0.0f)));
+  phy_shape_set_friction(info->shape, 0.0f);
+  if (!collides) {
+    phy_shape_filter filter = { PHY_NO_GROUP, 0, 0 };
+    phy_shape_set_filter(info->shape, filter);
+  }
+  info->is_moving = false;
+  info->is_turning = false;
+  info->target_vel = 0.0f;
+  info->target_ang_vel = 0.0f;
+  info->move_enabled = true;
+  info->rotate_enabled = true;
+}
+
 void generate_physics_pivot(physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = phy_moment_for_box(mass, width, height);
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
@@ -190,9 +210,14 @@ void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, floa
   info->destroy_on_max = destroy_on_max;
 }
 
-void generate_mover(mover_info *info, ecs_id entity) {
+void generate_mover(mover_info *info, ecs_id entity, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length) {
   info->body_entity = entity;
   info->target_pos_queue = utl_queue_create(sizeof(phy_vect));
+  info->max_vel = max_vel;
+  info->max_ang_vel = max_ang_vel;
+  for (int i = 0; i < init_path_length; i++) {
+    utl_queue_push(info->target_pos_queue, &init_path[i]);
+  }
 }
 
 void free_mover(mover_info *info) {
@@ -219,13 +244,20 @@ void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int s
   info->selected_linked_tex_id = selected_linked_tex_id;
 }
 
-void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown) {
+void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown, phy_vect spawn_offset) {
   info->spawn_cooldown = spawn_cooldown;
-  info->spawn_count = 0.0f;
-  info->spawn_queue = utl_queue_create(sizeof(phy_vect));
+  info->spawn_timer = 0.0f;
+  info->spawn_offset = spawn_offset;
+  info->path = utl_vector_create(sizeof(phy_vect));
+  info->spawn_queue = utl_queue_create(sizeof(spawn_type));
+  for (int i = 0; i < 5; i++) {
+    int spawn = SPAWN_SLUG;
+    utl_queue_push(info->spawn_queue, &spawn);
+  }
 }
 
 void free_stream_spawner(stream_spawner_info *info) {
+  utl_vector_deallocate(info->path);
   utl_queue_deallocate(info->spawn_queue);
 }
 
