@@ -26,5 +26,3 @@ void comp_shooter_register(comp_shooter *cs);
 void sys_shooter_register(sys_shooter *ss);
 void sys_shooter_add(ecs_id *eid, shooter_info *info);
 
-ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
-

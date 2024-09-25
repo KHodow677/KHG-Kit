@@ -87,13 +87,14 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PARTICLE_2_2] = (texture_asset){ "particle/p2/02", "png", 80, 80, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PARTICLE_2_3] = (texture_asset){ "particle/p2/03", "png", 80, 80, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PARTICLE_2_4] = (texture_asset){ "particle/p2/04", "png", 80, 80, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[TANK_BODY_OUTLINE] = (texture_asset){ "Tank-Body-Outline", "png", 165, 204, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Outline", "png", 124, 231, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[TANK_BODY_OUTLINE] = (texture_asset){ "Tank-Body-Blue-Outline", "png", 165, 204, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Blue-Outline", "png", 124, 231, SEGMENT_NONE };
   TEXTURE_ASSET_REF[COMMAND_POINT] = (texture_asset){ "targeting/Point", "png", 56, 56, SEGMENT_NONE };
   TEXTURE_ASSET_REF[COMMAND_LINE] = (texture_asset){ "targeting/Line", "png", 20, 1, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TURRET_BASE] = (texture_asset){ "Turret-Base", "png", 100, 100, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TURRET_TOP] = (texture_asset){ "Turret-Top", "png", 89, 137, SEGMENT_NONE };
   TEXTURE_ASSET_REF[HANGAR] = (texture_asset){ "Hangar", "png", 276, 304, SEGMENT_BOTTOM_LEFT_RIGHT };
+  TEXTURE_ASSET_REF[SPAWNER] = (texture_asset){ "Spawner", "png", 191, 214, SEGMENT_BOTTOM_LEFT_RIGHT };
   TEXTURE_ASSET_REF[HANGAR_OUTLINE] = (texture_asset){ "Hangar-Outline", "png", 306, 334, SEGMENT_BOTTOM_LEFT_RIGHT };
   TEXTURE_ASSET_REF[SLUG_1_0] = (texture_asset){ "creatures/slug1/00", "png", 180, 225, SEGMENT_NONE };
   TEXTURE_ASSET_REF[SLUG_1_1] = (texture_asset){ "creatures/slug1/01", "png", 180, 225, SEGMENT_NONE };

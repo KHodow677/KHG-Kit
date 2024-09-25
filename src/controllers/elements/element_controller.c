@@ -122,7 +122,6 @@ void element_lock_on_position(physics_info *info, phy_vect pos, float max_ang_ve
   }
   else if (element_is_at_position(info, pos, POSITION_TOLERANCE)){
     element_set_rotation_speed(info, 0.0f);
-    element_set_angle(info, normalize_angle(phy_body_get_angle(info->target_body)));
   }
   else {
     info->is_locked_on = true;

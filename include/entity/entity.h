@@ -3,6 +3,7 @@
 #include "generators/entities/hangar_generator.h"
 #include "generators/entities/particle_generator.h"
 #include "generators/entities/slug_generator.h"
+#include "generators/entities/spawner_generator.h"
 #include "generators/entities/tank_generator.h"
 #include "generators/entities/turret_generator.h"
 
@@ -13,6 +14,7 @@ typedef struct {
     ENTITY_TYPE_TANK,
     ENTITY_TYPE_TURRET,
     ENTITY_TYPE_HANGAR,
+    ENTITY_TYPE_SPAWNER,
     ENTITY_TYPE_SLUG,
   } type;
   union {
@@ -20,6 +22,7 @@ typedef struct {
     tank tank;
     turret turret;
     hangar hangar;
+    spawner spawner;
     slug slug;
   };
 } generic_entity;

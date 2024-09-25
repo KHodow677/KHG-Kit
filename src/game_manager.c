@@ -1,6 +1,7 @@
 #include "game_manager.h"
 #include "controllers/input/key_controllers.h"
 #include "entity/camera.h"
+#include "entity/comp_commander.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
@@ -10,6 +11,7 @@
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "entity/comp_spawner.h"
+#include "entity/comp_stream_spawner.h"
 #include "entity/entity.h"
 #include "entity/map.h"
 #include "generators/components/map_generator.h"
@@ -91,6 +93,8 @@ sys_rotator ROTATOR_SYSTEM = { 0 };
 sys_shooter SHOOTER_SYSTEM = { 0 };
 sys_selector SELECTOR_SYSTEM = { 0 };
 sys_spawner SPAWNER_SYSTEM = { 0 };
+sys_stream_spawner STREAM_SPAWNER_SYSTEM = { 0 };
+sys_commander COMMANDER_SYSTEM = { 0 };
 
 void ecs_setup() {
   camera_setup(&CAMERA);
@@ -104,6 +108,8 @@ void ecs_setup() {
   comp_shooter_register(&SHOOTER_COMPONENT_TYPE);
   comp_selector_register(&SELECTOR_COMPONENT_TYPE);
   comp_spawner_register(&SPAWNER_COMPONENT_TYPE);
+  comp_stream_spawner_register(&STREAM_SPAWNER_COMPONENT_TYPE);
+  comp_commander_register(&COMMANDER_COMPONENT_TYPE);
   sys_physics_register(&PHYSICS_SYSTEM);
   sys_renderer_register(&RENDERER_SYSTEM);
   sys_destroyer_register(&DESTROYER_SYSTEM);
@@ -113,6 +119,8 @@ void ecs_setup() {
   sys_shooter_register(&SHOOTER_SYSTEM);
   sys_selector_register(&SELECTOR_SYSTEM);
   sys_spawner_register(&SPAWNER_SYSTEM);
+  sys_stream_spawner_register(&STREAM_SPAWNER_SYSTEM);
+  sys_commander_register(&COMMANDER_SYSTEM);
   generate_entity_lookup();
   generate_textures();
 }

@@ -1,4 +1,5 @@
 #include "generators/elements/tank_top_generator.h"
+#include "entity/comp_commander.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -11,7 +12,6 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/vect.h"
-#include <stdio.h>
 
 void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angle) {
   tt->entity = ecs_create(ECS);
@@ -23,6 +23,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   generate_rotator(&tt->rotator_info, &tt->physics_info, angle);
   generate_shooter(&tt->shooter_info, 145.0f);
   generate_selector(&tt->selector_info, TANK_TOP, TANK_BODY, TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);
+  generate_commander(&tt->commander_info, &tt->mover_info);
   sys_physics_add(&tt->entity, &tt->physics_info);
   sys_renderer_add(&tt->entity, &tt->renderer_info);
   sys_destroyer_add(&tt->entity, &tt->destroyer_info);
@@ -30,6 +31,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   sys_rotator_add(&tt->entity, &tt->rotator_info);
   sys_shooter_add(&tt->entity, &tt->shooter_info);
   sys_selector_add(&tt->entity, &tt->selector_info);
+  sys_commander_add(&tt->entity, &tt->commander_info);
 }
 
 void free_tank_top(tank_top *tt) {

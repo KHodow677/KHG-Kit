@@ -7,6 +7,8 @@
 #include "menus/spawn_menu.h"
 #include <stdio.h>
 
+ecs_id SPAWNER_COMPONENT_SIGNATURE;
+
 static ecs_ret sys_spawner_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     selector_info *s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
@@ -22,8 +24,6 @@ static ecs_ret sys_spawner_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   }
   return 0;
 }
-
-ecs_id SPAWNER_COMPONENT_SIGNATURE;
 
 void comp_spawner_register(comp_spawner *cs) {
   cs->id = ecs_register_component(ECS, sizeof(comp_spawner), NULL, NULL);

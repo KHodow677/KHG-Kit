@@ -59,6 +59,7 @@ typedef enum {
   TURRET_BASE,
   TURRET_TOP,
   HANGAR,
+  SPAWNER,
   HANGAR_OUTLINE,
   SLUG_1_0,
   SLUG_1_1,

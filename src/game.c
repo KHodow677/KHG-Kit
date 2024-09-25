@@ -15,6 +15,7 @@
 #include "scenes/scene_utl.h"
 #include "spawners/spawn_hangar.h"
 #include "spawners/spawn_slug.h"
+#include "spawners/spawn_spawner.h"
 #include "spawners/spawn_turret.h"
 #include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
@@ -62,6 +63,9 @@ int game_run() {
   for (int i = 0; i < NUM_MENUS; i++) {
     GAME_OVERLAY_TRACKER[i] = false;
   }
+  spawn_spawner(3840, 0, -0.5f * M_PI);
+  spawn_spawner(0, 3840, -M_PI);
+  spawn_spawner(3840, -3840, -M_PI * 0.75f);
   spawn_slug(100, 100, 0);
   spawn_turret(3232, 3616, -M_PI * 0.25f);
   spawn_turret(3616, 3360, -M_PI * 0.25f);
@@ -89,15 +93,17 @@ bool gfx_loop(float delta) {
     render_map(GAME_FLOOR_MAP);
     render_map(GAME_BUILDING_MAP);
     render_map(GAME_PATH_MAP);
-    ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
+    ecs_update_system(ECS, COMMANDER_SYSTEM.id, delta);
     ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
     ecs_update_system(ECS, SPAWNER_SYSTEM.id, delta);
+    ecs_update_system(ECS, STREAM_SPAWNER_SYSTEM.id, delta);
     ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
     ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);
     ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);
     ecs_update_system(ECS, PHYSICS_SYSTEM.id, delta);
     ecs_update_system(ECS, ANIMATOR_SYSTEM.id, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
+    ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
     bool res = mangage_game_overlays();
     state.current_div.scrollable = false;

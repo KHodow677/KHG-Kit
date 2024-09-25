@@ -4,6 +4,7 @@
 #include "controllers/input/mouse_controller.h"
 #include "entity/camera.h"
 #include "entity/comp_animator.h"
+#include "entity/comp_commander.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
@@ -12,6 +13,7 @@
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "entity/comp_spawner.h"
+#include "entity/comp_stream_spawner.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/texture.h"
 #include "khg_stm/state_machine.h"
@@ -61,6 +63,8 @@ extern sys_rotator ROTATOR_SYSTEM;
 extern sys_shooter SHOOTER_SYSTEM;
 extern sys_selector SELECTOR_SYSTEM;
 extern sys_spawner SPAWNER_SYSTEM;
+extern sys_stream_spawner STREAM_SPAWNER_SYSTEM;
+extern sys_commander COMMANDER_SYSTEM;
 
 static comp_physics PHYSICS_COMPONENT_TYPE;
 static comp_renderer RENDERER_COMPONENT_TYPE;
@@ -71,6 +75,8 @@ static comp_rotator ROTATOR_COMPONENT_TYPE;
 static comp_shooter SHOOTER_COMPONENT_TYPE;
 static comp_selector SELECTOR_COMPONENT_TYPE;
 static comp_spawner SPAWNER_COMPONENT_TYPE;
+static comp_stream_spawner STREAM_SPAWNER_COMPONENT_TYPE;
+static comp_commander COMMANDER_COMPONENT_TYPE;
 
 void ecs_setup();
 void ecs_cleanup();

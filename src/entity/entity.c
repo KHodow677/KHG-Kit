@@ -1,53 +1,42 @@
 #include "entity/entity.h"
 #include "game_manager.h"
+#include "generators/entities/spawner_generator.h"
 #include "khg_utl/vector.h"
-
-static bool generic_entity_is_particle(generic_entity *entity) {
-  return entity->type == ENTITY_TYPE_PARTICLE;
-}
-
-static bool generic_entity_is_tank(generic_entity *entity) {
-  return entity->type == ENTITY_TYPE_TANK;
-}
-
-static bool generic_entity_is_turret(generic_entity *entity) {
-  return entity->type == ENTITY_TYPE_TURRET;
-}
-
-static bool generic_entity_is_hangar(generic_entity *entity) {
-  return entity->type == ENTITY_TYPE_HANGAR;
-}
-
-static bool generic_entity_is_slug(generic_entity *entity) {
-  return entity->type == ENTITY_TYPE_HANGAR;
-}
+#include <stdio.h>
 
 bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
-  if (generic_entity_is_particle(ge)) {
+  if (ge->type == ENTITY_TYPE_PARTICLE) {
     if (!check_id || ge->particle.entity == id) {
       free_particle(&ge->particle);
       return true;
     }
   }
-  else if (generic_entity_is_tank(ge)) {
+  else if (ge->type == ENTITY_TYPE_TANK) {
     if (!check_id || ge->tank.entity == id) {
       free_tank(&ge->tank);
       return true;
     }
   }
-  else if (generic_entity_is_turret(ge)) {
+  else if (ge->type == ENTITY_TYPE_TURRET) {
     if (!check_id || ge->turret.entity == id) {
       free_turret(&ge->turret);
       return true;
     }
   }
-  else if (generic_entity_is_hangar(ge)) {
+  else if (ge->type == ENTITY_TYPE_HANGAR) {
     if (!check_id || ge->hangar.entity == id) {
       free_hangar(&ge->hangar);
       return true;
     }
   }
-  else if (generic_entity_is_slug(ge)) {
+  else if (ge->type == ENTITY_TYPE_SPAWNER) {
+    if (!check_id || ge->spawner.entity == id) {
+      printf("hi");
+      free_spawner(&ge->spawner);
+      return true;
+    }
+  }
+  else if (ge->type == ENTITY_TYPE_SLUG) {
     if (!check_id || ge->hangar.entity == id) {
       free_slug(&ge->slug);
       return true;

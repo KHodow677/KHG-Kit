@@ -10,8 +10,6 @@ ecs_id ANIMATOR_COMPONENT_SIGNATURE;
 animator_info NO_ANIMATOR = { 0 };
 utl_vector *ANIMATOR_INFO = NULL;
 
-void *(*ANIMATOR_FUNC_PTR)(void *) = NULL;
-
 void comp_animator_register(comp_animator *ca) {
   ca->id = ecs_register_component(ECS, sizeof(comp_animator), NULL, NULL);
   ANIMATOR_COMPONENT_SIGNATURE = ca->id; 

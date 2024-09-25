@@ -1,12 +1,14 @@
 #include "generators/components/comp_info_generator.h"
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_animator.h"
+#include "entity/comp_commander.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
+#include "entity/comp_stream_spawner.h"
 #include "entity/indicators.h"
 #include "entity/map.h"
 #include "game_manager.h"
@@ -24,7 +26,6 @@
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
 #include <math.h>
-#include <stdio.h>
 
 void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
   float moment = phy_moment_for_box(mass, width, height);
@@ -143,17 +144,27 @@ void generate_static_renderer_segments(renderer_info *info, physics_info *p_info
     info->segments[i] = NULL;
   }
   texture_asset ta = TEXTURE_ASSET_REF[info->tex_id];
-  if (ta.collision_direction == SEGMENT_BOTTOM_LEFT_RIGHT) {
-    float half_width = ta.tex_width * 0.5f;
-    float half_height = ta.tex_height * 0.5f;
-    float radius = sqrtf(half_width * half_width + half_height * half_height);
-    phy_vect top_left = phy_v(pos.x + radius * cosf(angle + atan2f(-half_height, -half_width)), pos.y + radius * sinf(angle + atan2f(-half_height, -half_width)));
-    phy_vect top_right = phy_v(pos.x + radius * cosf(angle + atan2f(-half_height, half_width)), pos.y + radius * sinf(angle + atan2f(-half_height, half_width)));
-    phy_vect bottom_left = phy_v(pos.x + radius * cosf(angle +atan2f(half_height, -half_width)), pos.y + radius * sinf(angle + atan2f(half_height, -half_width)));
-    phy_vect bottom_right = phy_v(pos.x + radius * cosf(angle + atan2f(half_height, half_width)), pos.y + radius * sinf(angle + atan2f(half_height, half_width)));
-    info->segments[0] = physics_add_static_segment_shape(SPACE, top_left, bottom_left);
-    info->segments[1] = physics_add_static_segment_shape(SPACE, top_right, bottom_right);
-    info->segments[2] = physics_add_static_segment_shape(SPACE, bottom_left, bottom_right);
+  if (ta.collision_direction == SEGMENT_NONE) {
+    return;
+  }
+  float half_width = ta.tex_width * 0.5f;
+  float half_height = ta.tex_height * 0.5f;
+  float radius = sqrtf(half_width * half_width + half_height * half_height);
+  phy_vect top_left = phy_v(pos.x + radius * cosf(angle + atan2f(-half_height, -half_width)), pos.y + radius * sinf(angle + atan2f(-half_height, -half_width)));
+  phy_vect top_right = phy_v(pos.x + radius * cosf(angle + atan2f(-half_height, half_width)), pos.y + radius * sinf(angle + atan2f(-half_height, half_width)));
+  phy_vect bottom_left = phy_v(pos.x + radius * cosf(angle +atan2f(half_height, -half_width)), pos.y + radius * sinf(angle + atan2f(half_height, -half_width)));
+  phy_vect bottom_right = phy_v(pos.x + radius * cosf(angle + atan2f(half_height, half_width)), pos.y + radius * sinf(angle + atan2f(half_height, half_width)));
+  if (ta.collision_direction == SEGMENT_TOP || ta.collision_direction == SEGMENT_TOP_LEFT || ta.collision_direction == SEGMENT_TOP_RIGHT) {
+    info->segments[0] = physics_add_static_segment_shape(SPACE, top_left, top_right);
+  }
+  if (ta.collision_direction == SEGMENT_LEFT || ta.collision_direction == SEGMENT_TOP_LEFT || ta.collision_direction == SEGMENT_BOTTOM_LEFT || ta.collision_direction == SEGMENT_BOTTOM_LEFT_RIGHT) {
+    info->segments[1] = physics_add_static_segment_shape(SPACE, top_left, bottom_left);
+  }
+  if (ta.collision_direction == SEGMENT_RIGHT || ta.collision_direction == SEGMENT_TOP_RIGHT || ta.collision_direction == SEGMENT_BOTTOM_RIGHT || ta.collision_direction == SEGMENT_BOTTOM_LEFT_RIGHT) {
+    info->segments[2] = physics_add_static_segment_shape(SPACE, top_right, bottom_right);
+  }
+  if (ta.collision_direction == SEGMENT_BOTTOM || ta.collision_direction == SEGMENT_BOTTOM_LEFT || ta.collision_direction == SEGMENT_BOTTOM_RIGHT || ta.collision_direction == SEGMENT_BOTTOM_LEFT_RIGHT) {
+    info->segments[3] = physics_add_static_segment_shape(SPACE, bottom_left, bottom_right);
   }
 }
 
@@ -206,5 +217,19 @@ void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int s
   info->linked_tex_id = linked_tex_id;
   info->selected_tex_id = selected_tex_id;
   info->selected_linked_tex_id = selected_linked_tex_id;
+}
+
+void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown) {
+  info->spawn_cooldown = spawn_cooldown;
+  info->spawn_count = 0.0f;
+  info->spawn_queue = utl_queue_create(sizeof(phy_vect));
+}
+
+void free_stream_spawner(stream_spawner_info *info) {
+  utl_queue_deallocate(info->spawn_queue);
+}
+
+void generate_commander(commander_info *info, mover_info *m_info) {
+  info->point_queue_count = utl_queue_size(m_info->target_pos_queue);
 }
 
