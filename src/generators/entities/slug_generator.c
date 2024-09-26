@@ -9,7 +9,7 @@
 
 void generate_slug(slug *s, float x, float y, float angle, phy_vect *init_path, int init_path_length) {
   s->entity = ecs_create(ECS);
-  generate_physics_circle(&s->physics_info, true, 60, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
+  generate_physics_circle(&s->physics_info, true, 60, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(s->physics_info.body, angle);
   generate_renderer(&s->renderer_info, &s->physics_info, SLUG_1_0, 9, s->entity);
   generate_destroyer(&s->destroyer_info);

@@ -9,7 +9,7 @@
 
 void generate_spawner(spawner *s, float x, float y, float angle, phy_vect *path, int path_length) {
   s->entity = ecs_create(ECS);
-  generate_static_physics_box(&s->physics_info, false, 191, 214, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
+  generate_static_physics_box(&s->physics_info, false, 191, 214, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_OBJECT);
   phy_body_set_angle(s->physics_info.body, angle);
   generate_static_renderer_segments(&s->renderer_info, &s->physics_info, phy_v(x, y), SPAWNER, 1, s->entity, angle);
   generate_destroyer(&s->destroyer_info);

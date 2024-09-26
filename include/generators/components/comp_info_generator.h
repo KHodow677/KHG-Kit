@@ -9,11 +9,11 @@
 #include "entity/comp_shooter.h"
 #include "entity/comp_stream_spawner.h"
 
-void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
-void generate_physics_circle(physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog);
-void generate_physics_pivot(physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
-void generate_static_physics_circle(physics_info *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog);
-void generate_static_physics_box(physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog);
+void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void generate_physics_circle(physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void generate_physics_pivot(physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void generate_static_physics_circle(physics_info *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void generate_static_physics_box(physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category);
 void free_physics(physics_info *info, bool has_constraint);
 
 void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, int render_layer, ecs_id linked_ent);

@@ -12,6 +12,7 @@
 #include "entity/comp_shooter.h"
 #include "entity/comp_spawner.h"
 #include "entity/comp_stream_spawner.h"
+#include "entity/comp_targeter.h"
 #include "entity/entity.h"
 #include "entity/map.h"
 #include "generators/components/map_generator.h"
@@ -95,6 +96,7 @@ sys_selector SELECTOR_SYSTEM = { 0 };
 sys_spawner SPAWNER_SYSTEM = { 0 };
 sys_stream_spawner STREAM_SPAWNER_SYSTEM = { 0 };
 sys_commander COMMANDER_SYSTEM = { 0 };
+sys_targeter TARGETER_SYSTEM = { 0 };
 
 void ecs_setup() {
   camera_setup(&CAMERA);
@@ -110,6 +112,7 @@ void ecs_setup() {
   comp_spawner_register(&SPAWNER_COMPONENT_TYPE);
   comp_stream_spawner_register(&STREAM_SPAWNER_COMPONENT_TYPE);
   comp_commander_register(&COMMANDER_COMPONENT_TYPE);
+  comp_targeter_register(&TARGETER_COMPONENT_TYPE);
   sys_physics_register(&PHYSICS_SYSTEM);
   sys_renderer_register(&RENDERER_SYSTEM);
   sys_destroyer_register(&DESTROYER_SYSTEM);
@@ -121,6 +124,7 @@ void ecs_setup() {
   sys_spawner_register(&SPAWNER_SYSTEM);
   sys_stream_spawner_register(&STREAM_SPAWNER_SYSTEM);
   sys_commander_register(&COMMANDER_SYSTEM);
+  sys_targeter_register(&TARGETER_SYSTEM);
   generate_entity_lookup();
   generate_textures();
 }

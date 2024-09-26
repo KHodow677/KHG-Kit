@@ -15,7 +15,7 @@
 
 void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angle) {
   tt->entity = ecs_create(ECS);
-  generate_physics_pivot(&tt->physics_info, &tb->physics_info, false, 102.0f, 209.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 55.5f));
+  generate_physics_pivot(&tt->physics_info, &tb->physics_info, false, 102.0f, 209.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 55.5f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(tt->physics_info.body, angle);
   generate_renderer(&tt->renderer_info, &tt->physics_info, TANK_TOP, 2, tb->entity);
   generate_destroyer(&tt->destroyer_info);

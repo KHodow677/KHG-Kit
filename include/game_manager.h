@@ -14,6 +14,7 @@
 #include "entity/comp_shooter.h"
 #include "entity/comp_spawner.h"
 #include "entity/comp_stream_spawner.h"
+#include "entity/comp_targeter.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/texture.h"
 #include "khg_stm/state_machine.h"
@@ -22,6 +23,10 @@
 #include "menus/game_menu_manager.h"
 
 #define ECS_ENTITY_COUNT 1024
+#define COLLISION_CATEGORY_ENTITY (1 << 0)
+#define COLLISION_CATEGORY_OBJECT (1 << 1)
+#define SENSOR_COLLISION_TYPE 1
+#define NORMAL_COLLISION_TYPE 2
 
 extern int WINDOW_START_WIDTH;
 extern int WINDOW_START_HEIGHT;
@@ -67,6 +72,7 @@ extern sys_selector SELECTOR_SYSTEM;
 extern sys_spawner SPAWNER_SYSTEM;
 extern sys_stream_spawner STREAM_SPAWNER_SYSTEM;
 extern sys_commander COMMANDER_SYSTEM;
+extern sys_targeter TARGETER_SYSTEM;
 
 static comp_physics PHYSICS_COMPONENT_TYPE;
 static comp_renderer RENDERER_COMPONENT_TYPE;
@@ -79,6 +85,7 @@ static comp_selector SELECTOR_COMPONENT_TYPE;
 static comp_spawner SPAWNER_COMPONENT_TYPE;
 static comp_stream_spawner STREAM_SPAWNER_COMPONENT_TYPE;
 static comp_commander COMMANDER_COMPONENT_TYPE;
+static comp_targeter TARGETER_COMPONENT_TYPE;
 
 void ecs_setup();
 void ecs_cleanup();

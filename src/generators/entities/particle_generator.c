@@ -14,7 +14,7 @@
 
 void generate_particle(particle *p, phy_body *body_body, phy_body *top_body, float x, float y) {
   p->entity = ecs_create(ECS);
-  generate_physics_box(&p->physics_info, false, 80, 80, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
+  generate_physics_box(&p->physics_info, false, 80, 80, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_OBJECT);
   generate_renderer(&p->renderer_info, &p->physics_info, PARTICLE_2_0, 9, p->entity);
   generate_destroyer(&p->destroyer_info);
   generate_animator(&p->animator_info, PARTICLE_2_0, PARTICLE_2_4, 0.032f, true);

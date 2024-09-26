@@ -9,7 +9,7 @@
 
 void generate_hangar(hangar *h, float x, float y, float angle) {
   h->entity = ecs_create(ECS);
-  generate_static_physics_box(&h->physics_info, false, 306, 334, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f));
+  generate_static_physics_box(&h->physics_info, false, 306, 334, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_OBJECT);
   phy_body_set_angle(h->physics_info.body, angle);
   generate_static_renderer_segments(&h->renderer_info, &h->physics_info, phy_v(x, y), HANGAR, 1, h->entity, angle);
   generate_destroyer(&h->destroyer_info);

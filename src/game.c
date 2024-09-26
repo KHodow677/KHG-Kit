@@ -95,6 +95,7 @@ bool gfx_loop(float delta) {
     ecs_update_system(ECS, SELECTOR_SYSTEM.id, delta);
     ecs_update_system(ECS, SPAWNER_SYSTEM.id, delta);
     ecs_update_system(ECS, STREAM_SPAWNER_SYSTEM.id, delta);
+    ecs_update_system(ECS, TARGETER_SYSTEM.id, delta);
     ecs_update_system(ECS, MOVER_SYSTEM.id, delta);
     ecs_update_system(ECS, ROTATOR_SYSTEM.id, delta);
     ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);
