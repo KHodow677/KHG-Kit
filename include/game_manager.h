@@ -21,6 +21,8 @@
 #include "khg_thd/thread.h"
 #include "menus/game_menu_manager.h"
 
+#define ECS_ENTITY_COUNT 1024
+
 extern int WINDOW_START_WIDTH;
 extern int WINDOW_START_HEIGHT;
 

@@ -98,7 +98,7 @@ sys_commander COMMANDER_SYSTEM = { 0 };
 
 void ecs_setup() {
   camera_setup(&CAMERA);
-  ECS = ecs_new(1024, NULL);
+  ECS = ecs_new(ECS_ENTITY_COUNT, NULL);
   comp_physics_register(&PHYSICS_COMPONENT_TYPE);
   comp_renderer_register(&RENDERER_COMPONENT_TYPE);
   comp_destroyer_register(&DESTROYER_COMPONENT_TYPE);

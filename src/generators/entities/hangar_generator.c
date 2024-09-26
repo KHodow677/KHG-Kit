@@ -26,7 +26,7 @@ void free_hangar(hangar *h) {
   free_renderer(&h->renderer_info);
   utl_vector_assign(PHYSICS_INFO, h->entity, &NO_PHYSICS);
   utl_vector_assign(RENDERER_INFO, h->entity, &NO_RENDERER);
-  utl_vector_assign(DESTROYER_INFO, h->entity, &NO_DESTROYER);
+  DESTROYER_INFO[h->entity] = NO_DESTROYER;
   utl_vector_assign(SELECTOR_INFO, h->entity, &NO_SELECTOR);
 }
 

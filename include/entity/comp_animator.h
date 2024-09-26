@@ -1,7 +1,6 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_utl/vector.h"
 
 typedef struct {
   int min_tex_id;
@@ -22,7 +21,7 @@ typedef struct {
 
 extern ecs_id ANIMATOR_COMPONENT_SIGNATURE;
 extern animator_info NO_ANIMATOR;
-extern utl_vector *ANIMATOR_INFO;
+extern animator_info *ANIMATOR_INFO;
 
 void comp_animator_register(comp_animator *ca);
 

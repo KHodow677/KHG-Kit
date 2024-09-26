@@ -8,16 +8,13 @@
 
 ecs_id ANIMATOR_COMPONENT_SIGNATURE;
 animator_info NO_ANIMATOR = { 0 };
-utl_vector *ANIMATOR_INFO = NULL;
+animator_info *ANIMATOR_INFO = (animator_info[ECS_ENTITY_COUNT]){};
 
 static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  animator_info *info;
-  renderer_info *r_info;
-  destroyer_info *d_info;
   for (int id = 0; id < entity_count; id++) {
-    info = utl_vector_at(ANIMATOR_INFO, entities[id]);
-    r_info = utl_vector_at(RENDERER_INFO, entities[id]);
-    d_info = utl_vector_at(DESTROYER_INFO, entities[id]);
+    animator_info *info = &ANIMATOR_INFO[entities[id]]; 
+    renderer_info *r_info = utl_vector_at(RENDERER_INFO, entities[id]);
+    destroyer_info *d_info = &DESTROYER_INFO[entities[id]];
     if (info->destroy_on_max && r_info->tex_id == info->max_tex_id) {
       d_info->destroy_now = true;
     }
@@ -41,14 +38,13 @@ void sys_animator_register(sys_animator *sa) {
   ecs_require_component(ECS, sa->id, RENDERER_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, sa->id, DESTROYER_COMPONENT_SIGNATURE);
   sa->ecs = *ECS;
-  ANIMATOR_INFO = utl_vector_create(sizeof(animator_info));
-  for (int i = 0; i < ECS->entity_count; i++) {
-    utl_vector_push_back(ANIMATOR_INFO, &NO_ANIMATOR);
+  for (int i = 0; i < ECS_ENTITY_COUNT; i++) {
+    ANIMATOR_INFO[i] = NO_ANIMATOR;
   }
 }
 
 void sys_animator_add(ecs_id *eid, animator_info *info) {
   ecs_add(ECS, *eid, ANIMATOR_COMPONENT_SIGNATURE, NULL);
-  utl_vector_assign(ANIMATOR_INFO, *eid, info);
+  ANIMATOR_INFO[*eid] = *info;
 }
 

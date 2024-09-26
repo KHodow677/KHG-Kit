@@ -1,7 +1,6 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_utl/vector.h"
 
 typedef struct {
   int point_queue_count;
@@ -18,7 +17,7 @@ typedef struct {
 
 extern ecs_id COMMANDER_COMPONENT_SIGNATURE;
 extern commander_info NO_COMMANDER;
-extern utl_vector *COMMANDER_INFO;
+extern commander_info *COMMANDER_INFO;
 
 void comp_commander_register(comp_commander *cc);
 

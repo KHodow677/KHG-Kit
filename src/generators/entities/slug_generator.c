@@ -34,8 +34,8 @@ void free_slug(slug *s) {
   free_mover(&s->mover_info);
   utl_vector_assign(PHYSICS_INFO, s->entity, &NO_PHYSICS);
   utl_vector_assign(RENDERER_INFO, s->entity, &NO_RENDERER);
-  utl_vector_assign(DESTROYER_INFO, s->entity, &NO_DESTROYER);
-  utl_vector_assign(ANIMATOR_INFO, s->entity, &NO_ANIMATOR);
+  DESTROYER_INFO[s->entity] = NO_DESTROYER;
+  ANIMATOR_INFO[s->entity] = NO_ANIMATOR;
   utl_vector_assign(MOVER_INFO, s->entity, &NO_MOVER);
 }
 

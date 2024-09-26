@@ -40,7 +40,7 @@ void free_tank_top(tank_top *tt) {
   free_mover(&tt->mover_info);
   utl_vector_assign(PHYSICS_INFO, tt->entity, &NO_PHYSICS);
   utl_vector_assign(RENDERER_INFO, tt->entity, &NO_RENDERER);
-  utl_vector_assign(DESTROYER_INFO, tt->entity, &NO_DESTROYER);
+  DESTROYER_INFO[tt->entity] = NO_DESTROYER;
   utl_vector_assign(MOVER_INFO, tt->entity, &NO_MOVER);
   utl_vector_assign(ROTATOR_INFO, tt->entity, &NO_ROTATOR);
   utl_vector_assign(SHOOTER_INFO, tt->entity, &NO_SHOOTER);

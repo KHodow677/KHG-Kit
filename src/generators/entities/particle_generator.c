@@ -36,7 +36,7 @@ void free_particle(particle *p) {
   free_renderer(&p->renderer_info);
   utl_vector_assign(PHYSICS_INFO, p->entity, &NO_PHYSICS);
   utl_vector_assign(RENDERER_INFO, p->entity, &NO_RENDERER);
-  utl_vector_assign(DESTROYER_INFO, p->entity, &NO_DESTROYER);
-  utl_vector_assign(ANIMATOR_INFO, p->entity, &NO_ANIMATOR);
+  DESTROYER_INFO[p->entity] = NO_DESTROYER;
+  ANIMATOR_INFO[p->entity] = NO_ANIMATOR;
 }
 

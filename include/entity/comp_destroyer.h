@@ -1,7 +1,6 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_utl/vector.h"
 
 typedef struct {
   bool destroy_now;
@@ -18,12 +17,10 @@ typedef struct {
 
 extern ecs_id DESTROYER_COMPONENT_SIGNATURE;
 extern destroyer_info NO_DESTROYER;
-extern utl_vector *DESTROYER_INFO;
+extern destroyer_info *DESTROYER_INFO;
 
 void comp_destroyer_register(comp_destroyer *cd);
 
 void sys_destroyer_register(sys_destroyer *sd);
 void sys_destroyer_add(ecs_id *eid, destroyer_info *info);
-
-ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 
