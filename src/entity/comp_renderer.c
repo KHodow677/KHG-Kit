@@ -17,13 +17,11 @@ renderer_info NO_RENDERER = { 0 };
 utl_vector *RENDERER_INFO = NULL;
 
 static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  renderer_info *info;
-  physics_info *p_info;
   for (int layer = 0; layer < 10; layer++) {
     if (layer == 9) {
       for (int id = 0; id < entity_count; id++) {
-        info = utl_vector_at(RENDERER_INFO, entities[id]);
-        p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+        renderer_info *info = utl_vector_at(RENDERER_INFO, entities[id]);
+        physics_info *p_info = &PHYSICS_INFO[entities[id]];
         for (int i_index = 0; i_index < utl_vector_size(info->indicators); i_index++) {
           indicator *ind = utl_vector_at(info->indicators, i_index);
           if (ind->type == INDICATOR_POINT) {
@@ -42,7 +40,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
       }
     }
     for (int id = 0; id < entity_count; id++) {
-      info = utl_vector_at(RENDERER_INFO, entities[id]);
+      renderer_info *info = utl_vector_at(RENDERER_INFO, entities[id]);
       if (layer != info->render_layer) {
         continue;
       }

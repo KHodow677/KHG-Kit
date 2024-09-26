@@ -159,7 +159,7 @@ bool render_spawn_menu() {
   render_body_text(width, height, "Select Hull", 350.0f);
   render_small_icon_buttons(width, height, SPAWN_SELECT_BODY, 380.0f, 20.0f);
   if (!render_button(width, height, "SPAWN", 500.0f)) {
-    physics_info *p_info = utl_vector_at(PHYSICS_INFO, SPAWN_SETTINGS.spawner_id);
+    physics_info *p_info = &PHYSICS_INFO[SPAWN_SETTINGS.spawner_id];
     phy_vect pos = phy_body_get_position(p_info->body);
     float ang = phy_body_get_angle(p_info->body);
     generic_entity *ge = spawn_tank(pos.x, pos.y, ang);

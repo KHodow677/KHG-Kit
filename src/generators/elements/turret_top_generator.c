@@ -29,7 +29,7 @@ void generate_turret_top(turret_top *tt, turret_base *tb, float x, float y, floa
 void free_turret_top(turret_top *tt) {
   free_physics(&tt->physics_info, true);
   free_renderer(&tt->renderer_info);
-  utl_vector_assign(PHYSICS_INFO, tt->entity, &NO_PHYSICS);
+  PHYSICS_INFO[tt->entity] = NO_PHYSICS;
   utl_vector_assign(RENDERER_INFO, tt->entity, &NO_RENDERER);
   DESTROYER_INFO[tt->entity] = NO_DESTROYER;
   utl_vector_assign(ROTATOR_INFO, tt->entity, &NO_ROTATOR);

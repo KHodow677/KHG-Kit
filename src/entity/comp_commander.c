@@ -16,10 +16,10 @@ commander_info *COMMANDER_INFO = (commander_info[ECS_ENTITY_COUNT]){};
 static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     commander_info *info = &COMMANDER_INFO[entities[id]]; 
-    mover_info *m_info = utl_vector_at(MOVER_INFO, entities[id]);
-    physics_info *body_info = utl_vector_at(PHYSICS_INFO, m_info->body_entity);
+    mover_info *m_info = &MOVER_INFO[entities[id]];
+    physics_info *body_info = &PHYSICS_INFO[m_info->body_entity];
     selector_info *s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
-    physics_info *p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+    physics_info *p_info = &PHYSICS_INFO[entities[id]];
     renderer_info *r_info = utl_vector_at(RENDERER_INFO, entities[id]);
     if (s_info->selected && s_info->just_selected) {
       generate_all_indicators(s_info, p_info, r_info, m_info);

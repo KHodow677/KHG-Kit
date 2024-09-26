@@ -30,12 +30,10 @@ typedef struct {
 
 extern ecs_id PHYSICS_COMPONENT_SIGNATURE;
 extern physics_info NO_PHYSICS;
-extern utl_vector* PHYSICS_INFO;
+extern physics_info *PHYSICS_INFO;
 
 void comp_physics_register(comp_physics *cp);
 
 void sys_physics_register(sys_physics *sp);
 void sys_physics_add(ecs_id *eid, physics_info *info);
-
-ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
 

@@ -29,7 +29,7 @@ static void deselect(selector_info *info, renderer_info *r_info, ecs_id id) {
 static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     selector_info *info = utl_vector_at(SELECTOR_INFO, entities[id]);
-    physics_info *p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+    physics_info *p_info = &PHYSICS_INFO[entities[id]];
     renderer_info *r_info = utl_vector_at(RENDERER_INFO, entities[id]);
     info->just_selected = false;
     if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {

@@ -27,7 +27,7 @@ void free_spawner(spawner *s) {
   free_physics(&s->physics_info, false);
   free_renderer(&s->renderer_info);
   free_stream_spawner(&s->stream_spawner_info);
-  utl_vector_assign(PHYSICS_INFO, s->entity, &NO_PHYSICS);
+  PHYSICS_INFO[s->entity] = NO_PHYSICS;
   utl_vector_assign(RENDERER_INFO, s->entity, &NO_RENDERER);
   DESTROYER_INFO[s->entity] = NO_DESTROYER;
   utl_vector_assign(STREAM_SPAWNER_INFO, s->entity, &NO_STREAM_SPAWNER);

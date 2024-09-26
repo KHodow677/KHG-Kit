@@ -2,7 +2,6 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_utl/queue.h"
-#include "khg_utl/vector.h"
 
 typedef struct {
   utl_queue *target_pos_queue;
@@ -22,7 +21,7 @@ typedef struct {
 
 extern ecs_id MOVER_COMPONENT_SIGNATURE;
 extern mover_info NO_MOVER;
-extern utl_vector *MOVER_INFO;
+extern mover_info *MOVER_INFO;
 
 void comp_mover_register(comp_mover *cm);
 

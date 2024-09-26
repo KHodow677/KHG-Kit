@@ -21,7 +21,7 @@ utl_vector *SHOOTER_INFO = NULL;
 static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     shooter_info *info = utl_vector_at(SHOOTER_INFO, entities[id]);
-    physics_info *p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+    physics_info *p_info = &PHYSICS_INFO[entities[id]];
     rotator_info *r_info = utl_vector_at(ROTATOR_INFO, entities[id]);
     if (KEYBOARD_STATE.space_key_went_down && r_info->target_aim_body && element_is_targeting_position(p_info, phy_body_get_position(r_info->target_aim_body), 0.2f) && info->shoot_cooldown == 0) {
       info->shoot_cooldown = 0.16f;

@@ -18,7 +18,7 @@ utl_vector *STREAM_SPAWNER_INFO = NULL;
 static ecs_ret sys_stream_spawner_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     stream_spawner_info *info = utl_vector_at(STREAM_SPAWNER_INFO, entities[id]);
-    physics_info *p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+    physics_info *p_info = &PHYSICS_INFO[entities[id]];
     if (utl_queue_size(info->spawn_queue) > 0 && info->spawn_timer <= 0) {
       int *next_spawn_type = utl_queue_front(info->spawn_queue);
       if (*next_spawn_type == SPAWN_SLUG) {

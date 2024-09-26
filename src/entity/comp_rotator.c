@@ -12,7 +12,7 @@ utl_vector *ROTATOR_INFO = NULL;
 static ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     rotator_info *info = utl_vector_at(ROTATOR_INFO, entities[id]);
-    physics_info *p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+    physics_info *p_info = &PHYSICS_INFO[entities[id]];
     if (info->target_aim_body == NULL) {
       element_set_rotation_speed(p_info, 0.0f);
       continue;
