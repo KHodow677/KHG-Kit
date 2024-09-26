@@ -2,9 +2,9 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy_types.h"
-#include "khg_utl/vector.h"
 
 typedef struct {
+  ecs_id eid;
   phy_body *body;
   phy_shape *shape;
   phy_body *target_body;

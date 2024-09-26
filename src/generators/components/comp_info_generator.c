@@ -14,6 +14,7 @@
 #include "entity/map.h"
 #include "game_manager.h"
 #include "generators/components/texture_generator.h"
+#include "khg_ecs/ecs.h"
 #include "physics/physics_setup.h"
 #include "khg_phy/body.h"
 #include "khg_phy/constraint.h"
@@ -28,7 +29,8 @@
 #include "khg_utl/vector.h"
 #include <math.h>
 
-void generate_physics_box(physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_physics_box(ecs_id eid, physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+  info->eid = eid;
   float moment = phy_moment_for_box(mass, width, height);
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -37,8 +39,9 @@ void generate_physics_box(physics_info *info, bool collides, float width, float 
   info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, width, height, 0.0f));
   phy_shape_set_friction(info->shape, 0.0f);
   phy_shape_set_collision_type(info->shape, NORMAL_COLLISION_TYPE);
-  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, PHY_ALL_CATEGORIES } : (phy_shape_filter){ PHY_NO_GROUP, 0, 0 };
+  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, category } : (phy_shape_filter){ PHY_NO_GROUP, category, 0 };
   phy_shape_set_filter(info->shape, filter);
+  phy_shape_set_user_data(info->shape, (void *)info);
   info->is_moving = false;
   info->is_turning = false;
   info->target_vel = 0.0f;
@@ -47,7 +50,8 @@ void generate_physics_box(physics_info *info, bool collides, float width, float 
   info->rotate_enabled = true;
 }
 
-void generate_physics_circle(physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_physics_circle(ecs_id eid, physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+  info->eid = eid;
   float moment = phy_moment_for_circle(mass, 0.0f, radius, phy_v(0.0f, 0.0f));
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -56,8 +60,9 @@ void generate_physics_circle(physics_info *info, bool collides, float radius, fl
   info->shape = phy_space_add_shape(SPACE, phy_circle_shape_new(info->body, radius, phy_v(0.0f, 0.0f)));
   phy_shape_set_friction(info->shape, 0.0f);
   phy_shape_set_collision_type(info->shape, NORMAL_COLLISION_TYPE);
-  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, PHY_ALL_CATEGORIES } : (phy_shape_filter){ PHY_NO_GROUP, 0, 0 };
+  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, category } : (phy_shape_filter){ PHY_NO_GROUP, category, 0 };
   phy_shape_set_filter(info->shape, filter);
+  phy_shape_set_user_data(info->shape, (void *)info);
   info->is_moving = false;
   info->is_turning = false;
   info->target_vel = 0.0f;
@@ -66,7 +71,8 @@ void generate_physics_circle(physics_info *info, bool collides, float radius, fl
   info->rotate_enabled = true;
 }
 
-void generate_physics_pivot(physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_physics_pivot(ecs_id eid, physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+  info->eid = eid;
   float moment = phy_moment_for_box(mass, width, height);
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -75,8 +81,9 @@ void generate_physics_pivot(physics_info *info, physics_info *p_info, bool colli
   info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, width, height, 0.0f));
   phy_shape_set_friction(info->shape, 0.0f);
   phy_shape_set_collision_type(info->shape, NORMAL_COLLISION_TYPE);
-  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, PHY_ALL_CATEGORIES } : (phy_shape_filter){ PHY_NO_GROUP, 0, 0 };
+  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, category } : (phy_shape_filter){ PHY_NO_GROUP, category, 0 };
   phy_shape_set_filter(info->shape, filter);
+  phy_shape_set_user_data(info->shape, (void *)info);
   info->is_moving = false;
   info->is_turning = false;
   info->target_vel = 0.0f;
@@ -88,7 +95,8 @@ void generate_physics_pivot(physics_info *info, physics_info *p_info, bool colli
   info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_body_get_center_of_gravity(p_info->body), phy_body_get_center_of_gravity(info->body)));
 }
 
-void generate_static_physics_circle(physics_info *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_static_physics_circle(ecs_id eid, physics_info *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+  info->eid = eid;
   info->body = phy_space_add_body(SPACE, phy_body_new_static());
   phy_body_set_position(info->body, pos);
   phy_body_set_center_of_gravity(info->body, cog);
@@ -96,8 +104,9 @@ void generate_static_physics_circle(physics_info *info, bool collides, float rad
   info->shape = phy_space_add_shape(SPACE, phy_circle_shape_new(info->body, radius, phy_v(0.0f, 0.0f)));
   phy_shape_set_friction(info->shape, 0.0f);
   phy_shape_set_collision_type(info->shape, NORMAL_COLLISION_TYPE);
-  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, PHY_ALL_CATEGORIES } : (phy_shape_filter){ PHY_NO_GROUP, 0, 0 };
+  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, category } : (phy_shape_filter){ PHY_NO_GROUP, category, 0 };
   phy_shape_set_filter(info->shape, filter);
+  phy_shape_set_user_data(info->shape, (void *)info);
   info->is_moving = false;
   info->is_turning = false;
   info->target_vel = 0.0f;
@@ -108,7 +117,8 @@ void generate_static_physics_circle(physics_info *info, bool collides, float rad
   info->target_shape = info->shape;
 }
 
-void generate_static_physics_box(physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_static_physics_box(ecs_id eid, physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+  info->eid = eid;
   info->body = phy_space_add_body(SPACE, phy_body_new_static());
   phy_body_set_position(info->body, pos);
   phy_body_set_center_of_gravity(info->body, cog);
@@ -116,8 +126,9 @@ void generate_static_physics_box(physics_info *info, bool collides, float width,
   info->shape = phy_space_add_shape(SPACE, phy_box_shape_new(info->body, width, height, 0.0f));
   phy_shape_set_friction(info->shape, 0.0f);
   phy_shape_set_collision_type(info->shape, NORMAL_COLLISION_TYPE);
-  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, PHY_ALL_CATEGORIES } : (phy_shape_filter){ PHY_NO_GROUP, 0, 0 };
+  phy_shape_filter filter = collides ? (phy_shape_filter){ PHY_NO_GROUP, category, category } : (phy_shape_filter){ PHY_NO_GROUP, category, 0 };
   phy_shape_set_filter(info->shape, filter);
+  phy_shape_set_user_data(info->shape, (void *)info);
   info->is_moving = false;
   info->is_turning = false;
   info->target_vel = 0.0f;
@@ -267,11 +278,22 @@ void generate_targeter(targeter_info *info, physics_info *p_info, float range) {
   phy_shape_set_collision_type(info->sensor, SENSOR_COLLISION_TYPE);
   phy_shape_filter filter = phy_shape_filter_new(PHY_NO_GROUP, COLLISION_CATEGORY_ENTITY, PHY_ALL_CATEGORIES);
   phy_shape_set_filter(info->sensor, filter);
+  phy_shape_set_user_data(info->sensor, (void *)p_info);
   phy_space_add_shape(SPACE, info->sensor);
+  info->all_list = utl_vector_create(sizeof(ecs_id));
+  info->first_list = utl_vector_create(sizeof(ecs_id));
+  info->last_list = utl_vector_create(sizeof(ecs_id));
+  info->strong_list = utl_vector_create(sizeof(ecs_id));
+  info->weak_list = utl_vector_create(sizeof(ecs_id));
 }
 
 void free_targeter(targeter_info *info) {
   phy_space_remove_shape(SPACE, info->sensor);
   phy_shape_free(info->sensor);
+  utl_vector_deallocate(info->all_list);
+  utl_vector_deallocate(info->first_list);
+  utl_vector_deallocate(info->last_list);
+  utl_vector_deallocate(info->strong_list);
+  utl_vector_deallocate(info->weak_list);
 }
 

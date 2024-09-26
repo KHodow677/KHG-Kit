@@ -8,6 +8,7 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
+#include "entity/comp_targeter.h"
 #include "generators/elements/tank_body_generator.h"
 #include "khg_ecs/ecs.h"
 
@@ -21,6 +22,7 @@ typedef struct {
   shooter_info shooter_info;
   selector_info selector_info;
   commander_info commander_info;
+  targeter_info targeter_info;
 } tank_top;
 
 void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angle);

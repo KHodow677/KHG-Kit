@@ -27,6 +27,9 @@ extern ecs_id TARGETER_COMPONENT_SIGNATURE;
 extern targeter_info NO_TARGETER;
 extern targeter_info *TARGETER_INFO;
 
+bool targeter_sensor_enter(phy_arbiter *arb, phy_space *space, phy_data_pointer udata);
+void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer udata);
+
 void comp_targeter_register(comp_targeter *ct);
 
 void sys_targeter_register(sys_targeter *ss);

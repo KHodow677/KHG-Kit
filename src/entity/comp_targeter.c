@@ -2,6 +2,9 @@
 #include "data_utl/kinematic_utl.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
+#include "khg_phy/arbiter.h"
+#include "khg_phy/phy_types.h"
+#include "khg_phy/shape.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,6 +17,19 @@ static ecs_ret sys_targeter_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
     targeter_info *info = &TARGETER_INFO[entities[id]];
   }
   return 0;
+}
+
+bool targeter_sensor_enter(phy_arbiter *arb, phy_space *space, phy_data_pointer udata) {
+  phy_shape *sensor, *entity;
+  phy_arbiter_get_shapes(arb, &sensor, &entity);
+  physics_info *sensor_p_info = (physics_info *)phy_shape_get_user_data(sensor);
+  physics_info *entity_p_info = (physics_info *)phy_shape_get_user_data(entity);
+  printf("Entity %i entered the tank entity %i area!\n", entity_p_info->eid, sensor_p_info->eid);
+  return true;
+}
+
+void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer udata) {
+  printf("Entity exited the sensor area!\n");
 }
 
 void comp_targeter_register(comp_targeter *ct) {

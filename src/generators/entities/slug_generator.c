@@ -9,17 +9,13 @@
 
 void generate_slug(slug *s, float x, float y, float angle, phy_vect *init_path, int init_path_length) {
   s->entity = ecs_create(ECS);
-  generate_physics_circle(&s->physics_info, true, 60, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_ENTITY);
+  generate_physics_circle(s->entity, &s->physics_info, true, 60, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(s->physics_info.body, angle);
   generate_renderer(&s->renderer_info, &s->physics_info, SLUG_1_0, 9, s->entity);
   generate_destroyer(&s->destroyer_info);
   generate_animator(&s->animator_info, SLUG_1_0, SLUG_1_28, 0.032f, false);
   phy_vect init_points[1] = { phy_v(2432, 0) };
   generate_mover(&s->mover_info, s->entity, 150.0f, 8.0f, init_path, init_path_length);
-  /*phy_vect point1 = phy_v(0.0f, 0.0f);*/
-  /*phy_vect point2 = phy_v(-3840.0f, 3840.0f);*/
-  /*utl_queue_push(s->mover_info.target_pos_queue, &point1);*/
-  /*utl_queue_push(s->mover_info.target_pos_queue, &point2);*/
   sys_physics_add(&s->entity, &s->physics_info);
   sys_renderer_add(&s->entity, &s->renderer_info);
   sys_destroyer_add(&s->entity, &s->destroyer_info);

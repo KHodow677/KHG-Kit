@@ -13,7 +13,7 @@
 
 void generate_turret_top(turret_top *tt, turret_base *tb, float x, float y, float angle) {
   tt->entity = ecs_create(ECS);
-  generate_physics_pivot(&tt->physics_info, &tb->physics_info, false, 85.0f, 133.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 25.5f), COLLISION_CATEGORY_ENTITY);
+  generate_physics_pivot(tt->entity, &tt->physics_info, &tb->physics_info, false, 85.0f, 133.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 25.5f), COLLISION_CATEGORY_OBJECT);
   phy_body_set_angle(tt->physics_info.body, angle);
   generate_renderer(&tt->renderer_info, &tt->physics_info, TURRET_TOP, 3, tb->entity);
   generate_destroyer(&tt->destroyer_info);
