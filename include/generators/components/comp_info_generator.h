@@ -47,4 +47,5 @@ void free_targeter(targeter_info *info);
 void generate_health(health_info *info, float max_health, float starting_health);
 
 void generate_damage(damage_info *info, float damage);
+void free_damage(damage_info *info);
 

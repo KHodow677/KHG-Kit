@@ -2,11 +2,11 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy_types.h"
-#include "khg_utl/vector.h"
 
 typedef struct {
   phy_body *body;
   phy_body *target_aim_body;
+  ecs_id target_eid;
 } rotator_info;
 
 typedef struct {

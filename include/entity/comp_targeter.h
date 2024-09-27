@@ -46,7 +46,7 @@ bool targeter_sensor_enter(phy_arbiter *arb, phy_space *space, phy_data_pointer 
 void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer udata);
 
 void handle_target_lists_add(targeter_info *info, target *tgt);
-void handle_target_lists_remove(targeter_info *info, target *tgt);
+void handle_target_lists_remove(targeter_info *info, ecs_id eid);
 
 void comp_targeter_register(comp_targeter *ct);
 

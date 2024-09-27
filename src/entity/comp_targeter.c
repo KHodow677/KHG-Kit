@@ -28,7 +28,7 @@ static ecs_ret sys_targeter_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
       }
       else if (!tgt->is_targetable && tgt->is_in_target_lists) {
         tgt->is_in_target_lists = true;
-        handle_target_lists_remove(info, tgt);
+        handle_target_lists_remove(info, tgt->eid);
       }
     }
     if (info->mode == TARGET_FIRST) {
@@ -46,9 +46,11 @@ static ecs_ret sys_targeter_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
     if (!utl_vector_is_empty(info->current_list)) {
       ecs_id id = ((target *)utl_vector_front(info->current_list))->eid;
       r_info->target_aim_body = PHYSICS_INFO[id].body;
+      r_info->target_eid = id;
     }
     else {
       r_info->target_aim_body = NULL;
+      r_info->target_eid = -1;
     }
   }
   return 0;
@@ -74,7 +76,7 @@ void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer u
   for (int i = 0; i < utl_vector_size(target_selector->all_list); i++) {
     target *tgt = utl_vector_at(target_selector->all_list, i);
     if (entity_p_info->eid == tgt->eid) {
-      handle_target_lists_remove(target_selector, tgt);
+      handle_target_lists_remove(target_selector, tgt->eid);
       utl_vector_erase(target_selector->all_list, i, 1);
       break;
     }
@@ -112,27 +114,27 @@ void handle_target_lists_add(targeter_info *info, target *tgt) {
   }
 }
 
-void handle_target_lists_remove(targeter_info *info, target *tgt) {
+void handle_target_lists_remove(targeter_info *info, ecs_id eid) {
   for (int i = 0; i < utl_vector_size(info->first_list); i++) {
-    if (tgt->eid == ((target *)utl_vector_at(info->first_list, i))->eid) {
+    if (eid == ((target *)utl_vector_at(info->first_list, i))->eid) {
       utl_vector_erase(info->first_list, i, 1);
       break;
     }
   }
   for (int i = 0; i < utl_vector_size(info->last_list); i++) {
-    if (tgt->eid == ((target *)utl_vector_at(info->last_list, i))->eid) {
+    if (eid == ((target *)utl_vector_at(info->last_list, i))->eid) {
       utl_vector_erase(info->last_list, i, 1);
       break;
     }
   }
   for (int i = 0; i < utl_vector_size(info->strong_list); i++) {
-    if (tgt->eid == ((target *)utl_vector_at(info->strong_list, i))->eid) {
+    if (eid == ((target *)utl_vector_at(info->strong_list, i))->eid) {
       utl_vector_erase(info->strong_list, i, 1);
       break;
     }
   }
   for (int i = 0; i < utl_vector_size(info->weak_list); i++) {
-    if (tgt->eid == ((target *)utl_vector_at(info->weak_list, i))->eid) {
+    if (eid == ((target *)utl_vector_at(info->weak_list, i))->eid) {
       utl_vector_erase(info->weak_list, i, 1);
       break;
     }

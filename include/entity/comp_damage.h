@@ -1,9 +1,12 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
+#include "khg_utl/vector.h"
 
 typedef struct {
   float damage;
+  utl_vector *target_entities;
+  ecs_id entity_killed;
 } damage_info;
 
 typedef struct {

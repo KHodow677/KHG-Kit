@@ -14,6 +14,6 @@ typedef struct {
   animator_info animator_info;
 } particle;
 
-void generate_particle(particle *p, phy_body *body_body, phy_body *top_body, float x, float y);
+void generate_particle(particle *p, physics_info *p_info, float x, float y);
 void free_particle(particle *p);
 

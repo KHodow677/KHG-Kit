@@ -23,11 +23,11 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   generate_destroyer(&tt->destroyer_info);
   generate_mover(&tt->mover_info, tb->entity, 300.0f, 16.0f, NULL, 0);
   generate_rotator(&tt->rotator_info, &tt->physics_info, angle);
-  generate_shooter(&tt->shooter_info, 155.0f, 2.5f);
+  generate_shooter(&tt->shooter_info, 155.0f, 1.0f);
   generate_selector(&tt->selector_info, TANK_TOP, TANK_BODY, TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);
   generate_commander(&tt->commander_info, &tt->mover_info);
   generate_targeter(&tt->targeter_info, &tb->physics_info, &tt->physics_info, 400.0f);
-  generate_damage(&tt->damage_info, 250.0f);
+  generate_damage(&tt->damage_info, 500.0f);
   sys_physics_add(&tt->entity, &tt->physics_info);
   sys_renderer_add(&tt->entity, &tt->renderer_info);
   sys_destroyer_add(&tt->entity, &tt->destroyer_info);
@@ -45,6 +45,7 @@ void free_tank_top(tank_top *tt) {
   free_renderer(&tt->renderer_info);
   free_mover(&tt->mover_info);
   free_targeter(&tt->targeter_info);
+  free_damage(&tt->damage_info);
   PHYSICS_INFO[tt->entity] = NO_PHYSICS;
   utl_vector_assign(RENDERER_INFO, tt->entity, &NO_RENDERER);
   DESTROYER_INFO[tt->entity] = NO_DESTROYER;

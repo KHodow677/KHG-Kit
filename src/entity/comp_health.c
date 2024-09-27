@@ -11,7 +11,12 @@ health_info *HEALTH_INFO = (health_info[ECS_ENTITY_COUNT]){};
 
 static ecs_ret sys_health_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    health_info *info = &HEALTH_INFO[entities[id]]; 
+    health_info *info = &HEALTH_INFO[entities[id]];
+    destroyer_info *d_info = &DESTROYER_INFO[entities[id]];
+    /*printf("Current Health for Entity %i: %f\n", entities[id], info->current_health);*/
+    if (info->current_health <= 0.0f) {
+      d_info->destroy_now = true;
+    }
   }
   return 0;
 }

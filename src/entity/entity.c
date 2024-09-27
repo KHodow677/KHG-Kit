@@ -2,7 +2,6 @@
 #include "game_manager.h"
 #include "generators/entities/spawner_generator.h"
 #include "khg_utl/vector.h"
-#include <stdio.h>
 
 bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
   if (ge->type == ENTITY_TYPE_PARTICLE) {

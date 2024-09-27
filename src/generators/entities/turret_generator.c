@@ -6,7 +6,7 @@
 void generate_turret(turret *t, float x, float y, float angle) {
   generate_turret_base(&t->base, x, y, angle);
   generate_turret_top(&t->top, &t->base, x, y, angle);
-  t->entity = t->base.entity;
+  t->entity = t->top.entity;
 }
 
 void free_turret(turret *t) {

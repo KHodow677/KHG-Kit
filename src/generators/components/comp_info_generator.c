@@ -236,6 +236,7 @@ void free_mover(mover_info *info) {
 void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang) {
   info->body = p_info->body;
   info->target_aim_body = NULL;
+  info->target_eid = -1;
 }
 
 void generate_shooter(shooter_info *info, float barrel_length, float cooldown) {
@@ -309,5 +310,10 @@ void generate_health(health_info *info, float max_health, float starting_health)
 
 void generate_damage(damage_info *info, float damage) {
   info->damage = damage; 
+  info->target_entities = utl_vector_create(sizeof(ecs_id));
+}
+
+void free_damage(damage_info *info) {
+  utl_vector_deallocate(info->target_entities);
 }
 
