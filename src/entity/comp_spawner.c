@@ -16,10 +16,10 @@ static ecs_ret sys_spawner_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
     if (s_info->selected) {
       SPAWN_SETTINGS.spawner_id = entities[id];
       SPAWN_SETTINGS.spawner_tex_id = r_info->tex_id;
-      GAME_OVERLAY_TRACKER[SPAWN_MENU] = true;
+      GAME_OVERLAY_TRACKER[SPAWN_MENU].active = true;
     }
     else if (SPAWN_SETTINGS.spawner_id == entities[id]) {
-      GAME_OVERLAY_TRACKER[SPAWN_MENU] = false;
+      GAME_OVERLAY_TRACKER[SPAWN_MENU].active = false;
     }
   }
   return 0;

@@ -59,9 +59,7 @@ int game_run() {
   load_map("Map-Building", &GAME_BUILDING_MAP);
   load_map("Map-Path", &GAME_PATH_MAP);
   add_map_collision_segments(GAME_BUILDING_MAP, &GAME_MAP_SEGMENTS);
-  for (int i = 0; i < NUM_MENUS; i++) {
-    GAME_OVERLAY_TRACKER[i] = false;
-  }
+  setup_game_overlay();
   spawn_spawner(3840, 0, -0.5f * M_PI, (phy_vect[]){ phy_v(2432, 0), phy_v(2048, 384), phy_v(2048, 1920), phy_v(128, 3840), phy_v(-3840, 3840) }, 5);
   spawn_spawner(0, -3840, -M_PI, (phy_vect[]){ phy_v(0, -2432), phy_v(-384, -2048), phy_v(-1920, -2048), phy_v(-3840, -128), phy_v(-3840, 3840) }, 5);
   spawn_spawner(3840, -3840, -M_PI * 0.75f, (phy_vect[]){ phy_v(-3840, 3840) }, 1);

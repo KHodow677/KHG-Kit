@@ -17,5 +17,6 @@ typedef struct {
 
 extern spawn_menu_info SPAWN_SETTINGS;
 
+void spawn_menu_setup(void);
 bool render_spawn_menu(void);
 

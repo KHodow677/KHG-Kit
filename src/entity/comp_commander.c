@@ -4,6 +4,7 @@
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
+#include "khg_phy/shape.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
@@ -25,11 +26,12 @@ static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_c
       generate_all_indicators(s_info, p_info, r_info, m_info);
     }
     else if (s_info->selected && !s_info->just_selected) {
-      if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
-        phy_vect new_pos = phy_v(MOUSE_STATE.left_mouse_click_controls.x, MOUSE_STATE.left_mouse_click_controls.y);
+      if (!phy_v_eql(MOUSE_STATE.right_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
+        phy_vect new_pos = phy_v(MOUSE_STATE.right_mouse_click_controls.x, MOUSE_STATE.right_mouse_click_controls.y);
         utl_queue_push(m_info->target_pos_queue, &new_pos);
       }
-      if (!phy_v_eql(MOUSE_STATE.right_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
+      bool left_clicked_on = !phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f)) && phy_shape_point_query(p_info->target_shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f;
+      if (KEYBOARD_STATE.escape_key_went_down || left_clicked_on) {
         if (!utl_queue_empty(m_info->target_pos_queue)) {
           while (!utl_queue_empty(m_info->target_pos_queue)) {
             utl_queue_pop(m_info->target_pos_queue);

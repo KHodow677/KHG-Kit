@@ -45,11 +45,16 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
           }
           info->selected = true;
           info->just_selected = true;
-          swap_render_info_texture(r_info, entities[id], info->selected_tex_id, info->selected_linked_tex_id);
+          if (info->selected_tex_id == info->selected_linked_tex_id) {
+            swap_render_info_texture(r_info, entities[id], info->selected_tex_id, info->selected_linked_tex_id);
+          }
+          else {
+            swap_render_info_texture(r_info, entities[id], info->tex_id, info->selected_linked_tex_id);
+          }
         }
-        else {
-          deselect(info, r_info, entities[id]);
-        }
+      }
+      else {
+        deselect(info, r_info, entities[id]);
       }
     }
   }

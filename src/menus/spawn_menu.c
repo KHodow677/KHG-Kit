@@ -6,7 +6,6 @@
 #include "khg_gfx/elements.h"
 #include "khg_gfx/ui.h"
 #include "khg_phy/body.h"
-#include "khg_utl/vector.h"
 #include "spawners/spawn_tank.h"
 #include <stdint.h>
 
@@ -146,6 +145,14 @@ static void render_small_icon_buttons(float div_width, float div_height, bool se
   }
   gfx_pop_style_props();
   gfx_push_style_props(div_props);
+}
+
+void spawn_menu_setup() {
+  GAME_OVERLAY_TRACKER[SPAWN_MENU].width = 400.0f;
+  GAME_OVERLAY_TRACKER[SPAWN_MENU].height = 575.0f;
+  GAME_OVERLAY_TRACKER[SPAWN_MENU].padding = 20.0f;
+  GAME_OVERLAY_TRACKER[SPAWN_MENU].pos_x = GAME_OVERLAY_TRACKER[SPAWN_MENU].padding; 
+  GAME_OVERLAY_TRACKER[SPAWN_MENU].pos_y = gfx_get_display_height() - GAME_OVERLAY_TRACKER[SPAWN_MENU].height - GAME_OVERLAY_TRACKER[SPAWN_MENU].padding;
 }
 
 bool render_spawn_menu() {

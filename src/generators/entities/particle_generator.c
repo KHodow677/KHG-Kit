@@ -17,7 +17,7 @@ void generate_particle(particle *p, phy_body *body_body, phy_body *top_body, flo
   generate_physics_box(p->entity, &p->physics_info, false, 100, 100, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_OBJECT);
   generate_renderer(&p->renderer_info, &p->physics_info, PARTICLE_2_0, 9, p->entity);
   generate_destroyer(&p->destroyer_info);
-  generate_animator(&p->animator_info, PARTICLE_2_0, PARTICLE_2_4, 0.032f, true);
+  generate_animator(&p->animator_info, PARTICLE_2_0, PARTICLE_2_4, 0.064f, true);
   float ang = normalize_angle(phy_body_get_angle(top_body));
   phy_body_set_angle(p->physics_info.body, ang - M_PI / 2);
   phy_body_set_angular_velocity(p->physics_info.body, phy_body_get_angular_velocity(top_body));

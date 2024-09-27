@@ -5,6 +5,8 @@
 typedef struct keyboard_state {
   bool space_key_is_down;
   bool space_key_went_down;
+  bool escape_key_is_down;
+  bool escape_key_went_down;
 } keyboard_state;
 
 bool handle_key_button_is_down(int key);

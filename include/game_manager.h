@@ -43,7 +43,7 @@ extern utl_vector *GAME_MAP_SEGMENTS;
 extern int GAME_MAP_SIZE;
 extern int GAME_MAP_TILE_SIZE;
 
-extern bool GAME_OVERLAY_TRACKER[NUM_MENUS];
+extern game_overlay_info GAME_OVERLAY_TRACKER[NUM_MENUS];
 
 extern gfx_texture NO_TEXTURE;
 extern int MAX_TEXTURES;
