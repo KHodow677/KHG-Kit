@@ -63,8 +63,8 @@ void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer u
   for (int i = 0; i < utl_vector_size(target_selector->all_list); i++) {
     target *tgt = utl_vector_at(target_selector->all_list, i);
     if (entity_p_info->eid == tgt->eid) {
-      utl_vector_erase(target_selector->all_list, i, 1);
       handle_target_lists_remove(target_selector, tgt);
+      utl_vector_erase(target_selector->all_list, i, 1);
       break;
     }
   }

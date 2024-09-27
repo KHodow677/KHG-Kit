@@ -25,7 +25,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   generate_shooter(&tt->shooter_info, 155.0f, 2.5f);
   generate_selector(&tt->selector_info, TANK_TOP, TANK_BODY, TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);
   generate_commander(&tt->commander_info, &tt->mover_info);
-  generate_targeter(&tt->targeter_info, &tb->physics_info, &tt->physics_info, 256.0f);
+  generate_targeter(&tt->targeter_info, &tb->physics_info, &tt->physics_info, 400.0f);
   sys_physics_add(&tt->entity, &tt->physics_info);
   sys_renderer_add(&tt->entity, &tt->renderer_info);
   sys_destroyer_add(&tt->entity, &tt->destroyer_info);
