@@ -236,8 +236,9 @@ void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang) 
   info->target_aim_body = NULL;
 }
 
-void generate_shooter(shooter_info *info, float barrel_length) {
-  info->shoot_cooldown = 0;
+void generate_shooter(shooter_info *info, float barrel_length, float cooldown) {
+  info->shoot_cooldown = cooldown;
+  info->shoot_timer = 0.0f;
   info->barrel_length = barrel_length;
 }
 
@@ -271,20 +272,21 @@ void generate_commander(commander_info *info, mover_info *m_info) {
   info->point_queue_count = utl_queue_size(m_info->target_pos_queue);
 }
 
-void generate_targeter(targeter_info *info, physics_info *p_info, float range) {
+void generate_targeter(targeter_info *info, physics_info *body_p_info, physics_info *targeting_p_info, float range) {
   info->range = range;
-  info->sensor = phy_circle_shape_new(p_info->body, range, phy_v(0.0f, 0.0f));
+  info->mode = TARGET_FIRST;
+  info->sensor = phy_circle_shape_new(body_p_info->body, range, phy_v(0.0f, 0.0f));
   phy_shape_set_sensor(info->sensor, true);
   phy_shape_set_collision_type(info->sensor, SENSOR_COLLISION_TYPE);
   phy_shape_filter filter = phy_shape_filter_new(PHY_NO_GROUP, COLLISION_CATEGORY_ENTITY, PHY_ALL_CATEGORIES);
   phy_shape_set_filter(info->sensor, filter);
-  phy_shape_set_user_data(info->sensor, (void *)p_info);
+  phy_shape_set_user_data(info->sensor, (void *)targeting_p_info);
   phy_space_add_shape(SPACE, info->sensor);
-  info->all_list = utl_vector_create(sizeof(ecs_id));
-  info->first_list = utl_vector_create(sizeof(ecs_id));
-  info->last_list = utl_vector_create(sizeof(ecs_id));
-  info->strong_list = utl_vector_create(sizeof(ecs_id));
-  info->weak_list = utl_vector_create(sizeof(ecs_id));
+  info->all_list = utl_vector_create(sizeof(target));
+  info->first_list = utl_vector_create(sizeof(target));
+  info->last_list = utl_vector_create(sizeof(target));
+  info->strong_list = utl_vector_create(sizeof(target));
+  info->weak_list = utl_vector_create(sizeof(target));
 }
 
 void free_targeter(targeter_info *info) {

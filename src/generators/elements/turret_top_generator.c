@@ -18,7 +18,7 @@ void generate_turret_top(turret_top *tt, turret_base *tb, float x, float y, floa
   generate_renderer(&tt->renderer_info, &tt->physics_info, TURRET_TOP, 3, tb->entity);
   generate_destroyer(&tt->destroyer_info);
   generate_rotator(&tt->rotator_info, &tt->physics_info, angle);
-  generate_shooter(&tt->shooter_info, 107.0f);
+  generate_shooter(&tt->shooter_info, 107.0f, 1.0f);
   sys_physics_add(&tt->entity, &tt->physics_info);
   sys_renderer_add(&tt->entity, &tt->renderer_info);
   sys_destroyer_add(&tt->entity, &tt->destroyer_info);
@@ -32,7 +32,7 @@ void free_turret_top(turret_top *tt) {
   PHYSICS_INFO[tt->entity] = NO_PHYSICS;
   utl_vector_assign(RENDERER_INFO, tt->entity, &NO_RENDERER);
   DESTROYER_INFO[tt->entity] = NO_DESTROYER;
-  utl_vector_assign(ROTATOR_INFO, tt->entity, &NO_ROTATOR);
+  ROTATOR_INFO[tt->entity] = NO_ROTATOR;
   utl_vector_assign(SHOOTER_INFO, tt->entity, &NO_SHOOTER);
 }
 

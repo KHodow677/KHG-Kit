@@ -82,11 +82,11 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PARTICLE_1_13] = (texture_asset){  "particle/p1/13", "png", 107, 100, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PARTICLE_1_14] = (texture_asset){ "particle/p1/14", "png", 107, 100, SEGMENT_NONE };
   TEXTURE_ASSET_REF[PARTICLE_1_15] = (texture_asset){ "particle/p1/15", "png", 107, 100, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[PARTICLE_2_0] = (texture_asset){ "particle/p2/00", "png", 80, 80, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[PARTICLE_2_1] = (texture_asset){ "particle/p2/01", "png", 80, 80, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[PARTICLE_2_2] = (texture_asset){ "particle/p2/02", "png", 80, 80, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[PARTICLE_2_3] = (texture_asset){ "particle/p2/03", "png", 80, 80, SEGMENT_NONE };
-  TEXTURE_ASSET_REF[PARTICLE_2_4] = (texture_asset){ "particle/p2/04", "png", 80, 80, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[PARTICLE_2_0] = (texture_asset){ "particle/p2/00", "png", 100, 100, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[PARTICLE_2_1] = (texture_asset){ "particle/p2/01", "png", 100, 100, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[PARTICLE_2_2] = (texture_asset){ "particle/p2/02", "png", 100, 100, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[PARTICLE_2_3] = (texture_asset){ "particle/p2/03", "png", 100, 100, SEGMENT_NONE };
+  TEXTURE_ASSET_REF[PARTICLE_2_4] = (texture_asset){ "particle/p2/04", "png", 100, 100, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TANK_BODY_OUTLINE] = (texture_asset){ "Tank-Body-Blue-Outline", "png", 165, 204, SEGMENT_NONE };
   TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Blue-Outline", "png", 124, 231, SEGMENT_NONE };
   TEXTURE_ASSET_REF[COMMAND_POINT] = (texture_asset){ "targeting/Point", "png", 56, 56, SEGMENT_NONE };

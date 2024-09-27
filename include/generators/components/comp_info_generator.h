@@ -30,7 +30,7 @@ void free_mover(mover_info *info);
 
 void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang);
 
-void generate_shooter(shooter_info *info, float barrel_length);
+void generate_shooter(shooter_info *info, float barrel_length, float cooldown);
 
 void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id);
 
@@ -39,6 +39,6 @@ void free_stream_spawner(stream_spawner_info *info);
 
 void generate_commander(commander_info *info, mover_info *m_info);
 
-void generate_targeter(targeter_info *info, physics_info *p_info, float range);
+void generate_targeter(targeter_info *info, physics_info *body_p_info, physics_info *targeting_p_info, float range);
 void free_targeter(targeter_info *info);
 

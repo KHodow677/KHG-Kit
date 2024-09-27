@@ -1,6 +1,5 @@
 #include "entity/comp_shooter.h"
 #include "controllers/elements/element_controller.h"
-#include "controllers/input/key_controllers.h"
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_rotator.h"
@@ -22,9 +21,9 @@ static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   for (int id = 0; id < entity_count; id++) {
     shooter_info *info = utl_vector_at(SHOOTER_INFO, entities[id]);
     physics_info *p_info = &PHYSICS_INFO[entities[id]];
-    rotator_info *r_info = utl_vector_at(ROTATOR_INFO, entities[id]);
-    if (KEYBOARD_STATE.space_key_went_down && r_info->target_aim_body && element_is_targeting_position(p_info, phy_body_get_position(r_info->target_aim_body), 0.2f) && info->shoot_cooldown == 0) {
-      info->shoot_cooldown = 0.16f;
+    rotator_info *r_info = &ROTATOR_INFO[entities[id]];
+    if (r_info->target_aim_body && element_is_targeting_position(p_info, phy_body_get_position(r_info->target_aim_body), 0.2f) && info->shoot_timer == 0) {
+      info->shoot_timer = info->shoot_cooldown;
       phy_vect pos = phy_body_get_position(p_info->body);
       float ang = phy_body_get_angle(p_info->body);
       float spawn_x = pos.x + info->barrel_length * sinf(normalize_angle(ang));
@@ -34,7 +33,7 @@ static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
       spawn_particle(p_info->target_body, p_info->body, spawn_x, spawn_y);
     }
     else {
-      info->shoot_cooldown = fmaxf(info->shoot_cooldown - dt, 0.0f);
+      info->shoot_timer = fmaxf(info->shoot_timer - dt, 0.0f);
     }
   }
   return 0;

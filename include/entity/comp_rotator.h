@@ -20,7 +20,7 @@ typedef struct {
 
 extern ecs_id ROTATOR_COMPONENT_SIGNATURE;
 extern rotator_info NO_ROTATOR;
-extern utl_vector *ROTATOR_INFO;
+extern rotator_info *ROTATOR_INFO;
 
 void comp_rotator_register(comp_rotator *cr);
 
