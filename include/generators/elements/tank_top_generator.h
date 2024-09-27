@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entity/comp_commander.h"
+#include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
@@ -23,6 +24,7 @@ typedef struct {
   selector_info selector_info;
   commander_info commander_info;
   targeter_info targeter_info;
+  damage_info damage_info;
 } tank_top;
 
 void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angle);

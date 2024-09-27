@@ -1,5 +1,6 @@
 #include "generators/elements/tank_top_generator.h"
 #include "entity/comp_commander.h"
+#include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -26,6 +27,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   generate_selector(&tt->selector_info, TANK_TOP, TANK_BODY, TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);
   generate_commander(&tt->commander_info, &tt->mover_info);
   generate_targeter(&tt->targeter_info, &tb->physics_info, &tt->physics_info, 400.0f);
+  generate_damage(&tt->damage_info, 250.0f);
   sys_physics_add(&tt->entity, &tt->physics_info);
   sys_renderer_add(&tt->entity, &tt->renderer_info);
   sys_destroyer_add(&tt->entity, &tt->destroyer_info);
@@ -35,6 +37,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   sys_selector_add(&tt->entity, &tt->selector_info);
   sys_commander_add(&tt->entity, &tt->commander_info);
   sys_targeter_add(&tt->entity, &tt->targeter_info);
+  sys_damage_add(&tt->entity, &tt->damage_info);
 }
 
 void free_tank_top(tank_top *tt) {

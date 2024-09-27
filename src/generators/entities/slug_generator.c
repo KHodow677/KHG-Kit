@@ -1,5 +1,5 @@
 #include "generators/entities/slug_generator.h"
-#include "entity/comp_mover.h"
+#include "entity/comp_health.h"
 #include "generators/components/comp_info_generator.h"
 #include "game_manager.h"
 #include "generators/components/texture_generator.h"
@@ -14,13 +14,14 @@ void generate_slug(slug *s, float x, float y, float angle, phy_vect *init_path, 
   generate_renderer(&s->renderer_info, &s->physics_info, SLUG_1_0, 9, s->entity);
   generate_destroyer(&s->destroyer_info);
   generate_animator(&s->animator_info, SLUG_1_0, SLUG_1_28, 0.032f, false);
-  phy_vect init_points[1] = { phy_v(2432, 0) };
+  generate_health(&s->health_info, 500.0f, 500.0f);
   generate_mover(&s->mover_info, s->entity, 150.0f, 8.0f, init_path, init_path_length);
   sys_physics_add(&s->entity, &s->physics_info);
   sys_renderer_add(&s->entity, &s->renderer_info);
   sys_destroyer_add(&s->entity, &s->destroyer_info);
   sys_animator_add(&s->entity, &s->animator_info);
   sys_mover_add(&s->entity, &s->mover_info);
+  sys_health_add(&s->entity, &s->health_info);
 }
 
 void free_slug(slug *s) {

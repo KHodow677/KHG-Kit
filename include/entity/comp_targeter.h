@@ -22,6 +22,7 @@ typedef struct {
   targeting_mode mode;
   phy_shape *sensor;
   utl_vector *all_list;
+  utl_vector *current_list;
   utl_vector *first_list;
   utl_vector *last_list;
   utl_vector *strong_list;

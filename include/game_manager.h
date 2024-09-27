@@ -5,7 +5,9 @@
 #include "entity/camera.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_commander.h"
+#include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
+#include "entity/comp_health.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -73,6 +75,8 @@ extern sys_spawn SPAWNER_SYSTEM;
 extern sys_stream_spawner STREAM_SPAWNER_SYSTEM;
 extern sys_commander COMMANDER_SYSTEM;
 extern sys_targeter TARGETER_SYSTEM;
+extern sys_health HEALTH_SYSTEM;
+extern sys_damage DAMAGE_SYSTEM;
 
 static comp_physics PHYSICS_COMPONENT_TYPE;
 static comp_renderer RENDERER_COMPONENT_TYPE;
@@ -86,6 +90,8 @@ static comp_spawn SPAWNER_COMPONENT_TYPE;
 static comp_stream_spawner STREAM_SPAWNER_COMPONENT_TYPE;
 static comp_commander COMMANDER_COMPONENT_TYPE;
 static comp_targeter TARGETER_COMPONENT_TYPE;
+static comp_health HEALTH_COMPONENT_TYPE;
+static comp_damage DAMAGE_COMPONENT_TYPE;
 
 void ecs_setup();
 void ecs_cleanup();

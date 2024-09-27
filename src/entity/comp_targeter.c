@@ -1,5 +1,6 @@
 #include "entity/comp_targeter.h"
 #include "data_utl/kinematic_utl.h"
+#include "entity/comp_health.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_rotator.h"
 #include "game_manager.h"
@@ -31,13 +32,23 @@ static ecs_ret sys_targeter_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
       }
     }
     if (info->mode == TARGET_FIRST) {
-      if (!utl_vector_is_empty(info->first_list)) {
-        ecs_id id = ((target *)utl_vector_front(info->first_list))->eid;
-        r_info->target_aim_body = PHYSICS_INFO[id].body;
-      }
-      else {
-        r_info->target_aim_body = NULL;
-      }
+      info->current_list = info->first_list;
+    }
+    else if (info->mode == TARGET_LAST) {
+      info->current_list = info->last_list;
+    }
+    else if (info->mode == TARGET_STRONG) {
+      info->current_list = info->strong_list;
+    }
+    else if (info->mode == TARGET_WEAK) {
+      info->current_list = info->weak_list;
+    }
+    if (!utl_vector_is_empty(info->current_list)) {
+      ecs_id id = ((target *)utl_vector_front(info->current_list))->eid;
+      r_info->target_aim_body = PHYSICS_INFO[id].body;
+    }
+    else {
+      r_info->target_aim_body = NULL;
     }
   }
   return 0;
@@ -74,12 +85,30 @@ void handle_target_lists_add(targeter_info *info, target *tgt) {
   utl_vector_push_back(info->first_list, tgt);
   utl_vector_insert(info->last_list, 0, tgt);
   if (!utl_vector_is_empty(info->strong_list)) {
+    health_info *new_h_info = &HEALTH_INFO[tgt->eid];
+    for (int i = 0; i < utl_vector_size(info->strong_list); i++) {
+      health_info *index_h_info = &HEALTH_INFO[((target *)utl_vector_at(info->strong_list, i))->eid];
+      if (new_h_info->max_health > index_h_info->max_health) {
+        utl_vector_insert(info->strong_list, i, tgt);
+        break;
+      }
+    }
   }
   else {
+    utl_vector_push_back(info->strong_list, tgt);
   }
   if (!utl_vector_is_empty(info->weak_list)) {
+    health_info *new_h_info = &HEALTH_INFO[tgt->eid];
+    for (int i = 0; i < utl_vector_size(info->weak_list); i++) {
+      health_info *index_h_info = &HEALTH_INFO[((target *)utl_vector_at(info->weak_list, i))->eid];
+      if (new_h_info->max_health < index_h_info->max_health) {
+        utl_vector_insert(info->weak_list, i, tgt);
+        break;
+      }
+    }
   }
   else {
+    utl_vector_push_back(info->weak_list, tgt);
   }
 }
 
@@ -103,7 +132,7 @@ void handle_target_lists_remove(targeter_info *info, target *tgt) {
     }
   }
   for (int i = 0; i < utl_vector_size(info->weak_list); i++) {
-    if (tgt->eid == ((target *)utl_vector_at(info->strong_list, i))->eid) {
+    if (tgt->eid == ((target *)utl_vector_at(info->weak_list, i))->eid) {
       utl_vector_erase(info->weak_list, i, 1);
       break;
     }

@@ -2,6 +2,8 @@
 #include "controllers/input/key_controllers.h"
 #include "entity/camera.h"
 #include "entity/comp_commander.h"
+#include "entity/comp_damage.h"
+#include "entity/comp_health.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
@@ -97,6 +99,8 @@ sys_spawn SPAWNER_SYSTEM = { 0 };
 sys_stream_spawner STREAM_SPAWNER_SYSTEM = { 0 };
 sys_commander COMMANDER_SYSTEM = { 0 };
 sys_targeter TARGETER_SYSTEM = { 0 };
+sys_health HEALTH_SYSTEM = { 0 };
+sys_damage DAMAGE_SYSTEM = { 0 };
 
 void ecs_setup() {
   camera_setup(&CAMERA);
@@ -113,6 +117,8 @@ void ecs_setup() {
   comp_stream_spawner_register(&STREAM_SPAWNER_COMPONENT_TYPE);
   comp_commander_register(&COMMANDER_COMPONENT_TYPE);
   comp_targeter_register(&TARGETER_COMPONENT_TYPE);
+  comp_health_register(&HEALTH_COMPONENT_TYPE);
+  comp_damage_register(&DAMAGE_COMPONENT_TYPE);
   sys_physics_register(&PHYSICS_SYSTEM);
   sys_renderer_register(&RENDERER_SYSTEM);
   sys_destroyer_register(&DESTROYER_SYSTEM);
@@ -125,6 +131,8 @@ void ecs_setup() {
   sys_stream_spawner_register(&STREAM_SPAWNER_SYSTEM);
   sys_commander_register(&COMMANDER_SYSTEM);
   sys_targeter_register(&TARGETER_SYSTEM);
+  sys_health_register(&HEALTH_SYSTEM);
+  sys_damage_register(&DAMAGE_SYSTEM);
   generate_entity_lookup();
   generate_textures();
 }
