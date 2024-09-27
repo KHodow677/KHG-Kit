@@ -13,8 +13,10 @@ void element_set_position(physics_info *info, phy_vect pos);
 void element_set_angle(physics_info *info, float target_ang);
 
 bool element_is_targeting_position(physics_info *info, phy_vect pos, float tolerance);
+bool element_is_targeting_position_default(physics_info *info, phy_vect pos);
 bool element_is_at_position(physics_info *info, phy_vect pos, float tolerance);
 bool element_is_at_position_default(physics_info *info, phy_vect pos);
+
 void element_target_position(physics_info *info, phy_vect pos, float max_vel, float max_ang_vel);
 void element_lock_on_position(physics_info *info, phy_vect pos, float max_ang_vel);
 

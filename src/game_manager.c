@@ -10,7 +10,7 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
-#include "entity/comp_spawner.h"
+#include "entity/comp_spawn.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 #include "entity/entity.h"
@@ -93,7 +93,7 @@ sys_mover MOVER_SYSTEM = { 0 };
 sys_rotator ROTATOR_SYSTEM = { 0 };
 sys_shooter SHOOTER_SYSTEM = { 0 };
 sys_selector SELECTOR_SYSTEM = { 0 };
-sys_spawner SPAWNER_SYSTEM = { 0 };
+sys_spawn SPAWNER_SYSTEM = { 0 };
 sys_stream_spawner STREAM_SPAWNER_SYSTEM = { 0 };
 sys_commander COMMANDER_SYSTEM = { 0 };
 sys_targeter TARGETER_SYSTEM = { 0 };
@@ -109,7 +109,7 @@ void ecs_setup() {
   comp_rotator_register(&ROTATOR_COMPONENT_TYPE);
   comp_shooter_register(&SHOOTER_COMPONENT_TYPE);
   comp_selector_register(&SELECTOR_COMPONENT_TYPE);
-  comp_spawner_register(&SPAWNER_COMPONENT_TYPE);
+  comp_spawn_register(&SPAWNER_COMPONENT_TYPE);
   comp_stream_spawner_register(&STREAM_SPAWNER_COMPONENT_TYPE);
   comp_commander_register(&COMMANDER_COMPONENT_TYPE);
   comp_targeter_register(&TARGETER_COMPONENT_TYPE);
@@ -121,7 +121,7 @@ void ecs_setup() {
   sys_rotator_register(&ROTATOR_SYSTEM);
   sys_shooter_register(&SHOOTER_SYSTEM);
   sys_selector_register(&SELECTOR_SYSTEM);
-  sys_spawner_register(&SPAWNER_SYSTEM);
+  sys_spawn_register(&SPAWNER_SYSTEM);
   sys_stream_spawner_register(&STREAM_SPAWNER_SYSTEM);
   sys_commander_register(&COMMANDER_SYSTEM);
   sys_targeter_register(&TARGETER_SYSTEM);

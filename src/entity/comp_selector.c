@@ -32,6 +32,9 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
     physics_info *p_info = &PHYSICS_INFO[entities[id]];
     renderer_info *r_info = utl_vector_at(RENDERER_INFO, entities[id]);
     info->just_selected = false;
+    if (KEYBOARD_STATE.escape_key_went_down) {
+      deselect(info, r_info, entities[id]);
+    }
     if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
       if (phy_shape_point_query(p_info->target_shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f) {
         if (!info->selected) {

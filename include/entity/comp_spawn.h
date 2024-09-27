@@ -4,17 +4,17 @@
 
 typedef struct {
   ecs_id id;
-} comp_spawner;
+} comp_spawn;
 
 typedef struct {
   ecs_id id;
   ecs_ecs ecs;
-} sys_spawner;
+} sys_spawn;
 
 extern ecs_id SPAWNER_COMPONENT_SIGNATURE;
 
-void comp_spawner_register(comp_spawner *cs);
+void comp_spawn_register(comp_spawn *cs);
 
-void sys_spawner_register(sys_spawner *ss);
-void sys_spawner_add(ecs_id *eid);
+void sys_spawn_register(sys_spawn *ss);
+void sys_spawn_add(ecs_id *eid);
 

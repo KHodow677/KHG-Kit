@@ -1,4 +1,4 @@
-#include "entity/comp_spawner.h"
+#include "entity/comp_spawn.h"
 #include "entity/comp_renderer.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
@@ -9,7 +9,7 @@
 
 ecs_id SPAWNER_COMPONENT_SIGNATURE;
 
-static ecs_ret sys_spawner_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+static ecs_ret sys_spawn_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     selector_info *s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
     renderer_info *r_info = utl_vector_at(RENDERER_INFO, entities[id]);
@@ -25,20 +25,20 @@ static ecs_ret sys_spawner_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   return 0;
 }
 
-void comp_spawner_register(comp_spawner *cs) {
-  cs->id = ecs_register_component(ECS, sizeof(comp_spawner), NULL, NULL);
+void comp_spawn_register(comp_spawn *cs) {
+  cs->id = ecs_register_component(ECS, sizeof(comp_spawn), NULL, NULL);
   SPAWNER_COMPONENT_SIGNATURE = cs->id; 
 }
 
-void sys_spawner_register(sys_spawner *ss) {
-  ss->id = ecs_register_system(ECS, sys_spawner_update, NULL, NULL, NULL);
+void sys_spawn_register(sys_spawn *ss) {
+  ss->id = ecs_register_system(ECS, sys_spawn_update, NULL, NULL, NULL);
   ecs_require_component(ECS, ss->id, SPAWNER_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, SELECTOR_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, RENDERER_COMPONENT_SIGNATURE);
   ss->ecs = *ECS;
 }
 
-void sys_spawner_add(ecs_id *eid) {
+void sys_spawn_add(ecs_id *eid) {
   ecs_add(ECS, *eid, SPAWNER_COMPONENT_SIGNATURE, NULL);
 }
 

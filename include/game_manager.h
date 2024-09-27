@@ -12,7 +12,7 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
-#include "entity/comp_spawner.h"
+#include "entity/comp_spawn.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 #include "khg_ecs/ecs.h"
@@ -69,7 +69,7 @@ extern sys_mover MOVER_SYSTEM;
 extern sys_rotator ROTATOR_SYSTEM;
 extern sys_shooter SHOOTER_SYSTEM;
 extern sys_selector SELECTOR_SYSTEM;
-extern sys_spawner SPAWNER_SYSTEM;
+extern sys_spawn SPAWNER_SYSTEM;
 extern sys_stream_spawner STREAM_SPAWNER_SYSTEM;
 extern sys_commander COMMANDER_SYSTEM;
 extern sys_targeter TARGETER_SYSTEM;
@@ -82,7 +82,7 @@ static comp_mover MOVER_COMPONENT_TYPE;
 static comp_rotator ROTATOR_COMPONENT_TYPE;
 static comp_shooter SHOOTER_COMPONENT_TYPE;
 static comp_selector SELECTOR_COMPONENT_TYPE;
-static comp_spawner SPAWNER_COMPONENT_TYPE;
+static comp_spawn SPAWNER_COMPONENT_TYPE;
 static comp_stream_spawner STREAM_SPAWNER_COMPONENT_TYPE;
 static comp_commander COMMANDER_COMPONENT_TYPE;
 static comp_targeter TARGETER_COMPONENT_TYPE;

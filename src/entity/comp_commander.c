@@ -31,7 +31,7 @@ static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_c
         utl_queue_push(m_info->target_pos_queue, &new_pos);
       }
       bool left_clicked_on = !phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f)) && phy_shape_point_query(p_info->target_shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f;
-      if (KEYBOARD_STATE.escape_key_went_down || left_clicked_on) {
+      if (left_clicked_on) {
         if (!utl_queue_empty(m_info->target_pos_queue)) {
           while (!utl_queue_empty(m_info->target_pos_queue)) {
             utl_queue_pop(m_info->target_pos_queue);

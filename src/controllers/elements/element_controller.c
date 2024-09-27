@@ -79,6 +79,10 @@ bool element_is_targeting_position(physics_info *info, phy_vect pos, float toler
   return fabsf(angle_diff) <= tolerance;
 }
 
+bool element_is_targeting_position_default(physics_info *info, phy_vect pos) {
+  return element_is_targeting_position(info, pos, ANGLE_TOLERANCE);
+}
+
 bool element_is_at_position(physics_info *info, phy_vect pos, float tolerance) {
   phy_vect body_pos = phy_body_get_position(info->body);
   float pos_diff = phy_v_dist(pos, body_pos);
