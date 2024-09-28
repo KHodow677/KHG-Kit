@@ -11,7 +11,7 @@
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
 
-void generate_all_indicators(selector_info *info, comp_physics *p_info, renderer_info *r_info, comp_mover *m_info) {
+void generate_all_indicators(selector_info *info, comp_physics *p_info, comp_renderer *r_info, comp_mover *m_info) {
   utl_vector_clear(r_info->indicators);
   if (!utl_queue_empty(m_info->target_pos_queue)) {
     phy_vect *first_point_pos = utl_queue_front(m_info->target_pos_queue);
@@ -32,7 +32,7 @@ void generate_all_indicators(selector_info *info, comp_physics *p_info, renderer
   }
 }
 
-void generate_indicator(renderer_info *r_info, indicator_type type, int tex, bool is_target_body, phy_vect pos, float ang, float length) {
+void generate_indicator(comp_renderer *r_info, indicator_type type, int tex, bool is_target_body, phy_vect pos, float ang, float length) {
   indicator ind = { type, is_target_body, tex, pos, ang, length};
   utl_vector_push_back(r_info->indicators, &ind);
 }

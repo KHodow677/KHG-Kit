@@ -10,21 +10,20 @@
 void generate_hangar(hangar *h, float x, float y, float angle) {
   h->entity = ecs_create(ECS);
   h->comp_physics = sys_physics_add(h->entity);
+  h->comp_renderer = sys_renderer_add(h->entity);
   h->comp_destroyer = sys_destroyer_add(h->entity);
   generate_static_physics_box(h->entity, h->comp_physics, false, 306, 334, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(h->comp_physics->body, angle);
-  generate_static_renderer_segments(&h->renderer_info, h->comp_physics, phy_v(x, y), HANGAR, 1, h->entity, angle);
+  generate_static_renderer_segments(h->comp_renderer, h->comp_renderer, h->comp_physics, phy_v(x, y), HANGAR, 1, angle);
   generate_destroyer(h->comp_destroyer);
   generate_selector(&h->selector_info, HANGAR, HANGAR, HANGAR_OUTLINE, HANGAR_OUTLINE);
-  sys_renderer_add(&h->entity, &h->renderer_info);
   sys_selector_add(&h->entity, &h->selector_info);
   sys_spawn_add(&h->entity);
 }
 
 void free_hangar(hangar *h) {
   free_physics(h->comp_physics, false);
-  free_renderer(&h->renderer_info);
-  utl_vector_assign(RENDERER_INFO, h->entity, &NO_RENDERER);
+  free_renderer(h->comp_renderer);
   utl_vector_assign(SELECTOR_INFO, h->entity, &NO_SELECTOR);
 }
 

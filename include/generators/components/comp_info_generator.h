@@ -19,9 +19,9 @@ void generate_static_physics_circle(ecs_id eid, comp_physics *info, bool collide
 void generate_static_physics_box(ecs_id eid, comp_physics *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category);
 void free_physics(comp_physics *info, bool has_constraint);
 
-void generate_renderer(renderer_info *info, comp_physics *p_info, int tex_id, int render_layer, ecs_id linked_ent);
-void generate_static_renderer_segments(renderer_info *info, comp_physics *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle);
-void free_renderer(renderer_info *info);
+void generate_renderer(comp_renderer *info, comp_renderer *r_info, comp_physics *p_info, int tex_id, int render_layer);
+void generate_static_renderer_segments(comp_renderer *info, comp_renderer *r_info, comp_physics *p_info, phy_vect pos, int tex_id, int render_layer, float angle);
+void free_renderer(comp_renderer *info);
 
 void generate_destroyer(comp_destroyer *info);
 

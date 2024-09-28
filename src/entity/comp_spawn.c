@@ -13,7 +13,7 @@ ecs_id SPAWNER_COMPONENT_SIGNATURE;
 static ecs_ret sys_spawn_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     selector_info *s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
-    renderer_info *r_info = utl_vector_at(RENDERER_INFO, entities[id]);
+    comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (s_info->selected) {
       SPAWN_SETTINGS.spawn_body = p_info->body;

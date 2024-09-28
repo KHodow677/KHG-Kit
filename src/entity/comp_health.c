@@ -31,6 +31,6 @@ void sys_health_register(sys_health *sh) {
 }
 
 comp_health *sys_health_add(ecs_id eid) {
-  ecs_add(ECS, eid, HEALTH_COMPONENT_SIGNATURE, NULL);
+  return ecs_add(ECS, eid, HEALTH_COMPONENT_SIGNATURE, NULL);
 }
 

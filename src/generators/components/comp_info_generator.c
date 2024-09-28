@@ -158,22 +158,22 @@ void free_physics(comp_physics *info, bool has_constraint) {
   phy_body_free(info->body);
 }
 
-void generate_renderer(renderer_info *info, comp_physics *p_info, int tex_id, int render_layer, ecs_id linked_ent) {
+void generate_renderer(comp_renderer *info, comp_renderer *r_info, comp_physics *p_info, int tex_id, int render_layer) {
   info->tex_id = tex_id;
   info->body = p_info->body;
   info->render_layer = render_layer;
-  info->linked_ent = linked_ent;
+  info->linked_r_info = r_info;
   info->indicators = utl_vector_create(sizeof(indicator));
   for (int i = 0; i < RENDERER_SEGMENTS; i++) {
     info->segments[i] = NULL;
   }
 }
 
-void generate_static_renderer_segments(renderer_info *info, comp_physics *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle) {
+void generate_static_renderer_segments(comp_renderer *info, comp_renderer *r_info, comp_physics *p_info, phy_vect pos, int tex_id, int render_layer, float angle) {
   info->tex_id = tex_id;
   info->body = p_info->body;
   info->render_layer = render_layer;
-  info->linked_ent = linked_ent;
+  info->linked_r_info = r_info;
   info->indicators = utl_vector_create(sizeof(indicator));
   for (int i = 0; i < RENDERER_SEGMENTS; i++) {
     info->segments[i] = NULL;
@@ -203,7 +203,7 @@ void generate_static_renderer_segments(renderer_info *info, comp_physics *p_info
   }
 }
 
-void free_renderer(renderer_info *info) {
+void free_renderer(comp_renderer *info) {
   utl_vector_deallocate(info->indicators);
   for (int i = 0; i < RENDERER_SEGMENTS; i++) {
     if (info->segments[i] == NULL) {
