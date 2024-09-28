@@ -41,8 +41,8 @@ void free_stream_spawner(comp_stream_spawner *info);
 
 void generate_commander(comp_commander *info, comp_mover *m_info);
 
-void generate_targeter(targeter_info *info, comp_physics *body_p_info, comp_physics *targeting_p_info, float range);
-void free_targeter(targeter_info *info);
+void generate_targeter(comp_targeter *info, comp_physics *body_p_info, comp_physics *targeting_p_info, float range);
+void free_targeter(comp_targeter *info);
 
 void generate_health(comp_health *info, comp_physics *p_info, float max_health, float starting_health);
 

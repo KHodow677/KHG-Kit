@@ -12,7 +12,7 @@ typedef struct {
   phy_body *target_body;
   phy_shape *target_shape;
   phy_constraint *pivot;
-  targeter_info *targeter_ref;
+  comp_targeter *targeter_ref;
   comp_health *health_ref;
   float target_vel;
   float target_ang_vel;

@@ -281,7 +281,7 @@ void generate_commander(comp_commander *info, comp_mover *m_info) {
   info->point_queue_count = utl_queue_size(m_info->target_pos_queue);
 }
 
-void generate_targeter(targeter_info *info, comp_physics *body_p_info, comp_physics *targeting_p_info, float range) {
+void generate_targeter(comp_targeter *info, comp_physics *body_p_info, comp_physics *targeting_p_info, float range) {
   info->range = range;
   info->mode = TARGET_FIRST;
   info->sensor = phy_circle_shape_new(body_p_info->body, range, phy_v(0.0f, 0.0f));
@@ -294,7 +294,7 @@ void generate_targeter(targeter_info *info, comp_physics *body_p_info, comp_phys
   info->all_list = utl_vector_create(sizeof(comp_health *));
 }
 
-void free_targeter(targeter_info *info) {
+void free_targeter(comp_targeter *info) {
   phy_space_remove_shape(SPACE, info->sensor);
   phy_shape_free(info->sensor);
   utl_vector_deallocate(info->all_list);

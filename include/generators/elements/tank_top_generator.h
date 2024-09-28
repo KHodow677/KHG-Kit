@@ -23,7 +23,7 @@ typedef struct {
   comp_shooter *comp_shooter;
   comp_selector *comp_selector;
   comp_commander *comp_commander;
-  targeter_info targeter_info;
+  comp_targeter *comp_targeter;
   comp_damage *comp_damage;
 } tank_top;
 

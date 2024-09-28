@@ -12,14 +12,11 @@ typedef enum {
 } targeting_mode;
 
 typedef struct {
+  ecs_id id;
   float range;
   targeting_mode mode;
   phy_shape *sensor;
   utl_vector *all_list;
-} targeter_info;
-
-typedef struct {
-  ecs_id id;
 } comp_targeter;
 
 typedef struct {
@@ -28,8 +25,6 @@ typedef struct {
 } sys_targeter;
 
 extern ecs_id TARGETER_COMPONENT_SIGNATURE;
-extern targeter_info NO_TARGETER;
-extern targeter_info *TARGETER_INFO;
 
 bool targeter_sensor_enter(phy_arbiter *arb, phy_space *space, phy_data_pointer udata);
 void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer udata);
@@ -37,5 +32,5 @@ void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer u
 void comp_targeter_register(comp_targeter *ct);
 
 void sys_targeter_register(sys_targeter *ss);
-void sys_targeter_add(ecs_id *eid, targeter_info *info);
+comp_targeter *sys_targeter_add(ecs_id eid);
 
