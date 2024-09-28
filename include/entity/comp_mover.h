@@ -1,12 +1,13 @@
 #pragma once
 
+#include "entity/comp_physics.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/queue.h"
 
 typedef struct {
   ecs_id id;
   utl_queue *target_pos_queue;
-  ecs_id body_entity;
+  comp_physics *body_info;
   float max_vel;
   float max_ang_vel;
 } comp_mover;

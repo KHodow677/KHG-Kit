@@ -1,6 +1,7 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
+#include "khg_phy/phy_types.h"
 #include <stdbool.h>
 
 typedef enum {
@@ -9,7 +10,7 @@ typedef enum {
 } spawning_select_type;
 
 typedef struct {
-  ecs_id spawner_id;
+  phy_body *spawn_body;
   int spawner_tex_id;
   int current_spawn_top_index;
   int current_spawn_body_index;

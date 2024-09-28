@@ -1,10 +1,11 @@
 #include "spawners/spawn_particles.h"
+#include "entity/comp_physics.h"
 #include "entity/entity.h"
 #include "game_manager.h"
 #include "generators/entities/particle_generator.h"
 #include "khg_utl/vector.h"
 
-generic_entity *spawn_particle(physics_info *p_info, float x, float y) {
+generic_entity *spawn_particle(comp_physics *p_info, float x, float y) {
   generic_entity ge;
   utl_vector_push_back(ENTITY_LOOKUP, &ge);
   generic_entity *stored_ge = utl_vector_back(ENTITY_LOOKUP);

@@ -12,7 +12,7 @@ rotator_info *ROTATOR_INFO = (rotator_info[ECS_ENTITY_COUNT]){};
 static ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     rotator_info *info = &ROTATOR_INFO[entities[id]]; 
-    physics_info *p_info = &PHYSICS_INFO[entities[id]];
+    comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (info->target_health == NULL) {
       element_set_rotation_speed(p_info, 0.0f);
       continue;

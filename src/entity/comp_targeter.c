@@ -90,8 +90,8 @@ static ecs_ret sys_targeter_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
 bool targeter_sensor_enter(phy_arbiter *arb, phy_space *space, phy_data_pointer udata) {
   phy_shape *sensor, *entity;
   phy_arbiter_get_shapes(arb, &sensor, &entity);
-  physics_info *sensor_p_info = phy_shape_get_user_data(sensor);
-  physics_info *entity_p_info = phy_shape_get_user_data(entity);
+  comp_physics *sensor_p_info = phy_shape_get_user_data(sensor);
+  comp_physics *entity_p_info = phy_shape_get_user_data(entity);
   targeter_info *target_selector = sensor_p_info->targeter_ref;
   comp_health *target_health_info = entity_p_info->health_ref;
   utl_vector_push_back(target_selector->all_list, &target_health_info);
@@ -101,8 +101,8 @@ bool targeter_sensor_enter(phy_arbiter *arb, phy_space *space, phy_data_pointer 
 void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer udata) {
   phy_shape *sensor, *entity;
   phy_arbiter_get_shapes(arb, &sensor, &entity);
-  physics_info *sensor_p_info = phy_shape_get_user_data(sensor);
-  physics_info *entity_p_info = phy_shape_get_user_data(entity);
+  comp_physics *sensor_p_info = phy_shape_get_user_data(sensor);
+  comp_physics *entity_p_info = phy_shape_get_user_data(entity);
   targeter_info *target_selector = sensor_p_info->targeter_ref;
   comp_health *target_health_info = entity_p_info->health_ref;
   remove_from(target_selector, target_health_info);

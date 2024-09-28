@@ -32,7 +32,7 @@
 #include <math.h>
 #include <wchar.h>
 
-void generate_physics_box(ecs_id eid, physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_physics_box(ecs_id eid, comp_physics *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
   float moment = phy_moment_for_box(mass, width, height);
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -54,7 +54,7 @@ void generate_physics_box(ecs_id eid, physics_info *info, bool collides, float w
   info->health_ref = NULL;
 }
 
-void generate_physics_circle(ecs_id eid, physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_physics_circle(ecs_id eid, comp_physics *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
   float moment = phy_moment_for_circle(mass, 0.0f, radius, phy_v(0.0f, 0.0f));
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -76,7 +76,7 @@ void generate_physics_circle(ecs_id eid, physics_info *info, bool collides, floa
   info->health_ref = NULL;
 }
 
-void generate_physics_pivot(ecs_id eid, physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_physics_pivot(ecs_id eid, comp_physics *info, comp_physics *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
   float moment = phy_moment_for_box(mass, width, height);
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -101,7 +101,7 @@ void generate_physics_pivot(ecs_id eid, physics_info *info, physics_info *p_info
   info->health_ref = NULL;
 }
 
-void generate_static_physics_circle(ecs_id eid, physics_info *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_static_physics_circle(ecs_id eid, comp_physics *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
   info->body = phy_space_add_body(SPACE, phy_body_new_static());
   phy_body_set_position(info->body, pos);
   phy_body_set_center_of_gravity(info->body, cog);
@@ -124,7 +124,7 @@ void generate_static_physics_circle(ecs_id eid, physics_info *info, bool collide
   info->health_ref = NULL;
 }
 
-void generate_static_physics_box(ecs_id eid, physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
+void generate_static_physics_box(ecs_id eid, comp_physics *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
   info->body = phy_space_add_body(SPACE, phy_body_new_static());
   phy_body_set_position(info->body, pos);
   phy_body_set_center_of_gravity(info->body, cog);
@@ -147,7 +147,7 @@ void generate_static_physics_box(ecs_id eid, physics_info *info, bool collides, 
   info->health_ref = NULL;
 }
 
-void free_physics(physics_info *info, bool has_constraint) {
+void free_physics(comp_physics *info, bool has_constraint) {
   if (has_constraint) {
     phy_space_remove_constraint(SPACE, info->pivot);
     phy_constraint_free(info->pivot);
@@ -158,7 +158,7 @@ void free_physics(physics_info *info, bool has_constraint) {
   phy_body_free(info->body);
 }
 
-void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, int render_layer, ecs_id linked_ent) {
+void generate_renderer(renderer_info *info, comp_physics *p_info, int tex_id, int render_layer, ecs_id linked_ent) {
   info->tex_id = tex_id;
   info->body = p_info->body;
   info->render_layer = render_layer;
@@ -169,7 +169,7 @@ void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, in
   }
 }
 
-void generate_static_renderer_segments(renderer_info *info, physics_info *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle) {
+void generate_static_renderer_segments(renderer_info *info, comp_physics *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle) {
   info->tex_id = tex_id;
   info->body = p_info->body;
   info->render_layer = render_layer;
@@ -225,8 +225,8 @@ void generate_animator(comp_animator *info, int min_tex_id, int max_tex_id, floa
   info->destroy_on_max = destroy_on_max;
 }
 
-void generate_mover(comp_mover *info, ecs_id entity, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length) {
-  info->body_entity = entity;
+void generate_mover(comp_mover *info, comp_physics *p_info, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length) {
+  info->body_info = p_info;
   info->target_pos_queue = utl_queue_create(sizeof(phy_vect));
   info->max_vel = max_vel;
   info->max_ang_vel = max_ang_vel;
@@ -239,7 +239,7 @@ void free_mover(comp_mover *info) {
   utl_queue_deallocate(info->target_pos_queue);
 }
 
-void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang) {
+void generate_rotator(rotator_info *info, comp_physics *p_info, float init_ang) {
   info->body = p_info->body;
   info->target_health = NULL;
 }
@@ -281,7 +281,7 @@ void generate_commander(comp_commander *info, comp_mover *m_info) {
   info->point_queue_count = utl_queue_size(m_info->target_pos_queue);
 }
 
-void generate_targeter(targeter_info *info, physics_info *body_p_info, physics_info *targeting_p_info, float range) {
+void generate_targeter(targeter_info *info, comp_physics *body_p_info, comp_physics *targeting_p_info, float range) {
   info->range = range;
   info->mode = TARGET_FIRST;
   info->sensor = phy_circle_shape_new(body_p_info->body, range, phy_v(0.0f, 0.0f));
@@ -300,7 +300,7 @@ void free_targeter(targeter_info *info) {
   utl_vector_deallocate(info->all_list);
 }
 
-void generate_health(comp_health *info, physics_info *p_info, float max_health, float starting_health) {
+void generate_health(comp_health *info, comp_physics *p_info, float max_health, float starting_health) {
   info->body = p_info->body;
   info->max_health = max_health; 
   info->current_health = starting_health; 

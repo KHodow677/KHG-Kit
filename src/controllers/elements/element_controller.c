@@ -14,12 +14,12 @@ float ROTATION_SPEED_SCALE = 5.0f;
 float POSITION_EASING = 3.0f;
 float ROTATION_EASING = 1.0f;
 
-void element_set_speed(physics_info *info, float vel) {
+void element_set_speed(comp_physics *info, float vel) {
   info->target_vel = vel;
   info->is_moving = vel == 0.0f ? false : true;
 }
 
-void element_set_rotation_speed(physics_info *info, float ang_vel) {
+void element_set_rotation_speed(comp_physics *info, float ang_vel) {
   info->target_ang_vel = ang_vel;  
   info->is_turning = ang_vel == 0.0f ? false : true;
 }
@@ -28,7 +28,7 @@ float ease_in_out(float t) {
   return t * t * (3 - 2 * t);
 }
 
-void element_rotate_to_position(physics_info *info, float max_vel, float body_ang, float target_ang, float easing_factor) {
+void element_rotate_to_position(comp_physics *info, float max_vel, float body_ang, float target_ang, float easing_factor) {
   float angle_diff = normalize_angle(target_ang - body_ang);
   if (angle_diff > M_PI) {
     angle_diff = angle_diff - 2 * M_PI;
@@ -45,7 +45,7 @@ void element_rotate_to_position(physics_info *info, float max_vel, float body_an
   element_set_rotation_speed(info, r_speed);
 }
 
-void element_move_to_position(physics_info *info, float max_vel, phy_vect body_pos, phy_vect target_pos, float easing_factor) {
+void element_move_to_position(comp_physics *info, float max_vel, phy_vect body_pos, phy_vect target_pos, float easing_factor) {
   float pos_diff = phy_v_dist(body_pos, target_pos);
   if (fabsf(pos_diff) < POSITION_TOLERANCE) {
     element_set_position(info, target_pos);
@@ -55,17 +55,17 @@ void element_move_to_position(physics_info *info, float max_vel, phy_vect body_p
   element_set_speed(info, speed);
 }
 
-void element_set_position(physics_info *info, phy_vect pos) {
+void element_set_position(comp_physics *info, phy_vect pos) {
   element_set_speed(info, 0.0f);
   phy_body_set_position(info->body, pos);
 }
 
-void element_set_angle(physics_info *info, float target_ang) {
+void element_set_angle(comp_physics *info, float target_ang) {
   element_set_rotation_speed(info, 0.0f);
   phy_body_set_angle(info->body, target_ang);
 }
 
-bool element_is_targeting_position(physics_info *info, phy_vect pos, float tolerance) {
+bool element_is_targeting_position(comp_physics *info, phy_vect pos, float tolerance) {
   phy_vect body_pos = phy_body_get_position(info->body);
   float body_ang = normalize_angle(phy_body_get_angle(info->body));
   float target_ang = normalize_angle(atan2f(body_pos.y - pos.y, body_pos.x - pos.x) - M_PI / 2);
@@ -79,11 +79,11 @@ bool element_is_targeting_position(physics_info *info, phy_vect pos, float toler
   return fabsf(angle_diff) <= tolerance;
 }
 
-bool element_is_targeting_position_default(physics_info *info, phy_vect pos) {
+bool element_is_targeting_position_default(comp_physics *info, phy_vect pos) {
   return element_is_targeting_position(info, pos, ANGLE_TOLERANCE);
 }
 
-bool element_is_at_position(physics_info *info, phy_vect pos, float tolerance) {
+bool element_is_at_position(comp_physics *info, phy_vect pos, float tolerance) {
   phy_vect body_pos = phy_body_get_position(info->body);
   float pos_diff = phy_v_dist(pos, body_pos);
   if (pos_diff <= tolerance) {
@@ -92,11 +92,11 @@ bool element_is_at_position(physics_info *info, phy_vect pos, float tolerance) {
   return false;
 }
 
-bool element_is_at_position_default(physics_info *info, phy_vect pos) {
+bool element_is_at_position_default(comp_physics *info, phy_vect pos) {
   return element_is_at_position(info, pos, POSITION_TOLERANCE);
 }
 
-void element_target_position(physics_info *info, phy_vect pos, float max_vel, float max_ang_vel) {
+void element_target_position(comp_physics *info, phy_vect pos, float max_vel, float max_ang_vel) {
   phy_vect body_pos = phy_body_get_position(info->body);
   float body_ang = normalize_angle(phy_body_get_angle(info->body));
   float target_ang = normalize_angle(atan2f(body_pos.y - pos.y, body_pos.x - pos.x) - M_PI / 2);
@@ -116,7 +116,7 @@ void element_target_position(physics_info *info, phy_vect pos, float max_vel, fl
   }
 }
 
-void element_lock_on_position(physics_info *info, phy_vect pos, float max_ang_vel) {
+void element_lock_on_position(comp_physics *info, phy_vect pos, float max_ang_vel) {
   phy_vect body_pos = phy_body_get_position(info->body);
   float body_ang = normalize_angle(phy_body_get_angle(info->body));
   float target_ang = normalize_angle(atan2f(body_pos.y - pos.y, body_pos.x - pos.x) - M_PI / 2);

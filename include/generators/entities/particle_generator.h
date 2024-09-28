@@ -8,12 +8,12 @@
 
 typedef struct {
   ecs_id entity;
-  physics_info physics_info;
+  comp_physics *comp_physics;
   renderer_info renderer_info;
   comp_destroyer *comp_destroyer;
   comp_animator *comp_animator;
 } particle;
 
-void generate_particle(particle *p, physics_info *p_info, float x, float y);
+void generate_particle(particle *p, comp_physics *p_info, float x, float y);
 void free_particle(particle *p);
 

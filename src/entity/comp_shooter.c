@@ -20,7 +20,7 @@ utl_vector *SHOOTER_INFO = NULL;
 static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     shooter_info *info = utl_vector_at(SHOOTER_INFO, entities[id]);
-    physics_info *p_info = &PHYSICS_INFO[entities[id]];
+    comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     rotator_info *r_info = &ROTATOR_INFO[entities[id]];
     info->shot = false;
     if (!r_info->target_health) {

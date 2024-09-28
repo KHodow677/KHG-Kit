@@ -12,25 +12,25 @@
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 
-void generate_physics_box(ecs_id eid, physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
-void generate_physics_circle(ecs_id eid, physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
-void generate_physics_pivot(ecs_id eid, physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
-void generate_static_physics_circle(ecs_id eid, physics_info *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog, uint32_t category);
-void generate_static_physics_box(ecs_id eid, physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category);
-void free_physics(physics_info *info, bool has_constraint);
+void generate_physics_box(ecs_id eid, comp_physics *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void generate_physics_circle(ecs_id eid, comp_physics *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void generate_physics_pivot(ecs_id eid, comp_physics *info, comp_physics *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void generate_static_physics_circle(ecs_id eid, comp_physics *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void generate_static_physics_box(ecs_id eid, comp_physics *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category);
+void free_physics(comp_physics *info, bool has_constraint);
 
-void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, int render_layer, ecs_id linked_ent);
-void generate_static_renderer_segments(renderer_info *info, physics_info *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle);
+void generate_renderer(renderer_info *info, comp_physics *p_info, int tex_id, int render_layer, ecs_id linked_ent);
+void generate_static_renderer_segments(renderer_info *info, comp_physics *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle);
 void free_renderer(renderer_info *info);
 
 void generate_destroyer(comp_destroyer *info);
 
 void generate_animator(comp_animator *info, int min_tex_id, int max_tex_id, float frame_duration, bool destroy_on_max);
 
-void generate_mover(comp_mover *info, ecs_id entity, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length);
+void generate_mover(comp_mover *info, comp_physics *p_info, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length);
 void free_mover(comp_mover *info);
 
-void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang);
+void generate_rotator(rotator_info *info, comp_physics *p_info, float init_ang);
 
 void generate_shooter(shooter_info *info, float barrel_length, float cooldown);
 
@@ -41,10 +41,10 @@ void free_stream_spawner(stream_spawner_info *info);
 
 void generate_commander(comp_commander *info, comp_mover *m_info);
 
-void generate_targeter(targeter_info *info, physics_info *body_p_info, physics_info *targeting_p_info, float range);
+void generate_targeter(targeter_info *info, comp_physics *body_p_info, comp_physics *targeting_p_info, float range);
 void free_targeter(targeter_info *info);
 
-void generate_health(comp_health *info, physics_info *p_info, float max_health, float starting_health);
+void generate_health(comp_health *info, comp_physics *p_info, float max_health, float starting_health);
 
 void generate_damage(comp_damage *info, float damage);
 

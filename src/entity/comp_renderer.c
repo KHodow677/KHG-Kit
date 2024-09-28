@@ -21,7 +21,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
     if (layer == 9) {
       for (int id = 0; id < entity_count; id++) {
         renderer_info *info = utl_vector_at(RENDERER_INFO, entities[id]);
-        physics_info *p_info = &PHYSICS_INFO[entities[id]];
+        comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
         for (int i_index = 0; i_index < utl_vector_size(info->indicators); i_index++) {
           indicator *ind = utl_vector_at(info->indicators, i_index);
           if (ind->type == INDICATOR_POINT) {

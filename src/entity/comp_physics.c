@@ -8,12 +8,10 @@
 #include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT_SIGNATURE;
-physics_info NO_PHYSICS = { 0 };
-physics_info *PHYSICS_INFO = (physics_info[ECS_ENTITY_COUNT]){};
 
 static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    physics_info *info = &PHYSICS_INFO[entities[id]];
+    comp_physics *info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     float current_ang = normalize_angle(phy_body_get_angle(info->body));
     if (info->move_enabled) {
       phy_body_set_velocity(info->body, phy_v(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
@@ -34,13 +32,9 @@ void sys_physics_register(sys_physics *sp) {
   sp->id = ecs_register_system(ECS, sys_physics_update, NULL, NULL, NULL);
   ecs_require_component(ECS, sp->id, PHYSICS_COMPONENT_SIGNATURE);
   sp->ecs = *ECS;
-  for (int i = 0; i < ECS_ENTITY_COUNT; i++) {
-    PHYSICS_INFO[i] = NO_PHYSICS;
-  }
 }
 
-void sys_physics_add(ecs_id *eid, physics_info *info) {
-  ecs_add(ECS, *eid, PHYSICS_COMPONENT_SIGNATURE, NULL);
-  PHYSICS_INFO[*eid] = *info;
+comp_physics *sys_physics_add(ecs_id eid) {
+  return ecs_add(ECS, eid, PHYSICS_COMPONENT_SIGNATURE, NULL);
 }
 

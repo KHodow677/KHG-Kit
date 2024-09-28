@@ -11,7 +11,7 @@
 
 typedef struct {
   ecs_id entity;
-  physics_info physics_info;
+  comp_physics *comp_physics;
   renderer_info renderer_info;
   comp_destroyer *comp_destroyer;
   rotator_info rotator_info;

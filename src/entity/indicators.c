@@ -11,7 +11,7 @@
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
 
-void generate_all_indicators(selector_info *info, physics_info *p_info, renderer_info *r_info, comp_mover *m_info) {
+void generate_all_indicators(selector_info *info, comp_physics *p_info, renderer_info *r_info, comp_mover *m_info) {
   utl_vector_clear(r_info->indicators);
   if (!utl_queue_empty(m_info->target_pos_queue)) {
     phy_vect *first_point_pos = utl_queue_front(m_info->target_pos_queue);
@@ -49,13 +49,13 @@ void render_line(indicator *ind) {
   gfx_image_no_block(ind->pos.x, ind->pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, false);
 }
 
-void render_body_point(physics_info *p_info, indicator *ind) {
+void render_body_point(comp_physics *p_info, indicator *ind) {
   phy_vect pos = ind->is_target_body ? phy_body_get_position(p_info->target_body) : phy_body_get_position(p_info->body);
   gfx_texture *tex = get_or_add_texture(ind->tex_id);
   gfx_image_no_block(pos.x, pos.y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
 }
 
-void render_body_line(physics_info *p_info, indicator *ind) {
+void render_body_line(comp_physics *p_info, indicator *ind) {
   phy_vect pos = ind->is_target_body ? phy_body_get_position(p_info->target_body) : phy_body_get_position(p_info->body);
   float ang = normalize_angle(atan2f(pos.y - ind->pos.y, pos.x - ind->pos.x) - M_PI / 2);
   phy_vect mid = phy_v((pos.x + ind->pos.x) * 0.5f, (pos.y + ind->pos.y) * 0.5f);
