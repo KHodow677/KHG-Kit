@@ -60,7 +60,7 @@ bool render_title_menu() {
   render_text(width, height, btn_props, text_props, "Game Title!", "Start");
   gfx_next_line();
   if (!render_btn(width, height, btn_props, "Start")) {
-    stm_handle_event(&SCENE_FSM, &(stm_event){ EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_SANDBOX_SCENE });
+    stm_handle_event(&SCENE_FSM, &(stm_event){ EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TUTORIAL_SCENE });
   }
   gfx_next_line();
   if (!render_btn(width, height, btn_props, "Exit")) {

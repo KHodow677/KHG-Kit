@@ -17,7 +17,7 @@ typedef struct {
 
 extern ecs_id SHOOTER_COMPONENT_SIGNATURE;
 
-void comp_shooter_register(comp_shooter *cs);
+void comp_shooter_register(void);
 
 void sys_shooter_register(sys_shooter *ss);
 comp_shooter *sys_shooter_add(ecs_id eid);

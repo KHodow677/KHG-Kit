@@ -24,7 +24,7 @@ typedef struct {
 
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;
 
-void comp_renderer_register(comp_renderer *cr);
+void comp_renderer_register(void);
 
 void sys_renderer_register(sys_renderer *sr);
 comp_renderer *sys_renderer_add(ecs_id eid);

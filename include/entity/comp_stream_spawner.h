@@ -24,7 +24,7 @@ typedef struct {
 
 extern ecs_id STREAM_SPAWNER_COMPONENT_SIGNATURE;
 
-void comp_stream_spawner_register(comp_stream_spawner *css);
+void comp_stream_spawner_register(void);
 
 void sys_stream_spawner_register(sys_stream_spawner *sss);
 comp_stream_spawner *sys_stream_spawner_add(ecs_id eid);

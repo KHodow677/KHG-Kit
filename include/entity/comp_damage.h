@@ -17,7 +17,7 @@ typedef struct {
 
 extern ecs_id DAMAGE_COMPONENT_SIGNATURE;
 
-void comp_damage_register(comp_damage *cd);
+void comp_damage_register(void);
 
 void sys_damage_register(sys_damage *sd);
 comp_damage *sys_damage_add(ecs_id eid);

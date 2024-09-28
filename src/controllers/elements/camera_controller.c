@@ -68,8 +68,8 @@ void move_camera(camera *cam, float delta) {
   camera_zoom_to_value(cam, delta);
   float window_center_x = gfx_get_display_width() / 2.0f;
   float window_center_y = gfx_get_display_height() / 2.0f;
-  float range_x = (GAME_MAP_TILE_SIZE * GAME_MAP_SIZE * 0.5f) - (window_center_x / (window_center_x * cam->zoom)) * window_center_x + window_center_x;
-  float range_y = (GAME_MAP_TILE_SIZE * GAME_MAP_SIZE * 0.5f) - (window_center_y / (window_center_y * cam->zoom)) * window_center_y + window_center_y;
+  float range_x = (GAME_MAP_TILE_SIZE * GAME_MAP_WIDTH * 0.5f) - (window_center_x / (window_center_x * cam->zoom)) * window_center_x + window_center_x;
+  float range_y = (GAME_MAP_TILE_SIZE * GAME_MAP_HEIGHT * 0.5f) - (window_center_y / (window_center_y * cam->zoom)) * window_center_y + window_center_y;
   clamp_camera(cam, range_x, range_y);
 }
 

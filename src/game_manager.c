@@ -23,6 +23,7 @@
 #include "menus/game_menu_manager.h"
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
+#include "scenes/scene_transition.h"
 #include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/vector.h"
@@ -41,7 +42,8 @@ utl_vector *GAME_FLOOR_MAP;
 utl_vector *GAME_BUILDING_MAP;
 utl_vector *GAME_PATH_MAP;
 utl_vector *GAME_MAP_SEGMENTS;
-int GAME_MAP_SIZE = 64;
+int GAME_MAP_WIDTH;
+int GAME_MAP_HEIGHT;
 int GAME_MAP_TILE_SIZE = 128;
 
 game_overlay_info GAME_OVERLAY_TRACKER[NUM_MENUS];
@@ -69,17 +71,17 @@ stm_state PARENT_SCENE = {
 stm_state TITLE_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_SANDBOX_SCENE, &compare_scene_switch_command, NULL, &SANDBOX_SCENE } },
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TUTORIAL_SCENE, &compare_scene_switch_command, &load_tutorial_scene, &TUTORIAL_SCENE } },
   .num_transitions = 1,
   .data = "TITLE",
 };
 
-stm_state SANDBOX_SCENE = {
+stm_state TUTORIAL_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
   .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TITLE_SCENE, &compare_scene_switch_command, NULL, &TITLE_SCENE } },
   .num_transitions = 1,
-  .data = "SANDBOX",
+  .data = "TUTORIAL",
 };
 
 stm_state ERROR_SCENE = {
@@ -105,20 +107,20 @@ sys_damage DAMAGE_SYSTEM = { 0 };
 void ecs_setup() {
   camera_setup(&CAMERA);
   ECS = ecs_new(ECS_ENTITY_COUNT, NULL);
-  comp_physics_register(&PHYSICS_COMPONENT_TYPE);
-  comp_renderer_register(&RENDERER_COMPONENT_TYPE);
-  comp_destroyer_register(&DESTROYER_COMPONENT_TYPE);
-  comp_animator_register(&ANIMATOR_COMPONENT_TYPE);
-  comp_mover_register(&MOVER_COMPONENT_TYPE);
-  comp_rotator_register(&ROTATOR_COMPONENT_TYPE);
-  comp_shooter_register(&SHOOTER_COMPONENT_TYPE);
-  comp_selector_register(&SELECTOR_COMPONENT_TYPE);
-  comp_spawn_register(&SPAWNER_COMPONENT_TYPE);
-  comp_stream_spawner_register(&STREAM_SPAWNER_COMPONENT_TYPE);
-  comp_commander_register(&COMMANDER_COMPONENT_TYPE);
-  comp_targeter_register(&TARGETER_COMPONENT_TYPE);
-  comp_health_register(&HEALTH_COMPONENT_TYPE);
-  comp_damage_register(&DAMAGE_COMPONENT_TYPE);
+  comp_physics_register();
+  comp_renderer_register();
+  comp_destroyer_register();
+  comp_animator_register();
+  comp_mover_register();
+  comp_rotator_register();
+  comp_shooter_register();
+  comp_selector_register();
+  comp_spawn_register();
+  comp_stream_spawner_register();
+  comp_commander_register();
+  comp_targeter_register();
+  comp_health_register();
+  comp_damage_register();
   sys_physics_register(&PHYSICS_SYSTEM);
   sys_renderer_register(&RENDERER_SYSTEM);
   sys_destroyer_register(&DESTROYER_SYSTEM);

@@ -30,7 +30,7 @@ typedef struct {
 
 extern ecs_id PHYSICS_COMPONENT_SIGNATURE;
 
-void comp_physics_register(comp_physics *cp);
+void comp_physics_register(void);
 
 void sys_physics_register(sys_physics *sp);
 comp_physics *sys_physics_add(ecs_id eid);

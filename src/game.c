@@ -4,7 +4,6 @@
 #include "controllers/input/mouse_controller.h"
 #include "entity/map.h"
 #include "game_manager.h"
-#include "generators/components/map_generator.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/threaded_space.h"
@@ -13,10 +12,6 @@
 #include "menus/title_menu.h"
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
-#include "spawners/spawn_hangar.h"
-#include "spawners/spawn_spawner.h"
-#include "spawners/spawn_tank.h"
-#include "spawners/spawn_turret.h"
 #include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
@@ -51,24 +46,11 @@ int game_run() {
   gfx_init_glfw(WINDOW_START_WIDTH, WINDOW_START_HEIGHT, window);
   log_sys_info();
   setup_worker_threads();
-  stm_init(&SCENE_FSM, &TITLE_SCENE, &SANDBOX_SCENE);
+  stm_init(&SCENE_FSM, &TITLE_SCENE, &TUTORIAL_SCENE);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
   LARGE_FONT = gfx_load_font_asset("Rubik", "ttf", 48);
   MEDIUM_FONT = gfx_load_font_asset("Rubik", "ttf", 32);
   ecs_setup();
-  load_map("Map-Floor", &GAME_FLOOR_MAP);
-  load_map("Map-Building", &GAME_BUILDING_MAP);
-  load_map("Map-Path", &GAME_PATH_MAP);
-  add_map_collision_segments(GAME_BUILDING_MAP, &GAME_MAP_SEGMENTS);
-  setup_game_overlay();
-  spawn_spawner(3840, 0, -0.5f * M_PI, (phy_vect[]){ phy_v(2432, 0), phy_v(2048, 384), phy_v(2048, 1920), phy_v(128, 3840), phy_v(-3840, 3840) }, 5);
-  /*spawn_spawner(0, -3840, -M_PI, (phy_vect[]){ phy_v(0, -2432), phy_v(-384, -2048), phy_v(-1920, -2048), phy_v(-3840, -128), phy_v(-3840, 3840) }, 5);*/
-  /*spawn_spawner(3840, -3840, -M_PI * 0.75f, (phy_vect[]){ phy_v(-3840, 3840) }, 1);*/
-  generic_entity *ge = spawn_turret(3232, 3616, -M_PI * 0.25f);
-  spawn_turret(3616, 3360, -M_PI * 0.25f);
-  spawn_hangar(3048, 3808, -0.5f * M_PI);
-  spawn_hangar(3808, 3176, 0.0f);
-  spawn_tank(128*17, 128*17, 0.0f);
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   return res;

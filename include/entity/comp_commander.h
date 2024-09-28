@@ -14,7 +14,7 @@ typedef struct {
 
 extern ecs_id COMMANDER_COMPONENT_SIGNATURE;
 
-void comp_commander_register(comp_commander *cc);
+void comp_commander_register(void);
 
 void sys_commander_register(sys_commander *sc);
 comp_commander *sys_commander_add(ecs_id eid);

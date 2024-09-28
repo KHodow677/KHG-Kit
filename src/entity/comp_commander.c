@@ -48,9 +48,8 @@ static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_c
   return 0;
 }
 
-void comp_commander_register(comp_commander *cc) {
-  cc->id = ecs_register_component(ECS, sizeof(comp_commander), NULL, NULL);
-  COMMANDER_COMPONENT_SIGNATURE = cc->id; 
+void comp_commander_register() {
+  COMMANDER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_commander), NULL, NULL);
 }
 
 void sys_commander_register(sys_commander *sc) {

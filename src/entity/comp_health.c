@@ -18,9 +18,8 @@ static ecs_ret sys_health_update(ecs_ecs *ecs, ecs_id *entities, int entity_coun
   return 0;
 }
 
-void comp_health_register(comp_health *ch) {
-  ch->id = ecs_register_component(ECS, sizeof(comp_health), NULL, NULL);
-  HEALTH_COMPONENT_SIGNATURE = ch->id; 
+void comp_health_register() {
+  HEALTH_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_health), NULL, NULL);
 }
 
 void sys_health_register(sys_health *sh) {

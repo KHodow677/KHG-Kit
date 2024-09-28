@@ -106,9 +106,8 @@ void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer u
   remove_from(target_selector, target_health_info);
 }
 
-void comp_targeter_register(comp_targeter *ct) {
-  ct->id = ecs_register_component(ECS, sizeof(comp_targeter), NULL, NULL);
-  TARGETER_COMPONENT_SIGNATURE = ct->id; 
+void comp_targeter_register() {
+  TARGETER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_targeter), NULL, NULL);
 }
 
 void sys_targeter_register(sys_targeter *st) {

@@ -42,7 +42,8 @@ extern utl_vector *GAME_FLOOR_MAP;
 extern utl_vector *GAME_BUILDING_MAP;
 extern utl_vector *GAME_PATH_MAP;
 extern utl_vector *GAME_MAP_SEGMENTS;
-extern int GAME_MAP_SIZE;
+extern int GAME_MAP_WIDTH;
+extern int GAME_MAP_HEIGHT;
 extern int GAME_MAP_TILE_SIZE;
 
 extern game_overlay_info GAME_OVERLAY_TRACKER[NUM_MENUS];
@@ -60,7 +61,7 @@ extern gfx_font MEDIUM_FONT;
 
 extern stm_state_machine SCENE_FSM;
 extern stm_state TITLE_SCENE;
-extern stm_state SANDBOX_SCENE;
+extern stm_state TUTORIAL_SCENE;
 extern stm_state ERROR_SCENE;
 
 extern sys_physics PHYSICS_SYSTEM;
@@ -77,21 +78,6 @@ extern sys_commander COMMANDER_SYSTEM;
 extern sys_targeter TARGETER_SYSTEM;
 extern sys_health HEALTH_SYSTEM;
 extern sys_damage DAMAGE_SYSTEM;
-
-static comp_physics PHYSICS_COMPONENT_TYPE;
-static comp_renderer RENDERER_COMPONENT_TYPE;
-static comp_destroyer DESTROYER_COMPONENT_TYPE;
-static comp_animator ANIMATOR_COMPONENT_TYPE;
-static comp_mover MOVER_COMPONENT_TYPE;
-static comp_rotator ROTATOR_COMPONENT_TYPE;
-static comp_shooter SHOOTER_COMPONENT_TYPE;
-static comp_selector SELECTOR_COMPONENT_TYPE;
-static comp_spawn SPAWNER_COMPONENT_TYPE;
-static comp_stream_spawner STREAM_SPAWNER_COMPONENT_TYPE;
-static comp_commander COMMANDER_COMPONENT_TYPE;
-static comp_targeter TARGETER_COMPONENT_TYPE;
-static comp_health HEALTH_COMPONENT_TYPE;
-static comp_damage DAMAGE_COMPONENT_TYPE;
 
 void ecs_setup();
 void ecs_cleanup();

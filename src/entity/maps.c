@@ -18,9 +18,10 @@ void render_map(utl_vector *map) {
         continue;
       }
       gfx_texture *tex = get_or_add_texture(*item);
-      int half_map_size = 0.5 * GAME_MAP_SIZE;
-      int tile_pos_x = (j + 0.5f - half_map_size) * GAME_MAP_TILE_SIZE - 4;
-      int tile_pos_y = (i + 0.5f - half_map_size) * GAME_MAP_TILE_SIZE - 4;
+      int half_map_width = 0.5 * GAME_MAP_WIDTH;
+      int half_map_height = 0.5 * GAME_MAP_HEIGHT;
+      int tile_pos_x = (j + 0.5f - half_map_width) * GAME_MAP_TILE_SIZE - 4;
+      int tile_pos_y = (i + 0.5f - half_map_height) * GAME_MAP_TILE_SIZE - 4;
       gfx_image_no_block(tile_pos_x, tile_pos_y, *tex, 0.0f, 0.0f, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
     }
   }
@@ -39,8 +40,9 @@ void add_map_collision_segments(utl_vector *map, utl_vector **segments) {
       }
       gfx_texture *tex = get_or_add_texture(*item);
       int collision_dir = TEXTURE_ASSET_REF[*item].collision_direction;
-      int half_map_size = 0.5 * GAME_MAP_SIZE;
-      phy_vect tile_pos_top_left = { (j - half_map_size) * GAME_MAP_TILE_SIZE, (i - half_map_size) * GAME_MAP_TILE_SIZE};
+      int half_map_width = 0.5 * GAME_MAP_WIDTH;
+      int half_map_height = 0.5 * GAME_MAP_HEIGHT;
+      phy_vect tile_pos_top_left = { (j - half_map_width) * GAME_MAP_TILE_SIZE, (i - half_map_height) * GAME_MAP_TILE_SIZE};
       phy_vect tile_pos_top_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE, 0.0f));
       phy_vect tile_pos_bottom_left = phy_v_add(tile_pos_top_left, phy_v(0.0f, GAME_MAP_TILE_SIZE));
       phy_vect tile_pos_bottom_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE, GAME_MAP_TILE_SIZE));

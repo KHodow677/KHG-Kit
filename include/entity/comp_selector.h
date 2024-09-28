@@ -19,7 +19,7 @@ typedef struct {
 
 extern ecs_id SELECTOR_COMPONENT_SIGNATURE;
 
-void comp_selector_register(comp_selector *cs);
+void comp_selector_register(void);
 
 void sys_selector_register(sys_selector *ss);
 comp_selector *sys_selector_add(ecs_id eid);

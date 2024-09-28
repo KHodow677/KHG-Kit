@@ -20,9 +20,8 @@ static ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   return 0;
 }
 
-void comp_rotator_register(comp_rotator *cr) {
-  cr->id = ecs_register_component(ECS, sizeof(comp_rotator), NULL, NULL);
-  ROTATOR_COMPONENT_SIGNATURE = cr->id; 
+void comp_rotator_register() {
+  ROTATOR_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_rotator), NULL, NULL);
 }
 
 void sys_rotator_register(sys_rotator *sr) {

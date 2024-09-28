@@ -61,9 +61,8 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
   return 0;
 }
 
-void comp_selector_register(comp_selector *cs) {
-  cs->id = ecs_register_component(ECS, sizeof(comp_selector), NULL, NULL);
-  SELECTOR_COMPONENT_SIGNATURE = cs->id; 
+void comp_selector_register() {
+  SELECTOR_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_selector), NULL, NULL);
 }
 
 void sys_selector_register(sys_selector *ss) {

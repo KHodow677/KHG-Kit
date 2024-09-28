@@ -17,7 +17,7 @@ typedef struct {
 
 extern ecs_id HEALTH_COMPONENT_SIGNATURE;
 
-void comp_health_register(comp_health *ch);
+void comp_health_register(void);
 
 void sys_health_register(sys_health *sh);
 comp_health *sys_health_add(ecs_id eid);

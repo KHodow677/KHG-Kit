@@ -21,7 +21,7 @@ typedef struct {
 
 extern ecs_id ANIMATOR_COMPONENT_SIGNATURE;
 
-void comp_animator_register(comp_animator *ca);
+void comp_animator_register(void);
 
 void sys_animator_register(sys_animator *sa);
 comp_animator *sys_animator_add(ecs_id eid);

@@ -17,9 +17,8 @@ static ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_c
   return 0;
 }
 
-void comp_destroyer_register(comp_destroyer *cd) {
-  cd->id = ecs_register_component(ECS, sizeof(comp_destroyer), NULL, NULL);
-  DESTROYER_COMPONENT_SIGNATURE = cd->id; 
+void comp_destroyer_register() {
+  DESTROYER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_destroyer), NULL, NULL);
 }
 
 void sys_destroyer_register(sys_destroyer *sd) {

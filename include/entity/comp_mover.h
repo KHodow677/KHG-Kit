@@ -19,7 +19,7 @@ typedef struct {
 
 extern ecs_id MOVER_COMPONENT_SIGNATURE;
 
-void comp_mover_register(comp_mover *cm);
+void comp_mover_register(void);
 
 void sys_mover_register(sys_mover *sm);
 comp_mover *sys_mover_add(ecs_id eid);

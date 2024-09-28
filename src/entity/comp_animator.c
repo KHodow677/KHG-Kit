@@ -24,9 +24,8 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
   return 0;
 }
 
-void comp_animator_register(comp_animator *ca) {
-  ca->id = ecs_register_component(ECS, sizeof(comp_animator), NULL, NULL);
-  ANIMATOR_COMPONENT_SIGNATURE = ca->id; 
+void comp_animator_register() {
+  ANIMATOR_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_animator), NULL, NULL);
 }
 
 void sys_animator_register(sys_animator *sa) {

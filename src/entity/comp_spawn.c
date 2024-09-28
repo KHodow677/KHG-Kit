@@ -26,9 +26,8 @@ static ecs_ret sys_spawn_update(ecs_ecs *ecs, ecs_id *entities, int entity_count
   return 0;
 }
 
-void comp_spawn_register(comp_spawn *cs) {
-  cs->id = ecs_register_component(ECS, sizeof(comp_spawn), NULL, NULL);
-  SPAWNER_COMPONENT_SIGNATURE = cs->id; 
+void comp_spawn_register() {
+  SPAWNER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_spawn), NULL, NULL);
 }
 
 void sys_spawn_register(sys_spawn *ss) {

@@ -23,9 +23,8 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   return 0;
 }
 
-void comp_physics_register(comp_physics *cp) {
-  cp->id = ecs_register_component(ECS, sizeof(comp_physics), NULL, NULL);
-  PHYSICS_COMPONENT_SIGNATURE = cp->id; 
+void comp_physics_register() {
+  PHYSICS_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_physics), NULL, NULL);
 }
 
 void sys_physics_register(sys_physics *sp) {

@@ -23,9 +23,8 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count
   return 0;
 }
 
-void comp_mover_register(comp_mover *cm) {
-  cm->id = ecs_register_component(ECS, sizeof(comp_mover), NULL, NULL);
-  MOVER_COMPONENT_SIGNATURE = cm->id; 
+void comp_mover_register() {
+  MOVER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_mover), NULL, NULL);
 }
 
 void sys_mover_register(sys_mover *sm) {

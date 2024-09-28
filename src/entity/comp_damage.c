@@ -15,17 +15,16 @@ static ecs_ret sys_damage_update(ecs_ecs *ecs, ecs_id *entities, int entity_coun
     if (info->target_health == NULL && !s_info->shot) {
       continue;
     }
-    /*if (s_info->shot) {*/
-    /*  info->target_health->current_health -= info->damage;*/
-    /*  info->killed = info->target_health->current_health <= 0.0f;*/
-    /*}*/
+    if (s_info->shot) {
+      info->target_health->current_health -= info->damage;
+      info->killed = info->target_health->current_health <= 0.0f;
+    }
   }
   return 0;
 }
 
-void comp_damage_register(comp_damage *cd) {
-  cd->id = ecs_register_component(ECS, sizeof(comp_damage), NULL, NULL);
-  DAMAGE_COMPONENT_SIGNATURE = cd->id; 
+void comp_damage_register() {
+  DAMAGE_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_damage), NULL, NULL);
 }
 
 void sys_damage_register(sys_damage *sd) {

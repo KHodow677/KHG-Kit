@@ -17,7 +17,7 @@ typedef struct {
 
 extern ecs_id ROTATOR_COMPONENT_SIGNATURE;
 
-void comp_rotator_register(comp_rotator *cr);
+void comp_rotator_register(void);
 
 void sys_rotator_register(sys_rotator *sr);
 comp_rotator *sys_rotator_add(ecs_id eid);

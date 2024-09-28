@@ -53,9 +53,8 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
   return 0;
 }
 
-void comp_renderer_register(comp_renderer *cr) {
-  cr->id = ecs_register_component(ECS, sizeof(comp_renderer), NULL, NULL);
-  RENDERER_COMPONENT_SIGNATURE = cr->id; 
+void comp_renderer_register() {
+  RENDERER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_renderer), NULL, NULL);
 }
 
 void sys_renderer_register(sys_renderer *sr) {

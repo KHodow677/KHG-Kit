@@ -29,7 +29,7 @@ extern ecs_id TARGETER_COMPONENT_SIGNATURE;
 bool targeter_sensor_enter(phy_arbiter *arb, phy_space *space, phy_data_pointer udata);
 void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer udata);
 
-void comp_targeter_register(comp_targeter *ct);
+void comp_targeter_register(void);
 
 void sys_targeter_register(sys_targeter *ss);
 comp_targeter *sys_targeter_add(ecs_id eid);

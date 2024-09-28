@@ -32,9 +32,8 @@ static ecs_ret sys_stream_spawner_update(ecs_ecs *ecs, ecs_id *entities, int ent
   return 0;
 }
 
-void comp_stream_spawner_register(comp_stream_spawner *css) {
-  css->id = ecs_register_component(ECS, sizeof(comp_stream_spawner), NULL, NULL);
-  STREAM_SPAWNER_COMPONENT_SIGNATURE = css->id; 
+void comp_stream_spawner_register() {
+  STREAM_SPAWNER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_stream_spawner), NULL, NULL);
 }
 
 void sys_stream_spawner_register(sys_stream_spawner *sss) {
@@ -45,6 +44,6 @@ void sys_stream_spawner_register(sys_stream_spawner *sss) {
 }
 
 comp_stream_spawner *sys_stream_spawner_add(ecs_id eid) {
-  ecs_add(ECS, eid, STREAM_SPAWNER_COMPONENT_SIGNATURE, NULL);
+  return ecs_add(ECS, eid, STREAM_SPAWNER_COMPONENT_SIGNATURE, NULL);
 }
 

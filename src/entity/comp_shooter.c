@@ -37,9 +37,8 @@ static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   return 0;
 }
 
-void comp_shooter_register(comp_shooter *cs) {
-  cs->id = ecs_register_component(ECS, sizeof(comp_shooter), NULL, NULL);
-  SHOOTER_COMPONENT_SIGNATURE = cs->id; 
+void comp_shooter_register() {
+  SHOOTER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_shooter), NULL, NULL);
 }
 
 void sys_shooter_register(sys_shooter *ss) {
