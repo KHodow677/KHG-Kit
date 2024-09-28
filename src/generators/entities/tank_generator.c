@@ -10,8 +10,8 @@ void generate_tank(tank *t, float x, float y, float angle) {
 }
 
 void free_tank(tank *t) {
-  t->body.destroyer_info.destroy_now = true;
-  t->top.destroyer_info.destroy_now = true;
+  t->body.comp_destroyer->destroy_now = true;
+  t->top.comp_destroyer->destroy_now = true;
   free_tank_body(&t->body);
   free_tank_top(&t->top);
 }

@@ -10,7 +10,7 @@ typedef struct {
   ecs_id entity;
   physics_info physics_info;
   renderer_info renderer_info;
-  destroyer_info destroyer_info;
+  comp_destroyer *comp_destroyer;
   selector_info selector_info;
 } hangar;
 

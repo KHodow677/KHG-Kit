@@ -10,8 +10,8 @@ void generate_turret(turret *t, float x, float y, float angle) {
 }
 
 void free_turret(turret *t) {
-  t->base.destroyer_info.destroy_now = true;
-  t->top.destroyer_info.destroy_now = true;
+  t->base.comp_destroyer->destroy_now = true;
+  t->top.comp_destroyer->destroy_now = true;
   free_turret_base(&t->base);
   free_turret_top(&t->top);
 }

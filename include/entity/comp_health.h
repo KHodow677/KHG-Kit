@@ -4,13 +4,10 @@
 #include "khg_phy/phy_types.h"
 
 typedef struct {
+  ecs_id id;
   phy_body *body;
   float max_health;
   float current_health;
-} health_info;
-
-typedef struct {
-  ecs_id id;
 } comp_health;
 
 typedef struct {
@@ -19,11 +16,9 @@ typedef struct {
 } sys_health;
 
 extern ecs_id HEALTH_COMPONENT_SIGNATURE;
-extern health_info NO_HEALTH;
-extern health_info *HEALTH_INFO;
 
 void comp_health_register(comp_health *ch);
 
 void sys_health_register(sys_health *sh);
-void sys_health_add(ecs_id *eid, health_info *info);
+comp_health *sys_health_add(ecs_id eid);
 

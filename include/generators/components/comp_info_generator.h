@@ -23,12 +23,12 @@ void generate_renderer(renderer_info *info, physics_info *p_info, int tex_id, in
 void generate_static_renderer_segments(renderer_info *info, physics_info *p_info, phy_vect pos, int tex_id, int render_layer, ecs_id linked_ent, float angle);
 void free_renderer(renderer_info *info);
 
-void generate_destroyer(destroyer_info *info);
+void generate_destroyer(comp_destroyer *info);
 
-void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, float frame_duration, bool destroy_on_max);
+void generate_animator(comp_animator *info, int min_tex_id, int max_tex_id, float frame_duration, bool destroy_on_max);
 
-void generate_mover(mover_info *info, ecs_id entity, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length);
-void free_mover(mover_info *info);
+void generate_mover(comp_mover *info, ecs_id entity, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length);
+void free_mover(comp_mover *info);
 
 void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang);
 
@@ -39,13 +39,12 @@ void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int s
 void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown, phy_vect spawn_offset);
 void free_stream_spawner(stream_spawner_info *info);
 
-void generate_commander(commander_info *info, mover_info *m_info);
+void generate_commander(comp_commander *info, comp_mover *m_info);
 
 void generate_targeter(targeter_info *info, physics_info *body_p_info, physics_info *targeting_p_info, float range);
 void free_targeter(targeter_info *info);
 
-void generate_health(health_info *info, physics_info *p_info, float max_health, float starting_health);
+void generate_health(comp_health *info, physics_info *p_info, float max_health, float starting_health);
 
-void generate_damage(damage_info *info, float damage);
-void free_damage(damage_info *info);
+void generate_damage(comp_damage *info, float damage);
 

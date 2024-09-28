@@ -23,7 +23,7 @@ typedef struct indicator {
   float length;
 } indicator;
 
-void generate_all_indicators(selector_info *info, physics_info *p_info, renderer_info *r_info, mover_info *m_info);
+void generate_all_indicators(selector_info *info, physics_info *p_info, renderer_info *r_info, comp_mover *m_info);
 void generate_indicator(renderer_info *r_info, indicator_type type, int tex, bool is_target_body, phy_vect pos, float ang, float length);
 
 void render_point(indicator *ind);

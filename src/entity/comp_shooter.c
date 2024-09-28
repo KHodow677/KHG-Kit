@@ -22,7 +22,7 @@ static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
     shooter_info *info = utl_vector_at(SHOOTER_INFO, entities[id]);
     physics_info *p_info = &PHYSICS_INFO[entities[id]];
     rotator_info *r_info = &ROTATOR_INFO[entities[id]];
-    damage_info *d_info = &DAMAGE_INFO[entities[id]];
+    info->shot = false;
     if (!r_info->target_health) {
       info->shoot_timer = info->shoot_cooldown;
     }
@@ -33,6 +33,7 @@ static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
       float spawn_x = pos.x + info->barrel_length * sinf(normalize_angle(ang));
       float spawn_y = pos.y + info->barrel_length * -cosf(normalize_angle(ang));
       spawn_particle(p_info, spawn_x, spawn_y);
+      info->shot = true;
     }
     info->shoot_timer -= dt;
   }
@@ -49,7 +50,6 @@ void sys_shooter_register(sys_shooter *ss) {
   ecs_require_component(ECS, ss->id, SHOOTER_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, ROTATOR_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, PHYSICS_COMPONENT_SIGNATURE);
-  ecs_require_component(ECS, ss->id, DAMAGE_COMPONENT_SIGNATURE);
   ss->ecs = *ECS;
   SHOOTER_INFO = utl_vector_create(sizeof(shooter_info));
   for (int i = 0; i < ECS->entity_count; i++) {

@@ -6,7 +6,7 @@
 
 typedef struct {
   phy_body *body;
-  health_info *target_health;
+  comp_health *target_health;
 } rotator_info;
 
 typedef struct {

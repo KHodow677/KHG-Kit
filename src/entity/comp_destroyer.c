@@ -6,12 +6,10 @@
 #include <stdlib.h>
 
 ecs_id DESTROYER_COMPONENT_SIGNATURE;
-destroyer_info NO_DESTROYER = { 0 };
-destroyer_info *DESTROYER_INFO = (destroyer_info[ECS_ENTITY_COUNT]){};
 
 static ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    destroyer_info *info = &DESTROYER_INFO[entities[id]]; 
+    comp_destroyer *info = ecs_get(ECS, entities[id], DESTROYER_COMPONENT_SIGNATURE);
     if (info->destroy_now) {
       element_destroy(entities[id]);
     }
@@ -28,13 +26,9 @@ void sys_destroyer_register(sys_destroyer *sd) {
   sd->id = ecs_register_system(ECS, sys_destroyer_update, NULL, NULL, NULL);
   ecs_require_component(ECS, sd->id, DESTROYER_COMPONENT_SIGNATURE);
   sd->ecs = *ECS;
-  for (int i = 0; i < ECS_ENTITY_COUNT; i++) {
-    DESTROYER_INFO[i] = NO_DESTROYER;
-  }
 }
 
-void sys_destroyer_add(ecs_id *eid, destroyer_info *info) {
-  ecs_add(ECS, *eid, DESTROYER_COMPONENT_SIGNATURE, NULL);
-  DESTROYER_INFO[*eid] = *info;
+comp_destroyer *sys_destroyer_add(ecs_id eid) {
+  return ecs_add(ECS, eid, DESTROYER_COMPONENT_SIGNATURE, NULL);
 }
 

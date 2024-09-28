@@ -7,6 +7,7 @@ typedef struct {
   float shoot_cooldown;
   float shoot_timer;
   float barrel_length;
+  bool shot;
 } shooter_info;
 
 typedef struct {

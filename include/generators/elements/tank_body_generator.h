@@ -9,7 +9,7 @@ typedef struct {
   ecs_id entity;
   physics_info physics_info;
   renderer_info renderer_info;
-  destroyer_info destroyer_info;
+  comp_destroyer *comp_destroyer;
 } tank_body;
 
 void generate_tank_body(tank_body *tb, float x, float y, float angle);

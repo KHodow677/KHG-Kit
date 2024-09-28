@@ -1,5 +1,6 @@
 #include "entity/comp_commander.h"
 #include "data_utl/kinematic_utl.h"
+#include "entity/comp_mover.h"
 #include "entity/indicators.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
@@ -11,13 +12,11 @@
 #include <stdio.h>
 
 ecs_id COMMANDER_COMPONENT_SIGNATURE;
-commander_info NO_COMMANDER = { 0 };
-commander_info *COMMANDER_INFO = (commander_info[ECS_ENTITY_COUNT]){};
 
 static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    commander_info *info = &COMMANDER_INFO[entities[id]]; 
-    mover_info *m_info = &MOVER_INFO[entities[id]];
+    comp_commander *info = ecs_get(ECS, entities[id], COMMANDER_COMPONENT_SIGNATURE);
+    comp_mover *m_info = ecs_get(ECS, entities[id], MOVER_COMPONENT_SIGNATURE);
     physics_info *body_info = &PHYSICS_INFO[m_info->body_entity];
     selector_info *s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
     physics_info *p_info = &PHYSICS_INFO[entities[id]];
@@ -53,9 +52,6 @@ static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_c
 void comp_commander_register(comp_commander *cc) {
   cc->id = ecs_register_component(ECS, sizeof(comp_commander), NULL, NULL);
   COMMANDER_COMPONENT_SIGNATURE = cc->id; 
-  for (int i = 0; i < ECS_ENTITY_COUNT; i++) {
-    COMMANDER_INFO[i] = NO_COMMANDER;
-  }
 }
 
 void sys_commander_register(sys_commander *sc) {
@@ -68,8 +64,7 @@ void sys_commander_register(sys_commander *sc) {
   sc->ecs = *ECS;
 }
 
-void sys_commander_add(ecs_id *eid, commander_info *info) {
-  ecs_add(ECS, *eid, COMMANDER_COMPONENT_SIGNATURE, NULL);
-  COMMANDER_INFO[*eid] = *info;
+comp_commander *sys_commander_add(ecs_id eid) {
+  return ecs_add(ECS, eid, COMMANDER_COMPONENT_SIGNATURE, NULL);
 }
 

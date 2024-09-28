@@ -12,10 +12,10 @@ typedef struct {
   ecs_id entity;
   physics_info physics_info;
   renderer_info renderer_info;
-  destroyer_info destroyer_info;
-  animator_info animator_info;
-  mover_info mover_info;
-  health_info health_info;
+  comp_destroyer *comp_destroyer;
+  comp_animator *comp_animator;
+  comp_mover *comp_mover;
+  comp_health *comp_health;
 } slug;
 
 void generate_slug(slug *s, float x, float y, float angle, phy_vect *init_path, int init_path_length);

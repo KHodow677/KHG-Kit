@@ -13,15 +13,15 @@
 
 void generate_turret_top(turret_top *tt, turret_base *tb, float x, float y, float angle) {
   tt->entity = ecs_create(ECS);
+  tt->comp_destroyer = sys_destroyer_add(tt->entity);
   generate_physics_pivot(tt->entity, &tt->physics_info, &tb->physics_info, false, 85.0f, 133.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 25.5f), COLLISION_CATEGORY_OBJECT);
   phy_body_set_angle(tt->physics_info.body, angle);
   generate_renderer(&tt->renderer_info, &tt->physics_info, TURRET_TOP, 3, tb->entity);
-  generate_destroyer(&tt->destroyer_info);
+  generate_destroyer(tt->comp_destroyer);
   generate_rotator(&tt->rotator_info, &tt->physics_info, angle);
   generate_shooter(&tt->shooter_info, 107.0f, 1.0f);
   sys_physics_add(&tt->entity, &tt->physics_info);
   sys_renderer_add(&tt->entity, &tt->renderer_info);
-  sys_destroyer_add(&tt->entity, &tt->destroyer_info);
   sys_rotator_add(&tt->entity, &tt->rotator_info);
   sys_shooter_add(&tt->entity, &tt->shooter_info);
 }
@@ -31,7 +31,6 @@ void free_turret_top(turret_top *tt) {
   free_renderer(&tt->renderer_info);
   PHYSICS_INFO[tt->entity] = NO_PHYSICS;
   utl_vector_assign(RENDERER_INFO, tt->entity, &NO_RENDERER);
-  DESTROYER_INFO[tt->entity] = NO_DESTROYER;
   ROTATOR_INFO[tt->entity] = NO_ROTATOR;
   utl_vector_assign(SHOOTER_INFO, tt->entity, &NO_SHOOTER);
 }

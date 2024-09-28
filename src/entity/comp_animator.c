@@ -7,14 +7,12 @@
 #include <stdio.h>
 
 ecs_id ANIMATOR_COMPONENT_SIGNATURE;
-animator_info NO_ANIMATOR = { 0 };
-animator_info *ANIMATOR_INFO = (animator_info[ECS_ENTITY_COUNT]){};
 
 static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    animator_info *info = &ANIMATOR_INFO[entities[id]]; 
+    comp_animator *info = ecs_get(ECS, entities[id], ANIMATOR_COMPONENT_SIGNATURE);
     renderer_info *r_info = utl_vector_at(RENDERER_INFO, entities[id]);
-    destroyer_info *d_info = &DESTROYER_INFO[entities[id]];
+    comp_destroyer *d_info = ecs_get(ECS, entities[id], DESTROYER_COMPONENT_SIGNATURE);
     if (info->destroy_on_max && r_info->tex_id == info->max_tex_id) {
       d_info->destroy_now = true;
     }
@@ -38,13 +36,9 @@ void sys_animator_register(sys_animator *sa) {
   ecs_require_component(ECS, sa->id, RENDERER_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, sa->id, DESTROYER_COMPONENT_SIGNATURE);
   sa->ecs = *ECS;
-  for (int i = 0; i < ECS_ENTITY_COUNT; i++) {
-    ANIMATOR_INFO[i] = NO_ANIMATOR;
-  }
 }
 
-void sys_animator_add(ecs_id *eid, animator_info *info) {
-  ecs_add(ECS, *eid, ANIMATOR_COMPONENT_SIGNATURE, NULL);
-  ANIMATOR_INFO[*eid] = *info;
+comp_animator *sys_animator_add(ecs_id eid) {
+  return ecs_add(ECS, eid, ANIMATOR_COMPONENT_SIGNATURE, NULL);
 }
 

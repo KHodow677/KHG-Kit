@@ -2,6 +2,7 @@
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_commander.h"
+#include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_health.h"
 #include "entity/comp_mover.h"
@@ -32,7 +33,6 @@
 #include <wchar.h>
 
 void generate_physics_box(ecs_id eid, physics_info *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
-  info->eid = eid;
   float moment = phy_moment_for_box(mass, width, height);
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -50,10 +50,11 @@ void generate_physics_box(ecs_id eid, physics_info *info, bool collides, float w
   info->target_ang_vel = 0.0f;
   info->move_enabled = true;
   info->rotate_enabled = true;
+  info->targeter_ref = NULL;
+  info->health_ref = NULL;
 }
 
 void generate_physics_circle(ecs_id eid, physics_info *info, bool collides, float radius, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
-  info->eid = eid;
   float moment = phy_moment_for_circle(mass, 0.0f, radius, phy_v(0.0f, 0.0f));
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -71,10 +72,11 @@ void generate_physics_circle(ecs_id eid, physics_info *info, bool collides, floa
   info->target_ang_vel = 0.0f;
   info->move_enabled = true;
   info->rotate_enabled = true;
+  info->targeter_ref = NULL;
+  info->health_ref = NULL;
 }
 
 void generate_physics_pivot(ecs_id eid, physics_info *info, physics_info *p_info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
-  info->eid = eid;
   float moment = phy_moment_for_box(mass, width, height);
   info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
   phy_body_set_position(info->body, pos);
@@ -95,10 +97,11 @@ void generate_physics_pivot(ecs_id eid, physics_info *info, physics_info *p_info
   info->target_body = p_info->body;
   info->target_shape = p_info->shape;
   info->pivot = phy_space_add_constraint(SPACE, phy_pivot_joint_new_2(info->target_body, info->body, phy_body_get_center_of_gravity(p_info->body), phy_body_get_center_of_gravity(info->body)));
+  info->targeter_ref = NULL;
+  info->health_ref = NULL;
 }
 
 void generate_static_physics_circle(ecs_id eid, physics_info *info, bool collides, float radius, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
-  info->eid = eid;
   info->body = phy_space_add_body(SPACE, phy_body_new_static());
   phy_body_set_position(info->body, pos);
   phy_body_set_center_of_gravity(info->body, cog);
@@ -117,10 +120,11 @@ void generate_static_physics_circle(ecs_id eid, physics_info *info, bool collide
   info->rotate_enabled = true;
   info->target_body = info->body;
   info->target_shape = info->shape;
+  info->targeter_ref = NULL;
+  info->health_ref = NULL;
 }
 
 void generate_static_physics_box(ecs_id eid, physics_info *info, bool collides, float width, float height, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
-  info->eid = eid;
   info->body = phy_space_add_body(SPACE, phy_body_new_static());
   phy_body_set_position(info->body, pos);
   phy_body_set_center_of_gravity(info->body, cog);
@@ -139,6 +143,8 @@ void generate_static_physics_box(ecs_id eid, physics_info *info, bool collides, 
   info->rotate_enabled = true;
   info->target_body = info->body;
   info->target_shape = info->shape;
+  info->targeter_ref = NULL;
+  info->health_ref = NULL;
 }
 
 void free_physics(physics_info *info, bool has_constraint) {
@@ -207,11 +213,11 @@ void free_renderer(renderer_info *info) {
   }
 }
 
-void generate_destroyer(destroyer_info *info) {
+void generate_destroyer(comp_destroyer *info) {
   info->destroy_now = false;
 }
 
-void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, float frame_duration, bool destroy_on_max) {
+void generate_animator(comp_animator *info, int min_tex_id, int max_tex_id, float frame_duration, bool destroy_on_max) {
   info->min_tex_id = min_tex_id;
   info->max_tex_id = max_tex_id;
   info->frame_duration = frame_duration;
@@ -219,7 +225,7 @@ void generate_animator(animator_info *info, int min_tex_id, int max_tex_id, floa
   info->destroy_on_max = destroy_on_max;
 }
 
-void generate_mover(mover_info *info, ecs_id entity, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length) {
+void generate_mover(comp_mover *info, ecs_id entity, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length) {
   info->body_entity = entity;
   info->target_pos_queue = utl_queue_create(sizeof(phy_vect));
   info->max_vel = max_vel;
@@ -229,7 +235,7 @@ void generate_mover(mover_info *info, ecs_id entity, float max_vel, float max_an
   }
 }
 
-void free_mover(mover_info *info) {
+void free_mover(comp_mover *info) {
   utl_queue_deallocate(info->target_pos_queue);
 }
 
@@ -242,6 +248,7 @@ void generate_shooter(shooter_info *info, float barrel_length, float cooldown) {
   info->shoot_cooldown = cooldown;
   info->shoot_timer = 0.0f;
   info->barrel_length = barrel_length;
+  info->shot = false;
 }
 
 void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id) {
@@ -270,7 +277,7 @@ void free_stream_spawner(stream_spawner_info *info) {
   utl_queue_deallocate(info->spawn_queue);
 }
 
-void generate_commander(commander_info *info, mover_info *m_info) {
+void generate_commander(comp_commander *info, comp_mover *m_info) {
   info->point_queue_count = utl_queue_size(m_info->target_pos_queue);
 }
 
@@ -284,7 +291,7 @@ void generate_targeter(targeter_info *info, physics_info *body_p_info, physics_i
   phy_shape_set_filter(info->sensor, filter);
   phy_shape_set_user_data(info->sensor, (void *)targeting_p_info);
   phy_space_add_shape(SPACE, info->sensor);
-  info->all_list = utl_vector_create(sizeof(health_info *));
+  info->all_list = utl_vector_create(sizeof(comp_health *));
 }
 
 void free_targeter(targeter_info *info) {
@@ -293,18 +300,14 @@ void free_targeter(targeter_info *info) {
   utl_vector_deallocate(info->all_list);
 }
 
-void generate_health(health_info *info, physics_info *p_info, float max_health, float starting_health) {
+void generate_health(comp_health *info, physics_info *p_info, float max_health, float starting_health) {
   info->body = p_info->body;
   info->max_health = max_health; 
   info->current_health = starting_health; 
 }
 
-void generate_damage(damage_info *info, float damage) {
+void generate_damage(comp_damage *info, float damage) {
   info->damage = damage; 
-  info->target_entities = utl_vector_create(sizeof(health_info *));
-}
-
-void free_damage(damage_info *info) {
-  utl_vector_deallocate(info->target_entities);
+  info->target_health = NULL;
 }
 

@@ -1,5 +1,6 @@
 #include "entity/indicators.h"
 #include "data_utl/kinematic_utl.h"
+#include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
 #include "game_manager.h"
@@ -10,7 +11,7 @@
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
 
-void generate_all_indicators(selector_info *info, physics_info *p_info, renderer_info *r_info, mover_info *m_info) {
+void generate_all_indicators(selector_info *info, physics_info *p_info, renderer_info *r_info, comp_mover *m_info) {
   utl_vector_clear(r_info->indicators);
   if (!utl_queue_empty(m_info->target_pos_queue)) {
     phy_vect *first_point_pos = utl_queue_front(m_info->target_pos_queue);

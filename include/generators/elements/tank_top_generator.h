@@ -17,14 +17,14 @@ typedef struct {
   ecs_id entity;
   physics_info physics_info;
   renderer_info renderer_info;
-  destroyer_info destroyer_info;
-  mover_info mover_info;
+  comp_destroyer *comp_destroyer;
+  comp_mover *comp_mover;
   rotator_info rotator_info;
   shooter_info shooter_info;
   selector_info selector_info;
-  commander_info commander_info;
+  comp_commander *comp_commander;
   targeter_info targeter_info;
-  damage_info damage_info;
+  comp_damage *comp_damage;
 } tank_top;
 
 void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angle);

@@ -1,15 +1,18 @@
 #pragma once
 
+#include "entity/comp_health.h"
+#include "entity/comp_targeter.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy_types.h"
 
 typedef struct {
-  ecs_id eid;
   phy_body *body;
   phy_shape *shape;
   phy_body *target_body;
   phy_shape *target_shape;
   phy_constraint *pivot;
+  targeter_info *targeter_ref;
+  comp_health *health_ref;
   float target_vel;
   float target_ang_vel;
   bool move_enabled;
