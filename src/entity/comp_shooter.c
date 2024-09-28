@@ -1,4 +1,5 @@
 #include "entity/comp_shooter.h"
+#include "controllers/elements/element_controller.h"
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_rotator.h"
@@ -22,14 +23,16 @@ static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
     physics_info *p_info = &PHYSICS_INFO[entities[id]];
     rotator_info *r_info = &ROTATOR_INFO[entities[id]];
     damage_info *d_info = &DAMAGE_INFO[entities[id]];
-    if (r_info->target_aim_body && p_info->is_locked_on  && info->shoot_timer <= 0) {
+    if (!r_info->target_health) {
+      info->shoot_timer = info->shoot_cooldown;
+    }
+    if (r_info->target_health && element_is_targeting_position(p_info, phy_body_get_position(r_info->target_health->body), 0.2f) && info->shoot_timer <= 0) {
       info->shoot_timer = info->shoot_cooldown;
       phy_vect pos = phy_body_get_position(p_info->body);
       float ang = phy_body_get_angle(p_info->body);
       float spawn_x = pos.x + info->barrel_length * sinf(normalize_angle(ang));
       float spawn_y = pos.y + info->barrel_length * -cosf(normalize_angle(ang));
       spawn_particle(p_info, spawn_x, spawn_y);
-      utl_vector_push_back(d_info->target_entities, &r_info->target_eid);
     }
     info->shoot_timer -= dt;
   }

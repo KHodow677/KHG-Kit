@@ -44,7 +44,7 @@ void generate_commander(commander_info *info, mover_info *m_info);
 void generate_targeter(targeter_info *info, physics_info *body_p_info, physics_info *targeting_p_info, float range);
 void free_targeter(targeter_info *info);
 
-void generate_health(health_info *info, float max_health, float starting_health);
+void generate_health(health_info *info, physics_info *p_info, float max_health, float starting_health);
 
 void generate_damage(damage_info *info, float damage);
 void free_damage(damage_info *info);

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
+#include "khg_phy/phy_types.h"
 
 typedef struct {
+  phy_body *body;
   float max_health;
   float current_health;
 } health_info;

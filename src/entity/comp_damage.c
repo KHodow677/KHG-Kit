@@ -18,23 +18,13 @@ static ecs_ret sys_damage_update(ecs_ecs *ecs, ecs_id *entities, int entity_coun
     if (utl_vector_is_empty(info->target_entities)) {
       continue;
     }
-    printf("Entity to damage: %i\n", *((ecs_id *)utl_vector_at(info->target_entities, 0)));
-    for (int i = 0; i < utl_vector_size(info->target_entities); i++) {
-      health_info *target_h_info = &HEALTH_INFO[*((ecs_id *)utl_vector_at(info->target_entities, i))];
-      printf("Current Health: %f\n", target_h_info->current_health);
-      target_h_info->current_health -= info->damage;
-      if (target_h_info->current_health <= 0.0f) {
-        for (int i = 0; i < utl_vector_size(t_info->all_list); i++) {
-          target *tgt = utl_vector_at(t_info->all_list, i);
-          if (i == tgt->eid) {
-            handle_target_lists_remove(t_info, tgt->eid);
-            utl_vector_erase(t_info->all_list, i, 1);
-            break;
-          }
-        }
-        info->entity_killed = i;
-      }
-    }
+    /*for (int i = 0; i < utl_vector_size(info->target_entities); i++) {*/
+    /*  target *hit_target = ((target *)utl_vector_at(info->target_entities, i));*/
+    /*  hit_target->health_info->current_health -= info->damage;*/
+    /*  if (hit_target->health_info->current_health <= 0.0f) {*/
+    /*    hit_target->is_targetable = false;*/
+    /*  }*/
+    /*}*/
     utl_vector_clear(info->target_entities);
   }
   return 0;

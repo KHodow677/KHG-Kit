@@ -14,7 +14,7 @@ void generate_slug(slug *s, float x, float y, float angle, phy_vect *init_path, 
   generate_renderer(&s->renderer_info, &s->physics_info, SLUG_1_0, 9, s->entity);
   generate_destroyer(&s->destroyer_info);
   generate_animator(&s->animator_info, SLUG_1_0, SLUG_1_28, 0.032f, false);
-  generate_health(&s->health_info, 500.0f, 500.0f);
+  generate_health(&s->health_info, &s->physics_info, 500.0f, 500.0f);
   generate_mover(&s->mover_info, s->entity, 150.0f, 8.0f, init_path, init_path_length);
   sys_physics_add(&s->entity, &s->physics_info);
   sys_renderer_add(&s->entity, &s->renderer_info);

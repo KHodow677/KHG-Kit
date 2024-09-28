@@ -1,12 +1,12 @@
 #pragma once
 
+#include "entity/comp_health.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy_types.h"
 
 typedef struct {
   phy_body *body;
-  phy_body *target_aim_body;
-  ecs_id target_eid;
+  health_info *target_health;
 } rotator_info;
 
 typedef struct {

@@ -235,8 +235,7 @@ void free_mover(mover_info *info) {
 
 void generate_rotator(rotator_info *info, physics_info *p_info, float init_ang) {
   info->body = p_info->body;
-  info->target_aim_body = NULL;
-  info->target_eid = -1;
+  info->target_health = NULL;
 }
 
 void generate_shooter(shooter_info *info, float barrel_length, float cooldown) {
@@ -285,32 +284,24 @@ void generate_targeter(targeter_info *info, physics_info *body_p_info, physics_i
   phy_shape_set_filter(info->sensor, filter);
   phy_shape_set_user_data(info->sensor, (void *)targeting_p_info);
   phy_space_add_shape(SPACE, info->sensor);
-  info->all_list = utl_vector_create(sizeof(target));
-  info->current_list = NULL;
-  info->first_list = utl_vector_create(sizeof(target));
-  info->last_list = utl_vector_create(sizeof(target));
-  info->strong_list = utl_vector_create(sizeof(target));
-  info->weak_list = utl_vector_create(sizeof(target));
+  info->all_list = utl_vector_create(sizeof(health_info *));
 }
 
 void free_targeter(targeter_info *info) {
   phy_space_remove_shape(SPACE, info->sensor);
   phy_shape_free(info->sensor);
   utl_vector_deallocate(info->all_list);
-  utl_vector_deallocate(info->first_list);
-  utl_vector_deallocate(info->last_list);
-  utl_vector_deallocate(info->strong_list);
-  utl_vector_deallocate(info->weak_list);
 }
 
-void generate_health(health_info *info, float max_health, float starting_health) {
+void generate_health(health_info *info, physics_info *p_info, float max_health, float starting_health) {
+  info->body = p_info->body;
   info->max_health = max_health; 
   info->current_health = starting_health; 
 }
 
 void generate_damage(damage_info *info, float damage) {
   info->damage = damage; 
-  info->target_entities = utl_vector_create(sizeof(ecs_id));
+  info->target_entities = utl_vector_create(sizeof(health_info *));
 }
 
 void free_damage(damage_info *info) {

@@ -68,7 +68,7 @@ int game_run() {
   spawn_turret(3616, 3360, -M_PI * 0.25f);
   spawn_hangar(3048, 3808, -0.5f * M_PI);
   spawn_hangar(3808, 3176, 0.0f);
-  spawn_tank(128*18, 128*18, 0.0f);
+  spawn_tank(128*17, 128*17, 0.0f);
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   return res;
@@ -101,6 +101,7 @@ bool gfx_loop(float delta) {
     ecs_update_system(ECS, SHOOTER_SYSTEM.id, delta);
     ecs_update_system(ECS, DAMAGE_SYSTEM.id, delta);
     ecs_update_system(ECS, HEALTH_SYSTEM.id, delta);
+    ecs_update_system(ECS, TARGETER_SYSTEM.id, delta);
     ecs_update_system(ECS, PHYSICS_SYSTEM.id, delta);
     ecs_update_system(ECS, ANIMATOR_SYSTEM.id, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);

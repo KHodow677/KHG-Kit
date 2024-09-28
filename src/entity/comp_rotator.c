@@ -13,11 +13,11 @@ static ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   for (int id = 0; id < entity_count; id++) {
     rotator_info *info = &ROTATOR_INFO[entities[id]]; 
     physics_info *p_info = &PHYSICS_INFO[entities[id]];
-    if (info->target_aim_body == NULL) {
+    if (info->target_health == NULL) {
       element_set_rotation_speed(p_info, 0.0f);
       continue;
     }
-    element_lock_on_position(p_info, phy_body_get_position(info->target_aim_body), 16.0f);
+    element_lock_on_position(p_info, phy_body_get_position(info->target_health->body), 16.0f);
   }
   return 0;
 }
