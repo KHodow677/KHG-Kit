@@ -6,12 +6,10 @@
 #include "khg_phy/body.h"
 
 ecs_id ROTATOR_COMPONENT_SIGNATURE;
-rotator_info NO_ROTATOR = { 0 };
-rotator_info *ROTATOR_INFO = (rotator_info[ECS_ENTITY_COUNT]){};
 
 static ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    rotator_info *info = &ROTATOR_INFO[entities[id]]; 
+    comp_rotator *info = ecs_get(ECS, entities[id], ROTATOR_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (info->target_health == NULL) {
       element_set_rotation_speed(p_info, 0.0f);
@@ -32,13 +30,9 @@ void sys_rotator_register(sys_rotator *sr) {
   ecs_require_component(ECS, sr->id, ROTATOR_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, sr->id, PHYSICS_COMPONENT_SIGNATURE);
   sr->ecs = *ECS;
-  for (int i = 0; i < ECS_ENTITY_COUNT; i++) {
-    ROTATOR_INFO[i] = NO_ROTATOR;
-  }
 }
 
-void sys_rotator_add(ecs_id *eid, rotator_info *info) {
-  ecs_add(ECS, *eid, ROTATOR_COMPONENT_SIGNATURE, NULL);
-  ROTATOR_INFO[*eid] = *info;
+comp_rotator *sys_rotator_add(ecs_id eid) {
+  return ecs_add(ECS, eid, ROTATOR_COMPONENT_SIGNATURE, NULL);
 }
 

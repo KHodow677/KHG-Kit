@@ -12,12 +12,10 @@
 #include <stdlib.h>
 
 ecs_id STREAM_SPAWNER_COMPONENT_SIGNATURE;
-stream_spawner_info NO_STREAM_SPAWNER = { 0 };
-utl_vector *STREAM_SPAWNER_INFO = NULL;
 
 static ecs_ret sys_stream_spawner_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    stream_spawner_info *info = utl_vector_at(STREAM_SPAWNER_INFO, entities[id]);
+    comp_stream_spawner *info = ecs_get(ECS, entities[id], STREAM_SPAWNER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (utl_queue_size(info->spawn_queue) > 0 && info->spawn_timer <= 0) {
       int *next_spawn_type = utl_queue_front(info->spawn_queue);
@@ -44,14 +42,9 @@ void sys_stream_spawner_register(sys_stream_spawner *sss) {
   ecs_require_component(ECS, sss->id, STREAM_SPAWNER_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, sss->id, PHYSICS_COMPONENT_SIGNATURE);
   sss->ecs = *ECS;
-  STREAM_SPAWNER_INFO = utl_vector_create(sizeof(stream_spawner_info));
-  for (int i = 0; i < ECS->entity_count; i++) {
-    utl_vector_push_back(STREAM_SPAWNER_INFO, &NO_STREAM_SPAWNER);
-  }
 }
 
-void sys_stream_spawner_add(ecs_id *eid, stream_spawner_info *info) {
-  ecs_add(ECS, *eid, STREAM_SPAWNER_COMPONENT_SIGNATURE, NULL);
-  utl_vector_assign(STREAM_SPAWNER_INFO, *eid, info);
+comp_stream_spawner *sys_stream_spawner_add(ecs_id eid) {
+  ecs_add(ECS, eid, STREAM_SPAWNER_COMPONENT_SIGNATURE, NULL);
 }
 

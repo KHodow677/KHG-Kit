@@ -3,6 +3,7 @@
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
+#include "entity/comp_selector.h"
 #include "game_manager.h"
 #include "generators/components/texture_generator.h"
 #include "khg_gfx/elements.h"
@@ -11,7 +12,7 @@
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
 
-void generate_all_indicators(selector_info *info, comp_physics *p_info, comp_renderer *r_info, comp_mover *m_info) {
+void generate_all_indicators(comp_selector *info, comp_physics *p_info, comp_renderer *r_info, comp_mover *m_info) {
   utl_vector_clear(r_info->indicators);
   if (!utl_queue_empty(m_info->target_pos_queue)) {
     phy_vect *first_point_pos = utl_queue_front(m_info->target_pos_queue);

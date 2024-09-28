@@ -1,17 +1,13 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_utl/vector.h"
 
 typedef struct {
+  ecs_id id;
   float shoot_cooldown;
   float shoot_timer;
   float barrel_length;
   bool shot;
-} shooter_info;
-
-typedef struct {
-  ecs_id id;
 } comp_shooter;
 
 typedef struct {
@@ -20,11 +16,9 @@ typedef struct {
 } sys_shooter;
 
 extern ecs_id SHOOTER_COMPONENT_SIGNATURE;
-extern shooter_info NO_SHOOTER;
-extern utl_vector *SHOOTER_INFO;
 
 void comp_shooter_register(comp_shooter *cs);
 
 void sys_shooter_register(sys_shooter *ss);
-void sys_shooter_add(ecs_id *eid, shooter_info *info);
+comp_shooter *sys_shooter_add(ecs_id eid);
 

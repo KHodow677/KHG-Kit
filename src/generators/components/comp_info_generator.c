@@ -239,19 +239,19 @@ void free_mover(comp_mover *info) {
   utl_queue_deallocate(info->target_pos_queue);
 }
 
-void generate_rotator(rotator_info *info, comp_physics *p_info, float init_ang) {
+void generate_rotator(comp_rotator *info, comp_physics *p_info, float init_ang) {
   info->body = p_info->body;
   info->target_health = NULL;
 }
 
-void generate_shooter(shooter_info *info, float barrel_length, float cooldown) {
+void generate_shooter(comp_shooter *info, float barrel_length, float cooldown) {
   info->shoot_cooldown = cooldown;
   info->shoot_timer = 0.0f;
   info->barrel_length = barrel_length;
   info->shot = false;
 }
 
-void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id) {
+void generate_selector(comp_selector *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id) {
   info->selected = false;
   info->just_selected = false;
   info->tex_id = tex_id;
@@ -260,7 +260,7 @@ void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int s
   info->selected_linked_tex_id = selected_linked_tex_id;
 }
 
-void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown, phy_vect spawn_offset) {
+void generate_stream_spawner(comp_stream_spawner *info, float spawn_cooldown, phy_vect spawn_offset) {
   info->spawn_cooldown = spawn_cooldown;
   info->spawn_timer = 0.0f;
   info->spawn_offset = spawn_offset;
@@ -272,7 +272,7 @@ void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown, ph
   }
 }
 
-void free_stream_spawner(stream_spawner_info *info) {
+void free_stream_spawner(comp_stream_spawner *info) {
   utl_vector_deallocate(info->path);
   utl_queue_deallocate(info->spawn_queue);
 }

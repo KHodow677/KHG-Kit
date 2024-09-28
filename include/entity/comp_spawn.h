@@ -16,5 +16,5 @@ extern ecs_id SPAWNER_COMPONENT_SIGNATURE;
 void comp_spawn_register(comp_spawn *cs);
 
 void sys_spawn_register(sys_spawn *ss);
-void sys_spawn_add(ecs_id *eid);
+comp_spawn *sys_spawn_add(ecs_id eid);
 

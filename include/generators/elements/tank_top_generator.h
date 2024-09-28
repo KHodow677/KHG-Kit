@@ -19,9 +19,9 @@ typedef struct {
   comp_renderer *comp_renderer;
   comp_destroyer *comp_destroyer;
   comp_mover *comp_mover;
-  rotator_info rotator_info;
-  shooter_info shooter_info;
-  selector_info selector_info;
+  comp_rotator *comp_rotator;
+  comp_shooter *comp_shooter;
+  comp_selector *comp_selector;
   comp_commander *comp_commander;
   targeter_info targeter_info;
   comp_damage *comp_damage;

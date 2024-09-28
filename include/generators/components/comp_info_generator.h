@@ -30,14 +30,14 @@ void generate_animator(comp_animator *info, int min_tex_id, int max_tex_id, floa
 void generate_mover(comp_mover *info, comp_physics *p_info, float max_vel, float max_ang_vel, phy_vect *init_path, int init_path_length);
 void free_mover(comp_mover *info);
 
-void generate_rotator(rotator_info *info, comp_physics *p_info, float init_ang);
+void generate_rotator(comp_rotator *info, comp_physics *p_info, float init_ang);
 
-void generate_shooter(shooter_info *info, float barrel_length, float cooldown);
+void generate_shooter(comp_shooter *info, float barrel_length, float cooldown);
 
-void generate_selector(selector_info *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id);
+void generate_selector(comp_selector *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id);
 
-void generate_stream_spawner(stream_spawner_info *info, float spawn_cooldown, phy_vect spawn_offset);
-void free_stream_spawner(stream_spawner_info *info);
+void generate_stream_spawner(comp_stream_spawner *info, float spawn_cooldown, phy_vect spawn_offset);
+void free_stream_spawner(comp_stream_spawner *info);
 
 void generate_commander(comp_commander *info, comp_mover *m_info);
 

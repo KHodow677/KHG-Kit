@@ -9,15 +9,12 @@ typedef enum {
 } spawn_type;
 
 typedef struct {
+  ecs_id id;
   float spawn_cooldown;
   float spawn_timer;
   phy_vect spawn_offset;
   utl_queue *spawn_queue;
   utl_vector *path;
-} stream_spawner_info;
-
-typedef struct {
-  ecs_id id;
 } comp_stream_spawner;
 
 typedef struct {
@@ -26,11 +23,9 @@ typedef struct {
 } sys_stream_spawner;
 
 extern ecs_id STREAM_SPAWNER_COMPONENT_SIGNATURE;
-extern stream_spawner_info NO_STREAM_SPAWNER;
-extern utl_vector *STREAM_SPAWNER_INFO;
 
 void comp_stream_spawner_register(comp_stream_spawner *css);
 
 void sys_stream_spawner_register(sys_stream_spawner *sss);
-void sys_stream_spawner_add(ecs_id *eid, stream_spawner_info *info);
+comp_stream_spawner *sys_stream_spawner_add(ecs_id eid);
 

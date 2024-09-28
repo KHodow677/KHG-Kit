@@ -11,7 +11,7 @@ typedef struct {
   comp_physics *comp_physics;
   comp_renderer *comp_renderer;
   comp_destroyer *comp_destroyer;
-  stream_spawner_info stream_spawner_info;
+  comp_stream_spawner *comp_stream_spawner;
 } spawner;
 
 void generate_spawner(spawner *s, float x, float y, float angle, phy_vect *path, int path_length);

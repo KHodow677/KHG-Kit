@@ -23,10 +23,11 @@ typedef struct indicator {
   float length;
 } indicator;
 
-void generate_all_indicators(selector_info *info, comp_physics *p_info, comp_renderer *r_info, comp_mover *m_info);
+void generate_all_indicators(comp_selector *info, comp_physics *p_info, comp_renderer *r_info, comp_mover *m_info);
 void generate_indicator(comp_renderer *r_info, indicator_type type, int tex, bool is_target_body, phy_vect pos, float ang, float length);
 
 void render_point(indicator *ind);
 void render_line(indicator *ind);
 void render_body_point(comp_physics *p_info, indicator *ind);
 void render_body_line(comp_physics *p_info, indicator *ind);
+

@@ -9,8 +9,6 @@
 #include "khg_utl/vector.h"
 
 ecs_id SELECTOR_COMPONENT_SIGNATURE;
-selector_info NO_SELECTOR = { 0 };
-utl_vector *SELECTOR_INFO = NULL;
 
 static void swap_render_info_texture(comp_renderer *r_info, int tex_id, int linked_tex_id) {
   r_info->tex_id = tex_id;
@@ -19,7 +17,7 @@ static void swap_render_info_texture(comp_renderer *r_info, int tex_id, int link
   }
 }
 
-static void deselect(selector_info *info, comp_renderer *r_info, ecs_id id) {
+static void deselect(comp_selector *info, comp_renderer *r_info, ecs_id id) {
   info->selected = false;
   utl_vector_clear(r_info->indicators);
   swap_render_info_texture(r_info, info->tex_id, info->linked_tex_id);
@@ -27,7 +25,7 @@ static void deselect(selector_info *info, comp_renderer *r_info, ecs_id id) {
 
 static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    selector_info *info = utl_vector_at(SELECTOR_INFO, entities[id]);
+    comp_selector *info = ecs_get(ECS, entities[id], SELECTOR_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
     info->just_selected = false;
@@ -38,7 +36,7 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
       if (phy_shape_point_query(p_info->target_shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f) {
         if (!info->selected) {
           for (int i = 0; i < entity_count; i++) {
-            selector_info *info_s = utl_vector_at(SELECTOR_INFO, entities[i]);
+            comp_selector *info_s = ecs_get(ECS, entities[id], SELECTOR_COMPONENT_SIGNATURE);
             comp_renderer *info_r = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
             if (!info_s->selected) {
               continue;
@@ -74,14 +72,9 @@ void sys_selector_register(sys_selector *ss) {
   ecs_require_component(ECS, ss->id, PHYSICS_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, RENDERER_COMPONENT_SIGNATURE);
   ss->ecs = *ECS;
-  SELECTOR_INFO = utl_vector_create(sizeof(selector_info));
-  for (int i = 0; i < ECS->entity_count; i++) {
-    utl_vector_push_back(SELECTOR_INFO, &NO_SELECTOR);
-  }
 }
 
-void sys_selector_add(ecs_id *eid, selector_info *info) {
-  ecs_add(ECS, *eid, SELECTOR_COMPONENT_SIGNATURE, NULL);
-  utl_vector_assign(SELECTOR_INFO, *eid, info);
+comp_selector *sys_selector_add(ecs_id eid) {
+  return ecs_add(ECS, eid, SELECTOR_COMPONENT_SIGNATURE, NULL);
 }
 

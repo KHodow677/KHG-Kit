@@ -70,7 +70,7 @@ static void remove_from(targeter_info *info, comp_health *h_info) {
 static ecs_ret sys_targeter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     targeter_info *info = &TARGETER_INFO[entities[id]];
-    rotator_info *r_info = &ROTATOR_INFO[entities[id]];
+    comp_rotator *r_info = ecs_get(ECS, entities[id], ROTATOR_COMPONENT_SIGNATURE);
     comp_damage *d_info = ecs_get(ECS, entities[id], DAMAGE_COMPONENT_SIGNATURE);
     if (d_info->killed) {
       remove_from(info, r_info->target_health);

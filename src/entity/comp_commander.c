@@ -9,7 +9,6 @@
 #include "khg_phy/shape.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/queue.h"
-#include "khg_utl/vector.h"
 #include <stdio.h>
 
 ecs_id COMMANDER_COMPONENT_SIGNATURE;
@@ -18,7 +17,7 @@ static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_c
   for (int id = 0; id < entity_count; id++) {
     comp_commander *info = ecs_get(ECS, entities[id], COMMANDER_COMPONENT_SIGNATURE);
     comp_mover *m_info = ecs_get(ECS, entities[id], MOVER_COMPONENT_SIGNATURE);
-    selector_info *s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
+    comp_selector *s_info = ecs_get(ECS, entities[id], SELECTOR_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
     if (s_info->selected && s_info->just_selected) {

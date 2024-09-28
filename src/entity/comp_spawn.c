@@ -3,7 +3,6 @@
 #include "entity/comp_renderer.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_utl/vector.h"
 #include "menus/game_menu_manager.h"
 #include "menus/spawn_menu.h"
 #include <stdio.h>
@@ -12,7 +11,7 @@ ecs_id SPAWNER_COMPONENT_SIGNATURE;
 
 static ecs_ret sys_spawn_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    selector_info *s_info = utl_vector_at(SELECTOR_INFO, entities[id]);
+    comp_selector *s_info = ecs_get(ECS, entities[id], SELECTOR_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (s_info->selected) {
@@ -41,7 +40,7 @@ void sys_spawn_register(sys_spawn *ss) {
   ss->ecs = *ECS;
 }
 
-void sys_spawn_add(ecs_id *eid) {
-  ecs_add(ECS, *eid, SPAWNER_COMPONENT_SIGNATURE, NULL);
+comp_spawn *sys_spawn_add(ecs_id eid) {
+  return ecs_add(ECS, eid, SPAWNER_COMPONENT_SIGNATURE, NULL);
 }
 

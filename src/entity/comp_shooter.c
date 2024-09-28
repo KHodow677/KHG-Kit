@@ -8,20 +8,17 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
-#include "khg_utl/vector.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 ecs_id SHOOTER_COMPONENT_SIGNATURE;
-shooter_info NO_SHOOTER = { 0 };
-utl_vector *SHOOTER_INFO = NULL;
 
 static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
-    shooter_info *info = utl_vector_at(SHOOTER_INFO, entities[id]);
+    comp_shooter *info = ecs_get(ECS, entities[id], SHOOTER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
-    rotator_info *r_info = &ROTATOR_INFO[entities[id]];
+    comp_rotator *r_info = ecs_get(ECS, entities[id], ROTATOR_COMPONENT_SIGNATURE);
     info->shot = false;
     if (!r_info->target_health) {
       info->shoot_timer = info->shoot_cooldown;
@@ -51,14 +48,9 @@ void sys_shooter_register(sys_shooter *ss) {
   ecs_require_component(ECS, ss->id, ROTATOR_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, PHYSICS_COMPONENT_SIGNATURE);
   ss->ecs = *ECS;
-  SHOOTER_INFO = utl_vector_create(sizeof(shooter_info));
-  for (int i = 0; i < ECS->entity_count; i++) {
-    utl_vector_push_back(SHOOTER_INFO, &NO_SHOOTER);
-  }
 }
 
-void sys_shooter_add(ecs_id *eid, shooter_info *info) {
-  ecs_add(ECS, *eid, SHOOTER_COMPONENT_SIGNATURE, NULL);
-  utl_vector_assign(SHOOTER_INFO, *eid, info);
+comp_shooter *sys_shooter_add(ecs_id eid) {
+  return ecs_add(ECS, eid, SHOOTER_COMPONENT_SIGNATURE, NULL);
 }
 
