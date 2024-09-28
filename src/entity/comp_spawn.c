@@ -15,11 +15,12 @@ static ecs_ret sys_spawn_update(ecs_ecs *ecs, ecs_id *entities, int entity_count
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (s_info->selected) {
-      SPAWN_SETTINGS.spawn_body = p_info->body;
+      SPAWN_SETTINGS.comp_physics = p_info;
+      SPAWN_SETTINGS.comp_selector = s_info;
       SPAWN_SETTINGS.spawner_tex_id = r_info->tex_id;
       GAME_OVERLAY_TRACKER[SPAWN_MENU].active = true;
     }
-    else if (SPAWN_SETTINGS.spawn_body == p_info->body) {
+    else if (SPAWN_SETTINGS.comp_selector == s_info) {
       GAME_OVERLAY_TRACKER[SPAWN_MENU].active = false;
     }
   }

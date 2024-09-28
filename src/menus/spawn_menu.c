@@ -165,9 +165,10 @@ bool render_spawn_menu() {
   render_body_text(width, height, "Select Hull", 350.0f);
   render_small_icon_buttons(width, height, SPAWN_SELECT_BODY, 380.0f, 20.0f);
   if (!render_button(width, height, "SPAWN", 500.0f)) {
-    phy_vect pos = phy_body_get_position(SPAWN_SETTINGS.spawn_body);
-    float ang = phy_body_get_angle(SPAWN_SETTINGS.spawn_body);
+    phy_vect pos = phy_body_get_position(SPAWN_SETTINGS.comp_physics->body);
+    float ang = phy_body_get_angle(SPAWN_SETTINGS.comp_physics->body);
     generic_entity *ge = spawn_tank(pos.x, pos.y, ang);
+    SPAWN_SETTINGS.comp_selector->should_deselect = true;
   }
   gfx_div_end();
   gfx_pop_style_props();

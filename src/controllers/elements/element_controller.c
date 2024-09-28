@@ -8,7 +8,7 @@
 #include <stdbool.h>
 
 float POSITION_TOLERANCE = 10.0f;
-float ANGLE_TOLERANCE = 0.001f;
+float ANGLE_TOLERANCE = 0.01f;
 float POSITION_SPEED_SCALE = 100.0f;
 float ROTATION_SPEED_SCALE = 5.0f;
 float POSITION_EASING = 3.0f;
@@ -108,7 +108,7 @@ void element_target_position(comp_physics *info, phy_vect pos, float max_vel, fl
   }
   if (!element_is_targeting_position(info, pos, ANGLE_TOLERANCE) && !element_is_at_position(info, pos, POSITION_TOLERANCE)) {
     element_rotate_to_position(info, max_ang_vel, body_ang, target_ang, ROTATION_EASING);
-    element_move_to_position(info, max_vel, pos, body_pos, POSITION_EASING);
+    /*element_move_to_position(info, max_vel, pos, body_pos, POSITION_EASING);*/
   }
   else {
     element_set_rotation_speed(info, 0.0f);

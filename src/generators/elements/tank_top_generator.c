@@ -29,7 +29,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   tt->comp_damage = sys_damage_add(tt->entity);
   generate_physics_pivot(tt->entity, tt->comp_physics, tb->comp_physics, false, 102.0f, 209.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 55.5f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(tt->comp_physics->body, angle);
-  generate_renderer(tt->comp_renderer, tb->comp_renderer, tt->comp_physics, TANK_TOP, 2);
+  generate_renderer(tt->comp_renderer, tb->comp_renderer, tt->comp_physics, TANK_TOP, 3);
   generate_destroyer(tt->comp_destroyer);
   generate_mover(tt->comp_mover, tb->comp_physics, 300.0f, 16.0f, NULL, 0);
   generate_rotator(tt->comp_rotator, tt->comp_physics, angle);

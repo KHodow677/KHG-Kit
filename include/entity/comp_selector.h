@@ -6,6 +6,7 @@ typedef struct {
   ecs_id id;
   bool selected;
   bool just_selected;
+  bool should_deselect;
   int tex_id;
   int linked_tex_id;
   int selected_tex_id;

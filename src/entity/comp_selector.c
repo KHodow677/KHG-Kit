@@ -9,6 +9,8 @@
 #include "khg_utl/vector.h"
 
 ecs_id SELECTOR_COMPONENT_SIGNATURE;
+static comp_selector *CURRENT_SELECTED = NULL;
+static comp_renderer *CURRENT_SELECTED_RENDERER = NULL;
 
 static void swap_render_info_texture(comp_renderer *r_info, int tex_id, int linked_tex_id) {
   r_info->tex_id = tex_id;
@@ -17,7 +19,7 @@ static void swap_render_info_texture(comp_renderer *r_info, int tex_id, int link
   }
 }
 
-static void deselect(comp_selector *info, comp_renderer *r_info, ecs_id id) {
+static void deselect(comp_selector *info, comp_renderer *r_info) {
   info->selected = false;
   utl_vector_clear(r_info->indicators);
   swap_render_info_texture(r_info, info->tex_id, info->linked_tex_id);
@@ -29,32 +31,32 @@ static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
     info->just_selected = false;
-    if (KEYBOARD_STATE.escape_key_went_down) {
-      deselect(info, r_info, entities[id]);
+    if (info->should_deselect || KEYBOARD_STATE.escape_key_went_down) {
+      deselect(info, r_info);
+      info->should_deselect = false;
     }
     if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
       if (phy_shape_point_query(p_info->target_shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f) {
-        if (!info->selected) {
-          for (int i = 0; i < entity_count; i++) {
-            comp_selector *info_s = ecs_get(ECS, entities[id], SELECTOR_COMPONENT_SIGNATURE);
-            comp_renderer *info_r = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
-            if (!info_s->selected) {
-              continue;
-            }
-            deselect(info_s, info_r, entities[i]);
-          }
-          info->selected = true;
-          info->just_selected = true;
-          if (info->selected_tex_id == info->selected_linked_tex_id) {
-            swap_render_info_texture(r_info, info->selected_tex_id, info->selected_linked_tex_id);
-          }
-          else {
-            swap_render_info_texture(r_info, info->tex_id, info->selected_linked_tex_id);
-          }
+        if (CURRENT_SELECTED != NULL && CURRENT_SELECTED != info) {
+          deselect(CURRENT_SELECTED, CURRENT_SELECTED_RENDERER);
+          CURRENT_SELECTED->should_deselect = false;
+        }
+        CURRENT_SELECTED = info;
+        CURRENT_SELECTED_RENDERER = r_info;
+        info->selected = true;
+        info->just_selected = true;
+        if (info->selected_tex_id == info->selected_linked_tex_id) {
+          swap_render_info_texture(r_info, info->selected_tex_id, info->selected_linked_tex_id);
+        }
+        else {
+          swap_render_info_texture(r_info, info->tex_id, info->selected_linked_tex_id);
         }
       }
       else {
-        deselect(info, r_info, entities[id]);
+        CURRENT_SELECTED = NULL;
+        CURRENT_SELECTED_RENDERER = NULL;
+        deselect(info, r_info);
+        info->should_deselect = false;
       }
     }
   }
