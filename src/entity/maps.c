@@ -6,6 +6,7 @@
 #include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
+#include <stdio.h>
 
 void render_map(utl_vector *map) {
   int map_rows = utl_vector_size(map);
@@ -40,12 +41,14 @@ void add_map_collision_segments(utl_vector *map, utl_vector **segments) {
       }
       gfx_texture *tex = get_or_add_texture(*item);
       int collision_dir = TEXTURE_ASSET_REF[*item].collision_direction;
+      int shrinkage_offset = TEXTURE_ASSET_REF[*item].collision_shrinkage_offset;
       int half_map_width = 0.5 * GAME_MAP_WIDTH;
       int half_map_height = 0.5 * GAME_MAP_HEIGHT;
-      phy_vect tile_pos_top_left = { (j - half_map_width) * GAME_MAP_TILE_SIZE, (i - half_map_height) * GAME_MAP_TILE_SIZE};
-      phy_vect tile_pos_top_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE, 0.0f));
-      phy_vect tile_pos_bottom_left = phy_v_add(tile_pos_top_left, phy_v(0.0f, GAME_MAP_TILE_SIZE));
-      phy_vect tile_pos_bottom_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE, GAME_MAP_TILE_SIZE));
+      phy_vect tile_pos_top_left = { (j - half_map_width) * GAME_MAP_TILE_SIZE + shrinkage_offset, (i - half_map_height) * GAME_MAP_TILE_SIZE + shrinkage_offset};
+      /*printf("(%f, %f)\n", tile_pos_top_left.x, tile_pos_top_left.y);*/
+      phy_vect tile_pos_top_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE - 2 * shrinkage_offset, 0.0f));
+      phy_vect tile_pos_bottom_left = phy_v_add(tile_pos_top_left, phy_v(0.0f, GAME_MAP_TILE_SIZE - 2 * shrinkage_offset));
+      phy_vect tile_pos_bottom_right = phy_v_add(tile_pos_top_left, phy_v(GAME_MAP_TILE_SIZE - 2 * shrinkage_offset, GAME_MAP_TILE_SIZE - 2 * shrinkage_offset));
       if ((collision_dir == SEGMENT_TOP_LEFT || collision_dir == SEGMENT_TOP || collision_dir == SEGMENT_TOP_RIGHT)) {
         phy_shape *seg = physics_add_static_segment_shape(SPACE, tile_pos_top_left, tile_pos_top_right);
         utl_vector_push_back(*segments, &seg);

@@ -13,7 +13,7 @@ void generate_depot(depot *d, float x, float y, float angle) {
   d->comp_destroyer = sys_destroyer_add(d->entity);
   generate_static_physics_box(d->entity, d->comp_physics, false, 306, 334, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(d->comp_physics->body, angle);
-  generate_renderer(d->comp_renderer, d->comp_renderer, d->comp_physics, HANGAR, 4);
+  generate_renderer(d->comp_renderer, d->comp_renderer, d->comp_physics, DEPOT, 4);
   generate_destroyer(d->comp_destroyer);
 }
 

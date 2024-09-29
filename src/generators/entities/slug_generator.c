@@ -17,7 +17,7 @@ void generate_slug(slug *s, float x, float y, float angle, phy_vect *init_path, 
   s->comp_health = sys_health_add(s->entity);
   generate_physics_circle(s->entity, s->comp_physics, true, 60, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(s->comp_physics->body, angle);
-  generate_renderer(s->comp_renderer, s->comp_renderer, s->comp_physics, SLUG_1_0, 9);
+  generate_renderer(s->comp_renderer, s->comp_renderer, s->comp_physics, SLUG_1_0, 2);
   generate_destroyer(s->comp_destroyer);
   generate_animator(s->comp_animator, SLUG_1_0, SLUG_1_28, 0.032f, false);
   generate_health(s->comp_health, s->comp_physics, 500.0f, 500.0f);

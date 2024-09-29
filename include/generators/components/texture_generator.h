@@ -48,6 +48,7 @@ typedef enum {
   TURRET_TOP,
   HANGAR,
   SPAWNER,
+  DEPOT,
   TANK_BODY_OUTLINE,
   TANK_TOP_OUTLINE,
   HANGAR_OUTLINE,
@@ -96,6 +97,7 @@ typedef struct texture_asset {
   int tex_width;
   int tex_height;
   int collision_direction;
+  int collision_shrinkage_offset;
 } texture_asset;
 
 extern texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];

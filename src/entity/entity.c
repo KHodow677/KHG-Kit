@@ -40,6 +40,12 @@ bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
       return true;
     }
   }
+  else if (ge->type == ENTITY_TYPE_DEPOT) {
+    if (!check_id || ge->hangar.entity == id) {
+      free_depot(&ge->depot);
+      return true;
+    }
+  }
   return false;
 }
 

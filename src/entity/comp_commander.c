@@ -40,7 +40,7 @@ static ecs_ret sys_commander_update(ecs_ecs *ecs, ecs_id *entities, int entity_c
       }
     }
     int count = utl_queue_size(m_info->target_pos_queue);
-    if (count != info->point_queue_count) {
+    if (s_info->selected && count != info->point_queue_count) {
       info->point_queue_count = count;
       generate_all_indicators(s_info, p_info, r_info, m_info);
     }
