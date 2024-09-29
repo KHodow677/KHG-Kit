@@ -1,4 +1,4 @@
-#include "generators/elements/tank_body_generator.h"
+#include "generators/elements/berserker_body_generator.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -9,7 +9,7 @@
 #include "khg_phy/body.h"
 #include "khg_phy/vect.h"
 
-void generate_tank_body(tank_body *tb, float x, float y, float angle) {
+void generate_berserker_body(berserker_body *tb, float x, float y, float angle) {
   tb->entity = ecs_create(ECS);
   tb->comp_physics = sys_physics_add(tb->entity);
   tb->comp_renderer = sys_renderer_add(tb->entity);
@@ -20,7 +20,7 @@ void generate_tank_body(tank_body *tb, float x, float y, float angle) {
   generate_destroyer(tb->comp_destroyer);
 }
 
-void free_tank_body(tank_body *tb) {
+void free_berserker_body(berserker_body *tb) {
   free_physics(tb->comp_physics, false);
   free_renderer(tb->comp_renderer);
 }

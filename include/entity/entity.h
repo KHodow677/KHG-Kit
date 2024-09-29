@@ -5,7 +5,7 @@
 #include "generators/entities/particle_generator.h"
 #include "generators/entities/slug_generator.h"
 #include "generators/entities/spawner_generator.h"
-#include "generators/entities/tank_generator.h"
+#include "generators/entities/berserker_generator.h"
 #include "generators/entities/turret_generator.h"
 
 typedef struct {
@@ -21,7 +21,7 @@ typedef struct {
   } type;
   union {
     particle particle;
-    tank tank;
+    berserker berserker;
     turret turret;
     hangar hangar;
     spawner spawner;

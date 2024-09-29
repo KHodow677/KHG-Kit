@@ -1,4 +1,4 @@
-#include "generators/elements/tank_top_generator.h"
+#include "generators/elements/berserker_top_generator.h"
 #include "entity/comp_commander.h"
 #include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
@@ -10,14 +10,14 @@
 #include "game_manager.h"
 #include "generators/components/comp_info_generator.h"
 #include "generators/components/texture_generator.h"
-#include "generators/elements/tank_body_generator.h"
+#include "generators/elements/berserker_body_generator.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
 #include "khg_phy/vect.h"
 #include <math.h>
 
-void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angle) {
+void generate_berserker_top(berserker_top *tt, berserker_body *tb, float x, float y, float angle) {
   tt->entity = ecs_create(ECS);
   tt->comp_physics = sys_physics_add(tt->entity);
   tt->comp_renderer = sys_renderer_add(tt->entity);
@@ -44,7 +44,7 @@ void generate_tank_top(tank_top *tt, tank_body *tb, float x, float y, float angl
   tt->comp_physics->targeter_ref = tt->comp_targeter;
 }
 
-void free_tank_top(tank_top *tt) {
+void free_berserker_top(berserker_top *tt) {
   free_physics(tt->comp_physics, true);
   free_renderer(tt->comp_renderer);
   free_mover(tt->comp_mover);

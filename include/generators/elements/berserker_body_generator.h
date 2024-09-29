@@ -10,8 +10,8 @@ typedef struct {
   comp_physics *comp_physics;
   comp_renderer *comp_renderer;
   comp_destroyer *comp_destroyer;
-} tank_body;
+} berserker_body;
 
-void generate_tank_body(tank_body *tb, float x, float y, float angle);
-void free_tank_body(tank_body *tb);
+void generate_berserker_body(berserker_body *tb, float x, float y, float angle);
+void free_berserker_body(berserker_body *tb);
 

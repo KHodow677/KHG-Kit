@@ -5,8 +5,7 @@
 #include "khg_gfx/elements.h"
 #include "khg_gfx/ui.h"
 #include "khg_phy/body.h"
-#include "spawners/spawn_tank.h"
-#include <stdint.h>
+#include "spawners/spawn_berserker.h"
 
 spawn_menu_info SPAWN_SETTINGS = { 0 };
 
@@ -182,7 +181,7 @@ bool render_spawn_menu() {
   if (!render_button(width, height, "SPAWN", 500.0f)) {
     phy_vect pos = phy_body_get_position(SPAWN_SETTINGS.comp_physics->body);
     float ang = phy_body_get_angle(SPAWN_SETTINGS.comp_physics->body);
-    generic_entity *ge = spawn_tank(pos.x, pos.y, ang);
+    generic_entity *ge = spawn_berserker(pos.x, pos.y, ang);
     SPAWN_SETTINGS.comp_selector->should_deselect = true;
   }
   gfx_div_end();
