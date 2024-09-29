@@ -18,7 +18,9 @@
 #include "entity/comp_spawn.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
+#include "menus/game_info_menu.h"
 #include "menus/game_menu_manager.h"
+#include "menus/spawn_menu.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
@@ -31,12 +33,6 @@
 #define COLLISION_CATEGORY_OBJECT (1 << 1)
 #define SENSOR_COLLISION_TYPE 1
 #define NORMAL_COLLISION_TYPE 2
-
-typedef struct game_info {
-  int lives;
-  int cash;
-  int rounds_left;
-} game_info;
 
 extern game_info GAME_INFO;
 
@@ -58,6 +54,7 @@ extern int GAME_MAP_TILE_SIZE;
 
 extern game_overlay_info GAME_OVERLAY_TRACKER[NUM_MENUS];
 extern gfx_color OVERLAY_FILTER_COLOR;
+extern spawn_menu_info SPAWN_SETTINGS;
 
 extern gfx_texture NO_TEXTURE;
 extern int MAX_TEXTURES;

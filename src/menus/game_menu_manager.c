@@ -1,5 +1,6 @@
 #include "menus/game_menu_manager.h"
 #include "game_manager.h"
+#include "menus/game_info_menu.h"
 #include "menus/spawn_menu.h"
 
 void setup_game_overlay() {
@@ -17,11 +18,15 @@ void close_all_game_overlays() {
 }
 
 void update_game_overlay() {
+  game_info_menu_setup();
   spawn_menu_setup();
 }
 
 bool mangage_game_overlays() {
   bool res = true;
+  if (GAME_OVERLAY_TRACKER[GAME_INFO_MENU].active) {
+    res = res && render_game_info_menu();
+  }
   if (GAME_OVERLAY_TRACKER[SPAWN_MENU].active) {
     res = res && render_spawn_menu();
   }

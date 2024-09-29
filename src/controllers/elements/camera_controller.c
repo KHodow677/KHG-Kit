@@ -46,23 +46,25 @@ static void clamp_camera(camera *cam, float range_x, float range_y) {
 }
 
 void move_camera(camera *cam, float delta) {
-  if (handle_key_button_is_down(GLFW_KEY_A)) {
-    cam->target.x -= 1000 * delta;
-  }
-  if (handle_key_button_is_down(GLFW_KEY_D)) {
-    cam->target.x += 1000 * delta;
-  }
-  if (handle_key_button_is_down(GLFW_KEY_W)) {
-    cam->target.y -= 1000 * delta;
-  }
-  if (handle_key_button_is_down(GLFW_KEY_S)) {
-    cam->target.y += 1000 * delta;
-  }
-  if (handle_key_button_went_down(GLFW_KEY_Q)) {
-    cam->target_zoom = fminf(cam->target_zoom + 0.25f * INITIAL_ZOOM, 2.0f * INITIAL_ZOOM);
-  }
-  if (handle_key_button_went_down(GLFW_KEY_E)) {
-    cam->target_zoom = fmaxf(cam->target_zoom - 0.25f * INITIAL_ZOOM, 0.5f * INITIAL_ZOOM);
+  if (cam->move_enabled) {
+    if (handle_key_button_is_down(GLFW_KEY_A)) {
+      cam->target.x -= 1000 * delta;
+    }
+    if (handle_key_button_is_down(GLFW_KEY_D)) {
+      cam->target.x += 1000 * delta;
+    }
+    if (handle_key_button_is_down(GLFW_KEY_W)) {
+      cam->target.y -= 1000 * delta;
+    }
+    if (handle_key_button_is_down(GLFW_KEY_S)) {
+      cam->target.y += 1000 * delta;
+    }
+    if (handle_key_button_went_down(GLFW_KEY_Q)) {
+      cam->target_zoom = fminf(cam->target_zoom + 0.25f * INITIAL_ZOOM, 2.0f * INITIAL_ZOOM);
+    }
+    if (handle_key_button_went_down(GLFW_KEY_E)) {
+      cam->target_zoom = fmaxf(cam->target_zoom - 0.25f * INITIAL_ZOOM, 0.5f * INITIAL_ZOOM);
+    }
   }
   camera_move_to_position(cam, delta);
   camera_zoom_to_value(cam, delta);

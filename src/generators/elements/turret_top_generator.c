@@ -25,7 +25,7 @@ void generate_turret_top(turret_top *tt, turret_base *tb, float x, float y, floa
   generate_renderer(tt->comp_renderer, tb->comp_renderer, tt->comp_physics, TURRET_TOP, 6);
   generate_destroyer(tt->comp_destroyer);
   generate_rotator(tt->comp_rotator, tt->comp_physics, angle);
-  generate_shooter(tt->comp_shooter, 112.0f, 0.25f);
+  generate_shooter(tt->comp_shooter, 115.0f, 0.25f);
   generate_targeter(tt->comp_targeter, tb->comp_physics, tt->comp_physics, 448.0f);
   generate_damage(tt->comp_damage, 50.0f);
   tt->comp_physics->targeter_ref = tt->comp_targeter;

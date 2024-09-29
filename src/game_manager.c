@@ -23,6 +23,7 @@
 #include "khg_gfx/elements.h"
 #include "khg_gfx/ui.h"
 #include "khg_stm/state_machine.h"
+#include "menus/game_info_menu.h"
 #include "menus/game_menu_manager.h"
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
@@ -32,8 +33,6 @@
 #include "khg_utl/vector.h"
 #include <stdlib.h>
 #include <stdio.h>
-
-game_info GAME_INFO = { 0 };
 
 int WINDOW_START_WIDTH  = 1280;
 int WINDOW_START_HEIGHT = 720;
@@ -53,6 +52,8 @@ int GAME_MAP_TILE_SIZE = 128;
 
 game_overlay_info GAME_OVERLAY_TRACKER[NUM_MENUS];
 gfx_color OVERLAY_FILTER_COLOR = gfx_no_color;
+spawn_menu_info SPAWN_SETTINGS = { 0 };
+game_info GAME_INFO = { 0 };
 
 gfx_texture NO_TEXTURE = { 0 };
 int CURRENT_TEXTURE_ID = 0;

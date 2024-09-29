@@ -5,6 +5,7 @@
 extern float INITIAL_ZOOM;
 
 typedef struct camera {
+  bool move_enabled;
   phy_vect position;
   phy_vect target;
   float zoom;

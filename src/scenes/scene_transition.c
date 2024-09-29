@@ -26,6 +26,8 @@ void load_tutorial_scene(void *old_state_data, stm_event *event, void *new_state
   spawn_turret(-1600, 80, M_PI * 0.5f);
   spawn_hangar(0, 1768, 0.0f);
   spawn_depot(-1407, -5, M_PI * 0.5f);
+  spawn_barrier(-1408, -192, 0.0f);
+  spawn_barrier(-1408, 182, M_PI);
   for (int i = -1152; i < 2048; i += 256) {
     spawn_barrier(i, -128, 0.0f);
     spawn_barrier(i, 118, M_PI);

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 typedef enum {
+  GAME_INFO_MENU,
   SPAWN_MENU,
   NUM_MENUS
 } game_overlay_type;
