@@ -1,12 +1,11 @@
 #pragma once
 
+#include "entity/comp_mover.h"
 #include "khg_ecs/ecs.h"
-#include "khg_utl/queue.h"
 
 typedef struct {
   ecs_id id;
-  utl_queue **ext_mover_ref;
-  utl_queue **loc_mover_ref;
+  comp_mover *ext_mover_ref;
 } comp_copier;
 
 typedef struct {

@@ -1,5 +1,6 @@
 #include "entity/comp_animator.h"
 #include "entity/comp_commander.h"
+#include "entity/comp_copier.h"
 #include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_health.h"
@@ -50,4 +51,6 @@ void free_targeter(comp_targeter *info);
 void generate_health(comp_health *info, comp_physics *p_info, float max_health, float starting_health);
 
 void generate_damage(comp_damage *info, float damage);
+
+void generate_copier(comp_copier *info, comp_mover *ref);
 

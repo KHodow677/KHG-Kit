@@ -2,6 +2,7 @@
 #include "data_utl/kinematic_utl.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_commander.h"
+#include "entity/comp_copier.h"
 #include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_health.h"
@@ -315,5 +316,9 @@ void generate_health(comp_health *info, comp_physics *p_info, float max_health, 
 void generate_damage(comp_damage *info, float damage) {
   info->damage = damage; 
   info->target_health = NULL;
+}
+
+void generate_copier(comp_copier *info, comp_mover *ref) {
+  info->ext_mover_ref = ref;
 }
 

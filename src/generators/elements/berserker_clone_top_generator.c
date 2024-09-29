@@ -1,5 +1,5 @@
 #include "generators/elements/berserker_clone_top_generator.h"
-#include "entity/comp_commander.h"
+#include "entity/comp_copier.h"
 #include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_physics.h"
@@ -16,7 +16,7 @@
 #include "khg_phy/vect.h"
 #include <math.h>
 
-void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body *bcb, float x, float y, float angle) {
+void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body *bcb, comp_mover *mover_ref, float x, float y, float angle) {
   bct->entity = ecs_create(ECS);
   bct->comp_physics = sys_physics_add(bct->entity);
   bct->comp_renderer = sys_renderer_add(bct->entity);
@@ -24,10 +24,9 @@ void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body
   bct->comp_mover = sys_mover_add(bct->entity);
   bct->comp_rotator = sys_rotator_add(bct->entity);
   bct->comp_shooter = sys_shooter_add(bct->entity);
-  bct->comp_selector = sys_selector_add(bct->entity);
-  bct->comp_commander = sys_commander_add(bct->entity);
   bct->comp_targeter = sys_targeter_add(bct->entity);
   bct->comp_damage = sys_damage_add(bct->entity);
+  bct->comp_copier = sys_copier_add(bct->entity);
   generate_physics_pivot(bct->entity, bct->comp_physics, bcb->comp_physics, false, 102.0f, 209.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 55.5f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(bct->comp_physics->body, angle);
   generate_renderer(bct->comp_renderer, bcb->comp_renderer, bct->comp_physics, TANK_TOP, 3);
@@ -36,10 +35,9 @@ void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body
   generate_mover(bct->comp_mover, bcb->comp_physics, 300.0f, 16.0f, move_forward, 1);
   generate_rotator(bct->comp_rotator, bct->comp_physics, angle);
   generate_shooter(bct->comp_shooter, 155.0f, 1.0f);
-  generate_selector(bct->comp_selector, TANK_TOP, TANK_BODY, TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);
-  generate_commander(bct->comp_commander, bct->comp_mover);
   generate_targeter(bct->comp_targeter, bcb->comp_physics, bct->comp_physics, 640.0f);
   generate_damage(bct->comp_damage, 500.0f);
+  generate_copier(bct->comp_copier, mover_ref);
   bct->comp_physics->targeter_ref = bct->comp_targeter;
 }
 

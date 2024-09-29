@@ -2,6 +2,8 @@
 #include "data_utl/kinematic_utl.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
+#include "khg_utl/queue.h"
+#include <stdio.h>
 #include <stdlib.h>
 
 ecs_id COPIER_COMPONENT_SIGNATURE;
@@ -9,6 +11,7 @@ ecs_id COPIER_COMPONENT_SIGNATURE;
 static ecs_ret sys_copier_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     comp_copier *info = ecs_get(ECS, entities[id], COPIER_COMPONENT_SIGNATURE);
+    printf("%zu\n", utl_queue_size(info->ext_mover_ref->target_pos_queue));
   }
   return 0;
 }

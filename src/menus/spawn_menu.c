@@ -4,8 +4,9 @@
 #include "generators/components/texture_generator.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/ui.h"
-#include "khg_phy/body.h"
 #include "spawners/spawn_berserker.h"
+#include "spawners/spawn_berserker_clone.h"
+#include <math.h>
 
 spawn_menu_info SPAWN_SETTINGS = { 0 };
 
@@ -179,7 +180,8 @@ bool render_spawn_menu() {
   /*render_body_text(width, height, "Select Hull", 350.0f);*/
   /*render_small_icon_buttons(width, height, SPAWN_SELECT_BODY, 380.0f, 20.0f);*/
   if (!render_button(width, height, "SPAWN", 500.0f)) {
-    generic_entity *ge = spawn_berserker(SPAWN_SETTINGS.pos.x, SPAWN_SETTINGS.pos.y, SPAWN_SETTINGS.ang);
+    generic_entity *bkr = spawn_berserker(SPAWN_SETTINGS.pos.x, SPAWN_SETTINGS.pos.y, SPAWN_SETTINGS.ang);
+    spawn_berserker_clone(bkr->berserker.top.comp_mover, SPAWN_SETTINGS.linked_pos.x, SPAWN_SETTINGS.linked_pos.y, SPAWN_SETTINGS.ang + M_PI);
     SPAWN_SETTINGS.comp_selector->should_deselect = true;
   }
   gfx_div_end();

@@ -1,5 +1,6 @@
 #include "entity/entity.h"
 #include "game_manager.h"
+#include "generators/entities/berserker_clone_generator.h"
 #include "generators/entities/spawner_generator.h"
 #include "khg_utl/vector.h"
 
@@ -13,6 +14,12 @@ bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
   else if (ge->type == ENTITY_TYPE_BERSERKER) {
     if (!check_id || ge->berserker.entity == id) {
       free_berserker(&ge->berserker);
+      return true;
+    }
+  }
+  else if (ge->type == ENTITY_TYPE_BERSERKER_CLONE) {
+    if (!check_id || ge->berserker_clone.entity == id) {
+      free_berserker_clone(&ge->berserker_clone);
       return true;
     }
   }
