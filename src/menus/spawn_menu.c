@@ -30,19 +30,6 @@ bool render_spawn_menu() {
   render_big_icon(width, height, HANGAR_ICON_BIG, 70.0f);
   render_body_text(width, height, "Select Tank", 220.0f);
   render_small_icon_buttons(width, height, 250.0f, 20.0f);
-  /*gfx_element_props props = gfx_get_theme().slider_props;*/
-  /*props.margin_top = 0;*/
-  /*props.margin_left = 0;*/
-  /*props.margin_right = 0;*/
-  /*props.border_width = 4.0f;*/
-  /*props.color = gfx_green;*/
-  /*props.text_color = gfx_white;*/
-  /*props.border_color = gfx_black;*/
-  /*gfx_push_style_props(props);*/
-  /*gfx_set_ptr_x((width - 200) / 2.0f);*/
-  /*gfx_set_ptr_y(400);*/
-  /*gfx_clickable_item_state progress = gfx_progress_bar_int(TEST_VAL, 0, 500, 200, 50);*/
-  /*gfx_pop_style_props();*/
   if (!render_button(width, height, "SPAWN", 400.0f)) {
     if (SPAWN_SELECTIONS[SPAWN_SETTINGS.current_spawn_index].icon_tex_id == BERSERKER_ICON_SMALL) {
       generic_entity *bkr = spawn_berserker(SPAWN_SETTINGS.pos.x, SPAWN_SETTINGS.pos.y, SPAWN_SETTINGS.ang);

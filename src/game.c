@@ -91,6 +91,7 @@ bool gfx_loop(float delta) {
     ecs_update_system(ECS, ANIMATOR_SYSTEM.id, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM.id, delta);
     ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
+    ecs_update_system(ECS, STATUS_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
     bool res = mangage_game_overlays();
     gfx_rect_no_block(gfx_get_display_width() / 2.0f, gfx_get_display_height() / 2.0f, gfx_get_display_width(), gfx_get_display_height(), OVERLAY_FILTER_COLOR, 0.0f, 0.0f);

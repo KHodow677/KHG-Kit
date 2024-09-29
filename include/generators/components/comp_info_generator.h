@@ -11,6 +11,7 @@
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "entity/comp_spawn.h"
+#include "entity/comp_status.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 
@@ -53,4 +54,6 @@ void generate_health(comp_health *info, comp_physics *p_info, float max_health, 
 void generate_damage(comp_damage *info, float damage);
 
 void generate_copier(comp_copier *info, comp_physics *ref);
+
+void generate_status(comp_status *info, float bar_width, float bar_height, bool tracks_ammo, bool tracks_fuel, bool tracks_health);
 

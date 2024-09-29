@@ -12,6 +12,7 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
 #include "entity/comp_spawn.h"
+#include "entity/comp_status.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 #include "entity/indicators.h"
@@ -320,5 +321,14 @@ void generate_damage(comp_damage *info, float damage) {
 
 void generate_copier(comp_copier *info, comp_physics *ref) {
   info->ext_physics_ref = ref;
+}
+
+void generate_status(comp_status *info, float bar_width, float bar_height, bool tracks_ammo, bool tracks_fuel, bool tracks_health) {
+  info->number_of_bars = tracks_ammo + tracks_fuel + tracks_health;
+  info->tracks_ammo = tracks_ammo;
+  info->tracks_fuel = tracks_fuel;
+  info->tracks_health = tracks_health;
+  info->bar_width = bar_width;
+  info->bar_height= bar_height;
 }
 

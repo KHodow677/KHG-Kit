@@ -16,6 +16,7 @@
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "entity/comp_spawn.h"
+#include "entity/comp_status.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 #include "menus/game_info_menu.h"
@@ -87,6 +88,7 @@ extern sys_targeter TARGETER_SYSTEM;
 extern sys_health HEALTH_SYSTEM;
 extern sys_damage DAMAGE_SYSTEM;
 extern sys_copier COPIER_SYSTEM;
+extern sys_status STATUS_SYSTEM;
 
 void ecs_setup();
 void ecs_cleanup();
