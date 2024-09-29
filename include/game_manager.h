@@ -45,6 +45,8 @@ extern ecs_ecs *ECS;
 extern utl_vector *ENTITY_LOOKUP;
 extern utl_vector *TEXTURE_LOOKUP;
 extern thd_thread *WORKER_THREADS;
+extern bool PAUSED;
+
 extern utl_vector *GAME_FLOOR_MAP;
 extern utl_vector *GAME_BUILDING_MAP;
 extern utl_vector *GAME_PATH_MAP;
@@ -71,6 +73,7 @@ extern gfx_font MEDIUM_FONT;
 extern stm_state_machine SCENE_FSM;
 extern stm_state TITLE_SCENE;
 extern stm_state TUTORIAL_SCENE;
+extern stm_state GAME_SCENE;
 extern stm_state ERROR_SCENE;
 
 extern sys_physics PHYSICS_SYSTEM;

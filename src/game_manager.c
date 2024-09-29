@@ -19,10 +19,13 @@
 #include "entity/comp_targeter.h"
 #include "entity/entity.h"
 #include "entity/map.h"
+#include "game.h"
 #include "generators/components/map_generator.h"
 #include "generators/components/texture_generator.h"
 #include "khg_gfx/elements.h"
+#include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
+#include "khg_phy/vect.h"
 #include "khg_stm/state_machine.h"
 #include "menus/game_info_menu.h"
 #include "menus/game_menu_manager.h"
@@ -43,6 +46,8 @@ ecs_ecs *ECS;
 utl_vector *ENTITY_LOOKUP;
 utl_vector *TEXTURE_LOOKUP;
 thd_thread *WORKER_THREADS;
+bool PAUSED = false;
+
 utl_vector *GAME_FLOOR_MAP;
 utl_vector *GAME_BUILDING_MAP;
 utl_vector *GAME_PATH_MAP;
@@ -79,8 +84,8 @@ stm_state PARENT_SCENE = {
 stm_state TITLE_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TUTORIAL_SCENE, &compare_scene_switch_command, &load_tutorial_scene, &TUTORIAL_SCENE } },
-  .num_transitions = 1,
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TUTORIAL_SCENE, &compare_scene_switch_command, &load_tutorial_scene, &TUTORIAL_SCENE }, { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_GAME_SCENE, &compare_scene_switch_command, &load_tutorial_scene, &GAME_SCENE } },
+  .num_transitions = 2,
   .data = "TITLE",
 };
 
@@ -90,6 +95,14 @@ stm_state TUTORIAL_SCENE = {
   .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TITLE_SCENE, &compare_scene_switch_command, NULL, &TITLE_SCENE } },
   .num_transitions = 1,
   .data = "TUTORIAL",
+};
+
+stm_state GAME_SCENE = {
+  .parent_state = &PARENT_SCENE,
+  .entry_state = NULL,
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TITLE_SCENE, &compare_scene_switch_command, NULL, &TITLE_SCENE } },
+  .num_transitions = 1,
+  .data = "GAME",
 };
 
 stm_state ERROR_SCENE = {
@@ -115,6 +128,12 @@ sys_copier COPIER_SYSTEM = { 0 };
 sys_status STATUS_SYSTEM = { 0 };
 
 void ecs_setup() {
+  log_sys_info();
+  setup_worker_threads();
+  stm_init(&SCENE_FSM, &TITLE_SCENE, &TUTORIAL_SCENE);
+  SPACE = physics_setup(phy_v(0.0f, 0.0f));
+  LARGE_FONT = gfx_load_font_asset("Rubik", "ttf", 48);
+  MEDIUM_FONT = gfx_load_font_asset("Rubik", "ttf", 32);
   camera_setup(&CAMERA);
   ECS = ecs_new(ECS_ENTITY_COUNT, NULL);
   comp_physics_register();
@@ -156,6 +175,8 @@ void ecs_setup() {
 void ecs_cleanup() {
   free_entity_lookup();
   free_textures();
+  gfx_free_font(&LARGE_FONT);
+  gfx_free_font(&MEDIUM_FONT);
   free_map_collision_segments(&GAME_MAP_SEGMENTS);
   free_map(&GAME_FLOOR_MAP);
   free_map(&GAME_BUILDING_MAP);

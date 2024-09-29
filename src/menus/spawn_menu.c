@@ -21,6 +21,9 @@ void spawn_menu_setup() {
 }
 
 bool render_spawn_menu() {
+  if (!GAME_OVERLAY_TRACKER[SPAWN_MENU].active){
+    return true;
+  }
   float pos_x = GAME_OVERLAY_TRACKER[SPAWN_MENU].pos_x;
   float pos_y = GAME_OVERLAY_TRACKER[SPAWN_MENU].pos_y;
   float width = GAME_OVERLAY_TRACKER[SPAWN_MENU].width;

@@ -10,6 +10,9 @@
 ecs_id MOVER_COMPONENT_SIGNATURE;
 
 static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  if (dt == 0.0f) {
+    return 0;
+  }
   for (int id = 0; id < entity_count; id++) {
     comp_mover *info = ecs_get(ECS, entities[id], MOVER_COMPONENT_SIGNATURE);
     if (utl_queue_empty(info->target_pos_queue)) {

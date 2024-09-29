@@ -5,25 +5,22 @@
 #include "entity/map.h"
 #include "game_manager.h"
 #include "khg_gfx/internal.h"
-#include "khg_gfx/texture.h"
 #include "khg_phy/threaded_space.h"
-#include "khg_stm/state_machine.h"
 #include "menus/game_menu_manager.h"
+#include "menus/pause_menu.h"
 #include "menus/title_menu.h"
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
-#include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
-#include "khg_phy/vect.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-static void log_sys_info() {
+void log_sys_info() {
   printf("OS: %s\n", OS_NAME);
   const GLubyte *vendor = glGetString(GL_VENDOR);
   const GLubyte *version = glGetString(GL_VERSION);
@@ -44,12 +41,6 @@ int game_run() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(WINDOW_START_WIDTH, WINDOW_START_HEIGHT, window);
-  log_sys_info();
-  setup_worker_threads();
-  stm_init(&SCENE_FSM, &TITLE_SCENE, &TUTORIAL_SCENE);
-  SPACE = physics_setup(phy_v(0.0f, 0.0f));
-  LARGE_FONT = gfx_load_font_asset("Rubik", "ttf", 48);
-  MEDIUM_FONT = gfx_load_font_asset("Rubik", "ttf", 32);
   ecs_setup();
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
@@ -67,10 +58,12 @@ bool gfx_loop(float delta) {
     gfx_rect_no_block(gfx_get_display_width() / 2.0f, gfx_get_display_height() / 2.0f, gfx_get_display_width(), gfx_get_display_height(), OVERLAY_FILTER_COLOR, 0.0f, 0.0f);
     return res;
   }
-  else {
+  else if (check_current_scene("TUTORIAL")) {
     gfx_clear_style_props();
     update_mouse_controls(&MOUSE_STATE);
     update_key_controls(&KEYBOARD_STATE);
+    PAUSED = handle_pause();
+    delta = PAUSED ? 0.0f : delta;
     move_camera(&CAMERA, delta);
     render_map(GAME_FLOOR_MAP);
     render_map(GAME_BUILDING_MAP);
@@ -98,4 +91,5 @@ bool gfx_loop(float delta) {
     state.current_div.scrollable = false;
     return res;
   }
+  return true;
 }

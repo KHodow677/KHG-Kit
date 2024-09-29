@@ -8,6 +8,9 @@
 ecs_id ANIMATOR_COMPONENT_SIGNATURE;
 
 static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  if (dt == 0.0f) {
+    return 0;
+  }
   for (int id = 0; id < entity_count; id++) {
     comp_animator *info = ecs_get(ECS, entities[id], ANIMATOR_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);

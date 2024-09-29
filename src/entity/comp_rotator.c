@@ -8,6 +8,9 @@
 ecs_id ROTATOR_COMPONENT_SIGNATURE;
 
 static ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  if (dt == 0.0f) {
+    return 0;
+  }
   for (int id = 0; id < entity_count; id++) {
     comp_rotator *info = ecs_get(ECS, entities[id], ROTATOR_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);

@@ -34,3 +34,7 @@ void load_tutorial_scene(void *old_state_data, stm_event *event, void *new_state
   }
 };
 
+void load_title_scene(void *old_state_data, stm_event *event, void *new_state_data) {
+  ecs_cleanup();
+};
+

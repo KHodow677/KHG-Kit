@@ -11,6 +11,9 @@
 ecs_id COPIER_COMPONENT_SIGNATURE;
 
 static ecs_ret sys_copier_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  if (dt == 0.0f) {
+    return 0;
+  }
   for (int id = 0; id < entity_count; id++) {
     comp_copier *info = ecs_get(ECS, entities[id], COPIER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);

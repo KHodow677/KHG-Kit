@@ -8,6 +8,9 @@
 ecs_id DESTROYER_COMPONENT_SIGNATURE;
 
 static ecs_ret sys_destroyer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  if (dt == 0.0f) {
+    return 0;
+  }
   for (int id = 0; id < entity_count; id++) {
     comp_destroyer *info = ecs_get(ECS, entities[id], DESTROYER_COMPONENT_SIGNATURE);
     if (info->destroy_now) {
