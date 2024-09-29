@@ -70,8 +70,14 @@ void load_map(const char *filepath, utl_vector **map) {
 }
 
 void free_map(utl_vector **map) {
+  if (!*map) {
+    return;
+  }
   for (int i = 0; i < utl_vector_size(*map); i++) {
     utl_vector **row =  utl_vector_at(*map, i);
+    if (!*row) {
+      continue;
+    }
     utl_vector_deallocate(*row);
   }
   utl_vector_deallocate(*map);

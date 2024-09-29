@@ -57,7 +57,7 @@ bool render_title_menu() {
   text_props.margin_right = 0.0f;
   text_props.text_color = gfx_black;
   render_div(width, height, div_props);
-  render_text(width, height, btn_props, text_props, "Game Title!", "Start");
+  render_text(width, height, btn_props, text_props, "It Tanks Two!", "Start");
   gfx_next_line();
   if (!render_btn(width, height, btn_props, "Start")) {
     stm_handle_event(&SCENE_FSM, &(stm_event){ EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TUTORIAL_SCENE });

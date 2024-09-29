@@ -10,6 +10,12 @@ void setup_game_overlay() {
   update_game_overlay();
 }
 
+void close_all_game_overlays() {
+  for (int i = 0; i < NUM_MENUS; i++) {
+    GAME_OVERLAY_TRACKER[i].active = false;
+  }
+}
+
 void update_game_overlay() {
   spawn_menu_setup();
 }

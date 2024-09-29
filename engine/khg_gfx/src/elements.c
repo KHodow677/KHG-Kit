@@ -345,7 +345,7 @@ gfx_clickable_item_state gfx_progress_bar_int_loc(float val, float min, float ma
   gfx_clickable_item_state bar = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ (float)width, (float)height },props, color, props.border_width, false, false);
   float pos_x = gfx_internal_map_vals(val, min, max, 0, width);
   gfx_push_element_id(1);
-  gfx_clickable_item_state handle = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ (float)pos_x, (float)height }, props, props.text_color, 0, false, false);
+  gfx_clickable_item_state handle = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ (float)pos_x, (float)height }, props, props.text_color, props.border_width, false, false);
   gfx_pop_element_id();
   state.pos_ptr.x += width + margin_right;
   state.pos_ptr.y -= margin_top;

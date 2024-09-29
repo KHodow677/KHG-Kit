@@ -17,7 +17,7 @@ void generate_turret_base(turret_base *tb, float x, float y, float angle) {
   generate_destroyer(tb->comp_destroyer);
   generate_physics_circle(tb->entity, tb->comp_physics, false, 47.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_OBJECT);
   phy_body_set_angle(tb->comp_physics->body, angle);
-  generate_renderer(tb->comp_renderer, tb->comp_renderer, tb->comp_physics, TURRET_BASE, 2);
+  generate_renderer(tb->comp_renderer, tb->comp_renderer, tb->comp_physics, TURRET_BASE, 5);
 }
 
 void free_turret_base(turret_base *tb) {

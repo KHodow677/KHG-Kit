@@ -13,6 +13,8 @@ spawn_menu_info SPAWN_SETTINGS = { 0 };
 static int MAX_TOPS = 3;
 static int MAX_BODIES = 3;
 
+static int TEST_VAL = 200;
+
 static void change_selected_button_border_color(gfx_color color) {
   gfx_element_props props = gfx_get_theme().button_props;
   props.margin_top = 10.0f;
@@ -162,8 +164,21 @@ bool render_spawn_menu() {
   render_big_icon(width, height, HANGAR_ICON_BIG, 70.0f);
   render_body_text(width, height, "Select Turret", 220.0f);
   render_small_icon_buttons(width, height, SPAWN_SELECT_TOP, 250.0f, 20.0f);
-  render_body_text(width, height, "Select Hull", 350.0f);
-  render_small_icon_buttons(width, height, SPAWN_SELECT_BODY, 380.0f, 20.0f);
+  gfx_element_props props = gfx_get_theme().slider_props;
+  props.margin_top = 0;
+  props.margin_left = 0;
+  props.margin_right = 0;
+  props.border_width = 4.0f;
+  props.color = gfx_green;
+  props.text_color = gfx_white;
+  props.border_color = gfx_black;
+  gfx_push_style_props(props);
+  gfx_set_ptr_x((width - 200) / 2.0f);
+  gfx_set_ptr_y(400);
+  gfx_clickable_item_state progress = gfx_progress_bar_int(TEST_VAL, 0, 500, 200, 50);
+  gfx_pop_style_props();
+  /*render_body_text(width, height, "Select Hull", 350.0f);*/
+  /*render_small_icon_buttons(width, height, SPAWN_SELECT_BODY, 380.0f, 20.0f);*/
   if (!render_button(width, height, "SPAWN", 500.0f)) {
     phy_vect pos = phy_body_get_position(SPAWN_SETTINGS.comp_physics->body);
     float ang = phy_body_get_angle(SPAWN_SETTINGS.comp_physics->body);

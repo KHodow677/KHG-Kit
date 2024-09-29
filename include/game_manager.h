@@ -30,6 +30,14 @@
 #define SENSOR_COLLISION_TYPE 1
 #define NORMAL_COLLISION_TYPE 2
 
+typedef struct game_info {
+  int lives;
+  int cash;
+  int rounds_left;
+} game_info;
+
+extern game_info GAME_INFO;
+
 extern int WINDOW_START_WIDTH;
 extern int WINDOW_START_HEIGHT;
 

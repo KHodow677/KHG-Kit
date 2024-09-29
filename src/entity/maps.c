@@ -67,6 +67,9 @@ void add_map_collision_segments(utl_vector *map, utl_vector **segments) {
 }
 
 void free_map_collision_segments(utl_vector **segments) {
+  if (!*segments) {
+    return;
+  }
   for (int i = 0; i < utl_vector_size(*segments); i++) {
     phy_shape **seg = utl_vector_at(*segments, i);
     physics_remove_static_segment_shape(SPACE, *seg);

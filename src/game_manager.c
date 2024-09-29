@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+game_info GAME_INFO = { 0 };
+
 int WINDOW_START_WIDTH  = 1280;
 int WINDOW_START_HEIGHT = 720;
 

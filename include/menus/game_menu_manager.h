@@ -17,6 +17,7 @@ typedef struct {
 } game_overlay_info;
 
 void setup_game_overlay(void);
+void close_all_game_overlays(void);
 void update_game_overlay(void);
 bool mangage_game_overlays(void);
 
