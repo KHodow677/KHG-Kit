@@ -52,5 +52,5 @@ void generate_health(comp_health *info, comp_physics *p_info, float max_health, 
 
 void generate_damage(comp_damage *info, float damage);
 
-void generate_copier(comp_copier *info, comp_mover *ref);
+void generate_copier(comp_copier *info, comp_physics *ref);
 

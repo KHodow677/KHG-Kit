@@ -1,9 +1,9 @@
 #include "generators/entities/berserker_clone_generator.h"
 #include "generators/components/comp_info_generator.h"
 
-void generate_berserker_clone(berserker_clone *bc, comp_mover *mover_ref, float x, float y, float angle) {
+void generate_berserker_clone(berserker_clone *bc, comp_physics *ref, float x, float y, float angle) {
   generate_berserker_clone_body(&bc->body, x, y, angle);
-  generate_berserker_clone_top(&bc->top, &bc->body, mover_ref, x, y, angle);
+  generate_berserker_clone_top(&bc->top, &bc->body, ref, x, y, angle);
   bc->entity = bc->top.entity;
 }
 

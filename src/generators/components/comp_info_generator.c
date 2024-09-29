@@ -318,7 +318,7 @@ void generate_damage(comp_damage *info, float damage) {
   info->target_health = NULL;
 }
 
-void generate_copier(comp_copier *info, comp_mover *ref) {
-  info->ext_mover_ref = ref;
+void generate_copier(comp_copier *info, comp_physics *ref) {
+  info->ext_physics_ref = ref;
 }
 

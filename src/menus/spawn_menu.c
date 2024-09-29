@@ -181,7 +181,7 @@ bool render_spawn_menu() {
   /*render_small_icon_buttons(width, height, SPAWN_SELECT_BODY, 380.0f, 20.0f);*/
   if (!render_button(width, height, "SPAWN", 500.0f)) {
     generic_entity *bkr = spawn_berserker(SPAWN_SETTINGS.pos.x, SPAWN_SETTINGS.pos.y, SPAWN_SETTINGS.ang);
-    spawn_berserker_clone(bkr->berserker.top.comp_mover, SPAWN_SETTINGS.linked_pos.x, SPAWN_SETTINGS.linked_pos.y, SPAWN_SETTINGS.ang + M_PI);
+    spawn_berserker_clone(bkr->berserker.top.comp_physics, SPAWN_SETTINGS.linked_pos.x, SPAWN_SETTINGS.linked_pos.y, SPAWN_SETTINGS.ang + M_PI);
     SPAWN_SETTINGS.comp_selector->should_deselect = true;
   }
   gfx_div_end();

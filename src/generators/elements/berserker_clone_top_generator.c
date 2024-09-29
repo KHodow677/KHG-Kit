@@ -16,7 +16,7 @@
 #include "khg_phy/vect.h"
 #include <math.h>
 
-void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body *bcb, comp_mover *mover_ref, float x, float y, float angle) {
+void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body *bcb, comp_physics *ref, float x, float y, float angle) {
   bct->entity = ecs_create(ECS);
   bct->comp_physics = sys_physics_add(bct->entity);
   bct->comp_renderer = sys_renderer_add(bct->entity);
@@ -29,6 +29,8 @@ void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body
   bct->comp_copier = sys_copier_add(bct->entity);
   generate_physics_pivot(bct->entity, bct->comp_physics, bcb->comp_physics, false, 102.0f, 209.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 55.5f), COLLISION_CATEGORY_ENTITY);
   phy_body_set_angle(bct->comp_physics->body, angle);
+  bct->comp_physics->move_enabled = false;
+  bct->comp_physics->rotate_enabled = true;
   generate_renderer(bct->comp_renderer, bcb->comp_renderer, bct->comp_physics, TANK_TOP, 3);
   generate_destroyer(bct->comp_destroyer);
   phy_vect *move_forward = (phy_vect[]){ phy_v(x + 256 * sinf(angle), y + 256 * -cosf(angle)) };
@@ -37,7 +39,7 @@ void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body
   generate_shooter(bct->comp_shooter, 155.0f, 1.0f);
   generate_targeter(bct->comp_targeter, bcb->comp_physics, bct->comp_physics, 640.0f);
   generate_damage(bct->comp_damage, 500.0f);
-  generate_copier(bct->comp_copier, mover_ref);
+  generate_copier(bct->comp_copier, ref);
   bct->comp_physics->targeter_ref = bct->comp_targeter;
 }
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "entity/comp_mover.h"
+#include "entity/comp_physics.h"
 #include "khg_ecs/ecs.h"
 
 typedef struct {
   ecs_id id;
-  comp_mover *ext_mover_ref;
+  comp_physics* ext_physics_ref;
 } comp_copier;
 
 typedef struct {

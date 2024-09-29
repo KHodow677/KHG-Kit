@@ -25,6 +25,6 @@ typedef struct {
   comp_copier *comp_copier;
 } berserker_clone_top;
 
-void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body *bcb, comp_mover *mover_ref, float x, float y, float angle);
+void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body *bcb, comp_physics *ref, float x, float y, float angle);
 void free_berserker_clone_top(berserker_clone_top *bct);
 
