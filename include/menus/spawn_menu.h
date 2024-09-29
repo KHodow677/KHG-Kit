@@ -2,6 +2,7 @@
 
 #include "entity/comp_physics.h"
 #include "entity/comp_selector.h"
+#include "khg_phy/phy_types.h"
 #include <stdbool.h>
 
 typedef enum {
@@ -10,7 +11,9 @@ typedef enum {
 } spawning_select_type;
 
 typedef struct {
-  comp_physics *comp_physics;
+  phy_vect pos;
+  phy_vect linked_pos;
+  float ang;
   comp_selector *comp_selector;
   int spawner_tex_id;
   int current_spawn_top_index;

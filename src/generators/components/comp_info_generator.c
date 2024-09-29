@@ -10,6 +10,7 @@
 #include "entity/comp_renderer.h"
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
+#include "entity/comp_spawn.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 #include "entity/indicators.h"
@@ -258,6 +259,11 @@ void generate_selector(comp_selector *info, int tex_id, int linked_tex_id, int s
   info->linked_tex_id = linked_tex_id;
   info->selected_tex_id = selected_tex_id;
   info->selected_linked_tex_id = selected_linked_tex_id;
+}
+
+void generate_spawn(comp_spawn *info, phy_vect pos, phy_vect linked_pos) {
+  info->pos = pos;
+  info->linked_pos = linked_pos;
 }
 
 void generate_stream_spawner(comp_stream_spawner *info, float spawn_cooldown, phy_vect spawn_offset) {

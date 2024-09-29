@@ -1,5 +1,6 @@
 #pragma once
 
+#include "generators/entities/berserker_clone_generator.h"
 #include "generators/entities/depot_generator.h"
 #include "generators/entities/hangar_generator.h"
 #include "generators/entities/particle_generator.h"
@@ -12,7 +13,8 @@ typedef struct {
   enum {
     ENTITY_TYPE_NONE,
     ENTITY_TYPE_PARTICLE,
-    ENTITY_TYPE_TANK,
+    ENTITY_TYPE_BERSERKER,
+    ENTITY_TYPE_BERSERKER_CLONE,
     ENTITY_TYPE_TURRET,
     ENTITY_TYPE_HANGAR,
     ENTITY_TYPE_SPAWNER,
@@ -22,6 +24,7 @@ typedef struct {
   union {
     particle particle;
     berserker berserker;
+    berserker_clone berserker_clone;
     turret turret;
     hangar hangar;
     spawner spawner;

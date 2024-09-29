@@ -5,6 +5,7 @@
 #include "entity/camera.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_commander.h"
+#include "entity/comp_copier.h"
 #include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_health.h"
@@ -86,6 +87,7 @@ extern sys_commander COMMANDER_SYSTEM;
 extern sys_targeter TARGETER_SYSTEM;
 extern sys_health HEALTH_SYSTEM;
 extern sys_damage DAMAGE_SYSTEM;
+extern sys_copier COPIER_SYSTEM;
 
 void ecs_setup();
 void ecs_cleanup();

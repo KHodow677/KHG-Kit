@@ -23,7 +23,7 @@ static ecs_ret sys_shooter_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
     if (!r_info->target_health) {
       info->shoot_timer = info->shoot_cooldown;
     }
-    if (r_info->target_health && element_is_targeting_position(p_info, phy_body_get_position(r_info->target_health->body), 0.2f) && info->shoot_timer <= 0) {
+    if (r_info->target_health && element_is_targeting_position(p_info, phy_body_get_position(r_info->target_health->body), 1.0f) && info->shoot_timer <= 0) {
       info->shoot_timer = info->shoot_cooldown;
       phy_vect pos = phy_body_get_position(p_info->body);
       float ang = phy_body_get_angle(p_info->body);

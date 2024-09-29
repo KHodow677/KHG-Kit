@@ -2,6 +2,7 @@
 #include "controllers/input/key_controllers.h"
 #include "entity/camera.h"
 #include "entity/comp_commander.h"
+#include "entity/comp_copier.h"
 #include "entity/comp_damage.h"
 #include "entity/comp_health.h"
 #include "entity/comp_mover.h"
@@ -105,6 +106,7 @@ sys_commander COMMANDER_SYSTEM = { 0 };
 sys_targeter TARGETER_SYSTEM = { 0 };
 sys_health HEALTH_SYSTEM = { 0 };
 sys_damage DAMAGE_SYSTEM = { 0 };
+sys_copier COPIER_SYSTEM = { 0 };
 
 void ecs_setup() {
   camera_setup(&CAMERA);
@@ -123,6 +125,7 @@ void ecs_setup() {
   comp_targeter_register();
   comp_health_register();
   comp_damage_register();
+  comp_copier_register();
   sys_physics_register(&PHYSICS_SYSTEM);
   sys_renderer_register(&RENDERER_SYSTEM);
   sys_destroyer_register(&DESTROYER_SYSTEM);
@@ -137,6 +140,7 @@ void ecs_setup() {
   sys_targeter_register(&TARGETER_SYSTEM);
   sys_health_register(&HEALTH_SYSTEM);
   sys_damage_register(&DAMAGE_SYSTEM);
+  sys_copier_register(&COPIER_SYSTEM);
   generate_entity_lookup();
   generate_textures();
 }

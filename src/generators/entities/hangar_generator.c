@@ -20,6 +20,7 @@ void generate_hangar(hangar *h, float x, float y, float angle) {
   generate_renderer(h->comp_renderer, h->comp_renderer, h->comp_physics, HANGAR, 4);
   generate_destroyer(h->comp_destroyer);
   generate_selector(h->comp_selector, HANGAR, HANGAR, HANGAR_OUTLINE, HANGAR_OUTLINE);
+  generate_spawn(h->comp_spawn, phy_v(x, y), phy_v(-x, -y));
 }
 
 void free_hangar(hangar *h) {

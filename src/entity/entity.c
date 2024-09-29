@@ -10,7 +10,7 @@ bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
       return true;
     }
   }
-  else if (ge->type == ENTITY_TYPE_TANK) {
+  else if (ge->type == ENTITY_TYPE_BERSERKER) {
     if (!check_id || ge->berserker.entity == id) {
       free_berserker(&ge->berserker);
       return true;

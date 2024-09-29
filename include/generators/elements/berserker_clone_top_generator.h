@@ -10,7 +10,7 @@
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
 #include "entity/comp_targeter.h"
-#include "generators/elements/berserker_body_generator.h"
+#include "generators/elements/berserker_clone_body_generator.h"
 #include "khg_ecs/ecs.h"
 
 typedef struct {
@@ -25,8 +25,8 @@ typedef struct {
   comp_commander *comp_commander;
   comp_targeter *comp_targeter;
   comp_damage *comp_damage;
-} berserker_top;
+} berserker_clone_top;
 
-void generate_berserker_top(berserker_top *bt, berserker_body *bb, float x, float y, float angle);
-void free_berserker_top(berserker_top *bt);
+void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body *bcb, float x, float y, float angle);
+void free_berserker_clone_top(berserker_clone_top *bct);
 

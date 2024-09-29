@@ -10,5 +10,5 @@ typedef struct {
   berserker_top top;
 } berserker;
 
-void generate_berserker(berserker *t, float x, float y, float angle);
-void free_berserker(berserker *t);
+void generate_berserker(berserker *b, float x, float y, float angle);
+void free_berserker(berserker *b);

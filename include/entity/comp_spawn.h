@@ -1,9 +1,12 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
+#include "khg_phy/phy_types.h"
 
 typedef struct {
   ecs_id id;
+  phy_vect pos;
+  phy_vect linked_pos;
 } comp_spawn;
 
 typedef struct {

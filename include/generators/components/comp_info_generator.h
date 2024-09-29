@@ -9,6 +9,7 @@
 #include "entity/comp_rotator.h"
 #include "entity/comp_selector.h"
 #include "entity/comp_shooter.h"
+#include "entity/comp_spawn.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 
@@ -35,6 +36,8 @@ void generate_rotator(comp_rotator *info, comp_physics *p_info, float init_ang);
 void generate_shooter(comp_shooter *info, float barrel_length, float cooldown);
 
 void generate_selector(comp_selector *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id);
+
+void generate_spawn(comp_spawn *info, phy_vect pos, phy_vect linked_pos);
 
 void generate_stream_spawner(comp_stream_spawner *info, float spawn_cooldown, phy_vect spawn_offset);
 void free_stream_spawner(comp_stream_spawner *info);
