@@ -5,6 +5,7 @@
 #include "khg_phy/vect.h"
 #include "khg_stm/state_machine.h"
 #include "menus/game_menu_manager.h"
+#include "spawners/spawn_barrier.h"
 #include "spawners/spawn_depot.h"
 #include "spawners/spawn_hangar.h"
 #include "spawners/spawn_spawner.h"
@@ -25,5 +26,9 @@ void load_tutorial_scene(void *old_state_data, stm_event *event, void *new_state
   spawn_turret(-1600, 80, M_PI * 0.5f);
   spawn_hangar(0, 1768, 0.0f);
   spawn_depot(-1407, -5, M_PI * 0.5f);
+  for (int i = -1152; i < 2048; i += 256) {
+    spawn_barrier(i, -128, 0.0f);
+    spawn_barrier(i, 118, M_PI);
+  }
 };
 

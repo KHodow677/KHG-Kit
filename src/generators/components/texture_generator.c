@@ -84,6 +84,7 @@ void generate_textures() {
   TEXTURE_ASSET_REF[HANGAR] = (texture_asset){ "Hangar", "png", 276, 304, SEGMENT_BOTTOM_LEFT_RIGHT, 0 };
   TEXTURE_ASSET_REF[SPAWNER] = (texture_asset){ "Spawner", "png", 191, 214, SEGMENT_BOTTOM_LEFT_RIGHT, 0 };
   TEXTURE_ASSET_REF[DEPOT] = (texture_asset){ "Depot", "png", 248, 273, SEGMENT_BOTTOM_LEFT_RIGHT, 0 };
+  TEXTURE_ASSET_REF[BARRIER] = (texture_asset){ "Barrier", "png", 192, 93, SEGMENT_TOP, 0 };
   TEXTURE_ASSET_REF[TANK_BODY_OUTLINE] = (texture_asset){ "Tank-Body-Blue-Outline", "png", 165, 204, SEGMENT_NONE, 0 };
   TEXTURE_ASSET_REF[TANK_TOP_OUTLINE] = (texture_asset){ "Tank-Top-Blue-Outline", "png", 124, 231, SEGMENT_NONE, 0 };
   TEXTURE_ASSET_REF[HANGAR_OUTLINE] = (texture_asset){ "Hangar-Outline", "png", 306, 334, SEGMENT_BOTTOM_LEFT_RIGHT, 0 };

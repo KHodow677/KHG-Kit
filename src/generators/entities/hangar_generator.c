@@ -15,7 +15,7 @@ void generate_hangar(hangar *h, float x, float y, float angle) {
   h->comp_destroyer = sys_destroyer_add(h->entity);
   h->comp_selector = sys_selector_add(h->entity);
   h->comp_spawn = sys_spawn_add(h->entity);
-  generate_static_physics_box(h->entity, h->comp_physics, false, 306, 334, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_ENTITY);
+  generate_static_physics_box(h->entity, h->comp_physics, false, 306, 334, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f), COLLISION_CATEGORY_OBJECT);
   phy_body_set_angle(h->comp_physics->body, angle);
   generate_renderer(h->comp_renderer, h->comp_renderer, h->comp_physics, HANGAR, 4);
   generate_destroyer(h->comp_destroyer);

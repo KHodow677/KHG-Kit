@@ -57,13 +57,15 @@ int game_run() {
 }
 
 bool gfx_loop(float delta) {
-  glClear(GL_COLOR_BUFFER_BIT);
   float gray_color = 35.0f / 255.0f;
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   if (check_current_scene("TITLE")) {
     gfx_clear_style_props();
-    return render_title_menu();
+    bool res = render_title_menu();
+    gfx_rect_no_block(gfx_get_display_width() / 2.0f, gfx_get_display_height() / 2.0f, gfx_get_display_width(), gfx_get_display_height(), OVERLAY_FILTER_COLOR, 0.0f, 0.0f);
+    return res;
   }
   else {
     gfx_clear_style_props();
@@ -91,6 +93,7 @@ bool gfx_loop(float delta) {
     ecs_update_system(ECS, DESTROYER_SYSTEM.id, delta);
     phy_threaded_space_step(SPACE, delta);
     bool res = mangage_game_overlays();
+    gfx_rect_no_block(gfx_get_display_width() / 2.0f, gfx_get_display_height() / 2.0f, gfx_get_display_width(), gfx_get_display_height(), OVERLAY_FILTER_COLOR, 0.0f, 0.0f);
     state.current_div.scrollable = false;
     return res;
   }

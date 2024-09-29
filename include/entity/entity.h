@@ -1,5 +1,6 @@
 #pragma once
 
+#include "generators/entities/barrier_generator.h"
 #include "generators/entities/berserker_clone_generator.h"
 #include "generators/entities/depot_generator.h"
 #include "generators/entities/hangar_generator.h"
@@ -20,6 +21,7 @@ typedef struct {
     ENTITY_TYPE_SPAWNER,
     ENTITY_TYPE_SLUG,
     ENTITY_TYPE_DEPOT,
+    ENTITY_TYPE_BARRIER,
   } type;
   union {
     particle particle;
@@ -30,6 +32,7 @@ typedef struct {
     spawner spawner;
     slug slug;
     depot depot;
+    barrier barrier;
   };
 } generic_entity;
 

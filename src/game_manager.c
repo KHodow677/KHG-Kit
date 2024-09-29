@@ -20,6 +20,8 @@
 #include "entity/map.h"
 #include "generators/components/map_generator.h"
 #include "generators/components/texture_generator.h"
+#include "khg_gfx/elements.h"
+#include "khg_gfx/ui.h"
 #include "khg_stm/state_machine.h"
 #include "menus/game_menu_manager.h"
 #include "physics/physics_setup.h"
@@ -50,6 +52,7 @@ int GAME_MAP_HEIGHT;
 int GAME_MAP_TILE_SIZE = 128;
 
 game_overlay_info GAME_OVERLAY_TRACKER[NUM_MENUS];
+gfx_color OVERLAY_FILTER_COLOR = gfx_no_color;
 
 gfx_texture NO_TEXTURE = { 0 };
 int CURRENT_TEXTURE_ID = 0;

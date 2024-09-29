@@ -1,5 +1,6 @@
 #include "entity/entity.h"
 #include "game_manager.h"
+#include "generators/entities/barrier_generator.h"
 #include "generators/entities/berserker_clone_generator.h"
 #include "generators/entities/spawner_generator.h"
 #include "khg_utl/vector.h"
@@ -50,6 +51,12 @@ bool free_entity(generic_entity *ge, bool check_id, ecs_id id) {
   else if (ge->type == ENTITY_TYPE_DEPOT) {
     if (!check_id || ge->hangar.entity == id) {
       free_depot(&ge->depot);
+      return true;
+    }
+  }
+  else if (ge->type == ENTITY_TYPE_BARRIER) {
+    if (!check_id || ge->barrier.entity == id) {
+      free_barrier(&ge->barrier);
       return true;
     }
   }

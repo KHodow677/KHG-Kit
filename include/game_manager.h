@@ -18,12 +18,13 @@
 #include "entity/comp_spawn.h"
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
+#include "menus/game_menu_manager.h"
 #include "khg_ecs/ecs.h"
+#include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
 #include "khg_stm/state_machine.h"
 #include "khg_utl/vector.h"
 #include "khg_thd/thread.h"
-#include "menus/game_menu_manager.h"
 
 #define ECS_ENTITY_COUNT 1024
 #define COLLISION_CATEGORY_ENTITY (1 << 0)
@@ -56,6 +57,7 @@ extern int GAME_MAP_HEIGHT;
 extern int GAME_MAP_TILE_SIZE;
 
 extern game_overlay_info GAME_OVERLAY_TRACKER[NUM_MENUS];
+extern gfx_color OVERLAY_FILTER_COLOR;
 
 extern gfx_texture NO_TEXTURE;
 extern int MAX_TEXTURES;
