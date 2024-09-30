@@ -25,6 +25,7 @@ void update_game_overlay() {
 }
 
 bool mangage_game_overlays() {
+  update_game_overlay();
   bool res = true;
   res = res && render_game_info_menu();
   res = res && render_pause_menu();
