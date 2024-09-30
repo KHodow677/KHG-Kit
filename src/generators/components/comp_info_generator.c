@@ -34,6 +34,7 @@
 #include "khg_utl/queue.h"
 #include "khg_utl/vector.h"
 #include <math.h>
+#include <time.h>
 #include <wchar.h>
 
 void generate_physics_box(ecs_id eid, comp_physics *info, bool collides, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog, uint32_t category) {
@@ -262,6 +263,13 @@ void generate_selector(comp_selector *info, int tex_id, int linked_tex_id, int s
   info->linked_tex_id = linked_tex_id;
   info->selected_tex_id = selected_tex_id;
   info->selected_linked_tex_id = selected_linked_tex_id;
+}
+
+void free_selector(comp_selector *info) {
+  if (info->selected) {
+    CURRENT_SELECTED = NULL;
+    CURRENT_SELECTED_RENDERER = NULL;
+  }
 }
 
 void generate_spawn(comp_spawn *info, phy_vect pos, phy_vect linked_pos) {

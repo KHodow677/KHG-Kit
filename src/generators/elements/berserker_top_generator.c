@@ -49,5 +49,6 @@ void free_berserker_top(berserker_top *bt) {
   free_renderer(bt->comp_renderer);
   free_mover(bt->comp_mover);
   free_targeter(bt->comp_targeter);
+  free_selector(bt->comp_selector);
 }
 

@@ -9,8 +9,8 @@
 #include "khg_utl/vector.h"
 
 ecs_id SELECTOR_COMPONENT_SIGNATURE;
-static comp_selector *CURRENT_SELECTED = NULL;
-static comp_renderer *CURRENT_SELECTED_RENDERER = NULL;
+comp_selector *CURRENT_SELECTED = NULL;
+comp_renderer *CURRENT_SELECTED_RENDERER = NULL;
 
 static void swap_render_info_texture(comp_renderer *r_info, int tex_id, int linked_tex_id) {
   r_info->tex_id = tex_id;

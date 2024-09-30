@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entity/comp_renderer.h"
 #include "khg_ecs/ecs.h"
 
 typedef struct {
@@ -19,6 +20,8 @@ typedef struct {
 } sys_selector;
 
 extern ecs_id SELECTOR_COMPONENT_SIGNATURE;
+extern comp_selector *CURRENT_SELECTED;
+extern comp_renderer *CURRENT_SELECTED_RENDERER;
 
 void comp_selector_register(void);
 

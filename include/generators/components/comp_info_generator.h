@@ -39,6 +39,7 @@ void generate_rotator(comp_rotator *info, comp_physics *p_info, float init_ang);
 void generate_shooter(comp_shooter *info, float barrel_length, float cooldown);
 
 void generate_selector(comp_selector *info, int tex_id, int linked_tex_id, int selected_tex_id, int selected_linked_tex_id);
+void free_selector(comp_selector *info);
 
 void generate_spawn(comp_spawn *info, phy_vect pos, phy_vect linked_pos);
 

@@ -26,5 +26,6 @@ void generate_hangar(hangar *h, float x, float y, float angle) {
 void free_hangar(hangar *h) {
   free_physics(h->comp_physics, false);
   free_renderer(h->comp_renderer);
+  free_selector(h->comp_selector);
 }
 
