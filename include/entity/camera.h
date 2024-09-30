@@ -12,5 +12,5 @@ typedef struct camera {
   float target_zoom;
 } camera;
 
-void camera_setup(camera *cam);
+void camera_setup(camera *cam, bool real_game, float x, float y);
 

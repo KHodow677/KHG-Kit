@@ -10,9 +10,13 @@ typedef enum {
 
 typedef struct {
   ecs_id id;
+  bool spawn_infinitely;
   float spawn_cooldown;
+  float update_cooldown;
+  float update_timer;
   float spawn_timer;
   phy_vect spawn_offset;
+  float spawn_health;
   utl_queue *spawn_queue;
   utl_vector *path;
 } comp_stream_spawner;

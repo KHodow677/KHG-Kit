@@ -6,6 +6,7 @@
 #include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_health.h"
+#include "entity/comp_life_taker.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -268,10 +269,14 @@ void generate_spawn(comp_spawn *info, phy_vect pos, phy_vect linked_pos) {
   info->linked_pos = linked_pos;
 }
 
-void generate_stream_spawner(comp_stream_spawner *info, float spawn_cooldown, phy_vect spawn_offset) {
+void generate_stream_spawner(comp_stream_spawner *info, float spawn_cooldown, float update_cooldown, phy_vect spawn_offset, bool spawn_infinitely) {
   info->spawn_cooldown = spawn_cooldown;
+  info->update_cooldown = update_cooldown;
   info->spawn_timer = 0.0f;
+  info->update_timer = 0.0f;
   info->spawn_offset = spawn_offset;
+  info->spawn_health = 500.0f;
+  info->spawn_infinitely = spawn_infinitely;
   info->path = utl_vector_create(sizeof(phy_vect));
   info->spawn_queue = utl_queue_create(sizeof(spawn_type));
   for (int i = 0; i < 5; i++) {
@@ -330,5 +335,9 @@ void generate_status(comp_status *info, float bar_width, float bar_height, bool 
   info->tracks_health = tracks_health;
   info->bar_width = bar_width;
   info->bar_height= bar_height;
+}
+
+void generate_life_taker(comp_life_taker *info, int num_lives) {
+  info->num_lives = num_lives; 
 }
 

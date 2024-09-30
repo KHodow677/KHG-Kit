@@ -21,6 +21,9 @@ static ecs_ret sys_damage_update(ecs_ecs *ecs, ecs_id *entities, int entity_coun
     if (s_info->shot) {
       info->target_health->current_health -= info->damage;
       info->killed = info->target_health->current_health <= 0.0f;
+      if (info->killed) {
+        GAME_INFO.cash += 25;
+      }
     }
   }
   return 0;

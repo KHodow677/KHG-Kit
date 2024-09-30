@@ -10,7 +10,7 @@
 void game_info_menu_setup() {
   GAME_OVERLAY_TRACKER[GAME_INFO_MENU].active = true;
   GAME_OVERLAY_TRACKER[GAME_INFO_MENU].width = 250.0f;
-  GAME_OVERLAY_TRACKER[GAME_INFO_MENU].height = 200.0f;
+  GAME_OVERLAY_TRACKER[GAME_INFO_MENU].height = 280.0f;
   GAME_OVERLAY_TRACKER[GAME_INFO_MENU].padding = 20.0f;
   GAME_OVERLAY_TRACKER[GAME_INFO_MENU].pos_x = gfx_get_display_width() - GAME_OVERLAY_TRACKER[GAME_INFO_MENU].width - GAME_OVERLAY_TRACKER[GAME_INFO_MENU].padding; 
   GAME_OVERLAY_TRACKER[GAME_INFO_MENU].pos_y = GAME_OVERLAY_TRACKER[GAME_INFO_MENU].padding;
@@ -38,7 +38,7 @@ bool render_game_info_menu() {
   gfx_image_button(*tex1);
   gfx_pop_style_props();
   char money[10]; 
-  snprintf(money, sizeof(money), "%d", GAME_INFO.cash);
+  snprintf(money, sizeof(money), "%i", GAME_INFO.cash);
   render_text(LARGE_FONT, width - 83.0f, tex1->height / 2.0f + 23.0f, money);
   gfx_push_style_props(img_props);
   gfx_texture *tex2 = get_or_add_texture(LIFE_ICON);
@@ -47,8 +47,19 @@ bool render_game_info_menu() {
   gfx_image_button(*tex2);
   gfx_pop_style_props();
   char lives[10]; 
-  snprintf(lives, sizeof(lives), "%d", GAME_INFO.lives);
+  snprintf(lives, sizeof(lives), "%i", GAME_INFO.lives);
   render_text(LARGE_FONT, width - 83.0f, tex2->height / 2.0f + 107.0f, lives);
+  gfx_push_style_props(img_props);
+  gfx_texture *tex3 = get_or_add_texture(TIME_ICON);
+  gfx_set_ptr_x(20.0f);
+  gfx_set_ptr_y(188.0f);
+  gfx_image_button(*tex3);
+  gfx_pop_style_props();
+  char time[10]; 
+  int minutes = (int)(GAME_INFO.time / 60);
+  int seconds = (int)(GAME_INFO.time) % 60;
+  snprintf(time, sizeof(time), "%02d:%02d", minutes, seconds);
+  render_text(LARGE_FONT, width - 83.0f, tex2->height / 2.0f + 191.0f, time);
   gfx_div_end();
   gfx_clear_style_props();
   return true;

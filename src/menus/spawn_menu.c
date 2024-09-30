@@ -9,8 +9,8 @@
 #include "khg_gfx/elements.h"
 #include <math.h>
 
-spawn_selection_item *SPAWN_SELECTIONS = (spawn_selection_item[]) {(spawn_selection_item){ BERSERKER_ICON_SMALL, 100 }, (spawn_selection_item){ BERSERKER_ICON_SMALL, 100 }, (spawn_selection_item){ BERSERKER_ICON_SMALL, 100 }};
-int MAX_SELECTIONS = 3;
+spawn_selection_item *SPAWN_SELECTIONS = (spawn_selection_item[]) {(spawn_selection_item){ BERSERKER_ICON_SMALL, 100 }};
+int MAX_SELECTIONS = 1;
 
 void spawn_menu_setup() {
   GAME_OVERLAY_TRACKER[SPAWN_MENU].width = 400.0f;
@@ -33,12 +33,14 @@ bool render_spawn_menu() {
   render_big_icon(width, height, HANGAR_ICON_BIG, 70.0f);
   render_body_text(width, height, "Select Tank", 220.0f);
   render_small_icon_buttons(width, height, 250.0f, 20.0f);
-  if (!render_button(width, height, "SPAWN", 400.0f)) {
+  if (!render_button(width, height, "Buy", 400.0f)) {
     if (SPAWN_SELECTIONS[SPAWN_SETTINGS.current_spawn_index].icon_tex_id == BERSERKER_ICON_SMALL) {
-      generic_entity *bkr = spawn_berserker(SPAWN_SETTINGS.pos.x, SPAWN_SETTINGS.pos.y, SPAWN_SETTINGS.ang);
-      spawn_berserker_clone(bkr->berserker.top.comp_physics, SPAWN_SETTINGS.linked_pos.x, SPAWN_SETTINGS.linked_pos.y, SPAWN_SETTINGS.ang + M_PI);
-      SPAWN_SETTINGS.comp_selector->should_deselect = true;
-      GAME_INFO.cash -= SPAWN_SELECTIONS[SPAWN_SETTINGS.current_spawn_index].cost;
+      if (GAME_INFO.cash >= SPAWN_SELECTIONS[SPAWN_SETTINGS.current_spawn_index].cost) {
+        generic_entity *bkr = spawn_berserker(SPAWN_SETTINGS.pos.x, SPAWN_SETTINGS.pos.y, SPAWN_SETTINGS.ang);
+        spawn_berserker_clone(bkr->berserker.top.comp_physics, SPAWN_SETTINGS.linked_pos.x, SPAWN_SETTINGS.linked_pos.y, SPAWN_SETTINGS.ang + M_PI);
+        SPAWN_SETTINGS.comp_selector->should_deselect = true;
+        GAME_INFO.cash -= SPAWN_SELECTIONS[SPAWN_SETTINGS.current_spawn_index].cost;
+      }
     }
   }
   gfx_div_end();

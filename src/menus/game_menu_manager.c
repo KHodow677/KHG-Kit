@@ -20,6 +20,7 @@ void close_all_game_overlays() {
 
 void update_game_overlay() {
   game_info_menu_setup();
+  pause_menu_setup();
   spawn_menu_setup();
 }
 

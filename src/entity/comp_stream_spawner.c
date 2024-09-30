@@ -25,11 +25,20 @@ static ecs_ret sys_stream_spawner_update(ecs_ecs *ecs, ecs_id *entities, int ent
       if (*next_spawn_type == SPAWN_SLUG) {
         phy_vect pos = phy_body_get_position(p_info->body);
         float ang = normalize_angle(phy_body_get_angle(p_info->body));
-        spawn_slug(pos.x + info->spawn_offset.x, pos.y + info->spawn_offset.y, ang, (phy_vect *)utl_vector_data(info->path), utl_vector_size(info->path));
+        spawn_slug(pos.x + info->spawn_offset.x, pos.y + info->spawn_offset.y, ang, (phy_vect *)utl_vector_data(info->path), utl_vector_size(info->path), info->spawn_health);
       }
       info->spawn_timer = info->spawn_cooldown;
       utl_queue_pop(info->spawn_queue);
+      if (info->spawn_infinitely) {
+        int new_spawn = SPAWN_SLUG;
+        utl_queue_push(info->spawn_queue, &new_spawn);
+      }
     }
+    if (info->update_timer <= 0) {
+      info->spawn_health = info->spawn_health + 100.0f;
+      info->update_timer = info->update_cooldown;
+    }
+    info->update_timer -= dt;
     info->spawn_timer -= dt;
   }
   return 0;

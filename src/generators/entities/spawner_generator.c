@@ -17,7 +17,7 @@ void generate_spawner(spawner *s, float x, float y, float angle, phy_vect *path,
   phy_body_set_angle(s->comp_physics->body, angle);
   generate_static_renderer_segments(s->comp_renderer, s->comp_renderer, s->comp_physics, phy_v(x, y), SPAWNER, 1, angle);
   generate_destroyer(s->comp_destroyer);
-  generate_stream_spawner(s->comp_stream_spawner, 5, phy_v(0.0f, 0.0f));
+  generate_stream_spawner(s->comp_stream_spawner, 5.0f, 5.0f, phy_v(0.0f, 0.0f), true);
   for (int i = 0; i < path_length; i++) {
     utl_vector_push_back(s->comp_stream_spawner->path, &path[i]);
   }

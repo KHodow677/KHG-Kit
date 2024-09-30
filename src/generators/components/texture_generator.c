@@ -90,6 +90,7 @@ void generate_textures() {
   TEXTURE_ASSET_REF[BERSERKER_ICON_SMALL] = (texture_asset){ "icons/Berserker-Icon-Small", "png", 64, 64, SEGMENT_NONE, 0 };
   TEXTURE_ASSET_REF[MONEY_ICON] = (texture_asset){ "icons/Money-Icon-Small", "png", 64, 64, SEGMENT_NONE, 0 };
   TEXTURE_ASSET_REF[LIFE_ICON] = (texture_asset){ "icons/Life-Icon-Small", "png", 64, 64, SEGMENT_NONE, 0 };
+  TEXTURE_ASSET_REF[TIME_ICON] = (texture_asset){ "icons/Trophy-Icon-Small", "png", 64, 64, SEGMENT_NONE, 0 };
   TEXTURE_ASSET_REF[TANK_BODY] = (texture_asset){ "Tank-Body-Blue", "png", 145, 184, SEGMENT_NONE, 0 };
   TEXTURE_ASSET_REF[TANK_TOP] = (texture_asset){ "Tank-Top-Blue", "png", 104, 211, SEGMENT_NONE, 0 };
   TEXTURE_ASSET_REF[TURRET_BASE] = (texture_asset){ "Turret-Base", "png", 100, 100, SEGMENT_NONE, 0 };

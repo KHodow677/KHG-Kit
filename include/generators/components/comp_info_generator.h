@@ -4,6 +4,7 @@
 #include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_health.h"
+#include "entity/comp_life_taker.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -41,7 +42,7 @@ void generate_selector(comp_selector *info, int tex_id, int linked_tex_id, int s
 
 void generate_spawn(comp_spawn *info, phy_vect pos, phy_vect linked_pos);
 
-void generate_stream_spawner(comp_stream_spawner *info, float spawn_cooldown, phy_vect spawn_offset);
+void generate_stream_spawner(comp_stream_spawner *info, float spawn_cooldown, float update_cooldown, phy_vect spawn_offset, bool spawn_infinitely);
 void free_stream_spawner(comp_stream_spawner *info);
 
 void generate_commander(comp_commander *info, comp_mover *m_info);
@@ -56,4 +57,6 @@ void generate_damage(comp_damage *info, float damage);
 void generate_copier(comp_copier *info, comp_physics *ref);
 
 void generate_status(comp_status *info, float bar_width, float bar_height, bool tracks_ammo, bool tracks_fuel, bool tracks_health);
+
+void generate_life_taker(comp_life_taker *info, int num_lives);
 

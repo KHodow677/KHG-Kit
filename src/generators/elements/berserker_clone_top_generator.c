@@ -38,7 +38,7 @@ void generate_berserker_clone_top(berserker_clone_top *bct, berserker_clone_body
   generate_rotator(bct->comp_rotator, bct->comp_physics, angle);
   generate_shooter(bct->comp_shooter, 155.0f, 1.0f);
   generate_targeter(bct->comp_targeter, bcb->comp_physics, bct->comp_physics, 640.0f);
-  generate_damage(bct->comp_damage, 500.0f);
+  generate_damage(bct->comp_damage, 250.0f);
   generate_copier(bct->comp_copier, ref);
   bct->comp_physics->targeter_ref = bct->comp_targeter;
 }

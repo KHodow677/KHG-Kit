@@ -31,6 +31,6 @@ void targeter_sensor_exit(phy_arbiter *arb, phy_space *space, phy_data_pointer u
 
 void comp_targeter_register(void);
 
-void sys_targeter_register(sys_targeter *ss);
+void sys_targeter_register(sys_targeter *st);
 comp_targeter *sys_targeter_add(ecs_id eid);
 

@@ -40,7 +40,7 @@ void generate_berserker_top(berserker_top *bt, berserker_body *bb, float x, floa
   generate_selector(bt->comp_selector, TANK_TOP, TANK_BODY, TANK_TOP_OUTLINE, TANK_BODY_OUTLINE);
   generate_commander(bt->comp_commander, bt->comp_mover);
   generate_targeter(bt->comp_targeter, bb->comp_physics, bt->comp_physics, 640.0f);
-  generate_damage(bt->comp_damage, 500.0f);
+  generate_damage(bt->comp_damage, 250.0f);
   bt->comp_physics->targeter_ref = bt->comp_targeter;
 }
 

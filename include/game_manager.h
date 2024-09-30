@@ -9,6 +9,7 @@
 #include "entity/comp_damage.h"
 #include "entity/comp_destroyer.h"
 #include "entity/comp_health.h"
+#include "entity/comp_life_taker.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
@@ -92,7 +93,8 @@ extern sys_health HEALTH_SYSTEM;
 extern sys_damage DAMAGE_SYSTEM;
 extern sys_copier COPIER_SYSTEM;
 extern sys_status STATUS_SYSTEM;
+extern sys_life_taker LIFE_TAKER_SYSTEM;
 
-void ecs_setup();
+void ecs_setup(bool is_not_title);
 void ecs_cleanup();
 

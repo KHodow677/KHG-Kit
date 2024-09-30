@@ -5,6 +5,7 @@
 #include "entity/comp_copier.h"
 #include "entity/comp_damage.h"
 #include "entity/comp_health.h"
+#include "entity/comp_life_taker.h"
 #include "entity/comp_mover.h"
 #include "entity/comp_animator.h"
 #include "entity/comp_destroyer.h"
@@ -18,9 +19,7 @@
 #include "entity/comp_stream_spawner.h"
 #include "entity/comp_targeter.h"
 #include "entity/entity.h"
-#include "entity/map.h"
 #include "game.h"
-#include "generators/components/map_generator.h"
 #include "generators/components/texture_generator.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
@@ -32,7 +31,6 @@
 #include "physics/physics_setup.h"
 #include "scenes/scene_utl.h"
 #include "scenes/scene_transition.h"
-#include "threading/thread_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/vector.h"
 #include <stdlib.h>
@@ -84,7 +82,7 @@ stm_state PARENT_SCENE = {
 stm_state TITLE_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TUTORIAL_SCENE, &compare_scene_switch_command, &load_tutorial_scene, &TUTORIAL_SCENE }, { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_GAME_SCENE, &compare_scene_switch_command, &load_tutorial_scene, &GAME_SCENE } },
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TUTORIAL_SCENE, &compare_scene_switch_command, &load_tutorial_scene, &TUTORIAL_SCENE }, { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_GAME_SCENE, &compare_scene_switch_command, &load_game_scene, &GAME_SCENE } },
   .num_transitions = 2,
   .data = "TITLE",
 };
@@ -92,7 +90,7 @@ stm_state TITLE_SCENE = {
 stm_state TUTORIAL_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TITLE_SCENE, &compare_scene_switch_command, NULL, &TITLE_SCENE } },
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TITLE_SCENE, &compare_scene_switch_command, &load_title_scene, &TITLE_SCENE } },
   .num_transitions = 1,
   .data = "TUTORIAL",
 };
@@ -100,7 +98,7 @@ stm_state TUTORIAL_SCENE = {
 stm_state GAME_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TITLE_SCENE, &compare_scene_switch_command, NULL, &TITLE_SCENE } },
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_TITLE_SCENE, &compare_scene_switch_command, &load_title_scene, &TITLE_SCENE } },
   .num_transitions = 1,
   .data = "GAME",
 };
@@ -126,15 +124,14 @@ sys_health HEALTH_SYSTEM = { 0 };
 sys_damage DAMAGE_SYSTEM = { 0 };
 sys_copier COPIER_SYSTEM = { 0 };
 sys_status STATUS_SYSTEM = { 0 };
+sys_life_taker LIFE_TAKER_SYSTEM = { 0 };
 
-void ecs_setup() {
+void ecs_setup(bool is_not_title) {
   log_sys_info();
-  setup_worker_threads();
-  stm_init(&SCENE_FSM, &TITLE_SCENE, &TUTORIAL_SCENE);
   SPACE = physics_setup(phy_v(0.0f, 0.0f));
   LARGE_FONT = gfx_load_font_asset("Rubik", "ttf", 48);
   MEDIUM_FONT = gfx_load_font_asset("Rubik", "ttf", 32);
-  camera_setup(&CAMERA);
+  camera_setup(&CAMERA, is_not_title, 0.0f, 0.0f);
   ECS = ecs_new(ECS_ENTITY_COUNT, NULL);
   comp_physics_register();
   comp_renderer_register();
@@ -152,6 +149,7 @@ void ecs_setup() {
   comp_damage_register();
   comp_copier_register();
   comp_status_register();
+  comp_life_taker_register();
   sys_physics_register(&PHYSICS_SYSTEM);
   sys_renderer_register(&RENDERER_SYSTEM);
   sys_destroyer_register(&DESTROYER_SYSTEM);
@@ -168,6 +166,7 @@ void ecs_setup() {
   sys_damage_register(&DAMAGE_SYSTEM);
   sys_copier_register(&COPIER_SYSTEM);
   sys_status_register(&STATUS_SYSTEM);
+  sys_life_taker_register(&LIFE_TAKER_SYSTEM);
   generate_entity_lookup();
   generate_textures();
 }
@@ -177,12 +176,7 @@ void ecs_cleanup() {
   free_textures();
   gfx_free_font(&LARGE_FONT);
   gfx_free_font(&MEDIUM_FONT);
-  free_map_collision_segments(&GAME_MAP_SEGMENTS);
-  free_map(&GAME_FLOOR_MAP);
-  free_map(&GAME_BUILDING_MAP);
-  free_map(&GAME_PATH_MAP);
   physics_free(SPACE);
   ecs_free(ECS);
-  free_worker_threads();
 }
 
