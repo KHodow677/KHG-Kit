@@ -27,3 +27,4 @@ int get_optimal_thread_count() {
   return ret;
 #endif
 }
+

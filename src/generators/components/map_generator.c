@@ -1,4 +1,5 @@
 #include "generators/components/map_generator.h"
+#include "game_manager.h"
 #include "khg_csv/csv.h"
 #include "khg_utl/vector.h"
 #include <stdlib.h>
@@ -53,8 +54,8 @@ void load_map(const char *filepath, utl_vector **map) {
 #endif
   char *row;
   csv_handle handle = csv_open(path);
-  int csv_row = get_csv_rows(path);
-  int csv_col = get_csv_cols(path);
+  GAME_MAP_HEIGHT = get_csv_rows(path);
+  GAME_MAP_WIDTH = get_csv_cols(path);
   *map = utl_vector_create(sizeof(utl_vector *));
   while ((row = csv_read_next_row(handle))) {
     char *col;
@@ -69,8 +70,14 @@ void load_map(const char *filepath, utl_vector **map) {
 }
 
 void free_map(utl_vector **map) {
+  if (!*map) {
+    return;
+  }
   for (int i = 0; i < utl_vector_size(*map); i++) {
     utl_vector **row =  utl_vector_at(*map, i);
+    if (!*row) {
+      continue;
+    }
     utl_vector_deallocate(*row);
   }
   utl_vector_deallocate(*map);

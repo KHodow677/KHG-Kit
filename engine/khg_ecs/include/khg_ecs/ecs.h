@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define ECS_MAX_COMPONENTS 32
-#define ECS_MAX_SYSTEMS 16
+#define ECS_MAX_SYSTEMS 32
 
 typedef uint32_t ecs_bitset;
 typedef struct ecs_ecs ecs_ecs;

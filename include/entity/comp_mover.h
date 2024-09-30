@@ -1,16 +1,15 @@
 #pragma once
 
+#include "entity/comp_physics.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/queue.h"
-#include "khg_utl/vector.h"
-
-typedef struct {
-  utl_queue *target_pos_queue;
-  ecs_id body_entity;
-} mover_info;
 
 typedef struct {
   ecs_id id;
+  utl_queue *target_pos_queue;
+  comp_physics *body_info;
+  float max_vel;
+  float max_ang_vel;
 } comp_mover;
 
 typedef struct {
@@ -19,11 +18,9 @@ typedef struct {
 } sys_mover;
 
 extern ecs_id MOVER_COMPONENT_SIGNATURE;
-extern mover_info NO_MOVER;
-extern utl_vector *MOVER_INFO;
 
-void comp_mover_register(comp_mover *cm);
+void comp_mover_register(void);
 
 void sys_mover_register(sys_mover *sm);
-void sys_mover_add(ecs_id *eid, mover_info *info);
+comp_mover *sys_mover_add(ecs_id eid);
 

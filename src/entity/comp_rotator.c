@@ -1,20 +1,30 @@
 #include "entity/comp_rotator.h"
-#include "controllers/input/mouse_controller.h"
 #include "controllers/elements/element_controller.h"
 #include "entity/comp_physics.h"
-#include "data_utl/map_utl.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/vect.h"
-#include "khg_utl/map.h"
-#include <stdio.h>
+#include "khg_phy/body.h"
 
 ecs_id ROTATOR_COMPONENT_SIGNATURE;
-utl_map *ROTATOR_INFO_MAP = NULL;
 
-void comp_rotator_register(comp_rotator *cr) {
-  cr->id = ecs_register_component(ECS, sizeof(comp_rotator), NULL, NULL);
-  ROTATOR_COMPONENT_SIGNATURE = cr->id; 
+static ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+  if (dt == 0.0f) {
+    return 0;
+  }
+  for (int id = 0; id < entity_count; id++) {
+    comp_rotator *info = ecs_get(ECS, entities[id], ROTATOR_COMPONENT_SIGNATURE);
+    comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
+    if (info->target_health == NULL) {
+      element_set_rotation_speed(p_info, 0.0f);
+      continue;
+    }
+    element_lock_on_position(p_info, phy_body_get_position(info->target_health->body), 16.0f);
+  }
+  return 0;
+}
+
+void comp_rotator_register() {
+  ROTATOR_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_rotator), NULL, NULL);
 }
 
 void sys_rotator_register(sys_rotator *sr) {
@@ -22,26 +32,9 @@ void sys_rotator_register(sys_rotator *sr) {
   ecs_require_component(ECS, sr->id, ROTATOR_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, sr->id, PHYSICS_COMPONENT_SIGNATURE);
   sr->ecs = *ECS;
-  ROTATOR_INFO_MAP = utl_map_create(compare_ints, no_deallocator, no_deallocator);
 }
 
-void sys_rotator_add(ecs_id *eid, rotator_info *info) {
-  ecs_add(ECS, *eid, ROTATOR_COMPONENT_SIGNATURE, NULL);
-  utl_map_insert(ROTATOR_INFO_MAP, eid, info);
-}
-
-ecs_ret sys_rotator_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  rotator_info *info;
-  physics_info *p_info;
-  for (int id = 0; id < entity_count; id++) {
-    info = utl_map_at(ROTATOR_INFO_MAP, &entities[id]);
-    p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    if (!phy_v_eql(MOUSE_STATE.right_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
-      info->target_look_pos = MOUSE_STATE.right_mouse_click_controls;
-      p_info->is_locked_on = false;
-    }
-    element_lock_on_position(p_info, info->target_look_pos, 16.0f);
-  }
-  return 0;
+comp_rotator *sys_rotator_add(ecs_id eid) {
+  return ecs_add(ECS, eid, ROTATOR_COMPONENT_SIGNATURE, NULL);
 }
 

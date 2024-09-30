@@ -10,6 +10,7 @@ phy_space *physics_setup(phy_vect grav) {
   phy_threaded_space_set_threads(sp, THREAD_COUNT);
   phy_space_set_gravity(sp, grav);
   phy_space_set_collision_bias(sp, 0.0f);
+  physics_add_sensor_collision_handler(sp);
   return sp;
 }
 
@@ -26,5 +27,11 @@ phy_shape *physics_add_static_segment_shape(phy_space *space, phy_vect point_a, 
 void physics_remove_static_segment_shape(phy_space *space, phy_shape *seg) {
   phy_space_remove_shape(space, seg);
   phy_shape_free(seg);
+}
+
+void physics_add_sensor_collision_handler(phy_space *space) {
+  phy_collision_handler *collision_handler = phy_space_add_collision_handler(space, SENSOR_COLLISION_TYPE, NORMAL_COLLISION_TYPE);
+  collision_handler->begin_func = targeter_sensor_enter;
+  collision_handler->separate_func = targeter_sensor_exit;
 }
 

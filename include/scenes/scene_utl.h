@@ -9,7 +9,8 @@ enum event_transition_type {
 
 enum event_transition_command {
   TO_TITLE_SCENE,
-  TO_SANDBOX_SCENE,
+  TO_TUTORIAL_SCENE,
+  TO_GAME_SCENE,
 };
 
 void print_scene_error(void *state_data, stm_event *event);

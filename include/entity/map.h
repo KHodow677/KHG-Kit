@@ -12,6 +12,7 @@ typedef enum {
   SEGMENT_BOTTOM_LEFT,
   SEGMENT_BOTTOM,
   SEGMENT_BOTTOM_RIGHT,
+  SEGMENT_BOTTOM_LEFT_RIGHT,
 } collision_segment_direction;
 
 void render_map(utl_vector *map);

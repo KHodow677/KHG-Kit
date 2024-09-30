@@ -2,61 +2,69 @@
 #include "controllers/input/mouse_controller.h"
 #include "entity/comp_physics.h"
 #include "entity/comp_renderer.h"
-#include "entity/indicators.h"
 #include "game_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/shape.h"
 #include "khg_phy/vect.h"
 #include "khg_utl/vector.h"
-#include <stdio.h>
+
+ecs_id SELECTOR_COMPONENT_SIGNATURE;
+comp_selector *CURRENT_SELECTED = NULL;
+comp_renderer *CURRENT_SELECTED_RENDERER = NULL;
+
+static void swap_render_info_texture(comp_renderer *r_info, int tex_id, int linked_tex_id) {
+  r_info->tex_id = tex_id;
+  if (r_info->linked_r_info != r_info) {
+    r_info->linked_r_info->tex_id = linked_tex_id;
+  }
+}
+
+static void deselect(comp_selector *info, comp_renderer *r_info) {
+  info->selected = false;
+  utl_vector_clear(r_info->indicators);
+  swap_render_info_texture(r_info, info->tex_id, info->linked_tex_id);
+}
 
 static ecs_ret sys_selector_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  selector_info *info;
-  physics_info *p_info;
-  renderer_info *r_info;
-  mover_info *m_info;
   for (int id = 0; id < entity_count; id++) {
-    info = utl_vector_at(SELECTOR_INFO, entities[id]);
-    p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
-    r_info = utl_vector_at(RENDERER_INFO, entities[id]);
-    m_info = utl_vector_at(MOVER_INFO, entities[id]);
+    comp_selector *info = ecs_get(ECS, entities[id], SELECTOR_COMPONENT_SIGNATURE);
+    comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
+    comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
     info->just_selected = false;
+    if (info->should_deselect) {
+      deselect(info, r_info);
+      info->should_deselect = false;
+    }
     if (!phy_v_eql(MOUSE_STATE.left_mouse_click_controls, phy_v(-1.0f, -1.0f))) {
-      if (!p_info->target_body || !p_info->target_shape) {
-        continue;
-      }
       if (phy_shape_point_query(p_info->target_shape, MOUSE_STATE.left_mouse_click_controls, NULL) < 0.0f) {
-        if (!info->selected) {
-          for (int i = 0; i < entity_count; i++) {
-            selector_info *info_s = utl_vector_at(SELECTOR_INFO, entities[i]);
-            renderer_info *info_r = utl_vector_at(RENDERER_INFO, entities[i]);
-            if (!info_s->selected) {
-              continue;
-            }
-            info_s->selected = false;
-            utl_vector_clear(info_r->indicators);
-          }
-          info->selected = true;
-          info->just_selected = true;
-          generate_all_indicators(info, p_info, r_info, m_info);
+        if (CURRENT_SELECTED && CURRENT_SELECTED != info) {
+          deselect(CURRENT_SELECTED, CURRENT_SELECTED_RENDERER);
+          CURRENT_SELECTED->should_deselect = false;
+        }
+        CURRENT_SELECTED = info;
+        CURRENT_SELECTED_RENDERER = r_info;
+        info->selected = true;
+        info->just_selected = true;
+        if (info->selected_tex_id == info->selected_linked_tex_id) {
+          swap_render_info_texture(r_info, info->selected_tex_id, info->selected_linked_tex_id);
         }
         else {
-          info->selected = false;
-          utl_vector_clear(r_info->indicators);
+          swap_render_info_texture(r_info, info->tex_id, info->selected_linked_tex_id);
         }
+      }
+      else {
+        CURRENT_SELECTED = NULL;
+        CURRENT_SELECTED_RENDERER = NULL;
+        deselect(info, r_info);
+        info->should_deselect = false;
       }
     }
   }
   return 0;
 }
 
-ecs_id SELECTOR_COMPONENT_SIGNATURE;
-selector_info NO_SELECTOR = { 0 };
-utl_vector *SELECTOR_INFO = NULL;
-
-void comp_selector_register(comp_selector *cs) {
-  cs->id = ecs_register_component(ECS, sizeof(comp_selector), NULL, NULL);
-  SELECTOR_COMPONENT_SIGNATURE = cs->id; 
+void comp_selector_register() {
+  SELECTOR_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_selector), NULL, NULL);
 }
 
 void sys_selector_register(sys_selector *ss) {
@@ -64,16 +72,10 @@ void sys_selector_register(sys_selector *ss) {
   ecs_require_component(ECS, ss->id, SELECTOR_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, PHYSICS_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, ss->id, RENDERER_COMPONENT_SIGNATURE);
-  ecs_require_component(ECS, ss->id, MOVER_COMPONENT_SIGNATURE);
   ss->ecs = *ECS;
-  SELECTOR_INFO = utl_vector_create(sizeof(selector_info));
-  for (int i = 0; i < ECS->entity_count; i++) {
-    utl_vector_push_back(SELECTOR_INFO, &NO_SELECTOR);
-  }
 }
 
-void sys_selector_add(ecs_id *eid, selector_info *info) {
-  ecs_add(ECS, *eid, SELECTOR_COMPONENT_SIGNATURE, NULL);
-  utl_vector_assign(SELECTOR_INFO, *eid, info);
+comp_selector *sys_selector_add(ecs_id eid) {
+  return ecs_add(ECS, eid, SELECTOR_COMPONENT_SIGNATURE, NULL);
 }
 

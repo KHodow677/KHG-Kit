@@ -10,5 +10,6 @@
 #define OS_NAME "Mac"
 #endif
 
-int game_run();
+void log_sys_info(void);
+int game_run(void);
 

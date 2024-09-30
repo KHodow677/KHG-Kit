@@ -1,15 +1,17 @@
 #pragma once
 
+#include "entity/comp_renderer.h"
 #include "khg_ecs/ecs.h"
-#include "khg_utl/vector.h"
-
-typedef struct {
-  bool selected;
-  bool just_selected;
-} selector_info;
 
 typedef struct {
   ecs_id id;
+  bool selected;
+  bool just_selected;
+  bool should_deselect;
+  int tex_id;
+  int linked_tex_id;
+  int selected_tex_id;
+  int selected_linked_tex_id;
 } comp_selector;
 
 typedef struct {
@@ -18,11 +20,11 @@ typedef struct {
 } sys_selector;
 
 extern ecs_id SELECTOR_COMPONENT_SIGNATURE;
-extern selector_info NO_SELECTOR;
-extern utl_vector *SELECTOR_INFO;
+extern comp_selector *CURRENT_SELECTED;
+extern comp_renderer *CURRENT_SELECTED_RENDERER;
 
-void comp_selector_register(comp_selector *cs);
+void comp_selector_register(void);
 
 void sys_selector_register(sys_selector *ss);
-void sys_selector_add(ecs_id *eid, selector_info *info);
+comp_selector *sys_selector_add(ecs_id eid);
 

@@ -13,36 +13,32 @@
 #include <stdio.h>
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
-renderer_info NO_RENDERER = { 0 };
-utl_vector *RENDERER_INFO = NULL;
 
 static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
-  renderer_info *info;
-  physics_info *p_info;
   for (int layer = 0; layer < 10; layer++) {
-    if (layer == 0) {
+    if (layer == 9) {
       for (int id = 0; id < entity_count; id++) {
-        info = utl_vector_at(RENDERER_INFO, entities[id]);
-        p_info = utl_vector_at(PHYSICS_INFO, entities[id]);
+        comp_renderer *info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
+        comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
         for (int i_index = 0; i_index < utl_vector_size(info->indicators); i_index++) {
           indicator *ind = utl_vector_at(info->indicators, i_index);
-          if (ind->type == INDICATOR_OUTLINE) {
-            render_outline(info, p_info, ind);
-          }
-          else if (ind->type == INDICATOR_POINT) {
+          if (ind->type == INDICATOR_POINT) {
             render_point(ind);
           }
           else if (ind->type == INDICATOR_LINE) {
             render_line(ind);
           }
+          else if (ind->type == INDICATOR_BODY_POINT) {
+            render_body_point(p_info, ind);
+          }
           else if (ind->type == INDICATOR_BODY_LINE) {
-            render_body_line(info, p_info, ind);
+            render_body_line(p_info, ind);
           }
         }
       }
     }
     for (int id = 0; id < entity_count; id++) {
-      info = utl_vector_at(RENDERER_INFO, entities[id]);
+      comp_renderer *info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
       if (layer != info->render_layer) {
         continue;
       }
@@ -57,9 +53,8 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
   return 0;
 }
 
-void comp_renderer_register(comp_renderer *cr) {
-  cr->id = ecs_register_component(ECS, sizeof(comp_renderer), NULL, NULL);
-  RENDERER_COMPONENT_SIGNATURE = cr->id; 
+void comp_renderer_register() {
+  RENDERER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_renderer), NULL, NULL);
 }
 
 void sys_renderer_register(sys_renderer *sr) {
@@ -67,14 +62,9 @@ void sys_renderer_register(sys_renderer *sr) {
   ecs_require_component(ECS, sr->id, RENDERER_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, sr->id, PHYSICS_COMPONENT_SIGNATURE);
   sr->ecs = *ECS;
-  RENDERER_INFO = utl_vector_create(sizeof(renderer_info));
-  for (int i = 0; i < ECS->entity_count; i++) {
-    utl_vector_push_back(RENDERER_INFO, &NO_RENDERER);
-  }
 }
 
-void sys_renderer_add(ecs_id *eid, renderer_info *info) {
-  ecs_add(ECS, *eid, RENDERER_COMPONENT_SIGNATURE, NULL);
-  utl_vector_assign(RENDERER_INFO, *eid, info);
+comp_renderer *sys_renderer_add(ecs_id eid) {
+  return ecs_add(ECS, eid, RENDERER_COMPONENT_SIGNATURE, NULL);
 }
 
