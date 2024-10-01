@@ -1,5 +1,6 @@
 #include "game.h"
 #include "khg_gfx/internal.h"
+#include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
@@ -58,75 +59,51 @@ static const char* frag_src =
   "flat in vec2 v_scale;\n"
   "flat in vec2 v_pos_px;\n"
   "in float v_corner_radius;\n"
+  "in vec2 v_frag_pos;\n"
   "uniform sampler2D u_textures[32];\n"
   "uniform vec2 u_screen_size;\n"
   "in vec2 v_min_coord;\n"
   "in vec2 v_max_coord;\n"
+  "uniform vec3 u_light_color = vec3(1.0, 1.0, 1.0);\n"
+  "uniform vec2 u_light_pos;\n"
+  "uniform float u_light_intensity = 1.0;\n"
+  "uniform float u_light_radius = 300.0;\n"
   "float rounded_box_sdf(vec2 center_pos, vec2 size, float radius) {\n"
-  "    return length(max(abs(center_pos)-size+radius,0.0))-radius;\n"
+  "  return length(max(abs(center_pos)-size+radius,0.0))-radius;\n"
   "}\n"
   "void main() {\n"
-  "     if(u_screen_size.y - gl_FragCoord.y < v_min_coord.y && v_min_coord.y != -1) {\n"
-  "         discard;\n"
-  "     }\n"
-  "     if(u_screen_size.y - gl_FragCoord.y > v_max_coord.y && v_max_coord.y != -1) {\n"
-  "         discard;\n"
-  "     }\n"
-  "     if ((gl_FragCoord.x < v_min_coord.x && v_min_coord.x != -1) || (gl_FragCoord.x > v_max_coord.x && v_max_coord.x != -1)) {\n"
-  "         discard;\n" 
-  "     }\n"
-  "     vec2 size = v_scale;\n"
-  "     vec4 opaque_color, display_color;\n"
-  "     if(v_tex_index == -1) {\n"
-  "       opaque_color = v_color;\n"
-  "     } else {\n"
-  "       opaque_color = texture(u_textures[int(v_tex_index)], v_texcoord) * v_color;\n"
-  "     }\n"
-  "     if(opaque_color.a > 0.0f) {\n"
-  "       opaque_color.rgb = vec3(0.0);\n"
-  "     }\n"
-  "     if(v_corner_radius != 0.0f) {"
-  "       display_color = opaque_color;\n"
-  "       vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
-  "       location.y += u_screen_size.y - size.y;\n"
-  "       float edge_softness = 1.0f;\n"
-  "       float radius = v_corner_radius * 2.0f;\n"
-  "       float distance = rounded_box_sdf(gl_FragCoord.xy - location - (size/2.0f), size / 2.0f, radius);\n"
-  "       float smoothed_alpha = 1.0f-smoothstep(0.0f, edge_softness * 2.0f,distance);\n"
-  "       vec3 fill_color;\n"
-  "       if(v_border_width != 0.0f) {\n"
-  "           vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
-  "           vec2 size_border = vec2(size.x - v_border_width * 2, size.y - v_border_width * 2);\n"
-  "           float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, radius);\n"
-  "           if(distance_border <= 0.0f) {\n"
-  "               fill_color = display_color.xyz;\n"
-  "           } else {\n"
-  "               fill_color = v_border_color.xyz;\n"
-  "           }\n"
-  "       } else {\n"
-  "           fill_color = display_color.xyz;\n"
-  "       }\n"
-  "       if(v_border_width != 0.0f)\n" 
-  "         o_color =  mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, smoothed_alpha), smoothed_alpha);\n"
-  "       else\n" 
-  "         o_color = mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, display_color.a), smoothed_alpha);\n"
-  "     } else {\n"
-  "       vec4 fill_color = opaque_color;\n"
-  "       if(v_border_width != 0.0f) {\n"
-  "           vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
-  "           location.y += u_screen_size.y - size.y;\n"
-  "           vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
-  "           vec2 size_border = vec2(v_scale.x - v_border_width * 2, v_scale.y - v_border_width * 2);\n"
-  "           float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, v_corner_radius);\n"
-  "           if(distance_border > 0.0f) {\n"
-  "               fill_color = v_border_color;\n"
-  "}\n"
-  "       }\n"
-  "       o_color = fill_color;\n"
-  " }\n"
+  "  // Light positioning and distance to light\n"
+  "  vec2 light_pos = vec2(v_pos_px.x + v_scale.x / 2.0, u_screen_size.y - (v_pos_px.y + v_scale.y / 2.0));\n"
+  "  float dist_to_light = distance(gl_FragCoord.xy, light_pos);\n"
+  
+  "  // Calculate attenuation based on distance\n"
+  "  float attenuation = clamp(1.0 - (dist_to_light / u_light_radius), 0.0, 1.0);\n"
+  
+  "  // Calculate color and transparency for the light\n"
+  "  vec4 base_color = (v_tex_index == -1) ? v_color : texture(u_textures[int(v_tex_index)], v_texcoord) * v_color;\n"
+  
+  "  // Set transparency based on the distance to the light (more transparent near the light center)\n"
+  "  float transparency = 1.0 - attenuation; // More transparent as it gets closer to the light\n"
+  
+  "  // Final color blending\n"
+  "  vec3 final_color = mix(vec3(0.0), base_color.rgb, u_light_intensity * attenuation);\n"
+  
+  "  // Handle corner radius if necessary\n"
+  "  if (v_corner_radius != 0.0f) {\n"
+  "    vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
+  "    location.y += u_screen_size.y - v_scale.y;\n"
+  "    float edge_softness = 1.0f;\n"
+  "    float radius = v_corner_radius * 2.0f;\n"
+  "    float distance = rounded_box_sdf(gl_FragCoord.xy - location - (v_scale / 2.0f), v_scale / 2.0f, radius);\n"
+  "    float smoothed_alpha = 1.0f - smoothstep(0.0f, edge_softness * 2.0f, distance);\n"
+  "    o_color = vec4(final_color, smoothed_alpha * transparency);\n"
+  "  } else {\n"
+  "    o_color = vec4(final_color, base_color.a * transparency);\n"
+  "  }\n"
   "}\n";
 
 static gfx_shader alt_shader;
+static gfx_texture square;
 
 void log_sys_info() {
   printf("OS: %s\n", OS_NAME);
@@ -150,6 +127,7 @@ int game_run() {
   glfwMakeContextCurrent(window);
   gfx_init_glfw(1280, 720, window);
   alt_shader = gfx_internal_shader_prg_create(vert_src, frag_src);
+  square = gfx_load_texture_asset("square", "png");
   int res = gfx_loop_manager(window, false);
   return res;
 }
@@ -160,7 +138,7 @@ bool gfx_loop(float delta) {
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   state.render.shader = alt_shader;
-  gfx_image(state.tex_arrow_down);
+  gfx_image_no_block(400, 400, square, 0, 0, 0, 0, 1, true);
   return true;
 }
 
