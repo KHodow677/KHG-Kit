@@ -58,6 +58,11 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
     if (!gfx_loop(elapsed_time)) {
       break;
     }
+    gfx_end();
+    if (!gfx_loop_post(elapsed_time)) {
+      break;
+    }
+    gfx_end();
     frame_count++;
     double fps_elapsed_time = current_time - fps_start_time;
     if (fps_elapsed_time > 0.0) {
@@ -70,7 +75,6 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
       frame_count = 0;
       fps_start_time = current_time;
     }
-    gfx_end();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -83,3 +87,4 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
 void gfx_terminate() {
   gfx_free_font(&state.theme.font);
 }
+

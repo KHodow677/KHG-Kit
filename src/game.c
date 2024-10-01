@@ -102,7 +102,8 @@ static const char* frag_src =
   "  }\n"
   "}\n";
 
-static gfx_shader alt_shader;
+static gfx_shader primary_shader;
+static gfx_shader alternate_shader;
 static gfx_texture square;
 
 void log_sys_info() {
@@ -126,7 +127,8 @@ int game_run() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(1280, 720, window);
-  alt_shader = gfx_internal_shader_prg_create(vert_src, frag_src);
+  primary_shader = state.render.shader;
+  alternate_shader = gfx_internal_shader_prg_create(vert_src, frag_src);
   square = gfx_load_texture_asset("square", "png");
   int res = gfx_loop_manager(window, false);
   return res;
@@ -137,8 +139,13 @@ bool gfx_loop(float delta) {
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
-  state.render.shader = alt_shader;
-  gfx_image_no_block(400, 400, square, 0, 0, 0, 0, 1, true);
   return true;
 }
+
+bool gfx_loop_post(float delta) {
+  gfx_begin();
+  state.render.shader = alternate_shader;
+  gfx_image_no_block(400, 400, square, 0, 0, 0, 0, 1, true);
+  return true;
+};
 
