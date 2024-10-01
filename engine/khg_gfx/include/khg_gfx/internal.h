@@ -145,6 +145,7 @@ extern gfx_shader gfx_internal_shader_prg_create(const char *vert_src, const cha
 extern void gfx_internal_shader_set_mat(gfx_shader prg, const char *name, mat4 mat); 
 extern void gfx_internal_set_projection_matrix(void);
 extern void gfx_internal_renderer_init(void);
+void gfx_internal_renderer_set_shader(gfx_shader shader);
 extern void gfx_internal_renderer_flush(void);
 extern void gfx_internal_renderer_begin(void);
 

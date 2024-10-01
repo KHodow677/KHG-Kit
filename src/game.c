@@ -48,6 +48,83 @@ static const char* vert_src =
   "gl_Position = u_proj * vec4(a_pos.x, a_pos.y, 0.0f, 1.0);\n"
   "}\n";
 
+
+// static const char *frag_src = 
+//   "#version 450 core\n"
+//   "out vec4 o_color;\n"
+//   "in vec4 v_color;\n"
+//   "in float v_tex_index;\n"
+//   "in vec4 v_border_color;\n"
+//   "in float v_border_width;\n"
+//   "in vec2 v_texcoord;\n"
+//   "flat in vec2 v_scale;\n"
+//   "flat in vec2 v_pos_px;\n"
+//   "in float v_corner_radius;\n"
+//   "uniform sampler2D u_textures[32];\n"
+//   "uniform vec2 u_screen_size;\n"
+//   "in vec2 v_min_coord;\n"
+//   "in vec2 v_max_coord;\n"
+//   "float rounded_box_sdf(vec2 center_pos, vec2 size, float radius) {\n"
+//   "    return length(max(abs(center_pos)-size+radius,0.0))-radius;\n"
+//   "}\n"
+//   "void main() {\n"
+//   "     if(u_screen_size.y - gl_FragCoord.y < v_min_coord.y && v_min_coord.y != -1) {\n"
+//   "         discard;\n"
+//   "     }\n"
+//   "     if(u_screen_size.y - gl_FragCoord.y > v_max_coord.y && v_max_coord.y != -1) {\n"
+//   "         discard;\n"
+//   "     }\n"
+//   "     if ((gl_FragCoord.x < v_min_coord.x && v_min_coord.x != -1) || (gl_FragCoord.x > v_max_coord.x && v_max_coord.x != -1)) {\n"
+//   "         discard;\n" 
+//   "     }\n"
+//   "     vec2 size = v_scale;\n"
+//   "     vec4 opaque_color, display_color;\n"
+//   "     if(v_tex_index == -1) {\n"
+//   "       opaque_color = v_color;\n"
+//   "     } else {\n"
+//   "       opaque_color = texture(u_textures[int(v_tex_index)], v_texcoord) * v_color;\n"
+//   "     }\n"
+//   "     if(v_corner_radius != 0.0f) {"
+//   "       display_color = opaque_color;\n"
+//   "       vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
+//   "       location.y += u_screen_size.y - size.y;\n"
+//   "       float edge_softness = 1.0f;\n"
+//   "       float radius = v_corner_radius * 2.0f;\n"
+//   "       float distance = rounded_box_sdf(gl_FragCoord.xy - location - (size/2.0f), size / 2.0f, radius);\n"
+//   "       float smoothed_alpha = 1.0f-smoothstep(0.0f, edge_softness * 2.0f,distance);\n"
+//   "       vec3 fill_color;\n"
+//   "       if(v_border_width != 0.0f) {\n"
+//   "           vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
+//   "           vec2 size_border = vec2(size.x - v_border_width * 2, size.y - v_border_width * 2);\n"
+//   "           float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, radius);\n"
+//   "           if(distance_border <= 0.0f) {\n"
+//   "               fill_color = display_color.xyz;\n"
+//   "           } else {\n"
+//   "               fill_color = v_border_color.xyz;\n"
+//   "           }\n"
+//   "       } else {\n"
+//   "           fill_color = display_color.xyz;\n"
+//   "       }\n"
+//   "       if(v_border_width != 0.0f)\n" 
+//   "         o_color =  mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, smoothed_alpha), smoothed_alpha);\n"
+//   "       else\n" 
+//   "         o_color = mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, display_color.a), smoothed_alpha);\n"
+//   "     } else {\n"
+//   "       vec4 fill_color = opaque_color;\n"
+//   "       if(v_border_width != 0.0f) {\n"
+//   "           vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
+//   "           location.y += u_screen_size.y - size.y;\n"
+//   "           vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
+//   "           vec2 size_border = vec2(v_scale.x - v_border_width * 2, v_scale.y - v_border_width * 2);\n"
+//   "           float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, v_corner_radius);\n"
+//   "           if(distance_border > 0.0f) {\n"
+//   "               fill_color = v_border_color;\n"
+//   "}\n"
+//   "       }\n"
+//   "       o_color = fill_color;\n"
+//   " }\n"
+//   "}\n";
+
 static const char* frag_src = 
   "#version 450 core\n"
   "out vec4 o_color;\n"
@@ -104,6 +181,7 @@ static const char* frag_src =
 
 static gfx_shader primary_shader;
 static gfx_shader alternate_shader;
+static gfx_texture tex;
 static gfx_texture square;
 
 void log_sys_info() {
@@ -129,6 +207,7 @@ int game_run() {
   gfx_init_glfw(1280, 720, window);
   primary_shader = state.render.shader;
   alternate_shader = gfx_internal_shader_prg_create(vert_src, frag_src);
+  tex = gfx_load_texture_asset("creature_spawner", "png");
   square = gfx_load_texture_asset("square", "png");
   int res = gfx_loop_manager(window, false);
   return res;
@@ -139,12 +218,15 @@ bool gfx_loop(float delta) {
   glClearColor(gray_color, gray_color, gray_color, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
+  gfx_internal_renderer_set_shader(primary_shader);
+  gfx_image_no_block(400, 400, tex, 0, 0, 0, 0, 1, true);
   return true;
 }
 
 bool gfx_loop_post(float delta) {
   gfx_begin();
-  state.render.shader = alternate_shader;
+  gfx_internal_renderer_set_shader(alternate_shader);
+  // state.render.shader = alternate_shader;
   gfx_image_no_block(400, 400, square, 0, 0, 0, 0, 1, true);
   return true;
 };
