@@ -5,6 +5,8 @@
 #include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include <minwindef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -183,6 +185,8 @@ static gfx_shader primary_shader;
 static gfx_shader alternate_shader;
 static gfx_texture tex;
 static gfx_texture square;
+static gfx_font font;
+static uint32_t original_font_size;
 
 void log_sys_info() {
   printf("OS: %s\n", OS_NAME);
@@ -191,6 +195,15 @@ void log_sys_info() {
   if (vendor != NULL && version != NULL) {
     printf("Vendor: %s\n", vendor);
     printf("OpenGL Version: %s\n", version);
+  }
+}
+
+static void update_font() {
+  uint32_t min_change = min((uint32_t)(gfx_get_display_width() / 1280.0f * original_font_size), (uint32_t)(gfx_get_display_height() / 720.0f * original_font_size));
+  if (font.font_size != min_change) {
+    printf("%i\n", min_change);
+    gfx_free_font(&font);
+    font = gfx_load_font_asset("rubik", "ttf", min_change);
   }
 }
 
@@ -209,6 +222,8 @@ int game_run() {
   alternate_shader = gfx_internal_shader_prg_create(vert_src, frag_src);
   tex = gfx_load_texture_asset("creature_spawner", "png");
   square = gfx_load_texture_asset("square", "png");
+  font = gfx_load_font_asset("rubik", "ttf", 24);
+  original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
   return res;
 }
@@ -219,7 +234,11 @@ bool gfx_loop(float delta) {
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   gfx_internal_renderer_set_shader(primary_shader);
-  gfx_image_no_block(400, 400, tex, 0, 0, 0, 0, 1, true);
+  update_font();
+  gfx_push_font(&font);
+  gfx_text("Test the Font");
+  gfx_pop_font();
+  // gfx_image_no_block(400, 400, tex, 0, 0, 0, 0, 1, true);
   return true;
 }
 
@@ -227,7 +246,7 @@ bool gfx_loop_post(float delta) {
   gfx_begin();
   gfx_internal_renderer_set_shader(alternate_shader);
   // state.render.shader = alternate_shader;
-  gfx_image_no_block(400, 400, square, 0, 0, 0, 0, 1, true);
+  // gfx_image_no_block(400, 400, square, 0, 0, 0, 0, 1, true);
   return true;
 };
 
