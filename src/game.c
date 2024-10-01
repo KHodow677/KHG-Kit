@@ -201,7 +201,6 @@ void log_sys_info() {
 static void update_font() {
   uint32_t min_change = min((uint32_t)(gfx_get_display_width() / 1280.0f * original_font_size), (uint32_t)(gfx_get_display_height() / 720.0f * original_font_size));
   if (font.font_size != min_change) {
-    printf("%i\n", min_change);
     gfx_free_font(&font);
     font = gfx_load_font_asset("rubik", "ttf", min_change);
   }
