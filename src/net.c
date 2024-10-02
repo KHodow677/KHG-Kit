@@ -65,7 +65,7 @@ static bool message_buffer(const char *buffer, int length, void *user_data) {
 void run_server_client() {
   game_server server = {0};
   game_client client = {0};
-  server_open(&server, "localhost", "http");
+  server_open(&server, "localhost", "3000");
   client_open(&client, "localhost", "http");
   server_accept_client(&server);
   server_send_message(&server, *((tcp_channel **)utl_vector_front(server.client_list)), "Hello World from Server!", 24);
@@ -76,7 +76,7 @@ void run_server_client() {
 
 void run_server() {
   game_server server = {0};
-  server_open(&server, "localhost", "http");
+  server_open(&server, "localhost", "3000");
   while (true) {
     server_accept_client(&server);
     if (!utl_vector_is_empty(server.client_list)) {
