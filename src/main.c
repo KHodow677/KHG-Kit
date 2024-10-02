@@ -1,5 +1,6 @@
 #include "game.h"
-#include "net.h"
+#include "client.h"
+#include "server.h"
 #include <string.h>
 
 int main(int argc, char *argv[]) {
