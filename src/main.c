@@ -13,7 +13,6 @@ int main(int argc, char *argv[]) {
       return 0;
     }
   }
-  run_server_client();
   return 0;
   return game_run();
 }

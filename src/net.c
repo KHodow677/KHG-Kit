@@ -41,18 +41,6 @@ static bool ignore_buffer(const char *buffer, int length, void *user_data) {
 	return strlen(buffer) == (size_t) length;
 }
 
-void run_server_client() {
-  game_server server = {0};
-  game_client client = {0};
-  server_open(&server, "localhost", "3000");
-  client_open(&client, "localhost", "http");
-  server_accept_client(&server);
-  server_send_message(&server, *((tcp_channel **)utl_vector_front(server.client_list)), "Hello World from Server!", 24);
-  client_receive_message(&client);
-  client_close(&client);
-  server_close(&server);
-}
-
 void run_server() {
   game_server server = {0};
   server_open(&server, "localhost", "3000");
@@ -68,9 +56,7 @@ void run_server() {
 void run_client() {
   game_client client = {0};
   client_open(&client, "165.22.176.143", "http");
-  while (true) {
-    client_receive_message(&client);
-  }
+  client_send_message(&client, "");
   client_close(&client);
 }
 
@@ -153,3 +139,4 @@ void client_send_message(const game_client *client, const char *message) {
   tcp_send(client->server, request, strlen(formatted_request), 500);
   tcp_stream_receive(client->server, ignore_buffer, NULL, 500);
 }
+

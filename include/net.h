@@ -16,7 +16,6 @@ typedef struct game_client {
   const char *port;
 } game_client;
 
-void run_server_client(void);
 void run_server(void);
 void run_client(void);
 
@@ -29,3 +28,5 @@ void server_receive_message(const game_server *server, tcp_channel *client);
 void client_open(game_client *client, const char *ip, const char *port);
 void client_close(const game_client *client);
 void client_receive_message(const game_client *client);
+void client_send_message(const game_client *client, const char *message);
+
