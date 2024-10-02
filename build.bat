@@ -14,14 +14,41 @@ if "%1"=="build" (
 )
 
 if "%1"=="run" (
-    if not exist build (
-        echo Build folder not located: .\build.bat build
+    if "%2"=="" (
+        if not exist build (
+            echo Build folder not located: .\build.bat build
+            goto :eof
+        )
+        cd build
+        executable.exe
         goto :eof
     )
-    cd build
-    executable.exe
-    goto :eof
 )
+
+if "%1"=="run" (
+    if "%2"=="server" (
+        if not exist build (
+            echo Build folder not located: .\build.bat build
+            goto :eof
+        )
+        cd build
+        executable.exe server
+        goto :eof
+    )
+)
+
+if "%1"=="run" (
+    if "%2"=="client" (
+        if not exist build (
+            echo Build folder not located: .\build.bat build
+            goto :eof
+        )
+        cd build
+        executable.exe client 
+        goto :eof
+    )
+)
+
 
 if "%1"=="test" (
     if not exist build (
