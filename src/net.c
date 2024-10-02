@@ -41,27 +41,6 @@ static bool ignore_buffer(const char *buffer, int length, void *user_data) {
 	return strlen(buffer) == (size_t) length;
 }
 
-static bool message_buffer(const char *buffer, int length, void *user_data) {
-  (void) user_data;
-  memset(BUFFER, 0, sizeof(BUFFER));
-  strncpy(BUFFER, buffer, length);
-  char *body = strstr(BUFFER, "\r\n\r\n");
-  if (body) {
-    body += 4;
-    char *newline = strchr(body, '\n');
-    if (newline) {
-      *newline = '\0';
-    }
-    if (!is_number(body)) {
-      printf("%s\n", body);
-    }
-  } 
-  else {
-    printf("No valid response body found.\n");
-  }
-  return strlen(buffer) == (size_t) length;
-}
-
 void run_server_client() {
   game_server server = {0};
   game_client client = {0};
@@ -88,7 +67,7 @@ void run_server() {
 
 void run_client() {
   game_client client = {0};
-  client_open(&client, "localhost", "http");
+  client_open(&client, "165.22.176.143", "http");
   while (true) {
     client_receive_message(&client);
   }
@@ -162,15 +141,15 @@ void client_receive_message(const game_client *client) {
   tcp_send(client->server, request, strlen(request), 500);
   tcp_stream_receive_no_timeout(client->server, ignore_buffer, NULL);
   while (1) {
-    tcp_stream_receive_no_timeout(client->server, message_buffer, NULL);
+    tcp_stream_receive_no_timeout(client->server, print_buffer, NULL);
   }
 }
 
-void client_send_message(const game_client *client, const char *message, const int length) {
+void client_send_message(const game_client *client, const char *message) {
   const char *data = "{\"message\":\"Hello from Client!\"}";
   const char *request = "POST /send HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);
-  tcp_send(client->server, request, length, 500);
+  tcp_send(client->server, request, strlen(formatted_request), 500);
   tcp_stream_receive(client->server, ignore_buffer, NULL, 500);
 }
