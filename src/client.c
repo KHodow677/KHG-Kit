@@ -1,5 +1,4 @@
 #include "client.h"
-#include "game.h"
 #include "net_process.h"
 #include "khg_tcp/tcp.h"
 #include <stdio.h>
@@ -14,7 +13,9 @@ int client_run() {
   tcp_init();
   client_open(&client, "localhost", "3000");
   client_send_message(&client, "");
-  game_run();
+  while(true) {
+    client_receive_message(&client);
+  }
   client_close(&client);
   return 0;
 }
@@ -33,9 +34,9 @@ void client_close(const game_client *client) {
 }
 
 void client_receive_message(const game_client *client) {
-  tcp_stream_receive_no_timeout(client->server, set_buffer, NULL);
-  strncpy(client->buffer, BUFFER, TCP_STREAM_BUFFER_SIZE);
-  printf("%s\n", client->buffer);
+  tcp_stream_receive_no_timeout(client->server, print_buffer, NULL);
+  // strncpy(client->buffer, BUFFER, TCP_STREAM_BUFFER_SIZE);
+  // printf("%s\n", client->buffer);
 }
 
 void client_send_message(const game_client *client, const char *message) {

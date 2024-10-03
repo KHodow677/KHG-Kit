@@ -66,18 +66,16 @@ void server_accept_client(game_server *server) {
   *key = 1000;
   *value = (game_server_client){ .client = client, .id = *key, .linked_id = -1 };
   utl_map_insert(server->client_lookup, key, value);
+  server_send_message(server, 1000, "1000");
 }
 
 void server_send_message(const game_server *server, const int reciever_id, const char *message) {
   int lookup = reciever_id;
-  game_server_client *gsc = utl_map_at(server->client_lookup, &lookup);
-  if (gsc) {
-    const char *data = message;
-    const char *request = "POST /send HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
-    char formatted_request[1024];
-    snprintf(formatted_request, sizeof(formatted_request), request, server->ip, strlen(data), data);
-    tcp_send(gsc->client, formatted_request, sizeof(formatted_request), TIMEOUT);
-  }
+  const char *data = message;
+  const char *request = "POST /send HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
+  char formatted_request[1024];
+  snprintf(formatted_request, sizeof(formatted_request), request, server->ip, strlen(data), data);
+  tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, formatted_request, sizeof(formatted_request), TIMEOUT);
 }
 
 void server_receive_message(const game_server *server, const int sender_id) {
