@@ -203,6 +203,7 @@ bool gfx_loop(float delta) {
   gfx_text("Test the Font");
   gfx_pop_font();
   gfx_image_no_block(400, 400, tex, 0, 0, 0, 0, 1, true);
+  state.current_div.scrollable = false;
   return true;
 }
 
@@ -222,6 +223,7 @@ bool gfx_loop_post(float delta) {
   /*float lightRadii[] = {300.0f};*/
   /*glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_radii"), numLights, lightRadii);*/
   gfx_image_no_block(400, 400, square, 0, 0, 0, 0, 1, true);
+  state.current_div.scrollable = false;
   return true;
 };
 
