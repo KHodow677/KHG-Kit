@@ -6,9 +6,10 @@ typedef struct game_client {
   tcp_channel *server;
   const char *ip;
   const char *port;
+  char *buffer;
 } game_client;
 
-void run_client(void);
+int client_run(void);
 
 void client_open(game_client *client, const char *ip, const char *port);
 void client_close(const game_client *client);

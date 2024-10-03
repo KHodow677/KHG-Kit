@@ -8,7 +8,7 @@ typedef struct game_server {
   const char *port;
 } game_server;
 
-void run_server(void);
+int server_run(void);
 
 void server_open(game_server *server, const char *ip, const char *port);
 void server_close(const game_server *server);

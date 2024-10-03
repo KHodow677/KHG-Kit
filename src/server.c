@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-void run_server() {
+int server_run() {
   game_server server = {0};
   server_open(&server, "localhost", "3000");
   while (true) {
@@ -17,6 +17,7 @@ void run_server() {
     }
   }
   server_close(&server);
+  return 0;
 }
 
 void server_open(game_server *server, const char *ip, const char *port) {

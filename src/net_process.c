@@ -24,7 +24,12 @@ bool print_buffer(const char *buffer, const int length, void *user_data) {
 	return strlen(buffer) == (size_t)length;
 }
 
+bool set_buffer(const char *buffer, const int length, void *user_data) {
+  memset(BUFFER, 0, sizeof(BUFFER));
+  strncpy(BUFFER, buffer, length);
+	return strlen(buffer) == (size_t)length;
+}
+
 bool ignore_buffer(const char *buffer, int length, void *user_data) {
 	return strlen(buffer) == (size_t) length;
 }
-
