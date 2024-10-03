@@ -6,11 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <winreg.h>
+
+static int TIMEOUT = 500;
 
 int client_run() {
   game_client client = {0};
-  client_open(&client, "165.22.176.143", "http");
+  tcp_init();
+  client_open(&client, "localhost", "3000");
   client_send_message(&client, "");
   game_run();
   client_close(&client);
@@ -19,7 +21,6 @@ int client_run() {
 
 void client_open(game_client *client, const char *ip, const char *port) {
   printf("Open Client\n");
-  tcp_init();
   client->ip = ip;
   client->port = port;
   client->server = tcp_connect(ip, port);
@@ -38,10 +39,9 @@ void client_receive_message(const game_client *client) {
 }
 
 void client_send_message(const game_client *client, const char *message) {
-  const char *data = "{\"message\":\"Hello from Client!\"}";
+  const char *data = message;
   const char *request = "POST /send HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, client->ip, strlen(data), data);
-  tcp_send(client->server, formatted_request, sizeof(formatted_request), 500);
-  // tcp_stream_receive(client->server, print_buffer, NULL, 500);
+  tcp_send(client->server, formatted_request, sizeof(formatted_request), TIMEOUT);
 }
