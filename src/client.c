@@ -35,8 +35,6 @@ void client_close(const game_client *client) {
 
 void client_receive_message(const game_client *client) {
   tcp_stream_receive_no_timeout(client->server, print_buffer, NULL);
-  // strncpy(client->buffer, BUFFER, TCP_STREAM_BUFFER_SIZE);
-  // printf("%s\n", client->buffer);
 }
 
 void client_send_message(const game_client *client, const char *message) {

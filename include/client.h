@@ -6,7 +6,7 @@ typedef struct {
   tcp_channel *server;
   const char *ip;
   const char *port;
-  char *buffer;
+  char buffer[TCP_STREAM_BUFFER_SIZE];
 } game_client;
 
 typedef struct {
