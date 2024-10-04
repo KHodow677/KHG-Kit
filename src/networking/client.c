@@ -1,5 +1,5 @@
-#include "client.h"
-#include "net_process.h"
+#include "networking/client.h"
+#include "networking/net_process.h"
 #include "khg_tcp/tcp.h"
 #include <stdio.h>
 #include <stdlib.h>

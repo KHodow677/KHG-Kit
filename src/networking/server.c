@@ -1,5 +1,5 @@
-#include "server.h"
-#include "net_process.h"
+#include "networking/server.h"
+#include "networking/net_process.h"
 #include "khg_tcp/tcp.h"
 #include "khg_utl/map.h"
 #include <stdio.h>

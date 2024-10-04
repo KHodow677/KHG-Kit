@@ -62,6 +62,7 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
     if (!gfx_loop_post(elapsed_time)) {
       break;
     }
+    gfx_end();
     if (!gfx_loop_ui(elapsed_time)) {
       break;
     }
