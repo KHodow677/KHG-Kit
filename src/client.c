@@ -52,9 +52,9 @@ void client_send_message(const game_client *client, const char *message) {
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, client->ip, strlen(data), data);
   tcp_send(client->server, formatted_request, sizeof(formatted_request), TIMEOUT);
-  bool received = tcp_stream_receive_no_timeout(client->server, ignore_buffer, NULL);
+  bool received = tcp_stream_receive(client->server, ignore_buffer, NULL, TIMEOUT);
   while (!received) {
-    received = tcp_stream_receive_no_timeout(client->server, ignore_buffer, NULL);
+    received = tcp_stream_receive(client->server, ignore_buffer, NULL, TIMEOUT);
   }
   printf("Hello\n");
 }
