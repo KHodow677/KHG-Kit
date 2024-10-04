@@ -72,13 +72,14 @@ void server_accept_client(game_server *server) {
 void server_send_message(const game_server *server, const int reciever_id, const char *message) {
   int lookup = reciever_id;
   const char *data = message;
-  const char *request = "POST /send HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
-  char formatted_request[1024];
-  snprintf(formatted_request, sizeof(formatted_request), request, server->ip, strlen(data), data);
-  tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, formatted_request, sizeof(formatted_request), TIMEOUT);
+  const char *response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
+  char formatted_response[1024];
+  snprintf(formatted_response, sizeof(formatted_response), response, strlen(data), data);
+  tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, formatted_response, strlen(formatted_response), TIMEOUT);
 }
 
 void server_receive_message(const game_server *server, const int sender_id) {
   int lookup = sender_id;
   tcp_stream_receive_no_timeout(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, print_buffer, NULL);
 }
+
