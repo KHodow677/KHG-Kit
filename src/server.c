@@ -57,7 +57,7 @@ void server_close(const game_server *server) {
 }
 
 void server_accept_client(game_server *server) {
-  tcp_channel *client = tcp_accept(server->server, TIMEOUT);
+  tcp_channel *client = tcp_accept(server->server, 0);
   if (client == NULL) {
     return;
   }
