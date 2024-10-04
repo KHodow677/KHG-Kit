@@ -13,6 +13,9 @@ int client_run() {
   tcp_init();
   client_open(&client, "165.22.176.143", "http");
   client_send_message(&client, "");
+  while(true) {
+    (void)0;
+  }
   client_close(&client);
   return 0;
 }
