@@ -1,4 +1,5 @@
 #include "client.h"
+#include "game.h"
 #include "server.h"
 #include <string.h>
 
@@ -8,5 +9,6 @@ int main(int argc, char *argv[]) {
       return server_run();
     }
   }
+  return game_run();
   return client_run();
 }

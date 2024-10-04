@@ -65,24 +65,19 @@ static const char *frag_src =
   "uniform vec2 u_screen_size;\n"
   "in vec2 v_min_coord;\n"
   "in vec2 v_max_coord;\n"
-  "uniform vec3 u_light_color = vec3(1.0, 1.0, 1.0);\n"
-  "uniform vec2 u_light_pos_perc = vec2(0.5, 0.5);\n"
-  "uniform float u_light_intensity = 1.0;\n"
-  "uniform float u_light_radius = 300.0;\n"
-/*  // Light properties*/
-/*  "uniform int u_num_lights;\n"                          // Number of lights*/
-/*  "uniform vec3 u_light_colors[10];\n"                   // Light colors*/
-/*  "uniform vec2 u_light_positions[10];\n"                // Light positions*/
-/*  "uniform float u_light_intensities[10];\n"             // Light intensities*/
-/*  "uniform float u_light_radii[10];\n"                   // Light radii*/
+  "const int num_lights = 2;\n"
+  "uniform vec3 u_light_colors[num_lights];\n"
+  "uniform vec2 u_light_pos_percs[num_lights];\n"
+  "uniform float u_light_intensities[num_lights];\n"
+  "uniform float u_light_radii[num_lights];\n"
   "float rounded_box_sdf(vec2 center_pos, vec2 size, float radius) {\n"
   "  return length(max(abs(center_pos)-size+radius,0.0))-radius;\n"
   "}\n"
   "void main() {\n"
-  "  if(u_screen_size.y - gl_FragCoord.y < v_min_coord.y && v_min_coord.y != -1) {\n"
+  "  if (u_screen_size.y - gl_FragCoord.y < v_min_coord.y && v_min_coord.y != -1) {\n"
   "    discard;\n"
   "  }\n"
-  "  if(u_screen_size.y - gl_FragCoord.y > v_max_coord.y && v_max_coord.y != -1) {\n"
+  "  if (u_screen_size.y - gl_FragCoord.y > v_max_coord.y && v_max_coord.y != -1) {\n"
   "    discard;\n"
   "  }\n"
   "  if ((gl_FragCoord.x < v_min_coord.x && v_min_coord.x != -1) || (gl_FragCoord.x > v_max_coord.x && v_max_coord.x != -1)) {\n"
@@ -90,13 +85,13 @@ static const char *frag_src =
   "  }\n"
   "  vec2 size = v_scale;\n"
   "  vec4 opaque_color, display_color;\n"
-  "  if(v_tex_index == -1) {\n"
+  "  if (v_tex_index == -1) {\n"
   "    opaque_color = v_color;\n"
   "  }\n" 
   "  else {\n"
   "    opaque_color = texture(u_textures[int(v_tex_index)], v_texcoord) * v_color;\n"
   "  }\n"
-  "  if(v_corner_radius != 0.0f) {"
+  "  if (v_corner_radius != 0.0f) {"
   "    display_color = opaque_color;\n"
   "    vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
   "    location.y += u_screen_size.y - size.y;\n"
@@ -105,11 +100,11 @@ static const char *frag_src =
   "    float distance = rounded_box_sdf(gl_FragCoord.xy - location - (size/2.0f), size / 2.0f, radius);\n"
   "    float smoothed_alpha = 1.0f-smoothstep(0.0f, edge_softness * 2.0f,distance);\n"
   "    vec3 fill_color;\n"
-  "    if(v_border_width != 0.0f) {\n"
+  "    if (v_border_width != 0.0f) {\n"
   "      vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
   "      vec2 size_border = vec2(size.x - v_border_width * 2, size.y - v_border_width * 2);\n"
   "      float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, radius);\n"
-  "      if(distance_border <= 0.0f) {\n"
+  "      if (distance_border <= 0.0f) {\n"
   "        fill_color = display_color.xyz;\n"
   "      }\n"
   "      else {\n"
@@ -119,31 +114,37 @@ static const char *frag_src =
   "    else {\n"
   "      fill_color = display_color.xyz;\n"
   "    }\n"
-  "    if(v_border_width != 0.0f)\n" 
+  "    if (v_border_width != 0.0f)\n" 
   "      o_color =  mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, smoothed_alpha), smoothed_alpha);\n"
   "    else\n" 
   "      o_color = mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, display_color.a), smoothed_alpha);\n"
-  "    }\n"
+  "  }\n"
   "  else {\n"
   "    vec4 fill_color = opaque_color;\n"
-  "    if(v_border_width != 0.0f) {\n"
+  "    if (v_border_width != 0.0f) {\n"
   "      vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
   "      location.y += u_screen_size.y - size.y;\n"
   "      vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
   "      vec2 size_border = vec2(v_scale.x - v_border_width * 2, v_scale.y - v_border_width * 2);\n"
   "      float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, v_corner_radius);\n"
-  "      if(distance_border > 0.0f) {\n"
+  "      if (distance_border > 0.0f) {\n"
   "        fill_color = v_border_color;\n"
   "      }\n"
   "    }\n"
   "    o_color = fill_color;\n"
   "  }\n"
-  "  vec2 light_pos = vec2(v_pos_px.x + v_scale.x * u_light_pos_perc.x, u_screen_size.y - (v_pos_px.y + v_scale.y * u_light_pos_perc.y));\n"
-  "  float dist_to_light = distance(gl_FragCoord.xy, light_pos);\n"
-  "  float attenuation = clamp(1.0 - (dist_to_light / u_light_radius), 0.0, 1.0);\n"
-  "  float transparency = 1.0 - attenuation; // More transparent as it gets closer to the light\n"
-  "  vec3 final_color = mix(vec3(0.0), o_color.rgb, u_light_intensity * attenuation);\n"
-  "  o_color = vec4(final_color, o_color.a * transparency);\n"
+  "  for (int i = 0; i < num_lights; i++) {\n"
+  "    vec3 u_light_color = u_light_colors[i];\n"
+  "    vec2 u_light_pos_perc = u_light_pos_percs[i];\n"
+  "    float u_light_intensity = u_light_intensities[i];\n"
+  "    float u_light_radius = u_light_radii[i];\n"
+  "    vec2 light_pos = vec2(v_pos_px.x + v_scale.x * u_light_pos_perc.x, u_screen_size.y - (v_pos_px.y + v_scale.y * u_light_pos_perc.y));\n"
+  "    float dist_to_light = distance(gl_FragCoord.xy, light_pos);\n"
+  "    float attenuation = clamp(1.0 - (dist_to_light / u_light_radius), 0.0, 1.0);\n"
+  "    float transparency = 1.0 - attenuation; // More transparent as it gets closer to the light\n"
+  "    vec3 final_color = mix(vec3(0.0), o_color.rgb, u_light_intensity * attenuation);\n"
+  "    o_color = vec4(final_color, o_color.a * transparency);\n"
+  "  }\n"
   "}\n";
 
 static gfx_shader primary_shader;
@@ -210,19 +211,18 @@ bool gfx_loop(float delta) {
 bool gfx_loop_post(float delta) {
   gfx_begin();
   gfx_internal_renderer_set_shader(alternate_shader);
-  GLint location = glGetUniformLocation(state.render.shader.id, "u_light_pos_perc");
-  glUniform2f(location, 0.5f, 1.0f);
-  /*int numLights = 1;*/
-  /*glUniform1i(glGetUniformLocation(state.render.shader.id, "u_num_lights"), numLights);*/
-  /*float lightColors[] = {1.0f, 1.0f, 1.0f};*/
-  /*glUniform3fv(glGetUniformLocation(state.render.shader.id, "u_light_colors"), numLights, lightColors);*/
-  /*float lightPositions[] = {256.0f, 256.0f};*/
-  /*glUniform2fv(glGetUniformLocation(state.render.shader.id, "u_light_positions"), numLights, lightPositions);*/
-  /*float lightIntensities[] = {1.0f};*/
-  /*glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_intensities"), numLights, lightIntensities);*/
-  /*float lightRadii[] = {300.0f};*/
-  /*glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_radii"), numLights, lightRadii);*/
-  gfx_image_no_block(400, 400, square, 0, 0, 0, 0, 1, true);
+  int numLights = 2;
+  float lightColors[] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+  glUniform3fv(glGetUniformLocation(state.render.shader.id, "u_light_colors"), numLights, lightColors);
+  float lightPositionPercs[] = { 0.5f, 0.7f, 0.5, 0.0f };
+  glUniform2fv(glGetUniformLocation(state.render.shader.id, "u_light_pos_percs"), numLights, lightPositionPercs);
+  float lightIntensities[] = { 1.0f, 1.0f };
+  glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_intensities"), numLights, lightIntensities);
+  float lightRadii[] = { 300.0f, 300.0f };
+  glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_radii"), numLights, lightRadii);
+  square.width = gfx_get_display_width();
+  square.height = gfx_get_display_height();
+  gfx_image_no_block(gfx_get_display_width() * 0.5f, gfx_get_display_height() * 0.5f, square, 0, 0, 0, 0, 1, true);
   state.current_div.scrollable = false;
   return true;
 };
