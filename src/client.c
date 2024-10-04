@@ -11,7 +11,7 @@ static int TIMEOUT = 500;
 int client_run() {
   game_client client = {0};
   tcp_init();
-  client_open(&client, "localhost", "3000");
+  client_open(&client, "165.22.176.143", "http");
   client_send_message(&client, "");
   while(true) {
     client_receive_message(&client);
