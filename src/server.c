@@ -32,7 +32,7 @@ int server_run() {
     if (!utl_map_empty(server.client_lookup)) {
       for (utl_map_iterator it = utl_map_begin(server.client_lookup); it.node != utl_map_end(server.client_lookup).node; utl_map_iterator_increment(&it)) {
         server_receive_message(&server, *((int *)utl_map_node_get_key(it.node)));
-        printf("Hi\n");
+        server_send_message(&server, *((int *)utl_map_node_get_key(it.node)), "");
       }
     }
   }
@@ -81,6 +81,6 @@ void server_send_message(const game_server *server, const int reciever_id, const
 void server_receive_message(const game_server *server, const int sender_id) {
   int lookup = sender_id;
   char buffer[1024] = {0};
-  bool bytes_received = tcp_stream_receive(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, print_buffer, NULL, TIMEOUT);
+  bool bytes_received = tcp_stream_receive_no_timeout(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, print_buffer, NULL);
 }
 
