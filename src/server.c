@@ -87,7 +87,7 @@ void server_receive_message(const game_server *server, const int sender_id) {
       const char *response =
         "HTTP/1.1 200 OK\r\n"
         "Content-Type: application/json\r\n"
-        "Content-Length: 13\r\n"
+        "Content-Length: 16\r\n"
         "Connection: keep-alive\r\n\r\n"
         "{\"status\":\"ok\"}";
       tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, response, strlen(response), TIMEOUT);
