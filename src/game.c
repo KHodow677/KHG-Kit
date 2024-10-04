@@ -227,3 +227,9 @@ bool gfx_loop_post(float delta) {
   return true;
 };
 
+bool gfx_loop_ui(float delta) {
+  gfx_begin();
+  gfx_internal_renderer_set_shader(primary_shader);
+  state.current_div.scrollable = false;
+  return true;
+};

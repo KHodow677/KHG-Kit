@@ -18,5 +18,6 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void *glfw_w
 int gfx_loop_manager(GLFWwindow *window, bool show_fps);
 bool gfx_loop(float delta);
 bool gfx_loop_post(float delta);
+bool gfx_loop_ui(float delta);
 void gfx_terminate(void);
 
