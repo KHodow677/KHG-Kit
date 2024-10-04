@@ -32,6 +32,7 @@ int server_run() {
     if (!utl_map_empty(server.client_lookup)) {
       for (utl_map_iterator it = utl_map_begin(server.client_lookup); it.node != utl_map_end(server.client_lookup).node; utl_map_iterator_increment(&it)) {
         server_receive_message(&server, *((int *)utl_map_node_get_key(it.node)));
+        printf("Hi\n");
       }
     }
   }
