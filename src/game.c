@@ -49,6 +49,8 @@ int game_run() {
   PRIMARY_SHADER = state.render.shader;
   setup_lights_texture();
   setup_lights_shader();
+  add_light((vec2s){ 0.1f, 0.5f }, 1.0f, 400.0f);
+  clear_lights();
   tex = gfx_load_texture_asset("creature_spawner", "png");
   font = gfx_load_font_asset("rubik", "ttf", 24);
   original_font_size = font.font_size;
@@ -70,18 +72,7 @@ bool gfx_loop(float delta) {
 bool gfx_loop_post(float delta) {
   gfx_begin();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
-  int numLights = 2;
-  float lightColors[] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
-  glUniform3fv(glGetUniformLocation(state.render.shader.id, "u_light_colors"), numLights, lightColors);
-  float lightPositionPercs[] = { 0.5f, 0.7f, 0.5, 0.0f };
-  glUniform2fv(glGetUniformLocation(state.render.shader.id, "u_light_pos_percs"), numLights, lightPositionPercs);
-  float lightIntensities[] = { 1.0f, 1.0f };
-  glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_intensities"), numLights, lightIntensities);
-  float lightRadii[] = { 300.0f, 300.0f };
-  glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_radii"), numLights, lightRadii);
-  LIGHTING_OVERLAY.width = gfx_get_display_width();
-  LIGHTING_OVERLAY.height = gfx_get_display_height();
-  gfx_image_no_block(gfx_get_display_width() * 0.5f, gfx_get_display_height() * 0.5f, LIGHTING_OVERLAY, 0, 0, 0, 0, 1, true);
+  render_lights();
   state.current_div.scrollable = false;
   return true;
 };
