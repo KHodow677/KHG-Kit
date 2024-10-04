@@ -71,9 +71,9 @@ void server_accept_client(game_server *server) {
 void server_send_message(const game_server *server, const int reciever_id, const char *message) {
   int lookup = reciever_id;
   const char *data = message;
-  const char *response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %zu\r\nConnection: keep-alive\r\n\r\n%s";
+  const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
   char formatted_response[1024];
-  snprintf(formatted_response, sizeof(formatted_response), response, strlen(data), data);
+  snprintf(formatted_response, sizeof(formatted_response), response, data);
   tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, formatted_response, strlen(formatted_response), TIMEOUT);
 }
 
@@ -81,15 +81,5 @@ void server_receive_message(const game_server *server, const int sender_id) {
   int lookup = sender_id;
   char buffer[1024] = {0};
   bool bytes_received = tcp_stream_receive(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, print_buffer, NULL, TIMEOUT);
-  if (bytes_received) {
-    printf("Received from client (%d):\n%s\n", sender_id, buffer);
-    const char *response =
-      "HTTP/1.1 200 OK\r\n"
-      "Content-Type: application/json\r\n"
-      "Content-Length: 16\r\n"
-      "Connection: keep-alive\r\n\r\n"
-      "{\"status\":\"ok\"}";
-    tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, response, strlen(response), TIMEOUT);
-  } 
 }
 

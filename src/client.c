@@ -32,15 +32,6 @@ void client_close(const game_client *client) {
 
 void client_receive_message(const game_client *client) {
   bool bytes_received = tcp_stream_receive_no_timeout(client->server, print_buffer, NULL);
-  /*if (bytes_received) {*/
-  /*  const char *response =*/
-  /*    "HTTP/1.1 200 OK\r\n"*/
-  /*    "Content-Type: application/json\r\n"*/
-  /*    "Content-Length: 16\r\n"*/
-  /*    "Connection: keep-alive\r\n\r\n"*/
-  /*    "{\"status\":\"ok\"}";*/
-  /*  tcp_send(client->server, response, strlen(response), TIMEOUT);*/
-  /*} */
 }
 
 void client_send_message(const game_client *client, const char *message) {
@@ -50,7 +41,7 @@ void client_send_message(const game_client *client, const char *message) {
   snprintf(formatted_request, sizeof(formatted_request), request, client->ip, strlen(data), data);
   tcp_send(client->server, formatted_request, sizeof(formatted_request), TIMEOUT);
   while (true) {
-    tcp_stream_receive(client->server, print_buffer, NULL, TIMEOUT);
+    tcp_stream_receive_no_timeout(client->server, print_buffer, NULL);
   }
 }
 
