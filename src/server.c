@@ -79,8 +79,21 @@ void server_send_message(const game_server *server, const int reciever_id, const
 }
 
 void server_receive_message(const game_server *server, const int sender_id) {
-  int lookup = sender_id;
-  tcp_stream_receive_no_timeout(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, print_buffer, NULL);
-  server_send_message(server, sender_id, "");
+    int lookup = sender_id;
+    char buffer[1024] = {0};
+    int bytes_received = tcp_stream_receive_no_timeout(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, print_buffer, NULL);
+    if (bytes_received > 0) {
+      printf("Received from client (%d):\n%s\n", sender_id, buffer);
+      const char *response =
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: application/json\r\n"
+        "Content-Length: 13\r\n"
+        "Connection: keep-alive\r\n\r\n"
+        "{\"status\":\"ok\"}";
+      tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, response, strlen(response), TIMEOUT);
+    } 
+    else {
+        printf("No message received or error.\n");
+    }
 }
 
