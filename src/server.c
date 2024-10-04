@@ -90,6 +90,7 @@ void server_receive_message(const game_server *server, const int sender_id) {
       "Connection: keep-alive\r\n\r\n"
       "{\"status\":\"ok\"}";
     tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, response, strlen(response), TIMEOUT);
+    tcp_stream_receive(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, ignore_buffer, NULL, TIMEOUT);
   } 
 }
 

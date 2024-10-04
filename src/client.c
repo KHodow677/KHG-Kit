@@ -14,7 +14,7 @@ int client_run() {
   client_open(&client, "165.22.176.143", "http");
   client_send_message(&client, "");
   while(true) {
-    (void)0;
+    client_receive_message(&client);
   }
   client_close(&client);
   return 0;
@@ -52,6 +52,6 @@ void client_send_message(const game_client *client, const char *message) {
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, client->ip, strlen(data), data);
   tcp_send(client->server, formatted_request, sizeof(formatted_request), TIMEOUT);
-  tcp_stream_receive(client->server, print_buffer, NULL, TIMEOUT);
+  tcp_stream_receive(client->server, print_buffer, NULL, 2 * TIMEOUT);
 }
 
