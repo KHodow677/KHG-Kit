@@ -81,5 +81,6 @@ void server_send_message(const game_server *server, const int reciever_id, const
 void server_receive_message(const game_server *server, const int sender_id) {
   int lookup = sender_id;
   tcp_stream_receive_no_timeout(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, print_buffer, NULL);
+  server_send_message(server, sender_id, "");
 }
 
