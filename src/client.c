@@ -39,8 +39,9 @@ void client_receive_message(const game_client *client) {
 
 void client_send_message(const game_client *client, const char *message) {
   const char *data = message;
-  const char *request = "POST /send HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\nConnection: keep-alive\r\n\r\n%s";
+  const char *request = "POST /send HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, client->ip, strlen(data), data);
   tcp_send(client->server, formatted_request, sizeof(formatted_request), TIMEOUT);
 }
+

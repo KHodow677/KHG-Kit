@@ -66,7 +66,7 @@ void server_accept_client(game_server *server) {
   *key = 1000;
   *value = (game_server_client){ .client = client, .id = *key, .linked_id = -1 };
   utl_map_insert(server->client_lookup, key, value);
-  server_send_message(server, 1000, "1000");
+  /*server_send_message(server, 1000, "1000");*/
 }
 
 void server_send_message(const game_server *server, const int reciever_id, const char *message) {
