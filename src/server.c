@@ -72,7 +72,7 @@ void server_accept_client(game_server *server) {
 void server_send_message(const game_server *server, const int reciever_id, const char *message) {
   int lookup = reciever_id;
   const char *data = message;
-  const char *response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
+  const char *response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %zu\r\nConnection: keep-alive\r\n\r\n%s";
   char formatted_response[1024];
   snprintf(formatted_response, sizeof(formatted_response), response, strlen(data), data);
   tcp_send(((game_server_client *)utl_map_at(server->client_lookup, &lookup))->client, formatted_response, strlen(formatted_response), TIMEOUT);
