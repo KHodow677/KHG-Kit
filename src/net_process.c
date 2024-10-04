@@ -18,9 +18,7 @@ bool is_number(const char *str) {
 } 
 
 bool print_buffer(const char *buffer, const int length, void *user_data) {
-  memset(BUFFER, 0, sizeof(BUFFER));
-  strncpy(BUFFER, buffer, length);
-  printf("%s\n", BUFFER);
+  printf("%s\n", buffer);
 	return strlen(buffer) == (size_t)length;
 }
 
