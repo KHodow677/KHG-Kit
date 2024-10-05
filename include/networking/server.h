@@ -1,25 +1,21 @@
 #pragma once
 
 #include "khg_tcp/tcp.h"
-#include "khg_utl/map.h"
 
 typedef struct {
-  tcp_server *server;
-  utl_map *client_lookup;
-  const char *ip;
-  const char *port;
+    tcp_server *server;
+    const char *address;
+    const char *port;
 } game_server;
 
 typedef struct {
-  tcp_channel *client;
-  int id;
-  int linked_id;
+    tcp_channel *channel;
+    int client_id;
 } game_server_client;
 
-int server_run(void);
+void server_start(game_server *server, const char *address, const char *port, int max_clients);
+void server_run(game_server *server);
+void server_shutdown(game_server *server);
 
-void server_open(game_server *server, const char *ip, const char *port);
-void server_close(const game_server *server);
-void server_accept_client(game_server *server);
-void server_send_message(const game_server *server, const int reciever_id, const char *message);
-void server_receive_message(const game_server *server, const int sender_id);
+void handle_client(game_server_client *client);
+
