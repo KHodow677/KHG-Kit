@@ -9,6 +9,6 @@ int main(int argc, char *argv[]) {
       return server_run();
     }
   }
-  return game_run();
+  /*return game_run();*/
   return client_run();
 }
