@@ -20,7 +20,7 @@ void server_start(game_server *server, const char *address, const char *port, in
 void server_run(game_server *server) {
     printf("Waiting for clients to connect...\n");
     while (true) {
-        tcp_channel *client_channel = tcp_accept(server->server, 1000); // 1000ms timeout
+        tcp_channel *client_channel = tcp_accept(server->server, 0);
         if (client_channel) {
             game_server_client client = { client_channel, 0 }; // You could generate or assign an ID here
             printf("Client connected!\n");

@@ -9,7 +9,7 @@ static int TIMEOUT = 500;
 void client_run() {
     game_client client = {0};
     tcp_init();
-    client_connect(&client, "165.22.176.143", "http"); // Use your actual server IP and port
+    client_connect(&client, "165.22.176.143", "http");
     client_send_message(&client, "Hello Server!");
     while (true) {
         client_receive_message(&client);
