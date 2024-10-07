@@ -21,7 +21,7 @@ void joiner_run(const char *room_code) {
   tcp_channel *channel = tcp_connect("165.22.176.143", "http");
   tcp_client_join_room(channel, room_code);
   const char *message = "Hello from the sender!";
-  tcp_client_send(channel, "send_message", message);
+  tcp_client_send(channel, room_code, "send_message", message);
   tcp_client_receive(channel);
   tcp_close_channel(channel);
   tcp_term();
@@ -45,9 +45,9 @@ void tcp_client_join_room(tcp_channel *channel, const char *room_code) {
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
 }
 
-void tcp_client_send(tcp_channel *channel, const char *command, const char *message) {
+void tcp_client_send(tcp_channel *channel, const char *room_code, const char *command, const char *message) {
   char data[256];
-  snprintf(data, sizeof(data), "{\"command\":\"%s\", \"message\":\"%s\"}", command, message);
+  snprintf(data, sizeof(data), "{\"command\":\"%s\", \"room_code\":\"%s\", \"message\":\"%s\"}", command, room_code, message);
   const char *request = "POST /send HTTP/1.1\r\nHost: 165.22.176.143\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);
@@ -56,11 +56,8 @@ void tcp_client_send(tcp_channel *channel, const char *command, const char *mess
 }
 
 void tcp_client_receive(tcp_channel *channel) {
-  const char *request = "GET /receive HTTP/1.1\r\nHost: 165.22.176.143\r\n\r\n";
-  tcp_send(channel, request, strlen(request), 500);
   printf("Listening for messages...\n");
   while (1) {
     tcp_stream_receive_no_timeout(channel, message_buffer, NULL);
   }
 }
-

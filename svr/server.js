@@ -1,18 +1,7 @@
 var net = require("net");
-var clients = [];
-var clientData = {};
-let client_id_counter = 16777215;
-
-function get_client_id(socket) {
-  const client = clients.find(client => client.sock === socket);
-  return client ? client.id : undefined;
-}
+var rooms = {};
 
 var server = net.createServer(function(socket) {
-  const client_id = client_id_counter.toString(16).padStart(6, "0").toUpperCase();
-  client_id_counter--;
-  const client = { id: client_id, sock: socket };
-  clients.push(client);
   console.log("Client " + client_id + " connected");
   socket.on("data", function(data) {
     const request = data.toString();
@@ -26,27 +15,29 @@ var server = net.createServer(function(socket) {
           const room_code = parsed_data.room_code;
           console.log(`Room ${room_code} created by client ${client_id}`);
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nRoom ${room_code} created.`);
+          rooms[room_code] = {client1: socket, client2: null};
         } 
         else if (command === "join_room") {
           const room_code = parsed_data.room_code;
           console.log(`Client ${client_id} joined room ${room_code}`);
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nJoined room ${room_code}.`);
+          rooms[room_code].client2 = socket;
         } 
         else if (command === "send_message") {
+          const room_code = parsed_data.room_code;
           const message = parsed_data.message;
-          console.log(`Client ${client_id} sent_message "${message}"`);
-          socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nSend message "${message}"`);
+          console.log(`Client sent_message "${message}"`);
+          if (rooms[room_code].client1 === socket || rooms[room_code].client2 === socket) {
+            rooms[room_code].client1.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nSend message "${message}"`);
+            rooms[room_code].client2.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nSend message "${message}"`);
+          }
+          else {
+            rooms[room_code].client1.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nWrong Room`);
+            rooms[room_code].client2.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nWrong Room`);
+          }
         } 
         else {
-          const parsed_receiver = parsed_data.message.toString().split(":")[0];
-          parsed_data.message = parsed_data.message.toString().split(":")[1];
-          clients.forEach(function(client) {
-            if (client.id === parsed_receiver) {
-              client.sock.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n${parsed_data.message}`);
-            }
-          });
-          clientData = parsed_data;
-          socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n${parsed_data.message}`);
+          socket.write("HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\n\r\nInvalid Command");
         }
       } 
       catch (e) {

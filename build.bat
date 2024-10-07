@@ -26,13 +26,25 @@ if "%1"=="run" (
 )
 
 if "%1"=="run" (
-  if "%2"=="server" (
+  if "%2"=="hoster" (
     if not exist build (
       echo Build folder not located: .\build.bat build
       goto :eof
     )
     cd build
-    executable.exe server
+    executable.exe hoster 
+    goto :eof
+  )
+)
+
+if "%1"=="run" (
+  if "%2"=="joiner" (
+    if not exist build (
+      echo Build folder not located: .\build.bat build
+      goto :eof
+    )
+    cd build
+    executable.exe joiner 
     goto :eof
   )
 )
@@ -129,6 +141,12 @@ if "%1"=="build" (
       )
     )
   )
+)
+
+if "%1"=="server" (
+  cd svr
+  npm start
+  goto :eof
 )
 
 echo Command keywords: [build, run, server, test]
