@@ -31,3 +31,25 @@ bool set_buffer(const char *buffer, const int length, void *user_data) {
 bool ignore_buffer(const char *buffer, int length, void *user_data) {
 	return strlen(buffer) == (size_t) length;
 }
+
+bool message_buffer(const char *buffer, int length, void *user_data) {
+  (void) user_data;
+  memset(BUFFER, 0, sizeof(BUFFER));
+  strncpy(BUFFER, buffer, length);
+  char *body = strstr(BUFFER, "\r\n\r\n");
+  if (body) {
+    body += 4;
+    char *newline = strchr(body, '\n');
+    if (newline) {
+      *newline = '\0';
+    }
+    if (!is_number(body)) {
+      printf("%s\n", body);
+    }
+  } 
+  else {
+    printf("No valid response body found.\n");
+  }
+  return strlen(buffer) == (size_t) length;
+}
+
