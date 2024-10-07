@@ -24,7 +24,6 @@ var server = net.createServer(function(socket) {
         const command = parsed_data.command;
         
         if (command === "create_room") {
-          // Logic to create a room with the code
           const room_code = parsed_data.room_code;
           console.log(`Room ${room_code} created by client ${client_id}`);
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nRoom ${room_code} created.`);

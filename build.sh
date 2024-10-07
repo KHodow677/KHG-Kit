@@ -15,23 +15,23 @@ then
     cd build
     ./executable
   fi
-elif [ "$1" = "run" ] && [ "$2" = "sender" ]
+elif [ "$1" = "run" ] && [ "$2" = "hoster" ]
 then
   if ! [ -d "./build" ]
   then
     echo "Build folder not located: ./build.sh build"
   else
     cd build
-    ./executable sender
+    ./executable hoster 
   fi
-elif [ "$1" = "run" ] && [ "$2" = "receiver" ]
+elif [ "$1" = "run" ] && [ "$2" = "joiner" ]
 then
   if ! [ -d "./build" ]
   then
     echo "Build folder not located: ./build.sh build"
   else
     cd build
-    ./executable receiver
+    ./executable joiner 
   fi
 elif [ "$1" = "test" ]
 then

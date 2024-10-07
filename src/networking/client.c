@@ -7,16 +7,15 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-void sender_run(const char *room_code) {
+void hoster_run(const char *room_code) {
   tcp_client_create_room(room_code);
-  sleep(1);
-  const char *message = "Hello from the sender!";
-  tcp_client_send("send_message", message);
+  tcp_client_receive();
 }
 
-void receiver_run(const char *room_code) {
+void joiner_run(const char *room_code) {
   tcp_client_join_room(room_code);
-  printf("Listening for messages in room %s...\n", room_code);
+  const char *message = "Hello from the sender!";
+  tcp_client_send("send_message", message);
   tcp_client_receive();
 }
 
@@ -30,20 +29,16 @@ void tcp_client_create_room(const char *room_code) {
   
   tcp_channel *channel = tcp_connect("165.22.176.143", "http");
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
-  tcp_close_channel(channel);
 }
 
 void tcp_client_join_room(const char *room_code) {
   char data[256];
   snprintf(data, sizeof(data), "{\"command\":\"join_room\", \"room_code\":\"%s\"}", room_code);
-  
   const char *request = "POST /send HTTP/1.1\r\nHost: 165.22.176.143\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);
-  
   tcp_channel *channel = tcp_connect("165.22.176.143", "http");
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
-  tcp_close_channel(channel);
 }
 
 void tcp_client_send(const char *command, const char *message) {
