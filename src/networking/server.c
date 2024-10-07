@@ -9,7 +9,7 @@ int client_count = 0;
 unsigned int client_id_counter = 16777215;
 
 void handle_client(tcp_channel *client_sock) {
-    char buffer[BUFFER_SIZE];
+    char buffer[TCP_STREAM_BUFFER_SIZE];
     int bytes_received;
 
     // Assign a unique client ID
@@ -25,15 +25,15 @@ void handle_client(tcp_channel *client_sock) {
             // Handle POST request
             // TODO: Add JSON parsing and message handling logic
             // Example: Responding with 200 OK
-            tcp_send(client_sock, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nMessage received", 100, 500);
+            tcp_send(client_sock, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nMessage received", TCP_STREAM_BUFFER_SIZE, 500);
         } 
         else if (strstr(buffer, "GET /receive") == buffer) {
             // Handle GET request
             // TODO: Respond with the latest message
-            tcp_send(client_sock, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nNo message available", 100, 500);
+            tcp_send(client_sock, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nNo message available", TCP_STREAM_BUFFER_SIZE, 500);
         } else {
             // Handle unknown request
-            tcp_send(client_sock, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nServer not found", 100, 500);
+            tcp_send(client_sock, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nServer not found", TCP_STREAM_BUFFER_SIZE, 500);
         }
     }
 
