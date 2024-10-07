@@ -27,7 +27,7 @@ int tcp_client_receive() {
   const char *request = "GET /receive HTTP/1.1\r\nHost: 165.22.176.143\r\n\r\n";
   channel = tcp_connect("165.22.176.143", "http");
   tcp_send(channel, request, strlen(request), 500);
-  tcp_stream_receive_no_timeout(channel, ignore_buffer, NULL);
+  tcp_stream_receive_no_timeout(channel, message_buffer, NULL);
   while (1) {
     tcp_stream_receive_no_timeout(channel, message_buffer, NULL);
   }

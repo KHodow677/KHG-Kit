@@ -37,7 +37,7 @@ int server_start() {
   tcp_server *server = tcp_open_server("localhost", "3000", MAX_CLIENTS);
   printf("HTTP server started on port 3000\n");
   while (1) {
-    tcp_channel *client_sock = tcp_accept(server, 500);
+    tcp_channel *client_sock = tcp_accept(server, 0);
     if (client_sock) {
       handle_client(client_sock);
     }
