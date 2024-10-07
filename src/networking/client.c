@@ -1,57 +1,96 @@
 #include "networking/client.h"
-#include "khg_tcp/tcp.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
-static int TIMEOUT = 500;
+#define SERVER_ADDRESS "165.22.176.143"
+#define SERVER_PORT "80"
+#define TIMEOUT_MS 5000
+#define BUFFER_SIZE 2048
 
-void client_run() {
-  game_client client = {0};
-  tcp_init();
-  client_connect(&client, "165.22.176.143", "http");
-  client_send_message(&client, "Hello Server!");
-  while (true) {
-    client_receive_message(&client);
-  }
-  client_disconnect(&client);
-  tcp_term();
+// Function to send an HTTP POST request
+bool send_post_request(tcp_channel *channel, const char *receiver_id, const char *message) {
+    char buffer[BUFFER_SIZE];
+    char post_body[BUFFER_SIZE];
+
+    // Prepare POST body
+    snprintf(post_body, sizeof(post_body), "{\"message\": \"%s:%s\"}", receiver_id, message);
+
+    // Prepare POST request
+    snprintf(buffer, sizeof(buffer),
+             "POST /send HTTP/1.1\r\n"
+             "Host: %s:%s\r\n"
+             "Content-Type: application/json\r\n"
+             "Content-Length: %zu\r\n\r\n%s",
+             SERVER_ADDRESS, SERVER_PORT, strlen(post_body), post_body);
+
+    // Send POST request
+    if (!tcp_send(channel, buffer, strlen(buffer), TIMEOUT_MS)) {
+        fprintf(stderr, "Failed to send POST request\n");
+        return false;
+    }
+    return true;
 }
 
-void client_connect(game_client *client, const char *ip, const char *port) {
-  printf("Connecting to server at %s:%s\n", ip, port);
-  client->ip = ip;
-  client->port = port;
-  client->server = tcp_connect(ip, port);
-  if (!client->server) {
-    fprintf(stderr, "Failed to connect to server at %s:%s\n", ip, port);
-    exit(EXIT_FAILURE);
-  }
+// Function to send an HTTP GET request
+bool send_get_request(tcp_channel *channel) {
+    char buffer[BUFFER_SIZE];
+
+    // Prepare GET request
+    snprintf(buffer, sizeof(buffer),
+             "GET /receive HTTP/1.1\r\n"
+             "Host: %s:%s\r\n\r\n",
+             SERVER_ADDRESS, SERVER_PORT);
+
+    // Send GET request
+    if (!tcp_send(channel, buffer, strlen(buffer), TIMEOUT_MS)) {
+        fprintf(stderr, "Failed to send GET request\n");
+        return false;
+    }
+    return true;
 }
 
-void client_disconnect(game_client *client) {
-  printf("Disconnecting from server\n");
-  tcp_close_channel(client->server);
+// Function to receive and print server response
+void receive_response(tcp_channel *channel) {
+    char buffer[BUFFER_SIZE];
+    int received_length = tcp_receive(channel, buffer, BUFFER_SIZE - 1, TIMEOUT_MS);
+
+    if (received_length > 0) {
+        buffer[received_length] = '\0';  // Null-terminate the response
+        printf("Server Response:\n%s\n", buffer);
+    } else {
+        fprintf(stderr, "Failed to receive response or timed out\n");
+    }
 }
 
-void client_send_message(game_client *client, const char *message) {
-  const char *request_template = "POST /send HTTP/1.1\r\nHost: %s\r\nContent-Length: %zu\r\n\r\n%s";
-  char formatted_request[1024];
-  snprintf(formatted_request, sizeof(formatted_request), request_template, client->ip, strlen(message), message);
-  if (tcp_send(client->server, formatted_request, strlen(formatted_request), TIMEOUT)) {
-    printf("Message sent: %s\n", message);
-  } else {
-    fprintf(stderr, "Failed to send message\n");
-  }
-}
+int client_start() {
+    // Initialize the TCP library
+    if (!tcp_init()) {
+        fprintf(stderr, "Failed to initialize TCP\n");
+        return 1;
+    }
 
-void client_receive_message(game_client *client) {
-  int bytes_received = tcp_receive(client->server, client->buffer, sizeof(client->buffer), 0);
-  if (bytes_received > 0) {
-    printf("Received: %.*s\n", bytes_received, client->buffer);
-  } 
-  else {
-    printf("No message received within timeout\n");
-  }
-}
+    // Connect to the server
+    tcp_channel *channel = tcp_connect(SERVER_ADDRESS, SERVER_PORT);
+    if (!channel) {
+        fprintf(stderr, "Failed to connect to server\n");
+        tcp_term();
+        return 1;
+    }
 
+    // Send POST request to a receiver with ID "FF0000" and a message
+    if (send_post_request(channel, "FF0000", "Hello, Receiver!")) {
+        receive_response(channel);  // Receive the server's response
+    }
+
+    // Send GET request to receive any message available
+    if (send_get_request(channel)) {
+        receive_response(channel);  // Receive the server's response
+    }
+
+    // Close the connection and terminate TCP
+    tcp_close_channel(channel);
+    tcp_term();
+
+    return 0;
+}

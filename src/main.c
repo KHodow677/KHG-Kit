@@ -8,5 +8,5 @@ int main(int argc, char *argv[]) {
       return server_start();
     }
   }
-  client_run();
+  client_start();
 }

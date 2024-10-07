@@ -2,16 +2,13 @@
 
 #include "khg_tcp/tcp.h"
 
-typedef struct {
-    tcp_channel *server;
-    const char *ip;
-    const char *port;
-    char buffer[TCP_STREAM_BUFFER_SIZE];
-} game_client;
+#define SERVER_ADDRESS "165.22.176.143"
+#define SERVER_PORT "80"
+#define TIMEOUT_MS 5000
+#define BUFFER_SIZE 2048
 
-void client_connect(game_client *client, const char *ip, const char *port);
-void client_disconnect(game_client *client);
-void client_send_message(game_client *client, const char *message);
-void client_receive_message(game_client *client);
-void client_run(void);
+bool send_post_request(tcp_channel *channel, const char *receiver_id, const char *message);
+bool send_get_request(tcp_channel *channel);
+void receive_response(tcp_channel *channel);
+int client_start();
 
