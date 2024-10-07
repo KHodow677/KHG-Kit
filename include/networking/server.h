@@ -2,20 +2,19 @@
 
 #include "khg_tcp/tcp.h"
 
-typedef struct {
-    tcp_server *server;
-    const char *address;
-    const char *port;
-} game_server;
+#define BUFFER_SIZE 2048
+#define MAX_CLIENTS 10
 
 typedef struct {
-    tcp_channel *channel;
-    int client_id;
-} game_server_client;
+  char id[7];
+  tcp_channel *sock;
+} Client;
 
-void server_start(game_server *server, const char *address, const char *port, int max_clients);
-void server_run(game_server *server);
-void server_shutdown(game_server *server);
+extern Client clients[MAX_CLIENTS];
+extern int client_count;
+extern int client_id_counter;
 
-void handle_client(game_server_client *client);
+void get_client_id(char *client_id);
+void handle_client_data(Client *client, const char *data);
+int server_start(void);
 
