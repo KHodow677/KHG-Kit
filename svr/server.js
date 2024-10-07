@@ -1,63 +1,51 @@
-var net = require("net");
-var clients = [];
-var clientData = {};
+const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+const clients = new Map();
 let client_id_counter = 16777215;
 
-function get_client_id(socket) {
-  const client = clients.find(client => client.sock === socket);
-  return client ? client.id : undefined;
-}
-
-var server = net.createServer(function(socket) {
+wss.on('connection', (ws) => {
   const client_id = client_id_counter.toString(16).padStart(6, "0").toUpperCase();
   client_id_counter--;
-  const client = { id: client_id, sock: socket };
-  clients.push(client);
-  console.log("Client " + client_id + " connected");
-  socket.on("data", function(data) {
-    const request = data.toString();
-    if (request.startsWith("POST /send")) {
-      const body = request.split("\r\n\r\n")[1];
-      try {
-        const parsed_data = JSON.parse(body);
-        const parsed_receiver = parsed_data.message.toString().split(":")[0];
-        parsed_data.message = parsed_data.message.toString().split(":")[1];
-        clients.forEach(function(client) {
-          if (client.id == parsed_receiver) {
-            client.sock.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n${parsed_data.message}`);
+  clients.set(ws, { id: client_id });
+
+  console.log(`Client ${client_id} connected`);
+
+  ws.on('message', (message) => {
+    try {
+      const data = JSON.parse(message);
+      if (data.type === 'send') {
+        const { receiverId, message } = data.payload;
+        for (let [clientWs, client] of clients) {
+          if (client.id === receiverId) {
+            clientWs.send(JSON.stringify({ type: 'message', message }));
           }
-        });
-        clientData = parsed_data;
-        socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n${parsed_data.message}`);
-      } 
-      catch (e) {
-        console.error("Error parsing JSON:", e);
-        socket.write("HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\n\r\nInvalid JSON");
+        }
+      } else if (data.type === 'receive') {
+        ws.send(JSON.stringify({ type: 'message', message: 'No new messages' }));
       }
-    } 
-    else if (request.startsWith("GET /receive")) {
-      console.log("Client requested data.");
-      const response = clientData.message ? clientData.message : 'No message available';
-      socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n${response}`);
-    } 
-    else {
-      socket.write("HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nServer not found");
+    } catch (e) {
+      console.error('Error handling message:', e);
+      ws.send(JSON.stringify({ type: 'error', message: 'Invalid JSON format' }));
     }
   });
 
-  socket.on("end", function() {
-    console.log("Client " + get_client_id(socket) + " disconnected");
-    clients = clients.filter(client => client.sock !== socket);
+  ws.on('close', () => {
+    console.log(`Client ${clients.get(ws).id} disconnected`);
+    clients.delete(ws);
     client_id_counter++;
   });
 
-  socket.on("error", function(err) {
-    console.error("KHG Error: ", err);
-    clients = clients.filter(client => client.sock !== socket);
+  ws.on('error', (error) => {
+    console.error(`Error with client ${clients.get(ws).id}:`, error);
   });
 });
 
-server.listen(3000, function() {
-  console.log("HTTP server started on port 3000");
+server.listen(3000, () => {
+  console.log('Server is listening on port 3000');
 });
-

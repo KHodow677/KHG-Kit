@@ -1,26 +1,24 @@
 {
-  "name": "empty-template",
+  "name": "khgsvr",
   "version": "0.0.1",
-  "description": "Empty app template with Node.js server",
+  "description": "Node.js server",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/UnitedAgency/empty-template.git"
+    "url": "https://github.com/KHodow677/KHG-Kit.git"
   },
-  "author": "Jabran Rafique <jabran@united-agency.co.uk>",
+  "author": "Kyle Hodowany <kylehodowany@gmail.com>",
   "license": "MIT License",
-  "bugs": {
-    "url": "https://github.com/UnitedAgency/empty-template/issues"
-  },
-  "homepage": "https://github.com/UnitedAgency/empty-template",
   "private": "true",
   "dependencies": {
     "body-parser": "^1.20.2",
     "connect": "^3.7.0",
-    "serve-static": "^1.15.0"
+    "express": "^4.21.0",
+    "serve-static": "^1.15.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.8"
