@@ -10,6 +10,6 @@ int main(int argc, char *argv[]) {
       receiver_run("Room123");
     }
   }
-  return tcp_client_receive();
+  return 0;
 }
 
