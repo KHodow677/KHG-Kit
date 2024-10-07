@@ -28,14 +28,15 @@ void handle_client(tcp_channel *client_sock) {
             // Handle POST request
             // TODO: Add JSON parsing and message handling logic
             // Example: Responding with 200 OK
-            tcp_send(client_sock, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nMessage received", 68, 500);
-        } else if (strstr(buffer, "GET /receive") == buffer) {
+            tcp_send(client_sock, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nMessage received", 100, 500);
+        } 
+        else if (strstr(buffer, "GET /receive") == buffer) {
             // Handle GET request
             // TODO: Respond with the latest message
-            tcp_send(client_sock, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nNo message available", 69, 500);
+            tcp_send(client_sock, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nNo message available", 100, 500);
         } else {
             // Handle unknown request
-            tcp_send(client_sock, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nServer not found", 73, 500);
+            tcp_send(client_sock, "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nServer not found", 100, 500);
         }
     }
 
