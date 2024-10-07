@@ -22,6 +22,7 @@ void handle_client(tcp_channel *client_sock) {
     while ((bytes_received = tcp_receive(client_sock, buffer, sizeof(buffer) - 1, 500)) > 0) {
         buffer[bytes_received] = '\0'; // Null-terminate
         printf("Received: %s\n", buffer);
+        printf("Received:");
         
         // Process the incoming request
         if (strstr(buffer, "POST /send") == buffer) {
