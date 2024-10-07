@@ -13,9 +13,7 @@ wss.on('connection', (ws) => {
   const client_id = client_id_counter.toString(16).padStart(6, "0").toUpperCase();
   client_id_counter--;
   clients.set(ws, { id: client_id });
-
   console.log(`Client ${client_id} connected`);
-
   ws.on('message', (message) => {
     try {
       const data = JSON.parse(message);
@@ -34,13 +32,11 @@ wss.on('connection', (ws) => {
       ws.send(JSON.stringify({ type: 'error', message: 'Invalid JSON format' }));
     }
   });
-
   ws.on('close', () => {
     console.log(`Client ${clients.get(ws).id} disconnected`);
     clients.delete(ws);
     client_id_counter++;
   });
-
   ws.on('error', (error) => {
     console.error(`Error with client ${clients.get(ws).id}:`, error);
   });
@@ -49,3 +45,4 @@ wss.on('connection', (ws) => {
 server.listen(3000, () => {
   console.log('Server is listening on port 3000');
 });
+
