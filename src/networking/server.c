@@ -1,7 +1,6 @@
 #include "networking/server.h"
 #include "khg_tcp/tcp.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -47,7 +46,7 @@ void handle_client(tcp_channel *client_sock) {
 
 int server_start() {
     tcp_init();
-    tcp_server *server = tcp_open_server("0.0.0.0:3000", "tcp", MAX_CLIENTS);
+    tcp_server *server = tcp_open_server("localhost", "3000", MAX_CLIENTS);
 
     printf("HTTP server started on port 3000\n");
 
