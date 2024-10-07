@@ -5,7 +5,7 @@
 #include <assert.h>
 
 #define MAX_CLIENTS 10
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 2048 
 
 typedef struct {
   char *id;
