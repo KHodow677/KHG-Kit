@@ -15,8 +15,14 @@ void server_run() {
   PLAYER_DB = dbm_create_database("player_db");
   load_db("player_db");
   printf("CREATE TABLE\n");
-  dbm_interactive(&PLAYER_DB, "Create Table EmployeeDemographics (EmployeeID int, FirstName varchar(50), LastName varchar(50), Age int, Gender varchar(50))");
-  dbm_interactive(&PLAYER_DB, "Insert into EmployeeDemographics VALUES (1001, 'Jim', 'Halpert', 30, 'Male'), (1002, 'Pam', 'Beasley', 30, 'Female'), (1003, 'Dwight', 'Schrute', 29, 'Male'), (1004, 'Angela', 'Martin', 31, 'Female'), (1005, 'Toby', 'Flenderson', 32, 'Male'), (1006, 'Michael', 'Scott', 35, 'Male'), (1007, 'Meredith', 'Palmer', 32, 'Female'), (1008, 'Stanley', 'Hudson', 38, 'Male'), (1009, 'Kevin', 'Malone', 31, 'Male')");
+  dbm_interactive(&PLAYER_DB, "CREATE TABLE abc FIELDS (Field1=int, Field2=str)");
+  dbm_interactive(&PLAYER_DB, "INSERT INTO abc (Field1=19,Field2='Hello World')");
+  dbm_interactive(&PLAYER_DB, "INSERT INTO abc (Field1=20,Field2='Hello World')");
+  dbm_interactive(&PLAYER_DB, "INSERT INTO abc (Field1=21,Field2='Hello World')");
+  dbm_interactive(&PLAYER_DB, "SELECT * FROM abc WHERE Field1=19");
+  dbm_interactive(&PLAYER_DB, "UPDATE abc SET Field1=20 WHERE Field2='Hello World'");
+  dbm_interactive(&PLAYER_DB, "SELECT * FROM abc WHERE Field1=20");
+  dbm_interactive(&PLAYER_DB, "DELETE FROM abc where Field1=19");
   save_db("player_db");
 }
 

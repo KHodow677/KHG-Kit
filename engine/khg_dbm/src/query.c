@@ -105,7 +105,7 @@ size_t dbm_exc_create(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *
 size_t dbm_exc_update(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *updates, dbm_arg_node *condition) {
   table *in_table = dbm_get_table(db, arg_table);
   if (in_table == NULL) {
-    printf("Table doesn't exist");
+    printf("Table doesn't exist\n");
     return 0;
   }
   dbm_query_node *results = dbm_exc_select(db, arg_table, NULL, condition);
@@ -146,7 +146,7 @@ size_t dbm_exc_delete(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *
 void dbm_exc_insert(dbm_database **db, dbm_arg_node *arg_table, dbm_arg_node *values) {
   table *in_table = dbm_get_table(db, arg_table);
   if (in_table == NULL) {
-    printf("Table doesn't exist");
+    printf("Table doesn't exist\n");
   }
   if (in_table != NULL) {
     row *new_row = dbm_create_row(in_table->field_types);

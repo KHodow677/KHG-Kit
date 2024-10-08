@@ -27,7 +27,7 @@ void dbm_parse_select(dbm_database **db, dbm_token *root) {
       dbm_print_query_nodes(results);
     } 
     else {
-      printf("------");
+      printf("------\n");
     }
   }
 }
