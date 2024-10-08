@@ -23,7 +23,7 @@ off_t dbm_write_tables(dbm_database **db, FILE *fp);
 off_t dbm_read_tables(dbm_database **db, FILE *fp);
 void dbm_read_rows(dbm_database **db, FILE *fp);
 off_t dbm_write_rows(dbm_database **db, FILE *fp);
-void dbm_write_files(dbm_database **db);
-void dbm_read_files(dbm_database **db);
+void dbm_write_files(dbm_database **db, char *meta_file_path, char *db_file_path);
+void dbm_read_files(dbm_database **db, char *meta_file_path, char *db_file_path);
 void dbm_db_insert_table(dbm_database **db, table **table);
 

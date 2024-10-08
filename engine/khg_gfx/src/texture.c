@@ -6,8 +6,8 @@
 #else 
 #endif
 
-#include "khg_gfx/font.h"
 #include "khg_gfx/texture.h"
+#include "khg_gfx/font.h"
 #include "khg_utl/error_func.h"
 #include "glad/glad.h"
 #include "stb_image/stb_image.h"

@@ -6,7 +6,7 @@
 
 dbm_database *dbm_create_database(char *name) {
   dbm_database *new_db = (dbm_database *)malloc(sizeof(dbm_database));
-  mstrcpy(&new_db->name, &name);
+  new_db->name = name;
   new_db->root = NULL;
   new_db->end = NULL;
   return new_db;
@@ -106,25 +106,25 @@ off_t dbm_write_rows(dbm_database **db, FILE *fp) {
   return pos;
 }
 
-void dbm_write_files(dbm_database **db) {
+void dbm_write_files(dbm_database **db, char *meta_file_path, char *db_file_path) {
   char file_name[255];
-  snprintf(file_name, 255, "%s.db",(*db)->name);
+  snprintf(file_name, 255, "%s", db_file_path);
   FILE *binary_file = fopen(file_name, "wb");
   dbm_write_rows(db, binary_file);
   fclose(binary_file);
-  snprintf(file_name, 255, "%s.meta",(*db)->name);
+  snprintf(file_name, 255, "%s", meta_file_path);
   FILE *meta_file = fopen(file_name, "wb");
   dbm_write_tables(db, meta_file);
   fclose(meta_file);
 }
 
-void dbm_read_files(dbm_database **db) {
+void dbm_read_files(dbm_database **db, char *meta_file_path, char *db_file_path) {
   char file_name[255];
-  snprintf(file_name, 255, "%s.meta",(*db)->name);
+  snprintf(file_name, 255, "%s", meta_file_path);
   FILE *meta_file = fopen(file_name, "rb");
   dbm_read_tables(db, meta_file);
   fclose(meta_file);
-  snprintf(file_name, 255, "%s.db",(*db)->name);
+  snprintf(file_name, 255, "%s", db_file_path);
   FILE *binary_file = fopen(file_name, "rb");
   dbm_read_rows(db, binary_file);
   fclose(binary_file);
