@@ -14,7 +14,6 @@ dbm_database *PLAYER_DB = NULL;
 void server_run() {
   PLAYER_DB = dbm_create_database("player_db");
   load_db("player_db");
-  printf("CREATE TABLE\n");
   dbm_interactive(&PLAYER_DB, "CREATE TABLE abc FIELDS (Field1=int, Field2=str)");
   dbm_interactive(&PLAYER_DB, "INSERT INTO abc (Field1=19,Field2='Hello World')");
   dbm_interactive(&PLAYER_DB, "INSERT INTO abc (Field1=20,Field2='Hello World')");
