@@ -10,7 +10,6 @@ var server = net.createServer(function(socket) {
       try {
         const parsed_data = JSON.parse(body);
         const command = parsed_data.command;
-        
         if (command === "create_room") {
           const room_code = parsed_data.room_code;
           console.log(`Room ${room_code} created by client`);
