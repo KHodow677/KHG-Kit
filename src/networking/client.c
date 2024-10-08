@@ -11,9 +11,6 @@ void hoster_run(const char *room_code) {
   tcp_init();
   tcp_channel *channel = tcp_connect("165.22.176.143", "http");
   tcp_client_create_room(channel, room_code);
-  tcp_client_receive(channel);
-  sleep(1);
-  tcp_client_receive(channel);
   tcp_close_channel(channel);
   tcp_term();
 }
@@ -22,11 +19,6 @@ void joiner_run(const char *room_code) {
   tcp_init();
   tcp_channel *channel = tcp_connect("165.22.176.143", "http");
   tcp_client_join_room(channel, room_code);
-  tcp_client_receive(channel);
-  sleep(1);
-  const char *message = "Hello from the sender!";
-  tcp_client_send(channel, room_code, "send_message", message);
-  tcp_client_receive(channel);
   tcp_close_channel(channel);
   tcp_term();
 }
@@ -38,6 +30,7 @@ void tcp_client_create_room(tcp_channel *channel, const char *room_code) {
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
+  tcp_stream_receive(channel, print_buffer, NULL, 500);
 }
 
 void tcp_client_join_room(tcp_channel *channel, const char *room_code) {
@@ -47,6 +40,7 @@ void tcp_client_join_room(tcp_channel *channel, const char *room_code) {
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
+  tcp_stream_receive(channel, print_buffer, NULL, 500);
 }
 
 void tcp_client_send(tcp_channel *channel, const char *room_code, const char *command, const char *message) {
@@ -56,11 +50,12 @@ void tcp_client_send(tcp_channel *channel, const char *room_code, const char *co
   char formatted_request[1024];
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
+  tcp_stream_receive(channel, print_buffer, NULL, 500);
 }
 
 void tcp_client_receive(tcp_channel *channel) {
   printf("Listening for messages...\n");
   while (1) {
-    tcp_stream_receive_no_timeout(channel, message_buffer, NULL);
+    tcp_stream_receive_no_timeout(channel, print_buffer, NULL);
   }
 }

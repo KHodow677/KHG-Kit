@@ -14,31 +14,18 @@ var server = net.createServer(function(socket) {
           const room_code = parsed_data.room_code;
           console.log(`Room ${room_code} created by client`);
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nRoom ${room_code} created.`);
-          rooms[room_code] = {client1: socket, client2: null};
+          rooms[room_code] = {message1: "start", message2: ""};
         } 
         else if (command === "join_room") {
           const room_code = parsed_data.room_code;
           console.log(`Client joined room ${room_code}`);
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nJoined room ${room_code}.`);
-          rooms[room_code].client2 = socket;
-        } 
-        else if (command === "send_message") {
-          const room_code = parsed_data.room_code;
-          const message = parsed_data.message;
-          console.log(`Client sent_message "${message}"`);
-          if (rooms[room_code].client1 === socket || rooms[room_code].client2 === socket) {
-            rooms[room_code].client1.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nSend message "${message}"`);
-            rooms[room_code].client2.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nSend message "${message}"`);
-          }
-          else {
-            rooms[room_code].client1.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nWrong Room`);
-            rooms[room_code].client2.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nWrong Room`);
-          }
-        } 
+          rooms[room_code].message2 = "start";
+        }
         else {
           socket.write("HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\n\r\nInvalid Command");
         }
-      } 
+      }
       catch (e) {
         console.error("Error parsing JSON:", e);
         socket.write("HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\n\r\nInvalid JSON");
@@ -46,7 +33,7 @@ var server = net.createServer(function(socket) {
     } 
     else if (request.startsWith("GET /receive")) {
       console.log("Client requested data.");
-      const response = clientData.message ? clientData.message : 'No message available';
+      const response = "No message available";
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n${response}`);
     } 
     else {
