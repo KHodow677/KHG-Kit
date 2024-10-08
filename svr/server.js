@@ -13,13 +13,13 @@ var server = net.createServer(function(socket) {
         
         if (command === "create_room") {
           const room_code = parsed_data.room_code;
-          console.log(`Room ${room_code} created by client ${client_id}`);
+          console.log(`Room ${room_code} created by client`);
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nRoom ${room_code} created.`);
           rooms[room_code] = {client1: socket, client2: null};
         } 
         else if (command === "join_room") {
           const room_code = parsed_data.room_code;
-          console.log(`Client ${client_id} joined room ${room_code}`);
+          console.log(`Client joined room ${room_code}`);
           socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nJoined room ${room_code}.`);
           rooms[room_code].client2 = socket;
         } 
@@ -51,19 +51,16 @@ var server = net.createServer(function(socket) {
       socket.write(`HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n${response}`);
     } 
     else {
-      socket.write("HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nServer not found");
+      socket.write("HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\n\r\nKHG Error: Server not found");
     }
   });
 
   socket.on("end", function() {
-    console.log("Client " + get_client_id(socket) + " disconnected");
-    clients = clients.filter(client => client.sock !== socket);
-    client_id_counter++;
+    console.log("Client disconnected");
   });
 
   socket.on("error", function(err) {
     console.error("KHG Error: ", err);
-    clients = clients.filter(client => client.sock !== socket);
   });
 });
 
