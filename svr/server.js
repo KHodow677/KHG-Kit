@@ -2,7 +2,7 @@ var net = require("net");
 var rooms = {};
 
 var server = net.createServer(function(socket) {
-  console.log("Client " + client_id + " connected");
+  console.log("Client connected");
   socket.on("data", function(data) {
     const request = data.toString();
     if (request.startsWith("POST /send")) {
