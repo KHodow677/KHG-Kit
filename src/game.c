@@ -46,6 +46,7 @@ int game_run() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(1280, 720, window);
+  log_sys_info();
   PRIMARY_SHADER = state.render.shader;
   setup_lights_texture();
   setup_lights_shader();
