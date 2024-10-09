@@ -1,7 +1,7 @@
 #include "lighting/light.h"
+#include "lighting/lighting_shader.h"
 #include "khg_gfx/internal.h"
 #include "glad/glad.h"
-#include "lighting/lighting_shader.h"
 
 gfx_texture LIGHTING_OVERLAY = { 0 };
 gfx_shader LIGHTING_SHADER = { 0 };
@@ -20,9 +20,9 @@ void clear_lights() {
   LIGHT_COUNT = 0;
 }
 
-void add_light(vec2s pos_perc, float intensity, float radius) {
+void add_light(vec2s pos_perc, float radius) {
   int i = LIGHT_COUNT++;
-  LIGHTS[i] = (light){ pos_perc, intensity, radius};
+  LIGHTS[i] = (light){ pos_perc, radius};
 }
 
 void render_lights() {
@@ -33,11 +33,6 @@ void render_lights() {
     light_position_percs[i * 2 + 1] = LIGHTS[i].pos_perc.y;
   }
   glUniform2fv(glGetUniformLocation(state.render.shader.id, "u_light_pos_percs"), LIGHT_COUNT, light_position_percs);
-  float light_intensities[LIGHT_COUNT];
-  for (int i = 0; i < LIGHT_COUNT; i++) {
-    light_intensities[i] = LIGHTS[i].intensity;
-  }
-  glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_intensities"), LIGHT_COUNT, light_intensities);
   float light_radii[LIGHT_COUNT];
   for (int i = 0; i < LIGHT_COUNT; i++) {
     light_radii[i] = LIGHTS[i].radius;

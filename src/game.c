@@ -50,7 +50,7 @@ int game_run() {
   PRIMARY_SHADER = state.render.shader;
   setup_lights_texture();
   setup_lights_shader();
-  add_light((vec2s){ 0.1f, 0.5f }, 1.0f, 400.0f);
+  add_light((vec2s){ 0.1f, 0.5f }, 400.0f);
   /*clear_lights();*/
   tex = gfx_load_texture_asset("creature_spawner", "png");
   font = gfx_load_font_asset("rubik", "ttf", 24);

@@ -6,7 +6,6 @@
 
 typedef struct {
   vec2s pos_perc;
-  float intensity;
   float radius;
 } light;
 
@@ -19,6 +18,6 @@ void setup_lights_texture(void);
 void setup_lights_shader(void);
 
 void clear_lights();
-void add_light(vec2s pos_perc, float intensity, float radius);
+void add_light(vec2s pos_perc, float radius);
 
 void render_lights(void);
