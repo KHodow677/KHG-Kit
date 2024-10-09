@@ -1,12 +1,8 @@
 #pragma once
 
-#include "khg_dbm/database.h"
-
-extern dbm_database *PLAYER_DB;
+#include "khg_dbm/dbm.h"
 
 void server_run(void);
 
-int file_exists (char *filename);
-void load_db(const char *asset_name);
-void save_db(const char *asset_name);
+MiniDbState create_or_open_db(const char *asset_name, MiniDb *db, size_t size);
 

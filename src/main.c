@@ -1,5 +1,6 @@
 #include "networking/client.h"
 #include "networking/server.h"
+#include "networking/test.h"
 #include <string.h>
 
 int main(int argc, char *argv[]) {
@@ -13,6 +14,7 @@ int main(int argc, char *argv[]) {
       /*joiner_run("Room123");*/
     }
   }
+  return main_dbm();
   server_run();
   return 0;
 }
