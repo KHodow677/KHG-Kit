@@ -11,19 +11,18 @@
 #include <linux/limits.h>
 #endif
 
-typedef struct Human
-{
-    char name[50];
-    int age;
-} Human;
+typedef struct player {
+  char name[50];
+  int age;
+} player;
 
 void server_run() {
   MiniDb *db;
-  create_or_open_db("server_player", &db, sizeof(Human)); 
+  create_or_open_db("server_player", &db, sizeof(player)); 
   int64_t key = 1;
-  Human result = {"John Doe", 20 };
+  player result = {"John Doe", 20 };
   minidb_insert(db, key, &result);
-  Human select_result;
+  player select_result;
   minidb_select(db, 1, &select_result);
   printf("HUMAN:\nname: %s\nage: %i \n", select_result.name, select_result.age);
   minidb_close(&db);

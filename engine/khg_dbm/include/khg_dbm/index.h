@@ -1,16 +1,7 @@
 #pragma once
 
 #include "khg_dbm/dbm.h"
-#include "khg_dbm/btree.h"
-#include <stdio.h>
 #include <stdint.h>
-
-typedef struct MiniDbIndex
-{
-    BTree search;
-    BTree freelist;
-    FILE *fd;
-} MiniDbIndex;
 
 void minidb_index_init(MiniDbIndex *index);
 

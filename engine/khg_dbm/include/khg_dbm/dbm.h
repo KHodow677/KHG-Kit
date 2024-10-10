@@ -1,13 +1,34 @@
 #pragma once
 
-#include <stdint.h>
+#include "khg_dbm/btree.h"
 #include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #ifndef is_null
 #define is_null(ptr) ((ptr) == NULL)
 #endif
 
-typedef struct MiniDb MiniDb;
+typedef struct MiniDbHeader
+{
+    size_t data_size;
+    int64_t row_count;
+    int64_t free_count;
+} MiniDbHeader;
+
+typedef struct MiniDbIndex
+{
+    BTree search;
+    BTree freelist;
+    FILE *fd;
+} MiniDbIndex;
+
+typedef struct MiniDb
+{
+    MiniDbHeader header;
+    MiniDbIndex index;
+    FILE *fd;
+} MiniDb;
 
 typedef struct MiniDbInfo
 {

@@ -1,3 +1,4 @@
+#include "khg_dbm/btree.h"
 #include "khg_dbm/index.h"
 #include <stdbool.h>
 #include <stdlib.h>

@@ -10,20 +10,6 @@
 #define RETURN_CASE_AS_STRING(caseval) case caseval: return #caseval
 #define SWITCH_UNREACHABLE_DEFAULT_CASE() default: assert(0)
 
-typedef struct MiniDbHeader
-{
-    size_t data_size;
-    int64_t row_count;
-    int64_t free_count;
-} MiniDbHeader;
-
-struct MiniDb
-{
-    MiniDbHeader header;
-    MiniDbIndex index;
-    FILE *fd;
-};
-
 const char *minidb_error_get_str(MiniDbState value)
 {
     switch (value) {
