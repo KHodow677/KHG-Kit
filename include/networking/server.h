@@ -4,5 +4,4 @@
 
 void server_run(void);
 
-MiniDbState create_or_open_db(const char *asset_name, MiniDb **db, size_t size);
-
+dbm_db_state create_or_open_db(const char *asset_name, dbm_db **db, size_t size);

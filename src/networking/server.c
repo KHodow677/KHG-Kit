@@ -17,7 +17,7 @@ typedef struct player {
 } player;
 
 void server_run() {
-  MiniDb *db;
+  dbm_db *db;
   create_or_open_db("server_player", &db, sizeof(player)); 
   int64_t key = 1;
   player result = {"John Doe", 20 };
@@ -28,7 +28,7 @@ void server_run() {
   minidb_close(&db);
 }
 
-MiniDbState create_or_open_db(const char *asset_name, MiniDb **db, size_t size) {
+dbm_db_state create_or_open_db(const char *asset_name, dbm_db **db, size_t size) {
 #if defined(_WIN32) || defined(_WIN64)
   size_t path_len = strlen(".\\res\\assets\\db\\") + strlen(asset_name) + strlen(".db") + 1;
   char path[path_len];

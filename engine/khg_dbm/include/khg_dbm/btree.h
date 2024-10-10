@@ -3,22 +3,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct BTreeNode {
+typedef struct btree_node {
   int64_t key;
   int64_t value;
-  struct BTreeNode *left;
-  struct BTreeNode *right;
-} BTreeNode;
+  struct btree_node *left;
+  struct btree_node *right;
+} dbm_btree_node;
 
-typedef struct BTree {
+typedef struct dbm_btree {
   int64_t size;
-  BTreeNode *root;
-} BTree;
+  dbm_btree_node *root;
+} dbm_btree;
 
-void btree_init(BTree *tree);
-void btree_destroy(BTree *tree);
+void btree_init(dbm_btree *tree);
+void btree_destroy(dbm_btree *tree);
 
-bool btree_contains(const BTree *tree, int64_t key);
-BTreeNode *btree_search(const BTree *tree, int64_t key);
-BTreeNode *btree_insert(BTree *tree, int64_t key, int64_t value);
-bool btree_remove(BTree *tree, int64_t key, int64_t *old_value);
+bool btree_contains(const dbm_btree *tree, int64_t key);
+dbm_btree_node *btree_search(const dbm_btree *tree, int64_t key);
+dbm_btree_node *btree_insert(dbm_btree *tree, int64_t key, int64_t value);
+bool btree_remove(dbm_btree *tree, int64_t key, int64_t *old_value);

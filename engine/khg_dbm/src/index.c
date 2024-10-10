@@ -3,22 +3,22 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-void minidb_index_init(MiniDbIndex *index) {
+void minidb_index_init(dbm_index *index) {
   btree_init(&index->search);
   btree_init(&index->freelist);
   index->fd = NULL;
 }
 
-MiniDbState minidb_index_open(MiniDbIndex *index, const char *path, int64_t row_count, int64_t freelist_count) {
+dbm_db_state minidb_index_open(dbm_index *index, const char *path, int64_t row_count, int64_t freelist_count) {
   bool is_new_file = row_count == INT64_C(0) && freelist_count == INT64_C(0);
   FILE *fd = fopen(path, is_new_file ? "w+" : "r+");
   if (!fd) {
-    return MINIDB_ERROR_CANNOT_OPEN_FILE;
+    return DBM_ERROR_CANNOT_OPEN_FILE;
   }
   index->fd = fd;
   if (!is_new_file) {
     int64_t i;
-    BTreeNode node;
+    dbm_btree_node node;
     fseek(fd, 0, SEEK_SET);
     for (i = 0; i < row_count; i++) {
       fread(&node.key, sizeof(node.key), 1, fd);
@@ -31,10 +31,10 @@ MiniDbState minidb_index_open(MiniDbIndex *index, const char *path, int64_t row_
       btree_insert(&index->freelist, node.key, node.value);
     }
   }
-  return MINIDB_OK;
+  return DBM_OK;
 }
 
-void minidb_index_close(MiniDbIndex *index) {
+void minidb_index_close(dbm_index *index) {
   minidb_index_write(index);
   fflush(index->fd);
   fclose(index->fd);
@@ -42,7 +42,7 @@ void minidb_index_close(MiniDbIndex *index) {
   btree_destroy(&index->freelist);
 }
 
-static void minidb_index_write_node_recursive(const BTreeNode *node, FILE *fd) {
+static void minidb_index_write_node_recursive(const dbm_btree_node *node, FILE *fd) {
   if (node) {
     minidb_index_write_node_recursive(node->left, fd);
     fwrite(&node->key, sizeof(node->key), 1, fd);
@@ -51,7 +51,7 @@ static void minidb_index_write_node_recursive(const BTreeNode *node, FILE *fd) {
   }
 }
 
-void minidb_index_write(const MiniDbIndex *index) {
+void minidb_index_write(const dbm_index *index) {
   fseek(index->fd, 0, SEEK_SET);
   minidb_index_write_node_recursive(index->search.root, index->fd);
   minidb_index_write_node_recursive(index->freelist.root, index->fd);

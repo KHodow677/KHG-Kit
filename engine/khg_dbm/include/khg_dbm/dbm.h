@@ -5,51 +5,51 @@
 #include <stdint.h>
 #include <stdio.h>
 
-typedef struct MiniDbHeader {
+typedef struct dbm_headers {
   size_t data_size;
   int64_t row_count;
   int64_t free_count;
-} MiniDbHeader;
+} dbm_headers;
 
-typedef struct MiniDbIndex {
-  BTree search;
-  BTree freelist;
+typedef struct dbm_index {
+  dbm_btree search;
+  dbm_btree freelist;
   FILE *fd;
-} MiniDbIndex;
+} dbm_index;
 
-typedef struct MiniDb {
-  MiniDbHeader header;
-  MiniDbIndex index;
+typedef struct dbm_db {
+  dbm_headers header;
+  dbm_index index;
   FILE *fd;
-} MiniDb;
+} dbm_db;
 
-typedef struct MiniDbInfo {
+typedef struct dbm_db_info {
   size_t data_size;
   int64_t row_count;
   int64_t free_count;
-} MiniDbInfo;
+} dbm_db_info;
 
-typedef enum MiniDbState {
-  MINIDB_OK,
-  MINIDB_ERROR,
-  MINIDB_ERROR_MALLOC_FAIL,
-  MINIDB_ERROR_CANNOT_OPEN_FILE,
-  MINIDB_ERROR_NULL_POINTER,
-  MINIDB_ERROR_ROW_NOT_FOUND,
-  MINIDB_ERROR_DUPLICATED_KEY_VIOLATION,
-} MiniDbState;
+typedef enum dbm_db_state {
+  DBM_OK,
+  DBM_ERROR,
+  DBM_ERROR_MALLOC_FAIL,
+  DBM_ERROR_CANNOT_OPEN_FILE,
+  DBM_ERROR_NULL_POINTER,
+  DBM_ERROR_ROW_NOT_FOUND,
+  DBM_ERROR_DUPLICATED_KEY_VIOLATION,
+} dbm_db_state;
 
-const char *minidb_error_get_str(MiniDbState value);
+const char *minidb_error_get_str(dbm_db_state value);
 
-MiniDbState minidb_create(MiniDb **db, const char *path, size_t data_size);
-MiniDbState minidb_open(MiniDb **db, const char *path);
-void minidb_close(MiniDb **db);
+dbm_db_state minidb_create(dbm_db **db, const char *path, size_t data_size);
+dbm_db_state minidb_open(dbm_db **db, const char *path);
+void minidb_close(dbm_db **db);
 
-void minidb_get_info(const MiniDb *db, MiniDbInfo *result);
+void minidb_get_info(const dbm_db *db, dbm_db_info *result);
 
-MiniDbState minidb_select(const MiniDb *db, int64_t key, void *result);
-MiniDbState minidb_select_all(const MiniDb *db, void (*callback)(int64_t, void *));
+dbm_db_state minidb_select(const dbm_db *db, int64_t key, void *result);
+dbm_db_state minidb_select_all(const dbm_db *db, void (*callback)(int64_t, void *));
 
-MiniDbState minidb_insert(MiniDb *db, int64_t key, void *data);
-MiniDbState minidb_update(MiniDb *db, int64_t key, void *data);
-MiniDbState minidb_delete(MiniDb *db, int64_t key);
+dbm_db_state minidb_insert(dbm_db *db, int64_t key, void *data);
+dbm_db_state minidb_update(dbm_db *db, int64_t key, void *data);
+dbm_db_state minidb_delete(dbm_db *db, int64_t key);

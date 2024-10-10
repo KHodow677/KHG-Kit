@@ -2,8 +2,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
-static BTreeNode *node_create(int64_t key, int64_t value) {
-  BTreeNode *node = malloc(sizeof(BTreeNode));
+static dbm_btree_node *node_create(int64_t key, int64_t value) {
+  dbm_btree_node *node = malloc(sizeof(dbm_btree_node));
   if (node) {
     node->key = key;
     node->value = value;
@@ -13,12 +13,12 @@ static BTreeNode *node_create(int64_t key, int64_t value) {
   return node;
 }
 
-void btree_init(BTree *tree) {
+void btree_init(dbm_btree *tree) {
   tree->size = 0;
   tree->root = NULL;
 }
 
-static void btree_node_destroy_recursive(BTreeNode *node) {
+static void btree_node_destroy_recursive(dbm_btree_node *node) {
   if (node) {
     btree_node_destroy_recursive(node->left);
     btree_node_destroy_recursive(node->right);
@@ -26,7 +26,7 @@ static void btree_node_destroy_recursive(BTreeNode *node) {
   }
 }
 
-void btree_destroy(BTree *tree) {
+void btree_destroy(dbm_btree *tree) {
   if (tree->size > 0) {
     btree_node_destroy_recursive(tree->root);
     tree->size = 0;
@@ -34,8 +34,8 @@ void btree_destroy(BTree *tree) {
   }
 }
 
-bool btree_contains(const BTree *tree, int64_t key) {
-  BTreeNode *current = tree->root;
+bool btree_contains(const dbm_btree *tree, int64_t key) {
+  dbm_btree_node *current = tree->root;
   while (current) {
     if (current->key == key) {
       return true;
@@ -46,9 +46,9 @@ bool btree_contains(const BTree *tree, int64_t key) {
   return false;
 }
 
-static BTreeNode *btree_node_search_recursive(BTreeNode *node, int64_t key, BTreeNode **parent) {
-  BTreeNode *last = NULL;
-  BTreeNode *current = node;
+static dbm_btree_node *btree_node_search_recursive(dbm_btree_node *node, int64_t key, dbm_btree_node **parent) {
+  dbm_btree_node *last = NULL;
+  dbm_btree_node *current = node;
   while (current != NULL && current->key != key) {
     last = current;
     if (key < current->key) {
@@ -64,15 +64,15 @@ static BTreeNode *btree_node_search_recursive(BTreeNode *node, int64_t key, BTre
   return current;
 }
 
-BTreeNode *btree_search(const BTree *tree, int64_t key) {
+dbm_btree_node *btree_search(const dbm_btree *tree, int64_t key) {
   if (tree->size > 0) {
     return btree_node_search_recursive(tree->root, key, NULL);
   }
   return NULL;
 }
 
-static BTreeNode *btree_node_insert_recursive(BTreeNode *parent, int64_t key, int64_t value) {
-  BTreeNode **child = key < parent->key ? &parent->left : &parent->right;
+static dbm_btree_node *btree_node_insert_recursive(dbm_btree_node *parent, int64_t key, int64_t value) {
+  dbm_btree_node **child = key < parent->key ? &parent->left : &parent->right;
   if (!*child) {
     *child = node_create(key, value);
     return *child;
@@ -81,8 +81,8 @@ static BTreeNode *btree_node_insert_recursive(BTreeNode *parent, int64_t key, in
   }
 }
 
-BTreeNode *btree_insert(BTree *tree, int64_t key, int64_t value) {
-  BTreeNode *new_node = NULL;
+dbm_btree_node *btree_insert(dbm_btree *tree, int64_t key, int64_t value) {
+  dbm_btree_node *new_node = NULL;
   if (tree->size == 0) {
     assert(tree->root == NULL);
     new_node = node_create(key, value);
@@ -97,16 +97,16 @@ BTreeNode *btree_insert(BTree *tree, int64_t key, int64_t value) {
   return new_node;
 }
 
-static BTreeNode *btree_node_search_successor(BTreeNode *node) {
+static dbm_btree_node *btree_node_search_successor(dbm_btree_node *node) {
   while (node->left) {
     node = node->left;
   }
   return node;
 }
 
-static bool btree_node_remove_recursive(BTreeNode **root, int64_t key, int64_t *value) {
-  BTreeNode *parent = NULL;
-  BTreeNode *current = btree_node_search_recursive(*root, key, &parent);
+static bool btree_node_remove_recursive(dbm_btree_node **root, int64_t key, int64_t *value) {
+  dbm_btree_node *parent = NULL;
+  dbm_btree_node *current = btree_node_search_recursive(*root, key, &parent);
   if (!current) {
     return false;
   }
@@ -128,7 +128,7 @@ static bool btree_node_remove_recursive(BTreeNode **root, int64_t key, int64_t *
     free(current);
   } 
   else if (((current)->left) && ((current)->right)) {
-    BTreeNode *successor = btree_node_search_successor(current->right);
+    dbm_btree_node *successor = btree_node_search_successor(current->right);
     int64_t subkey = successor->key;
     int64_t old_val = successor->value;
     btree_node_remove_recursive(root, subkey, NULL);
@@ -136,7 +136,7 @@ static bool btree_node_remove_recursive(BTreeNode **root, int64_t key, int64_t *
     current->value = old_val;
   } 
   else {
-    BTreeNode *child = current->left ? current->left : current->right;
+    dbm_btree_node *child = current->left ? current->left : current->right;
     if (current != *root) {
       if (current == parent->left) {
         parent->left = child;
@@ -153,7 +153,7 @@ static bool btree_node_remove_recursive(BTreeNode **root, int64_t key, int64_t *
   return true;
 }
 
-bool btree_remove(BTree *tree, int64_t key, int64_t *address) {
+bool btree_remove(dbm_btree *tree, int64_t key, int64_t *address) {
   if (tree->size != 0) {
     if (btree_node_remove_recursive(&tree->root, key, address)) {
       tree->size--;

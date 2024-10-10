@@ -74,8 +74,8 @@ static void print_help_text()
 
 int main_dbm(void)
 {
-    MiniDb *db;
-    MiniDbState error;
+    dbm_db *db;
+    dbm_db_state error;
 
     char command[COMMAND_MAX_STRLEN];
     char filepath[COMMAND_MAX_STRLEN];
@@ -96,7 +96,7 @@ int main_dbm(void)
             fflush(stdout);
 
             error = minidb_create(&db, filepath, sizeof(Alumno));
-            if (error != MINIDB_OK) {
+            if (error != DBM_OK) {
                 printf("Fatal error: %s\n", minidb_error_get_str(error));
                 exit(1);
             }
@@ -107,7 +107,7 @@ int main_dbm(void)
             prompt_string("Path: ", filepath);
             error = minidb_open(&db, filepath);
 
-            if (error != MINIDB_OK) {
+            if (error != DBM_OK) {
                 printf("Fatal error: %s\n", minidb_error_get_str(error));
                 exit(1);
             }
@@ -148,7 +148,7 @@ int main_dbm(void)
         } else if (strcmp(command, "help") == 0) {
             print_help_text();
         } else if (strcmp(command, "dbinfo") == 0) {
-            MiniDbInfo info;
+            dbm_db_info info;
             minidb_get_info(db, &info);
 
             puts("== DATABASE INFO ==");
@@ -164,7 +164,7 @@ int main_dbm(void)
             puts("");
 
             error = minidb_select(db, ncontrol, &alumno);
-            if (error != MINIDB_OK) {
+            if (error != DBM_OK) {
                 printf("Error: %s\n\n", minidb_error_get_str(error));
                 continue;
             }
@@ -180,7 +180,7 @@ int main_dbm(void)
             prompt_float("Promedio   : ", alumno.promedio);
 
             error = minidb_insert(db, alumno.ncontrol, &alumno);
-            if (error != MINIDB_OK) {
+            if (error != DBM_OK) {
                 printf("Error: %s\n\n", minidb_error_get_str(error));
                 continue;
             }
@@ -192,7 +192,7 @@ int main_dbm(void)
             prompt_float("Promedio   : ", alumno.promedio);
 
             error = minidb_update(db, alumno.ncontrol, &alumno);
-            if (error != MINIDB_OK) {
+            if (error != DBM_OK) {
                 printf("Error: %s\n\n", minidb_error_get_str(error));
                 continue;
             }
@@ -203,7 +203,7 @@ int main_dbm(void)
             prompt_int("N. control: ", ncontrol);
 
             error = minidb_delete(db, ncontrol);
-            if (error != MINIDB_OK) {
+            if (error != DBM_OK) {
                 printf("Error: %s\n\n", minidb_error_get_str(error));
                 continue;
             }
