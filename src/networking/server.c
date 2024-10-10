@@ -19,7 +19,7 @@ typedef struct Human
 
 void server_run() {
   MiniDb *db;
-  create_or_open_db("player_db", &db, sizeof(Human)); 
+  create_or_open_db("server_player", &db, sizeof(Human)); 
   int64_t key = 1;
   Human result = {"John Doe", 20 };
   minidb_insert(db, key, &result);
