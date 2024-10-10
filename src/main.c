@@ -15,8 +15,8 @@ int main(int argc, char *argv[]) {
       /*joiner_run("Room123");*/
     }
   }
-  return game_run();
-  return main_dbm();
+  /*return game_run();*/
+  /*return main_dbm();*/
   server_run();
   return 0;
 }
