@@ -21,9 +21,7 @@ void server_run() {
   MiniDb *db;
   create_or_open_db("player_db", &db, sizeof(Human)); 
   int64_t key = 1;
-  Human result;
-  strncpy(result.name, "John Doe", sizeof(result.name));
-  result.age = 20;
+  Human result = {"John Doe", 20 };
   minidb_insert(db, key, &result);
   Human select_result;
   minidb_select(db, 1, &select_result);
