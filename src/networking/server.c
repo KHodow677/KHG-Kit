@@ -21,11 +21,11 @@ void server_run() {
   create_or_open_db("server_player", &db, sizeof(player)); 
   int64_t key = 1;
   player result = {"John Doe", 20 };
-  minidb_insert(db, key, &result);
+  dbm_insert(db, key, &result);
   player select_result;
-  minidb_select(db, 1, &select_result);
+  dbm_select(db, 1, &select_result);
   printf("HUMAN:\nname: %s\nage: %i \n", select_result.name, select_result.age);
-  minidb_close(&db);
+  dbm_close(&db);
 }
 
 dbm_db_state create_or_open_db(const char *asset_name, dbm_db **db, size_t size) {
@@ -39,10 +39,10 @@ dbm_db_state create_or_open_db(const char *asset_name, dbm_db **db, size_t size)
   snprintf(path, sizeof(path), "./res/assets/db/%s.db", asset_name);
 #endif
   if (access(path, F_OK) == 0) {
-    return minidb_open(db, path);
+    return dbm_open(db, path);
   } 
   else {
-    return minidb_create(db, path, size);
+    return dbm_create(db, path, size);
   }
 }
 

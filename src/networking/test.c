@@ -95,9 +95,9 @@ int main_dbm(void)
             printf("Creando base de datos... ");
             fflush(stdout);
 
-            error = minidb_create(&db, filepath, sizeof(Alumno));
+            error = dbm_create(&db, filepath, sizeof(Alumno));
             if (error != DBM_OK) {
-                printf("Fatal error: %s\n", minidb_error_get_str(error));
+                printf("Fatal error: %s\n", dbm_error_get_str(error));
                 exit(1);
             }
 
@@ -105,10 +105,10 @@ int main_dbm(void)
             fflush(stdout);
         } else if (strcmp(command, "open") == 0 || strcmp(command, "abrir") == 0) {
             prompt_string("Path: ", filepath);
-            error = minidb_open(&db, filepath);
+            error = dbm_open(&db, filepath);
 
             if (error != DBM_OK) {
-                printf("Fatal error: %s\n", minidb_error_get_str(error));
+                printf("Fatal error: %s\n", dbm_error_get_str(error));
                 exit(1);
             }
 
@@ -149,7 +149,7 @@ int main_dbm(void)
             print_help_text();
         } else if (strcmp(command, "dbinfo") == 0) {
             dbm_db_info info;
-            minidb_get_info(db, &info);
+            dbm_get_info(db, &info);
 
             puts("== DATABASE INFO ==");
             printf("Physical name  : %s\n", db_name);
@@ -163,9 +163,9 @@ int main_dbm(void)
             prompt_int("N. control: ", ncontrol);
             puts("");
 
-            error = minidb_select(db, ncontrol, &alumno);
+            error = dbm_select(db, ncontrol, &alumno);
             if (error != DBM_OK) {
-                printf("Error: %s\n\n", minidb_error_get_str(error));
+                printf("Error: %s\n\n", dbm_error_get_str(error));
                 continue;
             }
 
@@ -173,15 +173,15 @@ int main_dbm(void)
             printf("\n");
         } else if (strcmp(command, "select *") == 0) {
             print_pretty_table(NULL, true);
-            minidb_select_all(db, select_print_callback);
+            dbm_select_all(db, select_print_callback);
         } else if (strcmp(command, "insert") == 0) {
             prompt_string("Nombre[51] : ", alumno.nombre);
             prompt_int("N. control : ", alumno.ncontrol);
             prompt_float("Promedio   : ", alumno.promedio);
 
-            error = minidb_insert(db, alumno.ncontrol, &alumno);
+            error = dbm_insert(db, alumno.ncontrol, &alumno);
             if (error != DBM_OK) {
-                printf("Error: %s\n\n", minidb_error_get_str(error));
+                printf("Error: %s\n\n", dbm_error_get_str(error));
                 continue;
             }
 
@@ -191,9 +191,9 @@ int main_dbm(void)
             prompt_int("N. control : ", alumno.ncontrol);
             prompt_float("Promedio   : ", alumno.promedio);
 
-            error = minidb_update(db, alumno.ncontrol, &alumno);
+            error = dbm_update(db, alumno.ncontrol, &alumno);
             if (error != DBM_OK) {
-                printf("Error: %s\n\n", minidb_error_get_str(error));
+                printf("Error: %s\n\n", dbm_error_get_str(error));
                 continue;
             }
 
@@ -202,9 +202,9 @@ int main_dbm(void)
             int ncontrol;
             prompt_int("N. control: ", ncontrol);
 
-            error = minidb_delete(db, ncontrol);
+            error = dbm_delete(db, ncontrol);
             if (error != DBM_OK) {
-                printf("Error: %s\n\n", minidb_error_get_str(error));
+                printf("Error: %s\n\n", dbm_error_get_str(error));
                 continue;
             }
 
@@ -216,7 +216,7 @@ int main_dbm(void)
         }
     }
 
-    minidb_close(&db);
+    dbm_close(&db);
     printf("Programa finalizado\n");
     return 0;
 }
