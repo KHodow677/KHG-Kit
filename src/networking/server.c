@@ -24,7 +24,7 @@ void server_run() {
   while (1) {
     tcp_channel *channel = tcp_accept(server, 0);
     if (channel && tcp_stream_receive_no_timeout(channel, print_buffer, NULL)) {
-      char *buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nCool";
+      char *buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
       tcp_send(channel, buffer, strlen(buffer), 500);
       char formatted_response[1024];
       tcp_receive(channel, formatted_response, 1024, 500);
