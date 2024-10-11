@@ -88,24 +88,6 @@ bool tcp_send(tcp_channel *channel, const char *buffer, int length, int timeout_
 	return true;
 }
 
-bool tcp_send_no_timeout(tcp_channel *channel, const char *buffer, int length) {
-	assert(channel);
-	assert(buffer);
-	assert(length > 0);
-	if (!tcp_socket_poll_write_no_timeout(&channel->socket)) {
-		return false;
-  }
-	int bytes_sent = 0;
-	while (bytes_sent < length) {
-		int ret = tcp_socket_write(&channel->socket, buffer + bytes_sent, length - bytes_sent);
-		if (ret == 0) {
-			return false;
-    }
-		bytes_sent += ret;
-	}
-	return true;
-}
-
 int tcp_receive(tcp_channel *channel, char *buffer, int length, int timeout_ms) {
 	assert(channel);
 	assert(buffer);

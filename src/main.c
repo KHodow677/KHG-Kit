@@ -13,9 +13,11 @@ int main(int argc, char *argv[]) {
       joiner_run();
     }
   }
+  else {
   /*return game_run();*/
   /*return main_dbm();*/
-  server_run();
+    server_run();
+  }
   return 0;
 }
 
