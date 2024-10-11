@@ -23,13 +23,18 @@ void server_run() {
   tcp_server *server = tcp_open_server("localhost", "3000", 10);
   while (1) {
     tcp_channel *channel = tcp_accept(server, 0);
-    if (channel && tcp_stream_receive_no_timeout(channel, print_buffer, NULL)) {
-      char *buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
-      tcp_send(channel, buffer, strlen(buffer), 500);
-      /*char formatted_response[1024];*/
-      /*tcp_receive(channel, formatted_response, 1024, 500);*/
-    }
-    else if (channel) {
+    if (channel) {
+      while (1) {
+        char buffer[1024];
+        if (tcp_receive(channel, buffer, 1024, 500)) {
+          char *buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
+          tcp_send(channel, buffer, strlen(buffer), 500);
+          printf("Hi\n");
+          /*char formatted_response[1024];*/
+          /*tcp_receive(channel, formatted_response, 1024, 500);*/
+          break;
+        }
+      }
       tcp_close_channel(channel);
     }
   }
