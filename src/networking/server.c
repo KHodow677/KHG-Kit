@@ -25,13 +25,10 @@ void server_run() {
     tcp_channel *channel = tcp_accept(server, 0);
     if (channel) {
       while (1) {
-        char buffer[1024];
-        if (tcp_receive(channel, buffer, 1024, 500)) {
-          char *buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
-          tcp_send(channel, buffer, strlen(buffer), 500);
-          printf("Hi\n");
-          /*char formatted_response[1024];*/
-          /*tcp_receive(channel, formatted_response, 1024, 500);*/
+        char request_buffer[1024];
+        if (tcp_receive(channel, request_buffer, 1024, 500)) {
+          char *response_buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
+          tcp_send(channel, response_buffer, strlen(request_buffer), 500);
           break;
         }
       }
