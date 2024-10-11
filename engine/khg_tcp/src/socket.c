@@ -153,6 +153,10 @@ bool tcp_socket_poll_write(const socket_t *socket, int timeout_ms) {
 	return tcp_socket_poll_write_n(socket, 1, timeout_ms);
 }
 
+bool tcp_socket_poll_write_no_timeout(const socket_t *socket) {
+	return tcp_socket_poll_write_n_no_timeout(socket, 1);
+}
+
 bool tcp_socket_poll_write_n(const socket_t *sockets, int n, int timeout_ms) {
 	assert(sockets);
 	assert(n > 0);
@@ -170,6 +174,24 @@ bool tcp_socket_poll_write_n(const socket_t *sockets, int n, int timeout_ms) {
 		if (timeout_ms != 0) {
 			tcp_raise_error(TCP_ETIMEDOUT);
     }
+		return false;
+	}
+}
+
+bool tcp_socket_poll_write_n_no_timeout(const socket_t *sockets, int n) {
+	assert(sockets);
+	assert(n > 0);
+	fd_set socket_set = make_socket_set(sockets, n);
+	timeval timeout = make_timeout(0);
+	int sockets_ready = select(FD_SETSIZE, NULL, &socket_set, NULL, &timeout);
+	if (sockets_ready == n) {
+		return true;
+	}
+	else if (sockets_ready == -1) {
+		TCP_FAIL_LAST_ERROR();
+		return false;
+	}
+	else {
 		return false;
 	}
 }

@@ -27,6 +27,7 @@ void server_run() {
       printf("Hi\n");
       char *buffer = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nCool";
       tcp_send(channel, buffer, strlen(buffer), 500);
+      tcp_close_channel(channel);
     }
   }
   tcp_term();
