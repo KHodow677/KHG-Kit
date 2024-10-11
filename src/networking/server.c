@@ -1,5 +1,7 @@
 #include "networking/server.h"
+#include "networking/processing.h"
 #include "khg_dbm/dbm.h"
+#include "khg_tcp/tcp.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,15 +19,24 @@ typedef struct player {
 } player;
 
 void server_run() {
-  dbm_db *db;
-  create_or_open_db("server_player", &db, sizeof(player)); 
-  int64_t key = 1;
-  player result = {"John Doe", 20 };
-  dbm_insert(db, key, &result);
-  player select_result;
-  dbm_select(db, 1, &select_result);
-  printf("HUMAN:\nname: %s\nage: %i \n", select_result.name, select_result.age);
-  dbm_close(&db);
+  tcp_init();
+  tcp_server *server = tcp_open_server("localhost", "3000", 10);
+  while (1) {
+    tcp_channel *channel = tcp_accept(server, 0);
+    if (channel) {
+      tcp_stream_receive_no_timeout(channel, print_buffer, NULL);
+    }
+  }
+  tcp_term();
+  /*dbm_db *db;*/
+  /*create_or_open_db("server_player", &db, sizeof(player)); */
+  /*int64_t key = 1;*/
+  /*player result = {"John Doe", 20 };*/
+  /*dbm_insert(db, key, &result);*/
+  /*player select_result;*/
+  /*dbm_select(db, 1, &select_result);*/
+  /*printf("HUMAN:\nname: %s\nage: %i \n", select_result.name, select_result.age);*/
+  /*dbm_close(&db);*/
 }
 
 dbm_db_state create_or_open_db(const char *asset_name, dbm_db **db, size_t size) {
