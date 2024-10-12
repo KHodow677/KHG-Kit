@@ -28,11 +28,10 @@ void server_run() {
         char request_buffer[2048];
         if (tcp_receive(channel, request_buffer, 2048, 500)) {
           const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000";
-          const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n000000000000000000000000000000000000000000000000000000000000000000000000";
+          const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
           char formatted_response[2048];
-          strcat(formatted_response, response);
-          strcat(formatted_response, data);
-          tcp_send(channel, response, strlen(response), 500);
+          snprintf(formatted_response, sizeof(formatted_response), response, data);
+          tcp_send(channel, formatted_response, strlen(formatted_response), 500);
           break;
         }
       }
