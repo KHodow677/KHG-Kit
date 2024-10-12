@@ -43,7 +43,7 @@ void tcp_client_send(tcp_channel *channel) {
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
   char formatted_response[1024];
   tcp_receive(channel, formatted_response, 1024, 500);
-  printf("%s\n\n", formatted_response);
+  printf("Hi\n");
 }
 
 void tcp_client_receive(tcp_channel *channel) {
