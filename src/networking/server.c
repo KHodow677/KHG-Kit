@@ -25,14 +25,14 @@ void server_run() {
     tcp_channel *channel = tcp_accept(server, 0);
     if (channel) {
       while (1) {
-        char request_buffer[1024];
-        if (tcp_receive(channel, request_buffer, 1024, 500)) {
+        char request_buffer[2048];
+        if (tcp_receive(channel, request_buffer, 2048, 500)) {
           const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000";
           const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
-          char formatted_response[1024];
+          char formatted_response[2048];
           strcat(formatted_response, response);
           strcat(formatted_response, data);
-          tcp_send(channel, formatted_response, 1024, 500);
+          tcp_send(channel, formatted_response, 2048, 500);
           break;
         }
       }
