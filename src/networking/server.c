@@ -27,12 +27,12 @@ void server_run() {
       while (1) {
         char request_buffer[2048];
         if (tcp_receive(channel, request_buffer, 2048, 500)) {
-          const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000\0";
-          const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
+          const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000";
+          const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n000000000000000000000000000000000000000000000000000000000000000000000000";
           char formatted_response[2048];
           strcat(formatted_response, response);
           strcat(formatted_response, data);
-          tcp_send(channel, formatted_response, 2048, 500);
+          tcp_send(channel, response, strlen(response), 500);
           break;
         }
       }
