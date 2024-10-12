@@ -31,7 +31,7 @@ void server_run() {
           char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
           char formatted_response[1024];
           snprintf(formatted_response, sizeof(formatted_response), response, data);
-          tcp_send(channel, formatted_response, strlen(formatted_response), 500);
+          tcp_send(channel, formatted_response, 1024, 500);
           break;
         }
       }
