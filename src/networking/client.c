@@ -1,4 +1,5 @@
 #include "networking/client.h"
+#include "khg_tcp/error.h"
 #include "khg_tcp/tcp.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,11 +7,22 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+static void process_error(tcp_error e, void *user_data) {
+	tcp_channel **channel = (tcp_channel **) user_data;
+	perror(tcp_error_to_string(e));
+	tcp_close_channel(*channel);
+	tcp_term();
+	exit(-1);
+}
+
 void hoster_run() {
   tcp_init();
+	tcp_channel *err_channel = NULL;
+	tcp_set_error_callback(process_error, &err_channel);
   tcp_channel *channel = tcp_connect("165.22.176.143", "http");
   tcp_client_receive(channel);
   tcp_close_channel(channel);
+  tcp_close_channel(err_channel);
   tcp_term();
 }
 
@@ -31,7 +43,7 @@ void tcp_client_send(tcp_channel *channel) {
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
   char formatted_response[1024];
   tcp_receive(channel, formatted_response, 1024, 500);
-  printf("%s\n", formatted_response);
+  printf("%s\n\n", formatted_response);
 }
 
 void tcp_client_receive(tcp_channel *channel) {
