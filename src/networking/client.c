@@ -36,7 +36,7 @@ void joiner_run() {
 
 void tcp_client_send(tcp_channel *channel) {
   tcp_init();
-  const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000";
+  const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000\0";
   const char *request = "POST /send HTTP/1.1\r\nHost: 165.22.176.143\r\nContent-Type: application/json\r\nContent-Length: %zu\r\n\r\n%s";
   char formatted_request[2048];
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);
@@ -48,7 +48,7 @@ void tcp_client_send(tcp_channel *channel) {
 
 void tcp_client_receive(tcp_channel *channel) {
   tcp_init();
-  const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000";
+  const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000\0";
   const char *request = "GET /receive HTTP/1.1\r\nHost: 165.22.176.143\r\n\r\n";
   char formatted_request[2048];
   snprintf(formatted_request, sizeof(formatted_request), request, strlen(data), data);

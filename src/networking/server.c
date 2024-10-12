@@ -27,7 +27,7 @@ void server_run() {
       while (1) {
         char request_buffer[2048];
         if (tcp_receive(channel, request_buffer, 2048, 500)) {
-          const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000";
+          const char *data = "000000000000000000000000000000000000000000000000000000000000000000000000\0";
           const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
           char formatted_response[2048];
           strcat(formatted_response, response);
