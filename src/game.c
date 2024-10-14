@@ -35,6 +35,15 @@ static void update_font() {
   }
 }
 
+static void render_div(float pos_x, float pos_y, float div_width, float div_height, float padding) {
+  gfx_element_props div_props = gfx_get_theme().div_props;
+  div_props.corner_radius = 0.0f;
+  div_props.border_width = 0.0f;
+  div_props.color = gfx_white;
+  gfx_push_style_props(div_props);
+  gfx_div_begin(((vec2s){ pos_x, pos_y }), ((vec2s){ div_width, div_height }), false);
+}
+
 int game_run() {
   if (!glfwInit()) {
     return -1;
@@ -60,26 +69,30 @@ int game_run() {
 }
 
 bool gfx_loop(float delta) {
-  float gray_color = 35.0f / 255.0f;
-  glClearColor(gray_color, gray_color, gray_color, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
+  gfx_clear_style_props();
+  render_div(50, 50, 500, 500, 0);
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   gfx_image_no_block(gfx_get_display_width() / 2.0f, gfx_get_display_height(), tex, 0, 0, 0, 0, 1, true);
+  gfx_div_end();
   state.current_div.scrollable = false;
   return true;
 }
 
 bool gfx_loop_post(float delta) {
   gfx_begin();
-  gfx_internal_renderer_set_shader(LIGHTING_SHADER);
-  render_lights();
-  state.current_div.scrollable = false;
+  gfx_clear_style_props();
+  // gfx_internal_renderer_set_shader(LIGHTING_SHADER);
+  // render_lights();
+  // state.current_div.scrollable = false;
   return true;
 };
 
 bool gfx_loop_ui(float delta) {
   gfx_begin();
+  gfx_clear_style_props();
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
