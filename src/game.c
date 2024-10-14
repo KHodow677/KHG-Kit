@@ -1,4 +1,5 @@
 #include "game.h"
+#include "letterbox.h"
 #include "lighting/light.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
@@ -73,7 +74,10 @@ bool gfx_loop(float delta) {
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   gfx_clear_style_props();
-  render_div(50, 50, 500, 500, 0);
+  gfx_aabb letterbox = get_letterbox();
+  render_div(letterbox.pos.x, letterbox.pos.y, letterbox.size.x, letterbox.size.y, 0);
+  int div_width = 0;
+  int div_height = 0;
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   gfx_image_no_block(gfx_get_display_width() / 2.0f, gfx_get_display_height(), tex, 0, 0, 0, 0, 1, true);
   gfx_div_end();
