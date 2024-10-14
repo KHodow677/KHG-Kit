@@ -77,7 +77,7 @@ if "%1"=="build" (
 
 if "%1"=="build" (
   if "%2"=="run" (
-    if "%3"=="server" (
+    if "%3"=="hoster" (
       if exist build\res (
         rmdir /s /q build\res
       )
@@ -85,7 +85,23 @@ if "%1"=="build" (
       cd build
       cmake .. -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
       mingw32-make
-      executable.exe server
+      executable.exe hoster 
+      goto :eof
+    )
+  )
+)
+
+if "%1"=="build" (
+  if "%2"=="run" (
+    if "%3"=="joiner" (
+      if exist build\res (
+        rmdir /s /q build\res
+      )
+      xcopy /s /e /i res build\res
+      cd build
+      cmake .. -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+      mingw32-make
+      executable.exe joiner
       goto :eof
     )
   )
@@ -127,7 +143,7 @@ if "%1"=="build" (
 if "%1"=="build" (
   if "%2"=="test" (
     if "%3"=="run" (
-      if "%4"=="server" (
+      if "%4"=="hoster" (
         if exist build\res (
           rmdir /s /q build\res
         )
@@ -136,17 +152,30 @@ if "%1"=="build" (
         cmake .. -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
         cmake --build .
         test_runner.exe
-        executable.exe server
+        executable.exe hoster 
         goto :eof
       )
     )
   )
 )
 
-if "%1"=="server" (
-  cd svr
-  npm start
-  goto :eof
+if "%1"=="build" (
+  if "%2"=="test" (
+    if "%3"=="run" (
+      if "%4"=="joiner" (
+        if exist build\res (
+          rmdir /s /q build\res
+        )
+        xcopy /s /e /i res build\res
+        cd build
+        cmake .. -G "MinGW Makefiles" -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+        cmake --build .
+        test_runner.exe
+        executable.exe joiner 
+        goto :eof
+      )
+    )
+  )
 )
 
 echo Command keywords: [build, run, server, test]

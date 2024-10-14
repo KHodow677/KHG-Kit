@@ -42,7 +42,7 @@ then
     cd build
     ./test_runner
   fi
-elif [ "$1" = "build" ] && [ "$2" = "run" ]
+elif [ "$1" = "build" ] && [ "$2" = "run" ] && [ "$3" = "" ]
 then
   rm -rf build/res
   cp -r res build/res
@@ -50,6 +50,22 @@ then
   cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   make
   ./executable
+elif [ "$1" = "build" ] && [ "$2" = "run" ] && [ "$3" = "hoster" ]
+then
+  rm -rf build/res
+  cp -r res build/res
+  cd build
+  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  make
+  ./executable hoster
+elif [ "$1" = "build" ] && [ "$2" = "run" ] && [ "$3" = "joiner" ]
+then
+  rm -rf build/res
+  cp -r res build/res
+  cd build
+  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  make
+  ./executable joiner 
 elif [ "$1" = "build" ] && [ "$2" = "test" ]
 then
   rm -rf build/res
@@ -58,7 +74,7 @@ then
   cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
   cmake --build .
   ./test_runner
-elif [ "$1" = "build" ] && [ "$2" = "test" ] && [ "$3" = "run" ]
+elif [ "$1" = "build" ] && [ "$2" = "test" ] && [ "$3" = "run" ] && [ "$4" = "" ]
 then
   rm -rf build/res
   cp -r res build/res
@@ -67,10 +83,24 @@ then
   cmake --build .
   ./test_runner
   ./executable
-elif [ "$1" = "server" ]
+elif [ "$1" = "build" ] && [ "$2" = "test" ] && [ "$3" = "run" ] && [ "$4" = "hoster" ]
 then
-  cd svr
-  npm start
+  rm -rf build/res
+  cp -r res build/res
+  cd build
+  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  cmake --build .
+  ./test_runner
+  ./executable hoster
+elif [ "$1" = "build" ] && [ "$2" = "test" ] && [ "$3" = "run" ] && [ "$4" = "joiner" ]
+then
+  rm -rf build/res
+  cp -r res build/res
+  cd build
+  cmake .. -DCMAKE_C_COMPILER=gcc -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+  cmake --build .
+  ./test_runner
+  ./executable joiner 
 else
   echo "Command keywords: [build, run, test]"
 fi
