@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     }
   }
   else {
-  /*return game_run();*/
+  return game_run();
   /*return main_dbm();*/
     server_run();
   }
