@@ -1,5 +1,6 @@
 #include "game.h"
 #include "camera/camera.h"
+#include "ecs/ecs_manager.h"
 #include "letterbox.h"
 #include "lighting/light.h"
 #include "khg_gfx/internal.h"
@@ -61,6 +62,7 @@ int game_run() {
   gfx_init_glfw(1280, 720, window);
   stm_init(&SCENE_FSM, &MAIN_SCENE, &ERROR_SCENE);
   camera_setup(&CAMERA);
+  ecs_setup();
   log_sys_info();
   PRIMARY_SHADER = state.render.shader;
   setup_lights_texture();
@@ -71,6 +73,7 @@ int game_run() {
   font = gfx_load_font_asset("rubik", "ttf", 24);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
+  ecs_cleanup();
   return res;
 }
 
