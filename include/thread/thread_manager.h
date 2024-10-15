@@ -8,7 +8,7 @@
 
 #include "khg_thd/thread.h"
 
-extern thd_thread *WORKER_THREADS;
+extern thd_thread NETWORKING_THREAD;
 extern int THREAD_COUNT;
 
 typedef struct _data {
