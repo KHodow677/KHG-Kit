@@ -7,3 +7,4 @@ extern stm_state MAIN_SCENE;
 extern stm_state GAME_SCENE;
 extern stm_state ERROR_SCENE;
 
+void scenes_setup(void);

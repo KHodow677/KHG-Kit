@@ -35,3 +35,7 @@ stm_state ERROR_SCENE = {
   .entry_action = &print_scene_error
 };
 
+
+void scenes_setup(void) {
+  stm_init(&SCENE_FSM, &MAIN_SCENE, &ERROR_SCENE);
+}

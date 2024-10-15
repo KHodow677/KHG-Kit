@@ -6,10 +6,9 @@
 typedef struct {
   ecs_id id;
   phy_body *body;
-  phy_shape *shape;
   phy_body *target_body;
-  phy_shape *target_shape;
   phy_constraint *pivot;
+  bool has_constraint;
   float target_vel;
   float target_ang_vel;
   bool move_enabled;
@@ -25,3 +24,6 @@ void comp_physics_register(void);
 void sys_physics_register(void);
 
 comp_physics *sys_physics_add(ecs_id eid);
+
+void generate_physics_box(ecs_id eid, comp_physics *info, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
+void free_physics(comp_physics *info);

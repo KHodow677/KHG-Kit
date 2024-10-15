@@ -1,6 +1,7 @@
 #include "game.h"
 #include "camera/camera.h"
 #include "ecs/ecs_manager.h"
+#include "khg_phy/vect.h"
 #include "letterbox.h"
 #include "lighting/light.h"
 #include "khg_gfx/internal.h"
@@ -9,8 +10,10 @@
 #include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "physics/physics.h"
 #include "scene/scene_manager.h"
 #include "scene/scene_utl.h"
+#include "thread/thread_manager.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -60,9 +63,11 @@ int game_run() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(1280, 720, window);
-  stm_init(&SCENE_FSM, &MAIN_SCENE, &ERROR_SCENE);
-  camera_setup(&CAMERA);
+  worker_threads_setup();
+  scenes_setup();
+  physics_setup(phy_v(0.0f, 0.0f));
   ecs_setup();
+  camera_setup(&CAMERA);
   log_sys_info();
   PRIMARY_SHADER = state.render.shader;
   setup_lights_texture();
@@ -74,6 +79,8 @@ int game_run() {
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
+  physics_cleanup();
+  worker_threads_cleanup();
   return res;
 }
 
