@@ -1,4 +1,5 @@
 #include "game.h"
+#include "camera/camera.h"
 #include "letterbox.h"
 #include "lighting/light.h"
 #include "khg_gfx/internal.h"
@@ -59,6 +60,7 @@ int game_run() {
   glfwMakeContextCurrent(window);
   gfx_init_glfw(1280, 720, window);
   stm_init(&SCENE_FSM, &MAIN_SCENE, &ERROR_SCENE);
+  camera_setup(&CAMERA);
   log_sys_info();
   PRIMARY_SHADER = state.render.shader;
   setup_lights_texture();
