@@ -7,6 +7,8 @@
 #include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "scene/scene_manager.h"
+#include "scene/scene_utl.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,11 +58,12 @@ int game_run() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(1280, 720, window);
+  stm_init(&SCENE_FSM, &MAIN_SCENE, &ERROR_SCENE);
   log_sys_info();
   PRIMARY_SHADER = state.render.shader;
   setup_lights_texture();
   setup_lights_shader();
-  add_light((vec2s){ 0.1f, 0.5f }, 400.0f);
+  add_light((vec2s){ 0.5f, 0.5f }, 400.0f);
   /*clear_lights();*/
   tex = gfx_load_texture_asset("main/ground", "png");
   font = gfx_load_font_asset("rubik", "ttf", 24);
@@ -73,24 +76,26 @@ bool gfx_loop(float delta) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
-  gfx_clear_style_props();
-  gfx_aabb letterbox = get_letterbox();
-  render_div(letterbox.pos.x, letterbox.pos.y, letterbox.size.x, letterbox.size.y, 0);
-  int div_width = 0;
-  int div_height = 0;
-  gfx_internal_renderer_set_shader(PRIMARY_SHADER);
-  gfx_image_no_block(gfx_get_display_width() / 2.0f, gfx_get_display_height(), tex, 0, 0, 0, 0, 1, true);
-  gfx_div_end();
-  state.current_div.scrollable = false;
+  if (check_current_scene("MAIN")) {
+    gfx_clear_style_props();
+    gfx_aabb letterbox = get_letterbox();
+    render_div(letterbox.pos.x, letterbox.pos.y, letterbox.size.x, letterbox.size.y, 0);
+    int div_width = 0;
+    int div_height = 0;
+    gfx_internal_renderer_set_shader(PRIMARY_SHADER);
+    gfx_image_no_block(gfx_get_current_div().aabb.size.x / 2.0f, gfx_get_current_div().aabb.size.y, tex, 0, 0, 0, 0, 1, true);
+    gfx_div_end();
+    state.current_div.scrollable = false;
+  }
   return true;
 }
 
 bool gfx_loop_post(float delta) {
   gfx_begin();
   gfx_clear_style_props();
-  // gfx_internal_renderer_set_shader(LIGHTING_SHADER);
-  // render_lights();
-  // state.current_div.scrollable = false;
+  /*gfx_internal_renderer_set_shader(LIGHTING_SHADER);*/
+  /*render_lights();*/
+  /*state.current_div.scrollable = false;*/
   return true;
 };
 
