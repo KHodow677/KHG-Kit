@@ -45,3 +45,10 @@ void sys_renderer_register() {
 comp_renderer *sys_renderer_add(ecs_id eid) {
   return ecs_add(ECS, eid, RENDERER_COMPONENT_SIGNATURE, NULL);
 }
+
+void generate_renderer(comp_renderer *info, comp_physics *p_info, int tex_id, int render_layer) {
+  info->tex_id = tex_id;
+  info->body = p_info->body;
+  info->render_layer = render_layer;
+}
+

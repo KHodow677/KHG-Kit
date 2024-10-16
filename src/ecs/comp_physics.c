@@ -6,9 +6,12 @@
 #include "khg_phy/phy.h"
 #include "khg_phy/space.h"
 #include "khg_phy/vect.h"
+#include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT_SIGNATURE;
 ecs_id PHYSICS_SYSTEM_SIGNATURE;
+
+comp_physics_constructor_info *PHYSICS_CONSTRUCTOR_INFO = NULL;
 
 static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
   if (dt == 0.0f) {
@@ -27,8 +30,24 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   return 0;
 }
 
+static void comp_physics_constructor(ecs_ecs *ecs, ecs_id entity_id, void *ptr, void *args) {
+  comp_physics *info = ptr;
+  const comp_physics_constructor_info *constructor_info = PHYSICS_CONSTRUCTOR_INFO;
+  if (info && constructor_info && constructor_info->mode == PHYSICS_BOX) {
+    printf("Hello\n");
+    generate_physics_box(info, *constructor_info);
+  }
+}
+
+static void comp_physics_destructor(ecs_ecs *ecs, ecs_id entity_id, void *ptr) {
+  comp_physics *info = ptr;
+  if (info) {
+    free_physics(info);
+  }
+}
+
 void comp_physics_register() {
-  PHYSICS_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_physics), NULL, NULL);
+  PHYSICS_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_physics), comp_physics_constructor, comp_physics_destructor);
 }
 
 void sys_physics_register() {
@@ -36,16 +55,17 @@ void sys_physics_register() {
   ecs_require_component(ECS, PHYSICS_SYSTEM_SIGNATURE, PHYSICS_COMPONENT_SIGNATURE);
 }
 
-comp_physics *sys_physics_add(ecs_id eid) {
+comp_physics *sys_physics_add(ecs_id eid, comp_physics_constructor_info *cpci) {
+  PHYSICS_CONSTRUCTOR_INFO = cpci;
   return ecs_add(ECS, eid, PHYSICS_COMPONENT_SIGNATURE, NULL);
 }
 
-void generate_physics_box(ecs_id eid, comp_physics *info, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog) {
-  float moment = phy_moment_for_box(mass, width, height);
-  info->body = phy_space_add_body(SPACE, phy_body_new(mass, moment));
-  phy_body_set_position(info->body, pos);
-  phy_body_set_center_of_gravity(info->body, cog);
-  phy_body_set_angle(info->body, ang);
+void generate_physics_box(comp_physics *info, const comp_physics_constructor_info constructor_info) {
+  float moment = phy_moment_for_box(constructor_info.mass, constructor_info.width, constructor_info.height);
+  info->body = phy_space_add_body(SPACE, phy_body_new(constructor_info.mass, moment));
+  phy_body_set_position(info->body, constructor_info.pos);
+  phy_body_set_center_of_gravity(info->body, constructor_info.cog);
+  phy_body_set_angle(info->body, constructor_info.ang);
   info->has_constraint = false;
   info->is_moving = false;
   info->is_turning = false;
@@ -62,3 +82,4 @@ void free_physics(comp_physics *info) {
   phy_space_remove_body(SPACE, info->body);
   phy_body_free(info->body);
 }
+

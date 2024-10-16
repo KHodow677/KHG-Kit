@@ -17,13 +17,28 @@ typedef struct {
   bool is_turning;
 } comp_physics;
 
+
+typedef struct {
+  enum {
+    PHYSICS_BOX,
+  } mode;
+  float width;
+  float height;
+  float mass;
+  phy_vect pos;
+  float ang;
+  phy_vect cog;
+} comp_physics_constructor_info;
+
 extern ecs_id PHYSICS_COMPONENT_SIGNATURE;
 extern ecs_id PHYSICS_SYSTEM_SIGNATURE;
+
+extern comp_physics_constructor_info *PHYSICS_CONSTRUCTOR_INFO;
 
 void comp_physics_register(void);
 void sys_physics_register(void);
 
-comp_physics *sys_physics_add(ecs_id eid);
+comp_physics *sys_physics_add(ecs_id eid, comp_physics_constructor_info *cpci);
 
-void generate_physics_box(ecs_id eid, comp_physics *info, float width, float height, float mass, phy_vect pos, float ang, phy_vect cog);
+void generate_physics_box(comp_physics *info, const comp_physics_constructor_info constructor_info);
 void free_physics(comp_physics *info);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ecs/comp_physics.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy_types.h"
 
@@ -18,3 +19,5 @@ void comp_renderer_register(void);
 void sys_renderer_register(void);
 
 comp_renderer *sys_renderer_add(ecs_id eid);
+void generate_renderer(comp_renderer *info, comp_physics *p_info, int tex_id, int render_layer);
+

@@ -26,4 +26,6 @@ gfx_texture *get_or_add_texture(int tex_id) {
 }
 
 void generate_textures() {
+  TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_GROUND] = (texture_asset) { (gfx_texture){ 0 }, false, "main/environment/ground_layer", "png", 1920, 906};
 }
+

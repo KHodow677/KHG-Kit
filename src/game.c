@@ -1,26 +1,28 @@
 #include "game.h"
-#include "camera/camera.h"
-#include "ecs/ecs_manager.h"
-#include "khg_phy/vect.h"
+#include "ecs/comp_physics.h"
+#include "ecs/comp_renderer.h"
+#include "khg_ecs/ecs.h"
+#include "khg_phy/threaded_space.h"
 #include "letterbox.h"
+#include "ecs/ecs_manager.h"
 #include "lighting/light.h"
+#include "physics/physics.h"
+#include "resources/texture_loader.h"
+#include "scene/scene_manager.h"
+#include "scene/scene_utl.h"
+#include "thread/thread_manager.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
-#include "physics/physics.h"
-#include "scene/scene_manager.h"
-#include "scene/scene_utl.h"
-#include "thread/thread_manager.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-static gfx_texture tex;
 static gfx_font font;
 static uint32_t original_font_size;
 
@@ -64,9 +66,9 @@ int game_run() {
   gfx_init_glfw(1280, 720, window);
   log_sys_info();
   worker_threads_setup();
+  generate_textures();
   scenes_setup();
   scenes_switch(TO_MAIN_SCENE);
-  tex = gfx_load_texture_asset("main/ground", "png");
   font = gfx_load_font_asset("rubik", "ttf", 24);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
@@ -84,10 +86,12 @@ bool gfx_loop(float delta) {
     gfx_clear_style_props();
     gfx_aabb letterbox = get_letterbox();
     render_div(letterbox.pos.x, letterbox.pos.y, letterbox.size.x, letterbox.size.y, 0);
-    int div_width = 0;
-    int div_height = 0;
     gfx_internal_renderer_set_shader(PRIMARY_SHADER);
-    gfx_image_no_block(gfx_get_current_div().aabb.size.x / 2.0f, gfx_get_current_div().aabb.size.y, tex, 0, 0, 0, 0, 1, true);
+    ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
+    phy_threaded_space_step(SPACE, delta);
+    gfx_texture *tex = get_or_add_texture(MAIN_ENVIRONMENT_GROUND);
+    gfx_image_no_block(gfx_get_current_div().aabb.size.x / 2.0f, gfx_get_current_div().aabb.size.y, *tex, 0, 0, 0, 0, 1, true);
     gfx_div_end();
     state.current_div.scrollable = false;
   }

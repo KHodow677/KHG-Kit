@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 typedef enum {
+  MAIN_ENVIRONMENT_GROUND,
   NUM_TEXTURES
 } TEXTURE_ID;
 
@@ -14,8 +15,6 @@ typedef struct texture_asset {
   char *tex_file_type;
   int tex_width;
   int tex_height;
-  int collision_direction;
-  int collision_shrinkage_offset;
 } texture_asset;
 
 extern texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
@@ -24,3 +23,4 @@ gfx_texture generate_texture(char *file_name, char *file_type, float width, floa
 bool check_texture_loaded(int tex_id);
 gfx_texture *get_or_add_texture(int tex_id);
 void generate_textures(void);
+
