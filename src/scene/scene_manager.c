@@ -14,6 +14,14 @@ stm_state PARENT_SCENE = {
   .data = "GROUP",
 };
 
+stm_state INIT_SCENE = {
+  .parent_state = &PARENT_SCENE,
+  .entry_state = NULL,
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_MAIN_SCENE, &compare_scene_switch_command, &load_main_scene, &MAIN_SCENE } },
+  .num_transitions = 2,
+  .data = "INIT",
+};
+
 stm_state MAIN_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
@@ -37,5 +45,9 @@ stm_state ERROR_SCENE = {
 
 
 void scenes_setup(void) {
-  stm_init(&SCENE_FSM, &MAIN_SCENE, &ERROR_SCENE);
+  stm_init(&SCENE_FSM, &INIT_SCENE, &ERROR_SCENE);
+}
+
+void scenes_switch(event_transition_command event) {
+  stm_handle_event(&SCENE_FSM, &(stm_event){ EVENT_SCENE_SWITCH, (void *)(intptr_t)event });
 }

@@ -20,7 +20,6 @@
 #include <string.h>
 #include <math.h>
 
-static gfx_shader PRIMARY_SHADER;
 static gfx_texture tex;
 static gfx_font font;
 static uint32_t original_font_size;
@@ -63,17 +62,10 @@ int game_run() {
   }
   glfwMakeContextCurrent(window);
   gfx_init_glfw(1280, 720, window);
+  log_sys_info();
   worker_threads_setup();
   scenes_setup();
-  physics_setup(phy_v(0.0f, 0.0f));
-  ecs_setup();
-  camera_setup(&CAMERA);
-  log_sys_info();
-  PRIMARY_SHADER = state.render.shader;
-  setup_lights_texture();
-  setup_lights_shader();
-  add_light((vec2s){ 0.5f, 0.5f }, 400.0f);
-  /*clear_lights();*/
+  scenes_switch(TO_MAIN_SCENE);
   tex = gfx_load_texture_asset("main/ground", "png");
   font = gfx_load_font_asset("rubik", "ttf", 24);
   original_font_size = font.font_size;

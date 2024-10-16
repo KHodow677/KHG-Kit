@@ -4,6 +4,7 @@
 #include "glad/glad.h"
 
 gfx_texture LIGHTING_OVERLAY = { 0 };
+gfx_shader PRIMARY_SHADER = { 0 };
 gfx_shader LIGHTING_SHADER = { 0 };
 int LIGHT_COUNT = 0;
 light LIGHTS[1024] = { 0 };
@@ -13,6 +14,7 @@ void setup_lights_texture() {
 }
 
 void setup_lights_shader() {
+  PRIMARY_SHADER = state.render.shader;
   LIGHTING_SHADER = gfx_internal_shader_prg_create(lighting_vert_src, lighting_frag_src);
 }
 
