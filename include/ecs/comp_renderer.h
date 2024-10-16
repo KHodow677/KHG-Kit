@@ -1,23 +1,28 @@
 #pragma once
 
-#include "ecs/comp_physics.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/phy_types.h"
 
-typedef struct comp_renderer comp_renderer;
-struct comp_renderer {
+typedef struct comp_renderer {
   ecs_id id;
   int tex_id;
   phy_body *body;
   int render_layer;
-};
+} comp_renderer;
+
+typedef struct comp_renderer_constructor_info {
+  phy_body *body; 
+  int tex_id;
+  int render_layer;
+} comp_renderer_constructor_info;
 
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;
 extern ecs_id RENDERER_SYSTEM_SIGNATURE;
 
+extern comp_renderer_constructor_info *RENDERER_CONSTRUCTOR_INFO;
+
 void comp_renderer_register(void);
 void sys_renderer_register(void);
 
-comp_renderer *sys_renderer_add(ecs_id eid);
-void generate_renderer(comp_renderer *info, comp_physics *p_info, int tex_id, int render_layer);
+comp_renderer *sys_renderer_add(ecs_id eid, comp_renderer_constructor_info *crci);
 

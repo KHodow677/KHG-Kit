@@ -14,7 +14,9 @@
 ecs_id RENDERER_COMPONENT_SIGNATURE;
 ecs_id RENDERER_SYSTEM_SIGNATURE;
 
-static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+comp_renderer_constructor_info *RENDERER_CONSTRUCTOR_INFO = NULL;
+
+static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int entity_count, const ecs_dt dt, void *udata) {
   for (int layer = 0; layer < 10; layer++) {
     for (int id = 0; id < entity_count; id++) {
       comp_renderer *info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
@@ -32,8 +34,18 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, int entity_co
   return 0;
 }
 
+static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr, void *args) {
+  comp_renderer *info = ptr;
+  const comp_renderer_constructor_info *constructor_info = RENDERER_CONSTRUCTOR_INFO;
+  if (info && constructor_info) {
+    info->body = constructor_info->body;
+    info->tex_id = constructor_info->tex_id;
+    info->render_layer = constructor_info->render_layer;
+  }
+}
+
 void comp_renderer_register() {
-  RENDERER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_renderer), NULL, NULL);
+  RENDERER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_renderer), comp_renderer_constructor, NULL);
 }
 
 void sys_renderer_register() {
@@ -42,13 +54,8 @@ void sys_renderer_register() {
   ecs_require_component(ECS, RENDERER_SYSTEM_SIGNATURE, PHYSICS_COMPONENT_SIGNATURE);
 }
 
-comp_renderer *sys_renderer_add(ecs_id eid) {
+comp_renderer *sys_renderer_add(ecs_id eid, comp_renderer_constructor_info *crci) {
+  RENDERER_CONSTRUCTOR_INFO = crci;
   return ecs_add(ECS, eid, RENDERER_COMPONENT_SIGNATURE, NULL);
-}
-
-void generate_renderer(comp_renderer *info, comp_physics *p_info, int tex_id, int render_layer) {
-  info->tex_id = tex_id;
-  info->body = p_info->body;
-  info->render_layer = render_layer;
 }
 

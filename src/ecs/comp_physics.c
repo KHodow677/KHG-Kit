@@ -13,7 +13,7 @@ ecs_id PHYSICS_SYSTEM_SIGNATURE;
 
 comp_physics_constructor_info *PHYSICS_CONSTRUCTOR_INFO = NULL;
 
-static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata) {
+static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const int entity_count, const ecs_dt dt, void *udata) {
   if (dt == 0.0f) {
     return 0;
   }
@@ -30,19 +30,33 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, int entity_cou
   return 0;
 }
 
-static void comp_physics_constructor(ecs_ecs *ecs, ecs_id entity_id, void *ptr, void *args) {
+static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr, void *args) {
   comp_physics *info = ptr;
   const comp_physics_constructor_info *constructor_info = PHYSICS_CONSTRUCTOR_INFO;
   if (info && constructor_info && constructor_info->mode == PHYSICS_BOX) {
-    printf("Hello\n");
-    generate_physics_box(info, *constructor_info);
+    const float moment = phy_moment_for_box(constructor_info->mass, constructor_info->width, constructor_info->height);
+    info->body = phy_space_add_body(SPACE, phy_body_new(constructor_info->mass, moment));
+    phy_body_set_position(info->body, constructor_info->pos);
+    phy_body_set_center_of_gravity(info->body, constructor_info->cog);
+    phy_body_set_angle(info->body, constructor_info->ang);
+    info->has_constraint = false;
+    info->is_moving = false;
+    info->is_turning = false;
+    info->target_vel = 0.0f;
+    info->target_ang_vel = 0.0f;
+    info->move_enabled = true;
+    info->rotate_enabled = true;
   }
 }
 
-static void comp_physics_destructor(ecs_ecs *ecs, ecs_id entity_id, void *ptr) {
-  comp_physics *info = ptr;
+static void comp_physics_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
+  const comp_physics *info = ptr;
   if (info) {
-    free_physics(info);
+    if (info->has_constraint) {
+      phy_space_remove_constraint(SPACE, info->pivot);
+    }
+    phy_space_remove_body(SPACE, info->body);
+    phy_body_free(info->body);
   }
 }
 
@@ -58,28 +72,5 @@ void sys_physics_register() {
 comp_physics *sys_physics_add(ecs_id eid, comp_physics_constructor_info *cpci) {
   PHYSICS_CONSTRUCTOR_INFO = cpci;
   return ecs_add(ECS, eid, PHYSICS_COMPONENT_SIGNATURE, NULL);
-}
-
-void generate_physics_box(comp_physics *info, const comp_physics_constructor_info constructor_info) {
-  float moment = phy_moment_for_box(constructor_info.mass, constructor_info.width, constructor_info.height);
-  info->body = phy_space_add_body(SPACE, phy_body_new(constructor_info.mass, moment));
-  phy_body_set_position(info->body, constructor_info.pos);
-  phy_body_set_center_of_gravity(info->body, constructor_info.cog);
-  phy_body_set_angle(info->body, constructor_info.ang);
-  info->has_constraint = false;
-  info->is_moving = false;
-  info->is_turning = false;
-  info->target_vel = 0.0f;
-  info->target_ang_vel = 0.0f;
-  info->move_enabled = true;
-  info->rotate_enabled = true;
-}
-
-void free_physics(comp_physics *info) {
-  if (info->has_constraint) {
-    phy_space_remove_constraint(SPACE, info->pivot);
-  }
-  phy_space_remove_body(SPACE, info->body);
-  phy_body_free(info->body);
 }
 
