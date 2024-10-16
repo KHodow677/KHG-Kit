@@ -5,14 +5,13 @@
 #include "khg_phy/space.h"
 #include "khg_phy/threaded_space.h"
 
-phy_space *SPACE;
+phy_space *SPACE = NULL;
 
-phy_space *physics_setup(phy_vect grav) {
-  phy_space *sp = phy_threaded_space_new();
-  phy_threaded_space_set_threads(sp, THREAD_COUNT - 1);
-  phy_space_set_gravity(sp, grav);
-  phy_space_set_collision_bias(sp, 0.0f);
-  return sp;
+void physics_setup(phy_vect grav) {
+  SPACE = phy_threaded_space_new();
+  phy_threaded_space_set_threads(SPACE, THREAD_COUNT - 1);
+  phy_space_set_gravity(SPACE, grav);
+  phy_space_set_collision_bias(SPACE, 0.0f);
 }
 
 void physics_cleanup() {
@@ -29,3 +28,4 @@ void physics_remove_static_segment_shape(phy_space *space, phy_shape *seg) {
   phy_space_remove_shape(space, seg);
   phy_shape_free(seg);
 }
+

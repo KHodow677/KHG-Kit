@@ -4,8 +4,9 @@
 
 extern phy_space *SPACE;
 
-phy_space *physics_setup(phy_vect grav);
+void physics_setup(phy_vect grav);
 void physics_cleanup(void);
 
 phy_shape *physics_add_static_segment_shape(phy_space *space, phy_vect point_a, phy_vect point_b);
 void physics_remove_static_segment_shape(phy_space *space, phy_shape *seg);
+
