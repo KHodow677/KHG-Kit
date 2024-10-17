@@ -1,4 +1,5 @@
 #include "letterbox.h"
+#include "game.h"
 #include "khg_gfx/elements.h"
 #include "khg_phy/phy_types.h"
 
@@ -29,14 +30,13 @@ static void set_letterbox_camera(gfx_aabb letterbox) {
 }
 
 void transform_letterbox_element(gfx_aabb letterbox, phy_vect *pos, gfx_texture *tex, float offset_x, float offset_y) {
-  float current_aspect_ratio = (float)gfx_get_display_width() / (float)gfx_get_display_height();
-  float ratio_ratio = current_aspect_ratio / TARGET_ASPECT_RATIO;
-  float window_center_x = letterbox.size.x / 2.0f + letterbox.pos.x;
-  float window_center_y = letterbox.size.y / 2.0f + letterbox.pos.y;
-  tex->width *= ratio_ratio;
-  tex->height *= ratio_ratio;
-  pos->x = (pos->x - window_center_x) * ratio_ratio + window_center_x - letterbox.pos.x;
-  pos->y = (pos->y - window_center_y) * ratio_ratio + window_center_y - letterbox.pos.y;
+  float scale = letterbox.size.x / INITIAL_WIDTH;
+  float window_center_x = gfx_get_display_width() / 2.0f;
+  float window_center_y = gfx_get_display_height() / 2.0f;
+  tex->width *= scale;
+  tex->height *= scale;
+  // pos->x = (pos->x - window_center_x) * scale + window_center_x + letterbox.pos.x;
+  // pos->y = (pos->y - window_center_y) * scale + window_center_y + letterbox.pos.y;
 }
 
 void get_letterbox() {
@@ -48,4 +48,3 @@ void get_letterbox() {
   LETTERBOX.size.y = get_letterbox_height(current_aspect_ratio, ratio_ratio);
   set_letterbox_camera(LETTERBOX);
 }
-

@@ -38,7 +38,7 @@ void log_sys_info() {
 }
 
 static void update_font() {
-  uint32_t min_change = fminf((uint32_t)(gfx_get_display_width() / 1280.0f * original_font_size), (uint32_t)(gfx_get_display_height() / 720.0f * original_font_size));
+  uint32_t min_change = fminf((uint32_t)(gfx_get_display_width() / INITIAL_WIDTH * original_font_size), (uint32_t)(gfx_get_display_height() / INITIAL_WIDTH * original_font_size));
   if (font.font_size != min_change) {
     gfx_free_font(&font);
     font = gfx_load_font_asset("rubik", "ttf", min_change);
@@ -58,7 +58,7 @@ int game_run() {
   if (!glfwInit()) {
     return -1;
   }
-  GLFWwindow *window = glfwCreateWindow(1280, 720, "Game", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "Game", NULL, NULL);
   if (!window) {
     glfwTerminate();
     return -1;

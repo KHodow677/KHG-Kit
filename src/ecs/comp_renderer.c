@@ -30,7 +30,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       gfx_texture tex = *get_or_add_texture(info->tex_id);
       tex.angle = angle;
       transform_letterbox_element(LETTERBOX, &pos, &tex, offset.x, offset.y);
-      gfx_image_no_block(pos.x + LETTERBOX.pos.x, pos.y + LETTERBOX.pos.y, tex, offset.x, offset.y, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
+      gfx_image_no_block(pos.x, pos.y, tex, offset.x, offset.y, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
     }
   }
   return 0;
