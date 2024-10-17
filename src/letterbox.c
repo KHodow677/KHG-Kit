@@ -30,13 +30,12 @@ static void set_letterbox_camera(gfx_aabb letterbox) {
 }
 
 void transform_letterbox_element(gfx_aabb letterbox, phy_vect *pos, gfx_texture *tex, float offset_x, float offset_y) {
-  float scale = letterbox.size.x / INITIAL_WIDTH;
-  float window_center_x = gfx_get_display_width() / 2.0f;
-  float window_center_y = gfx_get_display_height() / 2.0f;
-  tex->width *= scale;
-  tex->height *= scale;
-  // pos->x = (pos->x - window_center_x) * scale + window_center_x + letterbox.pos.x;
-  // pos->y = (pos->y - window_center_y) * scale + window_center_y + letterbox.pos.y;
+  float scale_x = letterbox.size.x / INITIAL_WIDTH;
+  float scale_y = letterbox.size.y / INITIAL_HEIGHT;
+  tex->width *= scale_x;
+  tex->height *= scale_y;
+  pos->x = (pos->x) * scale_x + letterbox.pos.x;
+  pos->y = (pos->y) * scale_y + letterbox.pos.y;
 }
 
 void get_letterbox() {
