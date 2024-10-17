@@ -1,6 +1,5 @@
 #include "camera/camera.h"
 #include "GLFW/glfw3.h"
-#include "khg_gfx/elements.h"
 #include "khg_phy/vect.h"
 #include <stdio.h>
 
@@ -15,7 +14,9 @@ void camera_setup(camera *cam) {
   INITIAL_ZOOM = mode->width / 1920.0f;
   cam->zoom = INITIAL_ZOOM;
   cam->target_zoom = INITIAL_ZOOM;
-  cam->position = phy_v(-0.5f * gfx_get_current_div().aabb.size.x, -0.5f * gfx_get_current_div().aabb.size.y);
-  cam->target = phy_v(-0.5f * gfx_get_current_div().aabb.size.x, -0.5f * gfx_get_current_div().aabb.size.y);
+  cam->position = phy_v(0.0f, 0.0f);
+  cam->target = phy_v(0.0f, 0.0f);
+  /*cam->position = phy_v(-0.5f * gfx_get_current_div().aabb.size.x, -0.5f * gfx_get_current_div().aabb.size.y);*/
+  /*cam->target = phy_v(-0.5f * gfx_get_current_div().aabb.size.x, -0.5f * gfx_get_current_div().aabb.size.y);*/
 }
 

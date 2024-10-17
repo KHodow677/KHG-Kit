@@ -679,8 +679,8 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
     return;
   }
   float offset_mag = glm_vec2_norm((vec2){ offset_x, offset_y });
-  float window_center_x = gfx_get_display_width() / 2.0f + cam_x;
-  float window_center_y = gfx_get_display_height() / 2.0f + cam_y;
+  float window_center_x = gfx_get_current_div().aabb.size.x / 2.0f + cam_x;
+  float window_center_y = gfx_get_current_div().aabb.size.y / 2.0f + cam_y;
   offset_x = offset_mag * cosf(rotation_angle + M_PI * 0.5f);
   offset_y = offset_mag * sinf(rotation_angle + M_PI * 0.5f);
   uint32_t old_width = tex.width;

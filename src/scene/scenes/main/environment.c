@@ -9,7 +9,7 @@
 
 void generate_environment_element(int tex_id, float x, float y, float angle, bool is_animated) {
   ecs_id entity = ecs_create(ECS);
-  comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 145.0f, 184.0f, 1.0f, phy_v(x, y), angle, phy_v(0.0f, 0.0f) };
+  comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 1920.0f, 906.0f, 1.0f, phy_v(x, y), angle, phy_v(0.0f, 0.0f) };
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
   comp_renderer_constructor_info comp_renderer_ci = { cp->body, tex_id, 0 };
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 
 typedef enum {
+  SQUARE,
   MAIN_ENVIRONMENT_GROUND,
   NUM_TEXTURES
 } TEXTURE_ID;

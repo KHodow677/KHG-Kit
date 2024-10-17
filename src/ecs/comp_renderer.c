@@ -2,6 +2,7 @@
 #include "camera/camera.h"
 #include "ecs/comp_physics.h"
 #include "ecs/ecs_manager.h"
+#include "letterbox.h"
 #include "resources/texture_loader.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
@@ -28,7 +29,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       float angle = phy_body_get_angle(info->body);
       gfx_texture *tex = get_or_add_texture(info->tex_id);
       tex->angle = angle;
-      gfx_image_no_block(pos.x, pos.y, *tex, offset.x, offset.y, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
+      gfx_image_no_block(pos.x + LETTERBOX.pos.x, pos.y + LETTERBOX.pos.y, *tex, offset.x, offset.y, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
     }
   }
   return 0;

@@ -85,8 +85,8 @@ bool gfx_loop(float delta) {
   gfx_begin();
   if (check_current_scene("MAIN")) {
     gfx_clear_style_props();
-    gfx_aabb letterbox = get_letterbox();
-    render_div(letterbox.pos.x, letterbox.pos.y, letterbox.size.x, letterbox.size.y, 0);
+    get_letterbox();
+    render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
     gfx_internal_renderer_set_shader(PRIMARY_SHADER);
     move_camera(&CAMERA, delta);
     ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);

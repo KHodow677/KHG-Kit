@@ -2,4 +2,7 @@
 
 #include "khg_gfx/elements.h"
 
-gfx_aabb get_letterbox(void);
+extern gfx_aabb LETTERBOX;
+
+void get_letterbox(void);
+
