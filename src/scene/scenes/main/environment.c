@@ -14,6 +14,5 @@ void generate_environment_element(int tex_id, float x, float y, float angle, boo
   comp_renderer_constructor_info comp_renderer_ci = { cp->body, tex_id, 0 };
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);
   phy_body_set_angle(cp->body, angle);
-  /*generate_renderer(cr, cp, tex_id, 0);*/
 }
 
