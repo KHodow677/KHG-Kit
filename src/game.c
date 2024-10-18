@@ -82,7 +82,6 @@ int game_run() {
 bool gfx_loop(float delta) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
-  glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
   gfx_begin();
   if (check_current_scene("MAIN")) {
     gfx_clear_style_props();
