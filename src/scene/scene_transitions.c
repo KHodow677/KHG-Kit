@@ -16,8 +16,9 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   setup_lights_shader();
   add_light((vec2s){ 0.5f, 0.5f }, 400.0f);
   /*clear_lights();*/
-  generate_environment_element(SQUARE, 128, 128, 0, false);
-  generate_environment_element(SQUARE, 1152, 592, 0, false);
+  generate_environment_element(MAIN_ENVIRONMENT_TREE_1, 960, 500, 0, false, 0);
+  generate_environment_element(MAIN_ENVIRONMENT_TREE_0, 960, 600, 0, false, 1);
+  generate_environment_element(MAIN_ENVIRONMENT_GROUND, 960, 1000, 0, false, 2);
 };
 
 void load_game_scene(void *old_state_data, stm_event *event, void *new_state_data) {
