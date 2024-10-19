@@ -22,13 +22,6 @@ static float get_letterbox_height(float current_aspect_ratio, float ratio_ratio)
   return current_aspect_ratio < TARGET_ASPECT_RATIO ? gfx_get_display_height() * ratio_ratio : gfx_get_display_height();
 }
 
-static void set_letterbox_camera(gfx_aabb letterbox) {
-  /*CAMERA.position = phy_v(letterbox.pos.x, letterbox.pos.y);*/
-  /*CAMERA.target = phy_v(letterbox.pos.x, letterbox.pos.y);*/
-  /*CAMERA.zoom = fminf(gfx_get_display_width() / letterbox.size.x, gfx_get_display_height() / letterbox.size.y);*/
-  /*CAMERA.target_zoom = fminf(gfx_get_display_width() / letterbox.size.x, gfx_get_display_height() / letterbox.size.y);*/
-}
-
 void transform_letterbox_element(gfx_aabb letterbox, phy_vect *pos, gfx_texture *tex, float offset_x, float offset_y) {
   float scale_x = letterbox.size.x / INITIAL_WIDTH;
   float scale_y = letterbox.size.y / INITIAL_HEIGHT;
@@ -45,5 +38,4 @@ void get_letterbox() {
   LETTERBOX.pos.y = get_letterbox_y(current_aspect_ratio, ratio_ratio);
   LETTERBOX.size.x = get_letterbox_width(current_aspect_ratio, ratio_ratio);
   LETTERBOX.size.y = get_letterbox_height(current_aspect_ratio, ratio_ratio);
-  set_letterbox_camera(LETTERBOX);
 }
