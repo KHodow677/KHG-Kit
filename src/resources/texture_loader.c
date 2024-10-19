@@ -30,5 +30,7 @@ void generate_textures() {
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_GROUND] = (texture_asset) { (gfx_texture){ 0 }, false, "main/environment/ground_layer", "png", 1920, 906};
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_TREE_0] = (texture_asset) { (gfx_texture){ 0 }, false, "main/environment/tree_layer_0", "png", 1920, 441};
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_TREE_1] = (texture_asset) { (gfx_texture){ 0 }, false, "main/environment/tree_layer_1", "png", 1920, 612};
+  TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_MOUNTAIN_0] = (texture_asset) { (gfx_texture){ 0 }, false, "main/environment/mountain_layer_0", "png", 1920, 582};
+  TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_MOUNTAIN_1] = (texture_asset) { (gfx_texture){ 0 }, false, "main/environment/mountain_layer_1", "png", 1920, 567};
 }
 
