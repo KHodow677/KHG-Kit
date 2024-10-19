@@ -101,9 +101,9 @@ bool gfx_loop(float delta) {
 bool gfx_loop_post(float delta) {
   gfx_begin();
   gfx_clear_style_props();
-  /*gfx_internal_renderer_set_shader(LIGHTING_SHADER);*/
-  /*render_lights();*/
-  /*state.current_div.scrollable = false;*/
+  gfx_internal_renderer_set_shader(LIGHTING_SHADER);
+  render_lights();
+  state.current_div.scrollable = false;
   return true;
 };
 
