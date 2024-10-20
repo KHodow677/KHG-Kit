@@ -27,8 +27,8 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       phy_vect pos = phy_body_get_position(info->body);
       phy_vect offset = phy_body_get_center_of_gravity(info->body);
       float angle = phy_body_get_angle(info->body);
-      gfx_texture tex = *get_or_add_texture(info->tex_id);
-      tex.angle = angle;
+      gfx_texture tex_ref = get_or_add_texture(info->tex_id);
+      gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element(LETTERBOX, &pos, &tex, offset.x, offset.y);
       gfx_image_no_block(pos.x, pos.y, tex, offset.x, offset.y, CAMERA.position.x, CAMERA.position.y, CAMERA.zoom, true);
     }

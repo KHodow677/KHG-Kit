@@ -5,6 +5,7 @@
 #include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"
 #include "glad/glad.h"
+#include "resources/texture_loader.h"
 
 gfx_texture LIGHTING_OVERLAY = { 0 };
 gfx_shader PRIMARY_SHADER = { 0 };
@@ -13,7 +14,7 @@ int LIGHT_COUNT = 0;
 light LIGHTS[1024] = { 0 };
 
 void setup_lights_texture() {
-  LIGHTING_OVERLAY = gfx_load_texture_asset("square", "png");
+  LIGHTING_OVERLAY = get_or_add_texture(SQUARE);
 }
 
 void setup_lights_shader() {
