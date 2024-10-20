@@ -130,7 +130,9 @@ const char *lighting_frag_src =
   "    float u_light_radius = u_light_radii[i];\n"
   "    vec2 light_pos = vec2(v_pos_px.x + v_scale.x * u_light_pos_perc.x, u_screen_size.y - (v_pos_px.y + v_scale.y * u_light_pos_perc.y));\n"
   "    float dist_to_light = distance(gl_FragCoord.xy, light_pos);\n"
-  "    float transparency = 1.0 - clamp(1.0 - (dist_to_light / u_light_radius), 0.0, 1.0);\n"
+  "    float dist_ratio = dist_to_light / u_light_radius;\n"
+  "    float transparency = 1.0 - clamp(1.0 - pow(dist_ratio, 2.0), 0.0, 1.0);\n"
+  "    transparency = min(transparency, 1.0);\n"
   "    o_color = vec4(o_color.rgb, o_color.a * transparency);\n"
   "  }\n"
   "}\n";
