@@ -6,7 +6,6 @@
 #include "khg_phy/phy.h"
 #include "khg_phy/space.h"
 #include "khg_phy/vect.h"
-#include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT_SIGNATURE;
 ecs_id PHYSICS_SYSTEM_SIGNATURE;

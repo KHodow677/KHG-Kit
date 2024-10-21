@@ -40,5 +40,3 @@ void sys_physics_register(void);
 
 comp_physics *sys_physics_add(ecs_id eid, comp_physics_constructor_info *cpci);
 
-void generate_physics_box(comp_physics *info, const comp_physics_constructor_info constructor_info);
-void free_physics(const comp_physics *info);

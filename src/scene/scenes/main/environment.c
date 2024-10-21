@@ -3,7 +3,6 @@
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/body.h"
 #include "khg_phy/vect.h"
 #include <stdbool.h>
 
@@ -13,6 +12,5 @@ void generate_environment_element(int tex_id, float x, float y, float angle, boo
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
   comp_renderer_constructor_info comp_renderer_ci = { cp->body, tex_id, render_layer };
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);
-  phy_body_set_angle(cp->body, angle);
 }
 

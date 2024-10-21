@@ -1,5 +1,6 @@
 #include "game.h"
 #include "camera/camera_controller.h"
+#include "ecs/comp_animator.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "khg_ecs/ecs.h"
@@ -89,6 +90,7 @@ bool gfx_loop(float delta) {
     render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
     gfx_internal_renderer_set_shader(PRIMARY_SHADER);
     move_camera(&CAMERA, delta);
+    ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
     phy_threaded_space_step(SPACE, delta);

@@ -33,5 +33,7 @@ void generate_textures() {
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_MOUNTAIN_0] = (texture_asset){ "main/environment/mountain_layer_00", "png", 1282, 722, 0 };
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_MOUNTAIN_1] = (texture_asset){ "main/environment/mountain_layer_01", "png", 1282, 722, 0 };
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_BACKGROUND] = (texture_asset){ "main/environment/background_layer", "png", 1282, 722, 0 };
+  TEXTURE_ASSET_REF[PLAYER_IDLE_0] = (texture_asset){ "player/idle/idle_00", "png", 136, 165, 0 };
+  TEXTURE_ASSET_REF[PLAYER_IDLE_1] = (texture_asset){ "player/idle/idle_01", "png", 136, 165, 0 };
 }
 

@@ -9,8 +9,6 @@
 #include "khg_gfx/texture.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
 ecs_id RENDERER_SYSTEM_SIGNATURE;
