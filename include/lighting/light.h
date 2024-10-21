@@ -10,6 +10,7 @@ typedef struct {
 } light;
 
 extern gfx_texture LIGHTING_OVERLAY;
+extern float LIGHTING_OVERLAY_COLOR[3];
 extern gfx_shader PRIMARY_SHADER;
 extern gfx_shader LIGHTING_SHADER;
 extern int LIGHT_COUNT;

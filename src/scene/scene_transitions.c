@@ -14,7 +14,7 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   camera_setup(&CAMERA);
   setup_lights_texture();
   setup_lights_shader();
-  add_light((vec2s){ 0.5f, 0.5f }, 100.0f);
+  add_light((vec2s){ 0.5f, 0.75f }, 250.0f);
   /*clear_lights();*/
   generate_environment_element(MAIN_ENVIRONMENT_BACKGROUND, 640, 360, 0, false, 0);
   generate_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_1, 640, 360, 0, false, 1);
