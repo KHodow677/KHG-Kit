@@ -93,8 +93,32 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PLAYER_IDLE_57] = (texture_asset){ "player/idle/idle_57", "png", 166, 201, 0 };
   TEXTURE_ASSET_REF[PLAYER_IDLE_58] = (texture_asset){ "player/idle/idle_58", "png", 166, 201, 0 };
   TEXTURE_ASSET_REF[PLAYER_IDLE_59] = (texture_asset){ "player/idle/idle_59", "png", 166, 201, 0 };
-  /*for (int i = 0; i < NUM_TEXTURES; i++) {*/
-  /*  get_or_add_texture(i);*/
-  /*}*/
+  TEXTURE_ASSET_REF[PLAYER_WALK_00] = (texture_asset){ "player/walk/walk_00", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_01] = (texture_asset){ "player/walk/walk_01", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_02] = (texture_asset){ "player/walk/walk_02", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_03] = (texture_asset){ "player/walk/walk_03", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_04] = (texture_asset){ "player/walk/walk_04", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_05] = (texture_asset){ "player/walk/walk_05", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_06] = (texture_asset){ "player/walk/walk_06", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_07] = (texture_asset){ "player/walk/walk_07", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_08] = (texture_asset){ "player/walk/walk_08", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_09] = (texture_asset){ "player/walk/walk_09", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_10] = (texture_asset){ "player/walk/walk_10", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_11] = (texture_asset){ "player/walk/walk_11", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_12] = (texture_asset){ "player/walk/walk_12", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_13] = (texture_asset){ "player/walk/walk_13", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_14] = (texture_asset){ "player/walk/walk_14", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_15] = (texture_asset){ "player/walk/walk_15", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_16] = (texture_asset){ "player/walk/walk_16", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_17] = (texture_asset){ "player/walk/walk_17", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_18] = (texture_asset){ "player/walk/walk_18", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_19] = (texture_asset){ "player/walk/walk_19", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_20] = (texture_asset){ "player/walk/walk_20", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_21] = (texture_asset){ "player/walk/walk_21", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_22] = (texture_asset){ "player/walk/walk_22", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[PLAYER_WALK_23] = (texture_asset){ "player/walk/walk_23", "png", 189, 195, 0 };
+  for (int i = 0; i < NUM_TEXTURES; i++) {
+    get_or_add_texture(i);
+  }
 }
 
