@@ -13,39 +13,39 @@
 #include <unistd.h>
 #endif 
 
-FileWriter *file_writer_open(const char *filename, const WriteMode mode) {
+utl_file_writer *utl_file_writer_open(const char *filename, const utl_write_mode mode) {
   if (!filename) {
     utl_error_func("Filename is null", utl_user_defined_data);
     exit(-1);
   }
 
-  FileWriter *writer = (FileWriter *)malloc(sizeof(FileWriter));
+  utl_file_writer *writer = (utl_file_writer *)malloc(sizeof(utl_file_writer));
   if (!writer) {
     utl_error_func("Cannot allocate memory", utl_user_defined_data);
     exit(-1);
   }
   const char *modeStr = NULL;
   switch (mode) {
-    case WRITE_TEXT:
+    case UTL_WRITE_TEXT:
       modeStr = "w";
       break;
-    case WRITE_BINARY:
+    case UTL_WRITE_BINARY:
       modeStr = "wb";
       break;
-    case WRITE_UNICODE:
+    case UTL_WRITE_UNICODE:
 #if defined(_WIN32) || defined(_WIN64)
       modeStr = "w, ccs=UTF-8";
 #else
       modeStr = "w";
 #endif 
       break;
-    case WRITE_BUFFERED:
+    case UTL_WRITE_BUFFERED:
       modeStr = "w";
       break;
-    case WRITE_UNBUFFERED:
+    case UTL_WRITE_UNBUFFERED:
       modeStr = "w";
       break;
-    case WRITE_APPEND:
+    case UTL_WRITE_APPEND:
 #if defined(_WIN32) || defined(_WIN64)
       modeStr = "a, ccs=UTF-8";
 #else 
@@ -84,43 +84,43 @@ FileWriter *file_writer_open(const char *filename, const WriteMode mode) {
   }
   writer->mode = mode;
   writer->is_open = true;
-  writer->encoding = WRITE_ENCODING_UTF16;
+  writer->encoding = UTL_WRITE_ENCODING_UTF16;
   writer->file_path = utl_string_strdup(filename);
   return writer;
 }
 
-FileWriter *file_writer_append(const char *filename, const WriteMode mode) {
+utl_file_writer *utl_file_writer_append(const char *filename, const utl_write_mode mode) {
   if (!filename) {
     utl_error_func("Filename is null", utl_user_defined_data);
     return NULL;
   }
-  FileWriter *writer = (FileWriter *)malloc(sizeof(FileWriter));
+  utl_file_writer *writer = (utl_file_writer *)malloc(sizeof(utl_file_writer));
   if (!writer) {
     utl_error_func("Cannot allocate memory", utl_user_defined_data);
     return NULL;
   }
   const char *modeStr = NULL;
   switch (mode) {
-    case WRITE_TEXT:
+    case UTL_WRITE_TEXT:
       modeStr = "a";
       break;
-    case WRITE_BINARY:
+    case UTL_WRITE_BINARY:
       modeStr = "ab";
       break;
-    case WRITE_UNICODE:
+    case UTL_WRITE_UNICODE:
 #if defined(_WIN32) || defined(_WIN64)
       modeStr = "a, ccs=UTF-8";
 #else
       modeStr = "a";
 #endif 
       break;
-    case WRITE_BUFFERED:
+    case UTL_WRITE_BUFFERED:
       modeStr = "a";
       break;
-    case WRITE_UNBUFFERED:
+    case UTL_WRITE_UNBUFFERED:
       modeStr = "a";
       break;
-    case WRITE_APPEND:
+    case UTL_WRITE_APPEND:
 #if defined(_WIN32) || defined(_WIN64)
       modeStr = "a, ccs=UTF-8";
 #else 
@@ -158,12 +158,12 @@ FileWriter *file_writer_append(const char *filename, const WriteMode mode) {
   }
   writer->mode = mode;
   writer->is_open = true;
-  writer->encoding = WRITE_ENCODING_UTF16;
+  writer->encoding = UTL_WRITE_ENCODING_UTF16;
   writer->file_path = utl_string_strdup(filename);
   return writer;
 }
 
-bool file_writer_close(FileWriter *writer) {
+bool utl_file_writer_close(utl_file_writer *writer) {
   if (writer->file_writer == NULL) {
     return false;
   }
@@ -175,7 +175,7 @@ bool file_writer_close(FileWriter *writer) {
   return true;
 }
 
-size_t file_writer_get_position(FileWriter *writer) {
+size_t utl_file_writer_get_position(utl_file_writer *writer) {
   if (writer->file_writer == NULL) {
     utl_error_func("Object is NULL and invalid", utl_user_defined_data);
     return (size_t)-1;
@@ -188,18 +188,18 @@ size_t file_writer_get_position(FileWriter *writer) {
   return (size_t)cursor_position;
 }
 
-size_t file_writer_write(void *buffer, size_t size, size_t count, FileWriter *writer) {
+size_t utl_file_writer_write(void *buffer, size_t size, size_t count, utl_file_writer *writer) {
   if (!writer || !writer->file_writer || !buffer) {
     utl_error_func("Invalid argument", utl_user_defined_data);
     return 0;
   }
-  if (writer->mode == WRITE_BINARY) {
+  if (writer->mode == UTL_WRITE_BINARY) {
     return fwrite(buffer, size, count, writer->file_writer);
   }
   size_t written = 0;
   switch (writer->encoding) {
-    case WRITE_ENCODING_UTF32: {
-      uint32_t *utf32Buffer = encoding_utf8_to_utf32((const uint8_t*)buffer, size * count);
+    case UTL_WRITE_ENCODING_UTF32: {
+      uint32_t *utf32Buffer = utl_encoding_utf8_to_utf32((const uint8_t*)buffer, size * count);
       if (!utf32Buffer) {
         utl_error_func("Conversion to UTF-32 failed", utl_user_defined_data);
         return 0;
@@ -208,7 +208,7 @@ size_t file_writer_write(void *buffer, size_t size, size_t count, FileWriter *wr
       free(utf32Buffer);
       break;
     }
-    case WRITE_ENCODING_UTF16: {
+    case UTL_WRITE_ENCODING_UTF16: {
 #if defined(_WIN32) || defined(_WIN64)
       if (writer->mode == WRITE_UNICODE || writer->mode == WRITE_APPEND) {
         wchar_t *wBuffer = encoding_utf8_to_wchar((const char*)buffer);
@@ -223,8 +223,8 @@ size_t file_writer_write(void *buffer, size_t size, size_t count, FileWriter *wr
         written = fwrite(buffer, size, count, writer->file_writer);
       }
 #else
-      if (writer->encoding == WRITE_ENCODING_UTF16) {
-        uint16_t *utf16Buffer = encoding_utf8_to_utf16((const uint8_t *)buffer, size * count);
+      if (writer->encoding == UTL_WRITE_ENCODING_UTF16) {
+        uint16_t *utf16Buffer = utl_encoding_utf8_to_utf16((const uint8_t *)buffer, size * count);
         if (!utf16Buffer) {
           utl_error_func("Conversion to UTF-16 failed", utl_user_defined_data);
           return 0;
@@ -245,7 +245,7 @@ size_t file_writer_write(void *buffer, size_t size, size_t count, FileWriter *wr
   return written;
 }
 
-bool file_writer_write_line(char *buffer, size_t size, FileWriter *writer) {
+bool utl_file_writer_write_line(char *buffer, size_t size, utl_file_writer *writer) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return false;
@@ -294,7 +294,7 @@ bool file_writer_write_line(char *buffer, size_t size, FileWriter *writer) {
   return written == 1;
 }
 
-bool file_writer_is_open(FileWriter *writer) {
+bool utl_file_writer_is_open(utl_file_writer *writer) {
   if (!writer) {
     utl_error_func("Pointer is NULL", utl_user_defined_data);
     return false;
@@ -306,7 +306,7 @@ bool file_writer_is_open(FileWriter *writer) {
   return writer->is_open;
 }
 
-bool file_writer_flush(FileWriter *writer) {
+bool utl_file_writer_flush(utl_file_writer *writer) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return false;
@@ -318,12 +318,12 @@ bool file_writer_flush(FileWriter *writer) {
   return true;
 }
 
-bool file_writer_set_encoding(FileWriter *writer, const WriteEncodingType encoding) {
+bool utl_file_writer_set_encoding(utl_file_writer *writer, const utl_write_encoding_type encoding) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return false;
   }
-  if (!(encoding >= WRITE_ENCODING_UTF16 && encoding <= WRITE_ENCODING_UTF32)) {
+  if (!(encoding >= UTL_WRITE_ENCODING_UTF16 && encoding <= UTL_WRITE_ENCODING_UTF32)) {
     utl_error_func("Invalid encoding type", utl_user_defined_data);
     return false;
   }
@@ -331,7 +331,7 @@ bool file_writer_set_encoding(FileWriter *writer, const WriteEncodingType encodi
   return true;
 }
 
-bool file_writer_copy(FileWriter *src_writer, FileWriter *dest_writer) {
+bool utl_file_writer_copy(utl_file_writer *src_writer, utl_file_writer *dest_writer) {
   if (!src_writer || src_writer->file_writer == NULL || src_writer->file_path == NULL) {
     utl_error_func("Object or file path is NULL or invalid", utl_user_defined_data);
     return false;
@@ -366,7 +366,7 @@ bool file_writer_copy(FileWriter *src_writer, FileWriter *dest_writer) {
   return true;
 }
 
-const char *file_writer_get_file_name(FileWriter *writer) {
+const char *utl_file_writer_get_file_name(utl_file_writer *writer) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is null or invalid", utl_user_defined_data);
     return NULL;
@@ -378,28 +378,28 @@ const char *file_writer_get_file_name(FileWriter *writer) {
   return (const char *)writer->file_path;
 }
 
-const char *file_writer_get_encoding(FileWriter *writer) {
+const char *utl_file_writer_get_encoding(utl_file_writer *writer) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is null or invalid", utl_user_defined_data);
     return NULL;
   }
-  if (!(writer->encoding >= WRITE_ENCODING_UTF16 && writer->encoding <= WRITE_ENCODING_UTF32)) {
+  if (!(writer->encoding >= UTL_WRITE_ENCODING_UTF16 && writer->encoding <= UTL_WRITE_ENCODING_UTF32)) {
     utl_error_func("Invalid encoding type", utl_user_defined_data);
     return NULL;
   }
   char *encoding = NULL;
   switch (writer->encoding) {
-    case WRITE_ENCODING_UTF16:
+    case UTL_WRITE_ENCODING_UTF16:
       encoding = utl_string_strdup("ENCODING_UTF16");
       break;
-    case WRITE_ENCODING_UTF32:
+    case UTL_WRITE_ENCODING_UTF32:
       encoding = utl_string_strdup("ENCODING_UTF32");
       break;
   }
   return encoding;
 }
 
-size_t file_writer_write_fmt(FileWriter *writer, const char *format, ...) {
+size_t utl_file_writer_write_fmt(utl_file_writer *writer, const char *format, ...) {
   if (!writer || !writer->file_writer || !format) {
     utl_error_func("Invalid argument", utl_user_defined_data);
     return 0;
@@ -408,33 +408,33 @@ size_t file_writer_write_fmt(FileWriter *writer, const char *format, ...) {
   va_start(args, format);
   char buffer[2048];
   vsnprintf(buffer, sizeof(buffer), format, args);
-  size_t written = file_writer_write(buffer, strlen(buffer), 1, writer);
+  size_t written = utl_file_writer_write(buffer, strlen(buffer), 1, writer);
   va_end(args);
   return written;
 }
 
-size_t file_writer_get_size(FileWriter *writer) {
+size_t utl_file_writer_get_size(utl_file_writer *writer) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return 0;
   }
-  if (!file_writer_flush(writer)) {
+  if (!utl_file_writer_flush(writer)) {
     utl_error_func("Failed to flush data", utl_user_defined_data);
     return 0;
   }
-  size_t current_position = file_writer_get_position(writer);
+  size_t current_position = utl_file_writer_get_position(writer);
   if (fseek(writer->file_writer, 0, SEEK_END) != 0) {
     utl_error_func("Failed to seek to end of file", utl_user_defined_data);
     return 0;
   }
-  size_t size = file_writer_get_position(writer);
+  size_t size = utl_file_writer_get_position(writer);
   if (fseek(writer->file_writer, current_position, SEEK_SET) != 0) {
     utl_error_func("Failed to return to original position", utl_user_defined_data);
   }
   return size;
 }
 
-bool file_writer_lock(FileWriter *writer) {
+bool utl_file_writer_lock(utl_file_writer *writer) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return false;
@@ -460,7 +460,7 @@ bool file_writer_lock(FileWriter *writer) {
   return true;
 }
 
-bool file_writer_unlock(FileWriter *writer) {
+bool utl_file_writer_unlock(utl_file_writer *writer) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return false;
@@ -487,20 +487,20 @@ bool file_writer_unlock(FileWriter *writer) {
   return true;
 }
 
-bool file_writer_seek(FileWriter *writer, long offset, const CursorPosition cursor_pos) {
+bool utl_file_writer_seek(utl_file_writer *writer, long offset, const utl_cursor_position cursor_pos) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return false;
   }
   int pos;
   switch (cursor_pos) {
-    case POS_BEGIN:
+    case UTL_POS_BEGIN:
       pos = SEEK_SET;
       break;
-    case POS_END:
+    case UTL_POS_END:
       pos = SEEK_END;
       break;
-    case POS_CURRENT:
+    case UTL_POS_CURRENT:
       pos = SEEK_CUR;
       break;
     default:
@@ -514,12 +514,12 @@ bool file_writer_seek(FileWriter *writer, long offset, const CursorPosition curs
   return true;
 }
 
-bool file_writer_truncate(FileWriter *writer, size_t size) {
+bool utl_file_writer_truncate(utl_file_writer *writer, size_t size) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return false;
   }
-  if (!file_writer_flush(writer)) {
+  if (!utl_file_writer_flush(writer)) {
     utl_error_func("Failed to flush the file", utl_user_defined_data);
     return false;
   }
@@ -540,7 +540,7 @@ bool file_writer_truncate(FileWriter *writer, size_t size) {
   return true;
 }
 
-bool file_writer_write_batch(FileWriter *writer, const void **buffers, const size_t *sizes, size_t count) {
+bool utl_file_writer_write_batch(utl_file_writer *writer, const void **buffers, const size_t *sizes, size_t count) {
   if (!writer || !writer->file_writer || !buffers || !sizes) {
     utl_error_func("Invalid arguments", utl_user_defined_data);
     return false;
@@ -559,8 +559,8 @@ bool file_writer_write_batch(FileWriter *writer, const void **buffers, const siz
     void *convertedBuffer = NULL; 
     size_t convertedSize = 0;     
     switch (writer->encoding) {
-      case WRITE_ENCODING_UTF32: {
-        uint32_t *utf32Buffer = encoding_utf8_to_utf32((const uint8_t *)buffer, size);
+      case UTL_WRITE_ENCODING_UTF32: {
+        uint32_t *utf32Buffer = utl_encoding_utf8_to_utf32((const uint8_t *)buffer, size);
         if (!utf32Buffer) {
           utl_error_func("Conversion to UTF-32 failed at index", utl_user_defined_data);
           continue;
@@ -570,7 +570,7 @@ bool file_writer_write_batch(FileWriter *writer, const void **buffers, const siz
         break;
       }
       default:
-      case WRITE_ENCODING_UTF16: {
+      case UTL_WRITE_ENCODING_UTF16: {
 #if defined(_WIN32) || defined(_WIN64)
         wchar_t *wBuffer = encoding_utf8_to_wchar((const char *)buffer);
         if (!wBuffer) {
@@ -580,7 +580,7 @@ bool file_writer_write_batch(FileWriter *writer, const void **buffers, const siz
         convertedBuffer = wBuffer;
         convertedSize = wcslen(wBuffer) * sizeof(wchar_t);
 #else
-        uint16_t *utf16Buffer = encoding_utf8_to_utf16((const uint8_t *)buffer, size);
+        uint16_t *utf16Buffer = utl_encoding_utf8_to_utf16((const uint8_t *)buffer, size);
         if (!utf16Buffer) {
           utl_error_func("Conversion to UTF-16 failed at index", utl_user_defined_data);
           continue;
@@ -599,18 +599,18 @@ bool file_writer_write_batch(FileWriter *writer, const void **buffers, const siz
     }
     total_written += written;
   }
-  if (writer->mode == WRITE_UNICODE) {
+  if (writer->mode == UTL_WRITE_UNICODE) {
     all_bytes *= 2;
   }
   return total_written == all_bytes;
 }
 
-bool file_writer_append_fmt(FileWriter *writer, const char *format, ...) {
+bool utl_file_writer_append_fmt(utl_file_writer *writer, const char *format, ...) {
   if (!writer || !writer->file_writer || !format) {
     utl_error_func("Invalid arguments", utl_user_defined_data);
     return false;
   }
-  if (writer->mode != WRITE_APPEND) {
+  if (writer->mode != UTL_WRITE_APPEND) {
     utl_error_func("Object must be in append mode", utl_user_defined_data);
     return false;
   }
@@ -618,7 +618,7 @@ bool file_writer_append_fmt(FileWriter *writer, const char *format, ...) {
   va_start(args, format);
   char buffer[2048]; 
   vsnprintf(buffer, sizeof(buffer), format, args);
-  size_t written = file_writer_write(buffer, strlen(buffer), 1, writer);
+  size_t written = utl_file_writer_write(buffer, strlen(buffer), 1, writer);
   va_end(args);
   return written > 0;
 }

@@ -6,42 +6,42 @@
 #include <stdio.h>
 
 typedef enum {
-  READ_TEXT,
-  READ_BINARY,
-  READ_UNICODE,
-  READ_BUFFERED,
-  READ_UNBUFFERED,
-  READ_LINE,
-} ReadMode;
+  UTL_READ_TEXT,
+  UTL_READ_BINARY,
+  UTL_READ_UNICODE,
+  UTL_READ_BUFFERED,
+  UTL_READ_UNBUFFERED,
+  UTL_READ_LINE,
+} utl_read_mode;
 
 typedef enum {
-  READ_ENCODING_UTF16,
-  READ_ENCODING_UTF32,
-} ReadEncodingType;
+  UTL_READ_ENCODING_UTF16,
+  UTL_READ_ENCODING_UTF32,
+} utl_read_encoding_type;
 
 typedef struct {
   FILE *file_reader;
-  ReadMode mode;
+  utl_read_mode mode;
   bool is_open;
-  ReadEncodingType encoding;
+  utl_read_encoding_type encoding;
   char *file_path;
-}FileReader;
+} utl_file_reader;
 
-FileReader *file_reader_open(const char *filename, const ReadMode mode);
+utl_file_reader *utl_file_reader_open(const char *filename, const utl_read_mode mode);
 
-bool file_reader_close(FileReader *reader);
-bool file_reader_set_encoding(FileReader *reader, const ReadEncodingType encoding);
-bool file_reader_seek(FileReader *reader, long offset, const CursorPosition cursor_pos);
-bool file_reader_is_open(FileReader *reader);
-bool file_reader_eof(FileReader *reader);
-bool file_reader_copy(FileReader *src_reader, FileWriter *dest_writer);
-bool file_reader_read_line(char *buffer, size_t size, FileReader *reader);
-bool file_reader_read_lines(FileReader *reader, char ***buffer, size_t num_lines);
+bool utl_file_reader_close(utl_file_reader *reader);
+bool utl_file_reader_set_encoding(utl_file_reader *reader, const utl_read_encoding_type encoding);
+bool utl_file_reader_seek(utl_file_reader *reader, long offset, const utl_cursor_position cursor_pos);
+bool utl_file_reader_is_open(utl_file_reader *reader);
+bool utl_file_reader_eof(utl_file_reader *reader);
+bool utl_file_reader_copy(utl_file_reader *src_reader, utl_file_writer *dest_writer);
+bool utl_file_reader_read_line(char *buffer, size_t size, utl_file_reader *reader);
+bool utl_file_reader_read_lines(utl_file_reader *reader, char ***buffer, size_t num_lines);
 
-size_t file_reader_get_position(FileReader *reader);
-size_t file_reader_read(void* buffer, size_t size, size_t count, FileReader *reader);
-size_t file_reader_get_size(FileReader *reader);
-size_t file_reader_read_fmt(FileReader *reader, const char* format, ...);
+size_t utl_file_reader_get_position(utl_file_reader *reader);
+size_t utl_file_reader_read(void* buffer, size_t size, size_t count, utl_file_reader *reader);
+size_t utl_file_reader_get_size(utl_file_reader *reader);
+size_t utl_file_reader_read_fmt(utl_file_reader *reader, const char* format, ...);
 
-const char *file_reader_get_file_name(FileReader *reader);
+const char *utl_file_reader_get_file_name(utl_file_reader *reader);
 

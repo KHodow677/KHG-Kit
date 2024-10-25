@@ -6,56 +6,55 @@
 #include <stdio.h>
 
 typedef enum {
-  POS_BEGIN,
-  POS_END,
-  POS_CURRENT,
-} CursorPosition;
+  UTL_POS_BEGIN,
+  UTL_POS_END,
+  UTL_POS_CURRENT,
+} utl_cursor_position;
 
 typedef enum {
-  WRITE_ENCODING_UTF16,
-  WRITE_ENCODING_UTF32,
-} WriteEncodingType;
+  UTL_WRITE_ENCODING_UTF16,
+  UTL_WRITE_ENCODING_UTF32,
+} utl_write_encoding_type;
 
 typedef enum {
-  WRITE_TEXT,
-  WRITE_BINARY,
-  WRITE_UNICODE,
-  WRITE_BUFFERED,
-  WRITE_UNBUFFERED,
-  WRITE_LINE,
-  WRITE_APPEND,
-} WriteMode;
+  UTL_WRITE_TEXT,
+  UTL_WRITE_BINARY,
+  UTL_WRITE_UNICODE,
+  UTL_WRITE_BUFFERED,
+  UTL_WRITE_UNBUFFERED,
+  UTL_WRITE_LINE,
+  UTL_WRITE_APPEND,
+} utl_write_mode;
 
 typedef struct {
   FILE *file_writer;
-  WriteMode mode;
+  utl_write_mode mode;
   bool is_open;
-  WriteEncodingType encoding;
+  utl_write_encoding_type encoding;
   char *file_path;
-} FileWriter;
+} utl_file_writer;
 
+utl_file_writer *utl_file_writer_open(const char* filename, const utl_write_mode mode);
+utl_file_writer *utl_file_writer_append(const char* filename, const utl_write_mode mode);
 
-FileWriter *file_writer_open(const char* filename, const WriteMode mode);
-FileWriter *file_writer_append(const char* filename, const WriteMode mode);
+size_t utl_file_writer_get_position(utl_file_writer *writer);
+size_t utl_file_writer_write(void* buffer, size_t size, size_t count, utl_file_writer *writer);
+size_t utl_file_writer_write_fmt(utl_file_writer *writer, const char *format, ...);
+size_t utl_file_writer_get_size(utl_file_writer *writer);
 
-size_t file_writer_get_position(FileWriter *writer);
-size_t file_writer_write(void* buffer, size_t size, size_t count, FileWriter *writer);
-size_t file_writer_write_fmt(FileWriter *writer, const char *format, ...);
-size_t file_writer_get_size(FileWriter *writer);
+bool utl_file_writer_write_line(char *buffer, size_t size, utl_file_writer *writer);
+bool utl_file_writer_close(utl_file_writer *writer);
+bool utl_file_writer_is_open(utl_file_writer *writer);
+bool utl_file_writer_flush(utl_file_writer *writer);
+bool utl_file_writer_set_encoding(utl_file_writer *writer, const utl_write_encoding_type encoding);
+bool utl_file_writer_copy(utl_file_writer *src_writer, utl_file_writer *dest_writer);
+bool utl_file_writer_lock(utl_file_writer *writer);
+bool utl_file_writer_unlock(utl_file_writer *writer);
+bool utl_file_writer_seek(utl_file_writer *writer, long offset, const utl_cursor_position cursor_pos);
+bool utl_file_writer_truncate(utl_file_writer *writer, size_t size);
+bool utl_file_writer_write_batch(utl_file_writer *writer, const void **buffers, const size_t *sizes, size_t count);
+bool utl_file_writer_append_fmt(utl_file_writer *writer, const char *format, ...);
 
-bool file_writer_write_line(char *buffer, size_t size, FileWriter *writer);
-bool file_writer_close(FileWriter *writer);
-bool file_writer_is_open(FileWriter *writer);
-bool file_writer_flush(FileWriter *writer);
-bool file_writer_set_encoding(FileWriter *writer, const WriteEncodingType encoding);
-bool file_writer_copy(FileWriter *src_writer, FileWriter *dest_writer);
-bool file_writer_lock(FileWriter *writer);
-bool file_writer_unlock(FileWriter *writer);
-bool file_writer_seek(FileWriter *writer, long offset, const CursorPosition cursor_pos);
-bool file_writer_truncate(FileWriter *writer, size_t size);
-bool file_writer_write_batch(FileWriter *writer, const void **buffers, const size_t *sizes, size_t count);
-bool file_writer_append_fmt(FileWriter *writer, const char *format, ...);
-
-const char *file_writer_get_file_name(FileWriter *writer);
-const char *file_writer_get_encoding(FileWriter *writer);
+const char *utl_file_writer_get_file_name(utl_file_writer *writer);
+const char *utl_file_writer_get_encoding(utl_file_writer *writer);
 
