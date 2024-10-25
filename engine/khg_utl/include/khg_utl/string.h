@@ -90,16 +90,16 @@ void utl_string_pop_back(utl_string *str);
 void utl_string_deallocate(utl_string *str);
 void utl_string_clear(utl_string *str);
 
-char* string_to_upper(utl_string *str);
-char* string_to_lower(utl_string *str);
-char* string_begin(utl_string *str);
-char* string_end(utl_string *str);
-char* string_rbegin(utl_string *str);
-char* string_rend(utl_string *str);
-char* string_back(utl_string *str);
-char* string_front(utl_string *str);
-char* string_strdup(const char *s);
-char* string_from_int_cstr(int value);
+char *utl_string_to_upper(utl_string *str);
+char *utl_string_to_lower(utl_string *str);
+char *utl_string_begin(utl_string *str);
+char *utl_string_end(utl_string *str);
+char *utl_string_rbegin(utl_string *str);
+char *utl_string_rend(utl_string *str);
+char *utl_string_back(utl_string *str);
+char *utl_string_front(utl_string *str);
+char *utl_string_strdup(const char *s);
+char *utl_string_from_int_cstr(int value);
 
 size_t utl_string_length_cstr(const char *str);
 size_t utl_string_length_utf8(const char *str);

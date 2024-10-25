@@ -70,7 +70,7 @@ FileReader *file_reader_open(const char *filename, const ReadMode mode) {
   reader->mode = mode;
   reader->is_open = true;
   reader->encoding = READ_ENCODING_UTF16;
-  reader->file_path = string_strdup(filename);
+  reader->file_path = utl_string_strdup(filename);
   return reader;
 }
 
@@ -329,7 +329,7 @@ bool file_reader_read_lines(FileReader *reader, char ***buffer, size_t num_lines
   char line_buffer[1024]; 
   while (lines_read < num_lines && !feof(reader->file_reader)) {
     if (file_reader_read_line(line_buffer, sizeof(line_buffer), reader)) {
-      (*buffer)[lines_read] = string_strdup(line_buffer);
+      (*buffer)[lines_read] = utl_string_strdup(line_buffer);
       if (!(*buffer)[lines_read]) {
         utl_error_func("Memory allocation failed", utl_user_defined_data);
         for (size_t i = 0; i < lines_read; ++i) {
