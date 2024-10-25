@@ -44,3 +44,4 @@ size_t file_reader_get_size(FileReader *reader);
 size_t file_reader_read_fmt(FileReader *reader, const char* format, ...);
 
 const char *file_reader_get_file_name(FileReader *reader);
+

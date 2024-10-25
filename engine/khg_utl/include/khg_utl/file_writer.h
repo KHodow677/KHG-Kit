@@ -56,5 +56,6 @@ bool file_writer_truncate(FileWriter *writer, size_t size);
 bool file_writer_write_batch(FileWriter *writer, const void **buffers, const size_t *sizes, size_t count);
 bool file_writer_append_fmt(FileWriter *writer, const char *format, ...);
 
-const char* file_writer_get_file_name(FileWriter *writer);
-const char* file_writer_get_encoding(FileWriter *writer);
+const char *file_writer_get_file_name(FileWriter *writer);
+const char *file_writer_get_encoding(FileWriter *writer);
+

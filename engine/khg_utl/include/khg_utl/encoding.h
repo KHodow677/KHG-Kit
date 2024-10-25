@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <locale.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -66,3 +65,4 @@ uint8_t *encoding_base91_decode(const char *encoded, size_t *decoded_length);
 
 bool encoding_is_utf8(const uint8_t *input, size_t length);
 bool encoding_is_utf8_string(const uint8_t **input, size_t length);
+
