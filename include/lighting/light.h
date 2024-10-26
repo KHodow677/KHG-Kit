@@ -23,3 +23,4 @@ void clear_lights();
 void add_light(vec2s pos_perc, float radius);
 
 void render_lights(void);
+

@@ -3,8 +3,6 @@
 #include "ecs/comp_animator.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
-#include "khg_ecs/ecs.h"
-#include "khg_phy/threaded_space.h"
 #include "letterbox.h"
 #include "ecs/ecs_manager.h"
 #include "lighting/light.h"
@@ -13,10 +11,12 @@
 #include "scene/scene_manager.h"
 #include "scene/scene_utl.h"
 #include "thread/thread_manager.h"
+#include "khg_ecs/ecs.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
+#include "khg_phy/threaded_space.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdint.h>
@@ -104,7 +104,7 @@ bool gfx_loop_post(float delta) {
   gfx_begin();
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
-  render_lights();
+  /*render_lights();*/
   state.current_div.scrollable = false;
   return true;
 };
