@@ -1,5 +1,6 @@
 #include "scene/scenes/main/player.h"
 #include "ecs/comp_animator.h"
+#include "ecs/comp_light.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
@@ -15,5 +16,7 @@ void generate_player(int min_tex_id, int max_tex_id, float x, float y, int rende
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);
   comp_animator_constructor_info comp_animator_ci = { min_tex_id, max_tex_id, 0.032f, false };
   comp_animator *ca = sys_animator_add(entity, &comp_animator_ci);
+  comp_light_constructor_info comp_light_ci = { cp->body, (light){ (vec2s){ 0.0, 0.0 }, 250.0f }, phy_v(0.0f, 0.0f)};
+  comp_light *cl = sys_light_add(entity, &comp_light_ci);
 }
 
