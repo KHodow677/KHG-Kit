@@ -1,7 +1,7 @@
 #include "scene/scene_transitions.h"
 #include "camera/camera.h"
 #include "ecs/ecs_manager.h"
-#include "lighting/light.h"
+#include "graphics/light.h"
 #include "physics/physics.h"
 #include "khg_phy/vect.h"
 #include "khg_stm/state_machine.h"

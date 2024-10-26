@@ -5,7 +5,7 @@
 #include "ecs/comp_renderer.h"
 #include "letterbox.h"
 #include "ecs/ecs_manager.h"
-#include "lighting/light.h"
+#include "graphics/light.h"
 #include "physics/physics.h"
 #include "resources/texture_loader.h"
 #include "scene/scene_manager.h"
@@ -124,6 +124,11 @@ bool gfx_loop_ui(float delta) {
 void gfx_framebuffer(GLuint vao, GLuint texture) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(FRAMEBUFFER_SHADER.id);
+  float timeValue = (float)glfwGetTime();
+  glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "time"), timeValue);
+  glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "brightness_decrease"), 0.15f);
+  glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "noise_intensity"), 0.12f);
+  glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "distortion_strength"), 0.001f);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
   glUniform1i(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_framebuffer_texture"), 0);
