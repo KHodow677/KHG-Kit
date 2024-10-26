@@ -34,6 +34,7 @@ void generate_textures() {
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_MOUNTAIN_1] = (texture_asset){ "main/environment/mountain_layer_01", "png", 1282, 722, 0 };
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_BACKGROUND] = (texture_asset){ "main/environment/background_layer", "png", 1282, 722, 0 };
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_ROCK_0] = (texture_asset){ "main/environment/rocks/rock_00", "png", 302, 104, 0 };
+  TEXTURE_ASSET_REF[MAIN_STATION_CART] = (texture_asset){ "main/station/cart", "png", 370, 280, 0 };
   TEXTURE_ASSET_REF[PLAYER_IDLE_0] = (texture_asset){ "player/idle/idle_00", "png", 166, 201, 0 };
   TEXTURE_ASSET_REF[PLAYER_IDLE_1] = (texture_asset){ "player/idle/idle_01", "png", 166, 201, 0 };
   TEXTURE_ASSET_REF[PLAYER_IDLE_2] = (texture_asset){ "player/idle/idle_02", "png", 166, 201, 0 };
@@ -118,6 +119,7 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PLAYER_WALK_21] = (texture_asset){ "player/walk/walk_21", "png", 189, 195, 0 };
   TEXTURE_ASSET_REF[PLAYER_WALK_22] = (texture_asset){ "player/walk/walk_22", "png", 189, 195, 0 };
   TEXTURE_ASSET_REF[PLAYER_WALK_23] = (texture_asset){ "player/walk/walk_23", "png", 189, 195, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_0] = (texture_asset){ "animal/elk/idle/idle_00", "png", 288, 248, 0 };
   for (int i = 0; i < NUM_TEXTURES; i++) {
     get_or_add_texture(i);
   }

@@ -16,6 +16,7 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   setup_lights_texture();
   setup_lights_shader();
   add_light((vec2s){ 0.5f, 0.75f }, 250.0f);
+  add_light((vec2s){ 0.75f, 0.75f }, 250.0f);
   /*clear_lights();*/
   generate_environment_element(MAIN_ENVIRONMENT_BACKGROUND, 640, 360, 0, false, 0);
   generate_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_1, 640, 360, 0, false, 1);
@@ -24,7 +25,9 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   generate_environment_element(MAIN_ENVIRONMENT_TREE_0, 640, 360, 0, false, 4);
   generate_environment_element(MAIN_ENVIRONMENT_GROUND, 640, 360, 0, false, 6);
   generate_environment_element(MAIN_ENVIRONMENT_ROCK_0, 360, 600, 0, false, 5);
-  generate_player(PLAYER_IDLE_0, PLAYER_IDLE_59, 640, 560, 7);
+  generate_environment_element(ANIMAL_ELK_IDLE_0, 800, 540, 0, false, 7);
+  generate_environment_element(MAIN_STATION_CART, 1000, 510, 0, false, 7);
+  generate_player(PLAYER_IDLE_0, PLAYER_IDLE_59, 640, 560, 8);
 };
 
 void load_game_scene(void *old_state_data, stm_event *event, void *new_state_data) {
