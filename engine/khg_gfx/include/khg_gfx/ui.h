@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GLFW/glfw3.h"
+#include "glad/glad.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -19,5 +20,6 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps);
 bool gfx_loop(float delta);
 bool gfx_loop_post(float delta);
 bool gfx_loop_ui(float delta);
+void gfx_framebuffer(GLuint vao, GLuint texture);
 void gfx_terminate(void);
 

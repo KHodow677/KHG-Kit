@@ -1,7 +1,8 @@
 #include "lighting/light.h"
 #include "game.h"
 #include "letterbox.h"
-#include "lighting/lighting_shader.h"
+#include "lighting/framebuffer_shader.h"
+#include "lighting/light_shader.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"
 #include "glad/glad.h"
@@ -11,6 +12,7 @@ gfx_texture LIGHTING_OVERLAY = { 0 };
 float LIGHTING_OVERLAY_COLOR[3] = { 0.0f, 0.0f, 0.0f };
 gfx_shader PRIMARY_SHADER = { 0 };
 gfx_shader LIGHTING_SHADER = { 0 };
+gfx_shader FRAMEBUFFER_SHADER = { 0 };
 int LIGHT_COUNT = 0;
 light LIGHTS[1024];
 
@@ -20,7 +22,8 @@ void setup_lights_texture() {
 
 void setup_lights_shader() {
   PRIMARY_SHADER = state.render.shader;
-  LIGHTING_SHADER = gfx_internal_shader_prg_create(lighting_vert_src, lighting_frag_src);
+  LIGHTING_SHADER = gfx_internal_shader_prg_create(light_vert_src, light_frag_src);
+  FRAMEBUFFER_SHADER = gfx_internal_shader_prg_create(framebuffer_vert_src, framebuffer_frag_src);
 }
 
 void clear_lights() {

@@ -1,9 +1,9 @@
 #pragma once
 
-extern const char *lighting_vert_src;
-extern const char *lighting_frag_src;
+extern const char *light_vert_src;
+extern const char *light_frag_src;
 
-const char *lighting_vert_src = 
+const char *light_vert_src = 
   "#version 450 core\n"
   "layout (location = 0) in vec2 a_pos;\n"
   "layout (location = 1) in vec4 a_border_color;\n"
@@ -42,7 +42,7 @@ const char *lighting_vert_src =
     "gl_Position = u_proj * vec4(a_pos.x, a_pos.y, 0.0f, 1.0);\n"
   "}\n";
 
-const char *lighting_frag_src = 
+const char *light_frag_src = 
   "#version 450 core\n"
   "out vec4 o_color;\n"
   "in vec4 v_color;\n"

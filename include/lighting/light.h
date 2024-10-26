@@ -13,6 +13,7 @@ extern gfx_texture LIGHTING_OVERLAY;
 extern float LIGHTING_OVERLAY_COLOR[3];
 extern gfx_shader PRIMARY_SHADER;
 extern gfx_shader LIGHTING_SHADER;
+extern gfx_shader FRAMEBUFFER_SHADER;
 extern int LIGHT_COUNT;
 extern light LIGHTS[1024];
 

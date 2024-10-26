@@ -121,3 +121,14 @@ bool gfx_loop_ui(float delta) {
   return true;
 };
 
+void gfx_framebuffer(GLuint vao, GLuint texture) {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glUseProgram(FRAMEBUFFER_SHADER.id);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glUniform1i(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_framebuffer_texture"), 0);
+  glBindVertexArray(vao);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glBindVertexArray(0);
+}
+

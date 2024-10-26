@@ -8,6 +8,44 @@
 #include <string.h>
 #include <stdio.h>
 
+static void gfx_setup_framebuffer(GLuint *framebuffer, GLuint *texture, GLuint *vao, GLuint *vbo, GLuint *ebo) {
+  float framebuffer_quad_vertices[] = {
+    -1.0f,  1.0f,  0.0f, 1.0f,
+    -1.0f, -1.0f,  0.0f, 0.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f, 1.0f
+  };
+  unsigned int quadIndices[] = {
+    0, 1, 2,
+    0, 2, 3
+  };
+  glGenVertexArrays(1, vao);
+  glGenBuffers(1, vbo);
+  glGenBuffers(1, ebo);
+  glBindVertexArray(*vao);
+  glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(framebuffer_quad_vertices), framebuffer_quad_vertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+  glGenFramebuffers(1, framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, *framebuffer);
+  glGenTextures(1, texture);
+  glBindTexture(GL_TEXTURE_2D, *texture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx_get_display_width(), gfx_get_display_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *texture, 0);
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    utl_error_func("Framebuffer is not complete", utl_user_defined_data);
+  }
+}
+
 void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_window) {
   setlocale(LC_ALL, "");
   if(!glfwInit()) {
@@ -50,74 +88,9 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
 }
 
 int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
-  float framebuffer_quad_vertices[] = {
-    -1.0f,  1.0f,  0.0f, 1.0f,
-    -1.0f, -1.0f,  0.0f, 0.0f,
-     1.0f, -1.0f,  1.0f, 0.0f,
-     1.0f,  1.0f,  1.0f, 1.0f
-  };
-  unsigned int quadIndices[] = {
-    0, 1, 2,
-    0, 2, 3
-  };
-  GLuint quadVAO, quadVBO, quadEBO;
-  glGenVertexArrays(1, &quadVAO);
-  glGenBuffers(1, &quadVBO);
-  glGenBuffers(1, &quadEBO);
-  glBindVertexArray(quadVAO);
-  glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(framebuffer_quad_vertices), framebuffer_quad_vertices, GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-  glEnableVertexAttribArray(1);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-  const char* vertexShaderSource = 
-    "#version 450 core\n"
-    "layout (location = 0) in vec2 aPos;\n"
-    "layout (location = 1) in vec2 aTexCoord;\n"
-    "out vec2 TexCoord;\n"
-    "void main() {\n"
-      "gl_Position = vec4(aPos, 0.0, 1.0);\n"
-      "TexCoord = aTexCoord;\n"
-    "}\n";
-  const char* fragmentShaderSource = 
-    "#version 450 core\n"
-    "out vec4 frag_color;\n"
-    "in vec2 TexCoord;\n"
-    "uniform sampler2D u_framebuffer_texture;\n"
-    "void main() {\n"
-      "frag_color = texture(u_framebuffer_texture, TexCoord);\n"
-    "}\n";
-  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-  glCompileShader(vertexShader);
-  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-  glCompileShader(fragmentShader);
-  GLuint shaderProgram = glCreateProgram();
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-  GLuint framebuffer;
-  glGenFramebuffers(1, &framebuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-  GLuint texture;
-  glGenTextures(1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx_get_display_width(), gfx_get_display_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-    utl_error_func("Framebuffer is not complete", utl_user_defined_data);
-    return -1;
-  }
+  GLuint framebuffer, texture;
+  GLuint vao, vbo, ebo;
+  gfx_setup_framebuffer(&framebuffer, &texture, &vao, &vbo, &ebo);
   double last_time = glfwGetTime();
   int frame_count = 0;
   double fps_start_time = last_time;
@@ -142,14 +115,7 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
     }
     gfx_end();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(shaderProgram);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glUniform1i(glGetUniformLocation(shaderProgram, "u_framebuffer_texture"), 0);
-    glBindVertexArray(quadVAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    gfx_framebuffer(vao, texture);
     frame_count++;
     double fps_elapsed_time = current_time - fps_start_time;
     if (fps_elapsed_time > 0.0) {
