@@ -14,7 +14,7 @@ extern float INITIAL_ZOOM;
 
 void camera_setup(camera *cam);
 
-phy_vect screen_to_world(float screen_x, float screen_y);
-phy_vect world_to_screen(float world_x, float world_y);
-phy_vect world_to_screen_perc(float world_x, float world_y);
+phy_vect screen_to_world(const float screen_x, const float screen_y);
+phy_vect world_to_screen(const float world_x, const float world_y);
+phy_vect world_to_screen_perc(const float world_x, const float world_y);
 

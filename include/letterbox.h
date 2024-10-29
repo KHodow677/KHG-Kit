@@ -5,7 +5,7 @@
 
 extern gfx_aabb LETTERBOX;
 
-void transform_letterbox_element(gfx_aabb letterbox, phy_vect *pos, phy_vect *cam_pos, gfx_texture *tex);
+void transform_letterbox_element(const gfx_aabb letterbox, phy_vect *pos, phy_vect *cam_pos, gfx_texture *tex);
 
 void get_letterbox(void);
 
