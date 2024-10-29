@@ -21,7 +21,7 @@ void camera_setup(camera *cam) {
 }
 
 phy_vect screen_to_world(float screen_x, float screen_y) {
-  float window_center_x = LETTERBOX.pos.x + LETTERBOX.size.y / 2.0f;
+  float window_center_x = LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f;
   float window_center_y = LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f;
   float world_x = (screen_x - window_center_x) / CAMERA.zoom + window_center_x + CAMERA.position.x;
   float world_y = (screen_y - window_center_y) / CAMERA.zoom + window_center_y + CAMERA.position.y;
@@ -29,7 +29,7 @@ phy_vect screen_to_world(float screen_x, float screen_y) {
 }
 
 phy_vect world_to_screen(float world_x, float world_y) {
-  float window_center_x = LETTERBOX.pos.x + LETTERBOX.size.y / 2.0f;
+  float window_center_x = LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f;
   float window_center_y = LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f;
   float screen_x = (world_x - CAMERA.position.x - window_center_x) * CAMERA.zoom + window_center_x;
   float screen_y = (world_y - CAMERA.position.y - window_center_y) * CAMERA.zoom + window_center_y;

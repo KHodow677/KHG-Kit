@@ -1,5 +1,6 @@
 #include "camera/camera_controller.h"
 #include "camera/camera.h"
+#include "io/key_controller.h"
 #include "utility/math_utl.h"
 #include "khg_gfx/elements.h"
 #include "khg_phy/vect.h"
@@ -43,6 +44,18 @@ static void clamp_camera(camera *cam, float range_x, float range_y) {
 }
 
 void move_camera(camera *cam, float delta) {
+  if (KEYBOARD_STATE.a_key_is_down) {
+    cam->target.x -= 1000 * delta;
+  }
+  if (KEYBOARD_STATE.d_key_is_down) {
+    cam->target.x += 1000 * delta;
+  }
+  if (KEYBOARD_STATE.w_key_is_down) {
+    cam->target.y -= 1000 * delta;
+  }
+  if (KEYBOARD_STATE.s_key_is_down) {
+    cam->target.y += 1000 * delta;
+  }
   camera_move_to_position(cam, delta);
   camera_zoom_to_value(cam, delta);
   float window_center_x = gfx_get_current_div().aabb.size.x / 2.0f;

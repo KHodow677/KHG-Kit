@@ -4,6 +4,7 @@
 #include "ecs/comp_light.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
+#include "io/key_controller.h"
 #include "letterbox.h"
 #include "ecs/ecs_manager.h"
 #include "graphics/light.h"
@@ -85,6 +86,7 @@ bool gfx_loop(float delta) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
+  update_key_controls(&KEYBOARD_STATE);
   if (check_current_scene("MAIN")) {
     gfx_clear_style_props();
     get_letterbox();
@@ -130,7 +132,7 @@ void gfx_framebuffer(GLuint vao, GLuint texture) {
   glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "time"), timeValue);
   glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "brightness_decrease"), 0.15f);
   glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "noise_intensity"), 0.12f);
-  glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "distortion_strength"), 0.0025f);
+  glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "distortion_strength"), 0.0015f);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
   glUniform1i(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_framebuffer_texture"), 0);

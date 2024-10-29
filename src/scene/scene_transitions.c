@@ -6,6 +6,7 @@
 #include "khg_phy/vect.h"
 #include "khg_stm/state_machine.h"
 #include "resources/texture_loader.h"
+#include "scene/scenes/main/animal.h"
 #include "scene/scenes/main/environment.h"
 #include "scene/scenes/main/player.h"
 
@@ -22,9 +23,9 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   generate_environment_element(MAIN_ENVIRONMENT_TREE_0, 640, 360, 0, false, 4);
   generate_environment_element(MAIN_ENVIRONMENT_GROUND, 640, 360, 0, false, 6);
   generate_environment_element(MAIN_ENVIRONMENT_ROCK_0, 360, 600, 0, false, 5);
-  generate_environment_element(ANIMAL_ELK_IDLE_0, 800, 540, 0, false, 7);
+  generate_animal(ANIMAL_ELK_IDLE_0, ANIMAL_ELK_IDLE_29, 780, 530, 7);
   generate_environment_element(MAIN_STATION_CART, 1000, 510, 0, false, 7);
-  generate_player(PLAYER_IDLE_0, PLAYER_IDLE_59, 640, 560, 8);
+  generate_player(PLAYER_IDLE_0, PLAYER_IDLE_59, 340, 560, 8);
 };
 
 void load_game_scene(void *old_state_data, stm_event *event, void *new_state_data) {

@@ -119,7 +119,36 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PLAYER_WALK_21] = (texture_asset){ "player/walk/walk_21", "png", 189, 195, 0 };
   TEXTURE_ASSET_REF[PLAYER_WALK_22] = (texture_asset){ "player/walk/walk_22", "png", 189, 195, 0 };
   TEXTURE_ASSET_REF[PLAYER_WALK_23] = (texture_asset){ "player/walk/walk_23", "png", 189, 195, 0 };
-  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_0] = (texture_asset){ "animal/elk/idle/idle_00", "png", 288, 248, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_0] = (texture_asset){ "animal/elk/idle/idle_00", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_1] = (texture_asset){ "animal/elk/idle/idle_01", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_2] = (texture_asset){ "animal/elk/idle/idle_02", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_3] = (texture_asset){ "animal/elk/idle/idle_03", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_4] = (texture_asset){ "animal/elk/idle/idle_04", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_5] = (texture_asset){ "animal/elk/idle/idle_05", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_6] = (texture_asset){ "animal/elk/idle/idle_06", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_7] = (texture_asset){ "animal/elk/idle/idle_07", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_8] = (texture_asset){ "animal/elk/idle/idle_08", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_9] = (texture_asset){ "animal/elk/idle/idle_09", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_10] = (texture_asset){ "animal/elk/idle/idle_10", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_11] = (texture_asset){ "animal/elk/idle/idle_11", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_12] = (texture_asset){ "animal/elk/idle/idle_12", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_13] = (texture_asset){ "animal/elk/idle/idle_13", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_14] = (texture_asset){ "animal/elk/idle/idle_14", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_15] = (texture_asset){ "animal/elk/idle/idle_15", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_16] = (texture_asset){ "animal/elk/idle/idle_16", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_17] = (texture_asset){ "animal/elk/idle/idle_17", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_18] = (texture_asset){ "animal/elk/idle/idle_18", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_19] = (texture_asset){ "animal/elk/idle/idle_19", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_20] = (texture_asset){ "animal/elk/idle/idle_20", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_21] = (texture_asset){ "animal/elk/idle/idle_21", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_22] = (texture_asset){ "animal/elk/idle/idle_22", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_23] = (texture_asset){ "animal/elk/idle/idle_23", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_24] = (texture_asset){ "animal/elk/idle/idle_24", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_25] = (texture_asset){ "animal/elk/idle/idle_25", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_26] = (texture_asset){ "animal/elk/idle/idle_26", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_27] = (texture_asset){ "animal/elk/idle/idle_27", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_28] = (texture_asset){ "animal/elk/idle/idle_28", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_29] = (texture_asset){ "animal/elk/idle/idle_29", "png", 203, 230, 0 };
   for (int i = 0; i < NUM_TEXTURES; i++) {
     get_or_add_texture(i);
   }
