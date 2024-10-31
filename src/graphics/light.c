@@ -31,12 +31,12 @@ void clear_lights() {
 }
 
 void add_light(vec2s pos_perc, float radius) {
-  int i = LIGHT_COUNT++;
+  const int i = LIGHT_COUNT++;
   LIGHTS[i] = (light){ pos_perc, radius};
 }
 
 void render_lights() {
-  float scale = LETTERBOX.size.x / INITIAL_WIDTH;
+  const float scale = LETTERBOX.size.x / INITIAL_WIDTH;
   glUniform3f(glGetUniformLocation(state.render.shader.id, "u_light_color"), LIGHTING_OVERLAY_COLOR[0], LIGHTING_OVERLAY_COLOR[1], LIGHTING_OVERLAY_COLOR[2]);
   glUniform1i(glGetUniformLocation(state.render.shader.id, "u_num_lights"), LIGHT_COUNT);
   float light_position_percs[LIGHT_COUNT * 2];

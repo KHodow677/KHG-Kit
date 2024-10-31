@@ -57,7 +57,7 @@ static void render_div(float pos_x, float pos_y, float div_width, float div_heig
   gfx_div_begin(((vec2s){ pos_x, pos_y }), ((vec2s){ div_width, div_height }), false);
 }
 
-int game_run() {
+const int game_run() {
   if (!glfwInit()) {
     return -1;
   }

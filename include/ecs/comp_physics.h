@@ -38,5 +38,5 @@ extern comp_physics_constructor_info *PHYSICS_CONSTRUCTOR_INFO;
 void comp_physics_register(void);
 void sys_physics_register(void);
 
-comp_physics *sys_physics_add(ecs_id eid, comp_physics_constructor_info *cpci);
+comp_physics *sys_physics_add(const ecs_id eid, comp_physics_constructor_info *cpci);
 

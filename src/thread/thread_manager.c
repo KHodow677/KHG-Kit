@@ -11,7 +11,7 @@ void worker_threads_setup() {
 void worker_threads_cleanup() {
 }
 
-int get_optimal_thread_count() {
+const int get_optimal_thread_count() {
 #if defined(_WIN32) || defined(_WIN64)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);

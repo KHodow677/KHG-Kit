@@ -50,7 +50,7 @@ void sys_animator_register() {
   ecs_require_component(ECS, ANIMATOR_SYSTEM_SIGNATURE, PHYSICS_COMPONENT_SIGNATURE);
 }
 
-comp_animator *sys_animator_add(ecs_id eid, comp_animator_constructor_info *crci) {
+comp_animator *sys_animator_add(const ecs_id eid, comp_animator_constructor_info *crci) {
   ANIMATOR_CONSTRUCTOR_INFO = crci;
   return ecs_add(ECS, eid, ANIMATOR_COMPONENT_SIGNATURE, NULL);
 }

@@ -19,8 +19,8 @@ typedef struct keyboard_state {
 
 extern keyboard_state KEYBOARD_STATE;
 
-bool handle_key_button_is_down(int key);
-bool handle_key_button_went_down(int key);
+const bool handle_key_button_is_down(int key);
+const bool handle_key_button_went_down(int key);
 
 void update_key_controls(keyboard_state *ks);
 

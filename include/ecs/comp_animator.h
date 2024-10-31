@@ -26,5 +26,5 @@ extern comp_animator_constructor_info *ANIMATOR_CONSTRUCTOR_INFO;
 void comp_animator_register(void);
 void sys_animator_register(void);
 
-comp_animator *sys_animator_add(ecs_id eid, comp_animator_constructor_info *cpci);
+comp_animator *sys_animator_add(const ecs_id eid, comp_animator_constructor_info *cpci);
 

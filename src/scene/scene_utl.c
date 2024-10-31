@@ -17,7 +17,7 @@ bool compare_scene_switch_command(void *ch, stm_event *event) {
   return (intptr_t)ch == (intptr_t)event->data;
 }
 
-bool check_current_scene(const char *name) {
+const bool check_current_scene(const char *name) {
   return strcmp(stm_current_state(&SCENE_FSM)->data, name) == 0;
 }
 

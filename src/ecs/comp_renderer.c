@@ -26,11 +26,11 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       phy_vect pos = phy_body_get_position(info->body);
       phy_vect offset = phy_body_get_center_of_gravity(info->body);
       phy_vect cam_pos = phy_v(CAMERA.position.x, CAMERA.position.y);
-      float angle = phy_body_get_angle(info->body);
-      gfx_texture tex_ref = get_or_add_texture(info->tex_id);
+      const float angle = phy_body_get_angle(info->body);
+      const gfx_texture tex_ref = get_or_add_texture(info->tex_id);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element(LETTERBOX, &pos, &cam_pos, &tex);
-      gfx_image_no_block(pos.x, pos.y, tex, offset.x, offset.y, cam_pos.x, cam_pos.y, CAMERA.zoom, true);
+      gfx_image_no_block(pos.x, pos.y, tex, offset.x, offset.y, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true);
     }
   }
   return 0;
@@ -43,6 +43,7 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
     info->body = constructor_info->body;
     info->tex_id = constructor_info->tex_id;
     info->render_layer = constructor_info->render_layer;
+    info->parallax_value = constructor_info->parallax_value;
   }
 }
 
@@ -56,7 +57,7 @@ void sys_renderer_register() {
   ecs_require_component(ECS, RENDERER_SYSTEM_SIGNATURE, PHYSICS_COMPONENT_SIGNATURE);
 }
 
-comp_renderer *sys_renderer_add(ecs_id eid, comp_renderer_constructor_info *crci) {
+comp_renderer *sys_renderer_add(const ecs_id eid, comp_renderer_constructor_info *crci) {
   RENDERER_CONSTRUCTOR_INFO = crci;
   return ecs_add(ECS, eid, RENDERER_COMPONENT_SIGNATURE, NULL);
 }

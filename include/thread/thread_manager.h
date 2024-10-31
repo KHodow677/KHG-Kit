@@ -21,4 +21,5 @@ typedef struct _data {
 
 void worker_threads_setup(void);
 void worker_threads_cleanup(void);
-int get_optimal_thread_count(void);
+const int get_optimal_thread_count(void);
+

@@ -1,4 +1,4 @@
 #pragma once
 
-void generate_animal(int min_tex_id, int max_tex_id, float x, float y, int render_layer);
+void generate_animal(const int min_tex_id, const int max_tex_id, const float x, const float y, const int render_layer);
 

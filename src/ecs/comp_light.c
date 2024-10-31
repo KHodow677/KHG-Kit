@@ -19,8 +19,8 @@ static ecs_ret sys_light_update(ecs_ecs *ecs, ecs_id *entities, const int entity
   clear_lights();
   for (int id = 0; id < entity_count; id++) {
     comp_light *info = ecs_get(ECS, entities[id], LIGHT_COMPONENT_SIGNATURE);
-    phy_vect pos = phy_v_add(phy_body_get_position(info->body), info->offset);
-    phy_vect screen_pos_perc = world_to_screen_perc(pos.x, pos.y - CAMERA.position.y);
+    const phy_vect pos = phy_v_add(phy_body_get_position(info->body), info->offset);
+    const phy_vect screen_pos_perc = world_to_screen_perc(pos.x, pos.y);
     info->light.pos_perc.x = screen_pos_perc.x;
     info->light.pos_perc.y = screen_pos_perc.y;
     add_light(info->light.pos_perc, info->light.radius);
@@ -49,7 +49,7 @@ void sys_light_register() {
   ecs_require_component(ECS, LIGHT_SYSTEM_SIGNATURE, PHYSICS_COMPONENT_SIGNATURE);
 }
 
-comp_light *sys_light_add(ecs_id eid, comp_light_constructor_info *clci) {
+comp_light *sys_light_add(const ecs_id eid, comp_light_constructor_info *clci) {
   LIGHT_CONSTRUCTOR_INFO = clci;
   return ecs_add(ECS, eid, LIGHT_COMPONENT_SIGNATURE, NULL);
 }

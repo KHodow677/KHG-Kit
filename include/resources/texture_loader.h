@@ -138,8 +138,8 @@ typedef struct texture_asset {
   int collision_shrinkage_offset;
 } texture_asset;
 
-gfx_texture generate_texture(char *file_name, char *file_type, float width, float height);
-bool check_texture_loaded(int tex_id);
-gfx_texture get_or_add_texture(int tex_id);
+const gfx_texture generate_texture(char *file_name, char *file_type, float width, float height);
+const bool check_texture_loaded(int tex_id);
+const gfx_texture get_or_add_texture(int tex_id);
 void generate_textures(void);
 

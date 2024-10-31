@@ -2,5 +2,5 @@
 
 #include <stdbool.h>
 
-void generate_environment_element(int tex_id, float x, float y, float angle, bool is_animated, int render_layer);
+void generate_environment_element(const int tex_id, const float x, const float y, const float angle, const bool is_animated, const int render_layer, const float parallax_value);
 

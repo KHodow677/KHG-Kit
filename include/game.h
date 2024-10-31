@@ -16,4 +16,5 @@
 #define INITIAL_HEIGHT 720.0f
 
 void log_sys_info(void);
-int game_run(void);
+const int game_run(void);
+

@@ -7,7 +7,7 @@
 
 phy_space *SPACE = NULL;
 
-void physics_setup(phy_vect grav) {
+void physics_setup(const phy_vect grav) {
   SPACE = phy_threaded_space_new();
   phy_threaded_space_set_threads(SPACE, THREAD_COUNT - 1);
   phy_space_set_gravity(SPACE, grav);
@@ -18,7 +18,7 @@ void physics_cleanup() {
   phy_threaded_space_free(SPACE);
 }
 
-phy_shape *physics_add_static_segment_shape(phy_space *space, phy_vect point_a, phy_vect point_b) {
+const phy_shape *physics_add_static_segment_shape(phy_space *space, const phy_vect point_a, const phy_vect point_b) {
   phy_shape *seg = phy_segment_shape_new(phy_space_get_static_body(space), point_a, point_b, 0);
   phy_space_add_shape(space, seg);
 	return seg;

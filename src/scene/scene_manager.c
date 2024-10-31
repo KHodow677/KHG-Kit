@@ -51,3 +51,4 @@ void scenes_setup(void) {
 void scenes_switch(event_transition_command event) {
   stm_handle_event(&SCENE_FSM, &(stm_event){ EVENT_SCENE_SWITCH, (void *)(intptr_t)event });
 }
+
