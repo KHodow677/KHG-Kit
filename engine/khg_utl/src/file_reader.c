@@ -46,8 +46,8 @@ utl_file_reader *utl_file_reader_open(const char *filename, const utl_read_mode 
       break;
   }
 #if defined(_WIN32) || defined(_WIN64)
-  wchar_t* wFileName = encoding_utf8_to_wchar(filename);
-  wchar_t* wMode = encoding_utf8_to_wchar(modeStr);
+  wchar_t* wFileName = utl_encoding_utf8_to_wchar(filename);
+  wchar_t* wMode = utl_encoding_utf8_to_wchar(modeStr);
   if (!wMode) {
     utl_error_func("Cannot convert mode to wchar", utl_user_defined_data);
     exit(-1);

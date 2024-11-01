@@ -82,7 +82,7 @@ const int game_run() {
   return res;
 }
 
-bool gfx_loop(float delta) {
+const bool gfx_loop(const float delta) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
@@ -104,7 +104,7 @@ bool gfx_loop(float delta) {
   return true;
 }
 
-bool gfx_loop_post(float delta) {
+const bool gfx_loop_post(const float delta) {
   gfx_begin();
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
@@ -113,7 +113,7 @@ bool gfx_loop_post(float delta) {
   return true;
 };
 
-bool gfx_loop_ui(float delta) {
+const bool gfx_loop_ui(const float delta) {
   gfx_begin();
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
@@ -125,7 +125,7 @@ bool gfx_loop_ui(float delta) {
   return true;
 };
 
-void gfx_framebuffer(GLuint vao, GLuint texture) {
+void gfx_framebuffer(const GLuint vao, const GLuint texture) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(FRAMEBUFFER_SHADER.id);
   float timeValue = (float)glfwGetTime();

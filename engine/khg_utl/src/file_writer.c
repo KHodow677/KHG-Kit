@@ -61,8 +61,8 @@ utl_file_writer *utl_file_writer_open(const char *filename, const utl_write_mode
       break;
   }
 #if defined(_WIN32) || defined(_WIN64)
-  wchar_t *wFileName = encoding_utf8_to_wchar(filename);
-  wchar_t *wMode = encoding_utf8_to_wchar(modeStr);
+  wchar_t *wFileName = utl_encoding_utf8_to_wchar(filename);
+  wchar_t *wMode = utl_encoding_utf8_to_wchar(modeStr);
   if (!wMode) {
     utl_error_func("Cannot convert mode to wchar", utl_user_defined_data);
     exit(-1);
@@ -132,8 +132,8 @@ utl_file_writer *utl_file_writer_append(const char *filename, const utl_write_mo
       break;
   }
 #if defined(_WIN32) || defined(_WIN64)
-  wchar_t *wFileName = encoding_utf8_to_wchar(filename);
-  wchar_t *wMode = encoding_utf8_to_wchar(modeStr);
+  wchar_t *wFileName = utl_encoding_utf8_to_wchar(filename);
+  wchar_t *wMode = utl_encoding_utf8_to_wchar(modeStr);
   if (!wMode) {
     utl_error_func("Cannot convert mode to wchar", utl_user_defined_data);
     free(writer);
@@ -210,8 +210,8 @@ size_t utl_file_writer_write(void *buffer, size_t size, size_t count, utl_file_w
     }
     case UTL_WRITE_ENCODING_UTF16: {
 #if defined(_WIN32) || defined(_WIN64)
-      if (writer->mode == WRITE_UNICODE || writer->mode == WRITE_APPEND) {
-        wchar_t *wBuffer = encoding_utf8_to_wchar((const char*)buffer);
+      if (writer->mode == UTL_WRITE_UNICODE || writer->mode == UTL_WRITE_APPEND) {
+        wchar_t *wBuffer = utl_encoding_utf8_to_wchar((const char*)buffer);
         if (!wBuffer) {
           utl_error_func("Conversion to wchar_t failed", utl_user_defined_data);
           return 0;
@@ -257,8 +257,8 @@ bool utl_file_writer_write_line(char *buffer, size_t size, utl_file_writer *writ
   size_t written = 0;
   size_t elementToWriteSize = size;
 #if defined(_WIN32) || defined(_WIN64)
-  if (writer->mode == WRITE_UNICODE) {
-    wchar_t *wBuffer = encoding_utf8_to_wchar(buffer);
+  if (writer->mode == UTL_WRITE_UNICODE) {
+    wchar_t *wBuffer = utl_encoding_utf8_to_wchar(buffer);
     if (!wBuffer) {
       utl_error_func("Cannot convert buffer to wchar", utl_user_defined_data);
       return false;
@@ -269,7 +269,6 @@ bool utl_file_writer_write_line(char *buffer, size_t size, utl_file_writer *writ
   } 
   else {
     written = fwrite(buffer, sizeof(char), elementToWriteSize, writer->file_writer);
-    FILE_WRITER_LOG("[file_writer_write_line] Successfully wrote %zu elements.", written);
   }
 #else 
   written = fwrite(buffer, sizeof(char), size, writer->file_writer);
@@ -279,7 +278,7 @@ bool utl_file_writer_write_line(char *buffer, size_t size, utl_file_writer *writ
     return false;
   }
 #if defined(_WIN32) || defined(_WIN64)
-  if (writer->mode == WRITE_UNICODE) {
+  if (writer->mode == UTL_WRITE_UNICODE) {
     wchar_t newLine[] = L"\n";
     written = fwrite(newLine, sizeof(wchar_t), 1, writer->file_writer);
   } 
@@ -572,7 +571,7 @@ bool utl_file_writer_write_batch(utl_file_writer *writer, const void **buffers, 
       default:
       case UTL_WRITE_ENCODING_UTF16: {
 #if defined(_WIN32) || defined(_WIN64)
-        wchar_t *wBuffer = encoding_utf8_to_wchar((const char *)buffer);
+        wchar_t *wBuffer = utl_encoding_utf8_to_wchar((const char *)buffer);
         if (!wBuffer) {
           utl_error_func("Conversion to wchar_t failed at index", utl_user_defined_data);
           continue;

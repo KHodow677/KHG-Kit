@@ -87,7 +87,7 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   state.tex_tick = gfx_load_texture_asset("tick", "png");
 }
 
-int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
+const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
   GLuint framebuffer, texture;
   GLuint vao, vbo, ebo;
   gfx_setup_framebuffer(&framebuffer, &texture, &vao, &vbo, &ebo);
