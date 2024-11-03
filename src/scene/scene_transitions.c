@@ -10,6 +10,7 @@
 #include "scene/scenes/main/environment_builder.h"
 #include "scene/scenes/main/light_builder.h"
 #include "scene/scenes/main/player_builder.h"
+#include "scene/scenes/main/zone_builder.h"
 
 void load_main_scene(void *old_state_data, stm_event *event, void *new_state_data) {
   physics_setup(phy_v(0.0f, 0.0f));
@@ -17,6 +18,7 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   camera_setup(&CAMERA);
   setup_lights_texture();
   setup_lights_shader();
+  build_player(PLAYER_IDLE_0, PLAYER_IDLE_59, 340, 560, 9);
   build_environment_element(MAIN_ENVIRONMENT_BACKGROUND, 640, 360, 0, false, 0, 0.0f);
   build_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_1, 640, 360, 0, false, 1, 0.6f);
   build_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_0, 640, 360, 0, false, 2, 0.7f);
@@ -33,7 +35,7 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   build_environment_element(MAIN_STATION_CART, 1000, 510, 0, false, 8, 1.0f);
   build_environment_element(MAIN_STATION_TWIN_HOUSE, 2000, 410, 0, false, 6, 1.0f);
   build_light(2000, 510, 400.0f);
-  build_player(PLAYER_IDLE_0, PLAYER_IDLE_59, 340, 560, 9);
+  build_zone(PLAYER_INFO.physics->body, 950, 1150);
 };
 
 void load_game_scene(void *old_state_data, stm_event *event, void *new_state_data) {

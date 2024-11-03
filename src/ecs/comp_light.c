@@ -1,7 +1,6 @@
 #include "ecs/comp_light.h"
 #include "camera/camera.h"
 #include "ecs/comp_physics.h"
-#include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
 #include "graphics/light.h"
 #include "khg_ecs/ecs.h"

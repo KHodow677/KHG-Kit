@@ -6,7 +6,8 @@
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
-#include <stdbool.h>
+
+player_info PLAYER_INFO = { 0 };
 
 void build_player(const int min_tex_id, const int max_tex_id, const float x, const float y, const int render_layer) {
   const ecs_id entity = ecs_create(ECS);
@@ -18,5 +19,6 @@ void build_player(const int min_tex_id, const int max_tex_id, const float x, con
   const comp_animator *ca = sys_animator_add(entity, &comp_animator_ci);
   comp_light_constructor_info comp_light_ci = { cp->body, (light){ (vec2s){ 0.0, 0.0 }, 250.0f }, phy_v(0.0f, 0.0f)};
   const comp_light *cl = sys_light_add(entity, &comp_light_ci);
+  PLAYER_INFO = (player_info){ entity, cp, cr, ca, cl };
 }
 
