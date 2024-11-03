@@ -1,4 +1,4 @@
-#include "scene/scenes/main/player.h"
+#include "scene/scenes/main/player_builder.h"
 #include "ecs/comp_animator.h"
 #include "ecs/comp_light.h"
 #include "ecs/comp_physics.h"
@@ -8,7 +8,7 @@
 #include "khg_phy/vect.h"
 #include <stdbool.h>
 
-void generate_player(const int min_tex_id, const int max_tex_id, const float x, const float y, const int render_layer) {
+void build_player(const int min_tex_id, const int max_tex_id, const float x, const float y, const int render_layer) {
   const ecs_id entity = ecs_create(ECS);
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 1920.0f, 906.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f) };
   const comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);

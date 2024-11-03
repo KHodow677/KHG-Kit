@@ -35,6 +35,7 @@ void generate_textures() {
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_BACKGROUND] = (texture_asset){ "main/environment/background_layer", "png", 1282, 722, 0 };
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_ROCK_0] = (texture_asset){ "main/environment/rocks/rock_00", "png", 302, 104, 0 };
   TEXTURE_ASSET_REF[MAIN_STATION_CART] = (texture_asset){ "main/station/cart", "png", 370, 280, 0 };
+  TEXTURE_ASSET_REF[MAIN_STATION_TWIN_HOUSE] = (texture_asset){ "main/station/twin_house", "png", 460, 468, 0 };
   TEXTURE_ASSET_REF[PLAYER_IDLE_0] = (texture_asset){ "player/idle/idle_00", "png", 166, 201, 0 };
   TEXTURE_ASSET_REF[PLAYER_IDLE_1] = (texture_asset){ "player/idle/idle_01", "png", 166, 201, 0 };
   TEXTURE_ASSET_REF[PLAYER_IDLE_2] = (texture_asset){ "player/idle/idle_02", "png", 166, 201, 0 };

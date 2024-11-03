@@ -45,7 +45,6 @@ void comp_light_register() {
 void sys_light_register() {
   LIGHT_SYSTEM_SIGNATURE = ecs_register_system(ECS, sys_light_update, NULL, NULL, NULL);
   ecs_require_component(ECS, LIGHT_SYSTEM_SIGNATURE, LIGHT_COMPONENT_SIGNATURE);
-  ecs_require_component(ECS, LIGHT_SYSTEM_SIGNATURE, RENDERER_COMPONENT_SIGNATURE);
   ecs_require_component(ECS, LIGHT_SYSTEM_SIGNATURE, PHYSICS_COMPONENT_SIGNATURE);
 }
 
