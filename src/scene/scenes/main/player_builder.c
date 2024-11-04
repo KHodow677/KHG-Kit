@@ -6,6 +6,7 @@
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/vect.h"
+#include "resources/texture_loader.h"
 
 player_info PLAYER_INFO = { 0 };
 
@@ -19,7 +20,7 @@ void build_player(const int min_tex_id, const int max_tex_id, const float x, con
   const comp_animator *ca = sys_animator_add(entity, &comp_animator_ci);
   comp_light_constructor_info comp_light_ci = { cp->body, (light){ (vec2s){ 0.0, 0.0 }, 250.0f }, phy_v(0.0f, 0.0f)};
   const comp_light *cl = sys_light_add(entity, &comp_light_ci);
-  comp_mover_constructor_info comp_mover_ci = { cp->body, 400, 400};
+  comp_mover_constructor_info comp_mover_ci = { cp->body, 400, 400, PLAYER_IDLE_0, PLAYER_IDLE_59, PLAYER_WALK_0, PLAYER_WALK_23};
   const comp_mover *cm = sys_mover_add(entity, &comp_mover_ci);
   PLAYER_INFO = (player_info){ entity, cp, cr, ca, cl, cm };
 }
