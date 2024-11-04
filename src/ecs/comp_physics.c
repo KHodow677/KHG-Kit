@@ -18,12 +18,8 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const int enti
   }
   for (int id = 0; id < entity_count; id++) {
     comp_physics *info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
-    const float current_ang = normalize_angle(phy_body_get_angle(info->body));
     if (info->move_enabled) {
-      phy_body_set_velocity(info->body, phy_v(sinf(current_ang)*info->target_vel, -cosf(current_ang)*info->target_vel));
-    }
-    if (info->rotate_enabled) {
-      phy_body_set_angular_velocity(info->body, info->target_ang_vel);
+      phy_body_set_velocity(info->body, phy_v(info->target_vel, 0.0f));
     }
   }
   return 0;
@@ -40,11 +36,8 @@ static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void 
     phy_body_set_angle(info->body, constructor_info->ang);
     info->has_constraint = false;
     info->is_moving = false;
-    info->is_turning = false;
     info->target_vel = 0.0f;
-    info->target_ang_vel = 0.0f;
     info->move_enabled = true;
-    info->rotate_enabled = true;
   }
 }
 

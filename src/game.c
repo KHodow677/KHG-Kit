@@ -2,6 +2,7 @@
 #include "camera/camera_controller.h"
 #include "ecs/comp_animator.h"
 #include "ecs/comp_light.h"
+#include "ecs/comp_mover.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/comp_zone.h"
@@ -99,6 +100,7 @@ const bool gfx_loop(const float delta) {
     ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
     phy_threaded_space_step(SPACE, delta);
     gfx_div_end();
     state.current_div.scrollable = false;

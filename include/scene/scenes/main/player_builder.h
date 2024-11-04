@@ -2,6 +2,7 @@
 
 #include "ecs/comp_animator.h"
 #include "ecs/comp_light.h"
+#include "ecs/comp_mover.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 
@@ -11,6 +12,7 @@ typedef struct player_info {
   const comp_renderer *renderer;
   const comp_animator *animator;
   const comp_light *light;
+  const comp_mover *mover;
 } player_info;
 
 extern player_info PLAYER_INFO;

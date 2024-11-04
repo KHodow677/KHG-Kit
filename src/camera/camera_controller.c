@@ -1,7 +1,6 @@
 #include "camera/camera_controller.h"
 #include "game.h"
 #include "camera/camera.h"
-#include "io/key_controller.h"
 #include "utility/math_utl.h"
 #include "khg_gfx/elements.h"
 #include "khg_phy/vect.h"
@@ -38,12 +37,12 @@ static void clamp_camera_x(camera *cam, const float range_x_min, const float ran
 }
 
 void move_camera(camera *cam, const float delta) {
-  if (KEYBOARD_STATE.a_key_is_down) {
-    cam->target.x -= 1000 * delta;
-  }
-  if (KEYBOARD_STATE.d_key_is_down) {
-    cam->target.x += 1000 * delta;
-  }
+  /*if (KEYBOARD_STATE.a_key_is_down) {*/
+  /*  cam->target.x -= 1000 * delta;*/
+  /*}*/
+  /*if (KEYBOARD_STATE.d_key_is_down) {*/
+  /*  cam->target.x += 1000 * delta;*/
+  /*}*/
   camera_move_to_position(cam, delta);
   camera_zoom_to_value(cam, delta);
   const float range_x_min = camera_get_value_to_clamp_x(cam, 0.0f);
