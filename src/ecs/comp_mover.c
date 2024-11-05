@@ -10,8 +10,7 @@
 #include <stdio.h>
 
 static const float POSITION_TOLERANCE = 10.0f;
-static const float POS_SPEED_TOLERANCE = 25.0f;
-static const float NEG_SPEED_TOLERANCE = 50.0f;
+static const float SPEED_TOLERANCE = 50.0f;
 static const float POSITION_SPEED_SCALE = 100.0f;
 static const float POSITION_EASING = 3.0f;
 
@@ -21,14 +20,8 @@ ecs_id MOVER_SYSTEM_SIGNATURE;
 comp_mover_constructor_info *MOVER_CONSTRUCTOR_INFO = NULL;
 
 static void element_set_speed(comp_physics *p_info, const float vel) {
-  const float delta_vel = vel - p_info->target_vel;
   p_info->target_vel = vel;
-  if (delta_vel > 0.0f) {
-    p_info->is_moving = fabsf(vel) <= POS_SPEED_TOLERANCE ? false : true;
-  }
-  else {
-    p_info->is_moving = fabsf(vel) <= NEG_SPEED_TOLERANCE ? false : true;
-  }
+  p_info->is_moving = fabsf(vel) <= SPEED_TOLERANCE ? false : true;
 }
 
 static float ease_in_out(const float t) {
@@ -86,7 +79,7 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity
     if (p_info->is_moving) {
       a_info->min_tex_id = info->walk_min_tex_id;
       a_info->max_tex_id = info->walk_max_tex_id;
-      r_info->offset = phy_v(-11.5f, -12.0f);
+      r_info->offset = phy_v(-11.0f, -10.0f);
     }
     else {
       a_info->min_tex_id = info->idle_min_tex_id;
