@@ -24,14 +24,14 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       if (layer != info->render_layer) {
         continue;
       }
-      phy_vect pos = phy_body_get_position(info->body);
+      phy_vect pos = phy_v_add(phy_body_get_position(info->body), info->offset);
       phy_vect offset = phy_body_get_center_of_gravity(info->body);
       phy_vect cam_pos = phy_v(CAMERA.position.x, CAMERA.position.y);
       const float angle = phy_body_get_angle(info->body);
       const gfx_texture tex_ref = get_or_add_texture(info->tex_id);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element(LETTERBOX, &pos, &cam_pos, &tex);
-      gfx_image_no_block(pos.x + info->offset.x, pos.y + info->offset.y, tex, offset.x, offset.y, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true);
+      gfx_image_no_block(pos.x, pos.y, tex, offset.x, offset.y, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true);
     }
   }
   return 0;

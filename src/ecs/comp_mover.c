@@ -10,8 +10,8 @@
 #include <stdio.h>
 
 static const float POSITION_TOLERANCE = 10.0f;
-static const float SPEED_TOLERANCE = 50.0f;
-static const float POSITION_SPEED_SCALE = 100.0f;
+static const float SPEED_TOLERANCE = 60.0f;
+static const float POSITION_SPEED_SCALE = 120.0f;
 static const float POSITION_EASING = 3.0f;
 
 ecs_id MOVER_COMPONENT_SIGNATURE;
@@ -79,7 +79,7 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity
     if (p_info->is_moving) {
       a_info->min_tex_id = info->walk_min_tex_id;
       a_info->max_tex_id = info->walk_max_tex_id;
-      r_info->offset = phy_v(-11.0f, -10.0f);
+      r_info->offset = phy_v(-16.0f, -8.0f);
     }
     else {
       a_info->min_tex_id = info->idle_min_tex_id;
