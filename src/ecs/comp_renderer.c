@@ -10,6 +10,7 @@
 #include "khg_gfx/texture.h"
 #include "khg_phy/body.h"
 #include "khg_phy/phy_types.h"
+#include <stdio.h>
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
 ecs_id RENDERER_SYSTEM_SIGNATURE;
@@ -30,7 +31,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       const gfx_texture tex_ref = get_or_add_texture(info->tex_id);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element(LETTERBOX, &pos, &cam_pos, &tex);
-      gfx_image_no_block(pos.x, pos.y, tex, offset.x, offset.y, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true);
+      gfx_image_no_block(pos.x + info->offset.x, pos.y + info->offset.y, tex, offset.x, offset.y, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true);
     }
   }
   return 0;
@@ -44,6 +45,7 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
     info->tex_id = constructor_info->tex_id;
     info->render_layer = constructor_info->render_layer;
     info->parallax_value = constructor_info->parallax_value;
+    info->offset = phy_v(0.0f, 0.0f);
   }
 }
 

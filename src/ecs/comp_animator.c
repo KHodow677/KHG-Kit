@@ -16,6 +16,10 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const int ent
   for (int id = 0; id < entity_count; id++) {
     comp_animator *info = ecs_get(ECS, entities[id], ANIMATOR_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
+    if (!current_tex_in_range(r_info, info->min_tex_id, info->max_tex_id)) {
+      r_info->tex_id = info->min_tex_id;
+      continue;
+    }
     if (info->destroy_on_max && r_info->tex_id == info->max_tex_id) {
     }
     else if (info->frame_timer <= 0) {

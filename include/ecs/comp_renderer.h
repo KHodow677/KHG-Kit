@@ -9,6 +9,7 @@ typedef struct comp_renderer {
   phy_body *body;
   int render_layer;
   float parallax_value;
+  phy_vect offset;
 } comp_renderer;
 
 typedef struct comp_renderer_constructor_info {

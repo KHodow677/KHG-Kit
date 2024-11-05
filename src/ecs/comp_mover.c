@@ -10,8 +10,8 @@
 #include <stdio.h>
 
 static const float POSITION_TOLERANCE = 10.0f;
-static const float POS_SPEED_TOLERANCE = 100.0f;
-static const float NEG_SPEED_TOLERANCE = 100.0f;
+static const float POS_SPEED_TOLERANCE = 25.0f;
+static const float NEG_SPEED_TOLERANCE = 50.0f;
 static const float POSITION_SPEED_SCALE = 100.0f;
 static const float POSITION_EASING = 3.0f;
 
@@ -83,16 +83,15 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity
       info->target.x += info->target_vel * dt;
     }
     element_target_position(p_info, info->target, info->max_vel);
-    if (!current_tex_in_range(r_info, a_info->min_tex_id, a_info->max_tex_id)) {
-      r_info->tex_id = a_info->min_tex_id;
-    }
     if (p_info->is_moving) {
       a_info->min_tex_id = info->walk_min_tex_id;
       a_info->max_tex_id = info->walk_max_tex_id;
+      r_info->offset = phy_v(-11.5f, -12.0f);
     }
     else {
       a_info->min_tex_id = info->idle_min_tex_id;
       a_info->max_tex_id = info->idle_max_tex_id;
+      r_info->offset = phy_v(0.0f, 0.0f);
     }
   }
   return 0;
