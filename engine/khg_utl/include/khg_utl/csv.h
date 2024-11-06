@@ -3,45 +3,45 @@
 #include "khg_utl/file_reader.h"
 #include <stdbool.h>
 
-#define BUFFER_SIZE 1024
+#define UTL_CSV_BUFFER_SIZE 1024
 
 typedef struct CsvRow {
   char **cells;
   size_t size;
   size_t capacity;
-} CsvRow;
+} utl_csv_row;
 
 typedef struct CsvFile {
-  CsvRow **rows;
+  utl_csv_row **rows;
   size_t size;
   size_t capacity;
   char delimiter;
-} CsvFile;
+} utl_csv_file;
 
-CsvRow *csv_row_create();
-CsvRow *csv_file_get_row(const CsvFile *file, size_t index);
-CsvRow *csv_row_read_next(utl_file_reader *reader, char delimiter);
-CsvRow *csv_file_get_header(const CsvFile *file);
-CsvRow **csv_file_find_rows(const CsvFile *file, const char* searchTerm); 
+utl_csv_row *utl_csv_row_create();
+utl_csv_row *csv_file_get_row(const utl_csv_file *file, size_t index);
+utl_csv_row *csv_row_read_next(utl_file_reader *reader, char delimiter);
+utl_csv_row *csv_file_get_header(const utl_csv_file *file);
+utl_csv_row **csv_file_find_rows(const utl_csv_file *file, const char* searchTerm); 
 
-char *csv_row_get_cell(const CsvRow *row, size_t index);
-char *csv_export_to_json(const CsvFile *file); 
+char *utl_csv_row_get_cell(const utl_csv_row *row, size_t index);
+char *utl_csv_export_to_json(const utl_csv_file *file); 
 
-CsvFile *csv_file_create(char delimiter);
+utl_csv_file *csv_file_create(char delimiter);
 
-void csv_file_destroy(CsvFile *file);
-void csv_file_read(CsvFile *file, const char *filename);
-void csv_file_write(const CsvFile *file, const char *filename);
-void csv_file_append_row(CsvFile *file, CsvRow *row);
-void csv_file_remove_row(CsvFile *file, size_t index);
-void csv_print(const CsvFile *file);
-void csv_file_insert_column(CsvFile *file, size_t colIndex, const CsvRow *colData); 
-void csv_file_set_header(CsvFile *file, CsvRow *header);
-void csv_file_concatenate(CsvFile *file1, const CsvFile *file2); 
-void csv_row_destroy(CsvRow *row);
-void csv_row_append_cell(CsvRow *row, const char *value);
+void csv_file_destroy(utl_csv_file *file);
+void csv_file_read(utl_csv_file *file, const char *filename);
+void csv_file_write(const utl_csv_file *file, const char *filename);
+void csv_file_append_row(utl_csv_file *file, utl_csv_row *row);
+void csv_file_remove_row(utl_csv_file *file, size_t index);
+void csv_print(const utl_csv_file *file);
+void csv_file_insert_column(utl_csv_file *file, size_t colIndex, const utl_csv_row *colData); 
+void csv_file_set_header(utl_csv_file *file, utl_csv_row *header);
+void csv_file_concatenate(utl_csv_file *file1, const utl_csv_file *file2); 
+void csv_row_destroy(utl_csv_row *row);
+void csv_row_append_cell(utl_csv_row *row, const char *value);
 
-int csv_row_get_cell_as_int(const CsvRow *row, size_t index); 
-int csv_column_sum(const CsvFile *file, size_t columnIndex); 
+int csv_row_get_cell_as_int(const utl_csv_row *row, size_t index); 
+int csv_column_sum(const utl_csv_file *file, size_t columnIndex); 
 
-bool csv_validate_cell_format(const CsvRow *row, size_t index, const char *format); 
+bool csv_validate_cell_format(const utl_csv_row *row, size_t index, const char *format); 
