@@ -341,21 +341,13 @@ double config_get_double(const ConfigFile *config, const char *section, const ch
   }
   const char *value = config_get_value(config, section, key);
   if (value) {
-    CONFIG_LOG("[config_get_double] Found value='%s' for key='%s'.", value, key);
     char *end;
     double double_val = strtod(value, &end);
     if (end != value && *end == '\0') {
-      CONFIG_LOG("[config_get_double] Successfully parsed double value '%f'.", double_val);
       return double_val; 
     }
-
-    CONFIG_LOG("[config_get_double] Value '%s' is not a valid double.", value);
   } 
-  else {
-    CONFIG_LOG("[config_get_double] Key='%s' not found, returning default value '%f'.", key, default_value);
-  }
-
-  return default_value; // Return the default value if not found or not a double
+  return default_value;
 }
 
 /**
