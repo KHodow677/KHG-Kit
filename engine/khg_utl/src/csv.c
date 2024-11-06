@@ -2,7 +2,42 @@
 #include "khg_utl/error_func.h"
 #include "khg_utl/string.h"
 #include <stdlib.h> 
-#include <string.h> 
+#include <string.h>
+
+static void parse_csv_line(const char *line, char delimiter, utl_csv_row *row) {
+  if (!line || !row) {
+    utl_error_func("Null parameter passed", utl_user_defined_data);
+    return;
+  }
+  bool inQuotes = false;
+  size_t start = 0;
+  for (size_t i = 0; line[i] != '\0'; ++i) {
+    if (line[i] == '"') {
+      inQuotes = !inQuotes;
+    } 
+    else if (line[i] == delimiter && !inQuotes) {
+      size_t len = i - start;
+      char *cell = (char *)malloc(len + 1);
+      if (!cell) {
+        utl_error_func("Memory allocation failed for cell", utl_user_defined_data);
+        return; 
+      }
+      strncpy(cell, line + start, len);
+      cell[len] = '\0';
+      utl_csv_row_append_cell(row, cell);
+      free(cell);
+      start = i + 1;
+    }
+  }
+  char *cell = utl_string_strdup(line + start);
+  if (!cell) {
+    utl_error_func("Memory allocation failed for last cell", utl_user_defined_data);
+    return; 
+  }
+  utl_csv_row_append_cell(row, cell);
+  free(cell);
+}
+
 
 utl_csv_row *utl_csv_row_create() {
   utl_csv_row *row = malloc(sizeof(utl_csv_row));
@@ -16,7 +51,7 @@ utl_csv_row *utl_csv_row_create() {
   return row;
 }
 
-void csv_row_destroy(utl_csv_row *row) {
+void utl_csv_row_destroy(utl_csv_row *row) {
   if (!row) {
     utl_error_func("Row object is null and invalid", utl_user_defined_data);
     return;
@@ -28,7 +63,7 @@ void csv_row_destroy(utl_csv_row *row) {
   free(row);  
 }
 
-void csv_row_append_cell(utl_csv_row *row, const char *value) {
+void utl_csv_row_append_cell(utl_csv_row *row, const char *value) {
   if (!row || !value) {
     utl_error_func("Null parameter passed", utl_user_defined_data);
     return;
@@ -59,7 +94,7 @@ char *csv_row_get_cell(const utl_csv_row *row, size_t index) {
   return row->cells[index];
 }
 
-utl_csv_file *csv_file_create(char delimiter) {
+utl_csv_file *utl_csv_file_create(char delimiter) {
   utl_csv_file *file = malloc(sizeof(utl_csv_file));
   if (!file) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
@@ -72,53 +107,19 @@ utl_csv_file *csv_file_create(char delimiter) {
   return file;
 }
 
-void csv_file_destroy(utl_csv_file *file) {
+void utl_csv_file_destroy(utl_csv_file *file) {
   if (!file) {
     utl_error_func("File object is null and invalid", utl_user_defined_data);
     return;
   }
   for (size_t i = 0; i < file->size; ++i) {
-    csv_row_destroy(file->rows[i]);
+    utl_csv_row_destroy(file->rows[i]);
   }
   free(file->rows);
   free(file);
 }
 
-static void parse_csv_line(const char *line, char delimiter, utl_csv_row *row) {
-  if (!line || !row) {
-    utl_error_func("Null parameter passed", utl_user_defined_data);
-    return;
-  }
-  bool inQuotes = false;
-  size_t start = 0;
-  for (size_t i = 0; line[i] != '\0'; ++i) {
-    if (line[i] == '"') {
-      inQuotes = !inQuotes;
-    } 
-    else if (line[i] == delimiter && !inQuotes) {
-      size_t len = i - start;
-      char *cell = (char *)malloc(len + 1);
-      if (!cell) {
-        utl_error_func("Memory allocation failed for cell", utl_user_defined_data);
-        return; 
-      }
-      strncpy(cell, line + start, len);
-      cell[len] = '\0';
-      csv_row_append_cell(row, cell);
-      free(cell);
-      start = i + 1;
-    }
-  }
-  char *cell = utl_string_strdup(line + start);
-  if (!cell) {
-    utl_error_func("Memory allocation failed for last cell", utl_user_defined_data);
-    return; 
-  }
-  csv_row_append_cell(row, cell);
-  free(cell);
-}
-
-void csv_file_read(utl_csv_file *file, const char *filename) {
+void utl_csv_file_read(utl_csv_file *file, const char *filename) {
   if (!file || !filename) {
     utl_error_func("NULL parameter passed", utl_user_defined_data);
     return;
@@ -133,12 +134,12 @@ void csv_file_read(utl_csv_file *file, const char *filename) {
     utl_csv_row *row = utl_csv_row_create();
     buffer[strcspn(buffer, "\r\n")] = 0; 
     parse_csv_line(buffer, file->delimiter, row);
-    csv_file_append_row(file, row);
+    utl_csv_file_append_row(file, row);
   }
   utl_file_reader_close(fr);
 }
 
-void csv_file_write(const utl_csv_file *file, const char *filename) {
+void utl_csv_file_write(const utl_csv_file *file, const char *filename) {
   if (!file || !filename) {
     utl_error_func("Null parameter passed", utl_user_defined_data);
     return;
@@ -162,7 +163,7 @@ void csv_file_write(const utl_csv_file *file, const char *filename) {
   utl_file_writer_close(fw);
 }
 
-void csv_file_append_row(utl_csv_file *file, utl_csv_row *row) {
+void utl_csv_file_append_row(utl_csv_file *file, utl_csv_row *row) {
   if (!file || !row) {
     utl_error_func("Null parameter passed", utl_user_defined_data);
     return;
@@ -180,7 +181,7 @@ void csv_file_append_row(utl_csv_file *file, utl_csv_row *row) {
   file->rows[file->size++] = row;
 }
 
-utl_csv_row *csv_file_get_row(const utl_csv_file *file, size_t index) {
+utl_csv_row *utl_csv_file_get_row(const utl_csv_file *file, size_t index) {
   if (!file || index >= file->size) {
     utl_error_func("Invalid index or null file", utl_user_defined_data);
     return NULL;
@@ -188,19 +189,19 @@ utl_csv_row *csv_file_get_row(const utl_csv_file *file, size_t index) {
   return file->rows[index];
 }
 
-void csv_file_remove_row(utl_csv_file *file, size_t index) {
+void utl_csv_file_remove_row(utl_csv_file *file, size_t index) {
   if (!file || index >= file->size) {
     utl_error_func("Invalid index or null file", utl_user_defined_data);
     return;
   }
-  csv_row_destroy(file->rows[index]);  
+  utl_csv_row_destroy(file->rows[index]);  
   for (size_t i = index; i < file->size - 1; i++) {
     file->rows[i] = file->rows[i + 1];
   }
   file->size--;
 }
 
-void csv_print(const utl_csv_file *file) {
+void utl_csv_print(const utl_csv_file *file) {
   if (!file) {
     utl_error_func("Null file pointer", utl_user_defined_data);
     return;
@@ -217,7 +218,7 @@ void csv_print(const utl_csv_file *file) {
   }
 }
 
-utl_csv_row *csv_row_read_next(utl_file_reader *reader, char delimiter) {
+utl_csv_row *utl_csv_row_read_next(utl_file_reader *reader, char delimiter) {
   if (!reader || !utl_file_reader_is_open(reader)) {
     utl_error_func("File reader is null or not open", utl_user_defined_data);
     return NULL;
@@ -231,22 +232,22 @@ utl_csv_row *csv_row_read_next(utl_file_reader *reader, char delimiter) {
   utl_csv_row *row = utl_csv_row_create();
   char *token = strtok(buffer, &delimiter);
   while (token) {
-    csv_row_append_cell(row, token);
+    utl_csv_row_append_cell(row, token);
     token = strtok(NULL, &delimiter);
   }
   return row;
 }
 
-void csv_file_insert_column(utl_csv_file *file, size_t colIndex, const utl_csv_row *colData) {
-  if (!file || !colData || colIndex > colData->size) {
+void utl_csv_file_insert_column(utl_csv_file *file, size_t col_index, const utl_csv_row *col_data) {
+  if (!file || !col_data || col_index > col_data->size) {
     utl_error_func("Invalid parameters", utl_user_defined_data);
     return;
   }
   for (size_t i = 0; i < file->size; ++i) {
     utl_csv_row *row = file->rows[i];
     char *cellValue = NULL;
-    if (i < colData->size) {
-      cellValue = utl_string_strdup(colData->cells[i]);
+    if (i < col_data->size) {
+      cellValue = utl_string_strdup(col_data->cells[i]);
       if (cellValue == NULL) {
         utl_error_func("Memory allocation failed for cell value in row", utl_user_defined_data);
         continue;
@@ -263,15 +264,15 @@ void csv_file_insert_column(utl_csv_file *file, size_t colIndex, const utl_csv_r
       row->cells = newCells;
       row->capacity = newCapacity;
     }
-    for (size_t j = row->size; j > colIndex; --j) {
+    for (size_t j = row->size; j > col_index; --j) {
       row->cells[j] = row->cells[j - 1];
     }
-    row->cells[colIndex] = cellValue;
+    row->cells[col_index] = cellValue;
     row->size++;
   }
 }
 
-utl_csv_row *csv_file_get_header(const utl_csv_file *file) {
+utl_csv_row *utl_csv_file_get_header(const utl_csv_file *file) {
   if (!file || file->size == 0) {
     utl_error_func("File is empty or null", utl_user_defined_data);
     return NULL;
@@ -279,13 +280,13 @@ utl_csv_row *csv_file_get_header(const utl_csv_file *file) {
   return file->rows[0]; 
 }
 
-void csv_file_set_header(utl_csv_file *file, utl_csv_row *header) {
+void utl_csv_file_set_header(utl_csv_file *file, utl_csv_row *header) {
   if (!file || !header) {
     utl_error_func("Null parameters passed", utl_user_defined_data);
     return;
   }
   if (file->size > 0) {
-    csv_row_destroy(file->rows[0]);
+    utl_csv_row_destroy(file->rows[0]);
   } 
   else {
     if (file->size == file->capacity) {
@@ -303,7 +304,7 @@ void csv_file_set_header(utl_csv_file *file, utl_csv_row *header) {
   file->size = (file->size > 0) ? file->size : 1;
 }
 
-int csv_row_get_cell_as_int(const utl_csv_row *row, size_t index) {
+int utl_csv_row_get_cell_as_int(const utl_csv_row *row, size_t index) {
   if (!row || index >= row->size) {
     utl_error_func("Invalid index or null row", utl_user_defined_data);
     return 0;
@@ -312,8 +313,8 @@ int csv_row_get_cell_as_int(const utl_csv_row *row, size_t index) {
   return value;
 }
 
-utl_csv_row **csv_file_find_rows(const utl_csv_file *file, const char* searchTerm) {
-  if (!file || !searchTerm) {
+utl_csv_row **utl_csv_file_find_rows(const utl_csv_file *file, const char *search_term) {
+  if (!file || !search_term) {
     utl_error_func("Null parameters passed", utl_user_defined_data);
     return NULL;
   }
@@ -326,7 +327,7 @@ utl_csv_row **csv_file_find_rows(const utl_csv_file *file, const char* searchTer
   for (size_t i = 0; i < file->size; ++i) {
     utl_csv_row* row = file->rows[i];
     for (size_t j = 0; j < row->size; ++j) {
-      if (strstr(row->cells[j], searchTerm)) {
+      if (strstr(row->cells[j], search_term)) {
         foundRows[foundCount++] = row;
         break;
       }
@@ -340,7 +341,7 @@ utl_csv_row **csv_file_find_rows(const utl_csv_file *file, const char* searchTer
   return resizedFoundRows; 
 }
 
-bool csv_validate_cell_format(const utl_csv_row *row, size_t index, const char *format) {
+bool utl_csv_validate_cell_format(const utl_csv_row *row, size_t index, const char *format) {
   if (!row || !format || index >= row->size) {
     utl_error_func("Invalid parameters", utl_user_defined_data);
     return false;
@@ -352,7 +353,7 @@ bool csv_validate_cell_format(const utl_csv_row *row, size_t index, const char *
   return result;
 }
 
-void csv_file_concatenate(utl_csv_file *file1, const utl_csv_file *file2) {
+void utl_csv_file_concatenate(utl_csv_file *file1, const utl_csv_file *file2) {
   if (!file1 || !file2) {
     utl_error_func("Null parameters provided", utl_user_defined_data);
     return;
@@ -361,13 +362,13 @@ void csv_file_concatenate(utl_csv_file *file1, const utl_csv_file *file2) {
     utl_csv_row *row2 = file2->rows[i];
     utl_csv_row *newRow = utl_csv_row_create();  
     for (size_t j = 0; j < row2->size; ++j) {
-      csv_row_append_cell(newRow, row2->cells[j]);
+      utl_csv_row_append_cell(newRow, row2->cells[j]);
     }
-    csv_file_append_row(file1, newRow);
+    utl_csv_file_append_row(file1, newRow);
   }
 }
 
-int csv_column_sum(const utl_csv_file *file, size_t columnIndex) {
+int utl_csv_column_sum(const utl_csv_file *file, size_t column_index) {
   if (!file) {
     utl_error_func("Null file provided", utl_user_defined_data);
     return 0;
@@ -375,8 +376,8 @@ int csv_column_sum(const utl_csv_file *file, size_t columnIndex) {
   int sum = 0;
   for (size_t i = 0; i < file->size; ++i) {
     utl_csv_row *row = file->rows[i];
-    if (columnIndex < row->size) {
-      char *cell = row->cells[columnIndex];
+    if (column_index < row->size) {
+      char *cell = row->cells[column_index];
       int cellValue = atoi(cell);
       sum += cellValue;
     } 
