@@ -2,6 +2,7 @@
 #include "networking/client.h"
 #include "networking/server.h"
 #include "networking/test.h"
+#include "skeleton/skeleton_test.h"
 #include <string.h>
 
 const int main(int argc, char *argv[]) {
@@ -14,8 +15,9 @@ const int main(int argc, char *argv[]) {
     }
   }
   else {
-  return game_run();
-  /*return main_dbm();*/
+    return skeleton_test();
+    return game_run();
+    return main_dbm();
     server_run();
   }
   return 0;
