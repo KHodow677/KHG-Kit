@@ -11,7 +11,7 @@ void build_animal(const int min_tex_id, const int max_tex_id, const float x, con
   const ecs_id entity = ecs_create(ECS);
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 1920.0f, 906.0f, 1.0f, phy_v(x, y), 0.0f, phy_v(0.0f, 0.0f) };
   const comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
-  comp_renderer_constructor_info comp_renderer_ci = { cp->body, min_tex_id, render_layer, 1.0f };
+  comp_renderer_constructor_info comp_renderer_ci = { cp->body, min_tex_id, render_layer, 1.0f, false };
   const comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);
   comp_animator_constructor_info comp_animator_ci = { min_tex_id, max_tex_id, 0.064f, false };
   const comp_animator *ca = sys_animator_add(entity, &comp_animator_ci);

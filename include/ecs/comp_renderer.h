@@ -10,6 +10,7 @@ typedef struct comp_renderer {
   int render_layer;
   float parallax_value;
   phy_vect offset;
+  bool flipped;
 } comp_renderer;
 
 typedef struct comp_renderer_constructor_info {
@@ -17,6 +18,7 @@ typedef struct comp_renderer_constructor_info {
   int tex_id;
   int render_layer;
   float parallax_value;
+  bool flipped;
 } comp_renderer_constructor_info;
 
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;
