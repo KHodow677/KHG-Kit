@@ -6,7 +6,7 @@
 #include "io/key_controller.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
-#include "khg_phy/vect.h"
+#include "khg_phy/vector.h"
 #include <stdio.h>
 
 static const float POSITION_TOLERANCE = 10.0f;
@@ -28,21 +28,21 @@ static float ease_in_out(const float t) {
   return t * t * (3 - 2 * t);
 }
 
-static const bool element_is_at_position(comp_physics *info, const phy_vect pos, const float tolerance) {
-  phy_vect body_pos = phy_body_get_position(info->body);
-  float pos_diff = phy_v_dist(pos, body_pos);
+static const bool element_is_at_position(comp_physics *info, const nvVector2 pos, const float tolerance) {
+  nvVector2 body_pos = nvRigidBody_get_position(info->body);
+  float pos_diff = nvVector2_dist(pos, body_pos);
   if (pos_diff <= tolerance) {
     return true;
   }
   return false;
 }
 
-static void element_set_position(comp_physics *info, const phy_vect pos) {
+static void element_set_position(comp_physics *info, const nvVector2 pos) {
   element_set_speed(info, 0.0f);
-  phy_body_set_position(info->body, pos);
+  nvRigidBody_set_position(info->body, pos);
 }
 
-static void element_move_to_position_x(comp_physics *info, const float max_vel, const phy_vect body_pos, const phy_vect target_pos, const float easing_factor) {
+static void element_move_to_position_x(comp_physics *info, const float max_vel, const nvVector2 body_pos, const nvVector2 target_pos, const float easing_factor) {
   float pos_diff = target_pos.x - body_pos.x;
   if (fabsf(pos_diff) < POSITION_TOLERANCE) {
     element_set_position(info, target_pos);
@@ -52,8 +52,8 @@ static void element_move_to_position_x(comp_physics *info, const float max_vel, 
   element_set_speed(info, speed);
 }
 
-static void element_target_position(comp_physics *info, const phy_vect pos, const float max_vel) {
-  phy_vect body_pos = phy_body_get_position(info->body);
+static void element_target_position(comp_physics *info, const nvVector2 pos, const float max_vel) {
+  nvVector2 body_pos = nvRigidBody_get_position(info->body);
   if (element_is_at_position(info, pos, POSITION_TOLERANCE)) {
     element_set_speed(info, 0.0f);
     return;
@@ -79,12 +79,12 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity
     if (p_info->is_moving) {
       a_info->min_tex_id = info->walk_min_tex_id;
       a_info->max_tex_id = info->walk_max_tex_id;
-      r_info->offset = phy_v(-16.0f, -8.0f);
+      r_info->offset = NV_VECTOR2(-16.0f, -8.0f);
     }
     else {
       a_info->min_tex_id = info->idle_min_tex_id;
       a_info->max_tex_id = info->idle_max_tex_id;
-      r_info->offset = phy_v(0.0f, 0.0f);
+      r_info->offset = NV_VECTOR2(0.0f, 0.0f);
     }
   }
   return 0;
@@ -94,7 +94,7 @@ static void comp_mover_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *p
   comp_mover *info = ptr;
   const comp_mover_constructor_info *constructor_info = MOVER_CONSTRUCTOR_INFO;
   if (info && constructor_info) {
-    info->target = phy_body_get_position(constructor_info->body);
+    info->target = nvRigidBody_get_position(constructor_info->body);
     info->target_vel = constructor_info->target_vel;
     info->max_vel = constructor_info->max_vel;
     info->idle_min_tex_id = constructor_info->idle_min_tex_id;
@@ -120,3 +120,4 @@ comp_mover *sys_mover_add(const ecs_id eid, comp_mover_constructor_info *clci) {
   MOVER_CONSTRUCTOR_INFO = clci;
   return ecs_add(ECS, eid, MOVER_COMPONENT_SIGNATURE, NULL);
 }
+

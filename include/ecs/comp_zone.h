@@ -1,17 +1,17 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy_types.h"
+#include "khg_phy/body.h"
 
 typedef struct comp_zone {
   ecs_id id;
-  const phy_body *body;
+  const nvRigidBody *body;
   float min_x;
   float max_x;
 } comp_zone;
 
 typedef struct comp_zone_constructor_info {
-  const phy_body *body;
+  const nvRigidBody *body;
   float min_x;
   float max_x;
 } comp_zone_constructor_info;

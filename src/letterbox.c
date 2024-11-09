@@ -1,7 +1,6 @@
 #include "letterbox.h"
 #include "game.h"
 #include "khg_gfx/elements.h"
-#include "khg_phy/phy_types.h"
 
 static const float TARGET_ASPECT_RATIO = 16.0f / 9.0f;
 gfx_aabb LETTERBOX = { 0 };
@@ -22,7 +21,7 @@ static const float get_letterbox_height(const float current_aspect_ratio, const 
   return current_aspect_ratio < TARGET_ASPECT_RATIO ? gfx_get_display_height() * ratio_ratio : gfx_get_display_height();
 }
 
-void transform_letterbox_element(const gfx_aabb letterbox, phy_vect *pos, phy_vect *cam_pos, gfx_texture *tex) {
+void transform_letterbox_element(const gfx_aabb letterbox, nvVector2 *pos, nvVector2 *cam_pos, gfx_texture *tex) {
   const float scale_x = letterbox.size.x / INITIAL_WIDTH;
   const float scale_y = letterbox.size.y / INITIAL_HEIGHT;
   tex->width *= scale_x;

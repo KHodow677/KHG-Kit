@@ -1,110 +1,277 @@
-#pragma once
+/*
 
-#include "khg_phy/phy_types.h"
-#include "khg_phy/bb.h"
-#include "khg_phy/shape.h"
+  This file is a part of the Nova Physics Engine
+  project and distributed under the MIT license.
 
-typedef bool (*phy_collision_begin_func)(phy_arbiter *arb, phy_space *space, phy_data_pointer user_data);
-typedef bool (*phy_collision_pre_solve_func)(phy_arbiter *arb, phy_space *space, phy_data_pointer user_data);
-typedef void (*phy_collision_post_solve_func)(phy_arbiter *arb, phy_space *space, phy_data_pointer user_data);
-typedef void (*phy_collision_separate_func)(phy_arbiter *arb, phy_space *space, phy_data_pointer user_data);
+  Copyright © Kadir Aksoy
+  https://github.com/kadir014/nova-physics
 
-struct phy_collision_handler {
-	const phy_collision_type type_A;
-	const phy_collision_type type_B;
-	phy_collision_begin_func begin_func;
-	phy_collision_pre_solve_func pre_solve_func;
-	phy_collision_post_solve_func post_solve_func;
-	phy_collision_separate_func separate_func;
-	phy_data_pointer user_data;
+*/
+
+#ifndef NOVAPHYSICS_SPACE_H
+#define NOVAPHYSICS_SPACE_H
+
+#include "khg_phy/internal.h"
+#include "khg_phy/core/array.h"
+#include "khg_phy/core/hashmap.h"
+#include "khg_phy/core/pool.h"
+#include "khg_phy/body.h"
+#include "khg_phy/broadphase.h"
+#include "khg_phy/contact.h"
+#include "khg_phy/constraints/constraint.h"
+#include "khg_phy/constraints/contact_constraint.h"
+#include "khg_phy/profiler.h"
+#include "khg_phy/space_settings.h"
+
+
+/**
+ * @file space.h
+ * 
+ * @brief Space struct and its methods.
+ */
+
+
+/**
+ * @brief Space struct.
+ * 
+ * A space is the core of the physics simulation.
+ * It manages and simulates all bodies, constraints and collisions.
+ */
+struct nvSpace {
+    /*
+        Private members
+    */
+    nvArray *bodies;
+    nvArray *constraints;
+    nvHashMap *contacts;
+    nvHashMap *removed_contacts;
+    nvMemoryPool *broadphase_pairs;
+    nvArray *bvh_traversed;
+    nv_uint32 id_counter;
+
+    /*
+        Public members (setters & getters)
+    */
+    nvVector2 gravity;
+    nvSpaceSettings settings;
+    nvBroadPhaseAlg broadphase_algorithm;
+
+    nvContactListener *listener;
+    void *listener_arg;
+
+    nvProfiler profiler;
 };
+typedef struct nvSpace nvSpace;
 
-phy_space *phy_space_alloc(void);
-phy_space *phy_space_new(void);
-phy_space *phy_space_init(phy_space *space);
+/**
+ * @brief Create new space instance.
+ * 
+ * Returns `NULL` on error. Use @ref nv_get_error to get more information.
+ * 
+ * @return nvSpace * 
+ */
+nvSpace *nvSpace_new();
 
-void phy_space_destroy(phy_space *space);
-void phy_space_free(phy_space *space);
+/**
+ * @brief Free space.
+ * 
+ * It's safe to pass `NULL` to this function.
+ * 
+ * @param space Space to free
+ */
+void nvSpace_free(nvSpace *space);
 
-int phy_space_get_iterations(const phy_space *space);
-void phy_space_set_iterations(phy_space *space, int iterations);
+/**
+ * @brief Set global gravity vector.
+ * 
+ * @param space Space
+ * @param gravity Gravity vector
+ */
+void nvSpace_set_gravity(nvSpace *space, nvVector2 gravity);
 
-phy_vect phy_space_get_gravity(const phy_space *space);
-void phy_space_set_gravity(phy_space *space, phy_vect gravity);
+/**
+ * @brief Get global gravity vector.
+ * 
+ * @param space Space
+ * @return nvVector2 Gravity vector
+ */
+nvVector2 nvSpace_get_gravity(const nvSpace *space);
 
-float phy_space_get_damping(const phy_space *space);
-void phy_space_set_damping(phy_space *space, float damping);
+/**
+ * @brief Set the current broadphase algorithm.
+ * 
+ * Broadphase is where we check for possible collided pairs of bodies. Quickly
+ * determining those pairs is important for efficiency before narrowphase.
+ * 
+ * @param space Space
+ * @param broadphase_type Broadphase algorithm
+ */
+void nvSpace_set_broadphase(nvSpace *space, nvBroadPhaseAlg broadphase_alg_type);
 
-float phy_space_get_idle_speed_threshold(const phy_space *space);
-void phy_space_set_idle_speed_threshold(phy_space *space, float idle_speed_threshold);
+/**
+ * @brief Get the current broadphase algorithm.
+ * 
+ * @param space Space
+ * @return nvBroadPhaseAlg 
+ */
+nvBroadPhaseAlg nvSpace_get_broadphase(const nvSpace *space);
 
-float phy_space_get_sleep_time_threshold(const phy_space *space);
-void phy_space_set_sleep_time_threshold(phy_space *space, float sleep_time_threshold);
+/**
+ * @brief Get the current simulation settings struct.
+ * 
+ * This returns a pointer to the current settings. So you can directly modify it.
+ * 
+ * @param space Space
+ * @return nvSpaceSettings *
+ */
+nvSpaceSettings *nvSpace_get_settings(nvSpace *space);
 
-float phy_space_get_collision_slop(const phy_space *space);
-void phy_space_set_collision_slop(phy_space *space, float collision_slop);
+/**
+ * @brief Get profiler of space.
+ * 
+ * @param space Space
+ * @return nvProfiler 
+ */
+nvProfiler nvSpace_get_profiler(const nvSpace *space);
 
-float phy_space_get_collision_bias(const phy_space *space);
-void phy_space_set_collision_bias(phy_space *space, float collision_bias);
+/**
+ * @brief Set the current contact event listener.
+ * 
+ * Space allocates using the functions provided by listener param.
+ * 
+ * Returns non-zero on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param space Space
+ * @param listener Contact event listener
+ * @param user_arg User argument
+ */
+int nvSpace_set_contact_listener(
+    nvSpace *space,
+    nvContactListener listener,
+    void *user_arg
+);
 
-phy_timestamp phy_space_get_collision_persistence(const phy_space *space);
-void phy_space_set_collision_persistence(phy_space *space, phy_timestamp collision_persistence);
+/**
+ * @brief Get the current contact event listener.
+ * 
+ * @param space Space
+ * @return nvContactListener * 
+ */
+nvContactListener *nvSpace_get_contact_listener(const nvSpace *space);
 
-phy_data_pointer phy_space_get_user_data(const phy_space *space);
-void phy_space_set_user_data(phy_space *space, phy_data_pointer user_data);
+/**
+ * @brief Clear bodies and constraints in space.
+ * 
+ * Returns non-zero on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param space Space
+ * @param free_all Whether to free objects after removing them from space
+ * @return int Status
+ */
+int nvSpace_clear(nvSpace *space, nv_bool free_all);
 
-phy_body* phy_space_get_static_body(const phy_space *space);
-float phy_space_get_current_time_step(const phy_space *space);
+/**
+ * @brief Add body to space.
+ * 
+ * Returns non-zero on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param space Space
+ * @param body Body to add
+ * @return int Status
+ */
+int nvSpace_add_rigidbody(nvSpace *space, nvRigidBody *body);
 
-bool phy_space_is_locked(phy_space *space);
+/**
+ * @brief Remove body from the space.
+ * 
+ * After removing the body, managing it's memory belongs to user. You should
+ * use @ref nvRigidBody_free if you are not going to add it to the space again.
+ * 
+ * This function also removes any constraints attached to the body.
+ * 
+ * Returns non-zero on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param space Space
+ * @param body Body to remove
+ * @return int Status
+ */
+int nvSpace_remove_rigidbody(nvSpace *space, nvRigidBody *body);
 
-phy_collision_handler *phy_space_add_default_collision_handler(phy_space *space);
-phy_collision_handler *phy_space_add_collision_handler(phy_space *space, phy_collision_type a, phy_collision_type b);
-phy_collision_handler *phy_space_add_wildcard_handler(phy_space *space, phy_collision_type type);
+/**
+ * @brief Add constraint to space.
+ * 
+ * Returns non-zero on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param space Space
+ * @param cons Constraint to add
+ * @return int Status
+ */
+int nvSpace_add_constraint(nvSpace *space, nvConstraint *cons);
 
-phy_shape *phy_space_add_shape(phy_space *space, phy_shape *shape);
-phy_body *phy_space_add_body(phy_space *space, phy_body *body);
-phy_constraint *phy_space_add_constraint(phy_space *space, phy_constraint *constraint);
+/**
+ * @brief Remove constraint from the space.
+ * 
+ * After removing the constraint managing it's memory belongs to user. You should
+ * use @ref nvConstraint_free if you are not going to add it to the space again.
+ * 
+ * Returns non-zero on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param space Space
+ * @param cons Constraint to remove
+ * @return int 
+ */
+int nvSpace_remove_constraint(nvSpace *space, nvConstraint *cons);
 
-void phy_space_remove_shape(phy_space *space, phy_shape *shape);
-void phy_space_remove_body(phy_space *space, phy_body *body);
-void phy_space_remove_constraint(phy_space *space, phy_constraint *constraint);
+/**
+ * @brief Iterate over the rigid bodies in this space.
+ * 
+ * Make sure to reset the index if you alter the space in any way while iterating.
+ * 
+ * @param space Space
+ * @param body Pointer to rigid body
+ * @param index Pointer to iteration index
+ * @return nv_bool 
+ */
+nv_bool nvSpace_iter_bodies(nvSpace *space, nvRigidBody **body, size_t *index);
 
-bool phy_space_contains_shape(phy_space *space, phy_shape *shape);
-bool phy_space_contains_body(phy_space *space, phy_body *body);
-bool phy_space_contains_constraint(phy_space *space, phy_constraint *constraint);
+/**
+ * @brief Iterate over the constraints in this space.
+ * 
+ * Make sure to reset the index if you alter the space in any way while iterating.
+ * 
+ * @param space Space
+ * @param cons Pointer to constraint
+ * @param index Pointer to iteration index
+ * @return nv_bool 
+ */
+nv_bool nvSpace_iter_constraints(nvSpace *space, nvConstraint **cons, size_t *index);
 
-typedef void (*phy_post_step_func)(phy_space *space, void *key, void *data);
-bool phy_space_add_post_step_callback(phy_space *space, phy_post_step_func func, void *key, void *data);
+/**
+ * @brief Advance the simulation.
+ * 
+ * @param space Space instance
+ * @param dt Time step size (delta time)
+ */
+void nvSpace_step(nvSpace *space, nv_float dt);
 
-typedef void (*phy_space_point_query_func)(phy_shape *shape, phy_vect point, float distance, phy_vect gradient, void *data);
-void phy_space_point_query(phy_space *space, phy_vect point, float max_distance, phy_shape_filter filter, phy_space_point_query_func func, void *data);
-phy_shape *phy_space_point_query_nearest(phy_space *space, phy_vect point, float max_distance, phy_shape_filter filter, phy_point_query_info *out);
+/**
+ * @brief Cast a ray in space and collect intersections.
+ * 
+ * @param space Space
+ * @param from Starting position of ray in world space
+ * @param to End position of ray in world space
+ * @param results_array Array of ray cast result structs to be filled
+ * @param num_hits Number of hits (size of results array)
+ * @param capacity Size allocated for the results array
+ */
+void nvSpace_cast_ray(
+    nvSpace *space,
+    nvVector2 from,
+    nvVector2 to,
+    nvRayCastResult *results_array,
+    size_t *num_hits,
+    size_t capacity
+);
 
-typedef void (*phy_space_segment_query_func)(phy_shape *shape, phy_vect point, phy_vect normal, float alpha, void *data);
-void phy_space_segment_query(phy_space *space, phy_vect start, phy_vect end, float radius, phy_shape_filter filter, phy_space_segment_query_func func, void *data);
-phy_shape *phy_space_segment_query_first(phy_space *space, phy_vect start, phy_vect end, float radius, phy_shape_filter filter, phy_segment_query_info *out);
 
-typedef void (*phy_space_BB_query_func)(phy_shape *shape, void *data);
-void phy_space_BB_query(phy_space *space, phy_bb bb, phy_shape_filter filter, phy_space_BB_query_func func, void *data);
-
-typedef void (*phy_space_shape_query_func)(phy_shape *shape, phy_contact_point_set *points, void *data);
-bool phy_space_shape_query(phy_space *space, phy_shape *shape, phy_space_shape_query_func func, void *data);
-
-typedef void (*phy_space_body_iterator_func)(phy_body *body, void *data);
-void phy_space_each_body(phy_space *space, phy_space_body_iterator_func func, void *data);
-
-typedef void (*phy_space_shape_iterator_func)(phy_shape *shape, void *data);
-void phy_space_each_shape(phy_space *space, phy_space_shape_iterator_func func, void *data);
-
-typedef void (*phy_space_constraint_iterator_func)(phy_constraint *constraint, void *data);
-void phy_space_each_constraint(phy_space *space, phy_space_constraint_iterator_func func, void *data);
-
-void phy_space_reindex_static(phy_space *space);
-void phy_space_reindex_shape(phy_space *space, phy_shape *shape);
-void phy_space_reindex_shapes_for_body(phy_space *space, phy_body *body);
-
-void phy_space_use_spatial_hash(phy_space *space, float dim, int count);
-
-void phy_space_step(phy_space *space, float dt);
-
+#endif

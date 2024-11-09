@@ -1,11 +1,12 @@
 #include "ecs/comp_physics.h"
 #include "ecs/ecs_manager.h"
+#include "khg_phy/vector.h"
 #include "physics/physics.h"
 #include "utility/math_utl.h"
 #include "khg_phy/body.h"
-#include "khg_phy/phy.h"
 #include "khg_phy/space.h"
-#include "khg_phy/vect.h"
+#include "khg_phy/vector.h"
+#include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT_SIGNATURE;
 ecs_id PHYSICS_SYSTEM_SIGNATURE;
@@ -19,7 +20,7 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const int enti
   for (int id = 0; id < entity_count; id++) {
     comp_physics *info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (info->move_enabled) {
-      phy_body_set_velocity(info->body, phy_v(info->target_vel, 0.0f));
+      nvRigidBody_set_linear_velocity(info->body, NV_VECTOR2(info->target_vel, 0.0f));
     }
   }
   return 0;
@@ -29,26 +30,33 @@ static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void 
   comp_physics *info = ptr;
   const comp_physics_constructor_info *constructor_info = PHYSICS_CONSTRUCTOR_INFO;
   if (info && constructor_info && constructor_info->mode == PHYSICS_BOX) {
-    const float moment = phy_moment_for_box(constructor_info->mass, constructor_info->width, constructor_info->height);
-    info->body = phy_space_add_body(SPACE, phy_body_new(constructor_info->mass, moment));
-    phy_body_set_position(info->body, constructor_info->pos);
-    phy_body_set_center_of_gravity(info->body, constructor_info->cog);
-    phy_body_set_angle(info->body, constructor_info->ang);
-    info->has_constraint = false;
+    nvRigidBodyInitializer body_init = nvRigidBodyInitializer_default;
+    body_init.type = nvRigidBodyType_DYNAMIC;
+    body_init.position = NV_VECTOR2(0.0, 0.0);
+    body_init.material = (nvMaterial){ .density=1.0, .restitution = 0.85, .friction = 0.0 };
+    info->body = nvRigidBody_new(body_init);
+    nvRigidBody_set_position(info->body, constructor_info->pos);
+    nvRigidBody_set_mass(info->body, constructor_info->mass);
+    nvRigidBody_set_angle(info->body, constructor_info->ang);
     info->is_moving = false;
     info->target_vel = 0.0f;
-    info->move_enabled = true;
+    info->move_enabled = constructor_info->move_enabled;
+    info->shape = nvRectShape_new(constructor_info->width, constructor_info->height, NV_VECTOR2(0.0, 0.0));
+    nvRigidBody_add_shape(info->body, info->shape);
+    if (constructor_info->collision_enabled) {
+      nvRigidBody_disable_collisions(info->body);
+    }
+    nvSpace_add_rigidbody(SPACE, info->body);
   }
 }
 
 static void comp_physics_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
   const comp_physics *info = ptr;
   if (info) {
-    if (info->has_constraint) {
-      phy_space_remove_constraint(SPACE, info->pivot);
-    }
-    phy_space_remove_body(SPACE, info->body);
-    phy_body_free(info->body);
+    nvSpace_remove_rigidbody(SPACE, info->body);
+    nvRigidBody_remove_shape(info->body, info->shape);
+    nvRigidBody_free(info->body);
+    nvShape_free(info->shape);
   }
 }
 

@@ -2,19 +2,20 @@
 
 #include "graphics/light.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy_types.h"
+#include "khg_phy/body.h"
+#include "khg_phy/vector.h"
 
 typedef struct comp_light {
   ecs_id id;
   light light;
-  phy_body *body;
-  phy_vect offset;
+  nvRigidBody *body;
+  nvVector2 offset;
 } comp_light;
 
 typedef struct comp_light_constructor_info {
-  phy_body *body; 
+  nvRigidBody *body; 
   light light;
-  phy_vect offset;
+  nvVector2 offset;
 } comp_light_constructor_info;
 
 extern ecs_id LIGHT_COMPONENT_SIGNATURE;

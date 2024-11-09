@@ -1,100 +1,205 @@
-#pragma once
+/*
 
-#include "khg_phy/phy_types.h"
-#include "khg_phy/bb.h"
+  This file is a part of the Nova Physics Engine
+  project and distributed under the MIT license.
 
-typedef struct phy_point_query_info {
-	const phy_shape *shape;
-	phy_vect point;
-	float distance;
-	phy_vect gradient;
-} phy_point_query_info;
+  Copyright © Kadir Aksoy
+  https://github.com/kadir014/nova-physics
 
-typedef struct phy_segment_query_info {
-	const phy_shape *shape;
-	phy_vect point;
-	phy_vect normal;
-	float alpha;
-} phy_segment_query_info;
+*/
 
-typedef struct phy_shape_filter {
-	phy_group group;
-	phy_bitmask categories;
-	phy_bitmask mask;
-} phy_shape_filter;
+#ifndef NOVAPHYSICS_SHAPE_H
+#define NOVAPHYSICS_SHAPE_H
 
-static const phy_shape_filter PHY_SHAPE_FILTER_ALL = { PHY_NO_GROUP, PHY_ALL_CATEGORIES, PHY_ALL_CATEGORIES };
-static const phy_shape_filter PHY_SHAPE_FILTER_NONE = { PHY_NO_GROUP, ~PHY_ALL_CATEGORIES, ~PHY_ALL_CATEGORIES };
+#include "khg_phy/internal.h"
+#include "khg_phy/core/array.h"
+#include "khg_phy/vector.h"
+#include "khg_phy/math.h"
+#include "khg_phy/aabb.h"
 
-static inline phy_shape_filter phy_shape_filter_new(phy_group group, phy_bitmask categories, phy_bitmask mask) {
-	phy_shape_filter filter = { group, categories, mask };
-	return filter;
-}
 
-void phy_shape_destroy(phy_shape *shape);
-void phy_shape_free(phy_shape *shape);
+/**
+ * @file shape.h
+ * 
+ * @brief Collision shape implementations.
+ */
 
-phy_bb phy_shape_cache_BB(phy_shape *shape);
-phy_bb phy_shape_update(phy_shape *shape, phy_transform transform);
 
-float phy_shape_point_query(const phy_shape *shape, phy_vect p, phy_point_query_info *out);
-bool phy_shape_segment_query(const phy_shape *shape, phy_vect a, phy_vect b, float radius, phy_segment_query_info *info);
+/**
+ * @brief Shape type enumerator.
+ */
+typedef enum {
+    nvShapeType_CIRCLE, /**< Circle is the simplest collision shape. */
+    nvShapeType_POLYGON /**< Convex polygon shape. It's more complex than
+                              circle shape and the calculations gets more expensive 
+                              as the vertex count goes higher. */
+} nvShapeType;
 
-phy_contact_point_set phy_shapes_collide(const phy_shape *a, const phy_shape *b);
-phy_space* phy_shape_get_space(const phy_shape *shape);
 
-phy_body* phy_shape_get_body(const phy_shape *shape);
-void phy_shape_set_body(phy_shape *shape, phy_body *body);
+/**
+ * @brief Mass related information about shape.
+ */
+typedef struct {
+    nv_float mass;
+    nv_float inertia;
+    nvVector2 center;
+} nvShapeMassInfo;
 
-float phy_shape_get_mass(phy_shape *shape);
-void phy_shape_set_mass(phy_shape *shape, float mass);
 
-float phy_shape_get_density(phy_shape *shape);
-void phy_shape_set_density(phy_shape *shape, float density);
+/**
+ * @brief Circle shape.
+ * 
+ * Do not initialize manually. Use shape creation functions.
+ */
+typedef struct {
+    nvVector2 center; /**< Center position in local (body) space. */
+    nv_float radius; /**< Radius. */
+} nvCircle;
 
-float phy_shape_get_moment(phy_shape *shape);
-float phy_shape_get_area(phy_shape *shape);
-phy_vect phy_shape_get_center_of_gravity(phy_shape *shape);
 
-phy_bb phy_shape_get_BB(const phy_shape *shape);
+/**
+ * @brief Convex polygon shape.
+ * 
+ * Do not initialize manually. Use shape creation functions.
+ */
+typedef struct {
+    nvVector2 vertices[NV_POLYGON_MAX_VERTICES]; /**< Vertices in local (body) space. */
+    nvVector2 xvertices[NV_POLYGON_MAX_VERTICES]; /**< Vertices transformed into world space. */
+    nvVector2 normals[NV_POLYGON_MAX_VERTICES]; /**< Edge normals in local (body) space. */
+    size_t num_vertices; /**< Number of vertices. */
+} nvPolygon;
 
-bool phy_shape_get_sensor(const phy_shape *shape);
-void phy_shape_set_sensor(phy_shape *shape, bool sensor);
 
-float phy_shape_get_elasticity(const phy_shape *shape);
-void phy_shape_set_elasticity(phy_shape *shape, float elasticity);
+/**
+ * @brief Collision shape.
+ * 
+ * Do not initialize manually. Use shape creation functions.
+ */
+typedef struct {
+    nvShapeType type; /**< Type of the shape */
+    nv_uint32 id;
+    
+    union {
+        nvCircle circle;
+        nvPolygon polygon;
+    };
+} nvShape;
 
-float phy_shape_get_friction(const phy_shape *shape);
-void phy_shape_set_friction(phy_shape *shape, float friction);
+/**
+ * @brief Create a new circle shape.
+ * 
+ * Returns `NULL` on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param center Center position relative to body position
+ * @param radius Radius
+ * @return nvShape *
+ */
+nvShape *nvCircleShape_new(nvVector2 center, nv_float radius);
 
-phy_vect phy_shape_get_surface_velocity(const phy_shape *shape);
-void phy_shape_set_surface_velocity(phy_shape *shape, phy_vect surface_velocity);
+/**
+ * @brief Create a new convex polygon shape.
+ * 
+ * Returns `NULL` on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param vertices Array of vertices
+ * @param offset Offset to centroid
+ * @return nvShape *
+ */
+nvShape *nvPolygonShape_new(
+    nvVector2 *vertices,
+    size_t num_vertices,
+    nvVector2 offset
+);
 
-phy_data_pointer phy_shape_get_user_data(const phy_shape *shape);
-void phy_shape_set_user_data(phy_shape *shape, phy_data_pointer user_data);
+/**
+ * @brief Create a new polygon shape that is a rectangle.
+ * 
+ * Returns `NULL` on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param width Width
+ * @param height Height
+ * @param offset Offset to centroid
+ * @return nvShape *
+ */
+nvShape *nvRectShape_new(nv_float width, nv_float height, nvVector2 offset);
 
-phy_collision_type phy_shape_get_collision_type(const phy_shape *shape);
-void phy_shape_set_collision_type(phy_shape *shape, phy_collision_type collision_type);
+/**
+ * @brief Create a new polygon shape that is a rectangle.
+ * 
+ * Returns `NULL` on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param width Width
+ * @param height Height
+ * @param offset Offset to centroid
+ * @return nvShape *
+ */
+#define nvBoxShape_new(width, height, offset) (nvRectShape_new(width, height, offset))
 
-phy_shape_filter phy_shape_get_filter(const phy_shape *shape);
-void phy_shape_set_filter(phy_shape *shape, phy_shape_filter filter);
+/**
+ * @brief Create a new polygon shape that is a regular n-gon.
+ * 
+ * Returns `NULL` on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param n Number of vertices or edges
+ * @param radius Length of a vertex from the centroid
+ * @param offset Offset to centroid
+ * @return nvShape *
+ */
+nvShape *nvNGonShape_new(size_t n, nv_float radius, nvVector2 offset);
 
-phy_circle_shape *phy_circle_shape_alloc(void);
-phy_shape *phy_circle_shape_new(phy_body *body, float radius, phy_vect offset);
-phy_circle_shape *phy_circle_shape_init(phy_circle_shape *circle, phy_body *body, float radius, phy_vect offset);
+/**
+ * @brief Create a new polygon shape from a convex hull of an array of points.
+ * 
+ * Returns `NULL` on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param points Points to generate a convex hull from
+ * @param num_points Number of points
+ * @param offset Offset to centroid
+ * @param bool Transform hull so the centroid is at origin?
+ * @return nvShape * 
+ */
+nvShape *nvConvexHullShape_new(
+    nvVector2 *points,
+    size_t num_points,
+    nvVector2 offset,
+    nv_bool center
+);
 
-phy_vect phy_circle_shape_get_offset(const phy_shape *shape);
-float phy_circle_shape_get_radius(const phy_shape *shape);
+/**
+ * @brief Free shape.
+ * 
+ * It's safe to pass `NULL` to this function.
+ * 
+ * @param shape Shape
+ */
+void nvShape_free(nvShape *shape);
 
-phy_segment_shape *phy_segment_shape_alloc(void);
-phy_shape *phy_segment_shape_new(phy_body *body, phy_vect a, phy_vect b, float radius);
-phy_segment_shape *phy_segment_shape_init(phy_segment_shape *seg, phy_body *body, phy_vect a, phy_vect b, float radius);
+/**
+ * @brief Get AABB of shape.
+ * 
+ * @param shape Shape
+ * @param xform Shape transform
+ * @return nvAABB 
+ */
+nvAABB nvShape_get_aabb(nvShape *shape, nvTransform xform);
 
-void phy_segment_shape_set_neighbors(phy_shape *shape, phy_vect prev, phy_vect next);
+/**
+ * @brief Calculate mass information of shape.
+ * 
+ * Returns a struct filled with -1 on error. Use @ref nv_get_error to get more information.
+ * 
+ * @param shape Shape
+ * @return nvShapeMassInfo 
+ */
+nvShapeMassInfo nvShape_calculate_mass(nvShape *shape, nv_float density);
 
-phy_vect phy_segment_shape_get_A(const phy_shape *shape);
-phy_vect phy_segment_shape_get_B(const phy_shape *shape);
+/**
+ * @brief Transform the polygon shape vertices.
+ * 
+ * @param shape Shape
+ * @param xform Transform
+ */
+void nvPolygon_transform(nvShape *shape, nvTransform xform);
 
-phy_vect phy_segment_shape_get_normal(const phy_shape *shape);
-float phy_segment_shape_get_radius(const phy_shape *shape);
 
+#endif

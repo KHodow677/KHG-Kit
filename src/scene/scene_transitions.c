@@ -3,17 +3,17 @@
 #include "ecs/ecs_manager.h"
 #include "graphics/light.h"
 #include "physics/physics.h"
-#include "khg_phy/vect.h"
-#include "khg_stm/state_machine.h"
 #include "resources/texture_loader.h"
 #include "scene/scenes/main/animal_builder.h"
 #include "scene/scenes/main/environment_builder.h"
 #include "scene/scenes/main/light_builder.h"
 #include "scene/scenes/main/player_builder.h"
 #include "scene/scenes/main/zone_builder.h"
+#include "khg_phy/vector.h"
+#include "khg_stm/state_machine.h"
 
 void load_main_scene(void *old_state_data, stm_event *event, void *new_state_data) {
-  physics_setup(phy_v(0.0f, 0.0f));
+  physics_setup(NV_VECTOR2(0.0f, 0.0f));
   ecs_setup();
   camera_setup(&CAMERA);
   setup_lights_texture();

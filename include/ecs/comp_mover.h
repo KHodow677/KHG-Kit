@@ -1,11 +1,12 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy_types.h"
+#include "khg_phy/body.h"
+#include "khg_phy/vector.h"
 
 typedef struct comp_mover {
   ecs_id id;
-  phy_vect target;
+  nvVector2 target;
   float target_vel;
   float max_vel;
   int idle_min_tex_id;
@@ -15,7 +16,7 @@ typedef struct comp_mover {
 } comp_mover;
 
 typedef struct comp_mover_constructor_info {
-  const phy_body *body; 
+  const nvRigidBody *body; 
   const float target_vel;
   const float max_vel;
   const int idle_min_tex_id;

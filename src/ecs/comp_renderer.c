@@ -2,15 +2,13 @@
 #include "camera/camera.h"
 #include "ecs/comp_physics.h"
 #include "ecs/ecs_manager.h"
-#include "khg_phy/vect.h"
 #include "letterbox.h"
 #include "resources/texture_loader.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/body.h"
-#include "khg_phy/phy_types.h"
-#include <stdio.h>
+#include "khg_phy/vector.h"
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
 ecs_id RENDERER_SYSTEM_SIGNATURE;
@@ -24,14 +22,13 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       if (layer != info->render_layer) {
         continue;
       }
-      phy_vect pos = phy_v_add(phy_body_get_position(info->body), info->offset);
-      phy_vect offset = phy_body_get_center_of_gravity(info->body);
-      phy_vect cam_pos = phy_v(CAMERA.position.x, CAMERA.position.y);
-      const float angle = phy_body_get_angle(info->body);
+      nvVector2 pos = nvVector2_add(nvRigidBody_get_position(info->body), info->offset);
+      nvVector2 cam_pos = NV_VECTOR2(CAMERA.position.x, CAMERA.position.y);
+      const float angle = nvRigidBody_get_angle(info->body);
       const gfx_texture tex_ref = get_or_add_texture(info->tex_id);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element(LETTERBOX, &pos, &cam_pos, &tex);
-      gfx_image_no_block(pos.x, pos.y, tex, offset.x, offset.y, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);
+      gfx_image_no_block(pos.x, pos.y, tex, 0.0f, 0.0f, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);
     }
   }
   return 0;
@@ -46,7 +43,7 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
     info->render_layer = constructor_info->render_layer;
     info->parallax_value = constructor_info->parallax_value;
     info->flipped = constructor_info->flipped;
-    info->offset = phy_v(0.0f, 0.0f);
+    info->offset = NV_VECTOR2(0.0f, 0.0f);
   }
 }
 

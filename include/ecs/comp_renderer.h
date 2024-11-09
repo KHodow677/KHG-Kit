@@ -1,20 +1,20 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy_types.h"
+#include "khg_phy/body.h"
 
 typedef struct comp_renderer {
   ecs_id id;
   int tex_id;
-  phy_body *body;
+  const nvRigidBody *body;
   int render_layer;
   float parallax_value;
-  phy_vect offset;
+  nvVector2 offset;
   bool flipped;
 } comp_renderer;
 
 typedef struct comp_renderer_constructor_info {
-  phy_body *body; 
+  const nvRigidBody *body; 
   int tex_id;
   int render_layer;
   float parallax_value;

@@ -1,12 +1,20 @@
 #pragma once
 
-#include "khg_phy/phy_types.h"
+#include "khg_phy/body.h"
+#include "khg_phy/shape.h"
+#include "khg_phy/space.h"
+#include "khg_phy/vector.h"
 
-extern phy_space *SPACE;
+extern nvSpace *SPACE;
 
-void physics_setup(const phy_vect grav);
+typedef struct segment {
+  nvRigidBody *seg_body;
+  nvShape *seg_shape;
+} segment;
+
+void physics_setup(const nvVector2 grav);
 void physics_cleanup(void);
 
-const phy_shape *physics_add_static_segment_shape(phy_space *space, const phy_vect point_a, const phy_vect point_b);
-void physics_remove_static_segment_shape(phy_space *space, phy_shape *seg);
+void physics_add_static_segment_shape(segment *seg, const nvVector2 point_a, const nvVector2 point_b);
+void physics_remove_static_segment_shape(segment *seg);
 

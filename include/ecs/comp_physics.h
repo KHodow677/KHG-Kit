@@ -1,14 +1,14 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_phy/phy_types.h"
+#include "khg_phy/body.h"
+#include "khg_phy/shape.h"
+#include "khg_phy/vector.h"
 
 typedef struct {
   ecs_id id;
-  phy_body *body;
-  phy_body *target_body;
-  phy_constraint *pivot;
-  bool has_constraint;
+  nvRigidBody *body;
+  nvShape *shape;
   float target_vel;
   bool move_enabled;
   bool is_moving;
@@ -22,9 +22,10 @@ typedef struct {
   float width;
   float height;
   float mass;
-  phy_vect pos;
+  nvVector2 pos;
   float ang;
-  phy_vect cog;
+  bool move_enabled;
+  bool collision_enabled;
 } comp_physics_constructor_info;
 
 extern ecs_id PHYSICS_COMPONENT_SIGNATURE;

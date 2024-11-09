@@ -3,7 +3,7 @@
 #include "camera/camera.h"
 #include "utility/math_utl.h"
 #include "khg_gfx/elements.h"
-#include "khg_phy/vect.h"
+#include "khg_phy/vector.h"
 #include <math.h>
 
 static float camera_get_value_to_clamp_x(const camera *cam, const float val) {
@@ -17,10 +17,10 @@ static float camera_get_value_to_clamp_y(const camera *cam, const float val) {
 }
 
 static void camera_move_to_position(camera *cam, const float delta) {
-  const float pos_diff = phy_v_dist(cam->position, cam->target);
+  const float pos_diff = nvVector2_dist(cam->position, cam->target);
   const float speed = -fminf(fabsf(pos_diff) * CAM_POSITION_EASING, CAM_MAX_VELOCITY) * delta;
   const float target_ang = normalize_angle(atan2f(cam->position.y - cam->target.y, cam->position.x - cam->target.x));
-  cam->position = phy_v_add(cam->position, phy_v(speed * cosf(target_ang), speed * sinf(target_ang)));
+  cam->position = nvVector2_add(cam->position, NV_VECTOR2(speed * cosf(target_ang), speed * sinf(target_ang)));
 }
 
 static void camera_zoom_to_value(camera *cam, const float delta) {
