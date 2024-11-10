@@ -22,8 +22,8 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       if (layer != info->render_layer) {
         continue;
       }
-      nvVector2 pos = nvVector2_add(nvRigidBody_get_position(info->body), info->offset);
-      nvVector2 cam_pos = NV_VECTOR2(CAMERA.position.x, CAMERA.position.y);
+      phy_vector2 pos = nvVector2_add(nvRigidBody_get_position(info->body), info->offset);
+      phy_vector2 cam_pos = NV_VECTOR2(CAMERA.position.x, CAMERA.position.y);
       const float angle = nvRigidBody_get_angle(info->body);
       const gfx_texture tex_ref = get_or_add_texture(info->tex_id);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };

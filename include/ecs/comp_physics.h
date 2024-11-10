@@ -7,7 +7,7 @@
 
 typedef struct {
   ecs_id id;
-  nvRigidBody *body;
+  phy_rigid_body *body;
   nvShape *shape;
   float target_vel;
   bool move_enabled;
@@ -22,7 +22,7 @@ typedef struct {
   float width;
   float height;
   float mass;
-  nvVector2 pos;
+  phy_vector2 pos;
   float ang;
   bool move_enabled;
   bool collision_enabled;

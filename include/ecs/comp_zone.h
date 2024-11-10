@@ -5,13 +5,13 @@
 
 typedef struct comp_zone {
   ecs_id id;
-  const nvRigidBody *body;
+  const phy_rigid_body *body;
   float min_x;
   float max_x;
 } comp_zone;
 
 typedef struct comp_zone_constructor_info {
-  const nvRigidBody *body;
+  const phy_rigid_body *body;
   float min_x;
   float max_x;
 } comp_zone_constructor_info;

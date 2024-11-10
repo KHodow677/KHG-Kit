@@ -28,8 +28,8 @@ static float ease_in_out(const float t) {
   return t * t * (3 - 2 * t);
 }
 
-static const bool element_is_at_position(comp_physics *info, const nvVector2 pos, const float tolerance) {
-  nvVector2 body_pos = nvRigidBody_get_position(info->body);
+static const bool element_is_at_position(comp_physics *info, const phy_vector2 pos, const float tolerance) {
+  phy_vector2 body_pos = nvRigidBody_get_position(info->body);
   float pos_diff = nvVector2_dist(pos, body_pos);
   if (pos_diff <= tolerance) {
     return true;
@@ -37,12 +37,12 @@ static const bool element_is_at_position(comp_physics *info, const nvVector2 pos
   return false;
 }
 
-static void element_set_position(comp_physics *info, const nvVector2 pos) {
+static void element_set_position(comp_physics *info, const phy_vector2 pos) {
   element_set_speed(info, 0.0f);
   nvRigidBody_set_position(info->body, pos);
 }
 
-static void element_move_to_position_x(comp_physics *info, const float max_vel, const nvVector2 body_pos, const nvVector2 target_pos, const float easing_factor) {
+static void element_move_to_position_x(comp_physics *info, const float max_vel, const phy_vector2 body_pos, const phy_vector2 target_pos, const float easing_factor) {
   float pos_diff = target_pos.x - body_pos.x;
   if (fabsf(pos_diff) < POSITION_TOLERANCE) {
     element_set_position(info, target_pos);
@@ -52,8 +52,8 @@ static void element_move_to_position_x(comp_physics *info, const float max_vel, 
   element_set_speed(info, speed);
 }
 
-static void element_target_position(comp_physics *info, const nvVector2 pos, const float max_vel) {
-  nvVector2 body_pos = nvRigidBody_get_position(info->body);
+static void element_target_position(comp_physics *info, const phy_vector2 pos, const float max_vel) {
+  phy_vector2 body_pos = nvRigidBody_get_position(info->body);
   if (element_is_at_position(info, pos, POSITION_TOLERANCE)) {
     element_set_speed(info, 0.0f);
     return;

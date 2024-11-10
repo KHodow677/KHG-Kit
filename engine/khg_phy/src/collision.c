@@ -9,10 +9,11 @@
 */
 
 #include "khg_phy/collision.h"
-#include "khg_phy/core/array.h"
+#include "khg_phy/core/phy_array.h"
 #include "khg_phy/math.h"
 #include "khg_phy/constants.h"
 #include "khg_phy/aabb.h"
+#include <math.h>
 
 
 /**
@@ -22,22 +23,22 @@
  */
 
 
-nvPersistentContactPair nv_collide_circle_x_circle(
+phy_persistent_contact_pair nv_collide_circle_x_circle(
     nvShape *circle_a,
     nvTransform xform_a,
     nvShape *circle_b,
     nvTransform xform_b
 ) {
-    nvPersistentContactPair pcp = {
+    phy_persistent_contact_pair pcp = {
         .contact_count = 0,
         .normal = nvVector2_zero
     };
 
     // Transform circle centers
-    nvVector2 ca = nvVector2_add(nvVector2_rotate(circle_a->circle.center, xform_a.angle), xform_a.position);
-    nvVector2 cb = nvVector2_add(nvVector2_rotate(circle_b->circle.center, xform_b.angle), xform_b.position);
+    phy_vector2 ca = nvVector2_add(nvVector2_rotate(circle_a->circle.center, xform_a.angle), xform_a.position);
+    phy_vector2 cb = nvVector2_add(nvVector2_rotate(circle_b->circle.center, xform_b.angle), xform_b.position);
 
-    nvVector2 delta = nvVector2_sub(cb, ca);
+    phy_vector2 delta = nvVector2_sub(cb, ca);
     nv_float dist = nvVector2_len(delta);
     nv_float radii = circle_a->circle.radius + circle_b->circle.radius;
 
@@ -50,9 +51,9 @@ nvPersistentContactPair nv_collide_circle_x_circle(
         pcp.normal = nvVector2_div(delta, dist);
 
     // Midway contact
-    nvVector2 a_support = nvVector2_add(ca, nvVector2_mul(pcp.normal, circle_a->circle.radius));
-    nvVector2 b_support = nvVector2_add(cb, nvVector2_mul(pcp.normal, -circle_b->circle.radius));
-    nvVector2 contact = nvVector2_mul(nvVector2_add(a_support, b_support), 0.5);
+    phy_vector2 a_support = nvVector2_add(ca, nvVector2_mul(pcp.normal, circle_a->circle.radius));
+    phy_vector2 b_support = nvVector2_add(cb, nvVector2_mul(pcp.normal, -circle_b->circle.radius));
+    phy_vector2 contact = nvVector2_mul(nvVector2_add(a_support, b_support), 0.5);
 
     pcp.contact_count = 1;
     pcp.contacts[0].separation = -(radii - dist);
@@ -69,10 +70,10 @@ nvPersistentContactPair nv_collide_circle_x_circle(
 nv_bool nv_collide_circle_x_point(
     nvShape *circle,
     nvTransform xform,
-    nvVector2 point
+    phy_vector2 point
 ) {
-    nvVector2 c = nvVector2_add(xform.position, nvVector2_rotate(circle->circle.center, xform.angle));
-    nvVector2 delta = nvVector2_sub(c, point);
+    phy_vector2 c = nvVector2_add(xform.position, nvVector2_rotate(circle->circle.center, xform.angle));
+    phy_vector2 delta = nvVector2_sub(c, point);
     return nvVector2_len2(delta) <= circle->circle.radius * circle->circle.radius;
 }
 
@@ -80,16 +81,16 @@ nv_bool nv_collide_circle_x_point(
  * @brief Project circle onto axis and return extreme points.
  */
 static inline void nv_project_circle(
-    nvVector2 center,
+    phy_vector2 center,
     nv_float radius,
-    nvVector2 axis,
+    phy_vector2 axis,
     nv_float *min_out,
     nv_float *max_out
 ) {
-    nvVector2 a = nvVector2_mul(nvVector2_normalize(axis), radius);
+    phy_vector2 a = nvVector2_mul(nvVector2_normalize(axis), radius);
 
-    nvVector2 p1 = nvVector2_add(center, a);
-    nvVector2 p2 = nvVector2_sub(center, a);
+    phy_vector2 p1 = nvVector2_add(center, a);
+    phy_vector2 p2 = nvVector2_sub(center, a);
 
     nv_float min = nvVector2_dot(p1, axis);
     nv_float max = nvVector2_dot(p2, axis);
@@ -108,14 +109,14 @@ static inline void nv_project_circle(
  * @brief Project polygon onto axis and return extreme points.
  */
 static inline void nv_project_polyon(
-    nvVector2 *vertices,
+    phy_vector2 *vertices,
     size_t num_vertices,
-    nvVector2 axis,
+    phy_vector2 axis,
     nv_float *min_out,
     nv_float *max_out
 ) {
-    nv_float min = NV_INF;
-    nv_float max = -NV_INF;
+    nv_float min = INFINITY;
+    nv_float max = -INFINITY;
 
     for (size_t i = 0; i < num_vertices; i++) {
         nv_float projection = nvVector2_dot(vertices[i], axis);
@@ -132,13 +133,13 @@ static inline void nv_project_polyon(
 /**
  * @brief Find closest vertex of the polygon to the circle.
  */
-static inline nvVector2 nv_polygon_closest_vertex_to_circle(
-    nvVector2 center,
-    nvVector2 *vertices,
+static inline phy_vector2 nv_polygon_closest_vertex_to_circle(
+    phy_vector2 center,
+    phy_vector2 *vertices,
     size_t num_vertices
 ) {
     size_t closest = 0;
-    nv_float min_dist = NV_INF;
+    nv_float min_dist = INFINITY;
     
     for (size_t i = 0; i < num_vertices; i++) {
         nv_float dist = nvVector2_dist2(vertices[i], center);
@@ -156,19 +157,19 @@ static inline nvVector2 nv_polygon_closest_vertex_to_circle(
  * @brief Perpendicular distance between point and line segment.
  */
 static inline void nv_point_segment_dist(
-    nvVector2 center,
-    nvVector2 a,
-    nvVector2 b,
+    phy_vector2 center,
+    phy_vector2 a,
+    phy_vector2 b,
     nv_float *dist_out,
-    nvVector2 *contact_out
+    phy_vector2 *contact_out
 ) {
-    nvVector2 ab = nvVector2_sub(b, a);
-    nvVector2 ap = nvVector2_sub(center, a);
+    phy_vector2 ab = nvVector2_sub(b, a);
+    phy_vector2 ap = nvVector2_sub(center, a);
 
     nv_float projection = nvVector2_dot(ap, ab);
     nv_float ab_len = nvVector2_len2(ab);
     nv_float dist = projection / ab_len;
-    nvVector2 contact;
+    phy_vector2 contact;
 
     if (dist <= 0.0) contact = a;
 
@@ -180,7 +181,7 @@ static inline void nv_point_segment_dist(
     *contact_out = contact;
 }
 
-nvPersistentContactPair nv_collide_polygon_x_circle(
+phy_persistent_contact_pair nv_collide_polygon_x_circle(
     nvShape *polygon,
     nvTransform xform_poly,
     nvShape *circle,
@@ -190,14 +191,14 @@ nvPersistentContactPair nv_collide_polygon_x_circle(
     nvPolygon poly = polygon->polygon;
     nvCircle circ = circle->circle;
     nvPolygon_transform(polygon, xform_poly);
-    nvVector2 p = nv_polygon_centroid(poly.xvertices, poly.num_vertices);
-    nvVector2 c = nvVector2_add(xform_circle.position, nvVector2_rotate(circ.center, xform_circle.angle));
+    phy_vector2 p = nv_polygon_centroid(poly.xvertices, poly.num_vertices);
+    phy_vector2 c = nvVector2_add(xform_circle.position, nvVector2_rotate(circ.center, xform_circle.angle));
     size_t n = poly.num_vertices;
-    nvVector2 *vertices = poly.xvertices;
-    nv_float separation = NV_INF;
-    nvVector2 normal = nvVector2_zero;
+    phy_vector2 *vertices = poly.xvertices;
+    nv_float separation = INFINITY;
+    phy_vector2 normal = nvVector2_zero;
 
-    nvPersistentContactPair pcp = {
+    phy_persistent_contact_pair pcp = {
         .contact_count = 0,
         .normal = nvVector2_zero
     };
@@ -207,11 +208,11 @@ nvPersistentContactPair nv_collide_polygon_x_circle(
     // Check each axes of polygon edges x circle
 
     for (size_t i = 0; i < n; i++) {
-        nvVector2 va = vertices[i];
-        nvVector2 vb = vertices[(i + 1) % n];
+        phy_vector2 va = vertices[i];
+        phy_vector2 vb = vertices[(i + 1) % n];
 
-        nvVector2 edge = nvVector2_sub(vb, va);
-        nvVector2 axis = nvVector2_normalize(nvVector2_perp(edge));
+        phy_vector2 edge = nvVector2_sub(vb, va);
+        phy_vector2 axis = nvVector2_normalize(nvVector2_perp(edge));
 
         nv_project_polyon(vertices, n, axis, &min_a, &max_a);
         nv_project_circle(c, circ.radius, axis, &min_b, &max_b);
@@ -229,8 +230,8 @@ nvPersistentContactPair nv_collide_polygon_x_circle(
         }
     }
 
-    nvVector2 cp = nv_polygon_closest_vertex_to_circle(c, vertices, n);
-    nvVector2 axis = nvVector2_normalize(nvVector2_sub(cp, c));
+    phy_vector2 cp = nv_polygon_closest_vertex_to_circle(c, vertices, n);
+    phy_vector2 axis = nvVector2_normalize(nvVector2_sub(cp, c));
 
     nv_project_polyon(vertices, n, axis, &min_a, &max_a);
     nv_project_circle(c, circ.radius, axis, &min_b, &max_b);
@@ -258,12 +259,12 @@ nvPersistentContactPair nv_collide_polygon_x_circle(
 
     // Get the contact on the closest edge
     nv_float dist;
-    nv_float min_dist = NV_INF;
-    nvVector2 contact = nvVector2_zero;
-    nvVector2 new_contact = nvVector2_zero;
+    nv_float min_dist = INFINITY;
+    phy_vector2 contact = nvVector2_zero;
+    phy_vector2 new_contact = nvVector2_zero;
     for (size_t i = 0; i < n; i++) {
-        nvVector2 va = vertices[i];
-        nvVector2 vb = vertices[(i + 1) % n];
+        phy_vector2 va = vertices[i];
+        phy_vector2 vb = vertices[(i + 1) % n];
 
         nv_point_segment_dist(c, va, vb, &dist, &new_contact);
 
@@ -274,11 +275,11 @@ nvPersistentContactPair nv_collide_polygon_x_circle(
     }
 
     // Midpoint contact
-    nvVector2 circle_contact = nvVector2_add(contact, nvVector2_mul(normal, separation));
-    nvVector2 half_contact = nvVector2_mul(nvVector2_add(contact, circle_contact), 0.5);
+    phy_vector2 circle_contact = nvVector2_add(contact, nvVector2_mul(normal, separation));
+    phy_vector2 half_contact = nvVector2_mul(nvVector2_add(contact, circle_contact), 0.5);
 
-    nvVector2 poly_anchor = nvVector2_sub(half_contact, xform_poly.position);
-    nvVector2 circle_anchor = nvVector2_sub(half_contact, xform_circle.position);
+    phy_vector2 poly_anchor = nvVector2_sub(half_contact, xform_poly.position);
+    phy_vector2 circle_anchor = nvVector2_sub(half_contact, xform_circle.position);
 
     pcp.normal = normal;
     pcp.contact_count = 1;
@@ -301,7 +302,7 @@ nvPersistentContactPair nv_collide_polygon_x_circle(
 }
 
 
-static nvPersistentContactPair clip_polygons(
+static phy_persistent_contact_pair clip_polygons(
     nvPolygon a,
     nvPolygon b,
     int edge_a,
@@ -339,16 +340,16 @@ static nvPersistentContactPair clip_polygons(
 		i22 = edge_b + 1 < b.num_vertices ? edge_b + 1 : 0;
     }
 
-    nvVector2 normal = ref_polygon.normals[i11];
-    nvVector2 tangent = nvVector2_perp(normal);
+    phy_vector2 normal = ref_polygon.normals[i11];
+    phy_vector2 tangent = nvVector2_perp(normal);
 
     // Reference edge vertices
-    nvVector2 v11 = ref_polygon.vertices[i11];
-    nvVector2 v12 = ref_polygon.vertices[i12];
+    phy_vector2 v11 = ref_polygon.vertices[i11];
+    phy_vector2 v12 = ref_polygon.vertices[i12];
 
     // Incident edge vertices
-    nvVector2 v21 = inc_polygon.vertices[i21];
-    nvVector2 v22 = inc_polygon.vertices[i22];
+    phy_vector2 v21 = inc_polygon.vertices[i21];
+    phy_vector2 v22 = inc_polygon.vertices[i22];
 
     nv_float lower1 = 0.0;
     nv_float upper1 = nvVector2_dot(nvVector2_sub(v12, v11), tangent);
@@ -356,13 +357,13 @@ static nvPersistentContactPair clip_polygons(
     nv_float lower2 = nvVector2_dot(nvVector2_sub(v22, v11), tangent);
     nv_float d = upper2 - lower2;
 
-    nvVector2 v_lower;
+    phy_vector2 v_lower;
     if (lower2 < lower1 && upper2 - lower2 > NV_FLOAT_EPSILON)
         v_lower = nvVector2_lerp(v22, v21, (lower1 - lower2) / d);
     else
         v_lower = v22;
 
-    nvVector2 v_upper;
+    phy_vector2 v_upper;
     if (upper2 > upper1 && upper2 - lower2 > NV_FLOAT_EPSILON)
         v_upper = nvVector2_lerp(v22, v21, (upper1 - lower2) / d);
     else
@@ -383,7 +384,7 @@ static nvPersistentContactPair clip_polygons(
         v_upper.y + upper_mid_scale * normal.y
     );
 
-    nvPersistentContactPair pcp;
+    phy_persistent_contact_pair pcp;
 
     if (!flip) {
         pcp.normal = normal;
@@ -427,13 +428,13 @@ static void find_max_separation(
     */
 
     int best_index = 0;
-    nv_float max_separation = -NV_INF;
+    nv_float max_separation = -INFINITY;
 
     for (int i = 0; i < a.num_vertices; i++) {
-        nvVector2 n = a.normals[i];
-        nvVector2 v1 = a.vertices[i];
+        phy_vector2 n = a.normals[i];
+        phy_vector2 v1 = a.vertices[i];
 
-        nv_float si = NV_INF;
+        nv_float si = INFINITY;
         for (int j = 0; j < b.num_vertices; j++) {
             nv_float sij = nvVector2_dot(n, nvVector2_sub(b.vertices[j], v1));
             if (sij < si)
@@ -450,12 +451,12 @@ static void find_max_separation(
     *separation = max_separation;
 }
 
-static nvPersistentContactPair SAT(nvPolygon a, nvPolygon b) {
+static phy_persistent_contact_pair SAT(nvPolygon a, nvPolygon b) {
     /*
         See nv_collide_polygon_x_polygon for the reference.
     */
 
-    nvPersistentContactPair pcp;
+    phy_persistent_contact_pair pcp;
     pcp.contact_count = 0;
     pcp.normal = nvVector2_zero;
 
@@ -474,8 +475,8 @@ static nvPersistentContactPair SAT(nvPolygon a, nvPolygon b) {
 
     if (separation_b > separation_a) {
         flip = true;
-        nvVector2 search_dir = b.normals[edge_b];
-        nv_float min_dot = NV_INF;
+        phy_vector2 search_dir = b.normals[edge_b];
+        nv_float min_dot = INFINITY;
         edge_a = 0;
 
         // Find the incident edge on polygon A
@@ -489,8 +490,8 @@ static nvPersistentContactPair SAT(nvPolygon a, nvPolygon b) {
     }
     else {
         flip = false;
-        nvVector2 search_dir = a.normals[edge_a];
-        nv_float min_dot = NV_INF;
+        phy_vector2 search_dir = a.normals[edge_a];
+        nv_float min_dot = INFINITY;
         edge_b = 0;
 
         // Find the incident edge on polygon B
@@ -506,7 +507,7 @@ static nvPersistentContactPair SAT(nvPolygon a, nvPolygon b) {
     return clip_polygons(a, b, edge_a, edge_b, flip);
 }
 
-nvPersistentContactPair nv_collide_polygon_x_polygon(
+phy_persistent_contact_pair nv_collide_polygon_x_polygon(
     nvShape *polygon_a,
     nvTransform xform_a,
     nvShape *polygon_b,
@@ -524,7 +525,7 @@ nvPersistentContactPair nv_collide_polygon_x_polygon(
     nvPolygon a = polygon_a->polygon;
     nvPolygon b = polygon_b->polygon;
 
-    nvVector2 origin = a.vertices[0];
+    phy_vector2 origin = a.vertices[0];
 
     // Shift polygon A to origin
     nvTransform xform_a_translated = {
@@ -540,8 +541,8 @@ nvPersistentContactPair nv_collide_polygon_x_polygon(
         nv_float cb = nv_cos(xform_b.angle);
 
         // Inverse rotate
-        nvVector2 d = nvVector2_sub(xform_b.position, xform_a_translated.position);
-        nvVector2 p = NV_VECTOR2(ca * d.x + sa * d.y, -sa * d.x + ca * d.y);
+        phy_vector2 d = nvVector2_sub(xform_b.position, xform_a_translated.position);
+        phy_vector2 p = NV_VECTOR2(ca * d.x + sa * d.y, -sa * d.x + ca * d.y);
 
         // Inverse multiply rotations
         nv_float is = ca * sb - sa * cb;
@@ -563,19 +564,19 @@ nvPersistentContactPair nv_collide_polygon_x_polygon(
     nvPolygon b_local;
     b_local.num_vertices = b.num_vertices;
     for (size_t i = 0; i < b_local.num_vertices; i++) {
-        nvVector2 xv = nvVector2_add(nvVector2_rotate(b.vertices[i], xform.angle), xform.position);
+        phy_vector2 xv = nvVector2_add(nvVector2_rotate(b.vertices[i], xform.angle), xform.position);
 
         b_local.vertices[i] = xv;
         b_local.normals[i] = nvVector2_rotate(b.normals[i], xform.angle);
     }
 
-    nvPersistentContactPair pcp = SAT(a_local, b_local);
+    phy_persistent_contact_pair pcp = SAT(a_local, b_local);
 
     if (pcp.contact_count > 0) {
         pcp.normal = nvVector2_rotate(pcp.normal, xform_a.angle);
 
         for (size_t i = 0; i < pcp.contact_count; i++) {
-            nvContact *contact = &pcp.contacts[i];
+            phy_contact *contact = &pcp.contacts[i];
 
             contact->anchor_a = nvVector2_rotate(
                 nvVector2_add(contact->anchor_a, origin), xform_a.angle);
@@ -594,7 +595,7 @@ nvPersistentContactPair nv_collide_polygon_x_polygon(
 nv_bool nv_collide_polygon_x_point(
     nvShape *polygon,
     nvTransform xform,
-    nvVector2 point
+    phy_vector2 point
 ) {
     /*
         Algorithm from "Real-Time Collision Detection", Christer Ericson
@@ -602,7 +603,7 @@ nv_bool nv_collide_polygon_x_point(
     */
 
     nvPolygon_transform(polygon, xform);
-    nvVector2 *vertices = polygon->polygon.xvertices;
+    phy_vector2 *vertices = polygon->polygon.xvertices;
     size_t n = polygon->polygon.num_vertices;
     
     // Do binary search over polygon vertices to find the fan triangle
@@ -611,7 +612,7 @@ nv_bool nv_collide_polygon_x_point(
     int high = (int)n;
     do {
         int mid = (low + high) / 2;
-        if (nv_triangle_winding((nvVector2[3]){vertices[0], vertices[mid], point}) == 1)
+        if (nv_triangle_winding((phy_vector2[3]){vertices[0], vertices[mid], point}) == 1)
             low = mid;
         else
             high = mid;
@@ -622,16 +623,16 @@ nv_bool nv_collide_polygon_x_point(
 
     // p is inside the polygon if it is left of
     // the directed edge from v[low] to v[high]
-    return nv_triangle_winding((nvVector2[3]){vertices[low], vertices[high], point}) == 1;
+    return nv_triangle_winding((phy_vector2[3]){vertices[low], vertices[high], point}) == 1;
 }
 
 
-nv_bool nv_collide_aabb_x_aabb(nvAABB a, nvAABB b) {
+nv_bool nv_collide_aabb_x_aabb(phy_aabb a, phy_aabb b) {
     return (!(a.max_x <= b.min_x || b.max_x <= a.min_x ||
               a.max_y <= b.min_y || b.max_y <= a.min_y));
 }
 
-nv_bool nv_collide_aabb_x_point(nvAABB aabb, nvVector2 point) {
+nv_bool nv_collide_aabb_x_point(phy_aabb aabb, phy_vector2 point) {
     return (aabb.min_x <= point.x && point.x <= aabb.max_x &&
             aabb.min_y <= point.y && point.y <= aabb.max_y);
 }
@@ -639,8 +640,8 @@ nv_bool nv_collide_aabb_x_point(nvAABB aabb, nvVector2 point) {
 
 nv_bool nv_collide_ray_x_circle(
     nvRayCastResult *result,
-    nvVector2 origin,
-    nvVector2 dir,
+    phy_vector2 origin,
+    phy_vector2 dir,
     nv_float maxsq,
     nvShape *shape,
     nvTransform xform
@@ -648,9 +649,9 @@ nv_bool nv_collide_ray_x_circle(
     // https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection.html
 
     nvCircle circle = shape->circle;
-    nvVector2 center = nvVector2_add(nvVector2_rotate(circle.center, xform.angle), xform.position);
+    phy_vector2 center = nvVector2_add(nvVector2_rotate(circle.center, xform.angle), xform.position);
     nv_float rsq = circle.radius * circle.radius;
-    nvVector2 delta = nvVector2_sub(center, origin);
+    phy_vector2 delta = nvVector2_sub(center, origin);
 
     nv_float tca = nvVector2_dot(delta, dir);
     nv_float d2 = nvVector2_dot(delta, delta) - tca * tca;
@@ -672,7 +673,7 @@ nv_bool nv_collide_ray_x_circle(
 
     nv_float t = t0;
 
-    nvVector2 hitpoint = nvVector2_add(origin, nvVector2_mul(dir, t));
+    phy_vector2 hitpoint = nvVector2_add(origin, nvVector2_mul(dir, t));
 
     // Out of ray's range
     if (nvVector2_len2(nvVector2_sub(hitpoint, origin)) > maxsq) return false;
@@ -687,8 +688,8 @@ nv_bool nv_collide_ray_x_circle(
 
 nv_bool nv_collide_ray_x_polygon(
     nvRayCastResult *result,
-    nvVector2 origin,
-    nvVector2 dir,
+    phy_vector2 origin,
+    phy_vector2 dir,
     nv_float maxsq,
     nvShape *shape,
     nvTransform xform
@@ -698,18 +699,18 @@ nv_bool nv_collide_ray_x_polygon(
 
     nvPolygon poly = shape->polygon;
 
-    nvVector2 hits[NV_POLYGON_MAX_VERTICES];
+    phy_vector2 hits[NV_POLYGON_MAX_VERTICES];
     size_t normal_idxs[NV_POLYGON_MAX_VERTICES];
     size_t hit_count = 0;
 
     nvPolygon_transform(shape, xform);
     for (size_t i = 0; i < poly.num_vertices; i++) {
-        nvVector2 va = poly.xvertices[i];
-        nvVector2 vb = poly.xvertices[(i + 1) % poly.num_vertices];
+        phy_vector2 va = poly.xvertices[i];
+        phy_vector2 vb = poly.xvertices[(i + 1) % poly.num_vertices];
 
-        nvVector2 v1 = nvVector2_sub(origin, va);
-        nvVector2 v2 = nvVector2_sub(vb, va);
-        nvVector2 v3 = nvVector2_perp(dir);
+        phy_vector2 v1 = nvVector2_sub(origin, va);
+        phy_vector2 v2 = nvVector2_sub(vb, va);
+        phy_vector2 v3 = nvVector2_perp(dir);
 
         nv_float dot = nvVector2_dot(v2, v3);
         if (nv_fabs(dot) < NV_FLOAT_EPSILON) continue;;
@@ -725,9 +726,9 @@ nv_bool nv_collide_ray_x_polygon(
 
     if (hit_count == 0) return false;
 
-    nvVector2 closest_hit;
-    nvVector2 normal = nvVector2_zero;
-    nv_float min_dist = NV_INF;
+    phy_vector2 closest_hit;
+    phy_vector2 normal = nvVector2_zero;
+    nv_float min_dist = INFINITY;
     for (size_t i = 0; i < hit_count; i++) {
         nv_float dist = nvVector2_len2(nvVector2_sub(hits[i], origin));
         if (dist < min_dist) {

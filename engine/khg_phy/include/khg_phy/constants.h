@@ -27,12 +27,6 @@
 // Inverse golden ratio, for golden-section search.
 #define NV_INV_PHI 0.6180339887498948482045868343656
 
-#ifndef INFINITY
-    #define NV_INF (1.0 / 0.0)
-#else
-    #define NV_INF INFINITY
-#endif
-
 #ifdef NV_USE_DOUBLE_PRECISION
     #define NV_FLOAT_EPSILON DBL_EPSILON
 #else
@@ -45,7 +39,7 @@
 
 
 // Maximum number of control points one spline constraint can have.
-#define NV_SPLINE_CONSTRAINT_MAX_CONTROL_POINTS 64
+#define PHY_SPLINE_CONSTRAINT_MAX_CONTROL_POINTS 64
 
 // Number of samples used to get the closes spline segment.
 #define NV_SPLINE_CONSTRAINT_SAMPLES 500

@@ -34,7 +34,7 @@ typedef struct {
                                     You can adjust it depending on the general size range of your game objects.
                                     But it's best to keep it at default and respect the guidance on shape sizes explained in @ref nvRigidBody */
 
-    nvContactPositionCorrection contact_position_correction; /**< Position correction method to use for collisions. */
+    phy_contact_position_correction contact_position_correction; /**< Position correction method to use for collisions. */
 
     nv_uint32 velocity_iterations; /**< Nova uses Sequential Impulses (or Projected Gauss-Seidel), which is an iterative method.
                                         This value defines the number of iterations done by the solver in order to solve velocity constraints.
@@ -70,9 +70,9 @@ typedef struct {
                                for constraints as the starting guess in the solver.
                                For a game, you don't really have any reason to turn this off. */
 
-    nvCoefficientMix restitution_mix; /**< Mixing function used for restitution. */
+    phy_coefficient_mix restitution_mix; /**< Mixing function used for restitution. */
 
-    nvCoefficientMix friction_mix; /**< Mixing function used for friction. */
+    phy_coefficient_mix friction_mix; /**< Mixing function used for friction. */
 
 } nvSpaceSettings;
 

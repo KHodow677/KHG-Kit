@@ -8,14 +8,14 @@
 typedef struct comp_light {
   ecs_id id;
   light light;
-  nvRigidBody *body;
-  nvVector2 offset;
+  phy_rigid_body *body;
+  phy_vector2 offset;
 } comp_light;
 
 typedef struct comp_light_constructor_info {
-  nvRigidBody *body; 
+  phy_rigid_body *body; 
   light light;
-  nvVector2 offset;
+  phy_vector2 offset;
 } comp_light_constructor_info;
 
 extern ecs_id LIGHT_COMPONENT_SIGNATURE;

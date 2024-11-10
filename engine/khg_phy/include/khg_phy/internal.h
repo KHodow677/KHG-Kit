@@ -47,7 +47,6 @@
 
 #include "khg_phy/types.h"
 #include "khg_phy/constants.h"
-#include "khg_phy/core/error.h"
 
 
 // Align memory as given byte range. Needed for some SIMD functions.
@@ -87,19 +86,19 @@
 struct nvSpace;
 
 
-#define NV_MEM_CHECK(object) {                      \
-    if (!(object)) {                                \
-        nv_set_error("Failed to allocate memory."); \
-        return NULL;                                \
-    }                                               \
-}                                                   \
-
-#define NV_MEM_CHECKI(object) {                     \
-    if (!(object)) {                                \
-        nv_set_error("Failed to allocate memory."); \
-        return 1;                                   \
-    }                                               \
-}                                                   \
+/*#define NV_MEM_CHECK(object) {                      \*/
+/*    if (!(object)) {                                \*/
+/*        nv_set_error("Failed to allocate memory."); \*/
+/*        return NULL;                                \*/
+/*    }                                               \*/
+/*}                                                   \*/
+/**/
+/*#define NV_MEM_CHECKI(object) {                     \*/
+/*    if (!(object)) {                                \*/
+/*        nv_set_error("Failed to allocate memory."); \*/
+/*        return 1;                                   \*/
+/*    }                                               \*/
+/*}                                                   \*/
 
 
 /*

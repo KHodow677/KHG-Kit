@@ -9,9 +9,10 @@
 */
 
 #include "khg_phy/internal.h"
-#include "khg_phy/core/hashmap.h"
+#include "khg_phy/core/phy_hashmap.h"
 #include "khg_phy/constants.h"
 #include "khg_phy/math.h"
+#include "khg_utl/error_func.h"
 
 
 /**
@@ -25,33 +26,33 @@
  */
 
 
-static inline nvHashMapBucket *_nvHashMap_get_bucket_at(
-    nvHashMap *map,
+static inline phy_hashmap_bucket *_nvHashMap_get_bucket_at(
+    phy_hashmap *map,
     size_t index
 ) {
-    return (nvHashMapBucket *)(((char *)map->buckets) + (map->bucketsz * index));
+    return (phy_hashmap_bucket *)(((char *)map->buckets) + (map->bucketsz * index));
 }
 
-static inline void *_nvHashMap_get_bucket_item(nvHashMapBucket *entry) {
-    return ((char *)entry) + sizeof(nvHashMapBucket);
+static inline void *_nvHashMap_get_bucket_item(phy_hashmap_bucket *entry) {
+    return ((char *)entry) + sizeof(phy_hashmap_bucket);
 }
 
 static inline nv_uint64 _nvHashMap_clip(nv_uint64 hash) {
     return hash & 0xFFFFFFFFFFFF;
 }
 
-static inline nv_bool _nvHashMap_resize(nvHashMap *hashmap, size_t new_cap) {
-    nvHashMap *hashmap2 = nvHashMap_new(hashmap->elsize, new_cap, hashmap->hash_func);
+static inline nv_bool _nvHashMap_resize(phy_hashmap *hashmap, size_t new_cap) {
+    phy_hashmap *hashmap2 = phy_hashmap_new(hashmap->elsize, new_cap, hashmap->hash_func);
     if (!hashmap2) return false;
 
     for (size_t i = 0; i < hashmap->nbuckets; i++) {
-        nvHashMapBucket *entry = _nvHashMap_get_bucket_at(hashmap, i);
+        phy_hashmap_bucket *entry = _nvHashMap_get_bucket_at(hashmap, i);
         if (!entry->dib)continue;
         entry->dib = 1;
 
         size_t j = entry->hash & hashmap2->mask;
         while (true) {
-            nvHashMapBucket *bucket = _nvHashMap_get_bucket_at(hashmap2, j);
+            phy_hashmap_bucket *bucket = _nvHashMap_get_bucket_at(hashmap2, j);
 
             if (bucket->dib == 0) {
                 memcpy(bucket, entry, hashmap->bucketsz);
@@ -83,7 +84,7 @@ static inline nv_bool _nvHashMap_resize(nvHashMap *hashmap, size_t new_cap) {
 }
 
 
-nvHashMap *nvHashMap_new(
+phy_hashmap *phy_hashmap_new(
     size_t item_size,
     size_t cap,
     nv_uint64 (*hash_func)(void *item)
@@ -96,21 +97,23 @@ nvHashMap *nvHashMap_new(
         cap = ncap;
     }
 
-    size_t bucketsz = sizeof(nvHashMapBucket) + item_size;
+    size_t bucketsz = sizeof(phy_hashmap_bucket) + item_size;
     while (bucketsz & (sizeof(uintptr_t) - 1)) {
         bucketsz++;
     }
 
-    size_t size = sizeof(nvHashMap)+bucketsz*2;
-    nvHashMap *hashmap = NV_MALLOC(size);
-    NV_MEM_CHECK(hashmap);
+    size_t size = sizeof(phy_hashmap)+bucketsz*2;
+    phy_hashmap *hashmap = NV_MALLOC(size);
+    if (!hashmap) {
+      utl_error_func("Failed to allocate memory", utl_user_defined_data);
+    }
 
     hashmap->count = 0;
     hashmap->oom = false;
     hashmap->elsize = item_size;
     hashmap->hash_func = hash_func;
     hashmap->bucketsz = bucketsz;
-    hashmap->spare = ((char*)hashmap) + sizeof(nvHashMap);
+    hashmap->spare = ((char*)hashmap) + sizeof(phy_hashmap);
     hashmap->edata = (char*)hashmap->spare + bucketsz;
     hashmap->cap = cap;
     hashmap->nbuckets = cap;
@@ -119,7 +122,7 @@ nvHashMap *nvHashMap_new(
     hashmap->buckets = NV_MALLOC(hashmap->bucketsz * hashmap->nbuckets);
     if (!hashmap->buckets) {
         NV_FREE(hashmap);
-        nv_set_error("Failed to allocate memory.");
+        utl_error_func("Failed to allocate memory", utl_user_defined_data);
         return NULL;
     }
     memset(hashmap->buckets, 0, hashmap->bucketsz * hashmap->nbuckets);
@@ -131,12 +134,12 @@ nvHashMap *nvHashMap_new(
     return hashmap;
 }
 
-void nvHashMap_free(nvHashMap *hashmap) {
+void phy_hashmap_free(phy_hashmap *hashmap) {
     NV_FREE(hashmap->buckets);
     NV_FREE(hashmap);
 }
 
-void nvHashMap_clear(nvHashMap *hashmap) {
+void phy_hashmap_clear(phy_hashmap *hashmap) {
     NV_TRACY_ZONE_START;
 
     hashmap->count = 0;
@@ -157,7 +160,7 @@ void nvHashMap_clear(nvHashMap *hashmap) {
     NV_TRACY_ZONE_END;
 }
 
-void *nvHashMap_set(nvHashMap *hashmap, void *item) {
+void *phy_hashmap_set(phy_hashmap *hashmap, void *item) {
     NV_TRACY_ZONE_START;
 
     nv_uint64 hash = _nvHashMap_clip(hashmap->hash_func(item));
@@ -173,7 +176,7 @@ void *nvHashMap_set(nvHashMap *hashmap, void *item) {
         }
     }
 
-    nvHashMapBucket *entry = hashmap->edata;
+    phy_hashmap_bucket *entry = hashmap->edata;
     entry->hash = hash;
     entry->dib = 1;
     void *eitem = _nvHashMap_get_bucket_item(entry);
@@ -182,7 +185,7 @@ void *nvHashMap_set(nvHashMap *hashmap, void *item) {
     void *bitem;
     size_t i = entry->hash & hashmap->mask;
     while (true) {
-        nvHashMapBucket *bucket = _nvHashMap_get_bucket_at(hashmap, i);
+        phy_hashmap_bucket *bucket = _nvHashMap_get_bucket_at(hashmap, i);
 
         if (bucket->dib == 0) {
             memcpy(bucket, entry, hashmap->bucketsz);
@@ -214,7 +217,7 @@ void *nvHashMap_set(nvHashMap *hashmap, void *item) {
     NV_TRACY_ZONE_END;
 }
 
-void *nvHashMap_get(nvHashMap *hashmap, void *key) {
+void *phy_hashmap_get(phy_hashmap *hashmap, void *key) {
     NV_TRACY_ZONE_START;
 
     nv_uint64 hash = _nvHashMap_clip(hashmap->hash_func(key));
@@ -222,7 +225,7 @@ void *nvHashMap_get(nvHashMap *hashmap, void *key) {
 
     size_t i = hash & hashmap->mask;
     while (true) {
-        nvHashMapBucket *bucket = _nvHashMap_get_bucket_at(hashmap, i);
+        phy_hashmap_bucket *bucket = _nvHashMap_get_bucket_at(hashmap, i);
 
         if (!bucket->dib) {
             NV_TRACY_ZONE_END;
@@ -242,7 +245,7 @@ void *nvHashMap_get(nvHashMap *hashmap, void *key) {
     NV_TRACY_ZONE_END;
 }
 
-void *nvHashMap_remove(nvHashMap *hashmap, void *key) {
+void *phy_hashmap_remove(phy_hashmap *hashmap, void *key) {
     NV_TRACY_ZONE_START;
 
     nv_uint64 hash = _nvHashMap_clip(hashmap->hash_func(key));
@@ -252,7 +255,7 @@ void *nvHashMap_remove(nvHashMap *hashmap, void *key) {
     size_t i = hash & hashmap->mask;
     
     while (true) {
-        nvHashMapBucket *bucket = _nvHashMap_get_bucket_at(hashmap, i);
+        phy_hashmap_bucket *bucket = _nvHashMap_get_bucket_at(hashmap, i);
         if (!bucket->dib) {
             NV_TRACY_ZONE_END;
             return NULL;
@@ -263,7 +266,7 @@ void *nvHashMap_remove(nvHashMap *hashmap, void *key) {
             memcpy(hashmap->spare, bitem, hashmap->elsize);
             bucket->dib = 0;
             while (true) {
-                nvHashMapBucket *prev = bucket;
+                phy_hashmap_bucket *prev = bucket;
                 i = (i + 1) & hashmap->mask;
                 
                 bucket = _nvHashMap_get_bucket_at(hashmap, i);
@@ -293,10 +296,10 @@ void *nvHashMap_remove(nvHashMap *hashmap, void *key) {
     NV_TRACY_ZONE_END;
 }
 
-nv_bool nvHashMap_iter(nvHashMap *hashmap, size_t *index, void **item) {
+bool phy_hashmap_iter(phy_hashmap *hashmap, size_t *index, void **item) {
     NV_TRACY_ZONE_START;
 
-    nvHashMapBucket *bucket;
+    phy_hashmap_bucket *bucket;
     do {
         if (*index >= hashmap->nbuckets) {
             NV_TRACY_ZONE_END;

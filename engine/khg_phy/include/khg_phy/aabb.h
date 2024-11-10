@@ -1,67 +1,19 @@
-/*
+#pragma once
 
-  This file is a part of the Nova Physics Engine
-  project and distributed under the MIT license.
+#include <math.h>
 
-  Copyright © Kadir Aksoy
-  https://github.com/kadir014/nova-physics
-
-*/
-
-#ifndef NOVAPHYSICS_AABB_H
-#define NOVAPHYSICS_AABB_H
-
-#include "khg_phy/internal.h"
-
-
-/**
- * @file aabb.h
- * 
- * @brief AABB struct.
- */
-
-
-/**
- * @brief Axis-aligned bounding box.
- */
 typedef struct {
-    nv_float min_x; /**< Minimum X */
-    nv_float min_y; /**< Minimum Y */
-    nv_float max_x; /**< Maximum X */
-    nv_float max_y; /**< Maximum Y */
-} nvAABB;
+  float min_x;
+  float min_y;
+  float max_x;
+  float max_y;
+} phy_aabb;
 
-/**
- * @brief Merge two AABBs.
- * 
- * @param a First AABB
- * @param b Second AABB
- * @return nvAABB 
- */
-static inline nvAABB nvAABB_merge(nvAABB a, nvAABB b) {
-    return (nvAABB){
-        nv_fmin(a.min_x, b.min_x),
-        nv_fmin(a.min_y, b.min_y),
-        nv_fmax(a.max_x, b.max_x),
-        nv_fmax(a.max_y, b.max_y)
-    };
+static inline phy_aabb nvAABB_merge(phy_aabb a, phy_aabb b) {
+  return (phy_aabb){ fminf(a.min_x, b.min_x), fminf(a.min_y, b.min_y), fmaxf(a.max_x, b.max_x), fmaxf(a.max_y, b.max_y) };
 }
 
-/**
- * @brief Inflate an AABB in all directions.
- * 
- * @param aabb AABB
- * @param amount Amount to inflate
- * @return nvAABB 
- */
-static inline nvAABB nvAABB_inflate(nvAABB aabb, nv_float amount) {
-    return (nvAABB){
-        aabb.min_x - amount,
-        aabb.min_y - amount,
-        aabb.max_x + amount,
-        aabb.max_y + amount
-    };
+static inline phy_aabb nvAABB_inflate(phy_aabb aabb, float amount) {
+  return (phy_aabb){ aabb.min_x - amount, aabb.min_y - amount, aabb.max_x + amount, aabb.max_y + amount };
 }
 
-
-#endif

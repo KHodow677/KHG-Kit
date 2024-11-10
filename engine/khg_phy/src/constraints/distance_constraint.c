@@ -10,6 +10,7 @@
 
 #include "khg_phy/constraints/distance_constraint.h"
 #include "khg_phy/space.h"
+#include "khg_utl/error_func.h"
 
 
 /**
@@ -19,33 +20,35 @@
  */
 
 
-nvConstraint *nvDistanceConstraint_new(nvDistanceConstraintInitializer init) {
+phy_constraint *phy_distance_constraint_new(phy_distance_constraint_initializer init) {
     if (init.length < 0.0) {
-        nv_set_error("Distance constraint length can't be negative.");
-        return NULL;
+      utl_error_func("Distance constraint length is negative", utl_user_defined_data);
+      return NULL;
     }
 
-    nvConstraint *cons = NV_NEW(nvConstraint);
-    NV_MEM_CHECK(cons);
+    phy_constraint *cons = NV_NEW(phy_constraint);
+    if (!cons) {
+      utl_error_func("Failed to allocate memory", utl_user_defined_data);
+    }
 
     if (!init.a && !init.b) {
-        nv_set_error("Both bodies can't be NULL.");
-        NV_FREE(cons);
-        return NULL;
+      utl_error_func("Both bodies are null", utl_user_defined_data);
+      NV_FREE(cons);
+      return NULL;
     }
 
     cons->a = init.a;
     cons->b = init.b;
-    cons->type = nvConstraintType_DISTANCE;
+    cons->type = PHY_CONSTRAINT_TYPE_DISTANCE;
     cons->ignore_collision = false;
 
-    cons->def = NV_NEW(nvDistanceConstraint);
+    cons->def = NV_NEW(phy_distance_constraint);
     if (!cons->def) {
-        nv_set_error("Failed to allocate memory.");
-        NV_FREE(cons);
-        return NULL; 
+      utl_error_func("Failed to allocate memory", utl_user_defined_data);
+      NV_FREE(cons);
+      return NULL; 
     }
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
 
     dist_cons->length = init.length;
     dist_cons->anchor_a = init.anchor_a;
@@ -69,96 +72,96 @@ nvConstraint *nvDistanceConstraint_new(nvDistanceConstraintInitializer init) {
     return cons;
 }
 
-nvRigidBody *nvDistanceConstraint_get_body_a(const nvConstraint *cons) {
+phy_rigid_body *phy_distance_constraint_get_body_a(const phy_constraint *cons) {
     return cons->a;
 }
 
-nvRigidBody *nvDistanceConstraint_get_body_b(const nvConstraint *cons) {
+phy_rigid_body *phy_distance_constraint_get_body_b(const phy_constraint *cons) {
     return cons->b;
 }
 
-void nvDistanceConstraint_set_length(nvConstraint *cons, nv_float length) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+void phy_distance_constraint_set_length(phy_constraint *cons, float length) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     dist_cons->length = length;
 }
 
-nv_float nvDistanceConstraint_get_length(const nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+float phy_distance_constraint_get_length(const phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     return dist_cons->length;
 }
 
-void nvDistanceConstraint_set_anchor_a(nvConstraint *cons, nvVector2 anchor_a) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+void phy_distance_constraint_set_anchor_a(phy_constraint *cons, phy_vector2 anchor_a) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     dist_cons->anchor_a = anchor_a;
 }
 
-nvVector2 nvDistanceConstraint_get_anchor_a(const nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+phy_vector2 phy_distance_constraint_get_anchor_a(const phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     return dist_cons->anchor_a;
 }
 
-void nvDistanceConstraint_set_anchor_b(nvConstraint *cons, nvVector2 anchor_b) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+void phy_distance_constraint_set_anchor_b(phy_constraint *cons, phy_vector2 anchor_b) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     dist_cons->anchor_b = anchor_b;
 }
 
-nvVector2 nvDistanceConstraint_get_anchor_b(const nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+phy_vector2 phy_distance_constraint_get_anchor_b(const phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     return dist_cons->anchor_b;
 }
 
-void nvDistanceConstraint_set_max_force(nvConstraint *cons, nv_float max_force) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+void phy_distance_constraint_set_max_force(phy_constraint *cons, float max_force) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     dist_cons->max_force = max_force;
 }
 
-nv_float nvDistanceConstraint_get_max_force(const nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+nv_float phy_distance_constraint_get_max_force(const phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     return dist_cons->max_force;
 }
 
-void nvDistanceConstraint_set_spring(nvConstraint *cons, nv_bool spring) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+void phy_distance_constraint_set_spring(phy_constraint *cons, bool spring) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     dist_cons->spring = spring;
 }
 
-nv_bool nvDistanceConstraint_get_spring(const nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+bool phy_distance_constraint_get_spring(const phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     return dist_cons->spring;
 }
 
-void nvDistanceConstraint_set_hertz(nvConstraint *cons, nv_float hertz) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+void phy_distance_constraint_set_hertz(phy_constraint *cons, float hertz) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     dist_cons->hertz = hertz;
 }
 
-nv_float nvDistanceConstraint_get_hertz(const nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+float phy_distance_constraint_get_hertz(const phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     return dist_cons->hertz;
 }
 
-void nvDistanceConstraint_set_damping(nvConstraint *cons, nv_float damping) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+void phy_distance_constraint_set_damping(phy_constraint *cons, float damping) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     dist_cons->damping = damping;
 }
 
-nv_float nvDistanceConstraint_get_damping(const nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
+float phy_distance_constraint_get_damping(const phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     return dist_cons->damping;
 }
 
-void nvDistanceConstraint_presolve(
-    nvSpace *space,
-    nvConstraint *cons,
-    nv_float dt,
-    nv_float inv_dt
+void phy_distance_constraint_presolve(
+    phy_space *space,
+    phy_constraint *cons,
+    float dt,
+    float inv_dt
 ) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
-    nvRigidBody *a = cons->a;
-    nvRigidBody *b = cons->b;
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
+    phy_rigid_body *a = cons->a;
+    phy_rigid_body *b = cons->b;
 
     // Transformed anchor points
-    nvVector2 rpa, rpb;
+    phy_vector2 rpa, rpb;
     nv_float invmass_a, invmass_b, invinertia_a, invinertia_b;
 
     // If a body is NULL count them as static bodies
@@ -185,7 +188,7 @@ void nvDistanceConstraint_presolve(
         invinertia_b = b->invinertia;
     }
 
-    nvVector2 delta = nvVector2_sub(rpb, rpa);
+    phy_vector2 delta = nvVector2_sub(rpb, rpa);
     dist_cons->normal = nvVector2_normalize(delta);
     nv_float offset = nvVector2_len(delta) - dist_cons->length;
 
@@ -224,13 +227,13 @@ void nvDistanceConstraint_presolve(
     }
 }
 
-void nvDistanceConstraint_warmstart(nvSpace *space, nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
-    nvRigidBody *a = cons->a;
-    nvRigidBody *b = cons->b;
+void phy_distance_constraint_warmstart(phy_space *space, phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
+    phy_rigid_body *a = cons->a;
+    phy_rigid_body *b = cons->b;
 
     if (space->settings.warmstarting) {
-        nvVector2 impulse = nvVector2_mul(dist_cons->normal, dist_cons->impulse);
+        phy_vector2 impulse = nvVector2_mul(dist_cons->normal, dist_cons->impulse);
 
         if (a) nvRigidBody_apply_impulse(cons->a, nvVector2_neg(impulse), dist_cons->xanchor_a);
         if (b) nvRigidBody_apply_impulse(cons->b, impulse, dist_cons->xanchor_b);
@@ -240,12 +243,12 @@ void nvDistanceConstraint_warmstart(nvSpace *space, nvConstraint *cons) {
     }
 }
 
-void nvDistanceConstraint_solve(nvConstraint *cons) {
-    nvDistanceConstraint *dist_cons = (nvDistanceConstraint *)cons->def;
-    nvRigidBody *a = cons->a;
-    nvRigidBody *b = cons->b;
+void phy_distance_constraint_solve(phy_constraint *cons) {
+    phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
+    phy_rigid_body *a = cons->a;
+    phy_rigid_body *b = cons->b;
 
-    nvVector2 linear_velocity_a, linear_velocity_b;
+    phy_vector2 linear_velocity_a, linear_velocity_b;
     nv_float angular_velocity_a, angular_velocity_b;
 
     if (!a) {
@@ -264,7 +267,7 @@ void nvDistanceConstraint_solve(nvConstraint *cons) {
         angular_velocity_b = b->angular_velocity;
     }
 
-    nvVector2 rv = nv_calc_relative_velocity(
+    phy_vector2 rv = nv_calc_relative_velocity(
         linear_velocity_a, angular_velocity_a, dist_cons->xanchor_a,
         linear_velocity_b, angular_velocity_b, dist_cons->xanchor_b
     );
@@ -282,7 +285,7 @@ void nvDistanceConstraint_solve(nvConstraint *cons) {
     dist_cons->impulse = nv_fclamp(lambda0 + lambda, -limit, limit);
     lambda = dist_cons->impulse - lambda0;
 
-    nvVector2 impulse = nvVector2_mul(dist_cons->normal, lambda);
+    phy_vector2 impulse = nvVector2_mul(dist_cons->normal, lambda);
 
     // Apply constraint impulse
     if (a) nvRigidBody_apply_impulse(a, nvVector2_neg(impulse), dist_cons->xanchor_a);

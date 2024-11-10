@@ -17,8 +17,8 @@ static ecs_ret sys_light_update(ecs_ecs *ecs, ecs_id *entities, const int entity
   clear_lights();
   for (int id = 0; id < entity_count; id++) {
     comp_light *info = ecs_get(ECS, entities[id], LIGHT_COMPONENT_SIGNATURE);
-    const nvVector2 pos = nvVector2_add(nvRigidBody_get_position(info->body), info->offset);
-    const nvVector2 screen_pos_perc = world_to_screen_perc(pos.x, pos.y);
+    const phy_vector2 pos = nvVector2_add(nvRigidBody_get_position(info->body), info->offset);
+    const phy_vector2 screen_pos_perc = world_to_screen_perc(pos.x, pos.y);
     info->light.pos_perc.x = screen_pos_perc.x;
     info->light.pos_perc.y = screen_pos_perc.y;
     add_light(info->light.pos_perc, info->light.radius);

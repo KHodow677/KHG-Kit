@@ -19,11 +19,11 @@
  */
 
 
-nv_bool nvPersistentContactPair_penetrating(nvPersistentContactPair *pcp) {
+nv_bool nvPersistentContactPair_penetrating(phy_persistent_contact_pair *pcp) {
     nv_bool penetrating = false;
 
     for (size_t c = 0; c < pcp->contact_count; c++) {
-        nvContact contact = pcp->contacts[c];
+        phy_contact contact = pcp->contacts[c];
        
         if (contact.separation < 0.0) {
             penetrating = true;
@@ -35,16 +35,16 @@ nv_bool nvPersistentContactPair_penetrating(nvPersistentContactPair *pcp) {
 }
 
 nv_uint64 nvPersistentContactPair_hash(void *item) {
-    nvPersistentContactPair *pcp = (nvPersistentContactPair *)item;
+    phy_persistent_contact_pair *pcp = (phy_persistent_contact_pair *)item;
     return nvPersistentContactPair_key(pcp->shape_a, pcp->shape_b);
 }
 
 void nvPersistentContactPair_remove(
-    nvSpace *space,
-    nvPersistentContactPair *pcp
+    phy_space *space,
+    phy_persistent_contact_pair *pcp
 ) {
     for (size_t c = 0; c < pcp->contact_count; c++) {
-        nvContact *contact = &pcp->contacts[c];
+        phy_contact *contact = &pcp->contacts[c];
 
         nvContactEvent event = {
             .body_a = pcp->body_a,
@@ -66,5 +66,5 @@ void nvPersistentContactPair_remove(
         };
     }
 
-    nvHashMap_remove(space->contacts, pcp);
+    phy_hashmap_remove(space->contacts, pcp);
 }

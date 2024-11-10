@@ -23,62 +23,62 @@
  */
 
 
-void nvConstraint_free(nvConstraint *cons) {
+void phy_constraint_free(phy_constraint *cons) {
     if (!cons) return;
 
     NV_FREE(cons->def);
     NV_FREE(cons);
 }
 
-void nvConstraint_presolve(
-    nvSpace *space,
-    nvConstraint *cons,
+void phy_constraint_presolve(
+    phy_space *space,
+    phy_constraint *cons,
     nv_float dt,
     nv_float inv_dt
 ) {
     switch (cons->type) {
-        case nvConstraintType_DISTANCE:
-            nvDistanceConstraint_presolve(space, cons, dt, inv_dt);
+        case PHY_CONSTRAINT_TYPE_DISTANCE:
+            phy_distance_constraint_presolve(space, cons, dt, inv_dt);
             break;
 
-        case nvConstraintType_HINGE:
-            nvHingeConstraint_presolve(space, cons, dt, inv_dt);
+        case PHY_CONSTRAINT_TYPE_HINGE:
+            phy_hinge_constraint_presolve(space, cons, dt, inv_dt);
             break;
 
-        case nvConstraintType_SPLINE:
-            nvSplineConstraint_presolve(space, cons, dt, inv_dt);
-            break;
-    }
-}
-
-void nvConstraint_warmstart(nvSpace *space, nvConstraint *cons) {
-    switch (cons->type) {
-        case nvConstraintType_DISTANCE:
-            nvDistanceConstraint_warmstart(space, cons);
-            break;
-
-        case nvConstraintType_HINGE:
-            nvHingeConstraint_warmstart(space, cons);
-            break;
-
-        case nvConstraintType_SPLINE:
-            nvSplineConstraint_warmstart(space, cons);
+        case PHY_CONSTRAINT_TYPE_SPLINE:
+            phy_spline_constraint_presolve(space, cons, dt, inv_dt);
             break;
     }
 }
 
-void nvConstraint_solve(nvConstraint *cons, nv_float inv_dt) {
+void phy_constraint_warmstart(phy_space *space, phy_constraint *cons) {
     switch (cons->type) {
-        case nvConstraintType_DISTANCE:
-            nvDistanceConstraint_solve(cons);
+        case PHY_CONSTRAINT_TYPE_DISTANCE:
+            phy_distance_constraint_warmstart(space, cons);
             break;
 
-        case nvConstraintType_HINGE:
-            nvHingeConstraint_solve(cons, inv_dt);
+        case PHY_CONSTRAINT_TYPE_HINGE:
+            phy_hinge_constraint_warmstart(space, cons);
             break;
 
-        case nvConstraintType_SPLINE:
-            nvSplineConstraint_solve(cons);
+        case PHY_CONSTRAINT_TYPE_SPLINE:
+            phy_spline_constraint_warmstart(space, cons);
+            break;
+    }
+}
+
+void phy_constraint_solve(phy_constraint *cons, nv_float inv_dt) {
+    switch (cons->type) {
+        case PHY_CONSTRAINT_TYPE_DISTANCE:
+            phy_distance_constraint_solve(cons);
+            break;
+
+        case PHY_CONSTRAINT_TYPE_HINGE:
+            phy_hinge_constraint_solve(cons, inv_dt);
+            break;
+
+        case PHY_CONSTRAINT_TYPE_SPLINE:
+            phy_spline_constraint_solve(cons);
             break;
     }
 }

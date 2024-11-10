@@ -6,15 +6,15 @@
 typedef struct comp_renderer {
   ecs_id id;
   int tex_id;
-  const nvRigidBody *body;
+  const phy_rigid_body *body;
   int render_layer;
   float parallax_value;
-  nvVector2 offset;
+  phy_vector2 offset;
   bool flipped;
 } comp_renderer;
 
 typedef struct comp_renderer_constructor_info {
-  const nvRigidBody *body; 
+  const phy_rigid_body *body; 
   int tex_id;
   int render_layer;
   float parallax_value;

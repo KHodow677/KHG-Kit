@@ -11,15 +11,16 @@
 #ifndef NOVAPHYSICS_SPACE_H
 #define NOVAPHYSICS_SPACE_H
 
+#include "khg_phy/collision.h"
 #include "khg_phy/internal.h"
-#include "khg_phy/core/array.h"
-#include "khg_phy/core/hashmap.h"
-#include "khg_phy/core/pool.h"
+#include "khg_phy/core/phy_array.h"
+#include "khg_phy/core/phy_hashmap.h"
+#include "khg_phy/core/phy_pool.h"
 #include "khg_phy/body.h"
 #include "khg_phy/broadphase.h"
 #include "khg_phy/contact.h"
 #include "khg_phy/constraints/constraint.h"
-#include "khg_phy/constraints/contact_constraint.h"
+#include "khg_phy/collision.h"
 #include "khg_phy/profiler.h"
 #include "khg_phy/space_settings.h"
 
@@ -37,22 +38,22 @@
  * A space is the core of the physics simulation.
  * It manages and simulates all bodies, constraints and collisions.
  */
-struct nvSpace {
+typedef struct phy_space {
     /*
         Private members
     */
-    nvArray *bodies;
-    nvArray *constraints;
-    nvHashMap *contacts;
-    nvHashMap *removed_contacts;
-    nvMemoryPool *broadphase_pairs;
-    nvArray *bvh_traversed;
+    phy_array *bodies;
+    phy_array *constraints;
+    phy_hashmap *contacts;
+    phy_hashmap *removed_contacts;
+    phy_memory_pool *broadphase_pairs;
+    phy_array *bvh_traversed;
     nv_uint32 id_counter;
 
     /*
         Public members (setters & getters)
     */
-    nvVector2 gravity;
+    phy_vector2 gravity;
     nvSpaceSettings settings;
     nvBroadPhaseAlg broadphase_algorithm;
 
@@ -60,8 +61,7 @@ struct nvSpace {
     void *listener_arg;
 
     nvProfiler profiler;
-};
-typedef struct nvSpace nvSpace;
+} phy_space;
 
 /**
  * @brief Create new space instance.
@@ -70,7 +70,7 @@ typedef struct nvSpace nvSpace;
  * 
  * @return nvSpace * 
  */
-nvSpace *nvSpace_new();
+phy_space *nvSpace_new();
 
 /**
  * @brief Free space.
@@ -79,7 +79,7 @@ nvSpace *nvSpace_new();
  * 
  * @param space Space to free
  */
-void nvSpace_free(nvSpace *space);
+void nvSpace_free(phy_space *space);
 
 /**
  * @brief Set global gravity vector.
@@ -87,7 +87,7 @@ void nvSpace_free(nvSpace *space);
  * @param space Space
  * @param gravity Gravity vector
  */
-void nvSpace_set_gravity(nvSpace *space, nvVector2 gravity);
+void nvSpace_set_gravity(phy_space *space, phy_vector2 gravity);
 
 /**
  * @brief Get global gravity vector.
@@ -95,7 +95,7 @@ void nvSpace_set_gravity(nvSpace *space, nvVector2 gravity);
  * @param space Space
  * @return nvVector2 Gravity vector
  */
-nvVector2 nvSpace_get_gravity(const nvSpace *space);
+phy_vector2 nvSpace_get_gravity(const phy_space *space);
 
 /**
  * @brief Set the current broadphase algorithm.
@@ -106,7 +106,7 @@ nvVector2 nvSpace_get_gravity(const nvSpace *space);
  * @param space Space
  * @param broadphase_type Broadphase algorithm
  */
-void nvSpace_set_broadphase(nvSpace *space, nvBroadPhaseAlg broadphase_alg_type);
+void nvSpace_set_broadphase(phy_space *space, nvBroadPhaseAlg broadphase_alg_type);
 
 /**
  * @brief Get the current broadphase algorithm.
@@ -114,7 +114,7 @@ void nvSpace_set_broadphase(nvSpace *space, nvBroadPhaseAlg broadphase_alg_type)
  * @param space Space
  * @return nvBroadPhaseAlg 
  */
-nvBroadPhaseAlg nvSpace_get_broadphase(const nvSpace *space);
+nvBroadPhaseAlg nvSpace_get_broadphase(const phy_space *space);
 
 /**
  * @brief Get the current simulation settings struct.
@@ -124,7 +124,7 @@ nvBroadPhaseAlg nvSpace_get_broadphase(const nvSpace *space);
  * @param space Space
  * @return nvSpaceSettings *
  */
-nvSpaceSettings *nvSpace_get_settings(nvSpace *space);
+nvSpaceSettings *nvSpace_get_settings(phy_space *space);
 
 /**
  * @brief Get profiler of space.
@@ -132,7 +132,7 @@ nvSpaceSettings *nvSpace_get_settings(nvSpace *space);
  * @param space Space
  * @return nvProfiler 
  */
-nvProfiler nvSpace_get_profiler(const nvSpace *space);
+nvProfiler nvSpace_get_profiler(const phy_space *space);
 
 /**
  * @brief Set the current contact event listener.
@@ -146,7 +146,7 @@ nvProfiler nvSpace_get_profiler(const nvSpace *space);
  * @param user_arg User argument
  */
 int nvSpace_set_contact_listener(
-    nvSpace *space,
+    phy_space *space,
     nvContactListener listener,
     void *user_arg
 );
@@ -157,7 +157,7 @@ int nvSpace_set_contact_listener(
  * @param space Space
  * @return nvContactListener * 
  */
-nvContactListener *nvSpace_get_contact_listener(const nvSpace *space);
+nvContactListener *nvSpace_get_contact_listener(const phy_space *space);
 
 /**
  * @brief Clear bodies and constraints in space.
@@ -168,7 +168,7 @@ nvContactListener *nvSpace_get_contact_listener(const nvSpace *space);
  * @param free_all Whether to free objects after removing them from space
  * @return int Status
  */
-int nvSpace_clear(nvSpace *space, nv_bool free_all);
+int nvSpace_clear(phy_space *space, nv_bool free_all);
 
 /**
  * @brief Add body to space.
@@ -179,7 +179,7 @@ int nvSpace_clear(nvSpace *space, nv_bool free_all);
  * @param body Body to add
  * @return int Status
  */
-int nvSpace_add_rigidbody(nvSpace *space, nvRigidBody *body);
+int nvSpace_add_rigidbody(phy_space *space, phy_rigid_body *body);
 
 /**
  * @brief Remove body from the space.
@@ -195,7 +195,7 @@ int nvSpace_add_rigidbody(nvSpace *space, nvRigidBody *body);
  * @param body Body to remove
  * @return int Status
  */
-int nvSpace_remove_rigidbody(nvSpace *space, nvRigidBody *body);
+int nvSpace_remove_rigidbody(phy_space *space, phy_rigid_body *body);
 
 /**
  * @brief Add constraint to space.
@@ -206,7 +206,7 @@ int nvSpace_remove_rigidbody(nvSpace *space, nvRigidBody *body);
  * @param cons Constraint to add
  * @return int Status
  */
-int nvSpace_add_constraint(nvSpace *space, nvConstraint *cons);
+int nvSpace_add_constraint(phy_space *space, phy_constraint *cons);
 
 /**
  * @brief Remove constraint from the space.
@@ -220,7 +220,7 @@ int nvSpace_add_constraint(nvSpace *space, nvConstraint *cons);
  * @param cons Constraint to remove
  * @return int 
  */
-int nvSpace_remove_constraint(nvSpace *space, nvConstraint *cons);
+int nvSpace_remove_constraint(phy_space *space, phy_constraint *cons);
 
 /**
  * @brief Iterate over the rigid bodies in this space.
@@ -232,7 +232,7 @@ int nvSpace_remove_constraint(nvSpace *space, nvConstraint *cons);
  * @param index Pointer to iteration index
  * @return nv_bool 
  */
-nv_bool nvSpace_iter_bodies(nvSpace *space, nvRigidBody **body, size_t *index);
+nv_bool nvSpace_iter_bodies(phy_space *space, phy_rigid_body **body, size_t *index);
 
 /**
  * @brief Iterate over the constraints in this space.
@@ -244,7 +244,7 @@ nv_bool nvSpace_iter_bodies(nvSpace *space, nvRigidBody **body, size_t *index);
  * @param index Pointer to iteration index
  * @return nv_bool 
  */
-nv_bool nvSpace_iter_constraints(nvSpace *space, nvConstraint **cons, size_t *index);
+nv_bool nvSpace_iter_constraints(phy_space *space, phy_constraint **cons, size_t *index);
 
 /**
  * @brief Advance the simulation.
@@ -252,7 +252,7 @@ nv_bool nvSpace_iter_constraints(nvSpace *space, nvConstraint **cons, size_t *in
  * @param space Space instance
  * @param dt Time step size (delta time)
  */
-void nvSpace_step(nvSpace *space, nv_float dt);
+void nvSpace_step(phy_space *space, nv_float dt);
 
 /**
  * @brief Cast a ray in space and collect intersections.
@@ -265,9 +265,9 @@ void nvSpace_step(nvSpace *space, nv_float dt);
  * @param capacity Size allocated for the results array
  */
 void nvSpace_cast_ray(
-    nvSpace *space,
-    nvVector2 from,
-    nvVector2 to,
+    phy_space *space,
+    phy_vector2 from,
+    phy_vector2 to,
     nvRayCastResult *results_array,
     size_t *num_hits,
     size_t capacity

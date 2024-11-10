@@ -11,7 +11,7 @@
 #ifndef NOVAPHYSICS_NARROWPHASE_H
 #define NOVAPHYSICS_NARROWPHASE_H
 
-#include "khg_phy/internal.h"
+#include "khg_phy/space.h"
 
 
 /**
@@ -27,7 +27,7 @@
  * 
  * @param space Space
  */
-void nv_narrow_phase(struct nvSpace *space);
+void nv_narrow_phase(struct phy_space *space);
 
 
 #endif

@@ -9,13 +9,13 @@
 */
 
 #include <stdlib.h>
-#include "khg_phy/internal.h"
 #include "khg_phy/body.h"
-#include "khg_phy/core/array.h"
+#include "khg_phy/core/phy_array.h"
 #include "khg_phy/math.h"
 #include "khg_phy/aabb.h"
 #include "khg_phy/constants.h"
 #include "khg_phy/space.h"
+#include "khg_utl/error_func.h"
 
 
 /**
@@ -25,14 +25,12 @@
  */
 
 
-// Skip non-dynamic bodies
-#define _NV_ONLY_DYNAMIC {if ((body)->type != nvRigidBodyType_DYNAMIC) return;}
-#define _NV_ONLY_DYNAMIC0 {if ((body)->type != nvRigidBodyType_DYNAMIC) return 0;}
 
-
-nvRigidBody *nvRigidBody_new(nvRigidBodyInitializer init) {
-    nvRigidBody *body = NV_NEW(nvRigidBody);
-    NV_MEM_CHECK(body);
+phy_rigid_body *nvRigidBody_new(phy_rigid_body_initializer init) {
+  phy_rigid_body *body = NV_NEW(phy_rigid_body);
+  if (!body) {
+    utl_error_func("Failed to allocate memory", utl_user_defined_data);
+  }
 
     body->user_data = init.user_data;
 
@@ -40,7 +38,7 @@ nvRigidBody *nvRigidBody_new(nvRigidBodyInitializer init) {
 
     body->type = init.type;
 
-    body->shapes = nvArray_new();
+    body->shapes = phy_array_new();
     if (!body->shapes) {
         NV_FREE(body);
         return NULL;
@@ -71,33 +69,35 @@ nvRigidBody *nvRigidBody_new(nvRigidBodyInitializer init) {
 
     body->cache_aabb = false;
     body->cache_transform = false;
-    body->cached_aabb = (nvAABB){0.0, 0.0, 0.0, 0.0};
+    body->cached_aabb = (phy_aabb){0.0, 0.0, 0.0, 0.0};
 
     return body;
 }
 
-void nvRigidBody_free(nvRigidBody *body) {
+void nvRigidBody_free(phy_rigid_body *body) {
     if (!body) return;
 
     for (size_t i = 0; i < body->shapes->size; i++) {
         nvShape_free(body->shapes->data[i]);
     }
-    nvArray_free(body->shapes);
+    phy_array_free(body->shapes);
     
     NV_FREE(body);
 }
 
-static int nvRigidBody_accumulate_mass(nvRigidBody *body) {
+static int nvRigidBody_accumulate_mass(phy_rigid_body *body) {
     body->mass = 0.0;
     body->invmass = 0.0;
     body->inertia = 0.0;
     body->invinertia = 0.0;
 
-    _NV_ONLY_DYNAMIC0;
+    if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+      return 0;
+    }
 
     // Accumulate mass information from shapes
 
-    nvVector2 local_com = nvVector2_zero;
+    phy_vector2 local_com = nvVector2_zero;
     for (size_t i = 0; i < body->shapes->size; i++) {
         nvShape *shape = body->shapes->data[i];
 
@@ -109,8 +109,8 @@ static int nvRigidBody_accumulate_mass(nvRigidBody *body) {
     }
 
     if (body->mass == 0.0) {
-        nv_set_error("Dynamic bodies can't have 0 mass.");
-        return 1;
+      utl_error_func("Dynamic bodies with no mass", utl_user_defined_data);
+      return 1;
     }
 
     // Calculate center of mass and center the inertia
@@ -120,8 +120,8 @@ static int nvRigidBody_accumulate_mass(nvRigidBody *body) {
 
     body->inertia -= body->mass * nvVector2_dot(local_com, local_com);
     if (body->inertia == 0.0) {
-        nv_set_error("Invalid mass.");
-        return 1;
+      utl_error_func("Invalid mass", utl_user_defined_data);
+      return 1;
     }
     body->invinertia = 1.0 / body->inertia;
 
@@ -131,114 +131,116 @@ static int nvRigidBody_accumulate_mass(nvRigidBody *body) {
     return 0;
 }
 
-void nvRigidBody_set_user_data(nvRigidBody *body, void *data) {
+void nvRigidBody_set_user_data(phy_rigid_body *body, void *data) {
     body->user_data = data;
 }
 
-void *nvRigidBody_get_user_data(const nvRigidBody *body) {
+void *nvRigidBody_get_user_data(const phy_rigid_body *body) {
     return body->user_data;
 }
 
-nvSpace *nvRigidBody_get_space(const nvRigidBody *body) {
+phy_space *nvRigidBody_get_space(const phy_rigid_body *body) {
     return body->space;
 }
 
-nv_uint32 nvRigidBody_get_id(const nvRigidBody *body) {
+nv_uint32 nvRigidBody_get_id(const phy_rigid_body *body) {
     return body->id;
 }
 
-int nvRigidBody_set_type(nvRigidBody *body, nvRigidBodyType type) {
-    nvRigidBodyType old_type = body->type;
+int nvRigidBody_set_type(phy_rigid_body *body, phy_rigid_body_type type) {
+    phy_rigid_body_type old_type = body->type;
     body->type = type;
 
     // If the body was static from start the mass info might have not been calculated
-    if (old_type == nvRigidBodyType_STATIC && type == nvRigidBodyType_DYNAMIC)
+    if (old_type == PHY_RIGID_BODY_TYPE_STATIC && type == PHY_RIGID_BODY_TYPE_DYNAMIC)
         return nvRigidBody_accumulate_mass(body);
 
     return 0;
 }
 
-nvRigidBodyType nvRigidBody_get_type(const nvRigidBody *body) {
+phy_rigid_body_type nvRigidBody_get_type(const phy_rigid_body *body) {
     return body->type;
 }
 
-void nvRigidBody_set_position(nvRigidBody *body, nvVector2 new_position) {
+void nvRigidBody_set_position(phy_rigid_body *body, phy_vector2 new_position) {
     body->position = new_position;
     body->origin = nvVector2_add(nvVector2_rotate(body->com, body->angle), body->position);
     body->cache_aabb = false;
     body->cache_transform = false;
 }
 
-nvVector2 nvRigidBody_get_position(const nvRigidBody *body) {
+phy_vector2 nvRigidBody_get_position(const phy_rigid_body *body) {
     return body->position;
 }
 
-void nvRigidBody_set_angle(nvRigidBody *body, nv_float new_angle) {
+void nvRigidBody_set_angle(phy_rigid_body *body, nv_float new_angle) {
     body->angle = new_angle;
     body->origin = nvVector2_add(nvVector2_rotate(body->com, body->angle), body->position);
     body->cache_aabb = false;
     body->cache_transform = false;
 }
 
-nv_float nvRigidBody_get_angle(const nvRigidBody *body) {
+nv_float nvRigidBody_get_angle(const phy_rigid_body *body) {
     return body->angle;
 }
 
-void nvRigidBody_set_linear_velocity(nvRigidBody *body, nvVector2 new_velocity) {
+void nvRigidBody_set_linear_velocity(phy_rigid_body *body, phy_vector2 new_velocity) {
     body->linear_velocity = new_velocity;
 }
 
-nvVector2 nvRigidBody_get_linear_velocity(const nvRigidBody *body) {
+phy_vector2 nvRigidBody_get_linear_velocity(const phy_rigid_body *body) {
     return body->linear_velocity;
 }
 
-void nvRigidBody_set_angular_velocity(nvRigidBody *body, nv_float new_velocity) {
+void nvRigidBody_set_angular_velocity(phy_rigid_body *body, nv_float new_velocity) {
     body->angular_velocity = new_velocity;
 }
 
-nv_float nvRigidBody_get_angular_velocity(const nvRigidBody *body) {
+nv_float nvRigidBody_get_angular_velocity(const phy_rigid_body *body) {
     return body->angular_velocity;
 }
 
-void nvRigidBody_set_linear_damping_scale(nvRigidBody *body, nv_float scale) {
+void nvRigidBody_set_linear_damping_scale(phy_rigid_body *body, nv_float scale) {
     body->linear_damping_scale = scale;
 }
 
-nv_float nvRigidBody_get_linear_damping_scale(const nvRigidBody *body) {
+nv_float nvRigidBody_get_linear_damping_scale(const phy_rigid_body *body) {
     return body->linear_damping_scale;
 }
 
-void nvRigidBody_set_angular_damping_scale(nvRigidBody *body, nv_float scale) {
+void nvRigidBody_set_angular_damping_scale(phy_rigid_body *body, nv_float scale) {
     body->angular_damping_scale = scale;
 }
 
-nv_float nvRigidBody_get_angular_damping_scale(const nvRigidBody *body) {
+nv_float nvRigidBody_get_angular_damping_scale(const phy_rigid_body *body) {
     return body->angular_damping_scale;
 }
 
-void nvRigidBody_set_gravity_scale(nvRigidBody *body, nv_float scale) {
+void nvRigidBody_set_gravity_scale(phy_rigid_body *body, nv_float scale) {
     body->gravity_scale = scale;
 }
 
-nv_float nvRigidBody_get_gravity_scale(const nvRigidBody *body) {
+nv_float nvRigidBody_get_gravity_scale(const phy_rigid_body *body) {
     return body->gravity_scale;
 }
 
-void nvRigidBody_set_material(nvRigidBody *body, nvMaterial material) {
+void nvRigidBody_set_material(phy_rigid_body *body, nvMaterial material) {
     body->material = material;
     nvRigidBody_accumulate_mass(body);
 }
 
-nvMaterial nvRigidBody_get_material(const nvRigidBody *body) {
+nvMaterial nvRigidBody_get_material(const phy_rigid_body *body) {
     return body->material;
 }
 
-int nvRigidBody_set_mass(nvRigidBody *body, nv_float mass) {
-    _NV_ONLY_DYNAMIC0;
+int nvRigidBody_set_mass(phy_rigid_body *body, nv_float mass) {
+    if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+      return 0;
+    }
 
     if (mass == 0.0) {
-        nv_set_error("Can't set mass of a dynamic body to 0. Use a static body instead.");
-        return 1;
+      utl_error_func("Dynamic bodies with no mass", utl_user_defined_data);
+      return 1;
     }
 
     body->mass = mass;
@@ -249,12 +251,14 @@ int nvRigidBody_set_mass(nvRigidBody *body, nv_float mass) {
     return 0;
 }
 
-nv_float nvRigidBody_get_mass(const nvRigidBody *body) {
+nv_float nvRigidBody_get_mass(const phy_rigid_body *body) {
     return body->mass;
 }
 
-void nvRigidBody_set_inertia(nvRigidBody *body, nv_float inertia) {
-    _NV_ONLY_DYNAMIC;
+void nvRigidBody_set_inertia(phy_rigid_body *body, nv_float inertia) {
+    if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+      return;
+    }
 
     if (inertia == 0.0) {
         body->inertia = 0.0;
@@ -266,52 +270,52 @@ void nvRigidBody_set_inertia(nvRigidBody *body, nv_float inertia) {
     }
 }
 
-nv_float nvRigidBody_get_inertia(const nvRigidBody *body) {
+nv_float nvRigidBody_get_inertia(const phy_rigid_body *body) {
     return body->inertia;
 }
 
-void nvRigidBody_set_collision_group(nvRigidBody *body, nv_uint32 group) {
+void nvRigidBody_set_collision_group(phy_rigid_body *body, nv_uint32 group) {
     body->collision_group = group;
 }
 
-nv_uint32 nvRigidBody_get_collision_group(const nvRigidBody *body) {
+nv_uint32 nvRigidBody_get_collision_group(const phy_rigid_body *body) {
     return body->collision_group;
 }
 
-void nvRigidBody_set_collision_category(nvRigidBody *body, nv_uint32 category) {
+void nvRigidBody_set_collision_category(phy_rigid_body *body, nv_uint32 category) {
     body->collision_category = category;
 }
 
-nv_uint32 nvRigidBody_get_collision_category(const nvRigidBody *body) {
+nv_uint32 nvRigidBody_get_collision_category(const phy_rigid_body *body) {
     return body->collision_category;
 }
 
-void nvRigidBody_set_collision_mask(nvRigidBody *body, nv_uint32 mask) {
+void nvRigidBody_set_collision_mask(phy_rigid_body *body, nv_uint32 mask) {
     body->collision_mask = mask;
 }
 
-nv_uint32 nvRigidBody_get_collision_mask(const nvRigidBody *body) {
+nv_uint32 nvRigidBody_get_collision_mask(const phy_rigid_body *body) {
     return body->collision_mask;
 }
 
-int nvRigidBody_add_shape(nvRigidBody *body, nvShape *shape) {
-    if (nvArray_add(body->shapes, shape)) return 1;
+int nvRigidBody_add_shape(phy_rigid_body *body, nvShape *shape) {
+    if (phy_array_add(body->shapes, shape)) return 1;
 
     if (nvRigidBody_accumulate_mass(body)) return 2;
 
     return 0;
 }
 
-int nvRigidBody_remove_shape(nvRigidBody *body, nvShape *shape) {
-    if (nvArray_remove(body->shapes, shape) == (size_t)(-1)) return 1;
+int nvRigidBody_remove_shape(phy_rigid_body *body, nvShape *shape) {
+    if (phy_array_remove(body->shapes, shape) == (size_t)(-1)) return 1;
 
     if (nvRigidBody_accumulate_mass(body)) return 2;
 
     // Remove contacts
     void *map_val;
     size_t map_iter = 0;
-    while (nvHashMap_iter(body->space->contacts, &map_iter, &map_val)) {
-        nvPersistentContactPair *pcp = map_val;
+    while (phy_hashmap_iter(body->space->contacts, &map_iter, &map_val)) {
+        phy_persistent_contact_pair *pcp = map_val;
 
         for (size_t i = 0; i < body->shapes->size; i++) {
             nvShape *shape = body->shapes->data[i];
@@ -329,40 +333,48 @@ int nvRigidBody_remove_shape(nvRigidBody *body, nvShape *shape) {
     return 0;
 }
 
-nv_bool nvRigidBody_iter_shapes(nvRigidBody *body, nvShape **shape, size_t *index) {
+bool nvRigidBody_iter_shapes(phy_rigid_body *body, nvShape **shape, size_t *index) {
     *shape = body->shapes->data[(*index)++];
     return (*index <= body->shapes->size);
 }
 
-void nvRigidBody_apply_force(nvRigidBody *body, nvVector2 force) {
-    _NV_ONLY_DYNAMIC;
+void nvRigidBody_apply_force(phy_rigid_body *body, phy_vector2 force) {
+    if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+      return;
+    }
 
     body->force = nvVector2_add(body->force, force);
 }
 
 void nvRigidBody_apply_force_at(
-    nvRigidBody *body,
-    nvVector2 force,
-    nvVector2 position
+    phy_rigid_body *body,
+    phy_vector2 force,
+    phy_vector2 position
 ) {
-    _NV_ONLY_DYNAMIC;
+    if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+      return;
+    }
 
     body->force = nvVector2_add(body->force, force);
     body->torque += nvVector2_cross(position, force);
 }
 
-void nvRigidBody_apply_torque(nvRigidBody *body, nv_float torque) {
-    _NV_ONLY_DYNAMIC;
+void nvRigidBody_apply_torque(phy_rigid_body *body, nv_float torque) {
+    if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+      return;
+    }
 
     body->torque += torque;
 }
 
 void nvRigidBody_apply_impulse(
-    nvRigidBody *body,
-    nvVector2 impulse,
-    nvVector2 position
+    phy_rigid_body *body,
+    phy_vector2 impulse,
+    phy_vector2 position
 ) {
-    _NV_ONLY_DYNAMIC;
+    if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+      return;
+    }
 
     /*
         v -= J * (1/M)
@@ -375,22 +387,22 @@ void nvRigidBody_apply_impulse(
     body->angular_velocity += nvVector2_cross(position, impulse) * body->invinertia;
 }
 
-void nvRigidBody_enable_collisions(nvRigidBody *body) {
+void nvRigidBody_enable_collisions(phy_rigid_body *body) {
     body->collision_enabled = true;
 }
 
-void nvRigidBody_disable_collisions(nvRigidBody *body) {
+void nvRigidBody_disable_collisions(phy_rigid_body *body) {
     body->collision_enabled = false;
 }
 
-void nvRigidBody_reset_velocities(nvRigidBody *body) {
+void nvRigidBody_reset_velocities(phy_rigid_body *body) {
     nvRigidBody_set_linear_velocity(body, nvVector2_zero);
     nvRigidBody_set_angular_velocity(body, 0.0);
     body->force = nvVector2_zero;
     body->torque = 0.0;
 }
 
-nvAABB nvRigidBody_get_aabb(nvRigidBody *body) {
+phy_aabb nvRigidBody_get_aabb(phy_rigid_body *body) {
     NV_TRACY_ZONE_START;
 
     if (body->cache_aabb) {
@@ -401,7 +413,7 @@ nvAABB nvRigidBody_get_aabb(nvRigidBody *body) {
     body->cache_aabb = true;
 
     nvTransform xform = (nvTransform){body->origin, body->angle};
-    nvAABB total_aabb = nvShape_get_aabb(body->shapes->data[0], xform);
+    phy_aabb total_aabb = nvShape_get_aabb(body->shapes->data[0], xform);
     for (size_t i = 1; i < body->shapes->size; i++) {
         total_aabb = nvAABB_merge(total_aabb, nvShape_get_aabb(body->shapes->data[i], xform));
     }
@@ -412,22 +424,22 @@ nvAABB nvRigidBody_get_aabb(nvRigidBody *body) {
     return total_aabb;
 }
 
-nv_float nvRigidBody_get_kinetic_energy(const nvRigidBody *body) {
+nv_float nvRigidBody_get_kinetic_energy(const phy_rigid_body *body) {
     // 1/2 * M * v²
     return 0.5 * body->mass * nvVector2_len2(body->linear_velocity);
 }
 
-nv_float nvRigidBody_get_rotational_energy(const nvRigidBody *body) {
+nv_float nvRigidBody_get_rotational_energy(const phy_rigid_body *body) {
     // 1/2 * I * ω²
     return 0.5 * body->inertia * nv_fabs(body->angular_velocity);
 }
 
 void nvRigidBody_integrate_accelerations(
-    nvRigidBody *body,
-    nvVector2 gravity,
+    phy_rigid_body *body,
+    phy_vector2 gravity,
     nv_float dt
 ) {
-    if (body->type == nvRigidBodyType_STATIC) {
+    if (body->type == PHY_RIGID_BODY_TYPE_STATIC) {
         nvRigidBody_reset_velocities(body);
         return;
     }
@@ -441,7 +453,7 @@ void nvRigidBody_integrate_accelerations(
         a = F * (1/M) + g
         v = a * Δt
     */
-    nvVector2 linear_acceleration = nvVector2_add(
+    phy_vector2 linear_acceleration = nvVector2_add(
         nvVector2_mul(body->force, body->invmass), nvVector2_mul(gravity, body->gravity_scale));
 
     body->linear_velocity = nvVector2_add(
@@ -465,8 +477,8 @@ void nvRigidBody_integrate_accelerations(
     NV_TRACY_ZONE_END;
 }
 
-void nvRigidBody_integrate_velocities(nvRigidBody *body, nv_float dt) {
-    if (body->type == nvRigidBodyType_STATIC) {
+void nvRigidBody_integrate_velocities(phy_rigid_body *body, nv_float dt) {
+    if (body->type == PHY_RIGID_BODY_TYPE_STATIC) {
         nvRigidBody_reset_velocities(body);
         return;
     }

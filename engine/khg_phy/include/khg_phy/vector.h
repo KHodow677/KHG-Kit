@@ -11,8 +11,8 @@
 #ifndef NOVAPHYSICS_VECTOR_H
 #define NOVAPHYSICS_VECTOR_H
 
-#include "khg_phy/internal.h"
-
+#include "khg_phy/types.h"
+#include <stdbool.h>
 
 /**
  * @file vector.h
@@ -25,9 +25,9 @@
  * @brief 2D vector type.
  */
 typedef struct {
-    nv_float x; /**< X component of the vector. */
-    nv_float y; /**< Y component of the vector. */
-} nvVector2;
+  float x; /**< X component of the vector. */
+  float y; /**< Y component of the vector. */
+} phy_vector2;
 
 
 /**
@@ -37,13 +37,13 @@ typedef struct {
  * @param y Y component
  * @return nvVector2
 */
-#define NV_VECTOR2(x, y) ((nvVector2){(x), (y)})
+#define NV_VECTOR2(x, y) ((phy_vector2){(x), (y)})
 
 
 /**
  * @brief Constant zero vector.
  */
-static const nvVector2 nvVector2_zero = {0.0, 0.0};
+static const phy_vector2 nvVector2_zero = {0.0, 0.0};
 
 
 /**
@@ -53,7 +53,7 @@ static const nvVector2 nvVector2_zero = {0.0, 0.0};
  * @param b Right-hand vector
  * @return nv_bool
  */
-static inline nv_bool nvVector2_eq(nvVector2 a, nvVector2 b) {
+static inline bool nvVector2_eq(phy_vector2 a, phy_vector2 b) {
     return (a.x == b.x && a.y == b.y);
 }
 
@@ -64,7 +64,7 @@ static inline nv_bool nvVector2_eq(nvVector2 a, nvVector2 b) {
  * @param b Right-hand vector
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_add(nvVector2 a, nvVector2 b) {
+static inline phy_vector2 nvVector2_add(phy_vector2 a, phy_vector2 b) {
     return NV_VECTOR2(a.x + b.x, a.y + b.y);
 }
 
@@ -75,7 +75,7 @@ static inline nvVector2 nvVector2_add(nvVector2 a, nvVector2 b) {
  * @param b Right-hand vector
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_sub(nvVector2 a, nvVector2 b) {
+static inline phy_vector2 nvVector2_sub(phy_vector2 a, phy_vector2 b) {
     return NV_VECTOR2(a.x - b.x, a.y - b.y);
 }
 
@@ -86,7 +86,7 @@ static inline nvVector2 nvVector2_sub(nvVector2 a, nvVector2 b) {
  * @param s Scalar
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_mul(nvVector2 v, nv_float s) {
+static inline phy_vector2 nvVector2_mul(phy_vector2 v, float s) {
     return NV_VECTOR2(v.x * s, v.y * s);
 }
 
@@ -97,7 +97,7 @@ static inline nvVector2 nvVector2_mul(nvVector2 v, nv_float s) {
  * @param s Scalar
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_div(nvVector2 v, nv_float s) {
+static inline phy_vector2 nvVector2_div(phy_vector2 v, float s) {
     return NV_VECTOR2(v.x / s, v.y / s);
 }
 
@@ -107,7 +107,7 @@ static inline nvVector2 nvVector2_div(nvVector2 v, nv_float s) {
  * @param v Vector to negate
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_neg(nvVector2 v) {
+static inline phy_vector2 nvVector2_neg(phy_vector2 v) {
     return NV_VECTOR2(-v.x, -v.y);
 }
 
@@ -118,9 +118,9 @@ static inline nvVector2 nvVector2_neg(nvVector2 v) {
  * @param a Angle in radians
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_rotate(nvVector2 v, nv_float a) {
-    nv_float c = nv_cos(a);
-    nv_float s = nv_sin(a);
+static inline phy_vector2 nvVector2_rotate(phy_vector2 v, float a) {
+    float c = nv_cos(a);
+    float s = nv_sin(a);
     return NV_VECTOR2(c * v.x - s * v.y, s * v.x + c * v.y);
 }
 
@@ -131,7 +131,7 @@ static inline nvVector2 nvVector2_rotate(nvVector2 v, nv_float a) {
  * @param a Angle in radians
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_perp(nvVector2 v) {
+static inline phy_vector2 nvVector2_perp(phy_vector2 v) {
     return NV_VECTOR2(-v.y, v.x);
 }
 
@@ -141,7 +141,7 @@ static inline nvVector2 nvVector2_perp(nvVector2 v) {
  * @param v Vector
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_perpr(nvVector2 v) {
+static inline phy_vector2 nvVector2_perpr(phy_vector2 v) {
     return NV_VECTOR2(v.y, -v.x);
 }
 
@@ -151,7 +151,7 @@ static inline nvVector2 nvVector2_perpr(nvVector2 v) {
  * @param v Vector
  * @return nv_float 
  */
-static inline nv_float nvVector2_len2(nvVector2 v) {
+static inline float nvVector2_len2(phy_vector2 v) {
     return v.x * v.x + v.y * v.y;
 }
 
@@ -161,7 +161,7 @@ static inline nv_float nvVector2_len2(nvVector2 v) {
  * @param v Vector
  * @return nv_float 
  */
-static inline nv_float nvVector2_len(nvVector2 v) {
+static inline float nvVector2_len(phy_vector2 v) {
     return nv_sqrt(nvVector2_len2(v));
 }
 
@@ -172,7 +172,7 @@ static inline nv_float nvVector2_len(nvVector2 v) {
  * @param b Right-hand vector 
  * @return nv_float
  */
-static inline nv_float nvVector2_dot(nvVector2 a, nvVector2 b) {
+static inline nv_float nvVector2_dot(phy_vector2 a, phy_vector2 b) {
     return a.x * b.x + a.y * b.y;
 }
 
@@ -183,7 +183,7 @@ static inline nv_float nvVector2_dot(nvVector2 a, nvVector2 b) {
  * @param b Right-hand vector
  * @return nv_float 
  */
-static inline nv_float nvVector2_cross(nvVector2 a, nvVector2 b) {
+static inline nv_float nvVector2_cross(phy_vector2 a, phy_vector2 b) {
     return a.x * b.y - a.y * b.x;
 }
 
@@ -194,7 +194,7 @@ static inline nv_float nvVector2_cross(nvVector2 a, nvVector2 b) {
  * @param b Right-hand vector
  * @return nv_float 
  */
-static inline nv_float nvVector2_dist2(nvVector2 a, nvVector2 b) {
+static inline nv_float nvVector2_dist2(phy_vector2 a, phy_vector2 b) {
     return (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y);
 }
 
@@ -205,7 +205,7 @@ static inline nv_float nvVector2_dist2(nvVector2 a, nvVector2 b) {
  * @param b Right-hand vector
  * @return nv_float 
  */
-static inline nv_float nvVector2_dist(nvVector2 a, nvVector2 b) {
+static inline nv_float nvVector2_dist(phy_vector2 a, phy_vector2 b) {
     return nv_sqrt(nvVector2_dist2(a, b));
 }
 
@@ -215,7 +215,7 @@ static inline nv_float nvVector2_dist(nvVector2 a, nvVector2 b) {
  * @param v Vector to normalize
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_normalize(nvVector2 v) {
+static inline phy_vector2 nvVector2_normalize(phy_vector2 v) {
     return nvVector2_div(v, nvVector2_len(v));
 }
 
@@ -227,7 +227,7 @@ static inline nvVector2 nvVector2_normalize(nvVector2 v) {
  * @param t Interpolation amount [0, 1]
  * @return nvVector2 
  */
-static inline nvVector2 nvVector2_lerp(nvVector2 a, nvVector2 b, nv_float t) {
+static inline phy_vector2 nvVector2_lerp(phy_vector2 a, phy_vector2 b, nv_float t) {
     return NV_VECTOR2((1.0 - t) * a.x + t * b.x, (1.0 - t) * a.y + t * b.y);
 }
 
@@ -237,7 +237,7 @@ static inline nvVector2 nvVector2_lerp(nvVector2 a, nvVector2 b, nv_float t) {
  * @param v Vector
  * @return nv_bool 
  */
-static inline nv_bool nvVector2_is_zero(nvVector2 v) {
+static inline nv_bool nvVector2_is_zero(phy_vector2 v) {
     return v.x == 0.0 && v.y == 0.0;
 }
 

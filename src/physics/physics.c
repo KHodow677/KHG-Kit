@@ -4,9 +4,9 @@
 #include "khg_phy/shape.h"
 #include "khg_phy/space.h"
 
-nvSpace *SPACE = NULL;
+phy_space *SPACE = NULL;
 
-void physics_setup(const nvVector2 grav) {
+void physics_setup(const phy_vector2 grav) {
   SPACE = nvSpace_new();
   nvSpace_set_gravity(SPACE, grav);
   nvSpaceSettings *settings = nvSpace_get_settings(SPACE);
@@ -17,9 +17,9 @@ void physics_cleanup() {
   nvSpace_free(SPACE);
 }
 
-void physics_add_static_segment_shape(segment *seg, const nvVector2 point_a, const nvVector2 point_b) {
-  nvRigidBodyInitializer seg_body_init = nvRigidBodyInitializer_default;
-  seg_body_init.type = nvRigidBodyType_STATIC;
+void physics_add_static_segment_shape(segment *seg, const phy_vector2 point_a, const phy_vector2 point_b) {
+  phy_rigid_body_initializer seg_body_init = nvRigidBodyInitializer_default;
+  seg_body_init.type = PHY_RIGID_BODY_TYPE_STATIC;
   seg_body_init.position = NV_VECTOR2((point_a.x + point_b.x) / 2.0f, (point_a.y + point_b.y) / 2.0f);
   seg_body_init.material = nvMaterial_CONCRETE;
   seg->seg_body = nvRigidBody_new(seg_body_init);

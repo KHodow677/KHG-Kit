@@ -10,6 +10,7 @@
 
 #include "khg_phy/constraints/hinge_constraint.h"
 #include "khg_phy/space.h"
+#include "khg_utl/error_func.h"
 
 
 /**
@@ -19,28 +20,30 @@
  */
 
 
-nvConstraint *nvHingeConstraint_new(nvHingeConstraintInitializer init) {
-    nvConstraint *cons = NV_NEW(nvConstraint);
-    NV_MEM_CHECK(cons);
+phy_constraint *phy_hinge_constraint_new(phy_hinge_constraint_initializer init) {
+    phy_constraint *cons = NV_NEW(phy_constraint);
+    if (!cons) {
+      utl_error_func("Failed to allocate memory", utl_user_defined_data);
+    }
 
     if (!init.a && !init.b) {
-        nv_set_error("Both bodies can't be NULL.");
-        NV_FREE(cons);
-        return NULL;
+      utl_error_func("Both bodies are null", utl_user_defined_data);
+      NV_FREE(cons);
+      return NULL;
     }
 
     cons->a = init.a;
     cons->b = init.b;
-    cons->type = nvConstraintType_HINGE;
+    cons->type = PHY_CONSTRAINT_TYPE_HINGE;
     cons->ignore_collision = false;
 
-    cons->def = NV_NEW(nvHingeConstraint);
+    cons->def = NV_NEW(phy_hinge_constraint);
     if (!cons->def) {
-        nv_set_error("Failed to allocate memory.");
-        NV_FREE(cons);
-        return NULL; 
+      utl_error_func("Failed to allocate memory", utl_user_defined_data);
+      NV_FREE(cons);
+      return NULL; 
     }
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
 
     hinge_cons->anchor = init.anchor;
     hinge_cons->enable_limits = init.enable_limits;
@@ -84,16 +87,16 @@ nvConstraint *nvHingeConstraint_new(nvHingeConstraintInitializer init) {
     return cons;
 }
 
-nvRigidBody *nvHingeConstraint_get_body_a(const nvConstraint *cons) {
+phy_rigid_body *phy_hinge_constraint_get_body_a(const phy_constraint *cons) {
     return cons->a;
 }
 
-nvRigidBody *nvHingeConstraint_get_body_b(const nvConstraint *cons) {
+phy_rigid_body *phy_hinge_constraint_get_body_b(const phy_constraint *cons) {
     return cons->b;
 }
 
-void nvHingeConstraint_set_anchor(nvConstraint *cons, nvVector2 anchor) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+void phy_hinge_constraint_set_anchor(phy_constraint *cons, phy_vector2 anchor) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     hinge_cons->anchor = anchor;
 
     if (cons->a) {
@@ -110,63 +113,63 @@ void nvHingeConstraint_set_anchor(nvConstraint *cons, nvVector2 anchor) {
     }
 }
 
-nvVector2 nvHingeConstraint_get_anchor(const nvConstraint *cons) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+phy_vector2 phy_hinge_constraint_get_anchor(const phy_constraint *cons) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     return hinge_cons->anchor;
 }
 
-void nvHingeConstraint_set_limits(nvConstraint *cons, nv_bool limits) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+void phy_hinge_constraint_set_limits(phy_constraint *cons, bool limits) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     hinge_cons->enable_limits = limits;
 }
 
-nv_bool nvHingeConstraint_get_limits(const nvConstraint *cons) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+bool phy_hinge_constraint_get_limits(const phy_constraint *cons) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     return hinge_cons->enable_limits;
 }
 
-void nvHingeConstraint_set_upper_limit(nvConstraint *cons, nv_float upper_limit) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+void phy_hinge_constraint_set_upper_limit(phy_constraint *cons, nv_float upper_limit) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     hinge_cons->upper_limit = upper_limit;
 }
 
-nv_float nvHingeConstraint_get_upper_limit(const nvConstraint *cons) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+float phy_hinge_constraint_get_upper_limit(const phy_constraint *cons) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     return hinge_cons->upper_limit;
 }
 
-void nvHingeConstraint_set_lower_limit(nvConstraint *cons, nv_float lower_limit) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+void phy_hinge_constraint_set_lower_limit(phy_constraint *cons, float lower_limit) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     hinge_cons->lower_limit = lower_limit;
 }
 
-nv_float nvHingeConstraint_get_lower_limit(const nvConstraint *cons) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+float phy_hinge_constraint_get_lower_limit(const phy_constraint *cons) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     return hinge_cons->lower_limit;
 }
 
-void nvHingeConstraint_set_max_force(nvConstraint *cons, nv_float max_force) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+void phy_hinge_constraint_set_max_force(phy_constraint *cons, float max_force) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     hinge_cons->max_force = max_force;
 }
 
-nv_float nvHingeConstraint_get_max_force(const nvConstraint *cons) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
+float phy_hinge_constraint_get_max_force(const phy_constraint *cons) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
     return hinge_cons->max_force;
 }
 
-void nvHingeConstraint_presolve(
-    nvSpace *space,
-    nvConstraint *cons,
-    nv_float dt,
-    nv_float inv_dt
+void phy_hinge_constraint_presolve(
+    phy_space *space,
+    phy_constraint *cons,
+    float dt,
+    float inv_dt
 ) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
-    nvRigidBody *a = cons->a;
-    nvRigidBody *b = cons->b;
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
+    phy_rigid_body *a = cons->a;
+    phy_rigid_body *b = cons->b;
 
     // Transformed anchor points
-    nvVector2 rpa, rpb;
+    phy_vector2 rpa, rpb;
     nv_float invmass_a, invmass_b, invinertia_a, invinertia_b;
 
     // If a body is NULL count them as static bodies
@@ -194,7 +197,7 @@ void nvHingeConstraint_presolve(
     }
 
     // If delta is 0 point constraint is ensured
-    nvVector2 delta = nvVector2_sub(rpb, rpa);
+    phy_vector2 delta = nvVector2_sub(rpb, rpa);
     if (nvVector2_len2(delta) == 0.0) hinge_cons->normal = nvVector2_zero;
     else hinge_cons->normal = nvVector2_normalize(delta);
     nv_float offset = nvVector2_len(delta);
@@ -234,13 +237,13 @@ void nvHingeConstraint_presolve(
     hinge_cons->upper_bias = nv_fmax(upper_c, 0.0) * 0.2 * inv_dt;
 }
 
-void nvHingeConstraint_warmstart(nvSpace *space, nvConstraint *cons) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
-    nvRigidBody *a = cons->a;
-    nvRigidBody *b = cons->b;
+void phy_hinge_constraint_warmstart(phy_space *space, phy_constraint *cons) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
+    phy_rigid_body *a = cons->a;
+    phy_rigid_body *b = cons->b;
 
     if (space->settings.warmstarting) {
-        nvVector2 impulse = nvVector2_mul(hinge_cons->normal, hinge_cons->impulse);
+        phy_vector2 impulse = nvVector2_mul(hinge_cons->normal, hinge_cons->impulse);
         nv_float axial_impulse = hinge_cons->lower_impulse - hinge_cons->upper_impulse;
 
         if (a) {
@@ -260,10 +263,10 @@ void nvHingeConstraint_warmstart(nvSpace *space, nvConstraint *cons) {
     }
 }
 
-void nvHingeConstraint_solve(nvConstraint *cons, nv_float inv_dt) {
-    nvHingeConstraint *hinge_cons = (nvHingeConstraint *)cons->def;
-    nvRigidBody *a = cons->a;
-    nvRigidBody *b = cons->b;
+void phy_hinge_constraint_solve(phy_constraint *cons, nv_float inv_dt) {
+    phy_hinge_constraint *hinge_cons = (phy_hinge_constraint *)cons->def;
+    phy_rigid_body *a = cons->a;
+    phy_rigid_body *b = cons->b;
 
     // Solve angular limits
     if (hinge_cons->enable_limits) {
@@ -306,7 +309,7 @@ void nvHingeConstraint_solve(nvConstraint *cons, nv_float inv_dt) {
     // Solve point constraint
     // TODO: Skip if point constraint is ensured?
 
-    nvVector2 linear_velocity_a, linear_velocity_b;
+    phy_vector2 linear_velocity_a, linear_velocity_b;
     nv_float angular_velocity_a, angular_velocity_b;
 
     if (!a) {
@@ -325,7 +328,7 @@ void nvHingeConstraint_solve(nvConstraint *cons, nv_float inv_dt) {
         angular_velocity_b = b->angular_velocity;
     }
 
-    nvVector2 rv = nv_calc_relative_velocity(
+    phy_vector2 rv = nv_calc_relative_velocity(
         linear_velocity_a, angular_velocity_a, hinge_cons->xanchor_a,
         linear_velocity_b, angular_velocity_b, hinge_cons->xanchor_b
     );
@@ -341,7 +344,7 @@ void nvHingeConstraint_solve(nvConstraint *cons, nv_float inv_dt) {
     hinge_cons->impulse = nv_fclamp(lambda0 + lambda, -limit, limit);
     lambda = hinge_cons->impulse - lambda0;
 
-    nvVector2 impulse = nvVector2_mul(hinge_cons->normal, lambda);
+    phy_vector2 impulse = nvVector2_mul(hinge_cons->normal, lambda);
 
     // Apply point constraint impulse
     if (a) nvRigidBody_apply_impulse(a, nvVector2_neg(impulse), hinge_cons->xanchor_a);

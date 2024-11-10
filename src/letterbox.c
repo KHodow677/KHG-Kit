@@ -21,7 +21,7 @@ static const float get_letterbox_height(const float current_aspect_ratio, const 
   return current_aspect_ratio < TARGET_ASPECT_RATIO ? gfx_get_display_height() * ratio_ratio : gfx_get_display_height();
 }
 
-void transform_letterbox_element(const gfx_aabb letterbox, nvVector2 *pos, nvVector2 *cam_pos, gfx_texture *tex) {
+void transform_letterbox_element(const gfx_aabb letterbox, phy_vector2 *pos, phy_vector2 *cam_pos, gfx_texture *tex) {
   const float scale_x = letterbox.size.x / INITIAL_WIDTH;
   const float scale_y = letterbox.size.y / INITIAL_HEIGHT;
   tex->width *= scale_x;

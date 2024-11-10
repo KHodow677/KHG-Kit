@@ -29,9 +29,9 @@
  * @brief Result of a single ray cast intersection.
  */
 typedef struct {
-    nvVector2 position; /**< Point in world space where ray intersects object. */
-    nvVector2 normal; /**< Normal of the surface ray hit. */
-    nvRigidBody *body; /**< The rigid body that was hit. */
+    phy_vector2 position; /**< Point in world space where ray intersects object. */
+    phy_vector2 normal; /**< Normal of the surface ray hit. */
+    phy_rigid_body *body; /**< The rigid body that was hit. */
     nvShape *shape; /**< First shape of the body which involved in the collision. */
 } nvRayCastResult;
 
@@ -45,7 +45,7 @@ typedef struct {
  * @param xform_b Second transform
  * @return nvPersistentContactPair
  */
-nvPersistentContactPair nv_collide_circle_x_circle(
+phy_persistent_contact_pair nv_collide_circle_x_circle(
     nvShape *circle_a,
     nvTransform xform_a,
     nvShape *circle_b,
@@ -63,7 +63,7 @@ nvPersistentContactPair nv_collide_circle_x_circle(
 nv_bool nv_collide_circle_x_point(
     nvShape *circle,
     nvTransform xform,
-    nvVector2 point
+    phy_vector2 point
 );
 
 /**
@@ -76,7 +76,7 @@ nv_bool nv_collide_circle_x_point(
  * @param flip_anchors Whether to flip anchors of contact or not
  * @return nvPersistentContactPair 
  */
-nvPersistentContactPair nv_collide_polygon_x_circle(
+phy_persistent_contact_pair nv_collide_polygon_x_circle(
     nvShape *polygon,
     nvTransform xform_poly,
     nvShape *circle,
@@ -93,7 +93,7 @@ nvPersistentContactPair nv_collide_polygon_x_circle(
  * @param xform_b Second transform
  * @return nvPersistentContactPair 
  */
-nvPersistentContactPair nv_collide_polygon_x_polygon(
+phy_persistent_contact_pair nv_collide_polygon_x_polygon(
     nvShape *polygon_a,
     nvTransform xform_a,
     nvShape *polygon_b,
@@ -111,7 +111,7 @@ nvPersistentContactPair nv_collide_polygon_x_polygon(
 nv_bool nv_collide_polygon_x_point(
     nvShape *polygon,
     nvTransform xform,
-    nvVector2 point
+    phy_vector2 point
 );
 
 /**
@@ -121,7 +121,7 @@ nv_bool nv_collide_polygon_x_point(
  * @param b Second AABB
  * @return nv_bool
  */
-nv_bool nv_collide_aabb_x_aabb(nvAABB a, nvAABB b);
+nv_bool nv_collide_aabb_x_aabb(phy_aabb a, phy_aabb b);
 
 /**
  * @brief Check if point is inside AABB.
@@ -130,7 +130,7 @@ nv_bool nv_collide_aabb_x_aabb(nvAABB a, nvAABB b);
  * @param point Point
  * @return nv_bool
  */
-nv_bool nv_collide_aabb_x_point(nvAABB aabb, nvVector2 point);
+nv_bool nv_collide_aabb_x_point(phy_aabb aabb, phy_vector2 point);
 
 /**
  * @brief Check if ray intersects circle.
@@ -147,8 +147,8 @@ nv_bool nv_collide_aabb_x_point(nvAABB aabb, nvVector2 point);
  */
 nv_bool nv_collide_ray_x_circle(
     nvRayCastResult *result,
-    nvVector2 origin,
-    nvVector2 dir,
+    phy_vector2 origin,
+    phy_vector2 dir,
     nv_float maxsq,
     nvShape *shape,
     nvTransform xform
@@ -169,8 +169,8 @@ nv_bool nv_collide_ray_x_circle(
  */
 nv_bool nv_collide_ray_x_polygon(
     nvRayCastResult *result,
-    nvVector2 origin,
-    nvVector2 dir,
+    phy_vector2 origin,
+    phy_vector2 dir,
     nv_float maxsq,
     nvShape *shape,
     nvTransform xform

@@ -6,7 +6,7 @@
 #include "khg_phy/body.h"
 #include "khg_phy/vector.h"
 
-void build_zone(const nvRigidBody *player_body, const int min_x, const int max_x) {
+void build_zone(const phy_rigid_body *player_body, const int min_x, const int max_x) {
   const ecs_id entity = ecs_create(ECS);
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 0.0f, 0.0f, 1.0f, NV_VECTOR2((min_x + max_x) / 2.0f, 0.0f), 0.0f, false, false };
   const comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);

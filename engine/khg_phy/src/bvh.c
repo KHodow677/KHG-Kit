@@ -10,9 +10,9 @@
 
 #include "khg_phy/internal.h"
 #include "khg_phy/bvh.h"
-#include "khg_phy/math.h"
 #include "khg_phy/body.h"
 #include "khg_phy/collision.h"
+#include <math.h>
 
 
 /**
@@ -22,7 +22,7 @@
  */
 
 
-nvBVHNode *nvBVHNode_new(nv_bool is_leaf, nvArray *bodies) {
+nvBVHNode *nvBVHNode_new(nv_bool is_leaf, phy_array *bodies) {
     nvBVHNode *node = NV_NEW(nvBVHNode);
     if (!node) return NULL;
 
@@ -37,7 +37,7 @@ nvBVHNode *nvBVHNode_new(nv_bool is_leaf, nvArray *bodies) {
 void nvBVHNode_free(nvBVHNode *node) {
     if (!node) return;
 
-    nvArray_free(node->bodies);
+    phy_array_free(node->bodies);
 
     if (!node->is_leaf) {
         nvBVHNode_free(node->left);
@@ -52,11 +52,11 @@ void nvBVHNode_build_aabb(nvBVHNode *node) {
     if (!node->bodies) return;
 
     if (node->bodies->size > 0) {
-        node->aabb = (nvAABB){NV_INF, NV_INF, -NV_INF, -NV_INF};
+        node->aabb = (phy_aabb){ INFINITY, INFINITY, -INFINITY, -INFINITY };
 
         for (size_t i = 0; i < node->bodies->size; i++) {
-            nvRigidBody *body = node->bodies->data[i];
-            nvAABB aabb = nvRigidBody_get_aabb(body);
+            phy_rigid_body *body = node->bodies->data[i];
+            phy_aabb aabb = nvRigidBody_get_aabb(body);
 
             node->aabb.min_x = nv_fmin(node->aabb.min_x, aabb.min_x);
             node->aabb.min_y = nv_fmin(node->aabb.min_y, aabb.min_y);
@@ -73,53 +73,53 @@ void nvBVHNode_subdivide(nvBVHNode *node) {
     nv_float width = node->aabb.max_x - node->aabb.min_x;
     nv_float height = node->aabb.max_y - node->aabb.min_y;
 
-    nvArray *lefts = nvArray_new();
-    nvArray *rights = nvArray_new();
+    phy_array *lefts = phy_array_new();
+    phy_array *rights = phy_array_new();
 
     // Current splitting method is midway trough the longest axis
 
     if (width > height) {
         nv_float split = 0.0;
         for (size_t i = 0; i < node->bodies->size; i++) {
-            nvRigidBody *body = node->bodies->data[i];
+            phy_rigid_body *body = node->bodies->data[i];
             split += body->bvh_median_x;
         }
         split /= (nv_float)node->bodies->size;
 
         for (size_t i = 0; i < node->bodies->size; i++) {
-            nvRigidBody *body = node->bodies->data[i];
+            phy_rigid_body *body = node->bodies->data[i];
             nv_float c = body->bvh_median_x;
 
             if (c <= split)
-                nvArray_add(lefts, body);
+                phy_array_add(lefts, body);
             else
-                nvArray_add(rights, body);
+                phy_array_add(rights, body);
         }
     }
     else {
         nv_float split = 0.0;
         for (size_t i = 0; i < node->bodies->size; i++) {
-            nvRigidBody *body = node->bodies->data[i];;
+            phy_rigid_body *body = node->bodies->data[i];;
             split += body->bvh_median_y;
         }
         split /= (nv_float)node->bodies->size;
 
         for (size_t i = 0; i < node->bodies->size; i++) {
-            nvRigidBody *body = node->bodies->data[i];
+            phy_rigid_body *body = node->bodies->data[i];
             nv_float c = body->bvh_median_y;
 
             if (c <= split)
-                nvArray_add(lefts, body);
+                phy_array_add(lefts, body);
             else
-                nvArray_add(rights, body);
+                phy_array_add(rights, body);
         }
     }
 
     // Do not split if one of the sides is empty
     if ((lefts->size == 0) || (rights->size == 0)) {
         node->is_leaf = true;
-        nvArray_free(lefts);
-        nvArray_free(rights);
+        phy_array_free(lefts);
+        phy_array_free(rights);
         return;
     }
 
@@ -137,14 +137,14 @@ void nvBVHNode_subdivide(nvBVHNode *node) {
     nvBVHNode_subdivide(node->right);
 }
 
-void nvBVHNode_collide(nvBVHNode *node, nvAABB aabb, nvArray *collided) {
+void nvBVHNode_collide(nvBVHNode *node, phy_aabb aabb, phy_array *collided) {
     if (!node) return;
 
     if (!nv_collide_aabb_x_aabb(node->aabb, aabb)) return;
 
     if (node->is_leaf) {
         for (size_t i = 0; i < node->bodies->size; i++) {
-            nvArray_add(collided, node->bodies->data[i]);
+            phy_array_add(collided, node->bodies->data[i]);
         }
     }
     else {
@@ -164,7 +164,7 @@ size_t nvBVHNode_size(nvBVHNode *node) {
 }
 
 
-nvBVHNode *nvBVHTree_new(nvArray *bodies) {
+nvBVHNode *nvBVHTree_new(phy_array *bodies) {
     nvBVHNode *root = nvBVHNode_new(false, bodies);
 
     nvBVHNode_build_aabb(root);

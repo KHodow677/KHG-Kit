@@ -27,8 +27,8 @@
  *        that is going to be used in narrowphase.
  */
 typedef struct {
-    nvRigidBody *a;
-    nvRigidBody *b;
+    phy_rigid_body *a;
+    phy_rigid_body *b;
 } nvBroadPhasePair;
 
 static inline nv_uint64 nvBroadPhasePair_hash(void *item) {
@@ -53,16 +53,16 @@ typedef enum {
  * 
  * @param space Space
  */
-void nv_broadphase_brute_force(struct nvSpace *space);
+void nv_broadphase_brute_force(struct phy_space *space);
 
 /**
  * @brief Do BVH broadphase and update pairs.
  * 
  * @param space 
  */
-void nv_broadphase_BVH(struct nvSpace *space);
+void nv_broadphase_BVH(struct phy_space *space);
 
-void nv_broadphase_finalize(struct nvSpace *space);
+void nv_broadphase_finalize(struct phy_space *space);
 
 
 #endif

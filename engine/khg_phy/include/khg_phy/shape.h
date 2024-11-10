@@ -12,7 +12,7 @@
 #define NOVAPHYSICS_SHAPE_H
 
 #include "khg_phy/internal.h"
-#include "khg_phy/core/array.h"
+#include "khg_phy/core/phy_array.h"
 #include "khg_phy/vector.h"
 #include "khg_phy/math.h"
 #include "khg_phy/aabb.h"
@@ -42,7 +42,7 @@ typedef enum {
 typedef struct {
     nv_float mass;
     nv_float inertia;
-    nvVector2 center;
+    phy_vector2 center;
 } nvShapeMassInfo;
 
 
@@ -52,7 +52,7 @@ typedef struct {
  * Do not initialize manually. Use shape creation functions.
  */
 typedef struct {
-    nvVector2 center; /**< Center position in local (body) space. */
+    phy_vector2 center; /**< Center position in local (body) space. */
     nv_float radius; /**< Radius. */
 } nvCircle;
 
@@ -63,9 +63,9 @@ typedef struct {
  * Do not initialize manually. Use shape creation functions.
  */
 typedef struct {
-    nvVector2 vertices[NV_POLYGON_MAX_VERTICES]; /**< Vertices in local (body) space. */
-    nvVector2 xvertices[NV_POLYGON_MAX_VERTICES]; /**< Vertices transformed into world space. */
-    nvVector2 normals[NV_POLYGON_MAX_VERTICES]; /**< Edge normals in local (body) space. */
+    phy_vector2 vertices[NV_POLYGON_MAX_VERTICES]; /**< Vertices in local (body) space. */
+    phy_vector2 xvertices[NV_POLYGON_MAX_VERTICES]; /**< Vertices transformed into world space. */
+    phy_vector2 normals[NV_POLYGON_MAX_VERTICES]; /**< Edge normals in local (body) space. */
     size_t num_vertices; /**< Number of vertices. */
 } nvPolygon;
 
@@ -94,7 +94,7 @@ typedef struct {
  * @param radius Radius
  * @return nvShape *
  */
-nvShape *nvCircleShape_new(nvVector2 center, nv_float radius);
+nvShape *nvCircleShape_new(phy_vector2 center, nv_float radius);
 
 /**
  * @brief Create a new convex polygon shape.
@@ -106,9 +106,9 @@ nvShape *nvCircleShape_new(nvVector2 center, nv_float radius);
  * @return nvShape *
  */
 nvShape *nvPolygonShape_new(
-    nvVector2 *vertices,
+    phy_vector2 *vertices,
     size_t num_vertices,
-    nvVector2 offset
+    phy_vector2 offset
 );
 
 /**
@@ -121,7 +121,7 @@ nvShape *nvPolygonShape_new(
  * @param offset Offset to centroid
  * @return nvShape *
  */
-nvShape *nvRectShape_new(nv_float width, nv_float height, nvVector2 offset);
+nvShape *nvRectShape_new(nv_float width, nv_float height, phy_vector2 offset);
 
 /**
  * @brief Create a new polygon shape that is a rectangle.
@@ -145,7 +145,7 @@ nvShape *nvRectShape_new(nv_float width, nv_float height, nvVector2 offset);
  * @param offset Offset to centroid
  * @return nvShape *
  */
-nvShape *nvNGonShape_new(size_t n, nv_float radius, nvVector2 offset);
+nvShape *nvNGonShape_new(size_t n, nv_float radius, phy_vector2 offset);
 
 /**
  * @brief Create a new polygon shape from a convex hull of an array of points.
@@ -159,9 +159,9 @@ nvShape *nvNGonShape_new(size_t n, nv_float radius, nvVector2 offset);
  * @return nvShape * 
  */
 nvShape *nvConvexHullShape_new(
-    nvVector2 *points,
+    phy_vector2 *points,
     size_t num_points,
-    nvVector2 offset,
+    phy_vector2 offset,
     nv_bool center
 );
 
@@ -181,7 +181,7 @@ void nvShape_free(nvShape *shape);
  * @param xform Shape transform
  * @return nvAABB 
  */
-nvAABB nvShape_get_aabb(nvShape *shape, nvTransform xform);
+phy_aabb nvShape_get_aabb(nvShape *shape, nvTransform xform);
 
 /**
  * @brief Calculate mass information of shape.

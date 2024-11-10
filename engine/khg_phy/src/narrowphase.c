@@ -24,9 +24,9 @@
 
 
 static void generate_contact_pair(
-    nvPersistentContactPair *pcp,
-    nvRigidBody *body_a,
-    nvRigidBody *body_b,
+    phy_persistent_contact_pair *pcp,
+    phy_rigid_body *body_a,
+    phy_rigid_body *body_b,
     nvShape *shape_a,
     nvShape *shape_b
 ) {
@@ -80,18 +80,18 @@ static void generate_contact_pair(
 }
 
 
-void nv_narrow_phase(nvSpace *space) {
+void nv_narrow_phase(phy_space *space) {
     NV_TRACY_ZONE_START;
 
     for (size_t i = 0; i < space->broadphase_pairs->current_size; i++) {
         void *pool_i = (char *)space->broadphase_pairs->pool + i * space->broadphase_pairs->chunk_size;
-        nvRigidBody *body_a = ((nvBroadPhasePair *)pool_i)->a;
-        nvRigidBody *body_b = ((nvBroadPhasePair *)pool_i)->b;
+        phy_rigid_body *body_a = ((nvBroadPhasePair *)pool_i)->a;
+        phy_rigid_body *body_b = ((nvBroadPhasePair *)pool_i)->b;
 
         if (!body_a || !body_b) continue;
         
-        nvVector2 com_a = nvVector2_rotate(body_a->com, body_a->angle);
-        nvVector2 com_b = nvVector2_rotate(body_b->com, body_b->angle);
+        phy_vector2 com_a = nvVector2_rotate(body_a->com, body_a->angle);
+        phy_vector2 com_b = nvVector2_rotate(body_b->com, body_b->angle);
 
         for (size_t j = 0; j < body_a->shapes->size; j++) {
             nvShape *shape_a = body_a->shapes->data[j];
@@ -99,11 +99,11 @@ void nv_narrow_phase(nvSpace *space) {
             for (size_t k = 0; k < body_b->shapes->size; k++) {
                 nvShape *shape_b = body_b->shapes->data[k];
 
-                nvPersistentContactPair *old_pcp = nvHashMap_get(space->contacts, &(nvPersistentContactPair){.shape_a=shape_a, .shape_b=shape_b});
+                phy_persistent_contact_pair *old_pcp = phy_hashmap_get(space->contacts, &(phy_persistent_contact_pair){.shape_a=shape_a, .shape_b=shape_b});
                 
                 // Contact already exists, check the collision and update the contact info
                 if (old_pcp) {
-                    nvPersistentContactPair pcp;
+                    phy_persistent_contact_pair pcp;
                     generate_contact_pair(&pcp, body_a, body_b, shape_a, shape_b);
 
                     nvContactEvent persisted_queue[6];
@@ -113,14 +113,14 @@ void nv_narrow_phase(nvSpace *space) {
 
                     // Match contact solver info for warm-starting
                     for (size_t c = 0; c < pcp.contact_count; c++) {
-                        nvContact *contact = &pcp.contacts[c];
+                        phy_contact *contact = &pcp.contacts[c];
 
                         // Contacts relative to center of mass
                         contact->anchor_a = nvVector2_sub(contact->anchor_a, com_a);
                         contact->anchor_b = nvVector2_sub(contact->anchor_b, com_b);
 
                         for (size_t old_c = 0; old_c < old_pcp->contact_count; old_c++) {
-                            nvContact old_contact = old_pcp->contacts[old_c];
+                            phy_contact old_contact = old_pcp->contacts[old_c];
 
                             if (old_contact.id == contact->id) {
                                 contact->is_persisted = true;
@@ -165,7 +165,7 @@ void nv_narrow_phase(nvSpace *space) {
                     // So call removed event callbacks
                     if (pcp.contact_count == 0 && old_pcp->contact_count > 0) {
                         for (size_t old_c = 0; old_c < old_pcp->contact_count; old_c++) {
-                            nvContact *contact = &old_pcp->contacts[old_c];
+                            phy_contact *contact = &old_pcp->contacts[old_c];
 
                             nvContactEvent event = {
                                 .body_a = body_a,
@@ -188,7 +188,7 @@ void nv_narrow_phase(nvSpace *space) {
                         }
                     }
 
-                    nvHashMap_set(space->contacts, &pcp);
+                    phy_hashmap_set(space->contacts, &pcp);
 
                     // Adding events to queue and calling them after setting the hashmap
                     // so the events can remove contacts
@@ -200,22 +200,22 @@ void nv_narrow_phase(nvSpace *space) {
 
                 // Contact doesn't exists, register the new contact info
                 else {
-                    nvPersistentContactPair pcp;
+                    phy_persistent_contact_pair pcp;
                     generate_contact_pair(&pcp, body_a, body_b, shape_a, shape_b);
 
                     for (size_t c = 0; c < pcp.contact_count; c++) {
-                        nvContact *contact = &pcp.contacts[c];
+                        phy_contact *contact = &pcp.contacts[c];
 
                         // Contacts relative to center of mass
                         contact->anchor_a = nvVector2_sub(contact->anchor_a, com_a);
                         contact->anchor_b = nvVector2_sub(contact->anchor_b, com_b);
                     }
 
-                    nvHashMap_set(space->contacts, &pcp);
+                    phy_hashmap_set(space->contacts, &pcp);
 
                     // Event after hashmap set so the event can remove the contact just after
                     for (size_t c = 0; c < pcp.contact_count; c++) {
-                        nvContact *contact = &pcp.contacts[c];
+                        phy_contact *contact = &pcp.contacts[c];
 
                         if (
                             space->listener &&

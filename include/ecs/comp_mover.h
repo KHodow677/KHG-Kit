@@ -6,7 +6,7 @@
 
 typedef struct comp_mover {
   ecs_id id;
-  nvVector2 target;
+  phy_vector2 target;
   float target_vel;
   float max_vel;
   int idle_min_tex_id;
@@ -16,7 +16,7 @@ typedef struct comp_mover {
 } comp_mover;
 
 typedef struct comp_mover_constructor_info {
-  const nvRigidBody *body; 
+  const phy_rigid_body *body; 
   const float target_vel;
   const float max_vel;
   const int idle_min_tex_id;

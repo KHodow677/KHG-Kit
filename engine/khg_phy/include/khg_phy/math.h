@@ -11,8 +11,8 @@
 #ifndef NOVAPHYSICS_MATH_H
 #define NOVAPHYSICS_MATH_H
 
+#include "khg_phy/core/phy_array.h"
 #include "khg_phy/internal.h"
-#include "khg_phy/core/array.h"
 #include "khg_phy/vector.h"
 #include "khg_phy/constants.h"
 
@@ -68,13 +68,13 @@ static inline nv_float nv_fclamp(nv_float value, nv_float min_value, nv_float ma
  * @param rb Vector from body B position to its local anchor point 
  * @return nvVector2 
  */
-static inline nvVector2 nv_calc_relative_velocity(
-    nvVector2 linear_velocity_a,
+static inline phy_vector2 nv_calc_relative_velocity(
+    phy_vector2 linear_velocity_a,
     nv_float angular_velocity_a,
-    nvVector2 ra,
-    nvVector2 linear_velocity_b,
+    phy_vector2 ra,
+    phy_vector2 linear_velocity_b,
     nv_float angular_velocity_b,
-    nvVector2 rb
+    phy_vector2 rb
 ) {
     /*
         Relative velocity
@@ -82,8 +82,8 @@ static inline nvVector2 nv_calc_relative_velocity(
         vᴬᴮ = (vᴮ + wᴮ * r⊥ᴮᴾ) - (vᴬ + wᴬ * r⊥ᴬᴾ)
     */
 
-    nvVector2 ra_perp = nvVector2_perp(ra);
-    nvVector2 rb_perp = nvVector2_perp(rb);
+    phy_vector2 ra_perp = nvVector2_perp(ra);
+    phy_vector2 rb_perp = nvVector2_perp(rb);
 
     return nvVector2_sub(
         nvVector2_add(linear_velocity_b, nvVector2_mul(rb_perp, angular_velocity_b)),
@@ -104,9 +104,9 @@ static inline nvVector2 nv_calc_relative_velocity(
  * @return nv_float 
  */
 static inline nv_float nv_calc_mass_k(
-    nvVector2 normal,
-    nvVector2 ra,
-    nvVector2 rb,
+    phy_vector2 normal,
+    phy_vector2 ra,
+    phy_vector2 rb,
     nv_float invmass_a,
     nv_float invmass_b,
     nv_float invinertia_a,
@@ -120,8 +120,8 @@ static inline nv_float nv_calc_mass_k(
         Mᴬ  Mᴮ      Iᴬ            Iᴮ
     */
 
-    nvVector2 ra_perp = nvVector2_perp(ra);
-    nvVector2 rb_perp = nvVector2_perp(rb);
+    phy_vector2 ra_perp = nvVector2_perp(ra);
+    phy_vector2 rb_perp = nvVector2_perp(rb);
 
     nv_float ran = nvVector2_dot(ra_perp, normal);
     nv_float rbn = nvVector2_dot(rb_perp, normal);
@@ -154,7 +154,7 @@ static inline nv_float nv_circle_area(nv_float radius) {
 static inline nv_float nv_circle_inertia(
     nv_float mass,
     nv_float radius,
-    nvVector2 offset
+    phy_vector2 offset
 ) {
     // Circle inertia from center: 1/2 mr^2
     // The Parallel Axis Theorem: I = Ic + mh^2
@@ -170,7 +170,7 @@ static inline nv_float nv_circle_inertia(
  * @return nv_float 
  */
 static inline nv_float nv_polygon_area(
-    nvVector2 *vertices,
+    phy_vector2 *vertices,
     size_t num_vertices
 ) {
     // https://en.wikipedia.org/wiki/Shoelace_formula
@@ -179,8 +179,8 @@ static inline nv_float nv_polygon_area(
 
     size_t j = num_vertices - 1;
     for (size_t i = 0; i < num_vertices; i++) {
-        nvVector2 va = vertices[i];
-        nvVector2 vb = vertices[j];
+        phy_vector2 va = vertices[i];
+        phy_vector2 vb = vertices[j];
 
         area += (vb.x + va.x) * (vb.y - va.y);
         j = i;
@@ -199,15 +199,15 @@ static inline nv_float nv_polygon_area(
  */
 static inline nv_float nv_polygon_inertia(
     nv_float mass,
-    nvVector2 *vertices,
+    phy_vector2 *vertices,
     size_t num_vertices
 ) {
     nv_float sum1 = 0.0;
     nv_float sum2 = 0.0;
 
     for (size_t i = 0; i < num_vertices; i++) {
-        nvVector2 v1 = vertices[i];
-        nvVector2 v2 = vertices[(i + 1) % num_vertices];
+        phy_vector2 v1 = vertices[i];
+        phy_vector2 v2 = vertices[(i + 1) % num_vertices];
 
         nv_float a = nvVector2_cross(v2, v1);
         nv_float b = nvVector2_dot(v1, v1) +
@@ -228,11 +228,11 @@ static inline nv_float nv_polygon_inertia(
  * @param num_vertices Number of vertices
  * @return nvVector2
  */
-static inline nvVector2 nv_polygon_centroid(
-    nvVector2 *vertices,
+static inline phy_vector2 nv_polygon_centroid(
+    phy_vector2 *vertices,
     size_t num_vertices
 ) {
-    nvVector2 sum = nvVector2_zero;
+    phy_vector2 sum = nvVector2_zero;
 
     for (size_t i = 0; i < num_vertices; i++) {
         sum = nvVector2_add(sum, vertices[i]);
@@ -253,9 +253,9 @@ static inline nvVector2 nv_polygon_centroid(
  * @param vertices Triangle vertices
  * @return int Winding order
  */
-static inline int nv_triangle_winding(nvVector2 vertices[3]) {
-    nvVector2 ba = nvVector2_sub(vertices[1], vertices[0]);
-    nvVector2 ca = nvVector2_sub(vertices[2], vertices[0]);
+static inline int nv_triangle_winding(phy_vector2 vertices[3]) {
+    phy_vector2 ba = nvVector2_sub(vertices[1], vertices[0]);
+    phy_vector2 ca = nvVector2_sub(vertices[2], vertices[0]);
     nv_float z = nvVector2_cross(ba, ca);
 
     if (z < 0.0) return -1;
@@ -264,9 +264,9 @@ static inline int nv_triangle_winding(nvVector2 vertices[3]) {
 }
 
 
-static nvVector2 _convex_hull_pivot;
+static phy_vector2 _convex_hull_pivot;
 
-static int _convex_hull_orientation(nvVector2 p, nvVector2 q, nvVector2 r) {
+static int _convex_hull_orientation(phy_vector2 p, phy_vector2 q, phy_vector2 r) {
     nv_float d = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
 
     if (d == 0.0) return 0;   // Collinear
@@ -274,8 +274,8 @@ static int _convex_hull_orientation(nvVector2 p, nvVector2 q, nvVector2 r) {
 }
 
 static int _convex_hull_cmp(const void *el0, const void *el1) {
-    nvVector2 v0 = *(nvVector2 *)el0;
-    nvVector2 v1 = *(nvVector2 *)el1;
+    phy_vector2 v0 = *(phy_vector2 *)el0;
+    phy_vector2 v1 = *(phy_vector2 *)el1;
 
     int o = _convex_hull_orientation(_convex_hull_pivot, v0, v1);
 
@@ -303,9 +303,9 @@ static int _convex_hull_cmp(const void *el0, const void *el1) {
  * @return size_t Number of output vertices
  */
 static inline size_t nv_generate_convex_hull(
-    nvVector2 *points,
+    phy_vector2 *points,
     size_t num_points,
-    nvVector2 *vertices
+    phy_vector2 *vertices
 ) {
     // This function implements the Graham Scan algorithm
     // https://en.wikipedia.org/wiki/Graham_scan
@@ -314,11 +314,11 @@ static inline size_t nv_generate_convex_hull(
 
     size_t current_min_i = 0;
     nv_float min_y = points[current_min_i].x;
-    nvVector2 pivot;
+    phy_vector2 pivot;
 
     // Find the lowest y-coordinate and leftmost point
     for (size_t i = 0; i < n; i++) {
-        nvVector2 v = points[i];
+        phy_vector2 v = points[i];
 
         if (
             v.y < min_y ||
@@ -330,7 +330,7 @@ static inline size_t nv_generate_convex_hull(
     }
 
     // Swap the pivot with the first point
-    nvVector2 temp = points[0];
+    phy_vector2 temp = points[0];
     points[0] = points[current_min_i];
     points[current_min_i] = temp;
 
@@ -343,19 +343,19 @@ static inline size_t nv_generate_convex_hull(
 
     #else
 
-        nvVector2 tmp_points[n];
+        phy_vector2 tmp_points[n];
 
     #endif
     
     for (size_t i = 0; i < n; i++) {
-        nvVector2 v = points[i];
+        phy_vector2 v = points[i];
         tmp_points[i] = v;
     }
 
-    qsort(&tmp_points[1], n - 1, sizeof(nvVector2), _convex_hull_cmp);
+    qsort(&tmp_points[1], n - 1, sizeof(phy_vector2), _convex_hull_cmp);
 
     for (size_t i = 0; i < n; i++) {
-        nvVector2 *v = &points[i];
+        phy_vector2 *v = &points[i];
         v->x = tmp_points[i].x;
         v->y = tmp_points[i].y;
     }
@@ -366,7 +366,7 @@ static inline size_t nv_generate_convex_hull(
 
     #endif
 
-    nvVector2 *hull = NV_MALLOC(sizeof(nvVector2) * n);
+    phy_vector2 *hull = NV_MALLOC(sizeof(phy_vector2) * n);
     size_t hull_size = 3;
     hull[0] = points[0];
     hull[1] = points[1];
@@ -407,7 +407,7 @@ static inline size_t nv_generate_convex_hull(
  * @brief Transform info struct that is used to pass body transform to collision functions.
  */
 typedef struct {
-    nvVector2 position;
+    phy_vector2 position;
     nv_float angle;
 } nvTransform;
 

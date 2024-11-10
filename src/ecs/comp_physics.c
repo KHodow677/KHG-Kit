@@ -30,8 +30,8 @@ static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void 
   comp_physics *info = ptr;
   const comp_physics_constructor_info *constructor_info = PHYSICS_CONSTRUCTOR_INFO;
   if (info && constructor_info && constructor_info->mode == PHYSICS_BOX) {
-    nvRigidBodyInitializer body_init = nvRigidBodyInitializer_default;
-    body_init.type = nvRigidBodyType_DYNAMIC;
+    phy_rigid_body_initializer body_init = nvRigidBodyInitializer_default;
+    body_init.type = PHY_RIGID_BODY_TYPE_DYNAMIC;
     body_init.position = NV_VECTOR2(0.0, 0.0);
     body_init.material = (nvMaterial){ .density=1.0, .restitution = 0.85, .friction = 0.0 };
     info->body = nvRigidBody_new(body_init);

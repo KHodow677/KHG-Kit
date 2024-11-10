@@ -9,7 +9,9 @@
 */
 
 #include "khg_phy/internal.h"
+#include "khg_utl/error_func.h"
 #include "khg_phy/shape.h"
+#include <math.h>
 
 
 /**
@@ -26,9 +28,11 @@
 static nv_uint32 id_counter;
 
 
-nvShape *nvCircleShape_new(nvVector2 center, nv_float radius) {
+nvShape *nvCircleShape_new(phy_vector2 center, nv_float radius) {
     nvShape *shape = NV_NEW(nvShape);
-    NV_MEM_CHECK(shape);
+    if (!shape) {
+      utl_error_func("Failed to allocate memory", utl_user_defined_data);
+    }
     shape->id = id_counter++;
 
     shape->type = nvShapeType_CIRCLE;
@@ -41,22 +45,24 @@ nvShape *nvCircleShape_new(nvVector2 center, nv_float radius) {
 }
 
 nvShape *nvPolygonShape_new(
-    nvVector2 *vertices,
+    phy_vector2 *vertices,
     size_t num_vertices,
-    nvVector2 offset
+    phy_vector2 offset
 ) {
     if (num_vertices > NV_POLYGON_MAX_VERTICES) {
-        nv_set_error("Exceeds maximum number of vertices per convex polygon shape.");
-        return NULL;
+      utl_error_func("Maximum number of vertices per convex polygon shape exceeded", utl_user_defined_data);
+      return NULL;
     }
 
     if (num_vertices < 3) {
-        nv_set_error("Cannot create a polygon shape with fewer than 3 vertices.");
-        return NULL;
+      utl_error_func("Polygon shape created with fewer than 3 vertices", utl_user_defined_data);
+      return NULL;
     }
 
     nvShape *shape = NV_NEW(nvShape);
-    NV_MEM_CHECK(shape);
+    if (!shape) {
+      utl_error_func("Failed to allocate memory", utl_user_defined_data);
+    }
 
     shape->id = id_counter++;
 
@@ -71,11 +77,11 @@ nvShape *nvPolygonShape_new(
         polygon->xvertices[i] = nvVector2_zero;
 
     for (size_t i = 0; i < num_vertices; i++) {
-        nvVector2 va = polygon->vertices[i];
-        nvVector2 vb = polygon->vertices[(i + 1) % num_vertices];
+        phy_vector2 va = polygon->vertices[i];
+        phy_vector2 vb = polygon->vertices[(i + 1) % num_vertices];
     
-        nvVector2 edge = nvVector2_sub(vb, va);
-        nvVector2 normal = nvVector2_normalize(nvVector2_perpr(edge));
+        phy_vector2 edge = nvVector2_sub(vb, va);
+        phy_vector2 normal = nvVector2_normalize(nvVector2_perpr(edge));
 
         polygon->normals[i] = normal;
     }
@@ -83,11 +89,11 @@ nvShape *nvPolygonShape_new(
     return shape;
 }
 
-nvShape *nvRectShape_new(nv_float width, nv_float height, nvVector2 offset) {
+nvShape *nvRectShape_new(nv_float width, nv_float height, phy_vector2 offset) {
     nv_float w = width / 2.0;
     nv_float h = height / 2.0;
 
-    nvVector2 vertices[4] = {
+    phy_vector2 vertices[4] = {
         NV_VECTOR2(-w, -h),
         NV_VECTOR2( w, -h),
         NV_VECTOR2( w, h),
@@ -97,18 +103,18 @@ nvShape *nvRectShape_new(nv_float width, nv_float height, nvVector2 offset) {
     return nvPolygonShape_new(vertices, 4, offset);
 }
 
-nvShape *nvNGonShape_new(size_t n, nv_float radius, nvVector2 offset) {
+nvShape *nvNGonShape_new(size_t n, nv_float radius, phy_vector2 offset) {
     if (n < 3) {
-        nv_set_error("Cannot create a polygon shape with fewer than 3 vertices.");
+      utl_error_func("Polygon shape created with fewer than 3 vertices", utl_user_defined_data);
         return NULL;
     }
     if (n > NV_POLYGON_MAX_VERTICES) {
-        nv_set_error("Too many polygon vertices (check NV_POLYGON_MAX_VERTICES).");
-        return NULL;
+      utl_error_func("Max polygon vertices exceeded", utl_user_defined_data);
+      return NULL;
     }
 
-    nvVector2 vertices[NV_POLYGON_MAX_VERTICES];
-    nvVector2 arm = NV_VECTOR2(radius, 0.0);
+    phy_vector2 vertices[NV_POLYGON_MAX_VERTICES];
+    phy_vector2 arm = NV_VECTOR2(radius, 0.0);
 
     for (size_t i = 0; i < n; i++) {
         vertices[i] = arm;
@@ -119,21 +125,21 @@ nvShape *nvNGonShape_new(size_t n, nv_float radius, nvVector2 offset) {
 }
 
 nvShape *nvConvexHullShape_new(
-    nvVector2 *points,
+    phy_vector2 *points,
     size_t num_points,
-    nvVector2 offset,
+    phy_vector2 offset,
     nv_bool center
 ){
     if (num_points < 3) {
-        nv_set_error("Cannot create a polygon shape with fewer than 3 vertices.");
-        return NULL;
+      utl_error_func("Polygon shape created with fewer than 3 vertices", utl_user_defined_data);
+      return NULL;
     }
 
-    nvVector2 vertices[NV_POLYGON_MAX_VERTICES];
+    phy_vector2 vertices[NV_POLYGON_MAX_VERTICES];
     size_t num_vertices = nv_generate_convex_hull(points, num_points, vertices);
 
     if (center) {
-        nvVector2 hull_centroid = nv_polygon_centroid(vertices, num_vertices);
+        phy_vector2 hull_centroid = nv_polygon_centroid(vertices, num_vertices);
         for (size_t i = 0; i < num_vertices; i++) {
             vertices[i] = nvVector2_sub(vertices[i], hull_centroid);
         }
@@ -148,7 +154,7 @@ void nvShape_free(nvShape *shape) {
     NV_FREE(shape);
 }
 
-nvAABB nvShape_get_aabb(nvShape *shape, nvTransform xform) {
+phy_aabb nvShape_get_aabb(nvShape *shape, nvTransform xform) {
     NV_TRACY_ZONE_START;
 
     nv_float min_x;
@@ -156,15 +162,15 @@ nvAABB nvShape_get_aabb(nvShape *shape, nvTransform xform) {
     nv_float max_x;
     nv_float max_y;
  
-    nvAABB aabb;
+    phy_aabb aabb;
 
     // TODO: Do not inflate AABBs here.
     nv_float inflate = 0.00;
 
     switch (shape->type) {
         case nvShapeType_CIRCLE: {
-            nvVector2 c = nvVector2_add(nvVector2_rotate(shape->circle.center, xform.angle), xform.position);
-            aabb = (nvAABB){
+            phy_vector2 c = nvVector2_add(nvVector2_rotate(shape->circle.center, xform.angle), xform.position);
+            aabb = (phy_aabb){
                 c.x - shape->circle.radius,
                 c.y - shape->circle.radius,
                 c.x + shape->circle.radius,
@@ -175,29 +181,29 @@ nvAABB nvShape_get_aabb(nvShape *shape, nvTransform xform) {
             return nvAABB_inflate(aabb, inflate);
         }
         case nvShapeType_POLYGON: {
-            min_x = NV_INF;
-            min_y = NV_INF;
-            max_x = -NV_INF;
-            max_y = -NV_INF;
+            min_x = INFINITY;
+            min_y = INFINITY;
+            max_x = -INFINITY;
+            max_y = -INFINITY;
 
             nvPolygon_transform(shape, xform);
 
             for (size_t i = 0; i < shape->polygon.num_vertices; i++) {
-                nvVector2 v = shape->polygon.xvertices[i];
+                phy_vector2 v = shape->polygon.xvertices[i];
                 if (v.x < min_x) min_x = v.x;
                 if (v.x > max_x) max_x = v.x;
                 if (v.y < min_y) min_y = v.y;
                 if (v.y > max_y) max_y = v.y;
             }
 
-            aabb = (nvAABB){min_x, min_y, max_x, max_y};
+            aabb = (phy_aabb){min_x, min_y, max_x, max_y};
 
             NV_TRACY_ZONE_END;
             return nvAABB_inflate(aabb, inflate);
         }
         default:
             NV_TRACY_ZONE_END;
-            return (nvAABB){0.0, 0.0, 0.0, 0.0};
+            return (phy_aabb){0.0, 0.0, 0.0, 0.0};
     }
 }
 
@@ -218,12 +224,12 @@ nvShapeMassInfo nvShape_calculate_mass(nvShape *shape, nv_float density) {
 
             mass = nv_polygon_area(polygon.vertices, polygon.num_vertices) * density;
             inertia = nv_polygon_inertia(mass, polygon.vertices, polygon.num_vertices);
-            nvVector2 centroid = nv_polygon_centroid(polygon.vertices, polygon.num_vertices);
+            phy_vector2 centroid = nv_polygon_centroid(polygon.vertices, polygon.num_vertices);
 
             return (nvShapeMassInfo){mass, inertia, centroid};
         }
         default:
-            nv_set_error("Invalid shape.");
+            utl_error_func("Invalid shape", utl_user_defined_data);
             return (nvShapeMassInfo){-1.0, -1.0, NV_VECTOR2(-1.0, -1.0)};
     }
 }
@@ -232,7 +238,7 @@ void nvPolygon_transform(nvShape *shape, nvTransform xform) {
     NV_TRACY_ZONE_START;
 
     for (size_t i = 0; i < shape->polygon.num_vertices; i++) {
-        nvVector2 new = nvVector2_add(xform.position,
+        phy_vector2 new = nvVector2_add(xform.position,
             nvVector2_rotate(
                 shape->polygon.vertices[i],
                 xform.angle
