@@ -29,8 +29,8 @@ static float ease_in_out(const float t) {
 }
 
 static const bool element_is_at_position(comp_physics *info, const phy_vector2 pos, const float tolerance) {
-  phy_vector2 body_pos = nvRigidBody_get_position(info->body);
-  float pos_diff = nvVector2_dist(pos, body_pos);
+  phy_vector2 body_pos = phy_rigid_body_get_position(info->body);
+  float pos_diff = phy_vector2_dist(pos, body_pos);
   if (pos_diff <= tolerance) {
     return true;
   }
@@ -39,7 +39,7 @@ static const bool element_is_at_position(comp_physics *info, const phy_vector2 p
 
 static void element_set_position(comp_physics *info, const phy_vector2 pos) {
   element_set_speed(info, 0.0f);
-  nvRigidBody_set_position(info->body, pos);
+  phy_rigid_body_set_position(info->body, pos);
 }
 
 static void element_move_to_position_x(comp_physics *info, const float max_vel, const phy_vector2 body_pos, const phy_vector2 target_pos, const float easing_factor) {
@@ -53,7 +53,7 @@ static void element_move_to_position_x(comp_physics *info, const float max_vel, 
 }
 
 static void element_target_position(comp_physics *info, const phy_vector2 pos, const float max_vel) {
-  phy_vector2 body_pos = nvRigidBody_get_position(info->body);
+  phy_vector2 body_pos = phy_rigid_body_get_position(info->body);
   if (element_is_at_position(info, pos, POSITION_TOLERANCE)) {
     element_set_speed(info, 0.0f);
     return;
@@ -79,12 +79,12 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity
     if (p_info->is_moving) {
       a_info->min_tex_id = info->walk_min_tex_id;
       a_info->max_tex_id = info->walk_max_tex_id;
-      r_info->offset = NV_VECTOR2(-16.0f, -8.0f);
+      r_info->offset = phy_vector2_new(-16.0f, -8.0f);
     }
     else {
       a_info->min_tex_id = info->idle_min_tex_id;
       a_info->max_tex_id = info->idle_max_tex_id;
-      r_info->offset = NV_VECTOR2(0.0f, 0.0f);
+      r_info->offset = phy_vector2_new(0.0f, 0.0f);
     }
   }
   return 0;
@@ -94,7 +94,7 @@ static void comp_mover_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *p
   comp_mover *info = ptr;
   const comp_mover_constructor_info *constructor_info = MOVER_CONSTRUCTOR_INFO;
   if (info && constructor_info) {
-    info->target = nvRigidBody_get_position(constructor_info->body);
+    info->target = phy_rigid_body_get_position(constructor_info->body);
     info->target_vel = constructor_info->target_vel;
     info->max_vel = constructor_info->max_vel;
     info->idle_min_tex_id = constructor_info->idle_min_tex_id;

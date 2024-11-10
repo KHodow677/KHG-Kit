@@ -10,6 +10,8 @@
 
 #include "khg_phy/contact.h"
 #include "khg_phy/space.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 
 /**
@@ -19,8 +21,8 @@
  */
 
 
-nv_bool nvPersistentContactPair_penetrating(phy_persistent_contact_pair *pcp) {
-    nv_bool penetrating = false;
+bool phy_persistent_contact_pair_penetrating(phy_persistent_contact_pair *pcp) {
+    bool penetrating = false;
 
     for (size_t c = 0; c < pcp->contact_count; c++) {
         phy_contact contact = pcp->contacts[c];
@@ -34,26 +36,26 @@ nv_bool nvPersistentContactPair_penetrating(phy_persistent_contact_pair *pcp) {
     return penetrating;
 }
 
-nv_uint64 nvPersistentContactPair_hash(void *item) {
+uint64_t phy_persistent_contact_pair_hash(void *item) {
     phy_persistent_contact_pair *pcp = (phy_persistent_contact_pair *)item;
-    return nvPersistentContactPair_key(pcp->shape_a, pcp->shape_b);
+    return phy_persistent_contact_pair_key(pcp->shape_a, pcp->shape_b);
 }
 
-void nvPersistentContactPair_remove(
+void phy_persistent_contact_pair_remove(
     phy_space *space,
     phy_persistent_contact_pair *pcp
 ) {
     for (size_t c = 0; c < pcp->contact_count; c++) {
         phy_contact *contact = &pcp->contacts[c];
 
-        nvContactEvent event = {
+        phy_contact_event event = {
             .body_a = pcp->body_a,
             .body_b = pcp->body_b,
             .shape_a = pcp->shape_a,
             .shape_b = pcp->shape_b,
             .normal = pcp->normal,
             .penetration = contact->separation,
-            .position = nvVector2_add(pcp->body_a->position, contact->anchor_a),
+            .position = phy_vector2_add(pcp->body_a->position, contact->anchor_a),
             .normal_impulse = {contact->solver_info.normal_impulse},
             .friction_impulse = {contact->solver_info.tangent_impulse},
             .id = contact->id

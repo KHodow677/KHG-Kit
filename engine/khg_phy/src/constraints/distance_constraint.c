@@ -11,6 +11,7 @@
 #include "khg_phy/constraints/distance_constraint.h"
 #include "khg_phy/space.h"
 #include "khg_utl/error_func.h"
+#include <stdlib.h>
 
 
 /**
@@ -26,14 +27,14 @@ phy_constraint *phy_distance_constraint_new(phy_distance_constraint_initializer 
       return NULL;
     }
 
-    phy_constraint *cons = NV_NEW(phy_constraint);
+    phy_constraint *cons = malloc(sizeof(phy_constraint));
     if (!cons) {
       utl_error_func("Failed to allocate memory", utl_user_defined_data);
     }
 
     if (!init.a && !init.b) {
       utl_error_func("Both bodies are null", utl_user_defined_data);
-      NV_FREE(cons);
+      free(cons);
       return NULL;
     }
 
@@ -42,10 +43,10 @@ phy_constraint *phy_distance_constraint_new(phy_distance_constraint_initializer 
     cons->type = PHY_CONSTRAINT_TYPE_DISTANCE;
     cons->ignore_collision = false;
 
-    cons->def = NV_NEW(phy_distance_constraint);
+    cons->def = (phy_distance_constraint *)malloc(sizeof(phy_distance_constraint));
     if (!cons->def) {
       utl_error_func("Failed to allocate memory", utl_user_defined_data);
-      NV_FREE(cons);
+      free(cons);
       return NULL; 
     }
     phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
@@ -58,9 +59,9 @@ phy_constraint *phy_distance_constraint_new(phy_distance_constraint_initializer 
     dist_cons->hertz = init.hertz;
     dist_cons->damping = init.damping;
 
-    dist_cons->xanchor_a = nvVector2_zero;
-    dist_cons->xanchor_b = nvVector2_zero;
-    dist_cons->normal = nvVector2_zero;
+    dist_cons->xanchor_a = phy_vector2_zero;
+    dist_cons->xanchor_b = phy_vector2_zero;
+    dist_cons->normal = phy_vector2_zero;
     dist_cons->bias = 0.0;
     dist_cons->mass = 0.0;
     dist_cons->impulse = 0.0;
@@ -115,7 +116,7 @@ void phy_distance_constraint_set_max_force(phy_constraint *cons, float max_force
     dist_cons->max_force = max_force;
 }
 
-nv_float phy_distance_constraint_get_max_force(const phy_constraint *cons) {
+float phy_distance_constraint_get_max_force(const phy_constraint *cons) {
     phy_distance_constraint *dist_cons = (phy_distance_constraint *)cons->def;
     return dist_cons->max_force;
 }
@@ -162,41 +163,41 @@ void phy_distance_constraint_presolve(
 
     // Transformed anchor points
     phy_vector2 rpa, rpb;
-    nv_float invmass_a, invmass_b, invinertia_a, invinertia_b;
+    float invmass_a, invmass_b, invinertia_a, invinertia_b;
 
     // If a body is NULL count them as static bodies
 
     if (!a) {
-        dist_cons->xanchor_a = nvVector2_zero;
+        dist_cons->xanchor_a = phy_vector2_zero;
         rpa = dist_cons->anchor_a;
         invmass_a = invinertia_a = 0.0;
     } else {
-        dist_cons->xanchor_a = nvVector2_rotate(dist_cons->anchor_a, a->angle);
-        rpa = nvVector2_add(dist_cons->xanchor_a, a->position);
+        dist_cons->xanchor_a = phy_vector2_rotate(dist_cons->anchor_a, a->angle);
+        rpa = phy_vector2_add(dist_cons->xanchor_a, a->position);
         invmass_a = a->invmass;
         invinertia_a = a->invinertia;
     }
 
     if (!b) {
-        dist_cons->xanchor_b = nvVector2_zero;
+        dist_cons->xanchor_b = phy_vector2_zero;
         rpb = dist_cons->anchor_b;
         invmass_b = invinertia_b = 0.0;
     } else {
-        dist_cons->xanchor_b = nvVector2_rotate(dist_cons->anchor_b, b->angle);
-        rpb = nvVector2_add(dist_cons->xanchor_b, b->position);
+        dist_cons->xanchor_b = phy_vector2_rotate(dist_cons->anchor_b, b->angle);
+        rpb = phy_vector2_add(dist_cons->xanchor_b, b->position);
         invmass_b = b->invmass;
         invinertia_b = b->invinertia;
     }
 
-    phy_vector2 delta = nvVector2_sub(rpb, rpa);
-    dist_cons->normal = nvVector2_normalize(delta);
-    nv_float offset = nvVector2_len(delta) - dist_cons->length;
+    phy_vector2 delta = phy_vector2_sub(rpb, rpa);
+    dist_cons->normal = phy_vector2_normalize(delta);
+    float offset = phy_vector2_len(delta) - dist_cons->length;
 
     // Baumgarte stabilization bias
     dist_cons->bias = space->settings.baumgarte * inv_dt * offset;
 
     // Constraint effective mass
-    dist_cons->mass = 1.0 / nv_calc_mass_k(
+    dist_cons->mass = 1.0 / phy_calc_mass_k(
         dist_cons->normal,
         dist_cons->xanchor_a, dist_cons->xanchor_b,
         invmass_a, invmass_b,
@@ -211,11 +212,11 @@ void phy_distance_constraint_presolve(
         https://box2d.org/posts/2024/02/solver2d/
     */
     if (dist_cons->spring) {
-        nv_float zeta = dist_cons->damping;
-        nv_float omega = 2.0 * NV_PI * dist_cons->hertz;
-        nv_float a1 = 2.0 * zeta + omega * (1.0 / inv_dt);
-        nv_float a2 = (1.0 / inv_dt) * omega * a1;
-        nv_float a3 = 1.0 / (1.0 + a2);
+        float zeta = dist_cons->damping;
+        float omega = 2.0 * PHY_PI * dist_cons->hertz;
+        float a1 = 2.0 * zeta + omega * (1.0 / inv_dt);
+        float a2 = (1.0 / inv_dt) * omega * a1;
+        float a3 = 1.0 / (1.0 + a2);
         dist_cons->bias_rate = omega / a1;
         dist_cons->mass_coeff = a2 * a3;
         dist_cons->impulse_coeff = a3;
@@ -233,10 +234,10 @@ void phy_distance_constraint_warmstart(phy_space *space, phy_constraint *cons) {
     phy_rigid_body *b = cons->b;
 
     if (space->settings.warmstarting) {
-        phy_vector2 impulse = nvVector2_mul(dist_cons->normal, dist_cons->impulse);
+        phy_vector2 impulse = phy_vector2_mul(dist_cons->normal, dist_cons->impulse);
 
-        if (a) nvRigidBody_apply_impulse(cons->a, nvVector2_neg(impulse), dist_cons->xanchor_a);
-        if (b) nvRigidBody_apply_impulse(cons->b, impulse, dist_cons->xanchor_b);
+        if (a) phy_rigid_body_apply_impulse(cons->a, phy_vector2_neg(impulse), dist_cons->xanchor_a);
+        if (b) phy_rigid_body_apply_impulse(cons->b, impulse, dist_cons->xanchor_b);
     }
     else {
         dist_cons->impulse = 0.0;
@@ -249,10 +250,10 @@ void phy_distance_constraint_solve(phy_constraint *cons) {
     phy_rigid_body *b = cons->b;
 
     phy_vector2 linear_velocity_a, linear_velocity_b;
-    nv_float angular_velocity_a, angular_velocity_b;
+    float angular_velocity_a, angular_velocity_b;
 
     if (!a) {
-        linear_velocity_a = nvVector2_zero;
+        linear_velocity_a = phy_vector2_zero;
         angular_velocity_a = 0.0;
     } else {
         linear_velocity_a = a->linear_velocity;
@@ -260,34 +261,34 @@ void phy_distance_constraint_solve(phy_constraint *cons) {
     }
 
     if (!b) {
-        linear_velocity_b = nvVector2_zero;
+        linear_velocity_b = phy_vector2_zero;
         angular_velocity_b = 0.0;
     } else {
         linear_velocity_b = b->linear_velocity;
         angular_velocity_b = b->angular_velocity;
     }
 
-    phy_vector2 rv = nv_calc_relative_velocity(
+    phy_vector2 rv = phy_calc_relative_velocity(
         linear_velocity_a, angular_velocity_a, dist_cons->xanchor_a,
         linear_velocity_b, angular_velocity_b, dist_cons->xanchor_b
     );
 
-    nv_float vn = nvVector2_dot(rv, dist_cons->normal);
+    float vn = phy_vector2_dot(rv, dist_cons->normal);
 
     // Constraint impulse magnitude
-    nv_float lambda = (dist_cons->bias * dist_cons->bias_rate + vn);
+    float lambda = (dist_cons->bias * dist_cons->bias_rate + vn);
     lambda *= dist_cons->mass * -dist_cons->mass_coeff;
     lambda -= dist_cons->impulse_coeff * dist_cons->impulse;
 
     // Accumulate impulse
-    nv_float limit = dist_cons->max_impulse;
-    nv_float lambda0 = dist_cons->impulse;
-    dist_cons->impulse = nv_fclamp(lambda0 + lambda, -limit, limit);
+    float limit = dist_cons->max_impulse;
+    float lambda0 = dist_cons->impulse;
+    dist_cons->impulse = phy_fclamp(lambda0 + lambda, -limit, limit);
     lambda = dist_cons->impulse - lambda0;
 
-    phy_vector2 impulse = nvVector2_mul(dist_cons->normal, lambda);
+    phy_vector2 impulse = phy_vector2_mul(dist_cons->normal, lambda);
 
     // Apply constraint impulse
-    if (a) nvRigidBody_apply_impulse(a, nvVector2_neg(impulse), dist_cons->xanchor_a);
-    if (b) nvRigidBody_apply_impulse(b, impulse, dist_cons->xanchor_b);
+    if (a) phy_rigid_body_apply_impulse(a, phy_vector2_neg(impulse), dist_cons->xanchor_a);
+    if (b) phy_rigid_body_apply_impulse(b, impulse, dist_cons->xanchor_b);
 }

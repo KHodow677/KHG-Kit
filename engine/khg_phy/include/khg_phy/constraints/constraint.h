@@ -1,6 +1,7 @@
 #pragma once
 
 #include "khg_phy/body.h"
+#include <math.h>
 #include <stdbool.h>
 
 typedef enum {
@@ -23,11 +24,11 @@ static inline float phy_mix_coefficients(float a, float b, phy_coefficient_mix m
     case PHY_COEFFICIENT_MIX_MUL:
       return a * b;
     case PHY_COEFFICIENT_MIX_SQRT:
-      return nv_sqrt(a * b);
+      return sqrtf(a * b);
     case PHY_COEFFICIENT_MIX_MIN:
-      return nv_fmin(a, b);
+      return fminf(a, b);
     case PHY_COEFFICIENT_MIX_MAX:
-      return nv_fmax(a, b);
+      return fmaxf(a, b);
     default:
       return 0.0;
   }
@@ -49,7 +50,7 @@ typedef struct phy_constraint {
 
 void phy_constraint_free(phy_constraint *cons);
 
-void phy_constraint_presolve(struct phy_space *space, phy_constraint *cons, nv_float dt, nv_float inv_dt);
+void phy_constraint_presolve(struct phy_space *space, phy_constraint *cons, float dt, float inv_dt);
 void phy_constraint_warmstart(struct phy_space *space, phy_constraint *cons);
-void phy_constraint_solve(phy_constraint *cons, nv_float inv_dt);
+void phy_constraint_solve(phy_constraint *cons, float inv_dt);
 

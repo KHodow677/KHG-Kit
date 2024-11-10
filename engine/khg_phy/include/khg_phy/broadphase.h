@@ -1,68 +1,25 @@
-/*
+#pragma once
 
-  This file is a part of the Nova Physics Engine
-  project and distributed under the MIT license.
-
-  Copyright © Kadir Aksoy
-  https://github.com/kadir014/nova-physics
-
-*/
-
-#ifndef NOVAPHYSICS_BROADPHASE_H
-#define NOVAPHYSICS_BROADPHASE_H
-
-#include "khg_phy/internal.h"
 #include "khg_phy/body.h"
+#include <stdint.h>
 
+typedef struct phy_broadphase_pair {
+  phy_rigid_body *a;
+  phy_rigid_body *b;
+} phy_broadphase_pair;
 
-/**
- * @file broadphase.h
- * 
- * @brief Broad-phase algorithms.
- */
-
-
-/**
- * @brief Pair of two possibly colliding bodies,
- *        that is going to be used in narrowphase.
- */
-typedef struct {
-    phy_rigid_body *a;
-    phy_rigid_body *b;
-} nvBroadPhasePair;
-
-static inline nv_uint64 nvBroadPhasePair_hash(void *item) {
-    nvBroadPhasePair *pair = (nvBroadPhasePair *)item;
-    return nv_u32pair(pair->a->id, pair->b->id);
+static inline uint64_t phy_broadphase_pair_hash(void *item) {
+  phy_broadphase_pair *pair = (phy_broadphase_pair *)item;
+  return phy_u32_pair(pair->a->id, pair->b->id);
 }
 
-
-/**
- * @brief Algorithm used in broad-phase collision detection.
- */
 typedef enum {
-    nvBroadPhaseAlg_BRUTE_FORCE, /**< Naive brute-force approach.
-                                      Every rigid body is checked against each other. O(n^2)*/
+  PHY_BROADPHASE_ALGORITHM_BRUTE_FORCE,
+  PHY_BROADPHASE_ALGORITHM_BVH
+} phy_broadphase_algorithm;
 
-    nvBroadPhaseAlg_BVH /**< BVH (Bounding Volume Hierarchy) tree. */
-} nvBroadPhaseAlg;
+void phy_broadphase_brute_force(struct phy_space *space);
+void phy_broadphase_BVH(struct phy_space *space);
 
+void phy_broadphase_finalize(struct phy_space *space);
 
-/**
- * @brief Do brute-force broadphase and update pairs.
- * 
- * @param space Space
- */
-void nv_broadphase_brute_force(struct phy_space *space);
-
-/**
- * @brief Do BVH broadphase and update pairs.
- * 
- * @param space 
- */
-void nv_broadphase_BVH(struct phy_space *space);
-
-void nv_broadphase_finalize(struct phy_space *space);
-
-
-#endif

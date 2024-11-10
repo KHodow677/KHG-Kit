@@ -8,11 +8,12 @@
 
 */
 
-#include "khg_phy/internal.h"
 #include "khg_phy/core/phy_hashmap.h"
-#include "khg_phy/constants.h"
-#include "khg_phy/math.h"
+#include "khg_phy/core/phy_constants.h"
 #include "khg_utl/error_func.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
 
 
 /**
@@ -37,11 +38,11 @@ static inline void *_nvHashMap_get_bucket_item(phy_hashmap_bucket *entry) {
     return ((char *)entry) + sizeof(phy_hashmap_bucket);
 }
 
-static inline nv_uint64 _nvHashMap_clip(nv_uint64 hash) {
+static inline uint64_t _nvHashMap_clip(uint64_t hash) {
     return hash & 0xFFFFFFFFFFFF;
 }
 
-static inline nv_bool _nvHashMap_resize(phy_hashmap *hashmap, size_t new_cap) {
+static inline bool _nvHashMap_resize(phy_hashmap *hashmap, size_t new_cap) {
     phy_hashmap *hashmap2 = phy_hashmap_new(hashmap->elsize, new_cap, hashmap->hash_func);
     if (!hashmap2) return false;
 
@@ -70,7 +71,7 @@ static inline nv_bool _nvHashMap_resize(phy_hashmap *hashmap, size_t new_cap) {
         }
     }
 
-    NV_FREE(hashmap->buckets);
+    free(hashmap->buckets);
 
     hashmap->buckets = hashmap2->buckets;
     hashmap->nbuckets = hashmap2->nbuckets;
@@ -78,7 +79,7 @@ static inline nv_bool _nvHashMap_resize(phy_hashmap *hashmap, size_t new_cap) {
     hashmap->growat = hashmap2->growat;
     hashmap->shrinkat = hashmap2->shrinkat;
 
-    NV_FREE(hashmap2);
+    free(hashmap2);
 
     return true;
 }
@@ -87,10 +88,10 @@ static inline nv_bool _nvHashMap_resize(phy_hashmap *hashmap, size_t new_cap) {
 phy_hashmap *phy_hashmap_new(
     size_t item_size,
     size_t cap,
-    nv_uint64 (*hash_func)(void *item)
+    uint64_t (*hash_func)(void *item)
 ) {
     // Capacity must be a power of 2 and higher than the default value.
-    size_t ncap = NV_HASHMAP_CAPACITY;
+    size_t ncap = PHY_HASHMAP_CAPACITY;
     if (cap < ncap) cap = ncap;
     else {
         while (ncap < cap) ncap *= 2;
@@ -103,7 +104,7 @@ phy_hashmap *phy_hashmap_new(
     }
 
     size_t size = sizeof(phy_hashmap)+bucketsz*2;
-    phy_hashmap *hashmap = NV_MALLOC(size);
+    phy_hashmap *hashmap = malloc(size);
     if (!hashmap) {
       utl_error_func("Failed to allocate memory", utl_user_defined_data);
     }
@@ -119,9 +120,9 @@ phy_hashmap *phy_hashmap_new(
     hashmap->nbuckets = cap;
     hashmap->mask = hashmap->nbuckets - 1;
 
-    hashmap->buckets = NV_MALLOC(hashmap->bucketsz * hashmap->nbuckets);
+    hashmap->buckets = malloc(hashmap->bucketsz * hashmap->nbuckets);
     if (!hashmap->buckets) {
-        NV_FREE(hashmap);
+        free(hashmap);
         utl_error_func("Failed to allocate memory", utl_user_defined_data);
         return NULL;
     }
@@ -135,18 +136,17 @@ phy_hashmap *phy_hashmap_new(
 }
 
 void phy_hashmap_free(phy_hashmap *hashmap) {
-    NV_FREE(hashmap->buckets);
-    NV_FREE(hashmap);
+    free(hashmap->buckets);
+    free(hashmap);
 }
 
 void phy_hashmap_clear(phy_hashmap *hashmap) {
-    NV_TRACY_ZONE_START;
 
     hashmap->count = 0;
     if (hashmap->nbuckets != hashmap->cap) {
-        void *new_buckets = NV_MALLOC(hashmap->bucketsz*hashmap->cap);
+        void *new_buckets = malloc(hashmap->bucketsz*hashmap->cap);
         if (new_buckets) {
-            NV_FREE(hashmap->buckets);
+            free(hashmap->buckets);
             hashmap->buckets = new_buckets;
         }
         hashmap->nbuckets = hashmap->cap;
@@ -157,13 +157,11 @@ void phy_hashmap_clear(phy_hashmap *hashmap) {
     hashmap->growat = (size_t)(hashmap->nbuckets * 0.75); // Why does growing factor change?
     hashmap->shrinkat = (size_t)(hashmap->nbuckets * 0.1);
 
-    NV_TRACY_ZONE_END;
 }
 
 void *phy_hashmap_set(phy_hashmap *hashmap, void *item) {
-    NV_TRACY_ZONE_START;
 
-    nv_uint64 hash = _nvHashMap_clip(hashmap->hash_func(item));
+    uint64_t hash = _nvHashMap_clip(hashmap->hash_func(item));
     hash = _nvHashMap_clip(hash);
 
     // Does adding one more entry overflow memory?
@@ -171,7 +169,6 @@ void *phy_hashmap_set(phy_hashmap *hashmap, void *item) {
     if (hashmap->count == hashmap->growat) {
         if (!_nvHashMap_resize(hashmap, hashmap->nbuckets * (1<<hashmap->growpower))) {
             hashmap->oom = true;
-            NV_TRACY_ZONE_END;
             return NULL;
         }
     }
@@ -190,7 +187,6 @@ void *phy_hashmap_set(phy_hashmap *hashmap, void *item) {
         if (bucket->dib == 0) {
             memcpy(bucket, entry, hashmap->bucketsz);
             hashmap->count++;
-            NV_TRACY_ZONE_END;
             return NULL;
         }
 
@@ -199,7 +195,6 @@ void *phy_hashmap_set(phy_hashmap *hashmap, void *item) {
         if (entry->hash == bucket->hash) {
             memcpy(hashmap->spare, bitem, hashmap->elsize);
             memcpy(bitem, eitem, hashmap->elsize);
-            NV_TRACY_ZONE_END;
             return hashmap->spare;
         }
 
@@ -214,13 +209,11 @@ void *phy_hashmap_set(phy_hashmap *hashmap, void *item) {
         entry->dib += 1;
     }
 
-    NV_TRACY_ZONE_END;
 }
 
 void *phy_hashmap_get(phy_hashmap *hashmap, void *key) {
-    NV_TRACY_ZONE_START;
 
-    nv_uint64 hash = _nvHashMap_clip(hashmap->hash_func(key));
+    uint64_t hash = _nvHashMap_clip(hashmap->hash_func(key));
     hash = _nvHashMap_clip(hash);
 
     size_t i = hash & hashmap->mask;
@@ -228,27 +221,23 @@ void *phy_hashmap_get(phy_hashmap *hashmap, void *key) {
         phy_hashmap_bucket *bucket = _nvHashMap_get_bucket_at(hashmap, i);
 
         if (!bucket->dib) {
-            NV_TRACY_ZONE_END;
             return NULL;
         }
 
         if (bucket->hash == hash) {
             void *bitem = _nvHashMap_get_bucket_item(bucket);
             if (bitem != NULL) {
-                NV_TRACY_ZONE_END;
                 return bitem;
             }
         }
 
         i = (i + 1) & hashmap->mask;
     }
-    NV_TRACY_ZONE_END;
 }
 
 void *phy_hashmap_remove(phy_hashmap *hashmap, void *key) {
-    NV_TRACY_ZONE_START;
 
-    nv_uint64 hash = _nvHashMap_clip(hashmap->hash_func(key));
+    uint64_t hash = _nvHashMap_clip(hashmap->hash_func(key));
     hash = _nvHashMap_clip(hash);
 
     hashmap->oom = false;
@@ -257,7 +246,6 @@ void *phy_hashmap_remove(phy_hashmap *hashmap, void *key) {
     while (true) {
         phy_hashmap_bucket *bucket = _nvHashMap_get_bucket_at(hashmap, i);
         if (!bucket->dib) {
-            NV_TRACY_ZONE_END;
             return NULL;
         }
 
@@ -287,22 +275,18 @@ void *phy_hashmap_remove(phy_hashmap *hashmap, void *key) {
                 _nvHashMap_resize(hashmap, hashmap->nbuckets / 2);
             }
 
-            NV_TRACY_ZONE_END;
             return hashmap->spare;
         }
         i = (i + 1) & hashmap->mask;
     }
 
-    NV_TRACY_ZONE_END;
 }
 
 bool phy_hashmap_iter(phy_hashmap *hashmap, size_t *index, void **item) {
-    NV_TRACY_ZONE_START;
 
     phy_hashmap_bucket *bucket;
     do {
         if (*index >= hashmap->nbuckets) {
-            NV_TRACY_ZONE_END;
             return false;
         }
         bucket = _nvHashMap_get_bucket_at(hashmap, *index);
@@ -311,6 +295,5 @@ bool phy_hashmap_iter(phy_hashmap *hashmap, size_t *index, void **item) {
 
     *item = _nvHashMap_get_bucket_item(bucket);
     
-    NV_TRACY_ZONE_END;
     return true;
 }

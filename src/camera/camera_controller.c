@@ -17,10 +17,10 @@ static float camera_get_value_to_clamp_y(const camera *cam, const float val) {
 }
 
 static void camera_move_to_position(camera *cam, const float delta) {
-  const float pos_diff = nvVector2_dist(cam->position, cam->target);
+  const float pos_diff = phy_vector2_dist(cam->position, cam->target);
   const float speed = -fminf(fabsf(pos_diff) * CAM_POSITION_EASING, CAM_MAX_VELOCITY) * delta;
   const float target_ang = normalize_angle(atan2f(cam->position.y - cam->target.y, cam->position.x - cam->target.x));
-  cam->position = nvVector2_add(cam->position, NV_VECTOR2(speed * cosf(target_ang), speed * sinf(target_ang)));
+  cam->position = phy_vector2_add(cam->position, phy_vector2_new(speed * cosf(target_ang), speed * sinf(target_ang)));
 }
 
 static void camera_zoom_to_value(camera *cam, const float delta) {

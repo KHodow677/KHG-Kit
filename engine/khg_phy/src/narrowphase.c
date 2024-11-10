@@ -8,7 +8,6 @@
 
 */
 
-#include "khg_phy/internal.h"
 #include "khg_phy/narrowphase.h"
 #include "khg_phy/space.h"
 #include "khg_phy/math.h"
@@ -27,33 +26,32 @@ static void generate_contact_pair(
     phy_persistent_contact_pair *pcp,
     phy_rigid_body *body_a,
     phy_rigid_body *body_b,
-    nvShape *shape_a,
-    nvShape *shape_b
+    phy_shape *shape_a,
+    phy_shape *shape_b
 ) {
-    NV_TRACY_ZONE_START;
 
-    nvTransform xform_a = {body_a->origin, body_a->angle};
-    nvTransform xform_b = {body_b->origin, body_b->angle};
+    phy_transform xform_a = {body_a->origin, body_a->angle};
+    phy_transform xform_b = {body_b->origin, body_b->angle};
     pcp->contact_count = 0;
 
-    if (shape_a->type == nvShapeType_POLYGON && shape_b->type == nvShapeType_POLYGON) {
-        *pcp = nv_collide_polygon_x_polygon(
+    if (shape_a->type == PHY_SHAPE_TYPE_POLYGON && shape_b->type == PHY_SHAPE_TYPE_POLYGON) {
+        *pcp = phy_collide_polygon_x_polygon(
             shape_a,
             xform_a,
             shape_b,
             xform_b
         );
     }
-    else if (shape_a->type == nvShapeType_CIRCLE && shape_b->type == nvShapeType_CIRCLE) {
-        *pcp = nv_collide_circle_x_circle(
+    else if (shape_a->type == PHY_SHAPE_TYPE_CIRCLE && shape_b->type == PHY_SHAPE_TYPE_CIRCLE) {
+        *pcp = phy_collide_circle_x_circle(
             shape_a,
             xform_a,
             shape_b,
             xform_b
         );
     }
-    else if (shape_a->type == nvShapeType_CIRCLE && shape_b->type == nvShapeType_POLYGON) {
-        *pcp = nv_collide_polygon_x_circle(
+    else if (shape_a->type == PHY_SHAPE_TYPE_CIRCLE && shape_b->type == PHY_SHAPE_TYPE_POLYGON) {
+        *pcp = phy_collide_polygon_x_circle(
             shape_b,
             xform_b,
             shape_a,
@@ -61,8 +59,8 @@ static void generate_contact_pair(
             true
         );
     }
-    else if (shape_a->type == nvShapeType_POLYGON && shape_b->type == nvShapeType_CIRCLE) {
-        *pcp = nv_collide_polygon_x_circle(
+    else if (shape_a->type == PHY_SHAPE_TYPE_POLYGON && shape_b->type == PHY_SHAPE_TYPE_CIRCLE) {
+        *pcp = phy_collide_polygon_x_circle(
             shape_a,
             xform_a,
             shape_b,
@@ -76,28 +74,26 @@ static void generate_contact_pair(
     pcp->shape_a = shape_a;
     pcp->shape_b = shape_b;
 
-    NV_TRACY_ZONE_END;
 }
 
 
-void nv_narrow_phase(phy_space *space) {
-    NV_TRACY_ZONE_START;
+void phy_narrow_phase(phy_space *space) {
 
     for (size_t i = 0; i < space->broadphase_pairs->current_size; i++) {
         void *pool_i = (char *)space->broadphase_pairs->pool + i * space->broadphase_pairs->chunk_size;
-        phy_rigid_body *body_a = ((nvBroadPhasePair *)pool_i)->a;
-        phy_rigid_body *body_b = ((nvBroadPhasePair *)pool_i)->b;
+        phy_rigid_body *body_a = ((phy_broadphase_pair *)pool_i)->a;
+        phy_rigid_body *body_b = ((phy_broadphase_pair *)pool_i)->b;
 
         if (!body_a || !body_b) continue;
         
-        phy_vector2 com_a = nvVector2_rotate(body_a->com, body_a->angle);
-        phy_vector2 com_b = nvVector2_rotate(body_b->com, body_b->angle);
+        phy_vector2 com_a = phy_vector2_rotate(body_a->com, body_a->angle);
+        phy_vector2 com_b = phy_vector2_rotate(body_b->com, body_b->angle);
 
         for (size_t j = 0; j < body_a->shapes->size; j++) {
-            nvShape *shape_a = body_a->shapes->data[j];
+            phy_shape *shape_a = body_a->shapes->data[j];
 
             for (size_t k = 0; k < body_b->shapes->size; k++) {
-                nvShape *shape_b = body_b->shapes->data[k];
+                phy_shape *shape_b = body_b->shapes->data[k];
 
                 phy_persistent_contact_pair *old_pcp = phy_hashmap_get(space->contacts, &(phy_persistent_contact_pair){.shape_a=shape_a, .shape_b=shape_b});
                 
@@ -106,8 +102,8 @@ void nv_narrow_phase(phy_space *space) {
                     phy_persistent_contact_pair pcp;
                     generate_contact_pair(&pcp, body_a, body_b, shape_a, shape_b);
 
-                    nvContactEvent persisted_queue[6];
-                    nvContactEvent removed_queue[6];
+                    phy_contact_event persisted_queue[6];
+                    phy_contact_event removed_queue[6];
                     size_t persisted_queue_size = 0;
                     size_t removed_queue_size = 0;
 
@@ -116,8 +112,8 @@ void nv_narrow_phase(phy_space *space) {
                         phy_contact *contact = &pcp.contacts[c];
 
                         // Contacts relative to center of mass
-                        contact->anchor_a = nvVector2_sub(contact->anchor_a, com_a);
-                        contact->anchor_b = nvVector2_sub(contact->anchor_b, com_b);
+                        contact->anchor_a = phy_vector2_sub(contact->anchor_a, com_a);
+                        contact->anchor_b = phy_vector2_sub(contact->anchor_b, com_b);
 
                         for (size_t old_c = 0; old_c < old_pcp->contact_count; old_c++) {
                             phy_contact old_contact = old_pcp->contacts[old_c];
@@ -130,14 +126,14 @@ void nv_narrow_phase(phy_space *space) {
                                     contact->solver_info = old_contact.solver_info;
 
                                 if (space->listener) {
-                                    nvContactEvent event = {
+                                    phy_contact_event event = {
                                         .body_a = body_a,
                                         .body_b = body_b,
                                         .shape_a = shape_a,
                                         .shape_b = shape_b,
                                         .normal = pcp.normal,
                                         .penetration = contact->separation,
-                                        .position = nvVector2_add(body_a->position, contact->anchor_a),
+                                        .position = phy_vector2_add(body_a->position, contact->anchor_a),
                                         .normal_impulse = {contact->solver_info.normal_impulse},
                                         .friction_impulse = {contact->solver_info.tangent_impulse},
                                         .id = contact->id
@@ -167,14 +163,14 @@ void nv_narrow_phase(phy_space *space) {
                         for (size_t old_c = 0; old_c < old_pcp->contact_count; old_c++) {
                             phy_contact *contact = &old_pcp->contacts[old_c];
 
-                            nvContactEvent event = {
+                            phy_contact_event event = {
                                 .body_a = body_a,
                                 .body_b = body_b,
                                 .shape_a = shape_a,
                                 .shape_b = shape_b,
                                 .normal = pcp.normal,
                                 .penetration = contact->separation,
-                                .position = nvVector2_add(body_a->position, contact->anchor_a),
+                                .position = phy_vector2_add(body_a->position, contact->anchor_a),
                                 .normal_impulse = {contact->solver_info.normal_impulse},
                                 .friction_impulse = {contact->solver_info.tangent_impulse},
                                 .id = contact->id
@@ -207,8 +203,8 @@ void nv_narrow_phase(phy_space *space) {
                         phy_contact *contact = &pcp.contacts[c];
 
                         // Contacts relative to center of mass
-                        contact->anchor_a = nvVector2_sub(contact->anchor_a, com_a);
-                        contact->anchor_b = nvVector2_sub(contact->anchor_b, com_b);
+                        contact->anchor_a = phy_vector2_sub(contact->anchor_a, com_a);
+                        contact->anchor_b = phy_vector2_sub(contact->anchor_b, com_b);
                     }
 
                     phy_hashmap_set(space->contacts, &pcp);
@@ -222,14 +218,14 @@ void nv_narrow_phase(phy_space *space) {
                             space->listener->on_contact_added &&
                             contact->separation < 0.0
                         ) {
-                            nvContactEvent event = {
+                            phy_contact_event event = {
                                 .body_a = body_a,
                                 .body_b = body_b,
                                 .shape_a = shape_a,
                                 .shape_b = shape_b,
                                 .normal = pcp.normal,
                                 .penetration = contact->separation,
-                                .position = nvVector2_add(body_a->position, contact->anchor_a),
+                                .position = phy_vector2_add(body_a->position, contact->anchor_a),
                                 .normal_impulse = {contact->solver_info.normal_impulse},
                                 .friction_impulse = {contact->solver_info.tangent_impulse},
                                 .id = contact->id
@@ -242,5 +238,4 @@ void nv_narrow_phase(phy_space *space) {
         }
     }
 
-    NV_TRACY_ZONE_END;
 }

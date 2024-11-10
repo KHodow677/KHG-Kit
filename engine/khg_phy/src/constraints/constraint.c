@@ -8,7 +8,6 @@
 
 */
 
-#include "khg_phy/internal.h"
 #include "khg_phy/constraints/constraint.h"
 #include "khg_phy/space.h"
 #include "khg_phy/constraints/distance_constraint.h"
@@ -26,15 +25,15 @@
 void phy_constraint_free(phy_constraint *cons) {
     if (!cons) return;
 
-    NV_FREE(cons->def);
-    NV_FREE(cons);
+    free(cons->def);
+    free(cons);
 }
 
 void phy_constraint_presolve(
     phy_space *space,
     phy_constraint *cons,
-    nv_float dt,
-    nv_float inv_dt
+    float dt,
+    float inv_dt
 ) {
     switch (cons->type) {
         case PHY_CONSTRAINT_TYPE_DISTANCE:
@@ -67,7 +66,7 @@ void phy_constraint_warmstart(phy_space *space, phy_constraint *cons) {
     }
 }
 
-void phy_constraint_solve(phy_constraint *cons, nv_float inv_dt) {
+void phy_constraint_solve(phy_constraint *cons, float inv_dt) {
     switch (cons->type) {
         case PHY_CONSTRAINT_TYPE_DISTANCE:
             phy_distance_constraint_solve(cons);

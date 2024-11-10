@@ -22,9 +22,9 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       if (layer != info->render_layer) {
         continue;
       }
-      phy_vector2 pos = nvVector2_add(nvRigidBody_get_position(info->body), info->offset);
-      phy_vector2 cam_pos = NV_VECTOR2(CAMERA.position.x, CAMERA.position.y);
-      const float angle = nvRigidBody_get_angle(info->body);
+      phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
+      phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
+      const float angle = phy_rigid_body_get_angle(info->body);
       const gfx_texture tex_ref = get_or_add_texture(info->tex_id);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element(LETTERBOX, &pos, &cam_pos, &tex);
@@ -43,7 +43,7 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
     info->render_layer = constructor_info->render_layer;
     info->parallax_value = constructor_info->parallax_value;
     info->flipped = constructor_info->flipped;
-    info->offset = NV_VECTOR2(0.0f, 0.0f);
+    info->offset = phy_vector2_new(0.0f, 0.0f);
   }
 }
 

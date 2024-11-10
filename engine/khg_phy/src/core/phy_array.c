@@ -9,9 +9,8 @@
 */
 
 #include "khg_phy/core/phy_array.h"
-#include "khg_phy/internal.h"
 #include "khg_utl/error_func.h"
-
+#include <stdlib.h>
 
 /**
  * @file core/array.c
@@ -21,15 +20,15 @@
 
 
 phy_array *phy_array_new() {
-  phy_array *array = NV_NEW(phy_array);
+  phy_array *array = malloc(sizeof(phy_array));
   if (!array) {
     utl_error_func("Failed to allocate memory", utl_user_defined_data);
   }
   array->size = 0;
   array->max = 1;
   array->growth_factor = 2.0;
-  array->data = (void **)NV_MALLOC(sizeof(void *));
-  if (!array->data) NV_FREE(array);
+  array->data = (void **)malloc(sizeof(void *));
+  if (!array->data) free(array);
   if (!array->data) {
     utl_error_func("Failed to allocate memory", utl_user_defined_data);
   }
@@ -37,7 +36,7 @@ phy_array *phy_array_new() {
 }
 
 phy_array *phy_array_new_ex(size_t default_capacity, float growth_factor) {
-    phy_array *array = NV_NEW(phy_array);
+    phy_array *array = malloc(sizeof(phy_array));
     if (!array) {
       utl_error_func("Failed to allocate memory", utl_user_defined_data);
     }
@@ -45,8 +44,8 @@ phy_array *phy_array_new_ex(size_t default_capacity, float growth_factor) {
     array->size = 0;
     array->max = default_capacity;
     array->growth_factor = growth_factor;
-    array->data = (void **)NV_MALLOC(sizeof(void *) * default_capacity);
-    if (!array->data) NV_FREE(array);
+    array->data = (void **)malloc(sizeof(void *) * default_capacity);
+    if (!array->data) free(array);
     if (!array->data) {
       utl_error_func("Failed to allocate memory", utl_user_defined_data);
     }
@@ -57,8 +56,8 @@ phy_array *phy_array_new_ex(size_t default_capacity, float growth_factor) {
 void phy_array_free(phy_array *array) {
     if (!array) return;
 
-    NV_FREE(array->data);
-    NV_FREE(array);
+    free(array->data);
+    free(array);
 }
 
 void phy_array_free_each(phy_array *array, phy_array_free_each_callback free_func) {
@@ -71,7 +70,7 @@ int phy_array_add(phy_array *array, void *elem) {
     if (array->size == array->max) {
         array->size++;
         array->max = (size_t)((float)array->max * array->growth_factor);
-        array->data = NV_REALLOC(array->data, array->max * sizeof(void *));
+        array->data = realloc(array->data, array->max * sizeof(void *));
         if (!array->data) {
           utl_error_func("Failed to allocate memory", utl_user_defined_data);
         }

@@ -101,7 +101,7 @@ const bool gfx_loop(const float delta) {
     ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
-    nvSpace_step(SPACE, delta);
+    phy_space_step(SPACE, delta);
     gfx_div_end();
     state.current_div.scrollable = false;
   }

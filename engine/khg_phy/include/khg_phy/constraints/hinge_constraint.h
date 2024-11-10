@@ -37,7 +37,7 @@ typedef struct phy_hinge_constraint_initializer {
   float max_force;
 } phy_hinge_constraint_initializer;
 
-static const phy_hinge_constraint_initializer phy_hinge_constraint_initializer_default = { NULL, NULL, { 0.0, 0.0 }, false, NV_PI * 0.5, -NV_PI * 0.5, INFINITY };
+static const phy_hinge_constraint_initializer phy_hinge_constraint_initializer_default = { NULL, NULL, { 0.0, 0.0 }, false, PHY_PI * 0.5, -PHY_PI * 0.5, INFINITY };
 
 phy_constraint *phy_hinge_constraint_new(phy_hinge_constraint_initializer init);
 
@@ -60,5 +60,5 @@ float phy_hinge_constraint_get_max_force(const phy_constraint *cons);
 
 void phy_hinge_constraint_presolve(struct phy_space *space, phy_constraint *cons, float dt, float inv_dt);
 void phy_hinge_constraint_warmstart(struct phy_space *space, phy_constraint *cons);
-void phy_hinge_constraint_solve(phy_constraint *cons, nv_float inv_dt);
+void phy_hinge_constraint_solve(phy_constraint *cons, float inv_dt);
 

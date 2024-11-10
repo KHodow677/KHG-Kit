@@ -9,7 +9,7 @@ extern phy_space *SPACE;
 
 typedef struct segment {
   phy_rigid_body *seg_body;
-  nvShape *seg_shape;
+  phy_shape *seg_shape;
 } segment;
 
 void physics_setup(const phy_vector2 grav);

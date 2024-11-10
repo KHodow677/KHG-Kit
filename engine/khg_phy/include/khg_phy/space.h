@@ -1,277 +1,58 @@
-/*
+#pragma once
 
-  This file is a part of the Nova Physics Engine
-  project and distributed under the MIT license.
-
-  Copyright © Kadir Aksoy
-  https://github.com/kadir014/nova-physics
-
-*/
-
-#ifndef NOVAPHYSICS_SPACE_H
-#define NOVAPHYSICS_SPACE_H
-
+#include "khg_phy/body.h"
+#include "khg_phy/broadphase.h"
 #include "khg_phy/collision.h"
-#include "khg_phy/internal.h"
+#include "khg_phy/contact.h"
+#include "khg_phy/space_settings.h"
+#include "khg_phy/constraints/constraint.h"
 #include "khg_phy/core/phy_array.h"
 #include "khg_phy/core/phy_hashmap.h"
 #include "khg_phy/core/phy_pool.h"
-#include "khg_phy/body.h"
-#include "khg_phy/broadphase.h"
-#include "khg_phy/contact.h"
-#include "khg_phy/constraints/constraint.h"
-#include "khg_phy/collision.h"
-#include "khg_phy/profiler.h"
-#include "khg_phy/space_settings.h"
+#include <stdbool.h>
+#include <stdint.h>
 
-
-/**
- * @file space.h
- * 
- * @brief Space struct and its methods.
- */
-
-
-/**
- * @brief Space struct.
- * 
- * A space is the core of the physics simulation.
- * It manages and simulates all bodies, constraints and collisions.
- */
 typedef struct phy_space {
-    /*
-        Private members
-    */
-    phy_array *bodies;
-    phy_array *constraints;
-    phy_hashmap *contacts;
-    phy_hashmap *removed_contacts;
-    phy_memory_pool *broadphase_pairs;
-    phy_array *bvh_traversed;
-    nv_uint32 id_counter;
-
-    /*
-        Public members (setters & getters)
-    */
-    phy_vector2 gravity;
-    nvSpaceSettings settings;
-    nvBroadPhaseAlg broadphase_algorithm;
-
-    nvContactListener *listener;
-    void *listener_arg;
-
-    nvProfiler profiler;
+  phy_array *bodies;
+  phy_array *constraints;
+  phy_hashmap *contacts;
+  phy_hashmap *removed_contacts;
+  phy_memory_pool *broadphase_pairs;
+  phy_array *bvh_traversed;
+  uint32_t id_counter;
+  phy_vector2 gravity;
+  phy_space_settings settings;
+  phy_broadphase_algorithm broadphase_algorithm;
+  phy_contact_listener *listener;
+  void *listener_arg;
 } phy_space;
 
-/**
- * @brief Create new space instance.
- * 
- * Returns `NULL` on error. Use @ref nv_get_error to get more information.
- * 
- * @return nvSpace * 
- */
-phy_space *nvSpace_new();
+phy_space *phy_space_new();
+void phy_space_free(phy_space *space);
 
-/**
- * @brief Free space.
- * 
- * It's safe to pass `NULL` to this function.
- * 
- * @param space Space to free
- */
-void nvSpace_free(phy_space *space);
+void phy_space_set_gravity(phy_space *space, phy_vector2 gravity);
+phy_vector2 phy_space_get_gravity(const phy_space *space);
 
-/**
- * @brief Set global gravity vector.
- * 
- * @param space Space
- * @param gravity Gravity vector
- */
-void nvSpace_set_gravity(phy_space *space, phy_vector2 gravity);
+void phy_space_set_broadphase(phy_space *space, phy_broadphase_algorithm broadphase_alg_type);
+phy_broadphase_algorithm phy_space_get_broadphase(const phy_space *space);
 
-/**
- * @brief Get global gravity vector.
- * 
- * @param space Space
- * @return nvVector2 Gravity vector
- */
-phy_vector2 nvSpace_get_gravity(const phy_space *space);
+phy_space_settings *phy_space_get_settings(phy_space *space);
 
-/**
- * @brief Set the current broadphase algorithm.
- * 
- * Broadphase is where we check for possible collided pairs of bodies. Quickly
- * determining those pairs is important for efficiency before narrowphase.
- * 
- * @param space Space
- * @param broadphase_type Broadphase algorithm
- */
-void nvSpace_set_broadphase(phy_space *space, nvBroadPhaseAlg broadphase_alg_type);
+int phy_space_set_contact_listener(phy_space *space, phy_contact_listener listener, void *user_arg);
+phy_contact_listener *phy_space_get_contact_listener(const phy_space *space);
 
-/**
- * @brief Get the current broadphase algorithm.
- * 
- * @param space Space
- * @return nvBroadPhaseAlg 
- */
-nvBroadPhaseAlg nvSpace_get_broadphase(const phy_space *space);
+int phy_space_clear(phy_space *space, bool free_all);
 
-/**
- * @brief Get the current simulation settings struct.
- * 
- * This returns a pointer to the current settings. So you can directly modify it.
- * 
- * @param space Space
- * @return nvSpaceSettings *
- */
-nvSpaceSettings *nvSpace_get_settings(phy_space *space);
+int phy_space_add_rigidbody(phy_space *space, phy_rigid_body *body);
+int phy_space_remove_rigidbody(phy_space *space, phy_rigid_body *body);
 
-/**
- * @brief Get profiler of space.
- * 
- * @param space Space
- * @return nvProfiler 
- */
-nvProfiler nvSpace_get_profiler(const phy_space *space);
+int phy_space_add_constraint(phy_space *space, phy_constraint *cons);
+int phy_space_remove_constraint(phy_space *space, phy_constraint *cons);
 
-/**
- * @brief Set the current contact event listener.
- * 
- * Space allocates using the functions provided by listener param.
- * 
- * Returns non-zero on error. Use @ref nv_get_error to get more information.
- * 
- * @param space Space
- * @param listener Contact event listener
- * @param user_arg User argument
- */
-int nvSpace_set_contact_listener(
-    phy_space *space,
-    nvContactListener listener,
-    void *user_arg
-);
+bool phy_space_iter_bodies(phy_space *space, phy_rigid_body **body, size_t *index);
+bool phy_space_iter_constraints(phy_space *space, phy_constraint **cons, size_t *index);
 
-/**
- * @brief Get the current contact event listener.
- * 
- * @param space Space
- * @return nvContactListener * 
- */
-nvContactListener *nvSpace_get_contact_listener(const phy_space *space);
+void phy_space_step(phy_space *space, float dt);
 
-/**
- * @brief Clear bodies and constraints in space.
- * 
- * Returns non-zero on error. Use @ref nv_get_error to get more information.
- * 
- * @param space Space
- * @param free_all Whether to free objects after removing them from space
- * @return int Status
- */
-int nvSpace_clear(phy_space *space, nv_bool free_all);
+void phy_space_cast_ray(phy_space *space, phy_vector2 from, phy_vector2 to, phy_raycast_result *results_array, size_t *num_hits, size_t capacity);
 
-/**
- * @brief Add body to space.
- * 
- * Returns non-zero on error. Use @ref nv_get_error to get more information.
- * 
- * @param space Space
- * @param body Body to add
- * @return int Status
- */
-int nvSpace_add_rigidbody(phy_space *space, phy_rigid_body *body);
-
-/**
- * @brief Remove body from the space.
- * 
- * After removing the body, managing it's memory belongs to user. You should
- * use @ref nvRigidBody_free if you are not going to add it to the space again.
- * 
- * This function also removes any constraints attached to the body.
- * 
- * Returns non-zero on error. Use @ref nv_get_error to get more information.
- * 
- * @param space Space
- * @param body Body to remove
- * @return int Status
- */
-int nvSpace_remove_rigidbody(phy_space *space, phy_rigid_body *body);
-
-/**
- * @brief Add constraint to space.
- * 
- * Returns non-zero on error. Use @ref nv_get_error to get more information.
- * 
- * @param space Space
- * @param cons Constraint to add
- * @return int Status
- */
-int nvSpace_add_constraint(phy_space *space, phy_constraint *cons);
-
-/**
- * @brief Remove constraint from the space.
- * 
- * After removing the constraint managing it's memory belongs to user. You should
- * use @ref nvConstraint_free if you are not going to add it to the space again.
- * 
- * Returns non-zero on error. Use @ref nv_get_error to get more information.
- * 
- * @param space Space
- * @param cons Constraint to remove
- * @return int 
- */
-int nvSpace_remove_constraint(phy_space *space, phy_constraint *cons);
-
-/**
- * @brief Iterate over the rigid bodies in this space.
- * 
- * Make sure to reset the index if you alter the space in any way while iterating.
- * 
- * @param space Space
- * @param body Pointer to rigid body
- * @param index Pointer to iteration index
- * @return nv_bool 
- */
-nv_bool nvSpace_iter_bodies(phy_space *space, phy_rigid_body **body, size_t *index);
-
-/**
- * @brief Iterate over the constraints in this space.
- * 
- * Make sure to reset the index if you alter the space in any way while iterating.
- * 
- * @param space Space
- * @param cons Pointer to constraint
- * @param index Pointer to iteration index
- * @return nv_bool 
- */
-nv_bool nvSpace_iter_constraints(phy_space *space, phy_constraint **cons, size_t *index);
-
-/**
- * @brief Advance the simulation.
- * 
- * @param space Space instance
- * @param dt Time step size (delta time)
- */
-void nvSpace_step(phy_space *space, nv_float dt);
-
-/**
- * @brief Cast a ray in space and collect intersections.
- * 
- * @param space Space
- * @param from Starting position of ray in world space
- * @param to End position of ray in world space
- * @param results_array Array of ray cast result structs to be filled
- * @param num_hits Number of hits (size of results array)
- * @param capacity Size allocated for the results array
- */
-void nvSpace_cast_ray(
-    phy_space *space,
-    phy_vector2 from,
-    phy_vector2 to,
-    nvRayCastResult *results_array,
-    size_t *num_hits,
-    size_t capacity
-);
-
-
-#endif
