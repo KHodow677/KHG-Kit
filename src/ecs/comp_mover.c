@@ -6,7 +6,7 @@
 #include "io/key_controller.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 #include <stdio.h>
 
 static const float POSITION_TOLERANCE = 10.0f;

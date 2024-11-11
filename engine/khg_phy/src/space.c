@@ -17,7 +17,7 @@
 #include "khg_phy/math.h"
 #include "khg_phy/narrowphase.h"
 #include "khg_phy/constraints/contact_constraint.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 #include "khg_utl/error_func.h"
 #include <stdint.h>
 #include <stdlib.h>

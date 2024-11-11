@@ -1,6 +1,6 @@
 #pragma once
 
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 
 typedef struct camera {
   phy_vector2 position;

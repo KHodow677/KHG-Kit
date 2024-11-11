@@ -9,7 +9,7 @@
 #include "scene/scenes/main/light_builder.h"
 #include "scene/scenes/main/player_builder.h"
 #include "scene/scenes/main/zone_builder.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 #include "khg_stm/state_machine.h"
 
 void load_main_scene(void *old_state_data, stm_event *event, void *new_state_data) {

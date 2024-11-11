@@ -3,8 +3,8 @@
 #include "khg_phy/aabb.h"
 #include "khg_phy/material.h"
 #include "khg_phy/shape.h"
-#include "khg_phy/vector.h"
 #include "khg_phy/core/phy_array.h"
+#include "khg_phy/core/phy_vector.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>

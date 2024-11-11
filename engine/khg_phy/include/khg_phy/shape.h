@@ -2,7 +2,7 @@
 
 #include "khg_phy/aabb.h"
 #include "khg_phy/math.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 #include <stdbool.h>
 #include <stdint.h>
 

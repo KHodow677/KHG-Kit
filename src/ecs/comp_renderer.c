@@ -8,7 +8,7 @@
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/body.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
 ecs_id RENDERER_SYSTEM_SIGNATURE;

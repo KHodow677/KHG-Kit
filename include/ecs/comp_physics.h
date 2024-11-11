@@ -3,7 +3,7 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/shape.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 
 typedef struct {
   ecs_id id;

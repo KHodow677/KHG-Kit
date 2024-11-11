@@ -1,8 +1,8 @@
 #pragma once
 
-#include "khg_phy/vector.h"
 #include "khg_phy/shape.h"
 #include "khg_phy/body.h"
+#include "khg_phy/core/phy_vector.h"
 #include <stdbool.h>
 #include <stdint.h>
 

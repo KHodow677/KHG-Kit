@@ -4,7 +4,7 @@
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 #include <stdbool.h>
 
 void build_animal(const int min_tex_id, const int max_tex_id, const float x, const float y, const int render_layer) {

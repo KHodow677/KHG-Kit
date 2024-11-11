@@ -1,8 +1,8 @@
 #include "physics/physics.h"
 #include "khg_phy/body.h"
-#include "khg_phy/vector.h"
 #include "khg_phy/shape.h"
 #include "khg_phy/space.h"
+#include "khg_phy/core/phy_vector.h"
 
 phy_space *SPACE = NULL;
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "khg_gfx/elements.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 
 extern gfx_aabb LETTERBOX;
 

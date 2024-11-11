@@ -3,7 +3,7 @@
 #include "ecs/comp_physics.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 
 void build_light(const float x, const float y, const float light_radius) {
   const ecs_id entity = ecs_create(ECS);

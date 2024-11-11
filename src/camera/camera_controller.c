@@ -3,7 +3,7 @@
 #include "camera/camera.h"
 #include "utility/math_utl.h"
 #include "khg_gfx/elements.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 #include <math.h>
 
 static float camera_get_value_to_clamp_x(const camera *cam, const float val) {

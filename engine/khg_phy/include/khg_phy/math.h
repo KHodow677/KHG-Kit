@@ -1,7 +1,7 @@
 #pragma once
 
-#include "khg_phy/vector.h"
 #include "khg_phy/core/phy_constants.h"
+#include "khg_phy/core/phy_vector.h"
 #include <math.h>
 #include <stdlib.h>
 #include <stdint.h>

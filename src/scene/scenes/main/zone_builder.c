@@ -4,7 +4,7 @@
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 
 void build_zone(const phy_rigid_body *player_body, const int min_x, const int max_x) {
   const ecs_id entity = ecs_create(ECS);

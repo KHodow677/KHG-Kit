@@ -5,7 +5,7 @@
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/vector.h"
+#include "khg_phy/core/phy_vector.h"
 #include "resources/texture_loader.h"
 
 player_info PLAYER_INFO = { 0 };
