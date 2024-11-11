@@ -287,7 +287,7 @@ void phy_space_step(phy_space *space, float dt) {
                 break;
 
             case PHY_BROADPHASE_ALGORITHM_BVH:
-                phy_broadphase_BVH(space);
+                phy_broadphase_bvh(space);
                 break;
         }
 

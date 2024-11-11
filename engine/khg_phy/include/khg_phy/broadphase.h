@@ -19,7 +19,7 @@ typedef enum {
 } phy_broadphase_algorithm;
 
 void phy_broadphase_brute_force(struct phy_space *space);
-void phy_broadphase_BVH(struct phy_space *space);
+void phy_broadphase_bvh(struct phy_space *space);
 
 void phy_broadphase_finalize(struct phy_space *space);
 
