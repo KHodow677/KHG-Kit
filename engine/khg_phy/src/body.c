@@ -1,11 +1,11 @@
-#include <stdint.h>
-#include <stdlib.h>
 #include "khg_phy/body.h"
-#include "khg_phy/core/phy_array.h"
-#include "khg_phy/math.h"
 #include "khg_phy/aabb.h"
+#include "khg_phy/math.h"
 #include "khg_phy/space.h"
+#include "khg_phy/core/phy_array.h"
 #include "khg_utl/error_func.h"
+#include <stdlib.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 static int phy_rigid_body_accumulate_mass(phy_rigid_body *body) {
