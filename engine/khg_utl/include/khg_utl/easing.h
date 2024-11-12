@@ -1,6 +1,6 @@
 #pragma once
 
-typedef float (*AHEasingFunction)(float);
+typedef float (*utl_easing_function)(float);
 
 float utl_easing_linear_interpolation(float p);
 
