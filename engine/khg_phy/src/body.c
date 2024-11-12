@@ -25,7 +25,6 @@ static int phy_rigid_body_accumulate_mass(phy_rigid_body *body) {
     local_com = phy_vector2_add(local_com, phy_vector2_mul(mass_info.center, mass_info.mass));
   }
   if (body->mass == 0.0) {
-    utl_error_func("Dynamic bodies with no mass", utl_user_defined_data);
     return 1;
   }
   body->invmass = 1.0 / body->mass;
@@ -192,7 +191,6 @@ int phy_rigid_body_set_mass(phy_rigid_body *body, float mass) {
     return 0;
   }
   if (mass == 0.0) {
-    utl_error_func("Dynamic bodies with no mass", utl_user_defined_data);
     return 1;
   }
   body->mass = mass;

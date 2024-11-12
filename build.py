@@ -19,15 +19,11 @@ def build_project():
 
 def run_executable(args=""):
   executable = "executable.exe" if platform.system() == "Windows" else "./executable"
-  if os.path.isdir("./build"):
-    os.chdir("build")
-    subprocess.run([executable] + ([args] if args else []))
-  else:
-    print("Build folder not located: run `build.py build` first")
+  subprocess.run([executable] + ([args] if args else []))
 
 def run_test_runner():
   test_runner = "test_runner.exe" if platform.system() == "Windows" else "./test_runner"
-  if os.path.isdir("./build"):
+  if os.path.exists("build"):
     os.chdir("build")
     subprocess.run([test_runner])
   else:
@@ -46,12 +42,16 @@ def main():
     run_cmake()
     build_project()
   elif command == "run" and not arg2:
+    os.chdir("build")
     run_executable()
   elif command == "run" and arg2 == "hoster":
+    os.chdir("build")
     run_executable("hoster")
   elif command == "run" and arg2 == "joiner":
+    os.chdir("build")
     run_executable("joiner")
   elif command == "test":
+    os.chdir("build")
     run_test_runner()
   elif command == "build" and arg2 == "run" and not arg3:
     clean_and_copy_resources()
