@@ -11,6 +11,6 @@ void build_environment_element(const int tex_id, const float x, const float y, c
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 0.0f, 0.0f, 1.0f, phy_vector2_new(x, y), angle, false, false };
   const comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
   comp_renderer_constructor_info comp_renderer_ci = { cp->body, tex_id, render_layer, parallax_value, false };
-  const comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);
+  const comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci, NULL);
 }
 

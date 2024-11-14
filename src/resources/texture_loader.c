@@ -150,6 +150,12 @@ void generate_textures() {
   TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_27] = (texture_asset){ "animal/elk/idle/idle_27", "png", 203, 230, 0 };
   TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_28] = (texture_asset){ "animal/elk/idle/idle_28", "png", 203, 230, 0 };
   TEXTURE_ASSET_REF[ANIMAL_ELK_IDLE_29] = (texture_asset){ "animal/elk/idle/idle_29", "png", 203, 230, 0 };
+  TEXTURE_ASSET_REF[PLAYER_HEAD] = (texture_asset){ "player/player_head_eyes", "png", 110, 105, 0 };
+  TEXTURE_ASSET_REF[PLAYER_BODY] = (texture_asset){ "player/player_body", "png", 60, 49, 0 };
+  TEXTURE_ASSET_REF[PLAYER_ARM_L] = (texture_asset){ "player/player_arm_l", "png", 40, 39, 0 };
+  TEXTURE_ASSET_REF[PLAYER_ARM_R] = (texture_asset){ "player/player_arm_r", "png", 43, 38, 0 };
+  TEXTURE_ASSET_REF[PLAYER_LEG_L] = (texture_asset){ "player/player_leg_l", "png", 23, 30, 0 };
+  TEXTURE_ASSET_REF[PLAYER_LEG_R] = (texture_asset){ "player/player_leg_r", "png", 23, 30, 0 };
   for (int i = 0; i < NUM_TEXTURES; i++) {
     get_or_add_texture(i);
   }

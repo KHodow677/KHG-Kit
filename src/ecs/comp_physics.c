@@ -41,7 +41,7 @@ static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void 
     info->is_moving = false;
     info->target_vel = 0.0f;
     info->move_enabled = constructor_info->move_enabled;
-    info->shape = phy_rect_shape_new(constructor_info->width, constructor_info->height, phy_vector2_new(0.0, 0.0));
+    info->shape = phy_rect_shape_new(constructor_info->width, constructor_info->height, phy_vector2_zero);
     phy_rigid_body_add_shape(info->body, info->shape);
     if (constructor_info->collision_enabled) {
       phy_rigid_body_disable_collisions(info->body);
