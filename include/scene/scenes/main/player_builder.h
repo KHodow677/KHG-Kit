@@ -8,11 +8,11 @@
 
 typedef struct player_info {
   ecs_id id;
-  const comp_physics *physics;
-  const comp_renderer *renderer;
-  const comp_animator *animator;
-  const comp_light *light;
-  const comp_mover *mover;
+  comp_physics *physics;
+  comp_renderer *renderer;
+  comp_animator *animator;
+  comp_light *light;
+  comp_mover *mover;
 } player_info;
 
 extern player_info PLAYER_INFO;
