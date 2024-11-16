@@ -10,7 +10,6 @@ struct bone;
 typedef struct bone {
   phy_rigid_body *bone_body;
   phy_shape *bone_shape;
-  phy_constraint *bone_constraint;
   phy_vector2 bone_offset;
   int bone_tex_id;
   int layer;
@@ -35,7 +34,7 @@ typedef struct rig_builder {
 } rig_builder;
 
 bone create_bone(const phy_vector2 bone_pos, const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
-void add_bone(rig *r, const phy_vector2 bone_offset, const bone_joint_pair joint_info, const int tex_id, const int layer, bone *parent);
+void add_bone(rig *r, const phy_vector2 bone_pos_offset, const phy_vector2 bone_offset, const bone_joint_pair joint_info, const int tex_id, const int layer, bone *parent);
 
 void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const int root_tex, const size_t init_layer);
 void free_rig(const rig *r);
