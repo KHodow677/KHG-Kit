@@ -12,13 +12,12 @@
 #include <math.h>
 #include <stdio.h>
 
-bone create_bone(const phy_vector2 bone_pos, const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent) {
+bone create_bone(bone_joint_pair joint_info, const int tex_id, const int layer, bone *parent) {
   phy_rigid_body_initializer bone_init = phy_rigid_body_initializer_default;
   bone_init.type = PHY_RIGID_BODY_TYPE_DYNAMIC;
-  bone_init.position = bone_pos;
+  bone_init.position = parent ? phy_vector2_add(phy_rigid_body_get_position(parent->bone_body), joint_info.bone_pos) : joint_info.bone_pos;
   bone_init.angle = 0.0f;
-  bone_init.material = (phy_material){ .density=1.0, .restitution = 0.85, .friction = 0.0 };
-  bone res = { phy_rigid_body_new(bone_init), phy_circle_shape_new(bone_offset, 0.0f), phy_vector2_new(0.0f, 0.0f), tex_id, layer, parent };
+  bone res = { phy_rigid_body_new(bone_init), phy_circle_shape_new(joint_info.bone_offset, 0.0f), joint_info.bone_pos, joint_info.bone_offset, tex_id, layer, parent };
   phy_rigid_body_disable_collisions(res.bone_body);
   phy_rigid_body_set_mass(res.bone_body, 1.0f);
   phy_rigid_body_add_shape(res.bone_body, res.bone_shape);
@@ -26,8 +25,8 @@ bone create_bone(const phy_vector2 bone_pos, const phy_vector2 bone_offset, cons
   return res;
 }
 
-void add_bone(rig *r, const phy_vector2 bone_pos_offset, const phy_vector2 bone_offset, const bone_joint_pair joint_info, const int tex_id, const int layer, bone *parent) {
-  bone b = create_bone(phy_vector2_add(phy_rigid_body_get_position(parent->bone_body), bone_pos_offset), bone_offset, tex_id, layer, parent);
+void add_bone(rig *r, const bone_joint_pair joint_info, const int tex_id, const int layer, bone *parent) {
+  bone b = create_bone(joint_info, tex_id, layer, parent);
   utl_array_set(r->bones, layer, &b);
 }
 
@@ -35,7 +34,7 @@ void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body,
   r->enabled = true;
   r->num_bones = num_bones;
   r->bones = utl_array_create(sizeof(bone), num_bones);
-  bone root_bone = create_bone(phy_rigid_body_get_position(bone_body), phy_vector2_zero, root_tex, init_layer, NULL);
+  bone root_bone = create_bone((bone_joint_pair){phy_rigid_body_get_position(bone_body), phy_vector2_zero}, root_tex, init_layer, NULL);
   utl_array_set(r->bones, init_layer, &root_bone);
 }
 
@@ -50,7 +49,9 @@ void free_rig(const rig *r) {
 void render_rig(const rig *r, const float parallax_value, const bool flipped) {
   for (bone* b = utl_array_begin(r->bones); b != (bone *)utl_array_end(r->bones); b++) {
     const float angle = phy_rigid_body_get_angle(b->bone_body);
-    const phy_vector2 offset = phy_vector2_new(phy_vector2_len(b->bone_shape->circle.center) * cosf(angle - M_PI / 2), phy_vector2_len(b->bone_shape->circle.center) * sinf(angle - M_PI / 2));
+    const float offset_x_sign = b->bone_offset.x < 0 ? -1 : 1;
+    const float offset_y_sign = b->bone_offset.y < 0 ? 1 : -1;
+    const phy_vector2 offset = phy_vector2_new(offset_x_sign * phy_vector2_len(b->bone_offset) * cosf(angle - M_PI / 2), offset_y_sign * phy_vector2_len(b->bone_offset) * sinf(angle - M_PI / 2));
     phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(b->bone_body), offset);
     phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
     const gfx_texture tex_ref = get_or_add_texture(b->bone_tex_id);
