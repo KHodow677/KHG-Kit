@@ -21,8 +21,8 @@ void build_player(const int min_tex_id, const int max_tex_id, const float x, con
   add_bone(&cr->rig, phy_vector2_new(1.5f, -32.5f), PLAYER_HEAD, 4, (bone *)utl_array_at(cr->rig.bones, 3));
   add_bone(&cr->rig, phy_vector2_new(17.5f, 5.0f), PLAYER_ARM_L, 2, (bone *)utl_array_at(cr->rig.bones, 3));
   add_bone(&cr->rig, phy_vector2_new(-12.5f, 5.0f), PLAYER_ARM_R, 5, (bone *)utl_array_at(cr->rig.bones, 3));
-  add_bone(&cr->rig, phy_vector2_new(-6.0f, 11.5f), PLAYER_LEG_L, 1, (bone *)utl_array_at(cr->rig.bones, 3));
-  add_bone(&cr->rig, phy_vector2_new(6.0f, 11.5f), PLAYER_LEG_R, 0, (bone *)utl_array_at(cr->rig.bones, 3));
+  add_bone(&cr->rig, phy_vector2_new(-6.0f, 11.5f), PLAYER_LEG_L, 0, (bone *)utl_array_at(cr->rig.bones, 3));
+  add_bone(&cr->rig, phy_vector2_new(6.0f, 11.5f), PLAYER_LEG_R, 1, (bone *)utl_array_at(cr->rig.bones, 3));
   comp_animator_constructor_info comp_animator_ci = { min_tex_id, max_tex_id, 0.032f, false };
   comp_animator *ca = sys_animator_add(entity, &comp_animator_ci);
   comp_light_constructor_info comp_light_ci = { cp->body, (light){ (vec2s){ 0.0, 0.0 }, 250.0f }, phy_vector2_new(0.0f, 0.0f) };

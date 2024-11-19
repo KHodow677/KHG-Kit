@@ -1288,7 +1288,7 @@ char *utl_encoding_base91_encode(const uint8_t *data, size_t length) {
 
 
 #if defined(_WIN32) || defined(_WIN64)
-wchar_t *encoding_utf8_to_wchar(const char *utf8Str) {
+wchar_t *utl_encoding_utf8_to_wchar(const char *utf8Str) {
   if (utf8Str == NULL) {
     utl_error_func("Input string is NULL", utl_user_defined_data);
     return NULL;

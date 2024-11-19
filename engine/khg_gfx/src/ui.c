@@ -83,8 +83,8 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   glfwSetCharCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_char_callback);
   glfwSetWindowSizeCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_window_size_callback);
   gfx_internal_renderer_init();
-  state.tex_arrow_down = gfx_load_texture_asset("arrow_down", "png");
-  state.tex_tick = gfx_load_texture_asset("tick", "png");
+  state.tex_arrow_down = gfx_load_texture_asset("res/assets/textures/arrow_down.png");
+  state.tex_tick = gfx_load_texture_asset("res/assets/textures/tick.png");
 }
 
 const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {

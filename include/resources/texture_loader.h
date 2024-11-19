@@ -61,15 +61,12 @@ typedef enum {
 } TEXTURE_ID;
 
 typedef struct texture_asset {
-  char *tex_file_name;
-  char *tex_file_type;
+  char *tex_filepath;
   int tex_width;
   int tex_height;
-  int collision_direction;
-  int collision_shrinkage_offset;
 } texture_asset;
 
-const gfx_texture generate_texture(char *file_name, char *file_type, float width, float height);
+const gfx_texture generate_texture(char *filepath, float width, float height);
 const bool check_texture_loaded(int tex_id);
 const gfx_texture get_or_add_texture(int tex_id);
 void generate_textures(void);

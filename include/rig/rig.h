@@ -37,6 +37,7 @@ bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int laye
 void add_bone(rig *r, const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
 
 void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const phy_vector2 root_offset, const int root_tex, const size_t init_layer);
+void create_rig_from_file(rig *r, char *filepath);
 void free_rig(const rig *r);
 void render_rig(const rig *r, const float parallax_value, const bool flipped);
 

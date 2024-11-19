@@ -4,6 +4,7 @@
 #include "khg_phy/shape.h"
 #include "khg_phy/space.h"
 #include "khg_utl/array.h"
+#include "khg_utl/config.h"
 #include "letterbox.h"
 #include "physics/physics.h"
 #include "resources/texture_loader.h"
@@ -36,6 +37,14 @@ void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body,
   r->root_offset = root_offset;
   bone root_bone = create_bone(phy_vector2_add(phy_rigid_body_get_position(bone_body), root_offset), root_tex, init_layer, NULL);
   utl_array_set(r->bones, init_layer, &root_bone);
+  rig r1;
+  create_rig_from_file(&r1, "res/assets/anim/rig/player.ini");
+}
+
+void create_rig_from_file(rig *r, char *filepath) {
+  utl_config_file *config = utl_config_create(filepath);
+  utl_config_save(config, filepath);
+  utl_config_deallocate(config);
 }
 
 void free_rig(const rig *r) {
