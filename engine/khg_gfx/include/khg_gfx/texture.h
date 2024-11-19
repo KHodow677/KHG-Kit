@@ -56,5 +56,5 @@ void gfx_free_texture(gfx_texture *tex);
 gfx_texture gfx_load_texture_asset(const char *filepath);
 
 void gfx_free_font(gfx_font *font);
-gfx_font gfx_load_font_asset(const char *asset_name, const char *file_extension, uint32_t font_size);
+gfx_font gfx_load_font_asset(const char *filepath, const uint32_t font_size);
 

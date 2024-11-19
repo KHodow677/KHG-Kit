@@ -124,7 +124,7 @@ gfx_theme gfx_default_theme() {
     .hover_color = gfx_no_color, 
     .hover_text_color = gfx_no_color
   };
-  theme.font = gfx_load_font_asset("inter", "ttf", 24);
+  theme.font = gfx_load_font_asset("res/assets/fonts/inter.ttf", 24);
   theme.div_scroll_max_velocity = 100.0f; 
   theme.div_scroll_velocity_deceleration = 0.92;
   theme.div_scroll_acceleration = 2.5f;

@@ -46,7 +46,7 @@ static void update_font() {
   uint32_t min_change = fminf((uint32_t)(gfx_get_display_width() / INITIAL_WIDTH * original_font_size), (uint32_t)(gfx_get_display_height() / INITIAL_WIDTH * original_font_size));
   if (font.font_size != min_change) {
     gfx_free_font(&font);
-    font = gfx_load_font_asset("rubik", "ttf", min_change);
+    font = gfx_load_font_asset("res/assets/fonts/inter.ttf", min_change);
   }
 }
 
@@ -75,7 +75,7 @@ const int game_run() {
   generate_textures();
   scenes_setup();
   scenes_switch(TO_MAIN_SCENE);
-  font = gfx_load_font_asset("rubik", "ttf", 24);
+  font = gfx_load_font_asset("res/assets/fonts/inter.ttf", 24);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();

@@ -288,29 +288,6 @@ void gfx_free_texture(gfx_texture *tex) {
 
 gfx_texture gfx_load_texture_asset(const char *filepath) {
   return gfx_load_texture(filepath, false, gfx_tex_filter_linear);
-// #if defined(_WIN32) || defined(_WIN64)
-//   char cwd[PATH_MAX];
-//   _getcwd(cwd, sizeof(cwd));
-//   size_t cwd_len = strlen(cwd);
-//   size_t asset_dir_len = cwd_len + strlen("\\res") + 1;
-//   size_t path_len = asset_dir_len + strlen("\\assets\\textures\\") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
-//   char asset_dir[asset_dir_len];
-//   char path[path_len];
-//   snprintf(asset_dir, sizeof(asset_dir), "%s\\res", cwd);
-//   snprintf(path, sizeof(path), "%s\\assets\\textures\\%s.%s", asset_dir, asset_name, file_extension);
-//   return gfx_load_texture(path, false, gfx_tex_filter_linear);
-// #else
-//   char cwd[PATH_MAX];
-//   getcwd(cwd, sizeof(cwd));
-//   size_t cwd_len = strlen(cwd);
-//   size_t asset_dir_len = cwd_len + strlen("/res") + 1;
-//   size_t path_len = asset_dir_len + strlen("/assets/textures/") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
-//   char asset_dir[asset_dir_len];
-//   char path[path_len];
-//   snprintf(asset_dir, sizeof(asset_dir), "%s/res", cwd);
-//   snprintf(path, sizeof(path), "%s/assets/textures/%s.%s", asset_dir, asset_name, file_extension);
-//   return gfx_load_texture(path, false, gfx_tex_filter_linear);
-// #endif
 }
 
 void gfx_free_font(gfx_font *font) {
@@ -319,29 +296,7 @@ void gfx_free_font(gfx_font *font) {
   free(font->buffer);
 }
 
-gfx_font gfx_load_font_asset(const char *asset_name, const char *file_extension, uint32_t font_size) {
-#if defined(_WIN32) || defined(_WIN64)
-  char cwd[MAX_PATH];
-  _getcwd(cwd, sizeof(cwd));
-  size_t cwd_len = strlen(cwd);
-  size_t asset_dir_len = cwd_len + strlen("\\res") + 1;
-  size_t path_len = asset_dir_len + strlen("\\assets\\fonts\\") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
-  char asset_dir[asset_dir_len];
-  char path[path_len];
-  snprintf(asset_dir, sizeof(asset_dir), "%s\\res", cwd);
-  snprintf(path, sizeof(path), "%s\\assets\\fonts\\%s.%s", asset_dir, asset_name, file_extension);
-  return gfx_load_font(path, font_size);
-#else 
-  char cwd[PATH_MAX];
-  getcwd(cwd, sizeof(cwd));
-  size_t cwd_len = strlen(cwd);
-  size_t asset_dir_len = cwd_len + strlen("/res") + 1;
-  size_t path_len = asset_dir_len + strlen("/assets/fonts/") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
-  char asset_dir[asset_dir_len];
-  char path[path_len];
-  snprintf(asset_dir, sizeof(asset_dir), "%s/res", cwd);
-  snprintf(path, sizeof(path), "%s/assets/fonts/%s.%s", asset_dir, asset_name, file_extension);
-  return gfx_load_font(path, font_size);
-#endif
+gfx_font gfx_load_font_asset(const char *filepath, const uint32_t font_size) {
+  return gfx_load_font(filepath, font_size);
 }
 
