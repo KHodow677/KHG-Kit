@@ -9,9 +9,7 @@ struct bone;
 typedef struct bone {
   phy_rigid_body *bone_body;
   phy_shape *bone_shape;
-  phy_vector2 bone_pos_offset;
   phy_vector2 bone_offset;
-  phy_vector2 bone_offset_sign;
   int bone_tex_id;
   int layer;
   struct bone *parent;
@@ -19,26 +17,26 @@ typedef struct bone {
 
 typedef struct bone_joint_info {
   phy_vector2 bone_pos;
-  phy_vector2 bone_offset;
-  phy_vector2 bone_offset_sign;
 } bone_joint_info;
 
 typedef struct rig {
   bool enabled;
   size_t num_bones;
   utl_array *bones;
+  phy_vector2 root_offset;
 } rig;
 
 typedef struct rig_builder {
   const size_t num_bones;
   const int root_tex;
   const size_t init_layer;
+  const phy_vector2 root_offset;
 } rig_builder;
 
-bone create_bone(bone_joint_info joint_info, const int tex_id, const int layer, bone *parent);
-void add_bone(rig *r, const bone_joint_info joint_info, const int tex_id, const int layer, bone *parent);
+bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
+void add_bone(rig *r, const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
 
-void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const int root_tex, const size_t init_layer);
+void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const phy_vector2 root_offset, const int root_tex, const size_t init_layer);
 void free_rig(const rig *r);
 void render_rig(const rig *r, const float parallax_value, const bool flipped);
 

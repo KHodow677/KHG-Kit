@@ -10,6 +10,7 @@
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
 #include "rig/rig.h"
+#include <stdio.h>
 
 ecs_id RENDERER_COMPONENT_SIGNATURE;
 ecs_id RENDERER_SYSTEM_SIGNATURE;
@@ -79,7 +80,7 @@ comp_renderer *sys_renderer_add(const ecs_id eid, comp_renderer_constructor_info
   RENDERER_CONSTRUCTOR_INFO = crci;
   comp_renderer *res = ecs_add(ECS, eid, RENDERER_COMPONENT_SIGNATURE, NULL);
   if (rb) {
-    create_rig(&res->rig, rb->num_bones, res->body, rb->root_tex, rb->init_layer);
+    create_rig(&res->rig, rb->num_bones, res->body, rb->root_offset, rb->root_tex, rb->init_layer);
   }
   return res;
 }
