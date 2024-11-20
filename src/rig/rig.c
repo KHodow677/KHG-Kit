@@ -43,6 +43,9 @@ void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body,
 
 void create_rig_from_file(rig *r, char *filepath) {
   utl_config_file *config = utl_config_create(filepath);
+  const int num_bones = utl_config_get_int(config, "player", "num_bones", 1);
+  printf("Player Rig:\n");
+  printf("Num Bones: %i\n", num_bones);
   utl_config_save(config, filepath);
   utl_config_deallocate(config);
 }

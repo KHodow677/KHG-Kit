@@ -276,6 +276,7 @@ void utl_config_deallocate(utl_config_file *config) {
   }
   free(config->sections);
   free(config->default_section);
+  free(config->filename);
   free(config);
 }
 

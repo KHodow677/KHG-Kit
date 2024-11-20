@@ -125,7 +125,6 @@ bool utl_encoding_is_utf8(const uint8_t *input, size_t length) {
     utl_error_func("Invalid leading byte greater than 0xF4", utl_user_defined_data);
     return false;
   }
-  utl_error_func("Input sequence is valid UTF-8", utl_user_defined_data);
   return true;
 }
 
@@ -1285,8 +1284,6 @@ char *utl_encoding_base91_encode(const uint8_t *data, size_t length) {
   encoded[index] = '\0';
   return encoded;
 }
-
-
 #if defined(_WIN32) || defined(_WIN64)
 wchar_t *utl_encoding_utf8_to_wchar(const char *utf8Str) {
   if (utf8Str == NULL) {
@@ -1311,7 +1308,6 @@ wchar_t *utl_encoding_utf8_to_wchar(const char *utf8Str) {
   return wstr;
 }
 #endif
-
 char *utl_encoding_wchar_to_utf8(const wchar_t *wstr) {
   if (wstr == NULL) {
     utl_error_func("Input wchar string is NULL", utl_user_defined_data);

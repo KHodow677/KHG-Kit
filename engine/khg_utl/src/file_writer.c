@@ -13,12 +13,27 @@
 #include <unistd.h>
 #endif 
 
+static size_t u16_strlen(const uint16_t *str) {
+  const uint16_t *s = str;
+  while (*s != 0) {
+    s++;
+  }
+  return s - str;
+}
+
+static size_t u32_strlen(const uint32_t *str) {
+  const uint32_t *s = str;
+  while (*s != 0) {
+    s++;
+  }
+  return s - str;
+}
+
 utl_file_writer *utl_file_writer_open(const char *filename, const utl_write_mode mode) {
   if (!filename) {
     utl_error_func("Filename is null", utl_user_defined_data);
     exit(-1);
   }
-
   utl_file_writer *writer = (utl_file_writer *)malloc(sizeof(utl_file_writer));
   if (!writer) {
     utl_error_func("Cannot allocate memory", utl_user_defined_data);
@@ -172,6 +187,8 @@ bool utl_file_writer_close(utl_file_writer *writer) {
     return false;
   }
   writer->is_open = false;
+  free(writer->file_path);
+  free(writer);
   return true;
 }
 
@@ -204,7 +221,7 @@ size_t utl_file_writer_write(void *buffer, size_t size, size_t count, utl_file_w
         utl_error_func("Conversion to UTF-32 failed", utl_user_defined_data);
         return 0;
       }
-      written = fwrite(utf32Buffer, sizeof(uint32_t), wcslen((wchar_t*)utf32Buffer), writer->file_writer);
+      written = fwrite(utf32Buffer, sizeof(uint32_t), u32_strlen((uint32_t *)utf32Buffer), writer->file_writer);
       free(utf32Buffer);
       break;
     }
@@ -229,7 +246,7 @@ size_t utl_file_writer_write(void *buffer, size_t size, size_t count, utl_file_w
           utl_error_func("Conversion to UTF-16 failed", utl_user_defined_data);
           return 0;
         }
-        written = fwrite(utf16Buffer, sizeof(uint16_t), wcslen((wchar_t *)utf16Buffer), writer->file_writer);
+        written = fwrite(utf16Buffer, sizeof(uint16_t), u16_strlen((uint16_t *)utf16Buffer), writer->file_writer);
         free(utf16Buffer);
       } 
       else {

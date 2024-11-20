@@ -75,7 +75,7 @@ const int game_run() {
   generate_textures();
   scenes_setup();
   scenes_switch(TO_MAIN_SCENE);
-  font = gfx_load_font_asset("res/assets/fonts/inter.ttf", 24);
+  font = gfx_load_font_asset("res/assets/fonts/inter.ttf", 50);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
@@ -119,7 +119,6 @@ const bool gfx_loop_post(const float delta) {
 
 const bool gfx_loop_ui(const float delta) {
   gfx_begin();
-  gfx_clear_style_props();
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
