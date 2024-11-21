@@ -38,7 +38,7 @@ typedef struct utl_config_iterator {
 utl_config_file *utl_config_create(const char *filename);
 
 const char *utl_config_get_value(const utl_config_file *config, const char *section, const char *key);
-char **utl_config_get_array(const utl_config_file *config, const char *section, const char *key, size_t *array_size);
+char **utl_config_get_array(const utl_config_file *config, const char *section, const char *key, size_t array_size);
 char *utl_config_get_encrypted_value(const utl_config_file *config, const char *section, const char *key, const char *encryption_key);
 
 void utl_config_set_value(utl_config_file *config, const char *section, const char *key, const char *value);

@@ -60,6 +60,7 @@ void algorithm_replace_if(void *base, size_t num, size_t size, const void *val, 
 void algorithm_iota(void* first, void* last, void* val, size_t size, DataType type);
 
 void *algorithm_find(const void *base, size_t num, size_t size, const void *val, CompareFunc comp);
+size_t algorithm_find_at(const void *base, size_t num, size_t size, const void *val, CompareFunc comp);
 void *algorithm_find_if(const void *base, size_t num, size_t size, BoolPredicateFunc pred);
 void *algorithm_find_if_not(const void *base, size_t num, size_t size, BoolPredicateFunc pred);
 void *algorithm_find_end(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, CompareFunc comp);

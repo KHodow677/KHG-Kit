@@ -16,8 +16,7 @@ void build_player(const int min_tex_id, const int max_tex_id, const float x, con
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 300.0f, 256.0f, 1.0f, phy_vector2_new(x, y), 0.0f, true, true };
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
   comp_renderer_constructor_info comp_renderer_ci = { cp->body, min_tex_id, render_layer, 1.0f, false };
-  rig_builder rb = { 6, PLAYER_BODY, 3, phy_vector2_new(-6.0f, 27.5f) };
-  comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci, &rb);
+  comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci, generate_rig_builder_from_file("res/assets/anim/rigs/player.ini", "player_root"));
   add_bone(&cr->rig, phy_vector2_new(1.5f, -32.5f), PLAYER_HEAD, 4, (bone *)utl_array_at(cr->rig.bones, 3));
   add_bone(&cr->rig, phy_vector2_new(17.5f, 5.0f), PLAYER_ARM_L, 2, (bone *)utl_array_at(cr->rig.bones, 3));
   add_bone(&cr->rig, phy_vector2_new(-12.5f, 5.0f), PLAYER_ARM_R, 5, (bone *)utl_array_at(cr->rig.bones, 3));

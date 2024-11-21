@@ -452,27 +452,27 @@ void utl_config_validate_structure(const utl_config_file *config, const utl_conf
   }
 }
 
-char **utl_config_get_array(const utl_config_file *config, const char *section, const char *key, size_t *array_size) {
+char **utl_config_get_array(const utl_config_file *config, const char *section, const char *key, size_t array_size) {
   if (!config || !section || !key || !array_size) {
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
-    *array_size = 0;
+    array_size = 0;
     return NULL;
   }
   const char *value = utl_config_get_value(config, section, key);
   if (!value) {
-    *array_size = 0;
+    array_size = 0;
     return NULL;
   }
-  *array_size = 1;
+  array_size = 1;
   for (const char *p = value; *p; ++p) {
     if (*p == ',') {
-      (*array_size)++;
+      (array_size)++;
     }
   }
-  char **array = malloc(*array_size * sizeof(char *)); 
+  char **array = malloc(array_size * sizeof(char *)); 
   if (!array) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
-    *array_size = 0;
+    array_size = 0;
     return NULL;
   }
   char *value_copy = utl_string_strdup(value);

@@ -27,11 +27,14 @@ typedef struct rig {
 } rig;
 
 typedef struct rig_builder {
-  const size_t num_bones;
-  const int root_tex;
-  const size_t init_layer;
-  const phy_vector2 root_offset;
+  bool valid;
+  int num_bones;
+  int root_tex;
+  int init_layer;
+  phy_vector2 root_offset;
 } rig_builder;
+
+rig_builder generate_rig_builder_from_file(const char *filepath, const char *section);
 
 bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
 void add_bone(rig *r, const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);

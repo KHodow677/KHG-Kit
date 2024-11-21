@@ -1,13 +1,15 @@
 #include "resources/texture_loader.h"
 #include "khg_gfx/texture.h"
-
-const char *TEXTURE_STRING[] = {
-  FOREACH_TEXTURE(GENERATE_TEXTURE_STRING)
-};
+#include "khg_utl/algorithm.h"
+#include <string.h>
 
 static gfx_texture NO_TEXTURE = { 0 };
 static gfx_texture TEXTURE_LOOKUP[NUM_TEXTURES];
 static texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
+
+static int compare_texture_strings(const void *a, const void *b) {
+  return strcmp(*(const char **)a, (const char *)b);
+}
 
 const gfx_texture generate_texture(char *filepath, float width, float height) {
   gfx_texture tex = gfx_load_texture_asset(filepath);
@@ -21,6 +23,10 @@ const bool check_texture_loaded(int tex_id) {
   return (TEXTURE_LOOKUP[tex_id].id != NO_TEXTURE.id);
 }
 
+const int get_tex_id_from_string(const char *tex_key) {
+  return (int)algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
+}
+
 const gfx_texture get_or_add_texture(int tex_id) {
   if (check_texture_loaded(tex_id)) {
     return TEXTURE_LOOKUP[tex_id];
@@ -28,6 +34,11 @@ const gfx_texture get_or_add_texture(int tex_id) {
   const texture_asset ta = TEXTURE_ASSET_REF[tex_id];
   TEXTURE_LOOKUP[tex_id] = generate_texture(ta.tex_filepath, ta.tex_width, ta.tex_height);
   return TEXTURE_LOOKUP[tex_id];
+}
+
+const gfx_texture get_or_add_texture_from_string(const char *tex_key) {
+  const int tex_id = get_tex_id_from_string(tex_key);
+  return get_or_add_texture(tex_id);
 }
 
 void generate_textures() {

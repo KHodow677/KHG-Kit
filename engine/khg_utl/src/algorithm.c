@@ -116,6 +116,16 @@ void *algorithm_find(const void *base, size_t num, size_t size, const void *val,
   return NULL;
 }
 
+size_t algorithm_find_at(const void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
+  const char *ptr = (const char*)base;
+  for (size_t i = 0; i < num; i++) {
+    if (comp(ptr + i * size, val) == 0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 void *algorithm_find_if(const void *base, size_t num, size_t size, BoolPredicateFunc pred) {
   const char *ptr = (const char*)base;
   for (size_t i = 0; i < num; i++) {

@@ -1,16 +1,30 @@
 #include "rig/rig.h"
+#include "letterbox.h"
 #include "camera/camera.h"
+#include "physics/physics.h"
+#include "resources/texture_loader.h"
+#include "khg_gfx/texture.h"
+#include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_phy/shape.h"
 #include "khg_phy/space.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
-#include "letterbox.h"
-#include "physics/physics.h"
-#include "resources/texture_loader.h"
-#include "khg_gfx/texture.h"
-#include "khg_phy/body.h"
+#include "khg_utl/algorithm.h"
+#include <string.h>
 #include <stdio.h>
+
+rig_builder generate_rig_builder_from_file(const char *filepath, const char *section) {
+  utl_config_file *config = utl_config_create(filepath);
+  rig_builder rb;
+  rb.valid = true;
+  rb.num_bones = utl_config_get_int(config, section, "num_bones", 1);
+  rb.root_tex = get_tex_id_from_string((const char *)utl_config_get_value(config, section, "root_bone_tex"));
+  rb.init_layer = utl_config_get_int(config, section, "root_bone_num", 0);
+  rb.root_offset = phy_vector2_new(atof(((char **)utl_config_get_array(config, section, "root_bone_offset", 2))[0]), atof(((char **)utl_config_get_array(config, section, "root_bone_offset", 2))[1]));
+  utl_config_deallocate(config);
+  return rb;
+}
 
 bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent) {
   phy_rigid_body_initializer bone_init = phy_rigid_body_initializer_default;
@@ -37,17 +51,13 @@ void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body,
   r->root_offset = root_offset;
   bone root_bone = create_bone(phy_vector2_add(phy_rigid_body_get_position(bone_body), root_offset), root_tex, init_layer, NULL);
   utl_array_set(r->bones, init_layer, &root_bone);
-  rig r1;
-  create_rig_from_file(&r1, "res/assets/anim/rigs/player.ini");
 }
 
 void create_rig_from_file(rig *r, const char *filepath) {
   utl_config_file *config = utl_config_create(filepath);
   const int num_bones = utl_config_get_int(config, "player", "num_bones", 1);
-  const char *root_bone_tex = utl_config_get_value(config, "player", "root_bone_tex");
   printf("Player Rig:\n");
   printf("Num Bones: %i\n", num_bones);
-  printf("Root Bone Texture: %s", root_bone_tex);
   utl_config_deallocate(config);
 }
 
@@ -70,4 +80,3 @@ void render_rig(const rig *r, const float parallax_value, const bool flipped) {
     gfx_image_no_block(pos.x, pos.y, tex, 0.0f, 0.0f, cam_pos.x * parallax_value, cam_pos.y * parallax_value, CAMERA.zoom, true, flipped);
   }
 }
-

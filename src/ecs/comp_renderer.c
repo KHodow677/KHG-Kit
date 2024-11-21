@@ -76,11 +76,11 @@ void sys_renderer_register() {
   ecs_require_component(ECS, RENDERER_SYSTEM_SIGNATURE, PHYSICS_COMPONENT_SIGNATURE);
 }
 
-comp_renderer *sys_renderer_add(const ecs_id eid, comp_renderer_constructor_info *crci, const rig_builder* rb) {
+comp_renderer *sys_renderer_add(const ecs_id eid, comp_renderer_constructor_info *crci, const rig_builder rb) {
   RENDERER_CONSTRUCTOR_INFO = crci;
   comp_renderer *res = ecs_add(ECS, eid, RENDERER_COMPONENT_SIGNATURE, NULL);
-  if (rb) {
-    create_rig(&res->rig, rb->num_bones, res->body, rb->root_offset, rb->root_tex, rb->init_layer);
+  if (rb.valid) {
+    create_rig(&res->rig, rb.num_bones, res->body, rb.root_offset, rb.root_tex, rb.init_layer);
   }
   return res;
 }

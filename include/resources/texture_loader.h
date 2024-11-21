@@ -64,9 +64,10 @@
 
 typedef enum {
   FOREACH_TEXTURE(GENERATE_TEXTURE_ENUM)
-} TEXTURE_ID;
+} texture_id;
 
-extern const char *TEXTURE_STRING[];
+#define TEXTURE_STRINGS (char *[]){ FOREACH_TEXTURE(GENERATE_TEXTURE_STRING) }
+#define TEXTURE_STRINGS_SIZE sizeof(TEXTURE_STRINGS) / sizeof(TEXTURE_STRINGS[0])
 
 typedef struct texture_asset {
   char *tex_filepath;
@@ -76,5 +77,7 @@ typedef struct texture_asset {
 
 const gfx_texture generate_texture(char *filepath, float width, float height);
 const bool check_texture_loaded(int tex_id);
+const int get_tex_id_from_string(const char *tex_key);
 const gfx_texture get_or_add_texture(int tex_id);
+const gfx_texture get_or_add_texture_from_string(const char *tex_key);
 void generate_textures(void);
