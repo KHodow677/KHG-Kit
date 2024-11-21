@@ -1,6 +1,10 @@
 #include "resources/texture_loader.h"
 #include "khg_gfx/texture.h"
 
+const char *TEXTURE_STRING[] = {
+  FOREACH_TEXTURE(GENERATE_TEXTURE_STRING)
+};
+
 static gfx_texture NO_TEXTURE = { 0 };
 static gfx_texture TEXTURE_LOOKUP[NUM_TEXTURES];
 static texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];

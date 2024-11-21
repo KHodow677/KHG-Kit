@@ -38,15 +38,16 @@ void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body,
   bone root_bone = create_bone(phy_vector2_add(phy_rigid_body_get_position(bone_body), root_offset), root_tex, init_layer, NULL);
   utl_array_set(r->bones, init_layer, &root_bone);
   rig r1;
-  create_rig_from_file(&r1, "res/assets/anim/rig/player.ini");
+  create_rig_from_file(&r1, "res/assets/anim/rigs/player.ini");
 }
 
-void create_rig_from_file(rig *r, char *filepath) {
+void create_rig_from_file(rig *r, const char *filepath) {
   utl_config_file *config = utl_config_create(filepath);
   const int num_bones = utl_config_get_int(config, "player", "num_bones", 1);
+  const char *root_bone_tex = utl_config_get_value(config, "player", "root_bone_tex");
   printf("Player Rig:\n");
   printf("Num Bones: %i\n", num_bones);
-  utl_config_save(config, filepath);
+  printf("Root Bone Texture: %s", root_bone_tex);
   utl_config_deallocate(config);
 }
 

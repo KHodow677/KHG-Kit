@@ -1,5 +1,6 @@
 #include "khg_utl/map.h"
 #include "khg_utl/vector.h"
+#include <stdbool.h>
 
 typedef enum {
   UTL_JSON_NULL,
@@ -23,9 +24,9 @@ typedef struct {
   utl_json_value value;
 } utl_json_element;
 
-typedef bool (*utl_json_predicate)(const utl_json_element*, void*);
-typedef utl_json_element* (*utl_json_map_function)(const utl_json_element*, void*);
-typedef void* (*utl_json_reduce_function)(const utl_json_element*, void*, void*);
+typedef bool (*utl_json_predicate)(const utl_json_element *, void *);
+typedef utl_json_element *(*utl_json_map_function)(const utl_json_element *, void *);
+typedef void *(*utl_json_reduce_function)(const utl_json_element *, void *, void *);
 
 typedef struct {
   int a;
@@ -58,41 +59,40 @@ typedef struct {
   utl_json_token current_token;
 } utl_json_parser_state;
 
-utl_json_element *json_parse(const char *json_str);
-utl_json_element *json_read_from_file(const char *filename);
-utl_json_element *json_get_element(const utl_json_element *element, const char *key_or_index);
-utl_json_element *json_query(const utl_json_element *element, const char *query);
-utl_json_element *json_merge(const utl_json_element *element1, const utl_json_element *element2);
-utl_json_element *json_deep_copy(const utl_json_element *element);
-utl_json_element *json_parse_with_options(const char *json_str, utl_json_parse_options options);
-utl_json_element *json_find(const utl_json_element *element, utl_json_predicate predicate, void *user_data);
-utl_json_element *json_filter(const utl_json_element *array, utl_json_predicate predicate, void *user_data);
-utl_json_element *json_map(const utl_json_element *array, utl_json_map_function map_func, void *user_data);
-utl_json_element *json_create(utl_json_type type);
-utl_json_element *json_clone(const utl_json_element *element);
+utl_json_element *utl_json_parse(const char *json_str);
+utl_json_element *utl_json_read_from_file(const char *filename);
+utl_json_element *utl_json_get_element(const utl_json_element *element, const char *key_or_index);
+utl_json_element *utl_json_query(const utl_json_element *element, const char *query);
+utl_json_element *utl_json_merge(const utl_json_element *element1, const utl_json_element *element2);
+utl_json_element *utl_json_deep_copy(const utl_json_element *element);
+utl_json_element *utl_json_parse_with_options(const char *json_str, utl_json_parse_options options);
+utl_json_element *utl_json_find(const utl_json_element *element, utl_json_predicate predicate, void *user_data);
+utl_json_element *utl_json_filter(const utl_json_element *array, utl_json_predicate predicate, void *user_data);
+utl_json_element *utl_json_map(const utl_json_element *array, utl_json_map_function map_func, void *user_data);
+utl_json_element *utl_json_create(utl_json_type type);
+utl_json_element *utl_json_clone(const utl_json_element *element);
 
-char *json_serialize(const utl_json_element *element);
-char *json_format(const utl_json_element *element);
-char *json_generate_schema(const utl_json_element* element);
+char *utl_json_serialize(const utl_json_element *element);
+char *utl_json_format(const utl_json_element *element);
+char *utl_json_generate_schema(const utl_json_element* element);
 
-char **json_to_string_array(const utl_json_element *array, size_t *length);
-char **json_get_keys(const utl_json_element *object, size_t *num_keys);
+char **utl_json_to_string_array(const utl_json_element *array, size_t *length);
+char **utl_json_get_keys(const utl_json_element *object, size_t *num_keys);
 
-bool json_write_to_file(const utl_json_element *element, const char *filename);
-bool json_set_element(utl_json_element *element, const char *key_or_index, utl_json_element *new_element);
-bool json_remove_element(utl_json_element *element, const char *key_or_index);
-bool json_validate(const utl_json_element *element, const char *schema_json);
-bool json_compare(const utl_json_element *element1, const utl_json_element *element2);
-bool json_add_to_array(utl_json_element* element1, utl_json_element* element2);
-bool json_add_to_object(utl_json_element* object, const char* key, utl_json_element* value);
+bool utl_json_write_to_file(const utl_json_element *element, const char *filename);
+bool utl_json_set_element(utl_json_element *element, const char *key_or_index, utl_json_element *new_element);
+bool utl_json_remove_element(utl_json_element *element, const char *key_or_index);
+bool utl_json_validate(const utl_json_element *element, const char *schema_json);
+bool utl_json_compare(const utl_json_element *element1, const utl_json_element *element2);
+bool utl_json_add_to_array(utl_json_element *element1, utl_json_element *element2);
+bool utl_json_add_to_object(utl_json_element *object, const char* key, utl_json_element *value);
 
-void *json_convert(const utl_json_element *element, utl_json_type type);
-void *json_reduce(const utl_json_element *array, utl_json_reduce_function reduce_func, void *initial_value, void *user_data);
-size_t json_array_size(const utl_json_element *array);
-size_t json_object_size(const utl_json_element *object);
+void *utl_json_convert(const utl_json_element *element, utl_json_type type);
+void *utl_json_reduce(const utl_json_element *array, utl_json_reduce_function reduce_func, void *initial_value, void *user_data);
+size_t utl_json_array_size(const utl_json_element *array);
+size_t utl_json_object_size(const utl_json_element *object);
 
-utl_json_type json_type_of_element(const utl_json_element *element);
+utl_json_type utl_json_type_of_element(const utl_json_element *element);
 
-void json_print(const utl_json_element *element);
-void json_deallocate(utl_json_element *element);
-
+void utl_json_print(const utl_json_element *element);
+void utl_json_deallocate(utl_json_element *element);
