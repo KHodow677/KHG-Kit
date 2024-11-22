@@ -133,9 +133,9 @@ typedef struct {
 } gfx_state;
 
 typedef enum {
-  INPUT_INT = 0, 
-  INPUT_FLOAT, 
-  INPUT_TEXT
+  GFX_INPUT_INT = 0, 
+  GFX_INPUT_FLOAT, 
+  GFX_INPUT_TEXT
 } gfx_input_field_type;
 
 extern gfx_state state;

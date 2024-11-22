@@ -10,7 +10,6 @@
 #include "khg_phy/space.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
-#include "khg_utl/algorithm.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -21,7 +20,11 @@ rig_builder generate_rig_builder_from_file(const char *filepath, const char *sec
   rb.num_bones = utl_config_get_int(config, section, "num_bones", 1);
   rb.root_tex = get_tex_id_from_string((const char *)utl_config_get_value(config, section, "root_bone_tex"));
   rb.init_layer = utl_config_get_int(config, section, "root_bone_num", 0);
-  rb.root_offset = phy_vector2_new(atof(((char **)utl_config_get_array(config, section, "root_bone_offset", 2))[0]), atof(((char **)utl_config_get_array(config, section, "root_bone_offset", 2))[1]));
+  char **root_offset = utl_config_get_array(config, section, "root_bone_offset", 2);
+  rb.root_offset = phy_vector2_new(atof(root_offset[0]), atof(root_offset[1]));
+  free(root_offset[0]);
+  free(root_offset[1]);
+  free(root_offset);
   utl_config_deallocate(config);
   return rb;
 }

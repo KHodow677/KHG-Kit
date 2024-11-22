@@ -21,8 +21,8 @@ typedef struct {
 } gfx_font;
 
 typedef enum {
-  gfx_tex_filter_linear,
-  gfx_tex_filter_nearest
+  GFX_TEX_FILTER_LINEAR,
+  GFX_TEX_FILTER_NEAREST
 } gfx_texture_filtering;
 
 typedef struct {

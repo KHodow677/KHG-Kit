@@ -306,7 +306,7 @@ gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, 
     id = gfx_internal_djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
   }
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size= size }, true)) {
-    return gfx_clickable_idle;
+    return GFX_CLICKABLE_IDLE;
   }
   gfx_color hover_color_rgb = hover_color ? (props.hover_color.a == 0.0f ? gfx_color_brightness(color, 1.2) : props.hover_color) : color; 
   gfx_color held_color_rgb = click_color ? gfx_color_brightness(color, 1.3) : color; 
@@ -321,7 +321,7 @@ gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, 
     if(is_hovered && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
       gfx_rect_render(pos, size, hover_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
       state.active_element_id = 0;
-      return gfx_clickable_clicked;
+      return GFX_CLICKABLE_CLICKED;
     }
   }
   if (is_hovered && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -329,19 +329,19 @@ gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, 
   }
   if (is_hovered && gfx_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT)) {
     gfx_rect_render(pos, size, held_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_held;
+    return GFX_CLICKABLE_HELD;
   }
   if (is_hovered && (!gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && !gfx_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT))) {
     gfx_rect_render(pos, size, hover_color ? hover_color_rgb : color, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_held;
+    return GFX_CLICKABLE_HELD;
   }
   gfx_rect_render(pos, size, color, props.border_color, border_width, props.corner_radius, 0.0f);
-  return gfx_clickable_idle;
+  return GFX_CLICKABLE_IDLE;
 }
 
 gfx_clickable_item_state gfx_internal_div_container(vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color) {
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = size }, true)) {
-    return gfx_clickable_idle;
+    return GFX_CLICKABLE_IDLE;
   }
   gfx_color hover_color_rgb = hover_color ? (props.hover_color.a == 0.0f ? gfx_color_brightness(color, 1.5) : props.hover_color) : color; 
   gfx_color held_color_rgb = click_color ? gfx_color_brightness(color, 1.8) : color; 
@@ -349,18 +349,18 @@ gfx_clickable_item_state gfx_internal_div_container(vec2s pos, vec2s size, gfx_e
   bool is_hovered = gfx_hovered(pos, size);
   if (is_hovered && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
     gfx_rect_render(pos, size, hover_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_clicked;
+    return GFX_CLICKABLE_CLICKED;
   }
   if (is_hovered && gfx_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT)) {
     gfx_rect_render(pos, size, held_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_held;
+    return GFX_CLICKABLE_HELD;
   }
   if (is_hovered && (!gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && !gfx_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT))) {
     gfx_rect_render(pos, size, hover_color ? hover_color_rgb : color, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_hovered;
+    return GFX_CLICKABLE_HOVERED;
   }
   gfx_rect_render(pos, size, color, props.border_color, border_width, props.corner_radius, 0.0f);
-  return gfx_clickable_idle;
+  return GFX_CLICKABLE_IDLE;
 }
 
 void gfx_internal_next_line_on_overflow(vec2s size, float xoffset) {
@@ -678,12 +678,12 @@ void gfx_internal_input_field(gfx_input_field *input, gfx_input_field_type type,
   gfx_internal_next_line_on_overflow((vec2s){ input->width + props.padding * 2.0f + props.margin_right + props.margin_left, input->height + props.padding * 2.0f + props.margin_bottom + props.margin_top }, state.div_props.border_width);
   gfx_aabb input_aabb = (gfx_aabb){ .pos = state.pos_ptr, .size = (vec2s){ input->width + props.padding * 2.0f, input->height + props.padding * 2.0f } };
   gfx_clickable_item_state inputfield = gfx_internal_button(file, line, input_aabb.pos, input_aabb.size, props, props.color, props.border_width, false, false);
-  if (gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && input->selected && inputfield == gfx_clickable_idle) {
+  if (gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && input->selected && inputfield == GFX_CLICKABLE_IDLE) {
     input->selected = false;
     state.input_grabbed = false;
     gfx_input_field_unselect_all(input);
   } 
-  else if (inputfield == gfx_clickable_clicked) {
+  else if (inputfield == GFX_CLICKABLE_CLICKED) {
     input->selected = true;
     state.input_grabbed = true;
     gfx_text_props selected_props = gfx_text_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, input->buf, font, gfx_no_color, wrap_point, (vec2s){ gfx_get_mouse_x(), gfx_get_mouse_y() }, true, false, -1, -1);
@@ -800,7 +800,7 @@ gfx_clickable_item_state gfx_internal_checkbox_element_loc(void *text, bool *val
   else {
     gfx_internal_text_render_simple((vec2s){ state.pos_ptr.x + checkbox_size + props.padding * 2.0f + margin_right, state.pos_ptr.y + props.padding }, (const char*)text, font, props.text_color, false);
   }
-  if (checkbox == gfx_clickable_clicked) {
+  if (checkbox == GFX_CLICKABLE_CLICKED) {
     *val = !*val;
   }
   if (*val) {
@@ -840,11 +840,11 @@ void gfx_internal_dropdown_menu_item_loc(void **items, void *placeholder, uint32
   }
   vec2s image_size = (vec2s){ 20, 10 };
   gfx_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (gfx_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, gfx_no_color, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
-  if (dropdown_button == gfx_clickable_clicked) {
+  if (dropdown_button == GFX_CLICKABLE_CLICKED) {
     *opened = !*opened;
   }
   if (*opened) {
-    if ((gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT) && dropdown_button != gfx_clickable_clicked) || (!gfx_input_grabbed() && gfx_key_went_down(GLFW_KEY_ESCAPE))) {
+    if ((gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT) && dropdown_button != GFX_CLICKABLE_CLICKED) || (!gfx_input_grabbed() && gfx_key_went_down(GLFW_KEY_ESCAPE))) {
       *opened = false;
     }
     gfx_element_props div_props = gfx_get_theme().div_props;
@@ -911,12 +911,12 @@ int32_t gfx_internal_menu_item_list_item_loc(void **items, uint32_t item_count, 
     }
     gfx_push_style_props(props);
     if (wide) {
-      if (gfx_button_wide_loc((const wchar_t*)items[i], file, line) == gfx_clickable_clicked) {
+      if (gfx_button_wide_loc((const wchar_t*)items[i], file, line) == GFX_CLICKABLE_CLICKED) {
         clicked_item = i;  
       } 
     } 
     else {
-      if (gfx_button_loc((const char *)items[i], file, line) == gfx_clickable_clicked) {
+      if (gfx_button_loc((const char *)items[i], file, line) == GFX_CLICKABLE_CLICKED) {
         clicked_item = i;  
       } 
     }

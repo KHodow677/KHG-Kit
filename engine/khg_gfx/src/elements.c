@@ -307,12 +307,12 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
   gfx_clickable_item_state slider_state = gfx_internal_button_ex(file, line, state.pos_ptr, (vec2s){ (float)slider_width, (float)slider_height }, slider_props, color, 0, false, false, (vec2s){ -1, handle_size });
   slider->handle_pos = gfx_internal_map_vals(*(int32_t *)slider->val, slider->min, slider->max, handle_size / 2.0f, slider->width - handle_size / 2.0f) - (handle_size) / 2.0f;
   gfx_rect_render((vec2s){ state.pos_ptr.x + slider->handle_pos, state.pos_ptr.y - (handle_size) / 2.0f + slider_height / 2.0f }, (vec2s){ handle_size, handle_size }, props.text_color, props.border_color, props.border_width, slider->held ? props.corner_radius * 3.5f : props.corner_radius * 3.0f, 0.0f);
-  if (slider_state == gfx_clickable_held || slider_state == gfx_clickable_clicked) {
+  if (slider_state == GFX_CLICKABLE_HELD || slider_state == GFX_CLICKABLE_CLICKED) {
     slider->held = true;
   }
   if (slider->held && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
     slider->held = false;
-    slider_state = gfx_clickable_clicked;
+    slider_state = GFX_CLICKABLE_CLICKED;
   }
   if(slider->held) {
     if (gfx_get_mouse_x() >= state.pos_ptr.x && gfx_get_mouse_x() <= state.pos_ptr.x + slider_width - handle_size) {
@@ -327,7 +327,7 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
       *(int32_t *)slider->val = slider->max;
       slider->handle_pos = slider_width - handle_size;
     }
-    slider_state = gfx_clickable_held;
+    slider_state = GFX_CLICKABLE_HELD;
   }
   state.pos_ptr.x += slider_width + margin_right;
   state.pos_ptr.y -= margin_top;
@@ -396,15 +396,15 @@ void gfx_dropdown_menu_loc_wide(const wchar_t **items, const wchar_t *placeholde
 }
 
 void gfx_input_text_loc(gfx_input_field* input, const char *file, int32_t line) {
-  gfx_internal_input_field(input, INPUT_TEXT, file, line);
+  gfx_internal_input_field(input, GFX_INPUT_TEXT, file, line);
 }
 
 void gfx_input_int_loc(gfx_input_field *input, const char *file, int32_t line) {
-  gfx_internal_input_field(input, INPUT_INT, file, line);
+  gfx_internal_input_field(input, GFX_INPUT_INT, file, line);
 }
 
 void gfx_input_float_loc(gfx_input_field *input, const char *file, int32_t line) {
-  gfx_internal_input_field(input, INPUT_FLOAT, file, line);
+  gfx_internal_input_field(input, GFX_INPUT_FLOAT, file, line);
 }
 
 void gfx_input_insert_char_idx(gfx_input_field *input, char c, uint32_t idx) {

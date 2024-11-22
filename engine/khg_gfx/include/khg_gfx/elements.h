@@ -36,11 +36,11 @@ typedef struct {
 } gfx_slider;
 
 typedef enum {
-  gfx_clickable_released = -1,
-  gfx_clickable_idle = 0,
-  gfx_clickable_hovered = 1,
-  gfx_clickable_clicked = 2,
-  gfx_clickable_held = 3
+  GFX_CLICKABLE_RELEASED = -1,
+  GFX_CLICKABLE_IDLE = 0,
+  GFX_CLICKABLE_HOVERED = 1,
+  GFX_CLICKABLE_CLICKED = 2,
+  GFX_CLICKABLE_HELD = 3
 } gfx_clickable_item_state;
 
 typedef struct {

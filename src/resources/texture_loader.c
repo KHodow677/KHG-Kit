@@ -24,7 +24,7 @@ const bool check_texture_loaded(int tex_id) {
 }
 
 const int get_tex_id_from_string(const char *tex_key) {
-  return (int)algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
+  return (int)utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
 }
 
 const gfx_texture get_or_add_texture(int tex_id) {

@@ -21,7 +21,7 @@ static void reverse(void *first, void *last, size_t size) {
   }
 }
 
-static void quickSortInternal(void *base, size_t low, size_t high, size_t size, CompareFunc comp, void *temp) {
+static void quickSortInternal(void *base, size_t low, size_t high, size_t size, utl_compare_func comp, void *temp) {
   if (low < high) {
     char* pivot = (char*)base + high * size;
     size_t i = low;
@@ -43,7 +43,7 @@ static void quickSortInternal(void *base, size_t low, size_t high, size_t size, 
   }
 }
 
-static void merge(void *base, size_t low, size_t mid, size_t high, size_t size, CompareFunc comp, void *temp) {
+static void merge(void *base, size_t low, size_t mid, size_t high, size_t size, utl_compare_func comp, void *temp) {
   size_t i = low, j = mid, k = 0;
   while (i < mid && j < high) {
     if (comp((char*)base + i * size, (char*)base + j * size) <= 0) {
@@ -69,7 +69,7 @@ static void merge(void *base, size_t low, size_t mid, size_t high, size_t size, 
   memcpy((char*)base + low * size, temp, k * size);
 }
 
-static void mergeSortInternal(void *base, size_t low, size_t high, size_t size, CompareFunc comp, void *temp) {
+static void mergeSortInternal(void *base, size_t low, size_t high, size_t size, utl_compare_func comp, void *temp) {
   if (high - low > 1) {
     size_t mid = low + (high - low) / 2;
     mergeSortInternal(base, low, mid, size, comp, temp);
@@ -78,7 +78,7 @@ static void mergeSortInternal(void *base, size_t low, size_t high, size_t size, 
   }
 }
 
-void algorithm_stable_sort(void *base, size_t num, size_t size, CompareFunc comp) {
+void utl_algorithm_stable_sort(void *base, size_t num, size_t size, utl_compare_func comp) {
   if (num > 1) {
     void* temp = malloc(num * size);
     if (temp) {
@@ -92,7 +92,7 @@ void algorithm_stable_sort(void *base, size_t num, size_t size, CompareFunc comp
   } 
 }
 
-void algorithm_sort(void *base, size_t num, size_t size, CompareFunc comp) {
+void utl_algorithm_sort(void *base, size_t num, size_t size, utl_compare_func comp) {
   if (num > 1) {
     void* temp = malloc(size);
     if (temp) {
@@ -106,7 +106,7 @@ void algorithm_sort(void *base, size_t num, size_t size, CompareFunc comp) {
   } 
 }
 
-void *algorithm_find(const void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
+void *utl_algorithm_find(const void *base, size_t num, size_t size, const void *val, utl_compare_func comp) {
   const char *ptr = (const char*)base;
   for (size_t i = 0; i < num; i++) {
     if (comp(ptr + i * size, val) == 0) {
@@ -116,7 +116,7 @@ void *algorithm_find(const void *base, size_t num, size_t size, const void *val,
   return NULL;
 }
 
-size_t algorithm_find_at(const void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
+size_t utl_algorithm_find_at(const void *base, size_t num, size_t size, const void *val, utl_compare_func comp) {
   const char *ptr = (const char*)base;
   for (size_t i = 0; i < num; i++) {
     if (comp(ptr + i * size, val) == 0) {
@@ -126,7 +126,7 @@ size_t algorithm_find_at(const void *base, size_t num, size_t size, const void *
   return -1;
 }
 
-void *algorithm_find_if(const void *base, size_t num, size_t size, BoolPredicateFunc pred) {
+void *utl_algorithm_find_if(const void *base, size_t num, size_t size, utl_bool_predicate_func pred) {
   const char *ptr = (const char*)base;
   for (size_t i = 0; i < num; i++) {
     if (pred(ptr + i * size)) {
@@ -136,7 +136,7 @@ void *algorithm_find_if(const void *base, size_t num, size_t size, BoolPredicate
   return NULL;
 }
 
-void *algorithm_find_if_not(const void *base, size_t num, size_t size, BoolPredicateFunc pred) {
+void *utl_algorithm_find_if_not(const void *base, size_t num, size_t size, utl_bool_predicate_func pred) {
   const char *ptr = (const char*)base;
   for (size_t i = 0; i < num; i++) {
     if (!pred(ptr + i * size)) {
@@ -146,7 +146,7 @@ void *algorithm_find_if_not(const void *base, size_t num, size_t size, BoolPredi
   return NULL;
 }
 
-void *algorithm_find_end(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, CompareFunc comp) {
+void *utl_algorithm_find_end(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, utl_compare_func comp) {
   if (num2 == 0) {
     return (void*)((char*)base1 + num1 * size1);
   }
@@ -168,7 +168,7 @@ void *algorithm_find_end(const void *base1, size_t num1, size_t size1, const voi
   return ret;
 }
 
-void *algorithm_find_first_of(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, CompareFunc comp) {
+void *utl_algorithm_find_first_of(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, utl_compare_func comp) {
   const char *ptr1 = (const char*)base1;
   const char *ptr2 = (const char*)base2;
   for (size_t i = 0; i < num1; ++i) {
@@ -181,7 +181,7 @@ void *algorithm_find_first_of(const void *base1, size_t num1, size_t size1, cons
   return NULL;
 }
 
-size_t algorithm_binary_search(const void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
+size_t utl_algorithm_binary_search(const void *base, size_t num, size_t size, const void *val, utl_compare_func comp) {
   size_t low = 0;
   size_t high = num;
   while (low < high) {
@@ -201,7 +201,7 @@ size_t algorithm_binary_search(const void *base, size_t num, size_t size, const 
   return (size_t)-1;
 }
 
-void *algorithm_max_element(const void *base, size_t num, size_t size, CompareFunc comp) {
+void *utl_algorithm_max_element(const void *base, size_t num, size_t size, utl_compare_func comp) {
   if (num == 0) {
     utl_error_func("Array is empty, returning null", utl_user_defined_data);
     return NULL;
@@ -216,7 +216,7 @@ void *algorithm_max_element(const void *base, size_t num, size_t size, CompareFu
   return (void *)max_element;
 }
 
-void *algorithm_min_element(const void *base, size_t num, size_t size, CompareFunc comp) {
+void *utl_algorithm_min_element(const void *base, size_t num, size_t size, utl_compare_func comp) {
   if (num == 0) {
     utl_error_func("Array is empty, returning null", utl_user_defined_data);
     return NULL;
@@ -231,14 +231,14 @@ void *algorithm_min_element(const void *base, size_t num, size_t size, CompareFu
   return (void *)min_element;
 }
 
-void algorithm_for_each(void *base, size_t num, size_t size, ForEachOpFunc op) {
+void utl_algorithm_for_each(void *base, size_t num, size_t size, utl_for_each_op_func op) {
   char *ptr = (char *)base;
   for (size_t i = 0; i < num; ++i) {
     op(ptr + i * size);
   }
 }
 
-void algorithm_copy(const void *source, size_t num, size_t size, void *dest) {
+void utl_algorithm_copy(const void *source, size_t num, size_t size, void *dest) {
   const char *src_ptr = (const char *)source;
   char *dest_ptr = (char *)dest;
   for (size_t i = 0; i < num; ++i) {
@@ -246,7 +246,7 @@ void algorithm_copy(const void *source, size_t num, size_t size, void *dest) {
   }
 }
 
-void *algorithm_accumulate(const void *base, size_t num, size_t size, void *init, AccumulateOpFunc op) {
+void *utl_algorithm_accumulate(const void *base, size_t num, size_t size, void *init, utl_accumulate_op_func op) {
   char *result = (char *)init;
   const char *ptr = (const char *)base;
   for (size_t i = 0; i < num; ++i) {
@@ -255,7 +255,7 @@ void *algorithm_accumulate(const void *base, size_t num, size_t size, void *init
   return result;
 }
 
-bool algorithm_all_of(const void *base, size_t num, size_t size, BoolPredicateFunc pred) {
+bool utl_algorithm_all_of(const void *base, size_t num, size_t size, utl_bool_predicate_func pred) {
   const char *ptr = (const char *)base;
   for (size_t i = 0; i < num; ++i) {
     if (!pred(ptr + i * size)) {
@@ -265,7 +265,7 @@ bool algorithm_all_of(const void *base, size_t num, size_t size, BoolPredicateFu
   return true;
 }
 
-bool algorithm_any_of(const void *base, size_t num, size_t size, BoolPredicateFunc pred) {
+bool utl_algorithm_any_of(const void *base, size_t num, size_t size, utl_bool_predicate_func pred) {
   const char *ptr = (const char *)base;
   for (size_t i = 0; i < num; ++i) {
     if (pred(ptr + i * size)) {
@@ -275,7 +275,7 @@ bool algorithm_any_of(const void *base, size_t num, size_t size, BoolPredicateFu
   return false;
 }
 
-bool algorithm_none_of(const void *base, size_t num, size_t size, BoolPredicateFunc pred) {
+bool utl_algorithm_none_of(const void *base, size_t num, size_t size, utl_bool_predicate_func pred) {
   const char *ptr = (const char *)base;
   for (size_t i = 0; i < num; ++i) {
     if (pred(ptr + i * size)) {
@@ -285,19 +285,19 @@ bool algorithm_none_of(const void *base, size_t num, size_t size, BoolPredicateF
   return true;
 }
 
-void algorithm_fill(void *first, void *last, size_t size, const void *val) {
+void utl_algorithm_fill(void *first, void *last, size_t size, const void *val) {
   for (char *ptr = first; ptr != last; ptr += size) {
     memcpy(ptr, val, size);
   }
 }
 
-void algorithm_fill_n(void *first, size_t n, size_t size, const void *val) {
+void utl_algorithm_fill_n(void *first, size_t n, size_t size, const void *val) {
   for (char *ptr = first; n > 0; ptr += size, n--) {
     memcpy(ptr, val, size);
   }
 }
 
-size_t algorithm_count(const void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
+size_t utl_algorithm_count(const void *base, size_t num, size_t size, const void *val, utl_compare_func comp) {
   size_t count = 0;
   const char *ptr = (const char *)base;
   for (size_t i = 0; i < num; ++i) {
@@ -308,7 +308,7 @@ size_t algorithm_count(const void *base, size_t num, size_t size, const void *va
   return count;
 }
 
-size_t algorithm_count_if(const void *base, size_t num, size_t size, BoolPredicateFunc pred) {
+size_t utl_algorithm_count_if(const void *base, size_t num, size_t size, utl_bool_predicate_func pred) {
   size_t count = 0;
   const char *ptr = (const char *)base;
   for (size_t i = 0; i < num; ++i) {
@@ -319,7 +319,7 @@ size_t algorithm_count_if(const void *base, size_t num, size_t size, BoolPredica
   return count;
 }
 
-void algorithm_shuffle(void *base, size_t num, size_t size, UniformRandomNumberGenerator rng) {
+void utl_algorithm_shuffle(void *base, size_t num, size_t size, utl_uniform_random_number_generator rng) {
   if (num > 1) {
     char *arr = (char *)base;
     char *temp = malloc(size);
@@ -337,7 +337,7 @@ void algorithm_shuffle(void *base, size_t num, size_t size, UniformRandomNumberG
   }
 }
 
-void *algorithm_lower_bound(const void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
+void *utl_algorithm_lower_bound(const void *base, size_t num, size_t size, const void *val, utl_compare_func comp) {
   size_t low = 0;
   size_t high = num;
   while (low < high) {
@@ -353,7 +353,7 @@ void *algorithm_lower_bound(const void *base, size_t num, size_t size, const voi
   return (void *)((const char *)base + low * size);
 }
 
-void *algorithm_upper_bound(const void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
+void *utl_algorithm_upper_bound(const void *base, size_t num, size_t size, const void *val, utl_compare_func comp) {
   size_t low = 0;
   size_t high = num;
   while (low < high) {
@@ -369,7 +369,7 @@ void *algorithm_upper_bound(const void *base, size_t num, size_t size, const voi
   return (void *)((const char *)base + low * size);
 }
 
-void algorithm_transform(const void *base, size_t num, size_t size, void *result, TransformFunc op) {
+void utl_algorithm_transform(const void *base, size_t num, size_t size, void *result, utl_transform_func op) {
   const char *input_ptr = (const char *)base;
   char *output_ptr = (char *)result;
   for (size_t i = 0; i < num; ++i) {
@@ -377,7 +377,7 @@ void algorithm_transform(const void *base, size_t num, size_t size, void *result
   }
 }
 
-void *algorithm_reduce(const void *base, size_t num, size_t size, void *init, ReduceFunc op) {
+void *utl_algorithm_reduce(const void *base, size_t num, size_t size, void *init, utl_reduce_func op) {
   const char *ptr = (const char *)base;
   char *result = (char *)init;
   for (size_t i = 0; i < num; ++i) {
@@ -386,7 +386,7 @@ void *algorithm_reduce(const void *base, size_t num, size_t size, void *init, Re
   return result;
 }
 
-size_t algorithm_unique(void *base, size_t num, size_t size, CompareFunc comp) {
+size_t utl_algorithm_unique(void *base, size_t num, size_t size, utl_compare_func comp) {
   if (num == 0) {
     return 0;
   }
@@ -403,7 +403,7 @@ size_t algorithm_unique(void *base, size_t num, size_t size, CompareFunc comp) {
   return uniqueCount;
 }
 
-bool algorithm_equal(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, CompareFunc comp) {
+bool utl_algorithm_equal(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, utl_compare_func comp) {
   if (num1 != num2 || size1 != size2) {
     return false;
   }
@@ -417,7 +417,7 @@ bool algorithm_equal(const void *base1, size_t num1, size_t size1, const void *b
   return true;
 }
 
-bool algorithm_next_permutation(void *first, void *last, size_t size, CompareFuncBool comp) {
+bool utl_algorithm_next_permutation(void *first, void *last, size_t size, utl_compare_func_bool comp) {
   if (first == last) {
     return false;
   }
@@ -442,7 +442,7 @@ bool algorithm_next_permutation(void *first, void *last, size_t size, CompareFun
   return false;
 }
 
-bool algorithm_prev_permutation(void *first, void *last, size_t size, CompareFuncBool comp) {
+bool utl_algorithm_prev_permutation(void *first, void *last, size_t size, utl_compare_func_bool comp) {
   if (first == last) {
     return false;
   }
@@ -467,7 +467,7 @@ bool algorithm_prev_permutation(void *first, void *last, size_t size, CompareFun
   return false; 
 }
 
-void *algorithm_partition(void *base, size_t num, size_t size, BoolPredicateFunc pred) {
+void *utl_algorithm_partition(void *base, size_t num, size_t size, utl_bool_predicate_func pred) {
   char *first = (char *)base;
   char *last = first + num * size;
   while (first != last) {
@@ -488,7 +488,7 @@ void *algorithm_partition(void *base, size_t num, size_t size, BoolPredicateFunc
   return first;
 }
 
-void algorithm_generate(void *first, void *last, size_t size, GeneratorFunc gen) {
+void utl_algorithm_generate(void *first, void *last, size_t size, utl_generator_func gen) {
   char *current = (char *)first;
   while (current != last) {
     gen(current);
@@ -496,7 +496,7 @@ void algorithm_generate(void *first, void *last, size_t size, GeneratorFunc gen)
   }
 }
 
-void algorithm_generate_n(void *first, size_t n, size_t size, GeneratorFunc gen) {
+void utl_algorithm_generate_n(void *first, size_t n, size_t size, utl_generator_func gen) {
   char *current = (char *)first;
   for (size_t i = 0; i < n; ++i) {
     gen(current);
@@ -504,7 +504,7 @@ void algorithm_generate_n(void *first, size_t n, size_t size, GeneratorFunc gen)
   }
 }
 
-void algorithm_copy_backward(const void *first, const void *last, size_t size, void *result) {
+void utl_algorithm_copy_backward(const void *first, const void *last, size_t size, void *result) {
   const char *src = (const char *)last;
   char *dest = (char *)result;
   while (src != (const char *)first) {
@@ -514,7 +514,7 @@ void algorithm_copy_backward(const void *first, const void *last, size_t size, v
   }
 }
 
-void algorithm_copy_if(const void *first, const void *last, size_t size, void *result, UnaryPredicateFunc pred) {
+void utl_algorithm_copy_if(const void *first, const void *last, size_t size, void *result, utl_unary_predicate_func pred) {
   const char *src = (const char *)first;
   char *dest = (char *)result;
   while (src != (const char *)last) {
@@ -526,7 +526,7 @@ void algorithm_copy_if(const void *first, const void *last, size_t size, void *r
   }
 }
 
-void algorithm_copy_n(const void *first, size_t n, size_t size, void *result) {
+void utl_algorithm_copy_n(const void *first, size_t n, size_t size, void *result) {
   const char *src = (const char *)first;
   char *dest = (char *)result;
   for (size_t i = 0; i < n; ++i) {
@@ -536,14 +536,14 @@ void algorithm_copy_n(const void *first, size_t n, size_t size, void *result) {
   }
 }
 
-Pair algorithm_equal_range(const void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
-  Pair range;
-  range.first = algorithm_lower_bound(base, num, size, val, comp);
-  range.second = algorithm_upper_bound(range.first, num, size, val, comp);
+utl_pair utl_algorithm_equal_range(const void *base, size_t num, size_t size, const void *val, utl_compare_func comp) {
+  utl_pair range;
+  range.first = utl_algorithm_lower_bound(base, num, size, val, comp);
+  range.second = utl_algorithm_upper_bound(range.first, num, size, val, comp);
   return range;
 }
 
-bool algorithm_includes(const void *first1, size_t num1, size_t size1, const void *first2, size_t num2, size_t size2, CompareFunc comp) {
+bool utl_algorithm_includes(const void *first1, size_t num1, size_t size1, const void *first2, size_t num2, size_t size2, utl_compare_func comp) {
   const char *ptr1 = (const char *)first1;
   const char *ptr2 = (const char *)first2;
   const char *last1 = ptr1 + num1 * size1;
@@ -560,7 +560,7 @@ bool algorithm_includes(const void *first1, size_t num1, size_t size1, const voi
   return true;
 }
 
-size_t algorithm_unique_copy(const void *first, size_t num, size_t size, void *result, CompareFunc comp) {
+size_t utl_algorithm_unique_copy(const void *first, size_t num, size_t size, void *result, utl_compare_func comp) {
   if (num == 0) {
     return 0;
   }
@@ -577,7 +577,7 @@ size_t algorithm_unique_copy(const void *first, size_t num, size_t size, void *r
   return count;
 }
 
-void algorithm_swap(void *a, void *b, size_t size) {
+void utl_algorithm_swap(void *a, void *b, size_t size) {
   void *temp = malloc(size);
   if (!temp) {
     utl_error_func("Failed to allocate memory for temporary swap buffer", utl_user_defined_data);
@@ -589,15 +589,15 @@ void algorithm_swap(void *a, void *b, size_t size) {
   free(temp);
 }
 
-void algorithm_swap_ranges(void *first1, void *first2, size_t num, size_t size) {
+void utl_algorithm_swap_ranges(void *first1, void *first2, size_t num, size_t size) {
   char *ptr1 = (char *)first1;
   char *ptr2 = (char *)first2;
   for (size_t i = 0; i < num; ++i) {
-    algorithm_swap(ptr1 + i * size, ptr2 + i * size, size);
+    utl_algorithm_swap(ptr1 + i * size, ptr2 + i * size, size);
   }
 }
 
-bool algorithm_is_sorted(const void *base, size_t num, size_t size, CompareFunc comp) {
+bool utl_algorithm_is_sorted(const void *base, size_t num, size_t size, utl_compare_func comp) {
   if (num < 2) {
     return true; 
   }
@@ -610,7 +610,7 @@ bool algorithm_is_sorted(const void *base, size_t num, size_t size, CompareFunc 
   return true; 
 }
 
-void *algorithm_is_sorted_until(const void *base, size_t num, size_t size, CompareFunc comp) {
+void *utl_algorithm_is_sorted_until(const void *base, size_t num, size_t size, utl_compare_func comp) {
   if (num < 2) {
     return (void *)((char *)base + num * size);
   }
@@ -623,7 +623,7 @@ void *algorithm_is_sorted_until(const void *base, size_t num, size_t size, Compa
   return (void *)((char *)base + num * size);
 }
 
-void algorithm_rotate(void *first, void *middle, void *last, size_t size) {
+void utl_algorithm_rotate(void *first, void *middle, void *last, size_t size) {
   char *next = (char *)middle;
   while ((char *)first != next) {
     swap(first, next, size);
@@ -638,7 +638,7 @@ void algorithm_rotate(void *first, void *middle, void *last, size_t size) {
   }
 }
 
-void algorithm_rotate_copy(const void *first, const void *middle, const void *last, size_t size, void *result) {
+void utl_algorithm_rotate_copy(const void *first, const void *middle, const void *last, size_t size, void *result) {
   const char *first_ptr = (const char *)first;
   const char *middle_ptr = (const char *)middle;
   const char *last_ptr = (const char *)last;
@@ -655,7 +655,7 @@ void algorithm_rotate_copy(const void *first, const void *middle, const void *la
   }
 }
 
-void algorithm_merge(const void *base1, size_t num1, const void *base2, size_t num2, size_t size, void *result, CompareFunc comp) {
+void utl_algorithm_merge(const void *base1, size_t num1, const void *base2, size_t num2, size_t size, void *result, utl_compare_func comp) {
   size_t i = 0, j = 0, k = 0;
   const char *a = (const char *)base1;
   const char *b = (const char *)base2;
@@ -683,7 +683,7 @@ void algorithm_merge(const void *base1, size_t num1, const void *base2, size_t n
   }
 }
 
-void algorithm_inplace_merge(void *base, size_t middle, size_t num, size_t size, CompareFunc comp) {
+void utl_algorithm_inplace_merge(void *base, size_t middle, size_t num, size_t size, utl_compare_func comp) {
   size_t i = 0, j = middle, k;
   char *arr = (char *)base;
   char temp[size];
@@ -704,7 +704,7 @@ void algorithm_inplace_merge(void *base, size_t middle, size_t num, size_t size,
   }
 }
 
-void *algorithm_adjacent_find(const void *base, size_t num, size_t size, CompareFunc comp) {
+void *utl_algorithm_adjacent_find(const void *base, size_t num, size_t size, utl_compare_func comp) {
   const char *ptr = (const char *)base;
   for (size_t i = 0; i < num - 1; ++i) {
     if (comp(ptr + i * size, ptr + (i + 1) * size) == 0) {
@@ -714,21 +714,21 @@ void *algorithm_adjacent_find(const void *base, size_t num, size_t size, Compare
   return NULL;
 }
 
-Pair algorithm_mismatch(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, CompareFuncBool comp) {
+utl_pair utl_algorithm_mismatch(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, utl_compare_func_bool comp) {
   const char *ptr1 = (const char *)base1;
   const char *ptr2 = (const char *)base2;
   size_t min_num = num1 < num2 ? num1 : num2;
   for (size_t i = 0; i < min_num; i++) {
     if (comp(ptr1 + i * size1, ptr2 + i * size2) != 0) {
-      Pair mismatch = {(void *)(ptr1 + i * size1), (void *)(ptr2 + i * size2)};
+      utl_pair mismatch = {(void *)(ptr1 + i * size1), (void *)(ptr2 + i * size2)};
       return mismatch;
     }
   }
-  Pair mismatch = {NULL, NULL};
+  utl_pair mismatch = {NULL, NULL};
   return mismatch;
 }
 
-bool algorithm_is_permutation(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, CompareFunc comp) {
+bool utl_algorithm_is_permutation(const void *base1, size_t num1, size_t size1, const void *base2, size_t num2, size_t size2, utl_compare_func comp) {
   if (num1 != num2 || size1 != size2) {
     return false;
   }
@@ -752,7 +752,7 @@ bool algorithm_is_permutation(const void *base1, size_t num1, size_t size1, cons
   return true;
 }
 
-const void* algorithm_search(const void* first1, const void* last1, size_t size1, const void* first2, const void* last2, size_t size2, CompareFuncBool comp) {
+const void* utl_algorithm_search(const void* first1, const void* last1, size_t size1, const void* first2, const void* last2, size_t size2, utl_compare_func_bool comp) {
   const char* ptr1 = (const char*)first1;
   const char* ptr2 = (const char*)first2;
   const char* end1 = (const char*)last1;
@@ -777,7 +777,7 @@ const void* algorithm_search(const void* first1, const void* last1, size_t size1
   return last1;
 }
 
-const void *algorithm_search_n(const void *first, const void* last, size_t size, size_t count, const void *val, CompareFuncBool comp) {
+const void *utl_algorithm_search_n(const void *first, const void* last, size_t size, size_t count, const void *val, utl_compare_func_bool comp) {
   const char* ptr = (const char*)first;
   const char* end = (const char*)last;
   while (ptr + size * count <= end) {
@@ -798,7 +798,7 @@ const void *algorithm_search_n(const void *first, const void* last, size_t size,
   return last;
 }
 
-void *algorithm_remove(void *base, size_t num, size_t size, const void *val, CompareFunc comp) {
+void *utl_algorithm_remove(void *base, size_t num, size_t size, const void *val, utl_compare_func comp) {
   char *ptr = (char *)base;
   size_t new_num = 0;
   for (size_t i = 0; i < num; ++i) {
@@ -812,7 +812,7 @@ void *algorithm_remove(void *base, size_t num, size_t size, const void *val, Com
   return ptr + new_num * size;
 }
 
-void algorithm_remove_copy(const void *source, size_t num, size_t size, void *result, const void *val, CompareFunc comp) {
+void utl_algorithm_remove_copy(const void *source, size_t num, size_t size, void *result, const void *val, utl_compare_func comp) {
   const char *src = (const char *)source;
   char *dst = (char *)result;
   size_t copied = 0;
@@ -825,7 +825,7 @@ void algorithm_remove_copy(const void *source, size_t num, size_t size, void *re
   }
 }
 
-size_t algorithm_remove_copy_if(const void *source, size_t num, size_t size, void *result, BoolPredicateFunc pred) {
+size_t utl_algorithm_remove_copy_if(const void *source, size_t num, size_t size, void *result, utl_bool_predicate_func pred) {
   if (!source || !result || !pred || size == 0 || num == 0) {
     utl_error_func("Invalid input parameters", utl_user_defined_data);
     return 0;
@@ -843,7 +843,7 @@ size_t algorithm_remove_copy_if(const void *source, size_t num, size_t size, voi
   return count;
 }
 
-void algorithm_replace(void *base, size_t num, size_t size, const void *old_val, const void *new_val, CompareFunc comp) {
+void utl_algorithm_replace(void *base, size_t num, size_t size, const void *old_val, const void *new_val, utl_compare_func comp) {
   if (!base || !old_val || !new_val || !comp || size == 0 || num == 0) {
     utl_error_func("Invalid input parameters", utl_user_defined_data);
     return;
@@ -858,7 +858,7 @@ void algorithm_replace(void *base, size_t num, size_t size, const void *old_val,
   }
 }
 
-void algorithm_replace_if(void *base, size_t num, size_t size, const void *new_val, BoolPredicateFunc pred) {
+void utl_algorithm_replace_if(void *base, size_t num, size_t size, const void *new_val, utl_bool_predicate_func pred) {
   if (!base) {
     utl_error_func("Base pointer is null", utl_user_defined_data);
     return;
@@ -885,18 +885,18 @@ void algorithm_replace_if(void *base, size_t num, size_t size, const void *new_v
   }
 }
 
-void* algorithm_begin(void* base) {
+void* utl_algorithm_begin(void* base) {
   return base;
 }
 
-void* algorithm_end(void* base, size_t num, size_t size) {
+void* utl_algorithm_end(void* base, size_t num, size_t size) {
   return (char*)base + num * size;
 }
 
-void algorithm_iota(void* first, void* last, void* val, size_t size, DataType type) {
+void utl_algorithm_iota(void* first, void* last, void* val, size_t size, utl_data_type type) {
   char* ptr = (char*)first;
   switch (type) {
-    case TYPE_INT: {
+    case UTL_TYPE_INT: {
       int current = *(int*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -904,7 +904,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_CHAR: {
+    case UTL_TYPE_CHAR: {
       char current = *(char*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -912,7 +912,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_FLOAT: {
+    case UTL_TYPE_FLOAT: {
       float current = *(float*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -920,7 +920,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_DOUBLE: {
+    case UTL_TYPE_DOUBLE: {
       double current = *(double*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -928,7 +928,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_SHORT: {
+    case UTL_TYPE_SHORT: {
       short current = *(short*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -936,7 +936,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_LONG: {
+    case UTL_TYPE_LONG: {
       long current = *(long*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -944,7 +944,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_LONG_LONG: {
+    case UTL_TYPE_LONG_LONG: {
       long long current = *(long long*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -952,7 +952,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_UNSIGNED_LONG: {
+    case UTL_TYPE_UNSIGNED_LONG: {
       unsigned long current = *(unsigned long*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -960,7 +960,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_UNSIGNED_CHAR: {
+    case UTL_TYPE_UNSIGNED_CHAR: {
       unsigned char current = *(unsigned char*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -968,7 +968,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_UNSIGNED_LONG_LONG: {
+    case UTL_TYPE_UNSIGNED_LONG_LONG: {
       unsigned long long current = *(unsigned long long*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -976,7 +976,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_LONG_DOUBLE: {
+    case UTL_TYPE_LONG_DOUBLE: {
       long double current = *(long double*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -984,7 +984,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_UNSIGNED_INT: {
+    case UTL_TYPE_UNSIGNED_INT: {
       unsigned int current = *(unsigned int*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
@@ -992,7 +992,7 @@ void algorithm_iota(void* first, void* last, void* val, size_t size, DataType ty
           ptr += size;
       }
       break; }
-    case TYPE_UNSIGNED_SHORT: {
+    case UTL_TYPE_UNSIGNED_SHORT: {
       unsigned short current = *(unsigned short*)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
