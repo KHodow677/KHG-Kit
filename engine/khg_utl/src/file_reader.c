@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <string.h>
-#include "khg_utl/encoding.h"
 #include "khg_utl/file_reader.h"
+#include "khg_utl/encoding.h"
 #include "khg_utl/error_func.h"
 #include "khg_utl/string.h"
+#include <stdlib.h>
+#include <string.h>
 
 utl_file_reader *utl_file_reader_open(const char *filename, const utl_read_mode mode) {
   if (!filename) {

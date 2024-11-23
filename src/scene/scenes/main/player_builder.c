@@ -18,6 +18,7 @@ void build_player(const int min_tex_id, const int max_tex_id, const float x, con
   comp_renderer_constructor_info comp_renderer_ci = { cp->body, min_tex_id, render_layer, 1.0f, false };
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci, generate_rig_builder_from_file("res/assets/anim/rigs/player.ini", "player_root"));
   generate_rig_from_file(&cr->rig, "res/assets/anim/rigs/player.ini", "player_bones");
+  generate_animation_from_path("res/assets/anim/frames/player/idle/");
   comp_animator_constructor_info comp_animator_ci = { min_tex_id, max_tex_id, 0.032f, false };
   comp_animator *ca = sys_animator_add(entity, &comp_animator_ci);
   comp_light_constructor_info comp_light_ci = { cp->body, (light){ (vec2s){ 0.0, 0.0 }, 250.0f }, phy_vector2_new(0.0f, 0.0f) };

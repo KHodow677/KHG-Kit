@@ -15,10 +15,6 @@ typedef struct bone {
   struct bone *parent;
 } bone;
 
-typedef struct bone_joint_info {
-  phy_vector2 bone_pos;
-} bone_joint_info;
-
 typedef struct rig {
   bool enabled;
   size_t num_bones;
@@ -26,12 +22,12 @@ typedef struct rig {
   phy_vector2 root_offset;
 } rig;
 
-typedef struct bone_builder {
+typedef struct bone_info {
   int bone_tex;
   int bone_num;
   phy_vector2 bone_offset;
   int bone_parent_num;
-} bone_builder;
+} bone_info;
 
 typedef struct rig_builder {
   bool valid;
@@ -43,6 +39,7 @@ typedef struct rig_builder {
 
 rig_builder generate_rig_builder_from_file(const char *filepath, const char *section);
 void generate_rig_from_file(rig *r, const char *filepath, const char *rig_section);
+void generate_animation_from_path(const char *dir_path);
 
 bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
 void add_bone(rig *r, const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);

@@ -3,15 +3,26 @@
 #include "camera/camera.h"
 #include "physics/physics.h"
 #include "resources/texture_loader.h"
-#include "khg_gfx/texture.h"
-#include "khg_phy/body.h"
-#include "khg_phy/core/phy_vector.h"
-#include "khg_phy/shape.h"
 #include "khg_phy/space.h"
+#include "khg_phy/core/phy_vector.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
+
+static bool generate_animation_frame(const char *dir_path, const int frame_num) {
+  char file[256];
+  snprintf(file, 256, "%s%i.ini", dir_path, frame_num);
+  if (access(file, F_OK) == -1) {
+    return false;
+  }
+  printf("Loaded %s\n", file);
+  utl_config_file *config = utl_config_create(file);
+  bone_info new_frame;
+  utl_config_deallocate(config);
+  return true;
+}
 
 rig_builder generate_rig_builder_from_file(const char *filepath, const char *section) {
   utl_config_file *config = utl_config_create(filepath);
@@ -33,7 +44,7 @@ void generate_rig_from_file(rig *r, const char *filepath, const char *rig_sectio
   utl_config_file *config = utl_config_create(filepath);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
-  bone_builder new_bone;
+  bone_info new_bone;
   while (utl_config_next_entry(&iterator, &section, &key, &value)) {
     if (strcmp(section, rig_section)) {
       continue;
@@ -64,6 +75,14 @@ void generate_rig_from_file(rig *r, const char *filepath, const char *rig_sectio
     add_bone(r, new_bone.bone_offset, new_bone.bone_tex, new_bone.bone_num, (bone *)utl_array_at(r->bones, new_bone.bone_parent_num));
   }
   utl_config_deallocate(config);
+}
+
+void generate_animation_from_path(const char *dir_path) {
+  int count = 0;
+  while (generate_animation_frame(dir_path,  count)) {
+    count++;
+  }
+  printf("Loaded Frames");
 }
 
 bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent) {
