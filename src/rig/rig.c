@@ -29,6 +29,43 @@ rig_builder generate_rig_builder_from_file(const char *filepath, const char *sec
   return rb;
 }
 
+void generate_rig_from_file(rig *r, const char *filepath, const char *rig_section) {
+  utl_config_file *config = utl_config_create(filepath);
+  utl_config_iterator iterator = utl_config_get_iterator(config);
+  const char *section, *key, *value;
+  bone_builder new_bone;
+  while (utl_config_next_entry(&iterator, &section, &key, &value)) {
+    if (strcmp(section, rig_section)) {
+      continue;
+    }
+    size_t len = strlen(key);
+    char generic_key[len];
+    strncpy(generic_key, key, len - 1);
+    generic_key[len - 1] = '\0'; 
+    if (!strcmp(generic_key, "bone_tex")) {
+      new_bone.bone_tex = get_tex_id_from_string((const char *)utl_config_get_value(config, section, key));
+      continue;
+    }
+    else if (!strcmp(generic_key, "bone_num")) {
+      new_bone.bone_num = utl_config_get_int(config, section, key, 0);
+      continue;
+    }
+    else if (!strcmp(generic_key, "bone_offset")) {
+      char **root_offset = utl_config_get_array(config, section, key, 2);
+      new_bone.bone_offset = phy_vector2_new(atof(root_offset[0]), atof(root_offset[1]));
+      free(root_offset[0]);
+      free(root_offset[1]);
+      free(root_offset);
+      continue;
+    }
+    else if (!strcmp(generic_key, "bone_parent_num")) {
+      new_bone.bone_parent_num = utl_config_get_int(config, section, key, 0);
+    }
+    add_bone(r, new_bone.bone_offset, new_bone.bone_tex, new_bone.bone_num, (bone *)utl_array_at(r->bones, new_bone.bone_parent_num));
+  }
+  utl_config_deallocate(config);
+}
+
 bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent) {
   phy_rigid_body_initializer bone_init = phy_rigid_body_initializer_default;
   bone_init.type = PHY_RIGID_BODY_TYPE_DYNAMIC;
@@ -54,14 +91,6 @@ void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body,
   r->root_offset = root_offset;
   bone root_bone = create_bone(phy_vector2_add(phy_rigid_body_get_position(bone_body), root_offset), root_tex, init_layer, NULL);
   utl_array_set(r->bones, init_layer, &root_bone);
-}
-
-void create_rig_from_file(rig *r, const char *filepath) {
-  utl_config_file *config = utl_config_create(filepath);
-  const int num_bones = utl_config_get_int(config, "player", "num_bones", 1);
-  printf("Player Rig:\n");
-  printf("Num Bones: %i\n", num_bones);
-  utl_config_deallocate(config);
 }
 
 void free_rig(const rig *r) {

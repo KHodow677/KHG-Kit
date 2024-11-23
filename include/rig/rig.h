@@ -26,6 +26,13 @@ typedef struct rig {
   phy_vector2 root_offset;
 } rig;
 
+typedef struct bone_builder {
+  int bone_tex;
+  int bone_num;
+  phy_vector2 bone_offset;
+  int bone_parent_num;
+} bone_builder;
+
 typedef struct rig_builder {
   bool valid;
   int num_bones;
@@ -35,12 +42,12 @@ typedef struct rig_builder {
 } rig_builder;
 
 rig_builder generate_rig_builder_from_file(const char *filepath, const char *section);
+void generate_rig_from_file(rig *r, const char *filepath, const char *rig_section);
 
 bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
 void add_bone(rig *r, const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
 
 void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const phy_vector2 root_offset, const int root_tex, const size_t init_layer);
-void create_rig_from_file(rig *r, const char *filepath);
 void free_rig(const rig *r);
 void render_rig(const rig *r, const float parallax_value, const bool flipped);
 
