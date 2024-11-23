@@ -14,7 +14,6 @@
 #include "resources/texture_loader.h"
 #include "scene/scene_manager.h"
 #include "scene/scene_utl.h"
-#include "thread/thread_manager.h"
 #include "khg_phy/space.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/internal.h"
@@ -71,7 +70,6 @@ const int game_run() {
   glfwMakeContextCurrent(window);
   gfx_init_glfw(1280, 720, window);
   log_sys_info();
-  worker_threads_setup();
   generate_textures();
   scenes_setup();
   scenes_switch(TO_MAIN_SCENE);
@@ -80,7 +78,6 @@ const int game_run() {
   int res = gfx_loop_manager(window, false);
   ecs_cleanup();
   physics_cleanup();
-  worker_threads_cleanup();
   return res;
 }
 
