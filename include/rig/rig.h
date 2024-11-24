@@ -20,6 +20,7 @@ typedef struct rig {
   size_t num_bones;
   utl_array *bones;
   phy_vector2 root_offset;
+  utl_array *animation_states;
 } rig;
 
 typedef struct bone_info {
@@ -38,8 +39,7 @@ typedef struct rig_builder {
 } rig_builder;
 
 rig_builder generate_rig_builder_from_file(const char *filepath, const char *section);
-void generate_rig_from_file(rig *r, const char *filepath, const char *rig_section);
-void generate_animation_from_path(const char *dir_path);
+void generate_rig_from_file(rig *r, const char *filepath, const char *rig_section, const int num_anim);
 
 bone create_bone(const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
 void add_bone(rig *r, const phy_vector2 bone_offset, const int tex_id, const int layer, bone *parent);
