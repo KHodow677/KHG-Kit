@@ -1,545 +1,306 @@
 #include "khg_utl/matrix.h"
-#include <math.h>
-#include <string.h>
+#include "khg_utl/error_func.h"
 #include <float.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 #include <time.h>
 
 static bool is_effectively_zero(double value) {
-    MATRIX_LOG("[is_effectively_zero] Info: Checking if value %lf is effectively zero.\n", value);
-    bool result = fabs(value) < EPSILON;
-
-    if (result) {
-        MATRIX_LOG("[is_effectively_zero] Success: Value %lf is considered effectively zero.\n", value);
-    } 
-    else {
-        MATRIX_LOG("[is_effectively_zero] Info: Value %lf is not effectively zero.\n", value);
-    }
-
-    return result;
+  bool result = fabs(value) < EPSILON;
+  return result;
 }
 
-// function to generate the Walsh matrix recursively
 static void generateWalshMatrixRecursively(double* data, int order, int dim, int startRow, int startCol, int val) {
-    MATRIX_LOG("[generateWalshMatrixRecursively] Info: Generating Walsh matrix with order %d at position (%d, %d) with initial value %d.\n", order, startRow, startCol, val);
-
-    if (order == 1) {
-        data[startRow * dim + startCol] = val;
-        MATRIX_LOG("[generateWalshMatrixRecursively] Success: Base case reached, set value %d at (%d, %d).\n", val, startRow, startCol);
-        return;
-    }
-
-    int halfOrder = order / 2;
-    // Top-left quadrant
-    generateWalshMatrixRecursively(data, halfOrder, dim, startRow, startCol, val);
-    // Top-right quadrant
-    generateWalshMatrixRecursively(data, halfOrder, dim, startRow, startCol + halfOrder, val);
-    // Bottom-left quadrant
-    generateWalshMatrixRecursively(data, halfOrder, dim, startRow + halfOrder, startCol, val);
-    // Bottom-right quadrant (invert the values)
-    generateWalshMatrixRecursively(data, halfOrder, dim, startRow + halfOrder, startCol + halfOrder, -val);
-
-    MATRIX_LOG("[generateWalshMatrixRecursively] Success: Walsh matrix generated recursively with order %d.\n", order);
+  if (order == 1) {
+    data[startRow * dim + startCol] = val;
+    return;
+  }
+  int halfOrder = order / 2;
+  generateWalshMatrixRecursively(data, halfOrder, dim, startRow, startCol, val);
+  generateWalshMatrixRecursively(data, halfOrder, dim, startRow, startCol + halfOrder, val);
+  generateWalshMatrixRecursively(data, halfOrder, dim, startRow + halfOrder, startCol, val);
+  generateWalshMatrixRecursively(data, halfOrder, dim, startRow + halfOrder, startCol + halfOrder, -val);
 }
 
 static inline int min_number(int a, int b) {
-    MATRIX_LOG("[min_number] Info: Calculating minimum between %d and %d.\n", a, b);
-    int result = (a < b) ? a : b;
-    MATRIX_LOG("[min_number] Success: The minimum value is %d.\n", result);
-    return result;
+  int result = (a < b) ? a : b;
+  return result;
 }
 
-// Function to calculate binomial coefficient
 static double binomial_coefficient(int n, int k) {
-    MATRIX_LOG("[binomial_coefficient] Info: Calculating binomial coefficient C(%d, %d).\n", n, k);
-
-    double *C = (double*) malloc(sizeof(double) * (k + 1));
-    if (!C) {
-        MATRIX_LOG("[binomial_coefficient] Error: Memory allocation failed for binomial coefficient calculation.\n");
-        return -1;
+  double *C = (double*) malloc(sizeof(double) * (k + 1));
+  if (!C) {
+    utl_error_func("Memory allocation failed for binomial coefficient calculation", utl_user_defined_data);
+    return -1;
+  }
+  memset(C, 0, sizeof(double) * (k + 1));
+  C[0] = 1;
+  for (int i = 1; i <= n; i++) {
+    for (int j = min_number(i, k); j > 0; j--) {
+      C[j] = C[j] + C[j-1];
     }
-    
-    memset(C, 0, sizeof(double) * (k + 1));
-    C[0] = 1;
-
-    for (int i = 1; i <= n; i++) {
-        for (int j = min_number(i, k); j > 0; j--) {
-            C[j] = C[j] + C[j-1];
-        }
-    }
-
-    double value = C[k];
-    free(C);
-
-    MATRIX_LOG("[binomial_coefficient] Success: Binomial coefficient C(%d, %d) = %lf.\n", n, k, value);
-    return value;
+  }
+  double value = C[k];
+  free(C);
+  return value;
 }
 
-// Function to calculate factorial
 static int64_t factorial(int n) {
-    MATRIX_LOG("[factorial] Info: Calculating factorial of %d.\n", n);
-    
-    int64_t result = 1;
-    for (int i = 2; i <= n; ++i) {
-        result *= i;
-    }
-
-    MATRIX_LOG("[factorial] Success: Factorial of %d is %lld.\n", n, result);
-    return result;
+  int64_t result = 1;
+  for (int i = 2; i <= n; ++i) {
+    result *= i;
+  }
+  return result;
 }
 
-// Function to calculate binomial coefficient
 static int64_t binomial_factorial(int n, int k) {
-    MATRIX_LOG("[binomial_factorial] Info: Calculating binomial coefficient using factorial method C(%d, %d).\n", n, k);
-
-    if (k > n) {
-        MATRIX_LOG("[binomial_factorial] Error: k is greater than n in C(%d, %d), returning 0.\n", n, k);
-        return 0;
-    }
-    if (k == 0 || k == n) {
-        MATRIX_LOG("[binomial_factorial] Info: Trivial case of C(%d, %d), returning 1.\n", n, k);
-        return 1;
-    }
-
-    int64_t result = factorial(n) / (factorial(k) * factorial(n - k));
-    MATRIX_LOG("[binomial_factorial] Success: Binomial coefficient C(%d, %d) = %lld.\n", n, k, result);
-
-    return result;
+  if (k > n) {
+    utl_error_func("Invalid inputs", utl_user_defined_data);
+    return 0;
+  }
+  if (k == 0 || k == n) {
+    return 1;
+  }
+  int64_t result = factorial(n) / (factorial(k) * factorial(n - k));
+  return result;
 }
 
 
-// function to subtract vector projection of u onto v from u (u = u - proj_v(u))
 static double dot_product(const double* v1, const double* v2, size_t length) {
-    MATRIX_LOG("[dot_product] Info: Calculating dot product of two vectors of length %zu.\n", length);
-
-    double sum = 0.0;
-    for (size_t i = 0; i < length; ++i) {
-        sum += v1[i] * v2[i];
-    }
-
-    MATRIX_LOG("[dot_product] Success: Dot product calculation completed. Result = %lf.\n", sum);
-    return sum;
+  double sum = 0.0;
+  for (size_t i = 0; i < length; ++i) {
+    sum += v1[i] * v2[i];
+  }
+  return sum;
 }
 
-// function to normalize a vector
 static void normalize_vector(double* v, size_t length) {
-    MATRIX_LOG("[normalize_vector] Info: Starting vector normalization.\n");
-
-    double norm = sqrt(dot_product(v, v, length));
-    for (size_t i = 0; i < length; ++i) {
-        v[i] /= norm;
-    }
-
-    MATRIX_LOG("[normalize_vector] Success: Vector normalization completed.\n");
+  double norm = sqrt(dot_product(v, v, length));
+  for (size_t i = 0; i < length; ++i) {
+    v[i] /= norm;
+  }
 }
 
 void subtract_projection(double* u, const double* v, size_t length) {
-    MATRIX_LOG("[subtract_projection] Info: Starting vector projection subtraction.\n");
-
-    double dot_uv = dot_product(u, v, length);
-    double dot_vv = dot_product(v, v, length);
-    double scale = dot_uv / dot_vv;
-    
-    for (size_t i = 0; i < length; ++i) {
-        u[i] -= scale * v[i];
-    }
-
-    MATRIX_LOG("[subtract_projection] Success: Vector projection subtraction completed.\n");
+  double dot_uv = dot_product(u, v, length);
+  double dot_vv = dot_product(v, v, length);
+  double scale = dot_uv / dot_vv;
+  for (size_t i = 0; i < length; ++i) {
+    u[i] -= scale * v[i];
+  }
 }
 
-/**
- * @brief Swaps two rows of a matrix.
- *
- * This function swaps the elements of two rows in the given matrix.
- * If the matrix pointer is NULL or the row indices are out of bounds, the function does nothing.
- *
- * @param mat The matrix whose rows are to be swapped.
- * @param row1 The index of the first row to swap.
- * @param row2 The index of the second row to swap.
- */
 void matrix_swap_rows(Matrix* mat, size_t row1, size_t row2) {
-    if (!mat || row1 >= mat->rows || row2 >= mat->rows) {
-        MATRIX_LOG("[matrix_swap_rows] Error: Invalid row indices or matrix is null.\n");
-        return;
-    }
-
-    for (size_t i = 0; i < mat->cols; i++) {
-        double temp = mat->data[row1 * mat->cols + i];
-        mat->data[row1 * mat->cols + i] = mat->data[row2 * mat->cols + i];
-        mat->data[row2 * mat->cols + i] = temp;
-    }
-
-    MATRIX_LOG("[matrix_swap_rows] Success: Rows %zu and %zu swapped successfully.\n", row1, row2);
+  if (!mat || row1 >= mat->rows || row2 >= mat->rows) {
+    utl_error_func("Invalid row indices or matrix is null", utl_user_defined_data);
+    return;
+  }
+  for (size_t i = 0; i < mat->cols; i++) {
+    double temp = mat->data[row1 * mat->cols + i];
+    mat->data[row1 * mat->cols + i] = mat->data[row2 * mat->cols + i];
+    mat->data[row2 * mat->cols + i] = temp;
+  }
 }
 
-/**
- * @brief Swaps two columns in a matrix.
- *
- * This function exchanges the positions of two columns in a matrix.
- * If the matrix is NULL or the column indices are out of bounds, the function does nothing.
- *
- * @param mat The matrix in which to swap the columns.
- * @param col1 The index of the first column to swap.
- * @param col2 The index of the second column to swap.
- */
 void matrix_swap_cols(Matrix* mat, size_t col1, size_t col2) {
-    if (!mat || col1 >= mat->cols || col2 >= mat->cols) {
-        MATRIX_LOG("[matrix_swap_cols] Error: Invalid column indices or matrix is null.\n");
-        return;
-    }
-
-    for (size_t i = 0; i < mat->rows; i++) {
-        double temp = mat->data[i * mat->cols + col1];
-        mat->data[i * mat->cols + col1] = mat->data[i * mat->cols + col2];
-        mat->data[i * mat->cols + col2] = temp;
-    }
-
-    MATRIX_LOG("[matrix_swap_cols] Success: Columns %zu and %zu swapped successfully.\n", col1, col2);
+  if (!mat || col1 >= mat->cols || col2 >= mat->cols) {
+    utl_error_func("Invalid column indices or matrix is null", utl_user_defined_data);
+    return;
+  }
+  for (size_t i = 0; i < mat->rows; i++) {
+    double temp = mat->data[i * mat->cols + col1];
+    mat->data[i * mat->cols + col1] = mat->data[i * mat->cols + col2];
+    mat->data[i * mat->cols + col2] = temp;
+  }
 }
 
-/**
- * @brief Divides all elements in a row by a scalar.
- *
- * This function divides each element in a specified row of the matrix by a given scalar value.
- *
- * @param matrix The matrix whose row will be divided.
- * @param row The index of the row to divide.
- * @param scalar The scalar value by which to divide each element in the row.
- */
 void matrix_row_divide(Matrix* matrix, size_t row, double scalar) {
-    if (!matrix || row >= matrix->rows) {
-        MATRIX_LOG("[matrix_row_divide] Error: Invalid row index or matrix is null.\n");
-        return;
-    }
-    for (size_t col = 0; col < matrix->cols; col++) {
-        matrix->data[row * matrix->cols + col] /= scalar;
-    }
-
-    MATRIX_LOG("[matrix_row_divide] Success: Row %zu divided by %lf successfully.\n", row, scalar);
+  if (!matrix || row >= matrix->rows) {
+    utl_error_func("Invalid row index or matrix is null", utl_user_defined_data);
+    return;
+  }
+  for (size_t col = 0; col < matrix->cols; col++) {
+      matrix->data[row * matrix->cols + col] /= scalar;
+  }
 }
 
-/**
- * @brief Subtracts a scaled row from another row.
- *
- * This function subtracts a scaled version of one row from another row in the matrix.
- *
- * @param matrix The matrix in which the operation will be performed.
- * @param targetRow The index of the row that will be modified.
- * @param subtractRow The index of the row to subtract from the target row.
- * @param scalar The scalar value by which to multiply the subtractRow before subtracting it from the targetRow.
- */
 void matrix_row_subtract(Matrix* matrix, size_t targetRow, size_t subtractRow, double scalar) {
-    if (!matrix || targetRow >= matrix->rows || subtractRow >= matrix->rows) {
-        MATRIX_LOG("[matrix_row_subtract] Error: Invalid row indices or matrix is null.\n");
-        return;
-    }
-    for (size_t col = 0; col < matrix->cols; col++) {
-        matrix->data[targetRow * matrix->cols + col] -= scalar * matrix->data[subtractRow * matrix->cols + col];
-    }
-
-    MATRIX_LOG("[matrix_row_subtract] Success: Row %zu modified by subtracting scaled Row %zu (scale = %lf).\n", targetRow, subtractRow, scalar);
+  if (!matrix || targetRow >= matrix->rows || subtractRow >= matrix->rows) {
+    utl_error_func("Invalid row indices or matrix is null", utl_user_defined_data);
+    return;
+  }
+  for (size_t col = 0; col < matrix->cols; col++) {
+    matrix->data[targetRow * matrix->cols + col] -= scalar * matrix->data[subtractRow * matrix->cols + col];
+  }
 }
 
-/**
- * @brief Creates a matrix with the specified number of rows and columns, initialized to zero.
- *
- * This function allocates memory for a matrix structure and its data array. 
- * The matrix is initialized with all elements set to zero.
- * If the number of rows or columns is zero, or if memory allocation fails, 
- * the function returns NULL.
- *
- * @param rows The number of rows in the matrix.
- * @param cols The number of columns in the matrix.
- * 
- * @return A pointer to the created matrix, or NULL if an error occurred.
- */
 Matrix* matrix_create(size_t rows, size_t cols) {
-    if (rows == 0 || cols == 0) {
-        MATRIX_LOG("[matrix_create] Error: Number of rows or columns is zero.\n");
-        return NULL;
-    }
-
-    Matrix* matrix = (Matrix*) malloc(sizeof(Matrix));
-    if (!matrix) {
-        MATRIX_LOG("[matrix_create] Error: Memory allocation failed for matrix object.\n");
-        return NULL;
-    }
-
-    size_t totalSize = rows * cols * sizeof(double);
-    matrix->data = (double*) malloc(totalSize);
-    if (!matrix->data) {
-        MATRIX_LOG("[matrix_create] Error: Memory allocation failed for matrix data.\n");
-        free(matrix);  // Clean up the allocated matrix
-        return NULL;
-    }
-
-    matrix->rows = rows;
-    matrix->cols = cols;
-
-    for (size_t index = 0; index < rows * cols; index++) {
-        matrix->data[index] = 0.0;
-    }
-
-    MATRIX_LOG("[matrix_create] Success: Matrix creation and initialization successful.\n");
-    return matrix;
-}
-
-
-/**
- * @brief Adds two matrices of the same dimensions.
- *
- * This function performs element-wise addition of two matrices.
- * The matrices must have the same dimensions. If the dimensions do not match, 
- * or if any of the matrices is NULL, the function returns NULL.
- *
- * @param matrix1 The first matrix to add.
- * @param matrix2 The second matrix to add.
- * 
- * @return A new matrix containing the sum of the two matrices, or NULL if an error occurred.
- */
-Matrix* matrix_add(const Matrix* matrix1, const Matrix* matrix2) {
-    if (!matrix1) {
-        MATRIX_LOG("[matrix_add] Error: matrix1 object is null.\n");
-        return NULL;
-    }
-    if (!matrix2) {
-        MATRIX_LOG("[matrix_add] Error: matrix2 object is null.\n");
-        return NULL;
-    }
-    if ((matrix1->rows != matrix2->rows) || (matrix1->cols != matrix2->cols)) {
-        MATRIX_LOG("[matrix_add] Error: The two matrices are not of the same order.\n");
-        return NULL;
-    }
-
-    Matrix* addition = matrix_create(matrix1->rows, matrix1->cols);
-    if (!addition) {
-        MATRIX_LOG("[matrix_add] Error: Failed to create result matrix.\n");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix1->rows; i++) {
-        for (size_t j = 0; j < matrix1->cols; j++) {
-            size_t index = i * matrix1->cols + j;
-            addition->data[index] = matrix1->data[index] + matrix2->data[index];
-        }
-    }
-
-    MATRIX_LOG("[matrix_add] Success: Matrices added successfully.\n");
-    return addition;
-}
-
-/**
- * @brief Subtracts the second matrix from the first matrix.
- *
- * This function performs element-wise subtraction of two matrices.
- * The matrices must have the same dimensions. If the dimensions do not match, 
- * or if any of the matrices is NULL, the function returns NULL.
- *
- * @param matrix1 The matrix from which to subtract.
- * @param matrix2 The matrix to subtract.
- * 
- * @return A new matrix containing the result of the subtraction, or NULL if an error occurred.
- */
-Matrix* matrix_subtract(const Matrix* matrix1, const Matrix* matrix2) {
-    if (!matrix1) {
-        MATRIX_LOG("[matrix_subtract] Error: matrix1 object is null.\n");
-        return NULL;
-    }
-    if (!matrix2) {
-        MATRIX_LOG("[matrix_subtract] Error: matrix2 object is null.\n");
-        return NULL;
-    }
-    if ((matrix1->rows != matrix2->rows) || (matrix1->cols != matrix2->cols)) {
-        MATRIX_LOG("[matrix_subtract] Error: The two matrices are not of the same order.\n");
-        return NULL;
-    }
-
-    Matrix* subtraction = matrix_create(matrix1->rows, matrix1->cols);
-    if (!subtraction) {
-        MATRIX_LOG("[matrix_subtract] Error: Failed to create result matrix.\n");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix1->rows; i++) {
-        for (size_t j = 0; j < matrix1->cols; j++) {
-            size_t index = i * matrix1->cols + j;
-            subtraction->data[index] = matrix1->data[index] - matrix2->data[index];
-        }
-    }
-
-    MATRIX_LOG("[matrix_subtract] Success: Matrices subtracted successfully.\n");
-    return subtraction;
-}
-
-/**
- * @brief Multiplies two matrices and returns the result.
- *
- * This function performs matrix multiplication between two matrices, `matrix1` and `matrix2`.
- * The number of columns in `matrix1` must match the number of rows in `matrix2`. 
- * If the matrices are not compatible for multiplication or if any matrix is NULL, 
- * the function returns NULL.
- *
- * @param matrix1 The first matrix (left operand) in the multiplication.
- * @param matrix2 The second matrix (right operand) in the multiplication.
- * 
- * @return A new matrix representing the product of `matrix1` and `matrix2`, or NULL if an error occurred.
- */
-Matrix* matrix_multiply(const Matrix* matrix1, const Matrix* matrix2) {
-    MATRIX_LOG("[matrix_multiply] Entering function");
-
-    if (!matrix1) {
-        MATRIX_LOG("[matrix_multiply] Error: matrix1 object is null.");
-        return NULL;
-    }
-    if (!matrix2) {
-        MATRIX_LOG("[matrix_multiply] Error: matrix2 object is null.");
-        return NULL;
-    }
-    if (matrix1->cols != matrix2->rows) {
-        MATRIX_LOG("[matrix_multiply] Error: matrix1's columns (%zu) do not match matrix2's rows (%zu).", matrix1->cols, matrix2->rows);
-        return NULL;
-    }
-
-    Matrix* product = matrix_create(matrix1->rows, matrix2->cols);
-    if (!product) {
-        MATRIX_LOG("[matrix_multiply] Error: Memory allocation failed for product matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix1->rows; i++) {
-        for (size_t j = 0; j < matrix2->cols; j++) {
-            double sum = 0.0;
-            for (size_t k = 0; k < matrix1->cols; k++) {
-                sum += matrix1->data[i * matrix1->cols + k] * matrix2->data[k * matrix2->cols + j];
-            }
-            product->data[i * product->cols + j] = sum;
-            MATRIX_LOG("[matrix_multiply] Set value at (%zu, %zu) = %lf", i, j, sum);
-        }
-    }
-
-    MATRIX_LOG("[matrix_multiply] Success: Matrix multiplication completed.");
-    return product;
-}
-
-/**
- * @brief Deallocates the memory associated with a matrix.
- *
- * This function frees the memory used by the matrix, including its data array. 
- * If the matrix pointer is NULL, the function does nothing.
- *
- * @param matrix The matrix to be deallocated.
- */
-void matrix_deallocate(Matrix* matrix) {
-    MATRIX_LOG("[matrix_deallocate] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_deallocate] Info: Matrix object is null, no need for deallocation.");
-        return;
-    }
-
-    free(matrix->data);
+  if (rows == 0 || cols == 0) {
+    utl_error_func("Number of rows or columns is zero", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* matrix = (Matrix*) malloc(sizeof(Matrix));
+  if (!matrix) {
+    utl_error_func("Memory allocation failed for matrix object", utl_user_defined_data);
+    return NULL;
+  }
+  size_t totalSize = rows * cols * sizeof(double);
+  matrix->data = (double*) malloc(totalSize);
+  if (!matrix->data) {
+    utl_error_func("Memory allocation failed for matrix data", utl_user_defined_data);
     free(matrix);
-
-    MATRIX_LOG("[matrix_deallocate] Success: Matrix deallocated successfully.");
+    return NULL;
+  }
+  matrix->rows = rows;
+  matrix->cols = cols;
+  for (size_t index = 0; index < rows * cols; index++) {
+    matrix->data[index] = 0.0;
+  }
+  return matrix;
 }
 
-/**
- * @brief Sets the value of a specific element in a matrix.
- *
- * This function sets the value of the matrix element at the specified row and column.
- * If the matrix pointer is NULL, or if the row or column indices are out of bounds, the function returns false.
- *
- * @param matrix The matrix in which to set the value.
- * @param rows The row index where the value will be set.
- * @param cols The column index where the value will be set.
- * @param value The value to set at the specified position.
- * 
- * @return true if the value was set successfully, false otherwise.
- */
+Matrix* matrix_add(const Matrix* matrix1, const Matrix* matrix2) {
+  if (!matrix1) {
+    utl_error_func("Matrix 1 object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix2) {
+    utl_error_func("Matrix 2 object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if ((matrix1->rows != matrix2->rows) || (matrix1->cols != matrix2->cols)) {
+    utl_error_func("The two matrices are not of the same order", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* addition = matrix_create(matrix1->rows, matrix1->cols);
+  if (!addition) {
+    utl_error_func("Failed to create result matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix1->rows; i++) {
+    for (size_t j = 0; j < matrix1->cols; j++) {
+      size_t index = i * matrix1->cols + j;
+      addition->data[index] = matrix1->data[index] + matrix2->data[index];
+    }
+  }
+  return addition;
+}
+
+Matrix* matrix_subtract(const Matrix* matrix1, const Matrix* matrix2) {
+  if (!matrix1) {
+    utl_error_func("Matrix 1 object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix2) {
+    utl_error_func("Matrix 2 object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if ((matrix1->rows != matrix2->rows) || (matrix1->cols != matrix2->cols)) {
+    utl_error_func("The two matrices are not of the same order", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* subtraction = matrix_create(matrix1->rows, matrix1->cols);
+  if (!subtraction) {
+    utl_error_func("Failed to create result matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix1->rows; i++) {
+    for (size_t j = 0; j < matrix1->cols; j++) {
+      size_t index = i * matrix1->cols + j;
+      subtraction->data[index] = matrix1->data[index] - matrix2->data[index];
+    }
+  }
+  return subtraction;
+}
+
+Matrix* matrix_multiply(const Matrix* matrix1, const Matrix* matrix2) {
+  if (!matrix1) {
+    utl_error_func("Matrix 1 object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix2) {
+    utl_error_func("Matrix 2 object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (matrix1->cols != matrix2->rows) {
+    utl_error_func("Matrix 1's columns do not match matrix 2's rows", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* product = matrix_create(matrix1->rows, matrix2->cols);
+  if (!product) {
+    utl_error_func("Memory allocation failed for product matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix1->rows; i++) {
+    for (size_t j = 0; j < matrix2->cols; j++) {
+      double sum = 0.0;
+      for (size_t k = 0; k < matrix1->cols; k++) {
+        sum += matrix1->data[i * matrix1->cols + k] * matrix2->data[k * matrix2->cols + j];
+      }
+      product->data[i * product->cols + j] = sum;
+    }
+  }
+  return product;
+}
+
+void matrix_deallocate(Matrix* matrix) {
+  if (!matrix) {
+    return;
+  }
+  free(matrix->data);
+  free(matrix);
+}
+
 bool matrix_set(Matrix* matrix, size_t rows, size_t cols, double value) {
-    MATRIX_LOG("[matrix_set] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_set] Error: Matrix object is null.");
-        return false;
-    }
-    if (rows >= matrix->rows || cols >= matrix->cols) {
-        MATRIX_LOG("[matrix_set] Error: Row (%zu) or column (%zu) out of bounds.", rows, cols);
-        return false;
-    }
-
-    size_t index = rows * matrix->cols + cols;
-    matrix->data[index] = value;
-
-    MATRIX_LOG("[matrix_set] Success: Set value at (%zu, %zu) = %lf", rows, cols, value);
-    return true;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  if (rows >= matrix->rows || cols >= matrix->cols) {
+    utl_error_func("Row or column out of bounds", utl_user_defined_data);
+    return false;
+  }
+  size_t index = rows * matrix->cols + cols;
+  matrix->data[index] = value;
+  return true;
 }
 
-/**
- * @brief Prints the matrix to the console in a formatted manner.
- *
- * This function prints the matrix elements to the console, formatting the output so that
- * all elements are aligned in columns. If the matrix pointer is NULL, the function does nothing.
- *
- * @param matrix The matrix to be printed.
- */
 void matrix_print(Matrix* matrix) {
-    MATRIX_LOG("[matrix_print] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_print] Info: Matrix object is null, nothing to print.");
-        return;
+  if (!matrix) {
+    return;
+  }
+  int max_width = 0;
+  for (size_t i = 0; i < matrix->rows * matrix->cols; ++i) {
+    int width = snprintf(NULL, 0, "%.5lf", matrix->data[i]);
+    if (width > max_width) {
+      max_width = width;
     }
-
-    int max_width = 0;
-    for (size_t i = 0; i < matrix->rows * matrix->cols; ++i) {
-        int width = snprintf(NULL, 0, "%.5lf", matrix->data[i]);
-        if (width > max_width) {
-            max_width = width;
-        }
+  }
+  for (size_t row = 0; row < matrix->rows; row++) {
+    printf("| ");
+    for (size_t col = 0; col < matrix->cols; col++) {
+      size_t index = row * matrix->cols + col;
+      printf("%*.*lf ", max_width, 5, matrix->data[index]);
     }
-
-    for (size_t row = 0; row < matrix->rows; row++) {
-        fmt_printf("| ");
-        for (size_t col = 0; col < matrix->cols; col++) {
-            size_t index = row * matrix->cols + col;
-            fmt_printf("%*.*lf ", max_width, 5, matrix->data[index]);
-        }
-        fmt_printf("|\n");
-    }
-
-    MATRIX_LOG("[matrix_print] Success: Matrix printed successfully.");
+    printf("|\n");
+  }
 }
 
-/**
- * @brief Gets the value of a specific element in a matrix.
- *
- * This function retrieves the value of the matrix element at the specified row and column.
- * If the matrix pointer is NULL, or if the row or column indices are out of bounds, the function exits the program.
- *
- * @param matrix The matrix from which to get the value.
- * @param row The row index of the element to retrieve.
- * @param col The column index of the element to retrieve.
- * 
- * @return The value at the specified position.
- */
 double matrix_get(const Matrix* matrix, size_t row, size_t col) {
-    MATRIX_LOG("[matrix_get] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_get] Error: Matrix object is null.");
-        exit(-1);
-    }
-    if (row >= matrix->rows || col >= matrix->cols) {
-        MATRIX_LOG("[matrix_get] Error: Row or column out of bounds. Requested row = %zu, col = %zu.", row, col);
-        exit(-1);
-    }
-
-    size_t index = row * matrix->cols + col;
-    double value = matrix->data[index];
-
-    MATRIX_LOG("[matrix_get] Value at (%zu, %zu) = %lf", row, col, value);
-    return value;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    exit(-1);
+  }
+  if (row >= matrix->rows || col >= matrix->cols) {
+    utl_error_func("Row or column out of bounds", utl_user_defined_data);
+    exit(-1);
+  }
+  size_t index = row * matrix->cols + col;
+  double value = matrix->data[index];
+  return value;
 }
 
 static bool matrix_check_diagonal(const Matrix* mat, size_t i, size_t j) {
