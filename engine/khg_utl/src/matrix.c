@@ -304,461 +304,234 @@ double matrix_get(const Matrix* matrix, size_t row, size_t col) {
 }
 
 static bool matrix_check_diagonal(const Matrix* mat, size_t i, size_t j) {
-    MATRIX_LOG("[matrix_check_diagonal] Entering function");
-
-    double res = matrix_get(mat, i, j);
-    MATRIX_LOG("[matrix_check_diagonal] Starting value on diagonal at (%zu, %zu) = %lf", i, j, res);
-
-    while (++i < mat->rows && ++j < mat->cols) {
-        double next_value = matrix_get(mat, i, j);
-        if (next_value != res) {
-            MATRIX_LOG("[matrix_check_diagonal] Mismatch found at (%zu, %zu), value = %lf", i, j, next_value);
-            return false;
-        }
+  double res = matrix_get(mat, i, j);
+  while (++i < mat->rows && ++j < mat->cols) {
+    double next_value = matrix_get(mat, i, j);
+    if (next_value != res) {
+      return false;
     }
-
-    MATRIX_LOG("[matrix_check_diagonal] Diagonal check successful.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Multiplies every element of the matrix by a scalar value.
- *
- * This function scales each element in the matrix by the given scalar.
- *
- * @param matrix The matrix to be scaled.
- * @param scalar The scalar value to multiply each element by.
- * 
- * @return true if the operation is successful, false if the matrix is NULL.
- */
 bool matrix_scalar_multiply(Matrix* matrix, double scalar) {
-    MATRIX_LOG("[matrix_scalar_multiply] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_scalar_multiply] Error: Matrix object is null.");
-        return false;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = 0; j < matrix->cols; j++) {
+      size_t index = i * matrix->cols + j;
+      matrix->data[index] *= scalar;
     }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < matrix->cols; j++) {
-            size_t index = i * matrix->cols + j;
-            matrix->data[index] *= scalar;
-            MATRIX_LOG("[matrix_scalar_multiply] Scaled value at (%zu, %zu) = %lf", i, j, matrix->data[index]);
-        }
-    }
-
-    MATRIX_LOG("[matrix_scalar_multiply] Success: Matrix scalar multiplication completed.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Checks if a matrix is square.
- *
- * A square matrix has the same number of rows and columns.
- *
- * @param matrix The matrix to be checked.
- * @return true if the matrix is square, false otherwise. Returns false if the matrix is NULL.
- */
 bool matrix_is_square(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_square] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_square] Error: Matrix object is null.");
-        return false;
-    }
-
-    bool isSquare = matrix->rows == matrix->cols;
-    MATRIX_LOG("[matrix_is_square] Matrix is %ssquare.", isSquare ? "" : "not ");
-
-    return isSquare;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  bool isSquare = matrix->rows == matrix->cols;
+  return isSquare;
 }
 
-/**
- * @brief Creates an identity matrix of size n x n.
- *
- * An identity matrix is a square matrix with 1's on the main diagonal and 0's elsewhere.
- *
- * @param n The size of the identity matrix to be created.
- * @return A pointer to the newly created identity matrix, or NULL if memory allocation fails.
- */
 Matrix* matrix_create_identity(size_t n) {
-    MATRIX_LOG("[matrix_create_identity] Entering function");
-
-    Matrix* matrix = matrix_create(n, n);
-    if (!matrix) {
-        MATRIX_LOG("[matrix_create_identity] Error: Memory allocation failed for identity matrix.");
-        return NULL;
+  Matrix* matrix = matrix_create(n, n);
+  if (!matrix) {
+    utl_error_func("Memory allocation failed for identity matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
+      double value = (i == j) ? 1.0 : 0.0;
+      matrix_set(matrix, i, j, value);
     }
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < n; j++) {
-            double value = (i == j) ? 1.0 : 0.0;
-            matrix_set(matrix, i, j, value);
-            MATRIX_LOG("[matrix_create_identity] Set value at (%zu, %zu) = %lf", i, j, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_create_identity] Success: Identity matrix created.");
-    return matrix;
+  }
+  return matrix;
 }
 
-/**
- * @brief Checks if two matrices are equal.
- *
- * Two matrices are considered equal if they have the same dimensions and their corresponding elements are identical.
- *
- * @param matrix1 The first matrix to be compared.
- * @param matrix2 The second matrix to be compared.
- * 
- * @return true if the matrices are equal, false otherwise. 
- * Returns false if either matrix is NULL or if their dimensions differ.
- */
 bool matrix_is_equal(const Matrix* matrix1, const Matrix* matrix2) {
-    MATRIX_LOG("[matrix_is_equal] Entering function");
-
-    if (!matrix1) {
-        MATRIX_LOG("[matrix_is_equal] Error: Matrix1 object is null.");
-        return false;
+  if (!matrix1) {
+    utl_error_func("Matrix 1 object is null", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix2) {
+    utl_error_func("Matrix 2 object is null", utl_user_defined_data);
+    return false;
+  }
+  if ((matrix1->rows != matrix2->rows) || (matrix1->cols != matrix2->cols)) {
+    utl_error_func("Matrices are not of the same dimensions", utl_user_defined_data);
+    return false;
+  }
+  for (size_t index = 0; index < (matrix1->rows * matrix1->cols); index++) {
+    if (matrix1->data[index] != matrix2->data[index]) {
+      return false;
     }
-    if (!matrix2) {
-        MATRIX_LOG("[matrix_is_equal] Error: Matrix2 object is null.");
-        return false;
-    }
-    if ((matrix1->rows != matrix2->rows) || (matrix1->cols != matrix2->cols)) {
-        MATRIX_LOG("[matrix_is_equal] Error: Matrices are not of the same dimensions.");
-        return false;
-    }
-
-    for (size_t index = 0; index < (matrix1->rows * matrix1->cols); index++) {
-        if (matrix1->data[index] != matrix2->data[index]) {
-            MATRIX_LOG("[matrix_is_equal] Matrices differ at index %zu.", index);
-            return false;
-        }
-    }
-
-    MATRIX_LOG("[matrix_is_equal] Matrices are equal.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Checks if a matrix is an identity matrix.
- *
- * An identity matrix is a square matrix with 1's on the main diagonal and 0's elsewhere.
- *
- * @param matrix The matrix to be checked.
- * @return true if the matrix is an identity matrix, false otherwise. Returns false if the matrix is NULL or not square.
- */
 bool matrix_is_identity(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_identity] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_identity] Error: Matrix object is null.");
-        return false;
-    }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_is_identity] Error: Matrix is not square.");
-        return false;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < matrix->cols; j++) {
-            size_t index = i * matrix->cols + j;
-            if (i == j) {
-                if (matrix->data[index] != 1.0) {
-                    MATRIX_LOG("[matrix_is_identity] Element at (%zu, %zu) is not 1.", i, j);
-                    return false;
-                }
-            } 
-            else if (matrix->data[index] != 0.0) {
-                MATRIX_LOG("[matrix_is_identity] Element at (%zu, %zu) is not 0.", i, j);
-                return false;
-            }
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = 0; j < matrix->cols; j++) {
+      size_t index = i * matrix->cols + j;
+      if (i == j) {
+        if (matrix->data[index] != 1.0) {
+          return false;
         }
+      } 
+      else if (matrix->data[index] != 0.0) {
+        return false;
+      }
     }
-
-    MATRIX_LOG("[matrix_is_identity] Matrix is an identity matrix.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Checks if a matrix is idempotent (i.e., A^2 = A).
- *
- * An idempotent matrix is a matrix that, when multiplied by itself, yields the same matrix.
- *
- * @param matrix The matrix to be checked.
- * @return true if the matrix is idempotent, false otherwise. Returns false if the matrix is NULL, not square, or if the matrix multiplication fails.
- */
 bool matrix_is_idempotent(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_idempotent] Entering function");
-
-    if (!matrix || !matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_is_idempotent] Error: Matrix is null or not square.");
-        return false;
-    }
-
-    Matrix* square = matrix_multiply(matrix, matrix);
-    if (!square) {
-        MATRIX_LOG("[matrix_is_idempotent] Error: Matrix multiplication failed.");
-        return false;
-    }
-
-    bool isIdempotent = matrix_is_equal(square, matrix);
-    matrix_deallocate(square);
-
-    if (isIdempotent) {
-        MATRIX_LOG("[matrix_is_idempotent] Matrix is idempotent.");
-    } 
-    else {
-        MATRIX_LOG("[matrix_is_idempotent] Matrix is not idempotent.");
-    }
-
-    return isIdempotent;
+  if (!matrix || !matrix_is_square(matrix)) {
+    utl_error_func("Matrix is null or not square", utl_user_defined_data);
+    return false;
+  }
+  Matrix* square = matrix_multiply(matrix, matrix);
+  if (!square) {
+    utl_error_func("Matrix multiplication failed", utl_user_defined_data);
+    return false;
+  }
+  bool isIdempotent = matrix_is_equal(square, matrix);
+  matrix_deallocate(square);
+  return isIdempotent;
 }
 
-/**
- * @brief Checks if a matrix is a row vector.
- *
- * A row vector is a matrix with only one row and one or more columns.
- *
- * @param matrix The matrix to be checked.
- * @return true if the matrix is a row vector, false otherwise. Returns false if the matrix is NULL.
- */
 bool matrix_is_row(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_row] Entering function");
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_row] Error: Matrix object is null.");
-        return false;
-    }
-
-    bool isRow = matrix->rows == 1;
-    if (isRow) {
-        MATRIX_LOG("[matrix_is_row] Matrix is a row vector.");
-    } 
-    else {
-        MATRIX_LOG("[matrix_is_row] Matrix is not a row vector.");
-    }
-
-    return isRow;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  bool isRow = matrix->rows == 1;
+  return isRow;
 }
 
-/**
- * @brief Checks if a matrix is a column vector.
- *
- * A column vector is a matrix with only one column and one or more rows.
- *
- * @param matrix The matrix to be checked.
- * @return true if the matrix is a column vector, false otherwise. Returns false if the matrix is NULL.
- */
 bool matrix_is_columnar(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_columnar] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_columnar] Error: Matrix object is null.");
-        return false;
-    }
-
-    bool isColumnar = matrix->cols == 1;
-    if (isColumnar) {
-        MATRIX_LOG("[matrix_is_columnar] Matrix is a column vector.");
-    } 
-    else {
-        MATRIX_LOG("[matrix_is_columnar] Matrix is not a column vector.");
-    }
-
-    return isColumnar;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  bool isColumnar = matrix->cols == 1;
+  return isColumnar;
 }
 
-
-/**
- * @brief Extracts the main diagonal of a square matrix and returns it as a column matrix.
- *
- * This function creates a new Nx1 matrix (where N is the number of rows in the input matrix),
- * and fills it with the elements from the main diagonal of the input square matrix.
- *
- * @param matrix The square matrix from which the main diagonal will be extracted.
- * 
- * @return A new Nx1 matrix containing the main diagonal elements as a column.
- * Returns NULL if the input matrix is NULL, not square, or if memory allocation fails.
- */
 Matrix* matrix_get_main_diagonal_as_column(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_get_main_diagonal_as_column] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_get_main_diagonal_as_column] Error: Matrix object is null.");
-        return NULL;
-    }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_get_main_diagonal_as_column] Error: Matrix is not square.");
-        return NULL;
-    }
-
-    Matrix* diagonalMatrix = matrix_create(matrix->rows, 1); 
-    if (!diagonalMatrix) {
-        MATRIX_LOG("[matrix_get_main_diagonal_as_column] Error: Memory allocation failed for diagonal matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        double value = matrix->data[i * matrix->cols + i];
-        matrix_set(diagonalMatrix, i, 0, value);
-        MATRIX_LOG("[matrix_get_main_diagonal_as_column] Set diagonalMatrix(%zu, 0) = %lf", i, value);
-    }
-
-    MATRIX_LOG("[matrix_get_main_diagonal_as_column] Success: Main diagonal extracted as column.");
-    return diagonalMatrix;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* diagonalMatrix = matrix_create(matrix->rows, 1); 
+  if (!diagonalMatrix) {
+    utl_error_func("Memory allocation failed for diagonal matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    double value = matrix->data[i * matrix->cols + i];
+    matrix_set(diagonalMatrix, i, 0, value);
+  }
+  return diagonalMatrix;
 }
 
-/**
- * @brief Extracts the main diagonal of a square matrix and returns it as a row matrix.
- *
- * This function creates a new 1xN matrix (where N is the number of columns in the input matrix),
- * and fills it with the elements from the main diagonal of the input square matrix.
- *
- * @param matrix The square matrix from which the main diagonal will be extracted.
- * 
- * @return A new 1xN matrix containing the main diagonal elements as a row. 
- * Returns NULL if the input matrix is NULL, not square, or if memory allocation fails.
- */
 Matrix* matrix_get_main_diagonal_as_row(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_get_main_diagonal_as_row] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_get_main_diagonal_as_row] Error: Matrix object is null.");
-        return NULL;
-    }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_get_main_diagonal_as_row] Error: Matrix is not square.");
-        return NULL;
-    }
-
-    Matrix* diagonalMatrix = matrix_create(1, matrix->cols); 
-    if (!diagonalMatrix) {
-        MATRIX_LOG("[matrix_get_main_diagonal_as_row] Error: Memory allocation failed for diagonal matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix->cols; i++) {
-        double value = matrix->data[i * matrix->cols + i];
-        matrix_set(diagonalMatrix, 0, i, value);
-        MATRIX_LOG("[matrix_get_main_diagonal_as_row] Set diagonalMatrix(0, %zu) = %lf", i, value);
-    }
-
-    MATRIX_LOG("[matrix_get_main_diagonal_as_row] Success: Main diagonal extracted as row.");
-    return diagonalMatrix;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* diagonalMatrix = matrix_create(1, matrix->cols); 
+  if (!diagonalMatrix) {
+    utl_error_func("Memory allocation failed for diagonal matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix->cols; i++) {
+    double value = matrix->data[i * matrix->cols + i];
+    matrix_set(diagonalMatrix, 0, i, value);
+  }
+  return diagonalMatrix;
 }
 
-/**
- * @brief Extracts the minor diagonal of a square matrix and returns it as a row matrix.
- *
- * This function creates a new 1xN matrix (where N is the number of columns in the input matrix),
- * and fills it with the elements from the minor diagonal (anti-diagonal) of the input square matrix.
- *
- * @param matrix The square matrix from which the minor diagonal will be extracted.
- * 
- * @return A new 1xN matrix containing the minor diagonal elements as a row.
- * Returns NULL if the input matrix is NULL, not square, or if memory allocation fails.
- */
 Matrix* matrix_get_minor_diagonal_as_row(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_get_minor_diagonal_as_row] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_get_minor_diagonal_as_row] Error: Matrix object is null.");
-        return NULL;
-    }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_get_minor_diagonal_as_row] Error: Matrix is not square.");
-        return NULL;
-    }
-
-    Matrix* diagonalMatrix = matrix_create(1, matrix->cols); 
-    if (!diagonalMatrix) {
-        MATRIX_LOG("[matrix_get_minor_diagonal_as_row] Error: Memory allocation failed for diagonal matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix->cols; i++) {
-        double value = matrix->data[i * matrix->cols + (matrix->cols - 1 - i)];
-        matrix_set(diagonalMatrix, 0, i, value);
-        MATRIX_LOG("[matrix_get_minor_diagonal_as_row] Set diagonalMatrix(0, %zu) = %lf", i, value);
-    }
-
-    MATRIX_LOG("[matrix_get_minor_diagonal_as_row] Success: Minor diagonal extracted as row.");
-    return diagonalMatrix;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* diagonalMatrix = matrix_create(1, matrix->cols); 
+  if (!diagonalMatrix) {
+    utl_error_func("Memory allocation failed for diagonal matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix->cols; i++) {
+    double value = matrix->data[i * matrix->cols + (matrix->cols - 1 - i)];
+    matrix_set(diagonalMatrix, 0, i, value);
+  }
+  return diagonalMatrix;
 }
 
-/**
- * @brief Extracts the minor diagonal of a square matrix and returns it as a column matrix.
- *
- * This function creates a new Nx1 matrix (where N is the number of rows in the input matrix),
- * and fills it with the elements from the minor diagonal (anti-diagonal) of the input square matrix.
- *
- * @param matrix The square matrix from which the minor diagonal will be extracted.
- * 
- * @return A new Nx1 matrix containing the minor diagonal elements as a column.
- * Returns NULL if the input matrix is NULL, not square, or if memory allocation fails.
- */
 Matrix* matrix_get_minor_diagonal_as_column(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_get_minor_diagonal_as_column] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_get_minor_diagonal_as_column] Error: Matrix object is null.");
-        return NULL;
-    }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_get_minor_diagonal_as_column] Error: Matrix is not square.");
-        return NULL;
-    }
-
-    Matrix* diagonalMatrix = matrix_create(matrix->rows, 1); 
-    if (!diagonalMatrix) {
-        MATRIX_LOG("[matrix_get_minor_diagonal_as_column] Error: Memory allocation failed for diagonal matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        double value = matrix->data[i * matrix->cols + (matrix->cols - 1 - i)];
-        matrix_set(diagonalMatrix, i, 0, value);
-        MATRIX_LOG("[matrix_get_minor_diagonal_as_column] Set diagonalMatrix(%zu, 0) = %lf", i, value);
-    }
-
-    MATRIX_LOG("[matrix_get_minor_diagonal_as_column] Success: Minor diagonal extracted as column.");
-    return diagonalMatrix;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* diagonalMatrix = matrix_create(matrix->rows, 1); 
+  if (!diagonalMatrix) {
+    utl_error_func("Memory allocation failed for diagonal matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    double value = matrix->data[i * matrix->cols + (matrix->cols - 1 - i)];
+    matrix_set(diagonalMatrix, i, 0, value);
+  }
+  return diagonalMatrix;
 }
 
-/**
- * @brief Transposes a given matrix.
- *
- * This function creates a new matrix with rows and columns swapped from the input matrix.
- * The elements are rearranged such that the element at position (i, j) in the original matrix 
- * is moved to position (j, i) in the transposed matrix.
- *
- * @param matrix The matrix to be transposed.
- * @return A new transposed matrix. Returns NULL if the input matrix is NULL or if memory allocation fails.
- */
 Matrix* matrix_transpose(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_transpose] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_transpose] Error: Matrix object is null.");
-        return NULL;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* transposed = matrix_create(matrix->cols, matrix->rows);
+  if (!transposed) {
+    utl_error_func("Memory allocation failed for transposed matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = 0; j < matrix->cols; j++) {
+      double value = matrix->data[i * matrix->cols + j];
+      matrix_set(transposed, j, i, value);
     }
-
-    Matrix* transposed = matrix_create(matrix->cols, matrix->rows);
-    if (!transposed) {
-        MATRIX_LOG("[matrix_transpose] Error: Memory allocation failed for transposed matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < matrix->cols; j++) {
-            double value = matrix->data[i * matrix->cols + j];
-            matrix_set(transposed, j, i, value);
-            MATRIX_LOG("[matrix_transpose] Set transposed(%zu, %zu) = %lf", j, i, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_transpose] Success: Transpose completed.");
-    return transposed;
+  }
+  return transposed;
 }
 
 /**
