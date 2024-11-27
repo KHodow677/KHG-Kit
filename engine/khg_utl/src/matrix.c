@@ -883,7 +883,7 @@ bool matrix_is_orthogonal(const Matrix* matrix) {
   }
   Matrix* transpose = matrix_transpose(matrix);
   if (!transpose) {
-    utl_error_func("Failed to compute the transpose");
+    utl_error_func("Failed to compute the transpose", utl_user_defined_data);
     return false;
   }
   Matrix* product = matrix_multiply(matrix, transpose);
@@ -1191,1215 +1191,624 @@ Matrix* matrix_cholesky_decomposition(const Matrix* matrix) {
 }
 
 bool matrix_lu_decomposition(const Matrix* matrix, Matrix** L, Matrix** U) {
-    MATRIX_LOG("[matrix_lu_decomposition] Entering function");
-
-    if (!matrix || !matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_lu_decomposition] Error: Matrix must be square for LU decomposition.");
-        return false;
+  if (!matrix || !matrix_is_square(matrix)) {
+    utl_error_func("Matrix must be square for LU decomposition", utl_user_defined_data);
+    return false;
+  }
+  size_t n = matrix->rows;
+  *L = matrix_create(n, n);
+  *U = matrix_create(n, n);
+  if (!(*L) || !(*U)) {
+    utl_error_func("Memory allocation failed for L or U", utl_user_defined_data);
+    if (*L) matrix_deallocate(*L);
+    if (*U) matrix_deallocate(*U);
+    return false;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t k = i; k < n; k++) {
+      double sum = 0.0;
+      for (size_t j = 0; j < i; j++) {
+        sum += matrix_get(*L, i, j) * matrix_get(*U, j, k);
+      }
+      matrix_set(*U, i, k, matrix_get(matrix, i, k) - sum);
     }
-
-    size_t n = matrix->rows;
-    *L = matrix_create(n, n);
-    *U = matrix_create(n, n);
-
-    if (!(*L) || !(*U)) {
-        MATRIX_LOG("[matrix_lu_decomposition] Error: Memory allocation failed for L or U.");
-        if (*L) matrix_deallocate(*L);
-        if (*U) matrix_deallocate(*U);
-        return false;
-    }
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t k = i; k < n; k++) {
-            double sum = 0.0;
-            for (size_t j = 0; j < i; j++) {
-                sum += matrix_get(*L, i, j) * matrix_get(*U, j, k);
-            }
-            matrix_set(*U, i, k, matrix_get(matrix, i, k) - sum);
-            MATRIX_LOG("[matrix_lu_decomposition] Set U(%zu, %zu) = %lf", i, k, matrix_get(matrix, i, k) - sum);
+    for (size_t k = i; k < n; k++) {
+      if (i == k) {
+        matrix_set(*L, i, i, 1.0); 
+      } 
+      else {
+        double sum = 0.0;
+        for (size_t j = 0; j < i; j++) {
+          sum += matrix_get(*L, k, j) * matrix_get(*U, j, i);
         }
-
-        // Lower Triangular
-        for (size_t k = i; k < n; k++) {
-            if (i == k) {
-                matrix_set(*L, i, i, 1.0); 
-                MATRIX_LOG("[matrix_lu_decomposition] Set L(%zu, %zu) = 1.0", i, i);
-            } 
-            else {
-                double sum = 0.0;
-                for (size_t j = 0; j < i; j++) {
-                    sum += matrix_get(*L, k, j) * matrix_get(*U, j, i);
-                }
-                matrix_set(*L, k, i, (matrix_get(matrix, k, i) - sum) / matrix_get(*U, i, i));
-                MATRIX_LOG("[matrix_lu_decomposition] Set L(%zu, %zu) = %lf", k, i, (matrix_get(matrix, k, i) - sum) / matrix_get(*U, i, i));
-            }
-        }
+        matrix_set(*L, k, i, (matrix_get(matrix, k, i) - sum) / matrix_get(*U, i, i));
+      }
     }
-
-    MATRIX_LOG("[matrix_lu_decomposition] Exiting function.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Performs QR decomposition of a matrix.
- *
- * This function decomposes a given matrix into two matrices: 
- * an orthogonal matrix `Q` and an upper triangular matrix `R`, 
- * such that the original matrix `A` can be represented as `A = Q * R`.
- * Note: The input matrix must have more rows than columns (m >= n).
- *
- * @param A The input matrix to decompose.
- * @param Q Pointer to a pointer that will store the orthogonal matrix.
- * @param R Pointer to a pointer that will store the upper triangular matrix.
- * 
- * @return `true` if the decomposition is successful, `false` otherwise.
- */
 bool matrix_qr_decomposition(const Matrix* A, Matrix** Q, Matrix** R) {
-    MATRIX_LOG("[matrix_qr_decomposition] Entering function");
-
-    if (!A || A->rows < A->cols) {
-        MATRIX_LOG("[matrix_qr_decomposition] Error: Matrix must have more rows than columns.");
-        return false;
+  if (!A || A->rows < A->cols) {
+    utl_error_func("Matrix must have more rows than columns", utl_user_defined_data);
+    return false;
+  }
+  size_t m = A->rows;
+  size_t n = A->cols;
+  *Q = matrix_create(m, n);
+  *R = matrix_create(n, n);
+  if (!*Q || !*R) {
+    utl_error_func("Memory allocation failed for Q and R", utl_user_defined_data);
+    return false;
+  }
+  double* a_col = (double*)malloc(sizeof(double) * m);
+  double* q_col = (double*)malloc(sizeof(double) * m);
+  if (!a_col || !q_col) {
+    utl_error_func("Memory allocation failed for column vectors", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < m; ++j) {
+      a_col[j] = matrix_get(A, j, i);
     }
-
-    size_t m = A->rows;
-    size_t n = A->cols;
-
-    *Q = matrix_create(m, n);
-    *R = matrix_create(n, n);
-    if (!*Q || !*R) {
-        MATRIX_LOG("[matrix_qr_decomposition] Error: Memory allocation failed for Q and R.");
-        return false;
+    for (size_t k = 0; k < i; ++k) {
+      for (size_t j = 0; j < m; ++j) {
+        q_col[j] = matrix_get(*Q, j, k);
+      }
+      subtract_projection(a_col, q_col, m);
     }
-
-    // Log memory allocation for temporary vectors
-    MATRIX_LOG("[matrix_qr_decomposition] Allocating memory for temporary vectors.");
-    double* a_col = (double*)malloc(sizeof(double) * m);
-    double* q_col = (double*)malloc(sizeof(double) * m);
-    if (!a_col || !q_col) {
-        MATRIX_LOG("[matrix_qr_decomposition] Error: Memory allocation failed for column vectors.");
-        return false;
+    normalize_vector(a_col, m);  
+    for (size_t j = 0; j < m; ++j) {
+      matrix_set(*Q, j, i, a_col[j]);
     }
-
-    for (size_t i = 0; i < n; ++i) {
-        // Copy the ith column of A to a_col
-        for (size_t j = 0; j < m; ++j) {
-            a_col[j] = matrix_get(A, j, i);
-        }
-
-        for (size_t k = 0; k < i; ++k) {
-            for (size_t j = 0; j < m; ++j) {
-                q_col[j] = matrix_get(*Q, j, k);
-            }
-            subtract_projection(a_col, q_col, m);  // a_col -= projection of a_col onto q_col
-        }
-
-        normalize_vector(a_col, m);  
-
-        for (size_t j = 0; j < m; ++j) {
-            matrix_set(*Q, j, i, a_col[j]);
-        }
-
-        MATRIX_LOG("[matrix_qr_decomposition] Set column %zu of Q", i);
+  }
+  for (size_t j = 0; j < n; ++j) {
+    for (size_t i = 0; i <= j; ++i) {
+      double r_ij = 0.0;
+      for (size_t k = 0; k < m; ++k) {
+        r_ij += matrix_get(*Q, k, i) * matrix_get(A, k, j);
+      }
+      matrix_set(*R, i, j, r_ij);
     }
-
-    for (size_t j = 0; j < n; ++j) {
-        for (size_t i = 0; i <= j; ++i) {
-            double r_ij = 0.0;
-            for (size_t k = 0; k < m; ++k) {
-                r_ij += matrix_get(*Q, k, i) * matrix_get(A, k, j);
-            }
-            matrix_set(*R, i, j, r_ij);
-            MATRIX_LOG("[matrix_qr_decomposition] Set R(%zu, %zu) = %lf", i, j, r_ij);
-        }
-    }
-
-    free(a_col);
-    free(q_col);
-
-    MATRIX_LOG("[matrix_qr_decomposition] Exiting function.");
-    return true;
+  }
+  free(a_col);
+  free(q_col);
+  return true;
 }
 
-/**
- * @brief Creates a Pascal matrix of size n x n.
- *
- * This function generates a Pascal matrix, which is a symmetric matrix where each element is a binomial coefficient.
- * The matrix is filled in both the upper and lower triangular parts using the binomial coefficients.
- *
- * @param n The size of the Pascal matrix (number of rows and columns).
- * @return A pointer to the generated Pascal matrix. Returns `NULL` if memory allocation fails.
- */
 Matrix* matrix_pascal(size_t n) {
-    MATRIX_LOG("[matrix_pascal] Entering function with size %zu", n);
-
-    Matrix* pascalMatrix = matrix_create(n, n);
-    if (!pascalMatrix) {
-        MATRIX_LOG("[matrix_pascal] Error: Memory allocation failed for Pascal matrix.");
-        return NULL;
+  Matrix* pascalMatrix = matrix_create(n, n);
+  if (!pascalMatrix) {
+    utl_error_func("Memory allocation failed for Pascal matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j <= i; j++) {
+      double value = binomial_coefficient(i + j, i);
+      matrix_set(pascalMatrix, i, j, value);
+      matrix_set(pascalMatrix, j, i, value);
     }
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j <= i; j++) {
-            double value = binomial_coefficient(i + j, i);
-            matrix_set(pascalMatrix, i, j, value);
-            matrix_set(pascalMatrix, j, i, value);
-
-            MATRIX_LOG("[matrix_pascal] Set Pascal matrix element (%zu, %zu) = %lf", i, j, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_pascal] Successfully created Pascal matrix.");
-    return pascalMatrix;
+  }
+  return pascalMatrix;
 }
 
-/**
- * @brief Computes the Frobenius norm of a matrix.
- *
- * The Frobenius norm is calculated as the square root of the sum of the absolute squares of all elements in the matrix.
- * It provides a measure of the magnitude of the matrix.
- *
- * @param matrix The input matrix for which the Frobenius norm is to be computed.
- * @return The Frobenius norm of the matrix.
- */
 double matrix_frobenius_norm(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_frobenius_norm] Entering function");
-
-    double sum = 0.0;
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < matrix->cols; j++) {
-            double value = matrix_get(matrix, i, j);
-            sum += value * value;
-
-            MATRIX_LOG("[matrix_frobenius_norm] Adding value^2 for element (%zu, %zu): %lf", i, j, value * value);
-        }
-    }
-
-    double frobeniusNorm = sqrt(sum);
-
-    MATRIX_LOG("[matrix_frobenius_norm] Frobenius norm = %lf", frobeniusNorm);
-    return frobeniusNorm;
-}
-
-/**
- * @brief Computes the L1 norm of a matrix.
- *
- * The L1 norm, also known as the maximum column sum norm, is calculated as the maximum of the sums of absolute values of each column.
- *
- * @param matrix The input matrix for which the L1 norm is to be computed.
- * @return The L1 norm of the matrix.
- */
-double matrix_l1_norm(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_l1_norm] Entering function");
-
-    double maxSum = 0.0;
+  double sum = 0.0;
+  for (size_t i = 0; i < matrix->rows; i++) {
     for (size_t j = 0; j < matrix->cols; j++) {
-        double columnSum = 0.0;
-        for (size_t i = 0; i < matrix->rows; i++) {
-            columnSum += fabs(matrix_get(matrix, i, j));
-        }
-        MATRIX_LOG("[matrix_l1_norm] Column %zu sum = %f", j, columnSum);
-
-        if (columnSum > maxSum) {
-            maxSum = columnSum;
-            MATRIX_LOG("[matrix_l1_norm] New max column sum = %f", maxSum);
-        }
+      double value = matrix_get(matrix, i, j);
+      sum += value * value;
     }
-
-    MATRIX_LOG("[matrix_l1_norm] Exiting function, L1 norm = %f", maxSum);
-    return maxSum;
+  }
+  double frobeniusNorm = sqrt(sum);
+  return frobeniusNorm;
 }
 
-/**
- * @brief Computes the infinity norm of a matrix.
- *
- * The infinity norm, also known as the maximum row sum norm, is calculated as the maximum of the sums of absolute values of each row.
- *
- * @param matrix The input matrix for which the infinity norm is to be computed.
- * @return The infinity norm of the matrix.
- */
-double matrix_infinity_norm(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_infinity_norm] Entering function");
-
-    double maxSum = 0.0;
+double matrix_l1_norm(const Matrix* matrix) {
+  double maxSum = 0.0;
+  for (size_t j = 0; j < matrix->cols; j++) {
+    double columnSum = 0.0;
     for (size_t i = 0; i < matrix->rows; i++) {
-        double rowSum = 0.0;
-        for (size_t j = 0; j < matrix->cols; j++) {
-            rowSum += fabs(matrix_get(matrix, i, j));
-        }
-        MATRIX_LOG("[matrix_infinity_norm] Row %zu sum = %f", i, rowSum);
-
-        if (rowSum > maxSum) {
-            maxSum = rowSum;
-            MATRIX_LOG("[matrix_infinity_norm] New max row sum = %f", maxSum);
-        }
+      columnSum += fabs(matrix_get(matrix, i, j));
     }
-
-    MATRIX_LOG("[matrix_infinity_norm] Exiting function, infinity norm = %f", maxSum);
-    return maxSum;
+    if (columnSum > maxSum) {
+      maxSum = columnSum;
+    }
+  }
+  return maxSum;
 }
 
-/**
- * @brief Computes the inverse of a square matrix using the Gauss-Jordan elimination method.
- *
- * This function takes a square matrix and computes its inverse by performing Gauss-Jordan elimination. 
- * If the matrix is not square or is singular (non-invertible), the function returns `NULL`.
- *
- * @param matrix The input square matrix to be inverted.
- * @return A pointer to the inverse matrix. If the matrix is not invertible or an error occurs, `NULL` is returned.
- */
+double matrix_infinity_norm(const Matrix* matrix) {
+  double maxSum = 0.0;
+  for (size_t i = 0; i < matrix->rows; i++) {
+    double rowSum = 0.0;
+    for (size_t j = 0; j < matrix->cols; j++) {
+      rowSum += fabs(matrix_get(matrix, i, j));
+    }
+    if (rowSum > maxSum) {
+      maxSum = rowSum;
+    }
+  }
+  return maxSum;
+}
+
 Matrix* matrix_inverse_gauss_jordan(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_inverse_gauss_jordan] Entering function");
-
-    if (matrix->rows != matrix->cols) {
-        MATRIX_LOG("[matrix_inverse_gauss_jordan] Error: Matrix must be square for inversion.");
-        return NULL;
+  if (matrix->rows != matrix->cols) {
+    utl_error_func("Matrix must be square for inversion", utl_user_defined_data);
+    return NULL;
+  }
+  size_t n = matrix->rows;
+  Matrix* augmented = matrix_create(n, 2 * n);
+  if (!augmented) {
+    utl_error_func("Memory allocation failed for augmented matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
+      augmented->data[i * 2 * n + j] = matrix->data[i * n + j]; 
+      augmented->data[i * 2 * n + j + n] = (i == j) ? 1.0 : 0.0; 
     }
-
-    size_t n = matrix->rows;
-    MATRIX_LOG("[matrix_inverse_gauss_jordan] Creating augmented matrix of size %zux%zu", n, 2 * n);
-
-    Matrix* augmented = matrix_create(n, 2 * n);
-    if (!augmented) {
-        MATRIX_LOG("[matrix_inverse_gauss_jordan] Error: Memory allocation failed for augmented matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < n; j++) {
-            augmented->data[i * 2 * n + j] = matrix->data[i * n + j]; 
-            augmented->data[i * 2 * n + j + n] = (i == j) ? 1.0 : 0.0; 
-        }
-    }
-
-    // Perform Gauss-Jordan elimination
-    for (size_t col = 0; col < n; col++) {
-        if (augmented->data[col * 2 * n + col] == 0) {
-            MATRIX_LOG("[matrix_inverse_gauss_jordan] Pivot element is zero, searching for non-zero element to swap.");
-            size_t swapRow = col + 1;
-            while (swapRow < n && augmented->data[swapRow * 2 * n + col] == 0) {
-                swapRow++;
-            }
-            if (swapRow == n) {
-                MATRIX_LOG("[matrix_inverse_gauss_jordan] Error: Matrix is singular, cannot invert.");
-                matrix_deallocate(augmented);
-                return NULL;
-            }
-            MATRIX_LOG("[matrix_inverse_gauss_jordan] Swapping row %zu with row %zu", col, swapRow);
-            matrix_swap_rows(augmented, col, swapRow);
-        }
-
-        matrix_row_divide(augmented, col, augmented->data[col * 2 * n + col]);
-        MATRIX_LOG("[matrix_inverse_gauss_jordan] Divided row %zu by pivot element", col);
-
-        for (size_t row = 0; row < n; row++) {
-            if (row != col) {
-                matrix_row_subtract(augmented, row, col, augmented->data[row * 2 * n + col]);
-                MATRIX_LOG("[matrix_inverse_gauss_jordan] Eliminated column %zu in row %zu", col, row);
-            }
-        }
-    }
-
-    Matrix* inverse = matrix_create(n, n);
-    if (!inverse) {
-        MATRIX_LOG("[matrix_inverse_gauss_jordan] Error: Memory allocation failed for inverse matrix.");
+  }
+  for (size_t col = 0; col < n; col++) {
+    if (augmented->data[col * 2 * n + col] == 0) {
+      size_t swapRow = col + 1;
+      while (swapRow < n && augmented->data[swapRow * 2 * n + col] == 0) {
+        swapRow++;
+      }
+      if (swapRow == n) {
+        utl_error_func("Matrix is singular, cannot invert", utl_user_defined_data);
         matrix_deallocate(augmented);
         return NULL;
+      }
+      matrix_swap_rows(augmented, col, swapRow);
     }
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < n; j++) {
-            inverse->data[i * n + j] = augmented->data[i * 2 * n + j + n];
-        }
+    matrix_row_divide(augmented, col, augmented->data[col * 2 * n + col]);
+    for (size_t row = 0; row < n; row++) {
+      if (row != col) {
+        matrix_row_subtract(augmented, row, col, augmented->data[row * 2 * n + col]);
+      }
     }
-
-    MATRIX_LOG("[matrix_inverse_gauss_jordan] Successfully computed inverse matrix.");
+  }
+  Matrix* inverse = matrix_create(n, n);
+  if (!inverse) {
+    utl_error_func("Memory allocation failed for inverse matrix", utl_user_defined_data);
     matrix_deallocate(augmented);
-    return inverse;
+    return NULL;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
+      inverse->data[i * n + j] = augmented->data[i * 2 * n + j + n];
+    }
+  }
+  matrix_deallocate(augmented);
+  return inverse;
 }
 
-/**
- * @brief Checks if a matrix is positive definite.
- *
- * This function verifies if a given matrix is positive definite. For a matrix to be positive definite, 
- * it must be symmetric and its Cholesky decomposition must exist. If the matrix is not square or not symmetric,
- * the function returns `false`.
- *
- * @param matrix The input matrix to check for positive definiteness.
- * 
- * @return `true` if the matrix is positive definite, otherwise `false`.
- */
 bool matrix_is_positive_definite(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_positive_definite] Entering function");
-
-    if (!matrix || matrix->rows != matrix->cols) {
-        MATRIX_LOG("[matrix_is_positive_definite] Error: Matrix must be square to check if it's positive definite.");
-        return false;
-    }
-    if (!matrix_is_symmetric(matrix)) {
-        MATRIX_LOG("[matrix_is_positive_definite] Error: Matrix is not symmetric.");
-        return false;
-    }
-
-    MATRIX_LOG("[matrix_is_positive_definite] Attempting Cholesky decomposition.");
-    Matrix* chol = matrix_cholesky_decomposition(matrix);
-    bool isPositiveDefinite = chol != NULL;
-
-    if (isPositiveDefinite) {
-        MATRIX_LOG("[matrix_is_positive_definite] Matrix is positive definite.");
-        matrix_deallocate(chol); 
-    }
-    else {
-        MATRIX_LOG("[matrix_is_positive_definite] Error: Cholesky decomposition failed.");
-        return false;
-    }
-
-    MATRIX_LOG("[matrix_is_positive_definite] Exiting function.");
-    return isPositiveDefinite;
+  if (!matrix || matrix->rows != matrix->cols) {
+    utl_error_func("Matrix must be square to check if it's positive definite", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix_is_symmetric(matrix)) {
+    utl_error_func("Matrix is not symmetric", utl_user_defined_data);
+    return false;
+  }
+  Matrix* chol = matrix_cholesky_decomposition(matrix);
+  bool isPositiveDefinite = chol != NULL;
+  if (isPositiveDefinite) {
+    matrix_deallocate(chol); 
+  }
+  else {
+    utl_error_func("Cholesky decomposition failed", utl_user_defined_data);
+    return false;
+  }
+  return isPositiveDefinite;
 }
 
-/**
- * @brief Calculates the projection matrix onto the column space of a given matrix.
- *
- * This function computes the projection matrix P that projects any vector onto the column space of the input matrix A.
- *
- * @param matrix The input matrix A.
- * 
- * @return A pointer to the projection matrix. If any step in the calculation fails (memory allocation, matrix inversion),
- * `NULL` is returned.
- */
 Matrix* matrix_projection(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_projection] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_projection] Error: Input matrix is null.");
-        return NULL;
-    }
-
-    MATRIX_LOG("[matrix_projection] Calculating transpose.");
-    Matrix* matrixTranspose = matrix_transpose(matrix);
-    if (!matrixTranspose) {
-        MATRIX_LOG("[matrix_projection] Error: Transpose calculation failed.");
-        return NULL;
-    }
-
-    MATRIX_LOG("[matrix_projection] Calculating matrix^T * matrix.");
-    Matrix* mta = matrix_multiply(matrixTranspose, matrix);
-    if (!mta) {
-        MATRIX_LOG("[matrix_projection] Error: Multiplication matrix^T * matrix failed.");
-        matrix_deallocate(matrixTranspose);
-        return NULL;
-    }
-
-    // Calculate inverse of m^T * m
-    MATRIX_LOG("[matrix_projection] Calculating inverse of matrix^T * matrix.");
-    Matrix* mtaInv = matrix_inverse(mta);
-    if (!mtaInv) {
-        MATRIX_LOG("[matrix_projection] Error: Inverse calculation failed.");
-        matrix_deallocate(matrixTranspose); 
-        matrix_deallocate(mta); 
-        return NULL;
-    }
-
-    MATRIX_LOG("[matrix_projection] Calculating A * (A^T * A)^-1.");
-    Matrix* m_mta_inv = matrix_multiply(matrix, mtaInv);
-
-    if (!m_mta_inv) {
-        MATRIX_LOG("[matrix_projection] Error: Multiplication A * (A^T * A)^-1 failed.");
-        matrix_deallocate(matrixTranspose);
-        matrix_deallocate(mta);
-        matrix_deallocate(mtaInv);
-        return NULL;
-    }
-
-    // Calculate final projection matrix: A * (A^T * A)^-1 * A^T
-    MATRIX_LOG("[matrix_projection] Calculating final projection matrix.");
-    Matrix* projection = matrix_multiply(m_mta_inv, matrixTranspose);
-
-    if (!projection) {
-        MATRIX_LOG("[matrix_projection] Error: Final projection matrix calculation failed.");
-    } 
-    else {
-        MATRIX_LOG("[matrix_projection] Successfully calculated projection matrix.");
-    }
-
+  if (!matrix) {
+    utl_error_func("Input matrix is null", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* matrixTranspose = matrix_transpose(matrix);
+  if (!matrixTranspose) {
+    utl_error_func("Transpose calculation failed", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* mta = matrix_multiply(matrixTranspose, matrix);
+  if (!mta) {
+    utl_error_func("Multiplication matrix^T * matrix failed", utl_user_defined_data);
+    matrix_deallocate(matrixTranspose);
+    return NULL;
+  }
+  Matrix* mtaInv = matrix_inverse(mta);
+  if (!mtaInv) {
+    utl_error_func("Inverse calculation failed", utl_user_defined_data);
+    matrix_deallocate(matrixTranspose); 
+    matrix_deallocate(mta); 
+    return NULL;
+  }
+  Matrix* m_mta_inv = matrix_multiply(matrix, mtaInv);
+  if (!m_mta_inv) {
+    utl_error_func("Multiplication A * (A^T * A)^-1 failed", utl_user_defined_data);
     matrix_deallocate(matrixTranspose);
     matrix_deallocate(mta);
     matrix_deallocate(mtaInv);
-    matrix_deallocate(m_mta_inv);
-
-    return projection;
+    return NULL;
+  }
+  Matrix* projection = matrix_multiply(m_mta_inv, matrixTranspose);
+  if (!projection) {
+    utl_error_func("Final projection matrix calculation failed", utl_user_defined_data);
+  } 
+  matrix_deallocate(matrixTranspose);
+  matrix_deallocate(mta);
+  matrix_deallocate(mtaInv);
+  matrix_deallocate(m_mta_inv);
+  return projection;
 }
 
-/**
- * @brief Generates a Vandermonde matrix from the given input matrix.
- *
- * A Vandermonde matrix is a matrix with terms of a geometric progression in each row. 
- * 
- * @param matrix The input matrix containing the initial values for the Vandermonde matrix.
- * @param n The size (rows and columns) of the resulting Vandermonde matrix.
- * 
- * @return A pointer to the generated Vandermonde matrix. If the input matrix is `NULL` or 
- * memory allocation fails, `NULL` is returned.
- */
 Matrix* matrix_vandermonde(const Matrix* matrix, size_t n) {
-    MATRIX_LOG("[matrix_vandermonde] Entering function with n = %zu", n);
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_vandermonde] Error: Matrix object is null");
-        return NULL;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* vandermonde = matrix_create(n, n);
+  if (!vandermonde) {
+    utl_error_func("Memory allocation failed for Vandermonde matrix", utl_user_defined_data);
+    return NULL; 
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
+      vandermonde->data[i * n + j] = pow(matrix->data[i], j);
     }
-    
-    Matrix* vandermonde = matrix_create(n, n);
-    if (!vandermonde) {
-        MATRIX_LOG("[matrix_vandermonde] Error: Memory allocation failed for Vandermonde matrix");
-        return NULL; 
-    }
-
-    MATRIX_LOG("[matrix_vandermonde] Successfully created Vandermonde matrix of size %zux%zu", n, n);
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < n; j++) {
-            vandermonde->data[i * n + j] = pow(matrix->data[i], j);
-            MATRIX_LOG("[matrix_vandermonde] Setting element at (row, col) = (%zu, %zu) to %lf", i, j, vandermonde->data[i * n + j]);
-        }
-    }
-
-    MATRIX_LOG("[matrix_vandermonde] Successfully created Vandermonde matrix");
-    return vandermonde;
+  }
+  return vandermonde;
 }
 
-/**
- * @brief Generates a companion matrix from the given polynomial coefficients.
- *
- * @param coefficients A matrix representing the polynomial coefficients, where the highest degree coefficient comes last.
- * @param degree The degree of the polynomial.
- * 
- * @return A pointer to the generated companion matrix. If the input coefficients are `NULL` or memory allocation fails,
- * `NULL` is returned.
- */
 Matrix* matrix_companion(const Matrix* coefficients, size_t degree) {
-    MATRIX_LOG("[matrix_companion] Entering function with degree = %zu", degree);
-
-    if (!coefficients) {
-        MATRIX_LOG("[matrix_companion] Error: Coefficients matrix is null");
-        return NULL;
+  if (!coefficients) {
+    utl_error_func("Coefficients matrix is null", utl_user_defined_data);
+    return NULL;
+  }
+  size_t n = degree - 1; 
+  Matrix* companion = matrix_create(n, n);
+  if (!companion) {
+    utl_error_func("Memory allocation failed for companion matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
+      if (j == n - 1) { 
+        companion->data[i * n + j] = -coefficients->data[n - 1 - i] / coefficients->data[degree - 1];
+      } 
+      else if (i == j + 1) { 
+        companion->data[i * n + j] = 1;
+      } 
+      else { 
+        companion->data[i * n + j] = 0;
+      }
     }
-    
-    size_t n = degree - 1; 
-    Matrix* companion = matrix_create(n, n);
-    if (!companion) {
-        MATRIX_LOG("[matrix_companion] Error: Memory allocation failed for companion matrix");
-        return NULL;
-    }
-
-    MATRIX_LOG("[matrix_companion] Successfully created companion matrix of size %zux%zu", n, n);
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < n; j++) {
-            if (j == n - 1) { 
-                companion->data[i * n + j] = -coefficients->data[n - 1 - i] / coefficients->data[degree - 1];
-                MATRIX_LOG("[matrix_companion] Setting element at (row, col) = (%zu, %zu) to %lf (last column)", i, j, companion->data[i * n + j]);
-            } 
-            else if (i == j + 1) { 
-                companion->data[i * n + j] = 1;
-                MATRIX_LOG("[matrix_companion] Setting element at (row, col) = (%zu, %zu) to 1 (sub-diagonal)", i, j);
-            } 
-            else { 
-                companion->data[i * n + j] = 0;
-                MATRIX_LOG("[matrix_companion] Setting element at (row, col) = (%zu, %zu) to 0", i, j);
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_companion] Successfully created companion matrix");
-    return companion;
+  }
+  return companion;
 }
 
-/**
- * @brief Fills a matrix with a specified value.
- *
- * This function sets every element of the matrix to the provided value.
- *
- * @param matrix The matrix to be filled.
- * @param value The value to fill the matrix with.
- * 
- * @return `true` if the matrix was successfully filled, `false` if the matrix or its data pointer is `NULL`.
- */
 bool matrix_fill(Matrix* matrix, double value) {
-    MATRIX_LOG("[matrix_fill] Entering function with value = %lf", value);
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_fill] Error: Matrix object is null");
-        return false; 
-    }
-    if (!matrix->data) {
-        MATRIX_LOG("[matrix_fill] Error: Matrix data is null");
-        return false;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < matrix->cols; j++) {
-            matrix->data[i * matrix->cols + j] = value;
-            MATRIX_LOG("[matrix_fill] Setting element at (row, col) = (%zu, %zu) to %lf", i, j, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_fill] Successfully filled matrix with value %lf", value);
-    return true;
-}
-
-/**
- * @brief Applies a specified function to each element of a matrix.
- *
- * This function creates a new matrix where each element is the result of applying the provided function `func`
- * to the corresponding element of the input matrix.
- *
- * @param matrix The input matrix to which the function will be applied.
- * @param func The function to apply to each element of the matrix.
- * 
- * @return A new matrix where each element is the result of applying `func` to the input matrix's elements.
- * If the input matrix or function is `NULL`, or if memory allocation fails, the function returns `NULL`.
- */
-Matrix* matrix_map(const Matrix* matrix, MatrixFunc func) {
-    MATRIX_LOG("[matrix_map] Entering function");
-
-    if (!matrix || !func) {
-        MATRIX_LOG("[matrix_map] Error: NULL argument provided");
-        return NULL;
-    }
-
-    Matrix* result = (Matrix*)malloc(sizeof(Matrix));
-    if (!result) {
-        MATRIX_LOG("[matrix_map] Error: Memory allocation failed for matrix structure");
-        return NULL;
-    }
-
-    result->data = (double*)malloc(matrix->rows * matrix->cols * sizeof(double));
-    if (!result->data) {
-        MATRIX_LOG("[matrix_map] Error: Memory allocation for matrix data failed");
-        free(result); 
-        return NULL;
-    }
-
-    result->rows = matrix->rows;
-    result->cols = matrix->cols;
-
-    for (size_t i = 0; i < matrix->rows; ++i) {
-        for (size_t j = 0; j < matrix->cols; ++j) {
-            MATRIX_LOG("[matrix_map] Applying function to element at (row, col) = (%zu, %zu)", i, j);
-            result->data[i * matrix->cols + j] = func(matrix->data[i * matrix->cols + j]);
-        }
-    }
-
-    MATRIX_LOG("[matrix_map] Successfully applied function to matrix");
-    return result;
-}
-
-/**
- * @brief Finds the minimum element in a matrix.
- *
- * This function iterates through all the elements of the matrix to find and return the minimum value.
- *
- * @param matrix The matrix in which to find the minimum element.
- * 
- * @return The minimum element in the matrix. If the matrix is `NULL`, empty, or invalid, 
- * it returns `DBL_MAX` as an error indicator.
- */
-double matrix_min_element(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_min_element] Entering function");
-
-    if (!matrix || !matrix->data || matrix->rows == 0 || matrix->cols == 0) {
-        MATRIX_LOG("[matrix_min_element] Error: Invalid matrix provided");
-        return DBL_MAX; 
-    }
-
-    double min = DBL_MAX;
-    for (size_t i = 0; i < matrix->rows; ++i) {
-        for (size_t j = 0; j < matrix->cols; ++j) {
-            double value = matrix->data[i * matrix->cols + j];
-            if (value < min) {
-                MATRIX_LOG("[matrix_min_element] New minimum found: %f at (row, col) = (%zu, %zu)", value, i, j);
-                min = value;
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_min_element] Minimum element found: %f", min);
-    return min;
-}
-
-
-/**
- * @brief Finds the maximum element in a matrix.
- *
- * This function iterates through all the elements of the matrix to find and return the maximum value.
- *
- * @param matrix The matrix in which to find the maximum element.
- * 
- * @return The maximum element in the matrix. If the matrix is `NULL`, empty, or invalid, it returns `-DBL_MAX` as an error indicator.
- */
-double matrix_max_element(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_max_element] Entering function");
-
-    if (!matrix || !matrix->data || matrix->rows == 0 || matrix->cols == 0) {
-        MATRIX_LOG("[matrix_max_element] Error: Invalid matrix provided");
-        return -DBL_MAX; 
-    }
-
-    double max = -DBL_MAX;
-    for (size_t i = 0; i < matrix->rows; ++i) {
-        for (size_t j = 0; j < matrix->cols; ++j) {
-            double value = matrix->data[i * matrix->cols + j];
-            if (value > max) {
-                MATRIX_LOG("[matrix_max_element] New maximum found: %f at (row, col) = (%zu, %zu)", value, i, j);
-                max = value;
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_max_element] Maximum element found: %f", max);
-    return max;
-}
-
-/**
- * @brief Applies a function to each element of a specified row in a matrix.
- *
- * This function applies the provided function `func` to each element of the specified row in the matrix, 
- * modifying the row in place.
- *
- * @param matrix The matrix whose row will be modified.
- * @param row The index of the row to which the function will be applied.
- * @param func The function to apply to each element of the specified row.
- * 
- * @return `true` if the operation is successful, `false` if the matrix or function is `NULL`, 
- * or the row index is out of bounds.
- */
-bool matrix_apply_to_row(Matrix* matrix, size_t row, MatrixFunc func) {
-    MATRIX_LOG("[matrix_apply_to_row] Entering function with row = %zu", row);
-
-    if (!matrix || !func || row >= matrix->rows) {
-        MATRIX_LOG("[matrix_apply_to_row] Error: Invalid arguments. Matrix is NULL or row index out of bounds.");
-        return false;
-    }
-    for (size_t j = 0; j < matrix->cols; ++j) {
-        MATRIX_LOG("[matrix_apply_to_row] Applying function to element at (row, col) = (%zu, %zu)", row, j);
-        matrix->data[row * matrix->cols + j] = func(matrix->data[row * matrix->cols + j]);
-    }
-
-    MATRIX_LOG("[matrix_apply_to_row] Successfully applied function to row %zu", row);
-    return true;
-}
-
-/**
- * @brief Applies a function to each element of a specified column in a matrix.
- *
- * This function applies the provided function `func` to each element of the specified column in the matrix, 
- * modifying the column in place.
- *
- * @param matrix The matrix whose column will be modified.
- * @param col The index of the column to which the function will be applied.
- * @param func The function to apply to each element of the specified column.
- * 
- * @return `true` if the operation is successful, `false` if the matrix or function is `NULL`, 
- * or the column index is out of bounds.
- */
-bool matrix_apply_to_col(Matrix* matrix, size_t col, MatrixFunc func) {
-    MATRIX_LOG("[matrix_apply_to_col] Entering function with col = %zu", col);
-
-    if (!matrix || !func || col >= matrix->cols) {
-        MATRIX_LOG("[matrix_apply_to_col] Error: Invalid arguments. Matrix is NULL or column index out of bounds.");
-        return false;
-    }
-    for (size_t i = 0; i < matrix->rows; ++i) {
-        MATRIX_LOG("[matrix_apply_to_col] Applying function to element at (row, col) = (%zu, %zu)", i, col);
-        matrix->data[i * matrix->cols + col] = func(matrix->data[i * matrix->cols + col]);
-    }
-
-    MATRIX_LOG("[matrix_apply_to_col] Successfully applied function to column %zu", col);
-    return true;
-}
-
-/**
- * @brief Adds one row of a matrix to another, optionally scaling the source row before adding.
- *
- * This function adds the elements of the `sourceRow` to the corresponding elements of the `targetRow`
- * in the matrix, optionally scaling the source row by a specified factor before the addition.
- *
- * @param matrix The matrix in which the row addition will take place.
- * @param targetRow The index of the row that will be updated (the row to which the source row is added).
- * @param sourceRow The index of the row that will be added to the target row.
- * @param scale The scaling factor by which to multiply the source row before adding. Use 1.0 for no scaling.
- * 
- * @return `true` if the operation is successful, `false` if the matrix is `NULL` or the row indices are invalid.
- */
-bool matrix_row_addition(Matrix* matrix, size_t targetRow, size_t sourceRow, double scale) {
-    MATRIX_LOG("[matrix_row_addition] Entering function with targetRow = %zu, sourceRow = %zu, scale = %f", targetRow, sourceRow, scale);
-
-    if (!matrix || targetRow >= matrix->rows || sourceRow >= matrix->rows) {
-        MATRIX_LOG("[matrix_row_addition] Error: Invalid arguments. Matrix is NULL or row indices out of bounds.");
-        return false;
-    }
-    for (size_t j = 0; j < matrix->cols; ++j) {
-        MATRIX_LOG("[matrix_row_addition] Adding scaled sourceRow (%zu) element at (row, col) = (%zu, %zu) to targetRow (%zu)", sourceRow, sourceRow, j, targetRow);
-        matrix->data[targetRow * matrix->cols + j] += scale * matrix->data[sourceRow * matrix->cols + j];
-    }
-
-    MATRIX_LOG("[matrix_row_addition] Successfully added row %zu to row %zu", sourceRow, targetRow);
-    return true;
-}
-
-/**
- * @brief Adds one column of a matrix to another, optionally scaling the source column before adding.
- *
- * This function adds the elements of the `sourceCol` to the corresponding elements of the `targetCol`
- * in the matrix, optionally scaling the source column by a specified factor before the addition.
- *
- * @param matrix The matrix in which the column addition will take place.
- * @param targetCol The index of the column that will be updated (the column to which the source column is added).
- * @param sourceCol The index of the column that will be added to the target column.
- * @param scale The scaling factor by which to multiply the source column before adding. Use 1.0 for no scaling.
- * 
- * @return `true` if the operation is successful, `false` if the matrix is `NULL` or the column indices are invalid.
- */
-bool matrix_col_addition(Matrix* matrix, size_t targetCol, size_t sourceCol, double scale) {
-    MATRIX_LOG("[matrix_col_addition] Entering function with targetCol = %zu, sourceCol = %zu, scale = %f", targetCol, sourceCol, scale);
-
-    if (!matrix || targetCol >= matrix->cols || sourceCol >= matrix->cols) {
-        MATRIX_LOG("[matrix_col_addition] Error: Invalid arguments. Matrix is NULL or column indices out of bounds.");
-        return false;
-    }
-    for (size_t i = 0; i < matrix->rows; ++i) {
-        MATRIX_LOG("[matrix_col_addition] Adding scaled sourceCol (%zu) element at (row, col) = (%zu, %zu) to targetCol (%zu)", sourceCol, i, sourceCol, targetCol);
-        matrix->data[i * matrix->cols + targetCol] += scale * matrix->data[i * matrix->cols + sourceCol];
-    }
-
-    MATRIX_LOG("[matrix_col_addition] Successfully added column %zu to column %zu", sourceCol, targetCol);
-    return true;
-}
-
-/**
- * @brief Creates a Leslie matrix using fecundity and survival coefficients.
- *
- * A Leslie matrix is a type of matrix used in population ecology to model the dynamics of a population 
- * with different age classes. The first row contains fecundity coefficients, and the sub-diagonal contains 
- * survival coefficients.
- *
- * @param f A matrix representing the fecundity coefficients.
- * @param f_size The number of fecundity coefficients (the number of columns in the Leslie matrix).
- * @param s A matrix representing the survival coefficients.
- * @param s_size The number of survival coefficients (one less than the number of rows in the Leslie matrix).
- * 
- * @return A pointer to the newly created Leslie matrix, or `NULL` if the input parameters are invalid 
- * or memory allocation fails. The caller is responsible for freeing the allocated matrix.
- */
-Matrix* matrix_leslie(Matrix* f, size_t f_size, Matrix* s, size_t s_size) {
-    MATRIX_LOG("[matrix_leslie] Entering function with f_size = %zu, s_size = %zu", f_size, s_size);
-
-    if (!f) {
-        MATRIX_LOG("[matrix_leslie] Error: Matrix f is null");
-        return NULL;
-    }
-    if (f_size != s_size + 1) {
-        MATRIX_LOG("[matrix_leslie] Error: f_size (%zu) must be one more than s_size (%zu)", f_size, s_size);
-        return NULL;
-    }
-
-    // Create an N x N matrix, where N is the size of the fecundity array f
-    MATRIX_LOG("[matrix_leslie] Creating Leslie matrix of size %zux%zu", f_size, f_size);
-    Matrix* leslie = matrix_create(f_size, f_size);
-
-    if (!leslie) {
-        MATRIX_LOG("[matrix_leslie] Error: Memory allocation failed for Leslie matrix");
-        return NULL;
-    }
-
-    // Set the first row with fecundity coefficients
-    for (size_t i = 0; i < f_size; ++i) {
-        MATRIX_LOG("[matrix_leslie] Setting fecundity coefficient at position (0, %zu)", i);
-        matrix_set(leslie, 0, i, f->data[i]);
-    }
-    for (size_t i = 1; i < f_size; ++i) {
-        MATRIX_LOG("[matrix_leslie] Setting survival coefficient at position (%zu, %zu)", i, i - 1);
-        matrix_set(leslie, i, i - 1, s->data[i - 1]);
-    }
-
-    MATRIX_LOG("[matrix_leslie] Successfully created Leslie matrix");
-
-    return leslie;
-}
-
-/**
- * @brief Creates a Fiedler matrix from a given matrix.
- *
- * This function generates a Fiedler matrix, which is a symmetric matrix where each element 
- * at position (i, j) is the absolute difference between the elements at positions i and j of 
- * the input matrix's data array.
- *
- * @param matrix The input matrix whose elements will be used to generate the Fiedler matrix.
- * @return A pointer to the newly created Fiedler matrix, or `NULL` if the input matrix is `NULL`
- * or memory allocation fails. The caller is responsible for freeing the allocated matrix.
- */
-Matrix* matrix_fiedler(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_fiedler] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_fiedler] Error: Matrix object is null");
-        return NULL;
-    }
-
-    size_t n = matrix->cols >= matrix->rows ? matrix->cols : matrix->rows;
-    MATRIX_LOG("[matrix_fiedler] Creating Fiedler matrix of size %zux%zu", n, n);
-
-    Matrix* fiedler = matrix_create(n, n);
-    if (!fiedler) {
-        MATRIX_LOG("[matrix_fiedler] Error: Memory allocation failed for Fiedler matrix");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j < n; ++j) {
-            double value = fabs(matrix->data[i] - matrix->data[j]);
-            MATRIX_LOG("[matrix_fiedler] Setting element at (%zu, %zu) to %f", i, j, value);
-            matrix_set(fiedler, i, j, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_fiedler] Successfully created Fiedler matrix");
-    return fiedler;
-}
-
-
-/**
- * @brief Creates the inverse of a Hilbert matrix of size `n`.
- *
- * This function generates the inverse of a Hilbert matrix, which is a square matrix with 
- * elements defined by the formula for the inverse Hilbert matrix. The function uses binomial 
- * coefficients and factorials to calculate the values.
- *
- * @param n The size of the Hilbert matrix to be inverted.
- * 
- * @return A pointer to the newly created inverse Hilbert matrix, or `NULL` if memory allocation fails. 
- * The caller is responsible for freeing the allocated matrix.
- */
-Matrix* matrix_inverse_hilbert(size_t n) {
-    MATRIX_LOG("[matrix_inverse_hilbert] Entering function with n = %zu", n);
-    Matrix* invH = matrix_create(n, n);
-
-    if (!invH) {
-        MATRIX_LOG("[matrix_inverse_hilbert] Error: Memory allocation failed for inverse Hilbert matrix");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j < n; ++j) {
-            int s = i + j;
-            int64_t sign = (s % 2 == 0) ? 1 : -1;
-            int64_t numerator = sign * (i + j + 1) * binomial_factorial(n + i, n - j - 1) * binomial_factorial(n + j, n - i - 1) * binomial_factorial(s, i) * binomial_factorial(s, j);
-            int64_t denominator = 1; // The denominator for Hilbert matrix inverse entries when n <= 14 are effectively 1
-            double value = (double)numerator / denominator;
-
-            MATRIX_LOG("[matrix_inverse_hilbert] Setting element at (%zu, %zu) to %f", i, j, value);
-            matrix_set(invH, i, j, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_inverse_hilbert] Successfully created inverse Hilbert matrix");
-    return invH;
-}
-
-
-/**
- * @brief Extracts a specific row from a matrix and returns it as a new matrix.
- *
- * This function creates a new matrix containing the elements of the specified row from the input matrix.
- *
- * @param matrix The input matrix from which the row is to be extracted.
- * @param row The index of the row to extract (0-based).
- * 
- * @return A pointer to the newly created matrix containing the specified row, or `NULL` if the input matrix is `NULL`, the row index is out of bounds,
- * or memory allocation fails. The caller is responsible for freeing the allocated matrix.
- */
-Matrix* matrix_get_row(const Matrix* matrix, size_t row) {
-    MATRIX_LOG("[matrix_get_row] Entering function with row = %zu", row);
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_get_row] Error: Matrix object is null or invalid");
-        return NULL;
-    }
-    else if (row >= matrix->rows) {
-        MATRIX_LOG("[matrix_get_row] Error: Row index (%zu) out of bounds, matrix has %zu rows", row, matrix->rows);
-        return NULL;
-    }
-
-    MATRIX_LOG("[matrix_get_row] Creating row matrix with 1 row and %zu columns", matrix->cols);
-
-    Matrix* r = matrix_create(1, matrix->cols);
-    if (!r) {
-        MATRIX_LOG("[matrix_get_row] Error: Memory allocation failed for row");
-        return NULL;
-    }
-    
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false; 
+  }
+  if (!matrix->data) {
+    utl_error_func("Matrix data is null", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
     for (size_t j = 0; j < matrix->cols; j++) {
-        MATRIX_LOG("[matrix_get_row] Extracting element at (row, col) = (%zu, %zu)", row, j);
-        matrix_set(r, 0, j, matrix_get(matrix, row, j));
+      matrix->data[i * matrix->cols + j] = value;
     }
-    MATRIX_LOG("[matrix_get_row] Successfully created row matrix");
-
-    return r;
+  }
+  return true;
 }
 
-/**
- * @brief Extracts a specific column from a matrix and returns it as a new matrix.
- *
- * This function creates a new matrix containing the elements of the specified column from the input matrix.
- *
- * @param matrix The input matrix from which the column is to be extracted.
- * @param col The index of the column to extract (0-based).
- * 
- * @return A pointer to the newly created matrix containing the specified column, or `NULL` if the input matrix is `NULL`, the column index is out of bounds,
- * or memory allocation fails. The caller is responsible for freeing the allocated matrix.
- */
+Matrix* matrix_map(const Matrix* matrix, MatrixFunc func) {
+  if (!matrix || !func) {
+    utl_error_func("Null argument provided", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* result = (Matrix*)malloc(sizeof(Matrix));
+  if (!result) {
+    utl_error_func("Memory allocation failed for matrix structure", utl_user_defined_data);
+    return NULL;
+  }
+  result->data = (double*)malloc(matrix->rows * matrix->cols * sizeof(double));
+  if (!result->data) {
+    utl_error_func("Memory allocation for matrix data failed", utl_user_defined_data);
+    free(result); 
+    return NULL;
+  }
+  result->rows = matrix->rows;
+  result->cols = matrix->cols;
+  for (size_t i = 0; i < matrix->rows; ++i) {
+    for (size_t j = 0; j < matrix->cols; ++j) {
+      result->data[i * matrix->cols + j] = func(matrix->data[i * matrix->cols + j]);
+    }
+  }
+  return result;
+}
+
+double matrix_min_element(const Matrix* matrix) {
+  if (!matrix || !matrix->data || matrix->rows == 0 || matrix->cols == 0) {
+    utl_error_func("Invalid matrix provided", utl_user_defined_data);
+    return DBL_MAX; 
+  }
+  double min = DBL_MAX;
+  for (size_t i = 0; i < matrix->rows; ++i) {
+    for (size_t j = 0; j < matrix->cols; ++j) {
+      double value = matrix->data[i * matrix->cols + j];
+      if (value < min) {
+        min = value;
+      }
+    }
+  }
+  return min;
+}
+
+double matrix_max_element(const Matrix* matrix) {
+  if (!matrix || !matrix->data || matrix->rows == 0 || matrix->cols == 0) {
+    utl_error_func("Invalid matrix provided", utl_user_defined_data);
+    return -DBL_MAX; 
+  }
+  double max = -DBL_MAX;
+  for (size_t i = 0; i < matrix->rows; ++i) {
+    for (size_t j = 0; j < matrix->cols; ++j) {
+      double value = matrix->data[i * matrix->cols + j];
+      if (value > max) {
+        max = value;
+      }
+    }
+  }
+  return max;
+}
+
+bool matrix_apply_to_row(Matrix* matrix, size_t row, MatrixFunc func) {
+  if (!matrix || !func || row >= matrix->rows) {
+    utl_error_func("Invalid arguments, matrix is null or row index out of bounds", utl_user_defined_data);
+    return false;
+  }
+  for (size_t j = 0; j < matrix->cols; ++j) {
+    matrix->data[row * matrix->cols + j] = func(matrix->data[row * matrix->cols + j]);
+  }
+  return true;
+}
+
+bool matrix_apply_to_col(Matrix* matrix, size_t col, MatrixFunc func) {
+  if (!matrix || !func || col >= matrix->cols) {
+    utl_error_func("Invalid arguments, matrix is null or column index out of bounds", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; ++i) {
+    matrix->data[i * matrix->cols + col] = func(matrix->data[i * matrix->cols + col]);
+  }
+  return true;
+}
+
+bool matrix_row_addition(Matrix* matrix, size_t targetRow, size_t sourceRow, double scale) {
+  if (!matrix || targetRow >= matrix->rows || sourceRow >= matrix->rows) {
+    utl_error_func("Invalid arguments, matrix is null or row indices out of bounds", utl_user_defined_data);
+    return false;
+  }
+  for (size_t j = 0; j < matrix->cols; ++j) {
+    matrix->data[targetRow * matrix->cols + j] += scale * matrix->data[sourceRow * matrix->cols + j];
+  }
+  return true;
+}
+
+bool matrix_col_addition(Matrix* matrix, size_t targetCol, size_t sourceCol, double scale) {
+  if (!matrix || targetCol >= matrix->cols || sourceCol >= matrix->cols) {
+    utl_error_func("Invalid arguments, matrix is null or column indices out of bounds", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; ++i) {
+    matrix->data[i * matrix->cols + targetCol] += scale * matrix->data[i * matrix->cols + sourceCol];
+  }
+  return true;
+}
+
+Matrix* matrix_leslie(Matrix* f, size_t f_size, Matrix* s, size_t s_size) {
+  if (!f) {
+    utl_error_func("Matrix f is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (f_size != s_size + 1) {
+    utl_error_func("F size must be one more than S size", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* leslie = matrix_create(f_size, f_size);
+  if (!leslie) {
+    utl_error_func("Memory allocation failed for Leslie matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < f_size; ++i) {
+    matrix_set(leslie, 0, i, f->data[i]);
+  }
+  for (size_t i = 1; i < f_size; ++i) {
+    matrix_set(leslie, i, i - 1, s->data[i - 1]);
+  }
+  return leslie;
+}
+
+Matrix* matrix_fiedler(const Matrix* matrix) {
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  size_t n = matrix->cols >= matrix->rows ? matrix->cols : matrix->rows;
+  Matrix* fiedler = matrix_create(n, n);
+  if (!fiedler) {
+    utl_error_func("Memory allocation failed for Fiedler matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      double value = fabs(matrix->data[i] - matrix->data[j]);
+      matrix_set(fiedler, i, j, value);
+    }
+  }
+  return fiedler;
+}
+
+Matrix* matrix_inverse_hilbert(size_t n) {
+  Matrix* invH = matrix_create(n, n);
+  if (!invH) {
+    utl_error_func("Memory allocation failed for inverse Hilbert matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      int s = i + j;
+      int64_t sign = (s % 2 == 0) ? 1 : -1;
+      int64_t numerator = sign * (i + j + 1) * binomial_factorial(n + i, n - j - 1) * binomial_factorial(n + j, n - i - 1) * binomial_factorial(s, i) * binomial_factorial(s, j);
+      int64_t denominator = 1;
+      double value = (double)numerator / denominator;
+      matrix_set(invH, i, j, value);
+    }
+  }
+  return invH;
+}
+
+Matrix* matrix_get_row(const Matrix* matrix, size_t row) {
+  if (!matrix) {
+    utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
+    return NULL;
+  }
+  else if (row >= matrix->rows) {
+    utl_error_func("Row index out of bounds", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* r = matrix_create(1, matrix->cols);
+  if (!r) {
+    utl_error_func("Memory allocation failed for row", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t j = 0; j < matrix->cols; j++) {
+    matrix_set(r, 0, j, matrix_get(matrix, row, j));
+  }
+  return r;
+}
+
 Matrix* matrix_get_col(const Matrix* matrix, size_t col) {
-    MATRIX_LOG("[matrix_get_col] Entering function with col = %zu", col);
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_get_col] Error: Matrix object is null or invalid");
-        return NULL;
-    }
-    else if (col >= matrix->cols) {
-        MATRIX_LOG("[matrix_get_col] Error: Column index (%zu) out of bounds, matrix has %zu columns", col, matrix->cols);
-        return NULL;
-    }
-    MATRIX_LOG("[matrix_get_col] Creating column matrix with %zu rows and 1 column", matrix->rows);
-
-    Matrix* c = matrix_create(matrix->rows, 1);
-    if (!c) {
-        MATRIX_LOG("[matrix_get_col] Error: Memory allocation failed for column");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        MATRIX_LOG("[matrix_get_col] Extracting element at (row, col) = (%zu, %zu)", i, col);
-        matrix_set(c, i, 0, matrix_get(matrix, i, col));
-    }
-    MATRIX_LOG("[matrix_get_col] Successfully created column matrix");
-
-    return c;
+  if (!matrix) {
+    utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
+    return NULL;
+  }
+  else if (col >= matrix->cols) {
+    utl_error_func("Column index out of bounds", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* c = matrix_create(matrix->rows, 1);
+  if (!c) {
+    utl_error_func("Memory allocation failed for column", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    matrix_set(c, i, 0, matrix_get(matrix, i, col));
+  }
+  return c;
 }
 
-/**
- * @brief Converts a matrix to a 1D array of doubles.
- *
- * This function copies the elements of the matrix into a newly allocated 1D array.
- * The array is a linear representation of the matrix data in row-major order.
- *
- * @param matrix The matrix to be converted to an array.
- * 
- * @return A pointer to the newly allocated array containing the matrix elements, or `NULL` if the matrix is `NULL` or memory allocation fails. 
- * The caller is responsible for freeing the allocated memory.
- */
 double* matrix_to_array(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_to_array] Entering function");
-    if (!matrix) {
-        MATRIX_LOG("[matrix_to_array] Error: Matrix object is null or invalid");
-        return NULL;
-    }
-
-    size_t size = matrix->rows * matrix->cols * sizeof(double);
-    MATRIX_LOG("[matrix_to_array] Allocating array of size %zu bytes", size);
-
-    double* data = (double*) malloc(size);
-    if (!data) {
-        MATRIX_LOG("[matrix_to_array] Error: Memory allocation failed");
-        return NULL;
-    }
-
-    MATRIX_LOG("[matrix_to_array] Copying matrix data to array");
-    memcpy(data, matrix->data, size);
-    MATRIX_LOG("[matrix_to_array] Successfully converted matrix to array");
-
-    return data;
+  if (!matrix) {
+    utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
+    return NULL;
+  }
+  size_t size = matrix->rows * matrix->cols * sizeof(double);
+  double* data = (double*) malloc(size);
+  if (!data) {
+    utl_error_func("Memory allocation failed", utl_user_defined_data);
+    return NULL;
+  }
+  memcpy(data, matrix->data, size);
+  return data;
 }
 
-/**
- * @brief Creates a block diagonal matrix from a variable number of matrices.
- *
- * This function constructs a block diagonal matrix by placing each provided matrix
- * along the diagonal of a larger matrix, leaving the off-diagonal blocks as zero matrices.
- *
- * @param count The number of matrices to include in the block diagonal matrix.
- * @param ... A variable number of `Matrix*` pointers, each representing a block to be placed on the diagonal.
- * 
- * @return A pointer to the newly created block diagonal matrix, or `NULL` if memory allocation fails.
- * The caller is responsible for freeing the allocated matrix using `matrix_deallocate`.
- */
 Matrix* matrix_block_diag(size_t count, ...) {
-    MATRIX_LOG("[matrix_block_diag] Entering function with count = %zu", count);
-
-    va_list args;
-    size_t totalRows = 0, totalCols = 0;
-
-    va_start(args, count);
-    for (size_t i = 0; i < count; ++i) {
-        Matrix* mat = va_arg(args, Matrix*);
-        totalRows += mat->rows;
-        totalCols += mat->cols;
-        
-        MATRIX_LOG("[matrix_block_diag] Matrix %zu: %zux%zu", i + 1, mat->rows, mat->cols);
+  va_list args;
+  size_t totalRows = 0, totalCols = 0;
+  va_start(args, count);
+  for (size_t i = 0; i < count; ++i) {
+    Matrix* mat = va_arg(args, Matrix*);
+    totalRows += mat->rows;
+    totalCols += mat->cols;
+  }
+  va_end(args);
+  Matrix* result = matrix_create(totalRows, totalCols);
+  if (!result) {
+    utl_error_func("Memory allocation failed for block diagonal matrix", utl_user_defined_data);
+    return NULL;
+  }
+  size_t currentRow = 0, currentCol = 0;
+  va_start(args, count);
+  for (size_t i = 0; i < count; ++i) {
+    Matrix* mat = va_arg(args, Matrix*);
+    for (size_t r = 0; r < mat->rows; ++r) {
+      memcpy(result->data + (currentRow + r) * totalCols + currentCol, mat->data + r * mat->cols, mat->cols * sizeof(double));
     }
-    va_end(args);
-    MATRIX_LOG("[matrix_block_diag] Total matrix size: %zux%zu", totalRows, totalCols);
-
-    Matrix* result = matrix_create(totalRows, totalCols);
-    if (!result) {
-        MATRIX_LOG("[matrix_block_diag] Error: Memory allocation failed for block diagonal matrix");
-        return NULL;
-    }
-
-    size_t currentRow = 0, currentCol = 0;
-    va_start(args, count);
-
-    for (size_t i = 0; i < count; ++i) {
-        Matrix* mat = va_arg(args, Matrix*);
-        for (size_t r = 0; r < mat->rows; ++r) {
-            // Log data copying process for each matrix block
-            MATRIX_LOG("[matrix_block_diag] Copying data for matrix %zu into block diagonal matrix at position (%zu, %zu)", i + 1, currentRow, currentCol);
-            memcpy(result->data + (currentRow + r) * totalCols + currentCol, mat->data + r * mat->cols, mat->cols * sizeof(double));
-        }
-        currentRow += mat->rows;
-        currentCol += mat->cols;
-    }
-
-    va_end(args);
-    MATRIX_LOG("[matrix_block_diag] Successfully created block diagonal matrix");
-
-    return result;
+    currentRow += mat->rows;
+    currentCol += mat->cols;
+  }
+  va_end(args);
+  return result;
 }
 
-/**
- * @brief Determines if a matrix is sparse.
- *
- * A matrix is considered sparse if a significant portion of its elements are zero.
- * This function calculates the percentage of non-zero elements and considers 
- * the matrix sparse if less than 30% of the elements are non-zero.
- *
- * @param matrix The matrix to check for sparsity.
- * @return `true` if the matrix is sparse, otherwise `false`.
- */
 bool matrix_is_sparse(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_sparse] Entering function");
-    if (!matrix || !matrix->data) {
-        MATRIX_LOG("[matrix_is_sparse] Error: Matrix object is null or invalid");
-        return false;
+  if (!matrix || !matrix->data) {
+    utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
+    return false;
+  }
+  size_t totalElements = matrix->rows * matrix->cols;
+  size_t nonZeroCount = 0;
+  for (size_t i = 0; i < totalElements; ++i) {
+    if (matrix->data[i] != 0) {
+      ++nonZeroCount;
     }
-
-    size_t totalElements = matrix->rows * matrix->cols;
-    size_t nonZeroCount = 0;
-
-    MATRIX_LOG("[matrix_is_sparse] Matrix size: %zux%zu (%zu total elements)", matrix->rows, matrix->cols, totalElements);
-    for (size_t i = 0; i < totalElements; ++i) {
-        if (matrix->data[i] != 0) {
-            ++nonZeroCount;
-        }
-    }
-    MATRIX_LOG("[matrix_is_sparse] Non-zero elements count: %zu", nonZeroCount);
-
-    double nonZeroPercentage = (double)nonZeroCount / (double)totalElements;
-    MATRIX_LOG("[matrix_is_sparse] Non-zero percentage: %.2f%%", nonZeroPercentage * 100);
-
-    bool isSparse = nonZeroPercentage < 0.3;
-    MATRIX_LOG("[matrix_is_sparse] Matrix is %s", isSparse ? "sparse" : "not sparse");
-
-    return isSparse;
+  }
+  double nonZeroPercentage = (double)nonZeroCount / (double)totalElements;
+  bool isSparse = nonZeroPercentage < 0.3;
+  return isSparse;
 }
 
-/**
- * @brief Returns the total number of elements in a matrix.
- *
- * This function calculates the size of the matrix, defined as the product 
- * of its rows and columns.
- *
- * @param matrix The matrix whose size is to be determined.
- * @return The total number of elements in the matrix, or 0 if the matrix is NULL.
- */
 size_t matrix_size(const Matrix *matrix) {
-    MATRIX_LOG("[matrix_size] Entering function");
-    if (!matrix) {
-        MATRIX_LOG("[matrix_size] Error: Matrix object is null or invalid");
-        return 0;
-    }
-
-    size_t size = matrix->rows * matrix->cols;
-    MATRIX_LOG("[matrix_size] Matrix size: %zu", size);
-
-    return size;
+  if (!matrix) {
+    utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
+    return 0;
+  }
+  size_t size = matrix->rows * matrix->cols;
+  return size;
 }
 
-/**
- * @brief Creates a matrix with random integer values.
- *
- * This function generates a matrix of the specified size (row x col) and fills it 
- * with random integers within the specified range [start, end). The random values 
- * are generated using the standard C library's `rand()` function.
- *
- * @param row The number of rows in the matrix.
- * @param col The number of columns in the matrix.
- * @param start The minimum value (inclusive) of the random range.
- * @param end The maximum value (exclusive) of the random range.
- * 
- * @return A pointer to the newly created matrix filled with random values, 
- * or NULL if the matrix creation fails.
- */
 Matrix* matrix_random(size_t row, size_t col, size_t start, size_t end) {
-    MATRIX_LOG("[matrix_random] Entering function with row=%zu, col=%zu, start=%zu, end=%zu", row, col, start, end);
-
-    Matrix* matrix = matrix_create(row, col);
-    srand(time(NULL));
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_random] Error: creation of Matrix object failed");
-        return NULL;
-    }
-    MATRIX_LOG("[matrix_random] Matrix created with size %zux%zu", row, col);
-
-    for (size_t i = 0; i < matrix_size(matrix); i++) {
-        matrix->data[i] = (rand() % end) + start;
-    }
-    MATRIX_LOG("[matrix_random] Matrix filled with random values in range [%zu, %zu)", start, end);
-
-    return matrix;
+  Matrix* matrix = matrix_create(row, col);
+  srand(time(NULL));
+  if (!matrix) {
+    utl_error_func("Creation of Matrix object failed", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix_size(matrix); i++) {
+    matrix->data[i] = (rand() % end) + start;
+  }
+  return matrix;
 }
 
-/**
- * @brief Creates a Walsh matrix of size n.
- *
- * This function generates a Walsh matrix, which is a special kind of square 
- * matrix used in various applications such as signal processing and Hadamard 
- * transforms. The size of the matrix must be a power of 2.
- *
- * @param n The size of the Walsh matrix (must be a power of 2).
- * 
- * @return A pointer to the newly created Walsh matrix, or NULL if the size `n` 
- * is not a power of 2 or if the matrix creation fails.
- */
 Matrix* matrix_walsh(size_t n) {
-    MATRIX_LOG("[matrix_walsh] Entering function with n = %zu", n);
-    if (n & (n - 1)) {
-        MATRIX_LOG("[matrix_walsh] Error - 'n' (%zu) is not a power of 2", n);
-        return NULL;
-    }
-    MATRIX_LOG("[matrix_walsh] Creating Walsh matrix of size %zux%zu", n, n);
-
-    Matrix* walshMatrix = matrix_create(n, n);
-    if (!walshMatrix) {
-        MATRIX_LOG("[matrix_walsh] Error - Memory allocation failed for Walsh matrix of size %zux%zu", n, n);
-        return NULL;
-    }
-
-    MATRIX_LOG("[matrix_walsh] Generating Walsh matrix recursively");
-    generateWalshMatrixRecursively(walshMatrix->data, n, n, 0, 0, 1);
-    MATRIX_LOG("[matrix_walsh] Successfully generated Walsh matrix");
-    
-    return walshMatrix;
+  if (n & (n - 1)) {
+    utl_error_func("N is not a power of 2", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* walshMatrix = matrix_create(n, n);
+  if (!walshMatrix) {
+    utl_error_func("Memory allocation failed for Walsh matrix", utl_user_defined_data);
+    return NULL;
+  }
+  generateWalshMatrixRecursively(walshMatrix->data, n, n, 0, 0, 1);
+  return walshMatrix;
 }
+
