@@ -563,7 +563,7 @@ bool matrix_is_upper_triangular(const Matrix* matrix) {
     return false;
   }
   for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < i; j++) { // Check below the diagonal
+    for (size_t j = 0; j < i; j++) {
       if (matrix->data[i * matrix->cols + j] != 0) {
         return false;
       }
@@ -604,7 +604,6 @@ bool matrix_is_skew_symmetric(const Matrix* matrix) {
     if (matrix->data[i * matrix->cols + i] != 0) {
       return false;
     }
-
     for (size_t j = i + 1; j < matrix->cols; j++) {
       if (matrix->data[i * matrix->cols + j] != -matrix->data[j * matrix->cols + i]) {
         return false;
@@ -623,8 +622,8 @@ double matrix_determinant(const Matrix* matrix) {
     return matrix->data[0];
   } 
   else if (matrix->rows == 2) {
-      double det = matrix->data[0] * matrix->data[3] - matrix->data[1] * matrix->data[2];
-      return det;
+    double det = matrix->data[0] * matrix->data[3] - matrix->data[1] * matrix->data[2];
+    return det;
   } 
   else {
     double det = 0;
@@ -730,7 +729,7 @@ Matrix* matrix_inverse(const Matrix* matrix) {
   }
   double det = matrix_determinant(matrix);
   if (det == 0) {
-    utl_error_func("Matrix is singular (det = 0) and cannot be inverted", utl_user_defined_data);
+    utl_error_func("Matrix is singular and cannot be inverted", utl_user_defined_data);
     return NULL;
   }
   Matrix* inverse = matrix_adjugate(matrix);
@@ -855,597 +854,342 @@ int matrix_rank(const Matrix* matrix) {
 }
 
 bool matrix_is_diagonal(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_diagonal] Entering function");
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_diagonal] Error: Matrix object is null.");
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = 0; j < matrix->cols; j++) {
+      if (i != j && !is_effectively_zero(matrix->data[i * matrix->cols + j])) {
         return false;
+      }
     }
-
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_is_diagonal] Error: Matrix is not square.");
-        return false;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < matrix->cols; j++) {
-            if (i != j && !is_effectively_zero(matrix->data[i * matrix->cols + j])) {
-                MATRIX_LOG("[matrix_is_diagonal] Non-zero element found at (%zu, %zu) outside the main diagonal.", i, j);
-                return false;
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_is_diagonal] The matrix is diagonal.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Checks if a matrix is orthogonal.
- *
- * A matrix is orthogonal if its transpose is equal to its inverse, or equivalently, if the matrix multiplied 
- * by its transpose yields the identity matrix. This function checks whether the input matrix is orthogonal.
- *
- * @param matrix The matrix to check.
- * @return `true` if the matrix is orthogonal, `false` otherwise.
- */
 bool matrix_is_orthogonal(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_orthogonal] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_orthogonal] Error: Matrix object is null.");
-        return false;
-    }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_is_orthogonal] Error: Matrix is not square.");
-        return false;
-    }
-
-    Matrix* transpose = matrix_transpose(matrix);
-    if (!transpose) {
-        MATRIX_LOG("[matrix_is_orthogonal] Error: Failed to compute the transpose.");
-        return false;
-    }
-
-    Matrix* product = matrix_multiply(matrix, transpose);
-    if (!product) {
-        MATRIX_LOG("[matrix_is_orthogonal] Error: Failed to multiply matrix by its transpose.");
-        matrix_deallocate(transpose);
-        return false;
-    }
-
-    bool isOrthogonal = matrix_is_identity(product);
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return false;
+  }
+  Matrix* transpose = matrix_transpose(matrix);
+  if (!transpose) {
+    utl_error_func("Failed to compute the transpose");
+    return false;
+  }
+  Matrix* product = matrix_multiply(matrix, transpose);
+  if (!product) {
+    utl_error_func("Failed to multiply matrix by its transpose", utl_user_defined_data);
     matrix_deallocate(transpose);
-    matrix_deallocate(product);
-
-    if (isOrthogonal) {
-        MATRIX_LOG("[matrix_is_orthogonal] The matrix is orthogonal.");
-    } 
-    else {
-        MATRIX_LOG("[matrix_is_orthogonal] The matrix is not orthogonal.");
-    }
-
-    return isOrthogonal;
+    return false;
+  }
+  bool isOrthogonal = matrix_is_identity(product);
+  matrix_deallocate(transpose);
+  matrix_deallocate(product);
+  return isOrthogonal;
 }
 
-
-/**
- * @brief Computes the Kronecker product of two matrices.
- *
- * The Kronecker product is a block matrix formed by multiplying each element of the first matrix 
- * by the entire second matrix. If matrix1 is of size m x n and matrix2 is of size p x q, 
- * the resulting matrix will be of size (m * p) x (n * q).
- *
- * @param matrix1 The first input matrix.
- * @param matrix2 The second input matrix.
- * 
- * @return A pointer to the resulting matrix, or NULL if an error occurs (invalid input or memory allocation failure).
- */
 Matrix* matrix_kronecker_product(const Matrix* matrix1, const Matrix* matrix2) {
-    MATRIX_LOG("[matrix_kronecker_product] Entering function");
-    if (!matrix1 || !matrix2) {
-        MATRIX_LOG("[matrix_kronecker_product] Error: One or both matrices are null.");
-        return NULL;
-    }
-
-    size_t m = matrix1->rows, n = matrix1->cols, p = matrix2->rows, q = matrix2->cols;
-    Matrix* product = matrix_create(m * p, n * q);
-    if (!product) {
-        MATRIX_LOG("[matrix_kronecker_product] Error: Memory allocation failed for the result matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < m; ++i) {
-        for (size_t j = 0; j < n; ++j) {
-            for (size_t k = 0; k < p; ++k) {
-                for (size_t l = 0; l < q; ++l) {
-                    double a = matrix_get(matrix1, i, j);
-                    double b = matrix_get(matrix2, k, l);
-
-                    matrix_set(product, i * p + k, j * q + l, a * b);
-                    MATRIX_LOG("[matrix_kronecker_product] Set product(%zu, %zu) = %lf", i * p + k, j * q + l, a * b);
-                }
-            }
+  if (!matrix1 || !matrix2) {
+    utl_error_func("One or both matrices are null", utl_user_defined_data);
+    return NULL;
+  }
+  size_t m = matrix1->rows, n = matrix1->cols, p = matrix2->rows, q = matrix2->cols;
+  Matrix* product = matrix_create(m * p, n * q);
+  if (!product) {
+    utl_error_func("Memory allocation failed for the result matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < m; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      for (size_t k = 0; k < p; ++k) {
+        for (size_t l = 0; l < q; ++l) {
+          double a = matrix_get(matrix1, i, j);
+          double b = matrix_get(matrix2, k, l);
+          matrix_set(product, i * p + k, j * q + l, a * b);
         }
+      }
     }
-
-    MATRIX_LOG("[matrix_kronecker_product] Success: Kronecker product computed successfully.");
-    return product;
+  }
+  return product;
 }
 
-/**
- * @brief Generates a Hankel matrix from the first row and last column vectors.
- *
- * A Hankel matrix is a square matrix in which each ascending skew-diagonal from left to right is constant. 
- * This function generates such a matrix using the specified first row and last column vectors.
- *
- * @param firstRow A matrix containing the first row of the Hankel matrix (must be a row vector).
- * @param lastCol A matrix containing the last column of the Hankel matrix (must be a column vector).
- * 
- * @return A pointer to the newly created Hankel matrix, or NULL if an error occurs (invalid input or memory allocation failure).
- */
 Matrix* matrix_hankel(const Matrix* firstRow, const Matrix* lastCol) {
-    MATRIX_LOG("[matrix_hankel] Entering function");
-
-    if (!firstRow || !lastCol || firstRow->rows != 1 || lastCol->cols != 1) {
-        MATRIX_LOG("[matrix_hankel] Error: Invalid input matrices (must be a row vector and a column vector).");
-        return NULL;
+  if (!firstRow || !lastCol || firstRow->rows != 1 || lastCol->cols != 1) {
+    utl_error_func("Invalid input matrices (must be a row vector and a column vector)", utl_user_defined_data);
+    return NULL;
+  }
+  size_t n = firstRow->cols;
+  if (lastCol->rows != n) {
+    utl_error_func("First row and last column dimensions are incompatible", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* hankel = matrix_create(n, n);
+  if (!hankel) {
+    utl_error_func("Memory allocation failed for Hankel matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
+      double value;
+      if (i + j < n) {
+        value = matrix_get(firstRow, 0, i + j);
+      } 
+      else {
+        value = matrix_get(lastCol, i + j - n + 1, 0);
+      }
+      matrix_set(hankel, i, j, value);
     }
-
-    size_t n = firstRow->cols;
-    if (lastCol->rows != n) {
-        MATRIX_LOG("[matrix_hankel] Error: First row and last column dimensions are incompatible.");
-        return NULL;
-    }
-
-    Matrix* hankel = matrix_create(n, n);
-    if (!hankel) {
-        MATRIX_LOG("[matrix_hankel] Error: Memory allocation failed for Hankel matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < n; j++) {
-            double value;
-            if (i + j < n) {
-                value = matrix_get(firstRow, 0, i + j);
-            } 
-            else {
-                value = matrix_get(lastCol, i + j - n + 1, 0);
-            }
-
-            matrix_set(hankel, i, j, value);
-            MATRIX_LOG("[matrix_hankel] Set hankel(%zu, %zu) = %lf", i, j, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_hankel] Success: Hankel matrix generated successfully.");
-    return hankel;
+  }
+  return hankel;
 }
 
-/**
- * @brief Checks if a matrix is a Hankel matrix.
- *
- * A Hankel matrix is a matrix in which each ascending anti-diagonal from left to right is constant.
- * This function verifies whether the input matrix satisfies this property.
- *
- * @param matrix The input matrix to check.
- * @return `true` if the matrix is a Hankel matrix, `false` otherwise.
- */ 
 bool matrix_is_hankel(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_hankel] Entering function");
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_hankel] Error: Matrix object is null.");
-        return false;
-    }
-
-    for (size_t i = 0; i < matrix->rows - 1; i++) {
-        for (size_t j = 0; j < matrix->cols - 1; j++) {
-            if (i + j >= matrix->rows - 1) {
-                continue; // Skip checks not relevant for a Hankel matrix
-            }
-
-            double value = matrix_get(matrix, i, j);
-            if (i + 1 < matrix->rows && j > 0) {
-                double next = matrix_get(matrix, i + 1, j - 1);
-                if (!is_effectively_zero(value - next)) {
-                    MATRIX_LOG("[matrix_is_hankel] Error: Matrix is not Hankel at element [%zu, %zu].", i + 1, j - 1);
-                    return false;
-                }
-            }
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows - 1; i++) {
+    for (size_t j = 0; j < matrix->cols - 1; j++) {
+      if (i + j >= matrix->rows - 1) {
+        continue;
+      }
+      double value = matrix_get(matrix, i, j);
+      if (i + 1 < matrix->rows && j > 0) {
+        double next = matrix_get(matrix, i + 1, j - 1);
+        if (!is_effectively_zero(value - next)) {
+          return false;
         }
+      }
     }
-
-    MATRIX_LOG("[matrix_is_hankel] Matrix is Hankel.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Creates a Toeplitz matrix given its first row and first column.
- *
- * A Toeplitz matrix is a matrix in which each descending diagonal from left to right is constant.
- * This function generates such a matrix using the specified first row and first column vectors.
- *
- * @param firstRow A matrix containing the first row of the Toeplitz matrix (must be a row vector).
- * @param firstCol A matrix containing the first column of the Toeplitz matrix (must be a column vector).
- * 
- * @return A pointer to the newly created Toeplitz matrix, or NULL if an error occurs 
- * (invalid input or memory allocation failure).
- */
 Matrix* matrix_toeplitz(const Matrix* firstRow, const Matrix* firstCol) {
-    MATRIX_LOG("[matrix_toeplitz] Entering function");
-
-    if (!firstRow || !firstCol) {
-        MATRIX_LOG("[matrix_toeplitz] Error: Input matrices (firstRow or firstCol) are null.");
-        return NULL;
+  if (!firstRow || !firstCol) {
+    utl_error_func("Input matrices are null", utl_user_defined_data);
+    return NULL;
+  }
+  if (firstRow->rows != 1) {
+    utl_error_func("Matrix must be a row vector", utl_user_defined_data);
+    return NULL;
+  }
+  if (firstCol->cols != 1) {
+    utl_error_func("Matrix must be a column vector", utl_user_defined_data);
+    return NULL;
+  }
+  size_t rows = firstCol->rows;
+  size_t cols = firstRow->cols;
+  Matrix* toeplitzMatrix = matrix_create(rows, cols);
+  if (!toeplitzMatrix) {
+    utl_error_func("Memory allocation failed for Toeplitz matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < rows; i++) {
+    for (size_t j = 0; j < cols; j++) {
+      double value;
+      if (j >= i) {
+        value = matrix_get(firstRow, 0, j - i);
+      } 
+      else {
+        value = matrix_get(firstCol, i - j, 0);
+      }
+      matrix_set(toeplitzMatrix, i, j, value);
     }
-    if (firstRow->rows != 1) {
-        MATRIX_LOG("[matrix_toeplitz] Error: FirstRow must be a row vector.");
-        return NULL;
-    }
-    if (firstCol->cols != 1) {
-        MATRIX_LOG("[matrix_toeplitz] Error: FirstCol must be a column vector.");
-        return NULL;
-    }
-
-    size_t rows = firstCol->rows;
-    size_t cols = firstRow->cols;
-    Matrix* toeplitzMatrix = matrix_create(rows, cols);
-    if (!toeplitzMatrix) {
-        MATRIX_LOG("[matrix_toeplitz] Error: Memory allocation failed for Toeplitz matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
-            double value;
-            if (j >= i) {
-                value = matrix_get(firstRow, 0, j - i);
-            } 
-            else {
-                value = matrix_get(firstCol, i - j, 0);
-            }
-            matrix_set(toeplitzMatrix, i, j, value);
-            MATRIX_LOG("[matrix_toeplitz] Set toeplitz(%zu, %zu) = %lf", i, j, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_toeplitz] Successfully created Toeplitz matrix.");
-    return toeplitzMatrix;
+  }
+  return toeplitzMatrix;
 }
 
-/**
- * @brief Creates a matrix from a given array of doubles.
- *
- * This function takes a 1D array of doubles and arranges it into a matrix of the specified 
- * number of rows and columns. The array is expected to be in row-major order.
- *
- * @param data The input array of doubles.
- * @param rows The number of rows in the matrix.
- * @param cols The number of columns in the matrix.
- * 
- * @return A pointer to the newly created matrix, or NULL if an error occurs (invalid input or memory allocation failure).
- */
 Matrix* matrix_from_array(const double* data, size_t rows, size_t cols) {
-    MATRIX_LOG("[matrix_from_array] Entering function");
-
-    if (!data) {
-        MATRIX_LOG("[matrix_from_array] Error: Input data is null.");
-        return NULL;
+  if (!data) {
+    utl_error_func("Input data is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (rows == 0 || cols == 0) {
+    utl_error_func("Rows or columns cannot be zero", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* matrix = matrix_create(rows, cols);
+  if (!matrix) {
+    utl_error_func("Memory allocation failed for matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < rows; i++) {
+    for (size_t j = 0; j < cols; j++) {
+      matrix->data[i * cols + j] = data[i * cols + j];
     }
-    if (rows == 0 || cols == 0) {
-        MATRIX_LOG("[matrix_from_array] Error: Rows or columns cannot be zero.");
-        return NULL;
-    }
-
-    Matrix* matrix = matrix_create(rows, cols);
-    if (!matrix) {
-        MATRIX_LOG("[matrix_from_array] Error: Memory allocation failed for matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < rows; i++) {
-        for (size_t j = 0; j < cols; j++) {
-            matrix->data[i * cols + j] = data[i * cols + j];
-            MATRIX_LOG("[matrix_from_array] Set matrix(%zu, %zu) = %lf", i, j, data[i * cols + j]);
-        }
-    }
-
-    MATRIX_LOG("[matrix_from_array] Successfully created matrix from array.");
-    return matrix;
+  }
+  return matrix;
 }
 
-/**
- * @brief Checks if a matrix is a Toeplitz matrix.
- *
- * A Toeplitz matrix is a matrix in which each descending diagonal from left to right is constant.
- * This function checks whether the input matrix satisfies this property.
- *
- * @param matrix The input matrix to check.
- * @return `true` if the matrix is Toeplitz, `false` otherwise.
- */
 bool matrix_is_toeplitz(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_toeplitz] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_toeplitz] Error: Matrix object is null.");
-        return false;
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->cols; i++) {
+    if (!matrix_check_diagonal(matrix, 0, i)) {
+      utl_error_func("Diagonal check failed", utl_user_defined_data);
+      return false;
     }
-
-    // Check all elements in the first row
-    for (size_t i = 0; i < matrix->cols; i++) {
-        if (!matrix_check_diagonal(matrix, 0, i)) {
-            MATRIX_LOG("[matrix_is_toeplitz] Error: Diagonal check failed starting from (0, %zu)", i);
-            return false;
-        }
+  }
+  for (size_t i = 1; i < matrix->rows; i++) {
+    if (!matrix_check_diagonal(matrix, i, 0)) {
+      utl_error_func("Diagonal check failed", utl_user_defined_data);
+      return false;
     }
-
-    // Check all elements in the first column
-    for (size_t i = 1; i < matrix->rows; i++) {
-        if (!matrix_check_diagonal(matrix, i, 0)) {
-            MATRIX_LOG("[matrix_is_toeplitz] Error: Diagonal check failed starting from (%zu, 0)", i);
-            return false;
-        }
-    }
-
-    MATRIX_LOG("[matrix_is_toeplitz] Matrix is Toeplitz.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Creates a circulant matrix from the first row of a given matrix.
- *
- * A circulant matrix is a special type of Toeplitz matrix where each row vector is a right cyclic 
- * shift of the row above it. This function generates such a matrix from the first row of the input matrix.
- *
- * @param firstRow A matrix containing the first row of the circulant matrix (must be a single-row matrix).
- * @return A pointer to the newly created circulant matrix, or NULL if an error occurs (e.g., invalid input or memory allocation failure).
- */
 Matrix* matrix_circulant(const Matrix* firstRow) {
-    MATRIX_LOG("[matrix_circulant] Entering function");
-
-    if (!firstRow || firstRow->rows != 1) {
-        MATRIX_LOG("[matrix_circulant] Error: Input must be a single-row matrix.");
-        return NULL;
+  if (!firstRow || firstRow->rows != 1) {
+    utl_error_func("Input must be a single-row matrix", utl_user_defined_data);
+    return NULL;
+  }
+  size_t n = firstRow->cols;
+  Matrix* circulantMatrix = matrix_create(n, n);
+  if (!circulantMatrix) {
+    utl_error_func("Memory allocation failed for circulant matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t row = 0; row < n; ++row) {
+    for (size_t col = 0; col < n; ++col) {
+      size_t index = (col + row) % n;
+      double value = matrix_get(firstRow, 0, index);
+      matrix_set(circulantMatrix, row, col, value);
     }
-
-    size_t n = firstRow->cols;
-    Matrix* circulantMatrix = matrix_create(n, n);
-    if (!circulantMatrix) {
-        MATRIX_LOG("[matrix_circulant] Error: Memory allocation failed for circulant matrix.");
-        return NULL;
-    }
-
-    // Populate the circulant matrix
-    for (size_t row = 0; row < n; ++row) {
-        for (size_t col = 0; col < n; ++col) {
-            size_t index = (col + row) % n;
-            double value = matrix_get(firstRow, 0, index);
-            matrix_set(circulantMatrix, row, col, value);
-            MATRIX_LOG("[matrix_circulant] Set circulant(%zu, %zu) = %lf", row, col, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_circulant] Successfully created circulant matrix.");
-    return circulantMatrix;
+  }
+  return circulantMatrix;
 }
 
-/**
- * @brief Creates a Hilbert matrix of the given size.
- *
- * A Hilbert matrix is a square matrix with entries being the unit fractions:
- * H(i, j) = 1 / (i + j - 1), where i and j are the row and column indices, respectively.
- *
- * @param n The size of the Hilbert matrix (must be greater than 0).
- * @return A pointer to the newly created Hilbert matrix, or NULL if an error occurs.
- */
 Matrix* matrix_hilbert(size_t n) {
-    MATRIX_LOG("[matrix_hilbert] Entering function with n = %zu", n);
-
-    if (n == 0) {
-        MATRIX_LOG("[matrix_hilbert] Error: Size must be greater than 0.");
+  if (n == 0) {
+    utl_error_func("Size must be greater than 0", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* hilbertMatrix = matrix_create(n, n);
+  if (!hilbertMatrix) {
+    utl_error_func("Memory allocation failed for Hilbert matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < n; j++) {
+      double value = 1.0 / ((i + 1) + (j + 1) - 1.0);
+      if (!matrix_set(hilbertMatrix, i, j, value)) {
+        utl_error_func("Failed to set value", utl_user_defined_data);
+        matrix_deallocate(hilbertMatrix);
         return NULL;
+      }
     }
-
-    Matrix* hilbertMatrix = matrix_create(n, n);
-    if (!hilbertMatrix) {
-        MATRIX_LOG("[matrix_hilbert] Error: Memory allocation failed for Hilbert matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < n; j++) {
-            double value = 1.0 / ((i + 1) + (j + 1) - 1.0);
-            if (!matrix_set(hilbertMatrix, i, j, value)) {
-                MATRIX_LOG("[matrix_hilbert] Error: Failed to set value at (%zu, %zu)", i, j);
-                matrix_deallocate(hilbertMatrix);
-                return NULL;
-            }
-            MATRIX_LOG("[matrix_hilbert] Set hilbert(%zu, %zu) = %lf", i, j, value);
-        }
-    }
-
-    MATRIX_LOG("[matrix_hilbert] Successfully created Hilbert matrix.");
-    return hilbertMatrix;
+  }
+  return hilbertMatrix;
 }
 
-
-/**
- * @brief Creates a Helmert matrix of the specified size.
- *
- * A Helmert matrix is an orthogonal matrix used in statistical analysis. This function generates 
- * either the full Helmert matrix or the reduced version by removing the last row. The entries in the 
- * Helmert matrix are calculated based on the size of the matrix and whether it is the full or reduced version.
- *
- * @param n The size of the Helmert matrix.
- * @param full Boolean value indicating whether to generate the full Helmert matrix (true) or the reduced version (false).
- * 
- * @return A pointer to the newly created Helmert matrix, or NULL if an error occurs.
- */
 Matrix* matrix_helmert(size_t n, bool full) {
-    MATRIX_LOG("[matrix_helmert] Entering function with n = %zu, full = %s", n, full ? "true" : "false");
-
-    Matrix* helmertMatrix = matrix_create(n, full ? n : n - 1);
-    if (!helmertMatrix) {
-        MATRIX_LOG("[matrix_helmert] Error: Memory allocation failed for Helmert matrix.");
-        return NULL;
+  Matrix* helmertMatrix = matrix_create(n, full ? n : n - 1);
+  if (!helmertMatrix) {
+    utl_error_func("Memory allocation failed for Helmert matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      if (i == 0) {
+        matrix_set(helmertMatrix, i, j, 1.0 / sqrt(n));
+      } 
+      else if (j < i) {
+        double value = 1.0 / sqrt(i * (i + 1.0));
+        matrix_set(helmertMatrix, full ? i : i - 1, j, value);
+      } 
+      else if (j == i) {
+        double value = -sqrt((double)i / (i + 1.0));
+        matrix_set(helmertMatrix, full ? i : i - 1, j, value);
+      }
     }
-
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j < n; ++j) {
-            if (i == 0) {
-                // First row
-                matrix_set(helmertMatrix, i, j, 1.0 / sqrt(n));
-                MATRIX_LOG("[matrix_helmert] Set helmert(%zu, %zu) = %lf", i, j, 1.0 / sqrt(n));
-            } 
-            else if (j < i) {
-                // Below diagonal for subsequent rows
-                double value = 1.0 / sqrt(i * (i + 1.0));
-                matrix_set(helmertMatrix, full ? i : i - 1, j, value);
-                MATRIX_LOG("[matrix_helmert] Set helmert(%zu, %zu) = %lf", full ? i : i - 1, j, value);
-            } 
-            else if (j == i) {
-                // Diagonal elements for subsequent rows
-                double value = -sqrt((double)i / (i + 1.0));
-                matrix_set(helmertMatrix, full ? i : i - 1, j, value);
-                MATRIX_LOG("[matrix_helmert] Set helmert(%zu, %zu) = %lf", full ? i : i - 1, j, value);
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_helmert] Successfully created Helmert matrix.");
-    return helmertMatrix;
+  }
+  return helmertMatrix;
 }
 
-/**
- * @brief Computes the cofactor matrix of a given square matrix.
- *
- * This function calculates the cofactor matrix for a given square matrix. 
- * Each element in the cofactor matrix is determined by the determinant of 
- * the submatrix that remains after removing the corresponding row and column, 
- * multiplied by (-1)^(i+j) to account for the sign.
- *
- * @param matrix The input square matrix.
- * @return A new matrix representing the cofactor matrix, or NULL if an error occurs.
- */
 Matrix* matrix_cofactor(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_cofactor] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_cofactor] Error: Matrix object is null.");
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix must be square", utl_user_defined_data);
+    return NULL;
+  }
+  size_t n = matrix->rows;
+  Matrix* cofactorMatrix = matrix_create(n, n);
+  if (!cofactorMatrix) {
+    utl_error_func("Memory allocation failed for cofactor matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      Matrix* submatrix = matrix_create_submatrix(matrix, i, j);
+      if (!submatrix) {
+        utl_error_func("Failed to create submatrix", utl_user_defined_data);
+        matrix_deallocate(cofactorMatrix);
         return NULL;
+      }
+      double det = matrix_determinant(submatrix);
+      matrix_deallocate(submatrix);
+      double cofactor = ((i + j) % 2 == 0 ? 1 : -1) * det;
+      matrix_set(cofactorMatrix, i, j, cofactor);
     }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_cofactor] Error: Matrix must be square.");
-        return NULL;
-    }
-
-    size_t n = matrix->rows;
-    Matrix* cofactorMatrix = matrix_create(n, n);
-    if (!cofactorMatrix) {
-        MATRIX_LOG("[matrix_cofactor] Error: Memory allocation failed for cofactor matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < n; ++i) {
-        for (size_t j = 0; j < n; ++j) {
-            MATRIX_LOG("[matrix_cofactor] Creating submatrix by excluding row %zu and column %zu", i, j);
-            Matrix* submatrix = matrix_create_submatrix(matrix, i, j);
-            if (!submatrix) {
-                MATRIX_LOG("[matrix_cofactor] Error: Failed to create submatrix.");
-                matrix_deallocate(cofactorMatrix);
-                return NULL;
-            }
-
-            // Calculate determinant of the submatrix
-            double det = matrix_determinant(submatrix);
-            matrix_deallocate(submatrix);
-            MATRIX_LOG("[matrix_cofactor] Determinant of submatrix = %lf", det);
-
-            double cofactor = ((i + j) % 2 == 0 ? 1 : -1) * det;
-            matrix_set(cofactorMatrix, i, j, cofactor);
-            MATRIX_LOG("[matrix_cofactor] Set cofactor(%zu, %zu) = %lf", i, j, cofactor);
-        }
-    }
-
-    MATRIX_LOG("[matrix_cofactor] Successfully created cofactor matrix.");
-    return cofactorMatrix;
+  }
+  return cofactorMatrix;
 }
 
-/**
- * @brief Performs the Cholesky decomposition of a positive definite matrix.
- *
- * This function decomposes a positive definite matrix into a lower triangular 
- * matrix and its transpose. If the matrix is not positive definite, the function 
- * returns NULL.
- *
- * @param matrix The input square matrix (must be positive definite).
- * 
- * @return A new matrix representing the Cholesky factor, or NULL if the matrix 
- * is not positive definite or an error occurs.
- */
 Matrix* matrix_cholesky_decomposition(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_cholesky_decomposition] Entering function");
-
-    if (!matrix || matrix->rows != matrix->cols) {
-        MATRIX_LOG("[matrix_cholesky_decomposition] Error: Input must be a square matrix.");
-        return NULL;
-    }
-
-    size_t n = matrix->rows;
-    Matrix* chol = matrix_create(n, n);
-    if (!chol) {
-        MATRIX_LOG("[matrix_cholesky_decomposition] Error: Memory allocation failed for Cholesky matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = i; j < n; j++) {
-            double sum = matrix_get(matrix, i, j);
-            for (size_t k = 0; k < i; k++) {
-                sum -= matrix_get(chol, k, i) * matrix_get(chol, k, j);
-            }
-
-            if (i == j) {
-                if (sum <= 0.0) {
-                    MATRIX_LOG("[matrix_cholesky_decomposition] Error: Matrix is not positive definite.");
-                    matrix_deallocate(chol);
-                    return NULL;
-                }
-                matrix_set(chol, i, j, sqrt(sum));
-                MATRIX_LOG("[matrix_cholesky_decomposition] Set chol(%zu, %zu) = %lf", i, j, sqrt(sum));
-            } 
-            else {
-                matrix_set(chol, i, j, sum / matrix_get(chol, i, i));
-                MATRIX_LOG("[matrix_cholesky_decomposition] Set chol(%zu, %zu) = %lf", i, j, sum / matrix_get(chol, i, i));
-            }
+  if (!matrix || matrix->rows != matrix->cols) {
+    utl_error_func("Input must be a square matrix", utl_user_defined_data);
+    return NULL;
+  }
+  size_t n = matrix->rows;
+  Matrix* chol = matrix_create(n, n);
+  if (!chol) {
+    utl_error_func("Memory allocation failed for Cholesky matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = i; j < n; j++) {
+      double sum = matrix_get(matrix, i, j);
+      for (size_t k = 0; k < i; k++) {
+        sum -= matrix_get(chol, k, i) * matrix_get(chol, k, j);
+      }
+      if (i == j) {
+        if (sum <= 0.0) {
+          utl_error_func("Matrix is not positive definite", utl_user_defined_data);
+          matrix_deallocate(chol);
+          return NULL;
         }
+        matrix_set(chol, i, j, sqrt(sum));
+      } 
+      else {
+        matrix_set(chol, i, j, sum / matrix_get(chol, i, i));
+      }
     }
-
-    // Zero out the lower triangular part
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < i; j++) {
-            matrix_set(chol, i, j, 0.0);
-            MATRIX_LOG("[matrix_cholesky_decomposition] Zeroed lower triangular chol(%zu, %zu)", i, j);
-        }
+  }
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = 0; j < i; j++) {
+      matrix_set(chol, i, j, 0.0);
     }
-
-    MATRIX_LOG("[matrix_cholesky_decomposition] Exiting function.");
-    return chol;
+  }
+  return chol;
 }
 
-/**
- * @brief Performs LU decomposition of a square matrix.
- *
- * This function decomposes a given square matrix into two matrices: 
- * a lower triangular matrix `L` and an upper triangular matrix `U`, 
- * such that the original matrix `A` can be represented as `A = L * U`.
- *
- * @param matrix The input square matrix to decompose.
- * @param L Pointer to a pointer that will store the lower triangular matrix.
- * @param U Pointer to a pointer that will store the upper triangular matrix.
- * 
- * @return `true` if the decomposition is successful, `false` otherwise.
- */
 bool matrix_lu_decomposition(const Matrix* matrix, Matrix** L, Matrix** U) {
     MATRIX_LOG("[matrix_lu_decomposition] Entering function");
 
