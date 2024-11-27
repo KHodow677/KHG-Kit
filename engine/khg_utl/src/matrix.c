@@ -534,556 +534,326 @@ Matrix* matrix_transpose(const Matrix* matrix) {
   return transposed;
 }
 
-/**
- * @brief Checks if a matrix is symmetric.
- *
- * A matrix is symmetric if it is equal to its transpose, meaning the element at position 
- * (i, j) is equal to the element at position (j, i) for all i, j. This function verifies 
- * the symmetry by comparing the elements above the diagonal with those below the diagonal.
- *
- * @param matrix The matrix to check.
- * @return true if the matrix is symmetric, false otherwise.
- */
 bool matrix_is_symmetric(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_symmetric] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_symmetric] Error: Matrix object is null.");
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = i + 1; j < matrix->cols; j++) { 
+      if (matrix->data[i * matrix->cols + j] != matrix->data[j * matrix->cols + i]) {
         return false;
+      }
     }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_is_symmetric] Error: Matrix is not square.");
-        return false;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = i + 1; j < matrix->cols; j++) { 
-            if (matrix->data[i * matrix->cols + j] != matrix->data[j * matrix->cols + i]) {
-                MATRIX_LOG("[matrix_is_symmetric] Matrix is not symmetric at (%zu, %zu).", i, j);
-                return false;
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_is_symmetric] The matrix is symmetric.");
-    return true;
+  }
+  return true;
 }
 
-
-/**
- * @brief Checks if a matrix is upper triangular.
- *
- * A matrix is upper triangular if all the elements below the main diagonal are zero. 
- * This function checks each element below the main diagonal and returns false if 
- * any of these elements are non-zero.
- *
- * @param matrix The matrix to check.
- * @return true if the matrix is upper triangular, false otherwise.
- */
 bool matrix_is_upper_triangular(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_upper_triangular] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_upper_triangular] Error: Matrix object is null.");
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = 0; j < i; j++) { // Check below the diagonal
+      if (matrix->data[i * matrix->cols + j] != 0) {
         return false;
+      }
     }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_is_upper_triangular] Error: Matrix is not square.");
-        return false;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < i; j++) { // Check below the diagonal
-            if (matrix->data[i * matrix->cols + j] != 0) {
-                MATRIX_LOG("[matrix_is_upper_triangular] Non-zero element found below the diagonal at (%zu, %zu).", i, j);
-                return false;
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_is_upper_triangular] The matrix is upper triangular.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Checks if a matrix is lower triangular.
- *
- * A matrix is lower triangular if all the elements above the main diagonal are zero. 
- * This function checks each element above the main diagonal and returns false if 
- * any of these elements are non-zero.
- *
- * @param matrix The matrix to check.
- * @return true if the matrix is lower triangular, false otherwise.
- */
 bool matrix_is_lower_triangular(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_lower_triangular] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_lower_triangular] Error: Matrix object is null.");
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = i + 1; j < matrix->cols; j++) {
+      if (matrix->data[i * matrix->cols + j] != 0) {
         return false;
+      }
     }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_is_lower_triangular] Error: Matrix is not square.");
-        return false;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = i + 1; j < matrix->cols; j++) {
-            if (matrix->data[i * matrix->cols + j] != 0) {
-                MATRIX_LOG("[matrix_is_lower_triangular] Non-zero element found above the diagonal at (%zu, %zu).", i, j);
-                return false;
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_is_lower_triangular] The matrix is lower triangular.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Checks if a matrix is skew-symmetric.
- *
- * A matrix is skew-symmetric if it is equal to the negative of its transpose, meaning 
- * the element at position (i, j) is equal to the negative of the element at position (j, i) 
- * for all i, j, and the diagonal elements are all zero. This function verifies the 
- * skew-symmetry by checking these conditions.
- *
- * @param matrix The matrix to check.
- * @return true if the matrix is skew-symmetric, false otherwise.
- */
 bool matrix_is_skew_symmetric(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_is_skew_symmetric] Entering function");
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return false;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return false;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    if (matrix->data[i * matrix->cols + i] != 0) {
+      return false;
+    }
 
-    if (!matrix) {
-        MATRIX_LOG("[matrix_is_skew_symmetric] Error: Matrix object is null.");
+    for (size_t j = i + 1; j < matrix->cols; j++) {
+      if (matrix->data[i * matrix->cols + j] != -matrix->data[j * matrix->cols + i]) {
         return false;
+      }
     }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_is_skew_symmetric] Error: Matrix is not square.");
-        return false;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        if (matrix->data[i * matrix->cols + i] != 0) {
-            MATRIX_LOG("[matrix_is_skew_symmetric] Diagonal element at (%zu, %zu) is not zero.", i, i);
-            return false;
-        }
-
-        for (size_t j = i + 1; j < matrix->cols; j++) {
-            if (matrix->data[i * matrix->cols + j] != -matrix->data[j * matrix->cols + i]) {
-                MATRIX_LOG("[matrix_is_skew_symmetric] Matrix is not skew-symmetric at element (%zu, %zu).", i, j);
-                return false;
-            }
-        }
-    }
-
-    MATRIX_LOG("[matrix_is_skew_symmetric] The matrix is skew-symmetric.");
-    return true;
+  }
+  return true;
 }
 
-/**
- * @brief Calculates the determinant of a square matrix.
- *
- * This function computes the determinant of a square matrix using a recursive approach. 
- * For 1x1 and 2x2 matrices, it uses direct formulas. For larger matrices, it computes 
- * the determinant by expanding along the first row and using recursive calls on submatrices.
- *
- * @param matrix The input square matrix.
- * @return The determinant of the matrix. Returns 0 if the matrix is not square or an error occurs.
- */
 double matrix_determinant(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_determinant] Entering function");
-
-    if (matrix->rows != matrix->cols) {
-        MATRIX_LOG("[matrix_determinant] Error: Determinant can only be calculated for square matrices.");
-        return 0.0;
+  if (matrix->rows != matrix->cols) {
+    utl_error_func("Determinant can only be calculated for square matrices", utl_user_defined_data);
+    return 0.0;
+  }
+  if (matrix->rows == 1) {
+    return matrix->data[0];
+  } 
+  else if (matrix->rows == 2) {
+      double det = matrix->data[0] * matrix->data[3] - matrix->data[1] * matrix->data[2];
+      return det;
+  } 
+  else {
+    double det = 0;
+    for (int j1 = 0; j1 < (int)matrix->cols; j1++) {
+      Matrix* submatrix = matrix_create(matrix->rows - 1, matrix->cols - 1);
+      for (int i = 1; i < (int)matrix->rows; i++) {
+        int j2 = 0;
+        for (int j = 0; j < (int)matrix->cols; j++) {
+          if (j == j1) {
+            continue;
+          }
+          matrix_set(submatrix, i - 1, j2++, matrix->data[i * matrix->cols + j]);
+        }
+      }
+      double cofactor = (j1 % 2 == 0 ? 1 : -1) * matrix->data[j1];
+      double subDet = matrix_determinant(submatrix);
+      det += cofactor * subDet;
+      matrix_deallocate(submatrix);
     }
-    if (matrix->rows == 1) {
-        MATRIX_LOG("[matrix_determinant] Determinant of 1x1 matrix is %lf.", matrix->data[0]);
-        return matrix->data[0];
-    } 
-    else if (matrix->rows == 2) {
-        double det = matrix->data[0] * matrix->data[3] - matrix->data[1] * matrix->data[2];
-        MATRIX_LOG("[matrix_determinant] Determinant of 2x2 matrix is %lf.", det);
-        return det;
+    return det;
+  }
+}
+
+double matrix_trace(const Matrix* matrix) {
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return 0.0;
+  }
+  if (matrix->rows != matrix->cols) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return 0.0;
+  }
+  double trace = 0.0;
+  for (size_t i = 0; i < matrix->rows; i++) {
+    trace += matrix->data[i * matrix->cols + i];
+  }
+  return trace;
+}
+
+Matrix* matrix_create_submatrix(const Matrix* matrix, size_t excludeRow, size_t excludeCol) {
+  if (!matrix) {
+    utl_error_func("Input matrix is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (excludeRow >= matrix->rows || excludeCol >= matrix->cols) {
+    utl_error_func("Exclude row or exclude col out of bounds", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* submatrix = matrix_create(matrix->rows - 1, matrix->cols - 1);
+  if (!submatrix) {
+    utl_error_func("Memory allocation failed for submatrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0, sub_i = 0; i < matrix->rows; i++) {
+    if (i == excludeRow) {
+      continue;
+    }
+    for (size_t j = 0, sub_j = 0; j < matrix->cols; j++) {
+      if (j == excludeCol) {
+        continue;
+      }
+      double value = matrix_get(matrix, i, j);
+      matrix_set(submatrix, sub_i, sub_j, value);
+      sub_j++;
+    }
+    sub_i++;
+  }
+  return submatrix;
+}
+
+Matrix* matrix_adjugate(const Matrix* matrix) {
+  if (!matrix || !matrix_is_square(matrix)) {
+    utl_error_func("Invalid input matrix (null or not square)", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* cofactorMatrix = matrix_create(matrix->rows, matrix->cols);
+  if (!cofactorMatrix) {
+    utl_error_func("Memory allocation failed for cofactor matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = 0; j < matrix->cols; j++) {
+      Matrix* submatrix = matrix_create_submatrix(matrix, i, j);
+      double minor = matrix_determinant(submatrix);
+      double cofactor = pow(-1, i + j) * minor;
+      matrix_set(cofactorMatrix, i, j, cofactor);
+      matrix_deallocate(submatrix);
+    }
+  }
+  Matrix* adjugate = matrix_transpose(cofactorMatrix);
+  matrix_deallocate(cofactorMatrix);
+  return adjugate;
+}
+
+Matrix* matrix_inverse(const Matrix* matrix) {
+  if (!matrix) {
+    utl_error_func("Input matrix is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Input matrix is not square", utl_user_defined_data);
+    return NULL;
+  }
+  double det = matrix_determinant(matrix);
+  if (det == 0) {
+    utl_error_func("Matrix is singular (det = 0) and cannot be inverted", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* inverse = matrix_adjugate(matrix);
+  if (!inverse) {
+    utl_error_func("Failed to calculate adjugate matrix", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < inverse->rows; i++) {
+    for (size_t j = 0; j < inverse->cols; j++) {
+      inverse->data[i * inverse->cols + j] /= det;
+    }
+  }
+  return inverse;
+}
+
+Matrix* matrix_copy(const Matrix* matrix) {
+  if (!matrix) {
+    utl_error_func("Input matrix is null", utl_user_defined_data);
+    return NULL;
+  }
+  Matrix* copy = matrix_create(matrix->rows, matrix->cols);
+  if (!copy) {
+    utl_error_func("Memory allocation failed for matrix copy", utl_user_defined_data);
+    return NULL;
+  }
+  for (size_t i = 0; i < matrix->rows; i++) {
+    for (size_t j = 0; j < matrix->cols; j++) {
+      copy->data[i * matrix->cols + j] = matrix->data[i * matrix->cols + j];
+    }
+  }
+  return copy;
+}
+
+Matrix* matrix_power(const Matrix* matrix, int power) {
+  if (!matrix) {
+    utl_error_func("Matrix object is null", utl_user_defined_data);
+    return NULL;
+  }
+  if (!matrix_is_square(matrix)) {
+    utl_error_func("Matrix is not square", utl_user_defined_data);
+    return NULL;
+  }
+  if (power < 0) {
+    utl_error_func("Negative power is not supported", utl_user_defined_data);
+    return NULL;
+  }
+  if (power == 0) {
+    return matrix_create_identity(matrix->rows);
+  }
+  Matrix* result = matrix_copy(matrix);
+  if (power == 1) {
+    return result;
+  }
+  Matrix* temp = NULL;
+  while (power > 1) {
+    if (power % 2 == 0) {
+      temp = matrix_multiply(result, result);
+      if (!temp) {
+        utl_error_func("Matrix multiplication failed", utl_user_defined_data);
+        matrix_deallocate(result);
+        return NULL;
+      }
+      matrix_deallocate(result);
+      result = temp;
+      power /= 2;
     } 
     else {
-        double det = 0;
-        for (int j1 = 0; j1 < (int)matrix->cols; j1++) {
-            Matrix* submatrix = matrix_create(matrix->rows - 1, matrix->cols - 1);
-            
-            for (int i = 1; i < (int)matrix->rows; i++) {
-                int j2 = 0;
-                for (int j = 0; j < (int)matrix->cols; j++) {
-                    if (j == j1) {
-                        continue;
-                    }
-                    matrix_set(submatrix, i - 1, j2++, matrix->data[i * matrix->cols + j]);
-                }
-            }
-            double cofactor = (j1 % 2 == 0 ? 1 : -1) * matrix->data[j1];
-            double subDet = matrix_determinant(submatrix);
-            det += cofactor * subDet;
-
-            MATRIX_LOG("[matrix_determinant] Submatrix determinant at column %d is %lf.", j1, subDet);
-            matrix_deallocate(submatrix);
-        }
-
-        MATRIX_LOG("[matrix_determinant] Determinant of matrix is %lf.", det);
-        return det;
+      temp = matrix_multiply(result, matrix);
+      if (!temp) {
+        utl_error_func("Matrix multiplication failed", utl_user_defined_data);
+        matrix_deallocate(result);
+        return NULL;
+      }
+      matrix_deallocate(result);
+      result = temp;
+      power--;
     }
+  }
+  return result;
 }
 
-/**
- * @brief Calculates the trace of a square matrix.
- *
- * The trace of a matrix is defined as the sum of the elements on its main diagonal.
- * This function calculates the trace by iterating over the diagonal elements of the matrix.
- *
- * @param matrix The input square matrix.
- * @return The trace of the matrix. Returns 0.0 if the matrix is not square or if an error occurs.
- */
-double matrix_trace(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_trace] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_trace] Error: Matrix object is null.");
-        return 0.0;
-    }
-    if (matrix->rows != matrix->cols) {
-        MATRIX_LOG("[matrix_trace] Error: Matrix is not square.");
-        return 0.0;
-    }
-
-    double trace = 0.0;
-    for (size_t i = 0; i < matrix->rows; i++) {
-        trace += matrix->data[i * matrix->cols + i];
-        MATRIX_LOG("[matrix_trace] Added diagonal element (%zu, %zu): %lf", i, i, matrix->data[i * matrix->cols + i]);
-    }
-
-    MATRIX_LOG("[matrix_trace] Success: Trace calculated as %lf.", trace);
-    return trace;
-}
-
-/**
- * @brief Creates a submatrix by excluding a specified row and column.
- *
- * This function generates a submatrix from the input matrix by removing the specified 
- * row and column. The resulting submatrix has one fewer row and one fewer column 
- * than the original matrix.
- *
- * @param matrix The input matrix.
- * @param excludeRow The index of the row to exclude.
- * @param excludeCol The index of the column to exclude.
- * 
- * @return A pointer to the newly created submatrix, or NULL if an error occurs 
- * (e.g., invalid indices or memory allocation failure).
- */
-Matrix* matrix_create_submatrix(const Matrix* matrix, size_t excludeRow, size_t excludeCol) {
-    MATRIX_LOG("[matrix_create_submatrix] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_create_submatrix] Error: Input matrix is null.");
-        return NULL;
-    }
-    if (excludeRow >= matrix->rows || excludeCol >= matrix->cols) {
-        MATRIX_LOG("[matrix_create_submatrix] Error: excludeRow or excludeCol out of bounds.");
-        return NULL;
-    }
-
-    Matrix* submatrix = matrix_create(matrix->rows - 1, matrix->cols - 1);
-    if (!submatrix) {
-        MATRIX_LOG("[matrix_create_submatrix] Error: Memory allocation failed for submatrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0, sub_i = 0; i < matrix->rows; i++) {
-        if (i == excludeRow) {
-            continue;
-        }
-        for (size_t j = 0, sub_j = 0; j < matrix->cols; j++) {
-            if (j == excludeCol) {
-                continue;
-            }
-            double value = matrix_get(matrix, i, j);
-            matrix_set(submatrix, sub_i, sub_j, value);
-            MATRIX_LOG("[matrix_create_submatrix] Set submatrix(%zu, %zu) = %lf", sub_i, sub_j, value);
-            sub_j++;
-        }
-        sub_i++;
-    }
-
-    MATRIX_LOG("[matrix_create_submatrix] Success: Submatrix created successfully.");
-    return submatrix;
-}
-
-/**
- * @brief Computes the adjugate (also known as adjoint) of a square matrix.
- *
- * The adjugate of a matrix is the transpose of its cofactor matrix. This function
- * first computes the cofactor matrix by calculating the determinant of submatrices,
- * then transposes the cofactor matrix to produce the adjugate matrix.
- *
- * @param matrix The input square matrix.
- * @return A pointer to the newly created adjugate matrix, or NULL if an error occurs 
- * (e.g., if the input is not square or memory allocation fails).
- */
-Matrix* matrix_adjugate(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_adjugate] Entering function");
-
-    if (!matrix || !matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_adjugate] Error: Invalid input matrix (null or not square).");
-        return NULL;
-    }
-
-    Matrix* cofactorMatrix = matrix_create(matrix->rows, matrix->cols);
-    if (!cofactorMatrix) {
-        MATRIX_LOG("[matrix_adjugate] Error: Memory allocation failed for cofactorMatrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < matrix->cols; j++) {
-            Matrix* submatrix = matrix_create_submatrix(matrix, i, j);
-            double minor = matrix_determinant(submatrix);
-            double cofactor = pow(-1, i + j) * minor;
-
-            matrix_set(cofactorMatrix, i, j, cofactor);
-            MATRIX_LOG("[matrix_adjugate] Set cofactorMatrix(%zu, %zu) = %lf", i, j, cofactor);
-            matrix_deallocate(submatrix);
-        }
-    }
-
-    Matrix* adjugate = matrix_transpose(cofactorMatrix);
-    matrix_deallocate(cofactorMatrix);
-
-    MATRIX_LOG("[matrix_adjugate] Success: Adjugate matrix created.");
-    return adjugate;
-}
-
-/**
- * @brief Computes the inverse of a square matrix.
- *
- * This function calculates the inverse of a square matrix by first computing its determinant.
- * If the determinant is non-zero, the function then calculates the adjugate matrix and divides
- * it by the determinant to obtain the inverse.
- *
- * @param matrix The input square matrix.
- * @return A pointer to the newly created inverse matrix, or NULL if the matrix is singular or if an error occurs.
- */
-Matrix* matrix_inverse(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_inverse] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_inverse] Error: Input matrix is null.");
-        return NULL;
-    }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_inverse] Error: Input matrix is not square.");
-        return NULL;
-    }
-
-    double det = matrix_determinant(matrix);
-    if (det == 0) {
-        MATRIX_LOG("[matrix_inverse] Error: Matrix is singular (det = 0) and cannot be inverted.");
-        return NULL;
-    }
-
-    Matrix* inverse = matrix_adjugate(matrix);
-    if (!inverse) {
-        MATRIX_LOG("[matrix_inverse] Error: Failed to calculate adjugate matrix.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < inverse->rows; i++) {
-        for (size_t j = 0; j < inverse->cols; j++) {
-            inverse->data[i * inverse->cols + j] /= det;
-            MATRIX_LOG("[matrix_inverse] Set inverse(%zu, %zu) = %lf", i, j, inverse->data[i * inverse->cols + j]);
-        }
-    }
-
-    MATRIX_LOG("[matrix_inverse] Success: Matrix inversion completed successfully.");
-    return inverse;
-}
-
-/**
- * @brief Creates a deep copy of the given matrix.
- *
- * This function allocates a new matrix and copies all the data from the input matrix to the new matrix.
- * If the input matrix is NULL, the function returns NULL.
- *
- * @param matrix The matrix to copy.
- * @return A pointer to the newly created matrix that is a copy of the input matrix, or NULL if an error occurs.
- */
-Matrix* matrix_copy(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_copy] Entering function");
-    if (!matrix) {
-        MATRIX_LOG("[matrix_copy] Error: Input matrix is null.");
-        return NULL;
-    }
-
-    Matrix* copy = matrix_create(matrix->rows, matrix->cols);
-    if (!copy) {
-        MATRIX_LOG("[matrix_copy] Error: Memory allocation failed for matrix copy.");
-        return NULL;
-    }
-
-    for (size_t i = 0; i < matrix->rows; i++) {
-        for (size_t j = 0; j < matrix->cols; j++) {
-            copy->data[i * matrix->cols + j] = matrix->data[i * matrix->cols + j];
-        }
-    }
-
-    MATRIX_LOG("[matrix_copy] Success: Matrix copied successfully.");
-    return copy;
-}
-
-/**
- * @brief Raises a square matrix to a given non-negative integer power.
- *
- * This function computes the matrix raised to the specified power using an efficient 
- * exponentiation method. If the power is 0, the function returns the identity matrix.
- *
- * @param matrix The input matrix, which must be square.
- * @param power The non-negative integer power to which the matrix is raised.
- * 
- * @return A pointer to the resulting matrix, or NULL if an error occurs 
- * (e.g., the matrix is not square or the power is negative).
- */
-Matrix* matrix_power(const Matrix* matrix, int power) {
-    MATRIX_LOG("[matrix_power] Entering function with power = %d", power);
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_power] Error: Matrix object is null.");
-        return NULL;
-    }
-    if (!matrix_is_square(matrix)) {
-        MATRIX_LOG("[matrix_power] Error: Matrix is not square.");
-        return NULL;
-    }
-    if (power < 0) {
-        MATRIX_LOG("[matrix_power] Error: Negative power is not supported.");
-        return NULL;
-    }
-    if (power == 0) {
-        MATRIX_LOG("[matrix_power] Power is zero, returning the identity matrix.");
-        return matrix_create_identity(matrix->rows);
-    }
-
-    // Initialize result as a copy of the original matrix for power = 1
-    Matrix* result = matrix_copy(matrix);
-    if (power == 1) {
-        MATRIX_LOG("[matrix_power] Power is 1, returning a copy of the matrix.");
-        return result;
-    }
-
-    Matrix* temp = NULL;
-    while (power > 1) {
-        if (power % 2 == 0) {
-            temp = matrix_multiply(result, result);
-            if (!temp) {
-                MATRIX_LOG("[matrix_power] Error: Matrix multiplication failed.");
-                matrix_deallocate(result);
-                return NULL;
-            }
-
-            matrix_deallocate(result);
-            result = temp;
-            power /= 2;
-        } 
-        else {
-            temp = matrix_multiply(result, matrix);
-            if (!temp) {
-                MATRIX_LOG("[matrix_power] Error: Matrix multiplication failed.");
-                matrix_deallocate(result);
-                return NULL;
-            }
-            matrix_deallocate(result);
-            result = temp;
-            power--;
-        }
-    }
-
-    MATRIX_LOG("[matrix_power] Success: Matrix raised to power successfully.");
-    return result;
-}
-
-/**
- * @brief Computes the rank of a matrix.
- *
- * The rank of a matrix is the maximum number of linearly independent row or column vectors in the matrix. 
- * This function uses a variant of Gaussian elimination to determine the rank.
- *
- * @param matrix The input matrix.
- * @return The rank of the matrix, or -1 if an error occurs (e.g., the input matrix is NULL).
- */
 int matrix_rank(const Matrix* matrix) {
-    MATRIX_LOG("[matrix_rank] Entering function");
-
-    if (!matrix) {
-        MATRIX_LOG("[matrix_rank] Error: Input matrix is null.");
-        return -1;
-    }
-
-    Matrix* tempMatrix = matrix_copy(matrix);
-    if (!tempMatrix) {
-        MATRIX_LOG("[matrix_rank] Error: Failed to copy matrix.");
-        return -1;
-    }
-
-    int rank = tempMatrix->cols;
-    MATRIX_LOG("[matrix_rank] Starting rank calculation with initial rank = %d", rank);
-
-    for (int row = 0; row < rank; row++) {
-        if (is_effectively_zero(tempMatrix->data[row * tempMatrix->cols + row])) {
-            MATRIX_LOG("[matrix_rank] Diagonal element at (%d, %d) is effectively zero. Searching for a non-zero element.", row, row);
-            bool reduce = true;
-            for (int i = row + 1; i < (int)tempMatrix->rows; i++) {
-                if (!is_effectively_zero(tempMatrix->data[i * tempMatrix->cols + row])) {
-                    matrix_swap_rows(tempMatrix, row, i);
-                    MATRIX_LOG("[matrix_rank] Swapped row %d with row %d.", row, i);
-                    reduce = false;
-                    break;
-                }
-            }
-
-            if (reduce) {
-                rank--;
-                MATRIX_LOG("[matrix_rank] Reduced rank to %d.", rank);
-
-                for (int i = 0; i < (int)tempMatrix->rows; i++) {
-                    tempMatrix->data[i * tempMatrix->cols + row] = tempMatrix->data[i * tempMatrix->cols + rank];
-                }
-                row--;
-            }
-        } 
-        else {
-            for (int i = row + 1; i < (int)tempMatrix->rows; i++) {
-                double mult = tempMatrix->data[i * tempMatrix->cols + row] / tempMatrix->data[row * tempMatrix->cols + row];
-                MATRIX_LOG("[matrix_rank] Eliminating element at (%d, %d) using multiplier %lf", i, row, mult);
-
-                for (int j = row; j < (int)tempMatrix->cols; j++) {
-                    tempMatrix->data[i * tempMatrix->cols + j] -= mult * tempMatrix->data[row * tempMatrix->cols + j];
-                }
-            }
+  if (!matrix) {
+    utl_error_func("Input matrix is null", utl_user_defined_data);
+    return -1;
+  }
+  Matrix* tempMatrix = matrix_copy(matrix);
+  if (!tempMatrix) {
+    utl_error_func("Failed to copy matrix", utl_user_defined_data);
+    return -1;
+  }
+  int rank = tempMatrix->cols;
+  for (int row = 0; row < rank; row++) {
+    if (is_effectively_zero(tempMatrix->data[row * tempMatrix->cols + row])) {
+      bool reduce = true;
+      for (int i = row + 1; i < (int)tempMatrix->rows; i++) {
+        if (!is_effectively_zero(tempMatrix->data[i * tempMatrix->cols + row])) {
+          matrix_swap_rows(tempMatrix, row, i);
+          reduce = false;
+          break;
         }
+      }
+      if (reduce) {
+        rank--;
+        for (int i = 0; i < (int)tempMatrix->rows; i++) {
+          tempMatrix->data[i * tempMatrix->cols + row] = tempMatrix->data[i * tempMatrix->cols + rank];
+        }
+        row--;
+      }
+    } 
+    else {
+      for (int i = row + 1; i < (int)tempMatrix->rows; i++) {
+        double mult = tempMatrix->data[i * tempMatrix->cols + row] / tempMatrix->data[row * tempMatrix->cols + row];
+        for (int j = row; j < (int)tempMatrix->cols; j++) {
+          tempMatrix->data[i * tempMatrix->cols + j] -= mult * tempMatrix->data[row * tempMatrix->cols + j];
+        }
+      }
     }
-
-    matrix_deallocate(tempMatrix);
-    MATRIX_LOG("[matrix_rank] Rank calculation completed. Final rank = %d", rank);
-    return rank;
+  }
+  matrix_deallocate(tempMatrix);
+  return rank;
 }
 
-
-/**
- * @brief Checks if a matrix is diagonal.
- *
- * A matrix is considered diagonal if all its off-diagonal elements are zero. 
- * This function checks whether the input matrix meets this criterion.
- *
- * @param matrix The matrix to check.
- * @return `true` if the matrix is diagonal, `false` otherwise.
- */
 bool matrix_is_diagonal(const Matrix* matrix) {
     MATRIX_LOG("[matrix_is_diagonal] Entering function");
     if (!matrix) {
