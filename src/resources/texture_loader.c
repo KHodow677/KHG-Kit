@@ -96,8 +96,8 @@ void generate_textures() {
   TEXTURE_ASSET_REF[PLAYER_ARM_R] = (texture_asset){ "res/assets/textures/player/player_arm_r.png", 43, 38 };
   TEXTURE_ASSET_REF[PLAYER_LEG_L] = (texture_asset){ "res/assets/textures/player/player_leg_l.png", 23, 30 };
   TEXTURE_ASSET_REF[PLAYER_LEG_R] = (texture_asset){ "res/assets/textures/player/player_leg_r.png", 23, 30 };
-  // for (int i = 0; i < NUM_TEXTURES; i++) {
-  //   get_or_add_texture(i);
-  // }
+  for (int i = 0; i < NUM_TEXTURES; i++) {
+    get_or_add_texture(i);
+  }
 }
 

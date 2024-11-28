@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(libclipboard)
 
 set(LIBCLIPBOARD_VERSION_MAJOR 1 CACHE STRING "libclipboard major version number")
