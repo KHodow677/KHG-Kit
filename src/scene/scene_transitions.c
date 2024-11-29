@@ -4,7 +4,6 @@
 #include "graphics/light.h"
 #include "physics/physics.h"
 #include "resources/texture_loader.h"
-#include "scene/scenes/main/animal_builder.h"
 #include "scene/scenes/main/environment_builder.h"
 #include "scene/scenes/main/light_builder.h"
 #include "scene/scenes/main/player_builder.h"
@@ -31,7 +30,6 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   build_environment_element(MAIN_ENVIRONMENT_TREE_1, 1920, 360, 0, false, 3, 0.8f);
   build_environment_element(MAIN_ENVIRONMENT_TREE_0, 1920, 360, 0, false, 4, 0.9f);
   build_environment_element(MAIN_ENVIRONMENT_GROUND, 1920, 360, 0, false, 7, 1.0f);
-  build_animal(ANIMAL_ELK_IDLE_0, ANIMAL_ELK_IDLE_29, 780, 530, 8);
   build_environment_element(MAIN_STATION_CART, 1000, 510, 0, false, 8, 1.0f);
   build_environment_element(MAIN_STATION_TWIN_HOUSE, 2000, 410, 0, false, 6, 1.0f);
   build_light(2000, 510, 400.0f);

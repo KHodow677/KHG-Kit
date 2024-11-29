@@ -4,16 +4,14 @@
 
 typedef struct {
   ecs_id id;
-  int min_tex_id;
-  int max_tex_id;
+  int target_state_id;
+  int target_frame_id;
   float frame_duration;
   float frame_timer;
   bool destroy_on_max;
 } comp_animator;
 
 typedef struct {
-  int min_tex_id;
-  int max_tex_id;
   float frame_duration;
   bool destroy_on_max;
 } comp_animator_constructor_info;
@@ -27,3 +25,4 @@ void comp_animator_register(void);
 void sys_animator_register(void);
 
 comp_animator *sys_animator_add(const ecs_id eid, comp_animator_constructor_info *cpci);
+

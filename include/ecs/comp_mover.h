@@ -19,10 +19,6 @@ typedef struct comp_mover_constructor_info {
   const phy_rigid_body *body; 
   const float target_vel;
   const float max_vel;
-  const int idle_min_tex_id;
-  const int idle_max_tex_id;
-  const int walk_min_tex_id;
-  const int walk_max_tex_id;
 } comp_mover_constructor_info;
 
 extern ecs_id MOVER_COMPONENT_SIGNATURE;

@@ -8,6 +8,14 @@
 #include <string.h>
 #include <unistd.h>
 
+const bone_frame_info *get_bone_frame_info(const rig *r, const int state_id, const int frame_id) {
+  return (bone_frame_info *)utl_array_at(*(utl_array **)utl_array_at(r->animation_states, state_id), frame_id);
+}
+
+const int last_frame_num(rig *r, const int state_id) {
+  return utl_array_size(*(utl_array **)utl_array_at(r->animation_states, state_id)) - 1;
+}
+
 void generate_animation_frame(rig *r, const char *dir_path, const char *rig_section, const int anim_num, const int num_frames, const int frame_num) {
   char file[256];
   snprintf(file, 256, "%s%i.ini", dir_path, frame_num);

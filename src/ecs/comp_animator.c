@@ -3,6 +3,8 @@
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
+#include "rig/anim.h"
+#include <stdio.h>
 
 ecs_id ANIMATOR_COMPONENT_SIGNATURE;
 ecs_id ANIMATOR_SYSTEM_SIGNATURE;
@@ -16,17 +18,25 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const int ent
   for (int id = 0; id < entity_count; id++) {
     comp_animator *info = ecs_get(ECS, entities[id], ANIMATOR_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
-    if (!current_tex_in_range(r_info, info->min_tex_id, info->max_tex_id)) {
-      r_info->tex_id = info->min_tex_id;
+    if (!r_info->rig.enabled) {
       continue;
     }
-    if (info->destroy_on_max && r_info->tex_id == info->max_tex_id) {
+    if (r_info->rig.current_state_id != info->target_state_id) {
+      r_info->rig.current_state_id = info->target_state_id;
+      r_info->rig.current_frame_id = info->target_frame_id;
+      continue;
+    }
+    if (info->frame_timer <= 0 && info->target_frame_id == last_frame_num(&r_info->rig, r_info->rig.current_state_id)) {
+      info->target_frame_id = 0;
+      info->frame_timer = info->frame_duration;
     }
     else if (info->frame_timer <= 0) {
-      r_info->tex_id = r_info->tex_id < info->max_tex_id ? r_info->tex_id + 1 : info->min_tex_id;
+      info->target_frame_id++;
       info->frame_timer = info->frame_duration;
     }
     info->frame_timer -= dt;
+    printf("Animating Frame %i\n", info->target_frame_id);
+    printf("Num Frames in Anim: %i\n", last_frame_num(&r_info->rig, r_info->rig.current_state_id));
   }
   return 0;
 }
@@ -35,8 +45,6 @@ static void comp_animator_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
   comp_animator *info = ptr;
   const comp_animator_constructor_info *constructor_info = ANIMATOR_CONSTRUCTOR_INFO;
   if (info && constructor_info) {
-    info->min_tex_id = constructor_info->min_tex_id;
-    info->max_tex_id = constructor_info->max_tex_id;
     info->frame_duration = constructor_info->frame_duration;
     info->frame_timer = constructor_info->frame_duration;
     info->destroy_on_max = constructor_info->destroy_on_max;

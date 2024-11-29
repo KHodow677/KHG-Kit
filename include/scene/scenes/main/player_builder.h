@@ -10,8 +10,8 @@ typedef struct player_info {
   ecs_id id;
   comp_physics *physics;
   comp_renderer *renderer;
-  comp_animator *animator;
   comp_light *light;
+  comp_animator *animator;
   comp_mover *mover;
 } player_info;
 

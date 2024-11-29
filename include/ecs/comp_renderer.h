@@ -28,8 +28,6 @@ extern ecs_id RENDERER_SYSTEM_SIGNATURE;
 
 extern comp_renderer_constructor_info *RENDERER_CONSTRUCTOR_INFO;
 
-const bool current_tex_in_range(const comp_renderer *cr, const int min, const int max);
-
 void comp_renderer_register(void);
 void sys_renderer_register(void);
 

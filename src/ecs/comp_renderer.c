@@ -63,10 +63,6 @@ static void comp_renderer_destructor(ecs_ecs *ecs, const ecs_id entity_id, void 
   }
 }
 
-const bool current_tex_in_range(const comp_renderer *cr, const int min, const int max) {
-  return (cr->tex_id >= min && cr->tex_id <= max);
-}
-
 void comp_renderer_register() {
   RENDERER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_renderer), comp_renderer_constructor, comp_renderer_destructor);
 }
