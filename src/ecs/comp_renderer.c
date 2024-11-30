@@ -25,7 +25,6 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
         continue;
       }
       if (info->rig.enabled) {
-        update_rig(&info->rig, info->body);
         render_rig(&info->rig, info->parallax_value, info->flipped);
       }
       else {

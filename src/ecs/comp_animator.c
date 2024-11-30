@@ -4,6 +4,7 @@
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "rig/anim.h"
+#include "rig/rig.h"
 #include <stdio.h>
 
 ecs_id ANIMATOR_COMPONENT_SIGNATURE;
@@ -44,7 +45,7 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       info->target_frame_id++;
       info->frame_timer = info->frame_duration;
     }
-    const float frame_percentage = info->frame_timer / info->frame_duration;
+    update_rig(&r_info->rig, r_info->body, get_frame(&r_info->rig, info->target_state_id, info->target_frame_id), info->frame_timer / info->frame_duration);
     info->frame_timer -= dt;
     printf("Current Frame: %i\t Target Frame: %i\n", r_info->rig.current_frame_id, info->target_frame_id);
   }

@@ -77,3 +77,7 @@ void set_state_and_frame(rig *r, const int state_id, const int frame_id) {
   r->current_frame_bones = *(utl_array **)utl_array_at(*(utl_array **)utl_array_at(r->animation_states, r->current_state_id), r->current_frame_id);
 }
 
+utl_array *get_frame(const rig *r, const int state_id, const int frame_id) {
+  return *(utl_array **)utl_array_at(*(utl_array **)utl_array_at(r->animation_states, state_id), frame_id);
+}
+

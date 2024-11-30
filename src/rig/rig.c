@@ -107,7 +107,7 @@ void free_rig(const rig *r) {
   utl_array_deallocate(r->bones);
 }
 
-void update_rig(const rig *r, const phy_rigid_body *body) {
+void update_rig(const rig *r, const phy_rigid_body *body, const utl_array *target, const float frame_percentage) {
   for (bone *b = utl_array_begin(r->bones); b != (bone *)utl_array_end(r->bones); b++) {
     b->updated = false;
   }
