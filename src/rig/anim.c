@@ -1,5 +1,6 @@
 #include "rig/anim.h"
 #include "khg_utl/array.h"
+#include "khg_utl/easing.h"
 #include "resources/texture_loader.h"
 #include "rig/rig.h"
 #include "khg_utl/config.h"
@@ -69,6 +70,19 @@ void generate_animation_from_path(rig *r, const char *dir_path, const char *sect
   for (int i = 0; i < num_frames; i++) {
     generate_animation_frame(r, dir_path, section, anim_num, num_frames, i);
   }
+}
+
+void update_rig_with_interpolated_frame(bone *b, const bone_frame_info *current, const bone_frame_info *target, const float frame_percentage) {
+  float x_diff = target->bone_offset.x - current->bone_offset.x;
+  float y_diff = target->bone_offset.y - current->bone_offset.y;
+  float ang_diff = target->bone_angle_offset - current->bone_angle_offset;
+  b->bone_tex_id = current->bone_tex;
+  b->bone_offset.x = current->bone_offset.x + x_diff * utl_easing_linear_interpolation(frame_percentage);
+  b->bone_offset.y = current->bone_offset.y + y_diff * utl_easing_linear_interpolation(frame_percentage);
+  b->bone_angle_offset = current->bone_angle_offset + ang_diff * utl_easing_linear_interpolation(frame_percentage);
+  phy_rigid_body_set_position(b->bone_body, phy_vector2_add(phy_rigid_body_get_position(b->parent->bone_body), b->bone_offset));
+  phy_rigid_body_set_angle(b->bone_body, phy_rigid_body_get_angle(b->parent->bone_body) + b->bone_angle_offset);
+  b->updated = true;
 }
 
 void set_state_and_frame(rig *r, const int state_id, const int frame_id) {

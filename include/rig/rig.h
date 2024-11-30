@@ -23,6 +23,7 @@ typedef struct rig {
   utl_array *bones;
   int root_id;
   phy_vector2 root_offset;
+  float root_angle_offset;
   utl_array *animation_states;
   utl_array *current_frame_bones;
   int current_state_id;
@@ -42,6 +43,7 @@ typedef struct rig_builder {
   int root_tex;
   int init_layer;
   phy_vector2 root_offset;
+  float root_angle_offset;
   int num_anim;
 } rig_builder;
 
@@ -54,6 +56,6 @@ void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offs
 void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const phy_vector2 root_offset, const int root_tex, const size_t init_layer, const int num_anim);
 void free_rig(const rig *r);
 
-void update_rig(const rig *r, const phy_rigid_body *body, const utl_array *target, const float frame_percentage);
+void update_rig(const rig *r, const phy_rigid_body *body, const float frame_percentage, utl_array *target);
 void render_rig(const rig *r, const float parallax_value, const bool flipped);
 

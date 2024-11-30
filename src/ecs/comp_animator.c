@@ -45,9 +45,9 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       info->target_frame_id++;
       info->frame_timer = info->frame_duration;
     }
-    update_rig(&r_info->rig, r_info->body, get_frame(&r_info->rig, info->target_state_id, info->target_frame_id), info->frame_timer / info->frame_duration);
+    update_rig(&r_info->rig, r_info->body, 1.0f - info->frame_timer / info->frame_duration, get_frame(&r_info->rig, info->target_state_id, info->target_frame_id));
     info->frame_timer -= dt;
-    printf("Current Frame: %i\t Target Frame: %i\n", r_info->rig.current_frame_id, info->target_frame_id);
+    /*printf("Current Frame: %i\t Target Frame: %i\n", r_info->rig.current_frame_id, info->target_frame_id);*/
   }
   return 0;
 }

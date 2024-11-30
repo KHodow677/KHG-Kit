@@ -22,6 +22,7 @@ rig_builder generate_rig_builder_from_file(const char *filepath, const char *sec
   rb.init_layer = utl_config_get_int(config, section, "root_bone_num", 0);
   char **root_offset = utl_config_get_array(config, section, "root_bone_offset", 2);
   rb.root_offset = phy_vector2_new(atof(root_offset[0]), atof(root_offset[1]));
+  rb.root_angle_offset = atof(utl_config_get_value(config, section, "root_bone_angle_offset"));
   rb.num_anim = num_anim;
   free(root_offset[0]);
   free(root_offset[1]);
@@ -107,7 +108,7 @@ void free_rig(const rig *r) {
   utl_array_deallocate(r->bones);
 }
 
-void update_rig(const rig *r, const phy_rigid_body *body, const utl_array *target, const float frame_percentage) {
+void update_rig(const rig *r, const phy_rigid_body *body, const float frame_percentage, utl_array *target) {
   for (bone *b = utl_array_begin(r->bones); b != (bone *)utl_array_end(r->bones); b++) {
     b->updated = false;
   }
@@ -118,6 +119,7 @@ void update_rig(const rig *r, const phy_rigid_body *body, const utl_array *targe
       if (i == r->root_id && !b->updated) {
         b->bone_offset = r->root_offset;
         phy_rigid_body_set_position(b->bone_body, phy_vector2_add(phy_rigid_body_get_position(body), r->root_offset));
+        phy_rigid_body_set_angle(b->bone_body, phy_rigid_body_get_angle(body) + r->root_angle_offset);
         b->updated = true;
         break;
       }
@@ -125,10 +127,8 @@ void update_rig(const rig *r, const phy_rigid_body *body, const utl_array *targe
         continue;
       }
       bone_frame_info *bfi = utl_array_at(r->current_frame_bones, i);
-      b->bone_tex_id = bfi->bone_tex;
-      b->bone_offset = bfi->bone_offset;
-      phy_rigid_body_set_position(b->bone_body, phy_vector2_add(phy_rigid_body_get_position(b->parent->bone_body), b->bone_offset));
-      b->updated = true;
+      bone_frame_info *tgt = utl_array_at(target, i);
+      update_rig_with_interpolated_frame(b, bfi, tgt, frame_percentage);
     }
     updated = true;
     for (bone *b = utl_array_begin(r->bones); b != (bone *)utl_array_end(r->bones); b++) {
