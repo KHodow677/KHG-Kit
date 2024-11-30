@@ -124,7 +124,7 @@ void update_rig(const rig *r, const phy_rigid_body *body) {
       if (!b->parent || !b->parent->updated) {
         continue;
       }
-      bone_frame_info *bfi = utl_array_at(r->frame_bones, i);
+      bone_frame_info *bfi = utl_array_at(r->current_frame_bones, i);
       b->bone_tex_id = bfi->bone_tex;
       b->bone_offset = bfi->bone_offset;
       phy_rigid_body_set_position(b->bone_body, phy_vector2_add(phy_rigid_body_get_position(b->parent->bone_body), b->bone_offset));

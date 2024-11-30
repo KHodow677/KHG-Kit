@@ -27,16 +27,26 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       continue;
     }
     if (info->frame_timer <= 0 && info->target_frame_id == last_frame_num(&r_info->rig, r_info->rig.current_state_id)) {
+      r_info->rig.current_frame_id = last_frame_num(&r_info->rig, r_info->rig.current_state_id);
+      set_state_and_frame(&r_info->rig, r_info->rig.current_state_id, r_info->rig.current_frame_id);
       info->target_frame_id = 0;
       info->frame_timer = info->frame_duration;
     }
-    else if (info->frame_timer <= 0) {
+    else if (info->frame_timer <= 0 && r_info->rig.current_frame_id == last_frame_num(&r_info->rig, r_info->rig.current_state_id)) {
+      r_info->rig.current_frame_id = 0;
+      set_state_and_frame(&r_info->rig, r_info->rig.current_state_id, r_info->rig.current_frame_id);
       info->target_frame_id++;
       info->frame_timer = info->frame_duration;
     }
+    else if (info->frame_timer <= 0) {
+      r_info->rig.current_frame_id++;
+      set_state_and_frame(&r_info->rig, r_info->rig.current_state_id, r_info->rig.current_frame_id);
+      info->target_frame_id++;
+      info->frame_timer = info->frame_duration;
+    }
+    const float frame_percentage = info->frame_timer / info->frame_duration;
     info->frame_timer -= dt;
-    printf("Animating Frame %i\n", info->target_frame_id);
-    printf("Num Frames in Anim: %i\n", last_frame_num(&r_info->rig, r_info->rig.current_state_id));
+    printf("Current Frame: %i\t Target Frame: %i\n", r_info->rig.current_frame_id, info->target_frame_id);
   }
   return 0;
 }
@@ -45,6 +55,8 @@ static void comp_animator_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
   comp_animator *info = ptr;
   const comp_animator_constructor_info *constructor_info = ANIMATOR_CONSTRUCTOR_INFO;
   if (info && constructor_info) {
+    info->target_state_id = constructor_info->initial_target_state_id;
+    info->target_frame_id = constructor_info->initial_target_frame_id;
     info->frame_duration = constructor_info->frame_duration;
     info->frame_timer = constructor_info->frame_duration;
     info->destroy_on_max = constructor_info->destroy_on_max;

@@ -74,6 +74,6 @@ void generate_animation_from_path(rig *r, const char *dir_path, const char *sect
 void set_state_and_frame(rig *r, const int state_id, const int frame_id) {
   r->current_state_id = state_id;
   r->current_frame_id = frame_id;
-  r->frame_bones = *(utl_array **)utl_array_at(*(utl_array **)utl_array_at(r->animation_states, r->current_state_id), r->current_frame_id);
+  r->current_frame_bones = *(utl_array **)utl_array_at(*(utl_array **)utl_array_at(r->animation_states, r->current_state_id), r->current_frame_id);
 }
 

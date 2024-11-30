@@ -24,7 +24,7 @@ typedef struct rig {
   int root_id;
   phy_vector2 root_offset;
   utl_array *animation_states;
-  utl_array *frame_bones;
+  utl_array *current_frame_bones;
   int current_state_id;
   int current_frame_id;
 } rig;
