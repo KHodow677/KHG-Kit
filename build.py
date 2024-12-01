@@ -23,11 +23,7 @@ def run_executable(args=""):
 
 def run_test_runner():
   test_runner = "test_runner.exe" if platform.system() == "Windows" else "./test_runner"
-  if os.path.exists("build"):
-    os.chdir("build")
-    subprocess.run([test_runner])
-  else:
-    print("Build folder not located: run `build.py build` first")
+  subprocess.run([test_runner])
 
 def main():
   if len(sys.argv) < 2:
