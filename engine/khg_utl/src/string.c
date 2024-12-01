@@ -543,14 +543,14 @@ char utl_string_at(utl_string *str, size_t index) {
   return str->dataStr[index];
 }
 
-char *string_back(utl_string *str) {
+char *utl_string_back(utl_string *str) {
   if (str == NULL || str->size == 0) { 
     return NULL; 
   }
   return &str->dataStr[str->size - 1];
 }
 
-char *string_front(utl_string *str) {
+char *utl_string_front(utl_string *str) {
   if (str == NULL || str->size == 0) { 
     return NULL;  
   }
@@ -765,7 +765,7 @@ const char *utl_string_c_str(const utl_string *str) {
   return str->dataStr;
 }
 
-char *string_begin(utl_string *str) {
+char *utl_string_begin(utl_string *str) {
   if (str == NULL) { 
     utl_error_func("Invalid input in string_begin function", utl_user_defined_data);
     return "";
@@ -777,7 +777,7 @@ char *string_begin(utl_string *str) {
   return str->dataStr;
 }
 
-char *string_end(utl_string *str) {
+char *utl_string_end(utl_string *str) {
   if (str == NULL || str->dataStr == NULL) { 
     utl_error_func("Invalid input or uninitialized String in string_end function", utl_user_defined_data);
     return NULL;
@@ -785,7 +785,7 @@ char *string_end(utl_string *str) {
   return str->dataStr + str->size;
 }
 
-char *string_rbegin(utl_string *str) {
+char *utl_string_rbegin(utl_string *str) {
   if (str == NULL || str->dataStr == NULL || str->size == 0) {
     utl_error_func("Invalid input, uninitialized, or empty String in string_rbegin function", utl_user_defined_data);
     return NULL; 
@@ -793,7 +793,7 @@ char *string_rbegin(utl_string *str) {
   return str->dataStr + str->size - 1;
 }
 
-char *string_rend(utl_string *str) {
+char *utl_string_rend(utl_string *str) {
   if (str == NULL || str->dataStr == NULL) { 
     utl_error_func("Invalid input or uninitialized String in string_rend function", utl_user_defined_data);
     return NULL;
@@ -843,7 +843,7 @@ void utl_string_clear(utl_string* str) {
   utl_error_func("String object is null no need to clear in string_clear", utl_user_defined_data);
 }
 
-char *string_to_upper(utl_string *str) {
+char *utl_string_to_upper(utl_string *str) {
   if (str != NULL) {
     char *upper = (char *)malloc(sizeof(char) * (str->size + 1));
     if (!upper) {
@@ -865,7 +865,7 @@ char *string_to_upper(utl_string *str) {
   return NULL;
 }
 
-char *string_to_lower(utl_string *str) {
+char *utl_string_to_lower(utl_string *str) {
   if (str != NULL) {
     char *lower = (char*) malloc(sizeof(char) * (str->size + 1));
     if (!lower) {
@@ -988,7 +988,7 @@ utl_string **utl_string_split(utl_string *str, const char *delimiter, int *count
     return NULL;
   }
   size_t num_splits = 0;
-  char *temp = string_strdup(str->dataStr);
+  char *temp = utl_string_strdup(str->dataStr);
   if (temp == NULL) {
     utl_error_func("Memory allocation failed in string_split", utl_user_defined_data);
     return NULL;
@@ -1007,7 +1007,7 @@ utl_string **utl_string_split(utl_string *str, const char *delimiter, int *count
     utl_error_func("Memory allocation failed for splits in string_split", utl_user_defined_data);
     return NULL;
   }
-  temp = string_strdup(str->dataStr);
+  temp = utl_string_strdup(str->dataStr);
   if (temp == NULL) {
     utl_error_func("Memory allocation failed in string_split", utl_user_defined_data);
     free(splits);
@@ -1282,7 +1282,7 @@ utl_string *utl_string_from_int(int value) {
   return utl_string_create(buffer);
 }
 
-char *string_from_int_cstr(int value) {
+char *utl_string_from_int_cstr(int value) {
   char buffer[12];
   sprintf(buffer, "%d", value);
   char *result = malloc(strlen(buffer) + 1);
@@ -1310,7 +1310,7 @@ utl_string **utl_string_tokenize(utl_string *str, const char *delimiters, int *c
     return NULL;
   }
   size_t num_tokens = 0;
-  char *temp_str = string_strdup(str->dataStr);
+  char *temp_str = utl_string_strdup(str->dataStr);
   if (temp_str == NULL) {
     utl_error_func("Memory allocation failed in string_tokenize", utl_user_defined_data);
     return NULL;
@@ -1326,7 +1326,7 @@ utl_string **utl_string_tokenize(utl_string *str, const char *delimiters, int *c
     utl_error_func("Memory allocation failed for tokens in string_tokenize", utl_user_defined_data);
     return NULL;
   }
-  temp_str = string_strdup(str->dataStr);
+  temp_str = utl_string_strdup(str->dataStr);
   if (temp_str == NULL) {
     utl_error_func("Memory allocation failed in string_tokenize", utl_user_defined_data);
     free(tokens);
@@ -1762,7 +1762,7 @@ utl_string **utl_string_create_from_initializer(size_t count, ...) {
   return strings;
 }
 
-char *string_strdup(const char *s) {
+char *utl_string_strdup(const char *s) {
   if (s == NULL) {
     utl_error_func("Parameter 's' is NULL in string_strdup", utl_user_defined_data);
     return NULL;

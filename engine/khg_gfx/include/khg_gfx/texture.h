@@ -21,8 +21,8 @@ typedef struct {
 } gfx_font;
 
 typedef enum {
-  gfx_tex_filter_linear,
-  gfx_tex_filter_nearest
+  GFX_TEX_FILTER_LINEAR,
+  GFX_TEX_FILTER_NEAREST
 } gfx_texture_filtering;
 
 typedef struct {
@@ -53,8 +53,8 @@ unsigned char *gfx_load_texture_data_from_memory_resized_factor(const void *data
 
 void gfx_create_texture_from_image_data(gfx_texture_filtering filter, uint32_t *id, int32_t width, int32_t height, int32_t channels, unsigned char* data); 
 void gfx_free_texture(gfx_texture *tex);
-gfx_texture gfx_load_texture_asset(const char *asset_name, const char *file_extension); 
+gfx_texture gfx_load_texture_asset(const char *filepath);
 
 void gfx_free_font(gfx_font *font);
-gfx_font gfx_load_font_asset(const char *asset_name, const char *file_extension, uint32_t font_size);
+gfx_font gfx_load_font_asset(const char *filepath, const uint32_t font_size);
 

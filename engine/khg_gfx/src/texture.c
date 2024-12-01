@@ -6,8 +6,8 @@
 #else 
 #endif
 
-#include "khg_gfx/font.h"
 #include "khg_gfx/texture.h"
+#include "khg_gfx/font.h"
 #include "khg_utl/error_func.h"
 #include "glad/glad.h"
 #include "stb_image/stb_image.h"
@@ -36,11 +36,11 @@ gfx_texture gfx_load_texture(const char *filepath, bool flip, gfx_texture_filter
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
   switch(filter) {
-    case gfx_tex_filter_linear:
+    case GFX_TEX_FILTER_LINEAR:
       glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTextureParameteri(tex.id, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       break;
-    case gfx_tex_filter_nearest:
+    case GFX_TEX_FILTER_NEAREST:
       glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTextureParameteri(tex.id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       break;
@@ -62,11 +62,11 @@ gfx_texture gfx_load_texture_resized(const char *filepath, bool flip, gfx_textur
   glCreateTextures(GL_TEXTURE_2D, 1, &tex.id);
   glBindTexture(GL_TEXTURE_2D, tex.id);
   switch(filter) {
-    case gfx_tex_filter_linear:
+    case GFX_TEX_FILTER_LINEAR:
       glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
       glTextureParameteri(tex.id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       break;
-    case gfx_tex_filter_nearest:
+    case GFX_TEX_FILTER_NEAREST:
       glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTextureParameteri(tex.id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       break;
@@ -111,11 +111,11 @@ gfx_texture gfx_load_texture_from_memory(const void *data, size_t size, bool fli
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   switch(filter) {
-    case gfx_tex_filter_linear:
+    case GFX_TEX_FILTER_LINEAR:
       glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTextureParameteri(tex.id, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       break;
-    case gfx_tex_filter_nearest:
+    case GFX_TEX_FILTER_NEAREST:
       glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTextureParameteri(tex.id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       break;
@@ -132,7 +132,7 @@ gfx_texture gfx_load_texture_from_memory_resized(const void *data, size_t size, 
   gfx_texture tex;
   int32_t channels;
   unsigned char *resized = gfx_load_texture_data_from_memory_resized(data, size, &channels, NULL, NULL, flip, w, h);
-  gfx_create_texture_from_image_data(gfx_tex_filter_linear, &tex.id, w, h, channels, resized);
+  gfx_create_texture_from_image_data(GFX_TEX_FILTER_LINEAR, &tex.id, w, h, channels, resized);
   tex.width = w;
   tex.height = h;
   return tex;
@@ -147,7 +147,7 @@ gfx_texture gfx_load_texture_from_memory_resized_factor(const void *data, size_t
   unsigned char *resized_data = (unsigned char*)malloc(sizeof(unsigned char) * w * h * channels);
   stbir_resize_uint8_linear(image_data, width, height, 0, resized_data, w, h, 0,(stbir_pixel_layout)channels);
   stbi_image_free(image_data);
-  gfx_create_texture_from_image_data(gfx_tex_filter_linear, &tex.id, w, h, channels, resized_data);
+  gfx_create_texture_from_image_data(GFX_TEX_FILTER_LINEAR, &tex.id, w, h, channels, resized_data);
   tex.width = w;
   tex.height = h;
   return tex;
@@ -160,7 +160,7 @@ gfx_texture gfx_load_texture_from_memory_resized_to_fit(const void *data, size_t
   int32_t new_width, new_height;
   unsigned char *resized_data =  gfx_load_texture_data_from_memory_resized_to_fit_ex(image_data, size, &new_width, &new_height, channels, image_width, image_height, flip, container_w, container_h);
   stbi_image_free(image_data);
-  gfx_create_texture_from_image_data(gfx_tex_filter_linear, &tex.id, new_width, new_height, channels, resized_data);
+  gfx_create_texture_from_image_data(GFX_TEX_FILTER_LINEAR, &tex.id, new_width, new_height, channels, resized_data);
   tex.width = new_width;
   tex.height = new_height;
   return tex;
@@ -268,11 +268,11 @@ void gfx_create_texture_from_image_data(gfx_texture_filtering filter, uint32_t *
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   switch(filter) {
-    case gfx_tex_filter_linear:
+    case GFX_TEX_FILTER_LINEAR:
       glTextureParameteri(*id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       glTextureParameteri(*id, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
       break;
-    case gfx_tex_filter_nearest:
+    case GFX_TEX_FILTER_NEAREST:
       glTextureParameteri(*id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTextureParameteri(*id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       break;
@@ -286,30 +286,8 @@ void gfx_free_texture(gfx_texture *tex) {
   memset(tex, 0, sizeof(gfx_texture));
 }
 
-gfx_texture gfx_load_texture_asset(const char *asset_name, const char *file_extension) {
-#if defined(_WIN32) || defined(_WIN64)
-  char cwd[PATH_MAX];
-  _getcwd(cwd, sizeof(cwd));
-  size_t cwd_len = strlen(cwd);
-  size_t asset_dir_len = cwd_len + strlen("\\res") + 1;
-  size_t path_len = asset_dir_len + strlen("\\assets\\textures\\") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
-  char asset_dir[asset_dir_len];
-  char path[path_len];
-  snprintf(asset_dir, sizeof(asset_dir), "%s\\res", cwd);
-  snprintf(path, sizeof(path), "%s\\assets\\textures\\%s.%s", asset_dir, asset_name, file_extension);
-  return gfx_load_texture(path, false, gfx_tex_filter_linear);
-#else
-  char cwd[PATH_MAX];
-  getcwd(cwd, sizeof(cwd));
-  size_t cwd_len = strlen(cwd);
-  size_t asset_dir_len = cwd_len + strlen("/res") + 1;
-  size_t path_len = asset_dir_len + strlen("/assets/textures/") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
-  char asset_dir[asset_dir_len];
-  char path[path_len];
-  snprintf(asset_dir, sizeof(asset_dir), "%s/res", cwd);
-  snprintf(path, sizeof(path), "%s/assets/textures/%s.%s", asset_dir, asset_name, file_extension);
-  return gfx_load_texture(path, false, gfx_tex_filter_linear);
-#endif
+gfx_texture gfx_load_texture_asset(const char *filepath) {
+  return gfx_load_texture(filepath, false, GFX_TEX_FILTER_LINEAR);
 }
 
 void gfx_free_font(gfx_font *font) {
@@ -318,29 +296,7 @@ void gfx_free_font(gfx_font *font) {
   free(font->buffer);
 }
 
-gfx_font gfx_load_font_asset(const char *asset_name, const char *file_extension, uint32_t font_size) {
-#if defined(_WIN32) || defined(_WIN64)
-  char cwd[MAX_PATH];
-  _getcwd(cwd, sizeof(cwd));
-  size_t cwd_len = strlen(cwd);
-  size_t asset_dir_len = cwd_len + strlen("\\res") + 1;
-  size_t path_len = asset_dir_len + strlen("\\assets\\fonts\\") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
-  char asset_dir[asset_dir_len];
-  char path[path_len];
-  snprintf(asset_dir, sizeof(asset_dir), "%s\\res", cwd);
-  snprintf(path, sizeof(path), "%s\\assets\\fonts\\%s.%s", asset_dir, asset_name, file_extension);
-  return gfx_load_font(path, font_size);
-#else 
-  char cwd[PATH_MAX];
-  getcwd(cwd, sizeof(cwd));
-  size_t cwd_len = strlen(cwd);
-  size_t asset_dir_len = cwd_len + strlen("/res") + 1;
-  size_t path_len = asset_dir_len + strlen("/assets/fonts/") + strlen(asset_name) + strlen(".") + strlen(file_extension) + 1;
-  char asset_dir[asset_dir_len];
-  char path[path_len];
-  snprintf(asset_dir, sizeof(asset_dir), "%s/res", cwd);
-  snprintf(path, sizeof(path), "%s/assets/fonts/%s.%s", asset_dir, asset_name, file_extension);
-  return gfx_load_font(path, font_size);
-#endif
+gfx_font gfx_load_font_asset(const char *filepath, const uint32_t font_size) {
+  return gfx_load_font(filepath, font_size);
 }
 

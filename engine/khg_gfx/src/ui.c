@@ -1,3 +1,5 @@
+#include "glad/glad.h"
+#include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/ui.h"
 #include "khg_utl/error_func.h"
@@ -5,6 +7,44 @@
 #include <locale.h>
 #include <string.h>
 #include <stdio.h>
+
+static void gfx_setup_framebuffer(GLuint *framebuffer, GLuint *texture, GLuint *vao, GLuint *vbo, GLuint *ebo) {
+  float framebuffer_quad_vertices[] = {
+    -1.0f,  1.0f,  0.0f, 1.0f,
+    -1.0f, -1.0f,  0.0f, 0.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f, 1.0f
+  };
+  unsigned int quadIndices[] = {
+    0, 1, 2,
+    0, 2, 3
+  };
+  glGenVertexArrays(1, vao);
+  glGenBuffers(1, vbo);
+  glGenBuffers(1, ebo);
+  glBindVertexArray(*vao);
+  glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(framebuffer_quad_vertices), framebuffer_quad_vertices, GL_STATIC_DRAW);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
+  glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
+  glGenFramebuffers(1, framebuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, *framebuffer);
+  glGenTextures(1, texture);
+  glBindTexture(GL_TEXTURE_2D, *texture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx_get_display_width(), gfx_get_display_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *texture, 0);
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    utl_error_func("Framebuffer is not complete", utl_user_defined_data);
+  }
+}
 
 void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_window) {
   setlocale(LC_ALL, "");
@@ -43,11 +83,14 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   glfwSetCharCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_char_callback);
   glfwSetWindowSizeCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_window_size_callback);
   gfx_internal_renderer_init();
-  state.tex_arrow_down = gfx_load_texture_asset("arrow-down", "png");
-  state.tex_tick = gfx_load_texture_asset("tick", "png");
+  state.tex_arrow_down = gfx_load_texture_asset("res/assets/textures/arrow_down.png");
+  state.tex_tick = gfx_load_texture_asset("res/assets/textures/tick.png");
 }
 
-int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
+const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
+  GLuint framebuffer, texture;
+  GLuint vao, vbo, ebo;
+  gfx_setup_framebuffer(&framebuffer, &texture, &vao, &vbo, &ebo);
   double last_time = glfwGetTime();
   int frame_count = 0;
   double fps_start_time = last_time;
@@ -55,9 +98,24 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
     double current_time = glfwGetTime();
     double elapsed_time = current_time - last_time;
     last_time = current_time;
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx_get_display_width(), gfx_get_display_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (!gfx_loop(elapsed_time)) {
       break;
     }
+    gfx_end();
+    if (!gfx_loop_post(elapsed_time)) {
+      break;
+    }
+    gfx_end();
+    if (!gfx_loop_ui(elapsed_time)) {
+      break;
+    }
+    gfx_end();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    gfx_framebuffer(vao, texture);
     frame_count++;
     double fps_elapsed_time = current_time - fps_start_time;
     if (fps_elapsed_time > 0.0) {
@@ -70,7 +128,6 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
       frame_count = 0;
       fps_start_time = current_time;
     }
-    gfx_end();
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -83,3 +140,4 @@ int gfx_loop_manager(GLFWwindow *window, bool show_fps) {
 void gfx_terminate() {
   gfx_free_font(&state.theme.font);
 }
+

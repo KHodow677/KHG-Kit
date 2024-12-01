@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(khg_gfx)
 add_library(khg_gfx)
 file(GLOB_RECURSE sources "src/*.c")

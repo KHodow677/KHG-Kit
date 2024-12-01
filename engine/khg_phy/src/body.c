@@ -1,621 +1,376 @@
-#include "khg_phy/phy_private.h"
-#include "khg_phy/transform.h"
+#include "khg_phy/body.h"
+#include "khg_phy/aabb.h"
+#include "khg_phy/math.h"
+#include "khg_phy/space.h"
+#include "khg_phy/core/phy_array.h"
 #include "khg_utl/error_func.h"
-#include <stdarg.h>
 #include <stdlib.h>
-#include <float.h>
+#include <stdint.h>
+#include <stdlib.h>
 
-phy_body*
-phy_body_alloc(void)
-{
-	return (phy_body *)calloc(1, sizeof(phy_body));
+static int phy_rigid_body_accumulate_mass(phy_rigid_body *body) {
+  body->mass = 0.0;
+  body->invmass = 0.0;
+  body->inertia = 0.0;
+  body->invinertia = 0.0;
+  if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+    return 0;
+  }
+  phy_vector2 local_com = phy_vector2_zero;
+  for (size_t i = 0; i < body->shapes->size; i++) {
+    phy_shape *shape = body->shapes->data[i];
+    phy_shape_mass_info mass_info = phy_shape_calculate_mass(shape, body->material.density);
+    body->mass += mass_info.mass;
+    body->inertia += mass_info.inertia;
+    local_com = phy_vector2_add(local_com, phy_vector2_mul(mass_info.center, mass_info.mass));
+  }
+  if (body->mass == 0.0) {
+    return 1;
+  }
+  body->invmass = 1.0 / body->mass;
+  local_com = phy_vector2_mul(local_com, body->invmass);
+  body->inertia -= body->mass * phy_vector2_dot(local_com, local_com);
+  if (body->inertia == 0.0) {
+    utl_error_func("Invalid mass", utl_user_defined_data);
+    return 1;
+  }
+  body->invinertia = 1.0 / body->inertia;
+  body->com = local_com;
+  body->position = phy_vector2_add(phy_vector2_rotate(body->com, body->angle), body->origin);
+  return 0;
 }
 
-phy_body *
-phy_body_init(phy_body *body, float mass, float moment)
-{
-	body->space = NULL;
-	body->shape_list = NULL;
-	body->arbiter_list = NULL;
-	body->constraint_list = NULL;
-	
-	body->velocity_func = phy_body_update_velocity;
-	body->position_func = phy_body_update_position;
-	
-	body->sleeping.root = NULL;
-	body->sleeping.next = NULL;
-	body->sleeping.idle_time = 0.0f;
-	
-	body->p = phy_v_zero;
-	body->v = phy_v_zero;
-	body->f = phy_v_zero;
-	
-	body->w = 0.0f;
-	body->t = 0.0f;
-	
-	body->v_bias = phy_v_zero;
-	body->w_bias = 0.0f;
-	
-	body->user_data = NULL;
-	
-	// Setters must be called after full initialization so the sanity checks don't assert on garbage data.
-	phy_body_set_mass(body, mass);
-	phy_body_set_moment(body, moment);
-	phy_body_set_angle(body, 0.0f);
-	
-	return body;
+phy_rigid_body *phy_rigid_body_new(phy_rigid_body_initializer init) {
+  phy_rigid_body *body = malloc(sizeof(phy_rigid_body));
+  if (!body) {
+    utl_error_func("Failed to allocate memory", utl_user_defined_data);
+  }
+  body->user_data = init.user_data;
+  body->space = NULL;
+  body->type = init.type;
+  body->shapes = phy_array_new();
+  if (!body->shapes) {
+    free(body);
+    return NULL;
+  }
+  body->origin = init.position;
+  body->position = init.position;
+  body->angle = init.angle;
+  body->linear_velocity = init.linear_velocity;
+  body->angular_velocity = init.angular_velocity;
+  body->linear_damping_scale = 1.0;
+  body->angular_damping_scale = 1.0;
+  body->force = phy_vector2_zero;
+  body->torque = 0.0;
+  body->gravity_scale = 1.0;
+  body->com = phy_vector2_zero;
+  body->material = init.material;
+  body->collision_enabled = true;
+  body->collision_group = 0;
+  body->collision_category = 0b11111111111111111111111111111111;
+  body->collision_mask = 0b11111111111111111111111111111111;
+  body->cache_aabb = false;
+  body->cache_transform = false;
+  body->cached_aabb = (phy_aabb){0.0, 0.0, 0.0, 0.0};
+  return body;
 }
 
-phy_body*
-phy_body_new(float mass, float moment)
-{
-	return phy_body_init(phy_body_alloc(), mass, moment);
+void phy_rigid_body_free(phy_rigid_body *body) {
+  if (!body) {
+    return;
+  }
+  for (size_t i = 0; i < body->shapes->size; i++) {
+    phy_shape_free(body->shapes->data[i]);
+  }
+  phy_array_free(body->shapes);
+  free(body);
 }
 
-phy_body*
-phy_body_new_kinematic()
-{
-	phy_body *body = phy_body_new(0.0f, 0.0f);
-	phy_body_set_type(body, PHY_BODY_TYPE_KINEMATIC);
-	
-	return body;
+void phy_rigid_body_set_user_data(phy_rigid_body *body, void *data) {
+  body->user_data = data;
 }
 
-phy_body*
-phy_body_new_static()
-{
-	phy_body *body = phy_body_new(0.0f, 0.0f);
-	phy_body_set_type(body, PHY_BODY_TYPE_STATIC);
-	
-	return body;
+void *phy_rigid_body_get_user_data(const phy_rigid_body *body) {
+  return body->user_data;
 }
 
-void phy_body_destroy(phy_body *body){}
-
-void
-phy_body_free(phy_body *body)
-{
-	if(body){
-		phy_body_destroy(body);
-		free(body);
-	}
+phy_space *phy_rigid_body_get_space(const phy_rigid_body *body) {
+  return body->space;
 }
 
-static void
-cpBodySanityCheck(const phy_body *body)
-{
-  if(!(body->m == body->m && body->m_inv == body->m_inv)) {
-    utl_error_func("Body's mass is NaN", utl_user_defined_data);
+uint32_t phy_rigid_body_get_id(const phy_rigid_body *body) {
+  return body->id;
+}
+
+int phy_rigid_body_set_type(phy_rigid_body *body, phy_rigid_body_type type) {
+  phy_rigid_body_type old_type = body->type;
+  body->type = type;
+  if (old_type == PHY_RIGID_BODY_TYPE_STATIC && type == PHY_RIGID_BODY_TYPE_DYNAMIC) {
+    return phy_rigid_body_accumulate_mass(body);
   }
-  if(body->m < 0.0f) {
-    utl_error_func("Body's mass is negative", utl_user_defined_data);
+  return 0;
+}
+
+phy_rigid_body_type phy_rigid_body_get_type(const phy_rigid_body *body) {
+  return body->type;
+}
+
+void phy_rigid_body_set_position(phy_rigid_body *body, phy_vector2 new_position) {
+  body->position = new_position;
+  body->origin = phy_vector2_add(phy_vector2_rotate(body->com, body->angle), body->position);
+  body->cache_aabb = false;
+  body->cache_transform = false;
+}
+
+phy_vector2 phy_rigid_body_get_position(const phy_rigid_body *body) {
+  return body->position;
+}
+
+void phy_rigid_body_set_angle(phy_rigid_body *body, float new_angle) {
+  body->angle = new_angle;
+  body->origin = phy_vector2_add(phy_vector2_rotate(body->com, body->angle), body->position);
+  body->cache_aabb = false;
+  body->cache_transform = false;
+}
+
+float phy_rigid_body_get_angle(const phy_rigid_body *body) {
+  return body->angle;
+}
+
+void phy_rigid_body_set_linear_velocity(phy_rigid_body *body, phy_vector2 new_velocity) {
+  body->linear_velocity = new_velocity;
+}
+
+phy_vector2 phy_rigid_body_get_linear_velocity(const phy_rigid_body *body) {
+  return body->linear_velocity;
+}
+
+void phy_rigid_body_set_angular_velocity(phy_rigid_body *body, float new_velocity) {
+  body->angular_velocity = new_velocity;
+}
+
+float phy_rigid_body_get_angular_velocity(const phy_rigid_body *body) {
+  return body->angular_velocity;
+}
+
+void phy_rigid_body_set_linear_damping_scale(phy_rigid_body *body, float scale) {
+  body->linear_damping_scale = scale;
+}
+
+float phy_rigid_body_get_linear_damping_scale(const phy_rigid_body *body) {
+  return body->linear_damping_scale;
+}
+
+void phy_rigid_body_set_angular_damping_scale(phy_rigid_body *body, float scale) {
+  body->angular_damping_scale = scale;
+}
+
+float phy_rigid_body_get_angular_damping_scale(const phy_rigid_body *body) {
+  return body->angular_damping_scale;
+}
+
+void phy_rigid_body_set_gravity_scale(phy_rigid_body *body, float scale) {
+  body->gravity_scale = scale;
+}
+
+float phy_rigid_body_get_gravity_scale(const phy_rigid_body *body) {
+  return body->gravity_scale;
+}
+
+void phy_rigid_body_set_material(phy_rigid_body *body, phy_material material) {
+  body->material = material;
+  phy_rigid_body_accumulate_mass(body);
+}
+
+phy_material phy_rigid_body_get_material(const phy_rigid_body *body) {
+  return body->material;
+}
+
+int phy_rigid_body_set_mass(phy_rigid_body *body, float mass) {
+  if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+    return 0;
   }
-  if(body->i < 0.0f) {
-    utl_error_func("Body's moment is negative", utl_user_defined_data);
+  if (mass == 0.0) {
+    return 1;
   }
-  if (!(phy_abs(body->p.x) != INFINITY && phy_abs(body->p.y) != INFINITY && body->p.x == body->p.x && body->p.y == body->p.y)) {
-    utl_error_func("Body's position is invalid", utl_user_defined_data);
+  body->mass = mass;
+  body->invmass = 1.0 / body->mass;
+  return 0;
+}
+
+float phy_rigid_body_get_mass(const phy_rigid_body *body) {
+  return body->mass;
+}
+
+void phy_rigid_body_set_inertia(phy_rigid_body *body, float inertia) {
+  if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+    return;
   }
-  if (!(phy_abs(body->v.x) != INFINITY && phy_abs(body->v.y) != INFINITY && body->v.x == body->v.x && body->v.y == body->v.y)) {
-    utl_error_func("Body's velocity is invalid", utl_user_defined_data);
+  if (inertia == 0.0) {
+    body->inertia = 0.0;
+    body->invinertia = 0.0;
   }
-  if (!(phy_abs(body->f.x) != INFINITY && phy_abs(body->f.y) != INFINITY && body->f.x == body->f.x && body->f.y == body->f.y)) {
-    utl_error_func("Body's force is invalid", utl_user_defined_data);
-  }
-  if(!(body->a == body->a && phy_abs(body->a) != INFINITY)) {
-    utl_error_func("Body's angle is invalid", utl_user_defined_data);
-  }
-  if(!(body->w == body->w && phy_abs(body->w) != INFINITY)) {
-    utl_error_func("Body's angular velocity is invalid", utl_user_defined_data);
-  }
-  if (!(body->t == body->t && phy_abs(body->t) != INFINITY)) {
-    utl_error_func("Body's torque is invalid", utl_user_defined_data);
+  else {
+    body->inertia = inertia;
+    body->invinertia = 1.0 / inertia;
   }
 }
 
-bool
-phy_body_is_sleeping(const phy_body *body)
-{
-	return (body->sleeping.root != ((phy_body*)0));
+float phy_rigid_body_get_inertia(const phy_rigid_body *body) {
+  return body->inertia;
 }
 
-phy_body_type
-phy_body_get_type(phy_body *body)
-{
-	if(body->sleeping.idle_time == INFINITY){
-		return PHY_BODY_TYPE_STATIC;
-	} else if(body->m == INFINITY){
-		return PHY_BODY_TYPE_KINEMATIC;
-	} else {
-		return PHY_BODY_TYPE_DYNAMIC;
-	}
+void phy_rigid_body_set_collision_group(phy_rigid_body *body, uint32_t group) {
+  body->collision_group = group;
 }
 
-void
-phy_body_set_type(phy_body *body, phy_body_type type)
-{
-	phy_body_type oldType = phy_body_get_type(body);
-	if(oldType == type) return;
-	
-	// Static bodies have their idle timers set to infinity.
-	// Non-static bodies should have their idle timer reset.
-	body->sleeping.idle_time = (type == PHY_BODY_TYPE_STATIC ? INFINITY : 0.0f);
-	
-	if(type == PHY_BODY_TYPE_DYNAMIC){
-		body->m = body->i = 0.0f;
-		body->m_inv = body->i_inv = INFINITY;
-		
-		phy_body_accumulate_mass_from_shapes(body);
-	} else {
-		body->m = body->i = INFINITY;
-		body->m_inv = body->i_inv = 0.0f;
-		
-		body->v = phy_v_zero;
-		body->w = 0.0f;
-	}
-	
-	// If the body is added to a space already, we'll need to update some space data structures.
-	phy_space *space = phy_body_get_space(body);
-	if(space != NULL){
-    if (space->locked) {
-      utl_error_func("This operation cannot be done safely during a step call or during a query", utl_user_defined_data);
+uint32_t phy_rigid_body_get_collision_group(const phy_rigid_body *body) {
+  return body->collision_group;
+}
+
+void phy_rigid_body_set_collision_category(phy_rigid_body *body, uint32_t category) {
+  body->collision_category = category;
+}
+
+uint32_t phy_rigid_body_get_collision_category(const phy_rigid_body *body) {
+  return body->collision_category;
+}
+
+void phy_rigid_body_set_collision_mask(phy_rigid_body *body, uint32_t mask) {
+  body->collision_mask = mask;
+}
+
+uint32_t phy_rigid_body_get_collision_mask(const phy_rigid_body *body) {
+  return body->collision_mask;
+}
+
+int phy_rigid_body_add_shape(phy_rigid_body *body, phy_shape *shape) {
+  if (phy_array_add(body->shapes, shape)) {
+    return 1;
+  }
+  if (phy_rigid_body_accumulate_mass(body)) {
+    return 2;
+  }
+  return 0;
+}
+
+int phy_rigid_body_remove_shape(phy_rigid_body *body, phy_shape *shape) {
+  if (phy_array_remove(body->shapes, shape) == (size_t)(-1)) {
+    return 1;
+  }
+  if (phy_rigid_body_accumulate_mass(body)) {
+    return 2;
+  }
+  void *map_val;
+  size_t map_iter = 0;
+  while (phy_hashmap_iter(body->space->contacts, &map_iter, &map_val)) {
+    phy_persistent_contact_pair *pcp = map_val;
+    for (size_t i = 0; i < body->shapes->size; i++) {
+      phy_shape *shape = body->shapes->data[i];
+      if ((pcp->body_a == body && shape == pcp->shape_a) || (pcp->body_b == body && shape == pcp->shape_b)) {
+        phy_persistent_contact_pair_remove(body->space, pcp);
+        break;
+      }
     }
-		if(oldType == PHY_BODY_TYPE_STATIC){
-			// TODO This is probably not necessary
-//			cpBodyActivateStatic(body, NULL);
-		} else {
-			phy_body_activate(body);
-		}
-		
-		// Move the bodies to the correct array.
-		phy_array *fromArray = phy_space_array_for_body_type(space, oldType);
-		phy_array *toArray = phy_space_array_for_body_type(space, type);
-		if(fromArray != toArray){
-			phy_array_delete_obj(fromArray, body);
-			phy_array_push(toArray, body);
-		}
-		
-		// Move the body's shapes to the correct spatial index.
-		phy_spatial_index *fromIndex = (oldType == PHY_BODY_TYPE_STATIC ? space->static_shapes : space->dynamic_shapes);
-		phy_spatial_index *toIndex = (type == PHY_BODY_TYPE_STATIC ? space->static_shapes : space->dynamic_shapes);
-		if(fromIndex != toIndex){
-			PHY_BODY_FOREACH_SHAPE(body, shape){
-				phy_spatial_index_remove(fromIndex, shape, shape->hashid);
-				phy_spatial_index_insert(toIndex, shape, shape->hashid);
-			}
-		}
-	}
-}
-
-
-
-// Should *only* be called when shapes with mass info are modified, added or removed.
-void
-phy_body_accumulate_mass_from_shapes(phy_body *body)
-{
-	if(body == NULL || phy_body_get_type(body) != PHY_BODY_TYPE_DYNAMIC) return;
-	
-	// Reset the body's mass data.
-	body->m = body->i = 0.0f;
-	body->cog = phy_v_zero;
-	
-	// Cache the position to realign it at the end.
-	phy_vect pos = phy_body_get_position(body);
-	
-	// Accumulate mass from shapes.
-	PHY_BODY_FOREACH_SHAPE(body, shape){
-		struct phy_shape_mass_info *info = &shape->massInfo;
-		float m = info->m;
-		
-		if(m > 0.0f){
-			float msum = body->m + m;
-			
-			body->i += m*info->i + phy_v_dist_sq(body->cog, info->cog)*(m*body->m)/msum;
-			body->cog = phy_v_lerp(body->cog, info->cog, m/msum);
-			body->m = msum;
-		}
-	}
-	
-	// Recalculate the inverses.
-	body->m_inv = 1.0f/body->m;
-	body->i_inv = 1.0f/body->i;
-	
-	// Realign the body since the CoG has probably moved.
-	phy_body_set_position(body, pos);
-	cpBodySanityCheck(body);
-}
-
-phy_space *
-phy_body_get_space(const phy_body *body)
-{
-	return body->space;
-}
-
-float
-phy_body_get_mass(const phy_body *body)
-{
-	return body->m;
-}
-
-void
-phy_body_set_mass(phy_body *body, float mass)
-{
-	if(phy_body_get_type(body) != PHY_BODY_TYPE_DYNAMIC) {
-    utl_error_func("You cannot set the mass of kinematic or static bodies", utl_user_defined_data);
   }
-	if(!(0.0f <= mass && mass < INFINITY)) {
-    utl_error_func("Mass must be positive and finite", utl_user_defined_data);
+  return 0;
+}
+
+bool phy_rigid_body_iter_shapes(phy_rigid_body *body, phy_shape **shape, size_t *index) {
+  *shape = body->shapes->data[(*index)++];
+  return (*index <= body->shapes->size);
+}
+
+void phy_rigid_body_apply_force(phy_rigid_body *body, phy_vector2 force) {
+  if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+    return;
   }
-	
-	phy_body_activate(body);
-	body->m = mass;
-	body->m_inv = mass == 0.0f ? INFINITY : 1.0f/mass;
-	cpBodySanityCheck(body);
+  body->force = phy_vector2_add(body->force, force);
 }
 
-float
-phy_body_get_moment(const phy_body *body)
-{
-	return body->i;
-}
-
-void
-phy_body_set_moment(phy_body *body, float moment)
-{
-	if (moment < 0.0f) {
-    utl_error_func("Moment of Inertia must be positive", utl_user_defined_data);
+void phy_rigid_body_apply_force_at(phy_rigid_body *body, phy_vector2 force, phy_vector2 position) {
+  if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+    return;
   }
-	
-	phy_body_activate(body);
-	body->i = moment;
-	body->i_inv = moment == 0.0f ? INFINITY : 1.0f/moment;
-	cpBodySanityCheck(body);
+  body->force = phy_vector2_add(body->force, force);
+  body->torque += phy_vector2_cross(position, force);
 }
 
-phy_vect
-phy_body_get_rotation(const phy_body *body)
-{
-	return phy_v(body->transform.a, body->transform.b);
-}
-
-void
-phy_body_add_shape(phy_body *body, phy_shape *shape)
-{
-	phy_shape *next = body->shape_list;
-	if(next) next->prev = shape;
-	
-	shape->next = next;
-	body->shape_list = shape;
-	
-	if(shape->massInfo.m > 0.0f){
-		phy_body_accumulate_mass_from_shapes(body);
-	}
-}
-
-void
-phy_body_remove_shape(phy_body *body, phy_shape *shape)
-{
-  phy_shape *prev = shape->prev;
-  phy_shape *next = shape->next;
-  
-  if(prev){
-		prev->next = next;
-  } else {
-		body->shape_list = next;
+void phy_rigid_body_apply_torque(phy_rigid_body *body, float torque) {
+  if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+    return;
   }
-  
-  if(next){
-		next->prev = prev;
-	}
-  
-  shape->prev = NULL;
-  shape->next = NULL;
-	
-	if(phy_body_get_type(body) == PHY_BODY_TYPE_DYNAMIC && shape->massInfo.m > 0.0f){
-		phy_body_accumulate_mass_from_shapes(body);
-	}
+  body->torque += torque;
 }
 
-static phy_constraint *
-filterConstraints(phy_constraint *node, phy_body *body, phy_constraint *filter)
-{
-	if(node == filter){
-		return phy_constraint_next(node, body);
-	} else if(node->a == body){
-		node->next_a = filterConstraints(node->next_a, body, filter);
-	} else {
-		node->next_b = filterConstraints(node->next_b, body, filter);
-	}
-	
-	return node;
-}
-
-void
-phy_body_remove_constraint(phy_body *body, phy_constraint *constraint)
-{
-	body->constraint_list = filterConstraints(body->constraint_list, body, constraint);
-}
-
-// 'p' is the position of the CoG
-static void
-SetTransform(phy_body *body, phy_vect p, float a)
-{
-	phy_vect rot = phy_v_for_angle(a);
-	phy_vect c = body->cog;
-	
-	body->transform = phy_transform_new_transpose(
-		rot.x, -rot.y, p.x - (c.x*rot.x - c.y*rot.y),
-		rot.y,  rot.x, p.y - (c.x*rot.y + c.y*rot.x)
-	);
-}
-
-static inline float
-SetAngle(phy_body *body, float a)
-{
-	body->a = a;
-	cpBodySanityCheck(body);
-	
-	return a;
-}
-
-phy_vect
-phy_body_get_position(const phy_body *body)
-{
-	return phy_transform_point(body->transform, phy_v_zero);
-}
-
-void
-phy_body_set_position(phy_body *body, phy_vect position)
-{
-	phy_body_activate(body);
-	phy_vect p = body->p = phy_v_add(phy_transform_vect(body->transform, body->cog), position);
-	cpBodySanityCheck(body);
-	
-	SetTransform(body, p, body->a);
-}
-
-phy_vect
-phy_body_get_center_of_gravity(const phy_body *body)
-{
-	return body->cog;
-}
-
-void
-phy_body_set_center_of_gravity(phy_body *body, phy_vect cog)
-{
-	phy_body_activate(body);
-	body->cog = cog;
-	cpBodySanityCheck(body);
-}
-
-phy_vect
-phy_body_get_velocity(const phy_body *body)
-{
-	return body->v;
-}
-
-void
-phy_body_set_velocity(phy_body *body, phy_vect velocity)
-{
-	phy_body_activate(body);
-	body->v = velocity;
-	cpBodySanityCheck(body);
-}
-
-phy_vect
-phy_body_get_force(const phy_body *body)
-{
-	return body->f;
-}
-
-void
-phy_body_set_force(phy_body *body, phy_vect force)
-{
-	phy_body_activate(body);
-	body->f = force;
-	cpBodySanityCheck(body);
-}
-
-float
-phy_body_get_angle(const phy_body *body)
-{
-	return body->a;
-}
-
-void
-phy_body_set_angle(phy_body *body, float angle)
-{
-	phy_body_activate(body);
-	SetAngle(body, angle);
-	
-	SetTransform(body, body->p, angle);
-}
-
-float
-phy_body_get_angular_velocity(const phy_body *body)
-{
-	return body->w;
-}
-
-void
-phy_body_set_angular_velocity(phy_body *body, float angularVelocity)
-{
-	phy_body_activate(body);
-	body->w = angularVelocity;
-	cpBodySanityCheck(body);
-}
-
-float
-phy_body_get_torque(const phy_body *body)
-{
-	return body->t;
-}
-
-void
-phy_body_set_torque(phy_body *body, float torque)
-{
-	phy_body_activate(body);
-	body->t = torque;
-	cpBodySanityCheck(body);
-}
-
-phy_data_pointer
-phy_body_get_user_data(const phy_body *body)
-{
-	return body->user_data;
-}
-
-void
-phy_body_set_user_data(phy_body *body, phy_data_pointer userData)
-{
-	body->user_data = userData;
-}
-
-void
-phy_body_set_velocity_update_func(phy_body *body, phy_body_velocity_func velocityFunc)
-{
-	body->velocity_func = velocityFunc;
-}
-
-void
-phy_body_set_position_update_func(phy_body *body, phy_body_position_func positionFunc)
-{
-	body->position_func = positionFunc;
-}
-
-void
-phy_body_update_velocity(phy_body *body, phy_vect gravity, float damping, float dt)
-{
-	// Skip kinematic bodies.
-	if(phy_body_get_type(body) == PHY_BODY_TYPE_KINEMATIC) return;
-	
-	if (!(body->m > 0.0f && body->i > 0.0f)) {
-    utl_error_func("Body's mass and moment must be positive to simulate", utl_user_defined_data);
+void phy_rigid_body_apply_impulse(phy_rigid_body *body, phy_vector2 impulse, phy_vector2 position) {
+  if ((body)->type != PHY_RIGID_BODY_TYPE_DYNAMIC) {
+    return;
   }
-	
-	body->v = phy_v_add(phy_v_mult(body->v, damping), phy_v_mult(phy_v_add(gravity, phy_v_mult(body->f, body->m_inv)), dt));
-	body->w = body->w*damping + body->t*body->i_inv*dt;
-	
-	// Reset forces.
-	body->f = phy_v_zero;
-	body->t = 0.0f;
-	
-	cpBodySanityCheck(body);
+  body->linear_velocity = phy_vector2_add(body->linear_velocity, phy_vector2_mul(impulse, body->invmass));
+  body->angular_velocity += phy_vector2_cross(position, impulse) * body->invinertia;
 }
 
-void
-phy_body_update_position(phy_body *body, float dt)
-{
-	phy_vect p = body->p = phy_v_add(body->p, phy_v_mult(phy_v_add(body->v, body->v_bias), dt));
-	float a = SetAngle(body, body->a + (body->w + body->w_bias)*dt);
-	SetTransform(body, p, a);
-	
-	body->v_bias = phy_v_zero;
-	body->w_bias = 0.0f;
-	
-	cpBodySanityCheck(body);
+void phy_rigid_body_enable_collisions(phy_rigid_body *body) {
+  body->collision_enabled = true;
 }
 
-phy_vect
-phy_body_local_to_world(const phy_body *body, const phy_vect point)
-{
-	return phy_transform_point(body->transform, point);
+void phy_rigid_body_disable_collisions(phy_rigid_body *body) {
+  body->collision_enabled = false;
 }
 
-phy_vect
-phy_body_world_to_local(const phy_body *body, const phy_vect point)
-{
-	return phy_transform_point(phy_transform_rigid_inverse(body->transform), point);
+void phy_rigid_body_reset_velocities(phy_rigid_body *body) {
+  phy_rigid_body_set_linear_velocity(body, phy_vector2_zero);
+  phy_rigid_body_set_angular_velocity(body, 0.0);
+  body->force = phy_vector2_zero;
+  body->torque = 0.0;
 }
 
-void
-phy_body_apply_force_at_world_point(phy_body *body, phy_vect force, phy_vect point)
-{
-	phy_body_activate(body);
-	body->f = phy_v_add(body->f, force);
-	
-	phy_vect r = phy_v_sub(point, phy_transform_point(body->transform, body->cog));
-	body->t += phy_v_cross(r, force);
+phy_aabb phy_rigid_body_get_aabb(phy_rigid_body *body) {
+  if (body->cache_aabb) {
+    return body->cached_aabb;
+  }
+  body->cache_aabb = true;
+  phy_transform xform = (phy_transform){body->origin, body->angle};
+  phy_aabb total_aabb = phy_shape_get_aabb(body->shapes->data[0], xform);
+  for (size_t i = 1; i < body->shapes->size; i++) {
+    total_aabb = nvAABB_merge(total_aabb, phy_shape_get_aabb(body->shapes->data[i], xform));
+  }
+  body->cached_aabb = total_aabb;
+  return total_aabb;
 }
 
-void
-phy_body_apply_force_at_local_point(phy_body *body, phy_vect force, phy_vect point)
-{
-	phy_body_apply_force_at_world_point(body, phy_transform_vect(body->transform, force), phy_transform_point(body->transform, point));
+float phy_rigid_body_get_kinetic_energy(const phy_rigid_body *body) {
+  return 0.5 * body->mass * phy_vector2_len2(body->linear_velocity);
 }
 
-void
-phy_body_apply_impulse_at_world_point(phy_body *body, phy_vect impulse, phy_vect point)
-{
-	phy_body_activate(body);
-	
-	phy_vect r = phy_v_sub(point, phy_transform_point(body->transform, body->cog));
-	phy_apply_impulse(body, impulse, r);
+float phy_rigid_body_get_rotational_energy(const phy_rigid_body *body) {
+  return 0.5 * body->inertia * fabsf(body->angular_velocity);
 }
 
-void
-phy_body_apply_impulse_at_local_point(phy_body *body, phy_vect impulse, phy_vect point)
-{
-	phy_body_apply_impulse_at_world_point(body, phy_transform_vect(body->transform, impulse), phy_transform_point(body->transform, point));
+void phy_rigid_body_integrate_accelerations(phy_rigid_body *body, phy_vector2 gravity, float dt) {
+  if (body->type == PHY_RIGID_BODY_TYPE_STATIC) {
+    phy_rigid_body_reset_velocities(body);
+    return;
+  }
+  phy_vector2 linear_acceleration = phy_vector2_add(phy_vector2_mul(body->force, body->invmass), phy_vector2_mul(gravity, body->gravity_scale));
+  body->linear_velocity = phy_vector2_add(body->linear_velocity, phy_vector2_mul(linear_acceleration, dt));
+  float angular_acceleration = body->torque * body->invinertia;
+  body->angular_velocity += angular_acceleration * dt;
+  float kv = powf(0.99, body->linear_damping_scale * body->space->settings.linear_damping);
+  float ka = powf(0.99, body->angular_damping_scale * body->space->settings.angular_damping);
+  body->linear_velocity = phy_vector2_mul(body->linear_velocity, kv);
+  body->angular_velocity *= ka;
 }
 
-phy_vect
-phy_body_get_velocity_at_local_point(const phy_body *body, phy_vect point)
-{
-	phy_vect r = phy_transform_vect(body->transform, phy_v_sub(point, body->cog));
-	return phy_v_add(body->v, phy_v_mult(phy_v_perp(r), body->w));
+void phy_rigid_body_integrate_velocities(phy_rigid_body *body, float dt) {
+  if (body->type == PHY_RIGID_BODY_TYPE_STATIC) {
+    phy_rigid_body_reset_velocities(body);
+    return;
+  }
+  body->position = phy_vector2_add(body->position, phy_vector2_mul(body->linear_velocity, dt));
+  body->angle += body->angular_velocity * dt;
+  body->force = phy_vector2_zero;
+  body->torque = 0.0;
 }
 
-phy_vect
-phy_body_get_velocity_at_world_point(const phy_body *body, phy_vect point)
-{
-	phy_vect r = phy_v_sub(point, phy_transform_point(body->transform, body->cog));
-	return phy_v_add(body->v, phy_v_mult(phy_v_perp(r), body->w));
-}
-
-float
-phy_body_kinetic_energy(const phy_body *body)
-{
-	// Need to do some fudging to avoid NaNs
-	float vsq = phy_v_dot(body->v, body->v);
-	float wsq = body->w*body->w;
-	return (vsq ? vsq*body->m : 0.0f) + (wsq ? wsq*body->i : 0.0f);
-}
-
-void
-phy_body_each_shape(phy_body *body, phy_body_shape_iterator_func func, void *data)
-{
-	phy_shape *shape = body->shape_list;
-	while(shape){
-		phy_shape *next = shape->next;
-		func(body, shape, data);
-		shape = next;
-	}
-}
-
-void
-phy_body_each_constraint(phy_body *body, phy_body_constraint_iterator_func func, void *data)
-{
-	phy_constraint *constraint = body->constraint_list;
-	while(constraint){
-		phy_constraint *next = phy_constraint_next(constraint, body);
-		func(body, constraint, data);
-		constraint = next;
-	}
-}
-
-void
-phy_body_each_arbiter(phy_body *body, phy_body_arbiter_iterator_func func, void *data)
-{
-	phy_arbiter *arb = body->arbiter_list;
-	while(arb){
-		phy_arbiter *next = phy_arbiter_next(arb, body);
-		
-		bool swapped = arb->swapped; {
-			arb->swapped = (body == arb->body_b);
-			func(body, arb, data);
-		} arb->swapped = swapped;
-		
-		arb = next;
-	}
-}

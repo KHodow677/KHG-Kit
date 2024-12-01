@@ -125,7 +125,6 @@ void gfx_internal_renderer_init() {
     "layout (location = 8) in float a_corner_radius;\n"
     "layout (location = 10) in vec2 a_min_coord;\n"
     "layout (location = 11) in vec2 a_max_coord;\n"
-
     "uniform mat4 u_proj;\n"
     "out vec4 v_border_color;\n"
     "out float v_border_width;\n"
@@ -138,22 +137,22 @@ void gfx_internal_renderer_init() {
     "out float v_corner_radius;\n"
     "out vec2 v_min_coord;\n"
     "out vec2 v_max_coord;\n"
-
     "void main() {\n"
-    "v_color = a_color;\n"
-    "v_texcoord = a_texcoord;\n"
-    "v_tex_index = a_tex_index;\n"
-    "v_border_color = a_border_color;\n"
-    "v_border_width = a_border_width;\n"
-    "v_scale = a_scale;\n"
-    "v_pos_px = a_pos_px;\n"
-    "v_corner_radius = a_corner_radius;\n"
-    "v_min_coord = a_min_coord;\n"
-    "v_max_coord = a_max_coord;\n"
-    "gl_Position = u_proj * vec4(a_pos.x, a_pos.y, 0.0f, 1.0);\n"
+      "v_color = a_color;\n"
+      "v_texcoord = a_texcoord;\n"
+      "v_tex_index = a_tex_index;\n"
+      "v_border_color = a_border_color;\n"
+      "v_border_width = a_border_width;\n"
+      "v_scale = a_scale;\n"
+      "v_pos_px = a_pos_px;\n"
+      "v_corner_radius = a_corner_radius;\n"
+      "v_min_coord = a_min_coord;\n"
+      "v_max_coord = a_max_coord;\n"
+      "gl_Position = u_proj * vec4(a_pos.x, a_pos.y, 0.0f, 1.0);\n"
     "}\n";
 
-  const char *frag_src = "#version 450 core\n"
+  const char *frag_src = 
+    "#version 450 core\n"
     "out vec4 o_color;\n"
     "in vec4 v_color;\n"
     "in float v_tex_index;\n"
@@ -167,69 +166,88 @@ void gfx_internal_renderer_init() {
     "uniform vec2 u_screen_size;\n"
     "in vec2 v_min_coord;\n"
     "in vec2 v_max_coord;\n"
-
     "float rounded_box_sdf(vec2 center_pos, vec2 size, float radius) {\n"
-    "    return length(max(abs(center_pos)-size+radius,0.0))-radius;\n"
+      "return length(max(abs(center_pos)-size+radius,0.0))-radius;\n"
     "}\n"
-
     "void main() {\n"
-    "     if(u_screen_size.y - gl_FragCoord.y < v_min_coord.y && v_min_coord.y != -1) {\n"
-    "         discard;\n"
-    "     }\n"
-    "     if(u_screen_size.y - gl_FragCoord.y > v_max_coord.y && v_max_coord.y != -1) {\n"
-    "         discard;\n"
-    "     }\n"
-    "     if ((gl_FragCoord.x < v_min_coord.x && v_min_coord.x != -1) || (gl_FragCoord.x > v_max_coord.x && v_max_coord.x != -1)) {\n"
-    "         discard;\n" 
-    "     }\n"
-    "     vec2 size = v_scale;\n"
-    "     vec4 opaque_color, display_color;\n"
-    "     if(v_tex_index == -1) {\n"
-    "       opaque_color = v_color;\n"
-    "     } else {\n"
-    "       opaque_color = texture(u_textures[int(v_tex_index)], v_texcoord) * v_color;\n"
-    "     }\n"
-    "     if(v_corner_radius != 0.0f) {"
-    "       display_color = opaque_color;\n"
-    "       vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
-    "       location.y += u_screen_size.y - size.y;\n"
-    "       float edge_softness = 1.0f;\n"
-    "       float radius = v_corner_radius * 2.0f;\n"
-    "       float distance = rounded_box_sdf(gl_FragCoord.xy - location - (size/2.0f), size / 2.0f, radius);\n"
-    "       float smoothed_alpha = 1.0f-smoothstep(0.0f, edge_softness * 2.0f,distance);\n"
-    "       vec3 fill_color;\n"
-    "       if(v_border_width != 0.0f) {\n"
-    "           vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
-    "           vec2 size_border = vec2(size.x - v_border_width * 2, size.y - v_border_width * 2);\n"
-    "           float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, radius);\n"
-    "           if(distance_border <= 0.0f) {\n"
-    "               fill_color = display_color.xyz;\n"
-    "           } else {\n"
-    "               fill_color = v_border_color.xyz;\n"
-    "           }\n"
-    "       } else {\n"
-    "           fill_color = display_color.xyz;\n"
-    "       }\n"
-    "       if(v_border_width != 0.0f)\n" 
-    "         o_color =  mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, smoothed_alpha), smoothed_alpha);\n"
-    "       else\n" 
-    "         o_color = mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, display_color.a), smoothed_alpha);\n"
-    "     } else {\n"
-    "       vec4 fill_color = opaque_color;\n"
-    "       if(v_border_width != 0.0f) {\n"
-    "           vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
-    "           location.y += u_screen_size.y - size.y;\n"
-    "           vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
-    "           vec2 size_border = vec2(v_scale.x - v_border_width * 2, v_scale.y - v_border_width * 2);\n"
-    "           float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, v_corner_radius);\n"
-    "           if(distance_border > 0.0f) {\n"
-    "               fill_color = v_border_color;\n"
-    "}\n"
-    "       }\n"
-    "       o_color = fill_color;\n"
-    " }\n"
+      "if(u_screen_size.y - gl_FragCoord.y < v_min_coord.y && v_min_coord.y != -1) {\n"
+        "discard;\n"
+      "}\n"
+      "if(u_screen_size.y - gl_FragCoord.y > v_max_coord.y && v_max_coord.y != -1) {\n"
+        "discard;\n"
+      "}\n"
+      "if ((gl_FragCoord.x < v_min_coord.x && v_min_coord.x != -1) || (gl_FragCoord.x > v_max_coord.x && v_max_coord.x != -1)) {\n"
+        "discard;\n" 
+      "}\n"
+      "vec2 size = v_scale;\n"
+      "vec4 opaque_color, display_color;\n"
+      "if(v_tex_index == -1) {\n"
+        "opaque_color = v_color;\n"
+      "}\n" 
+      "else {\n"
+        "opaque_color = texture(u_textures[int(v_tex_index)], v_texcoord) * v_color;\n"
+      "}\n"
+      "if(v_corner_radius != 0.0f) {"
+        "display_color = opaque_color;\n"
+        "vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
+        "location.y += u_screen_size.y - size.y;\n"
+        "float edge_softness = 1.0f;\n"
+        "float radius = v_corner_radius * 2.0f;\n"
+        "float distance = rounded_box_sdf(gl_FragCoord.xy - location - (size/2.0f), size / 2.0f, radius);\n"
+        "float smoothed_alpha = 1.0f-smoothstep(0.0f, edge_softness * 2.0f,distance);\n"
+        "vec3 fill_color;\n"
+        "if(v_border_width != 0.0f) {\n"
+          "vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
+          "vec2 size_border = vec2(size.x - v_border_width * 2, size.y - v_border_width * 2);\n"
+          "float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, radius);\n"
+          "if(distance_border <= 0.0f) {\n"
+            "fill_color = display_color.xyz;\n"
+          "}\n" 
+          "else {\n"
+            "fill_color = v_border_color.xyz;\n"
+          "}\n"
+        "}\n" 
+        "else {\n"
+          "fill_color = display_color.xyz;\n"
+        "}\n"
+        "if(v_border_width != 0.0f) {\n" 
+          "o_color =  mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, smoothed_alpha), smoothed_alpha);\n"
+        "}\n"
+        "else {\n" 
+          "o_color = mix(vec4(0.0f, 0.0f, 0.0f, 0.0f), vec4(fill_color, display_color.a), smoothed_alpha);\n"
+        "}\n"
+      "}\n"
+      "else {\n"
+        "vec4 fill_color = opaque_color;\n"
+        "if(v_border_width != 0.0f) {\n"
+          "vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
+          "location.y += u_screen_size.y - size.y;\n"
+          "vec2 location_border = vec2(location.x + v_border_width, location.y + v_border_width);\n"
+          "vec2 size_border = vec2(v_scale.x - v_border_width * 2, v_scale.y - v_border_width * 2);\n"
+          "float distance_border = rounded_box_sdf(gl_FragCoord.xy - location_border - (size_border / 2.0f), size_border / 2.0f, v_corner_radius);\n"
+          "if(distance_border > 0.0f) {\n"
+            "fill_color = v_border_color;\n"
+          "}\n"
+        "}\n"
+        "o_color = fill_color;\n"
+      "}\n"
     "}\n";
   state.render.shader = gfx_internal_shader_prg_create(vert_src, frag_src);
+  state.render.vert_pos[0] = (vec4s){ -0.5f, -0.5f, 0.0f, 1.0f };
+  state.render.vert_pos[1] = (vec4s){ 0.5f, -0.5f, 0.0f, 1.0f };
+  state.render.vert_pos[2] = (vec4s){ 0.5f, 0.5f, 0.0f, 1.0f };
+  state.render.vert_pos[3] = (vec4s){ -0.5f, 0.5f, 0.0f, 1.0f };
+  int32_t tex_slots[MAX_TEX_COUNT_BATCH];
+  for (uint32_t i = 0; i < MAX_TEX_COUNT_BATCH; i++) {
+    tex_slots[i] = i;
+  }
+  glUseProgram(state.render.shader.id);
+  gfx_internal_set_projection_matrix();
+  glUniform1iv(glGetUniformLocation(state.render.shader.id, "u_textures"), MAX_TEX_COUNT_BATCH, tex_slots);
+}
+
+void gfx_internal_renderer_set_shader(gfx_shader shader) {
+  state.render.shader = shader;
   state.render.vert_pos[0] = (vec4s){ -0.5f, -0.5f, 0.0f, 1.0f };
   state.render.vert_pos[1] = (vec4s){ 0.5f, -0.5f, 0.0f, 1.0f };
   state.render.vert_pos[2] = (vec4s){ 0.5f, 0.5f, 0.0f, 1.0f };
@@ -288,7 +306,7 @@ gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, 
     id = gfx_internal_djb2_hash(id, &state.element_id_stack, sizeof(state.element_id_stack));
   }
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size= size }, true)) {
-    return gfx_clickable_idle;
+    return GFX_CLICKABLE_IDLE;
   }
   gfx_color hover_color_rgb = hover_color ? (props.hover_color.a == 0.0f ? gfx_color_brightness(color, 1.2) : props.hover_color) : color; 
   gfx_color held_color_rgb = click_color ? gfx_color_brightness(color, 1.3) : color; 
@@ -303,7 +321,7 @@ gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, 
     if(is_hovered && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
       gfx_rect_render(pos, size, hover_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
       state.active_element_id = 0;
-      return gfx_clickable_clicked;
+      return GFX_CLICKABLE_CLICKED;
     }
   }
   if (is_hovered && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -311,19 +329,19 @@ gfx_clickable_item_state gfx_internal_button_ex(const char *file, int32_t line, 
   }
   if (is_hovered && gfx_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT)) {
     gfx_rect_render(pos, size, held_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_held;
+    return GFX_CLICKABLE_HELD;
   }
   if (is_hovered && (!gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && !gfx_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT))) {
     gfx_rect_render(pos, size, hover_color ? hover_color_rgb : color, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_held;
+    return GFX_CLICKABLE_HELD;
   }
   gfx_rect_render(pos, size, color, props.border_color, border_width, props.corner_radius, 0.0f);
-  return gfx_clickable_idle;
+  return GFX_CLICKABLE_IDLE;
 }
 
 gfx_clickable_item_state gfx_internal_div_container(vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color) {
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = size }, true)) {
-    return gfx_clickable_idle;
+    return GFX_CLICKABLE_IDLE;
   }
   gfx_color hover_color_rgb = hover_color ? (props.hover_color.a == 0.0f ? gfx_color_brightness(color, 1.5) : props.hover_color) : color; 
   gfx_color held_color_rgb = click_color ? gfx_color_brightness(color, 1.8) : color; 
@@ -331,18 +349,18 @@ gfx_clickable_item_state gfx_internal_div_container(vec2s pos, vec2s size, gfx_e
   bool is_hovered = gfx_hovered(pos, size);
   if (is_hovered && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
     gfx_rect_render(pos, size, hover_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_clicked;
+    return GFX_CLICKABLE_CLICKED;
   }
   if (is_hovered && gfx_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT)) {
     gfx_rect_render(pos, size, held_color_rgb, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_held;
+    return GFX_CLICKABLE_HELD;
   }
   if (is_hovered && (!gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && !gfx_mouse_button_is_down(GLFW_MOUSE_BUTTON_LEFT))) {
     gfx_rect_render(pos, size, hover_color ? hover_color_rgb : color, props.border_color, border_width, props.corner_radius, 0.0f);
-    return gfx_clickable_hovered;
+    return GFX_CLICKABLE_HOVERED;
   }
   gfx_rect_render(pos, size, color, props.border_color, border_width, props.corner_radius, 0.0f);
-  return gfx_clickable_idle;
+  return GFX_CLICKABLE_IDLE;
 }
 
 void gfx_internal_next_line_on_overflow(vec2s size, float xoffset) {
@@ -660,12 +678,12 @@ void gfx_internal_input_field(gfx_input_field *input, gfx_input_field_type type,
   gfx_internal_next_line_on_overflow((vec2s){ input->width + props.padding * 2.0f + props.margin_right + props.margin_left, input->height + props.padding * 2.0f + props.margin_bottom + props.margin_top }, state.div_props.border_width);
   gfx_aabb input_aabb = (gfx_aabb){ .pos = state.pos_ptr, .size = (vec2s){ input->width + props.padding * 2.0f, input->height + props.padding * 2.0f } };
   gfx_clickable_item_state inputfield = gfx_internal_button(file, line, input_aabb.pos, input_aabb.size, props, props.color, props.border_width, false, false);
-  if (gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && input->selected && inputfield == gfx_clickable_idle) {
+  if (gfx_mouse_button_went_down(GLFW_MOUSE_BUTTON_LEFT) && input->selected && inputfield == GFX_CLICKABLE_IDLE) {
     input->selected = false;
     state.input_grabbed = false;
     gfx_input_field_unselect_all(input);
   } 
-  else if (inputfield == gfx_clickable_clicked) {
+  else if (inputfield == GFX_CLICKABLE_CLICKED) {
     input->selected = true;
     state.input_grabbed = true;
     gfx_text_props selected_props = gfx_text_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, input->buf, font, gfx_no_color, wrap_point, (vec2s){ gfx_get_mouse_x(), gfx_get_mouse_y() }, true, false, -1, -1);
@@ -782,11 +800,11 @@ gfx_clickable_item_state gfx_internal_checkbox_element_loc(void *text, bool *val
   else {
     gfx_internal_text_render_simple((vec2s){ state.pos_ptr.x + checkbox_size + props.padding * 2.0f + margin_right, state.pos_ptr.y + props.padding }, (const char*)text, font, props.text_color, false);
   }
-  if (checkbox == gfx_clickable_clicked) {
+  if (checkbox == GFX_CLICKABLE_CLICKED) {
     *val = !*val;
   }
   if (*val) {
-    gfx_image_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, tex_color, (gfx_texture){ .id = state.tex_tick.id, .width = (uint32_t)(checkbox_size), .height = (uint32_t)(checkbox_size)}, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true);
+    gfx_image_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, tex_color, (gfx_texture){ .id = state.tex_tick.id, .width = (uint32_t)(checkbox_size), .height = (uint32_t)(checkbox_size)}, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
   }
   state.pos_ptr.x += checkbox_size + props.padding * 2.0f + margin_right + ((wide) ? gfx_text_dimension_wide((const wchar_t*)text).x : gfx_text_dimension((const char*)text).x) + margin_right;
   state.pos_ptr.y -= margin_top;
@@ -821,12 +839,12 @@ void gfx_internal_dropdown_menu_item_loc(void **items, void *placeholder, uint32
     gfx_internal_text_render_simple((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, (const char*)button_text, font, props.text_color, false);
   }
   vec2s image_size = (vec2s){ 20, 10 };
-  gfx_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (gfx_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, gfx_no_color, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true);
-  if (dropdown_button == gfx_clickable_clicked) {
+  gfx_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (gfx_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, gfx_no_color, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
+  if (dropdown_button == GFX_CLICKABLE_CLICKED) {
     *opened = !*opened;
   }
   if (*opened) {
-    if ((gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT) && dropdown_button != gfx_clickable_clicked) || (!gfx_input_grabbed() && gfx_key_went_down(GLFW_KEY_ESCAPE))) {
+    if ((gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT) && dropdown_button != GFX_CLICKABLE_CLICKED) || (!gfx_input_grabbed() && gfx_key_went_down(GLFW_KEY_ESCAPE))) {
       *opened = false;
     }
     gfx_element_props div_props = gfx_get_theme().div_props;
@@ -893,12 +911,12 @@ int32_t gfx_internal_menu_item_list_item_loc(void **items, uint32_t item_count, 
     }
     gfx_push_style_props(props);
     if (wide) {
-      if (gfx_button_wide_loc((const wchar_t*)items[i], file, line) == gfx_clickable_clicked) {
+      if (gfx_button_wide_loc((const wchar_t*)items[i], file, line) == GFX_CLICKABLE_CLICKED) {
         clicked_item = i;  
       } 
     } 
     else {
-      if (gfx_button_loc((const char *)items[i], file, line) == gfx_clickable_clicked) {
+      if (gfx_button_loc((const char *)items[i], file, line) == GFX_CLICKABLE_CLICKED) {
         clicked_item = i;  
       } 
     }
@@ -1148,3 +1166,4 @@ void gfx_internal_props_stack_clear(gfx_props_stack *stack) {
 gfx_element_props gfx_internal_get_props_for(gfx_element_props props) {
   return (!gfx_internal_props_stack_empty(&state.props_stack)) ? gfx_internal_props_stack_peak(&state.props_stack) : props; 
 }
+

@@ -1,16 +1,23 @@
 #include "game.h"
-#include "module_test/tcp_test.h"
+#include "networking/client.h"
+#include "networking/server.h"
+#include "networking/test.h"
 #include <string.h>
 
-int main(int argc, char *argv[]) {
+const int main(int argc, char *argv[]) {
   if (argc > 1) {
-    if (strcmp(argv[1], "send") == 0) {
-      return tcp_client_send();
+    if (strcmp(argv[1], "hoster") == 0) {
+      hoster_run();
     }
-    else if (strcmp(argv[1], "receive") == 0) {
-      return tcp_client_receive();
+    else if (strcmp(argv[1], "joiner") == 0) {
+      joiner_run();
     }
   }
-  return game_run();
+  else {
+    return game_run();
+    return main_dbm();
+    server_run();
+  }
+  return 0;
 }
 

@@ -1,97 +1,135 @@
 #pragma once
 
-#include "khg_phy/phy_types.h"
+#include "khg_phy/aabb.h"
+#include "khg_phy/material.h"
+#include "khg_phy/shape.h"
+#include "khg_phy/core/phy_array.h"
+#include "khg_phy/core/phy_vector.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <sys/types.h>
 
-typedef enum phy_body_type {
-	PHY_BODY_TYPE_DYNAMIC,
-	PHY_BODY_TYPE_KINEMATIC,
-	PHY_BODY_TYPE_STATIC,
-} phy_body_type;
+typedef enum {
+  PHY_RIGID_BODY_TYPE_STATIC,
+  PHY_RIGID_BODY_TYPE_DYNAMIC
+} phy_rigid_body_type;
 
-typedef void (*phy_body_velocity_func)(phy_body *body, phy_vect gravity, float damping, float dt);
-typedef void (*phy_body_position_func)(phy_body *body, float dt);
+typedef struct phy_rigid_body {
+  bool cache_aabb;
+  bool cache_transform;
+  phy_aabb cached_aabb;
+  float bvh_median_x;
+  float bvh_median_y;
+  phy_vector2 force;
+  float torque;
+  float invmass;
+  float invinertia;
+  phy_vector2 origin;
+  phy_vector2 com;
+  void *user_data;
+  struct phy_space *space;
+  uint32_t id;
+  phy_rigid_body_type type;
+  phy_array *shapes;
+  phy_vector2 position;
+  float angle;
+  phy_vector2 linear_velocity;
+  float angular_velocity;
+  float linear_damping_scale;
+  float angular_damping_scale;
+  float gravity_scale;
+  phy_material material;
+  float mass;
+  float inertia;
+  bool collision_enabled;
+  uint32_t collision_group;
+  uint32_t collision_category;
+  uint32_t collision_mask;
+} phy_rigid_body;
 
-phy_body *phy_body_alloc(void);
-phy_body *phy_body_init(phy_body *body, float mass, float moment);
-phy_body *phy_body_new(float mass, float moment);
+typedef struct phy_rigid_body_initializer {
+  phy_rigid_body_type type;
+  phy_vector2 position;
+  float angle;
+  phy_vector2 linear_velocity;
+  float angular_velocity;
+  phy_material material;
+  void *user_data;
+} phy_rigid_body_initializer;
 
-phy_body *phy_body_new_kinematic(void);
-phy_body *phy_body_new_static(void);
+static const phy_rigid_body_initializer phy_rigid_body_initializer_default = { PHY_RIGID_BODY_TYPE_STATIC, { 0.0, 0.0 }, 0.0, { 0.0, 0.0 }, 0.0, { 1.0, 0.1, 0.4 }, NULL };
 
-void phy_body_destroy(phy_body *body);
-void phy_body_free(phy_body *body);
+phy_rigid_body *phy_rigid_body_new(phy_rigid_body_initializer init);
+void phy_rigid_body_free(phy_rigid_body *body);
 
-void phy_body_activate(phy_body *body);
-void phy_body_activate_static(phy_body *body, phy_shape *filter);
+void phy_rigid_body_set_user_data(phy_rigid_body *body, void *data);
+void *phy_rigid_body_get_user_data(const phy_rigid_body *body);
 
-void phy_body_sleep(phy_body *body);
-void phy_body_sleep_with_group(phy_body *body, phy_body *group);
+struct phy_space *phy_rigid_body_get_space(const phy_rigid_body *body);
 
-bool phy_body_is_sleeping(const phy_body *body);
+uint32_t phy_rigid_body_get_id(const phy_rigid_body *body);
 
-phy_body_type phy_body_get_type(phy_body *body);
-void phy_body_set_type(phy_body *body, phy_body_type type);
+int phy_rigid_body_set_type(phy_rigid_body *body, phy_rigid_body_type type);
+phy_rigid_body_type phy_rigid_body_get_type(const phy_rigid_body *body);
 
-phy_space *phy_body_get_space(const phy_body *body);
+void phy_rigid_body_set_position(phy_rigid_body *body, phy_vector2 new_position);
+phy_vector2 phy_rigid_body_get_position(const phy_rigid_body *body);
 
-float phy_body_get_mass(const phy_body *body);
-void phy_body_set_mass(phy_body *body, float m);
+void phy_rigid_body_set_angle(phy_rigid_body *body, float new_angle);
+float phy_rigid_body_get_angle(const phy_rigid_body *body);
 
-float phy_body_get_moment(const phy_body *body);
-void phy_body_set_moment(phy_body *body, float i);
+void phy_rigid_body_set_linear_velocity(phy_rigid_body *body, phy_vector2 new_velocity);
+phy_vector2 phy_rigid_body_get_linear_velocity(const phy_rigid_body *body);
 
-phy_vect phy_body_get_position(const phy_body *body);
-void phy_body_set_position(phy_body *body, phy_vect pos);
+void phy_rigid_body_set_angular_velocity(phy_rigid_body *body, float new_velocity);
+float phy_rigid_body_get_angular_velocity(const phy_rigid_body *body);
 
-phy_vect phy_body_get_center_of_gravity(const phy_body *body);
-void phy_body_set_center_of_gravity(phy_body *body, phy_vect cog);
+void phy_rigid_body_set_linear_damping_scale(phy_rigid_body *body, float scale);
+float phy_rigid_body_get_linear_damping_scale(const phy_rigid_body *body);
 
-phy_vect phy_body_get_velocity(const phy_body *body);
-void phy_body_set_velocity(phy_body *body, phy_vect velocity);
+void phy_rigid_body_set_angular_damping_scale(phy_rigid_body *body, float scale);
+float phy_rigid_body_get_angular_damping_scale(const phy_rigid_body *body);
 
-phy_vect phy_body_get_force(const phy_body *body);
-void phy_body_set_force(phy_body *body, phy_vect force);
+void phy_rigid_body_set_gravity_scale(phy_rigid_body *body, float scale);
+float phy_rigid_body_get_gravity_scale(const phy_rigid_body *body);
 
-float phy_body_get_angle(const phy_body *body);
-void phy_body_set_angle(phy_body *body, float a);
+void phy_rigid_body_set_material(phy_rigid_body *body, phy_material material);
+phy_material phy_rigid_body_get_material(const phy_rigid_body *body);
 
-float phy_body_get_angular_velocity(const phy_body *body);
-void phy_body_set_angular_velocity(phy_body *body, float angular_velocity);
+int phy_rigid_body_set_mass(phy_rigid_body *body, float mass);
+float phy_rigid_body_get_mass(const phy_rigid_body *body);
 
-float phy_body_get_torque(const phy_body *body);
-void phy_body_set_torque(phy_body *body, float torque);
+void phy_rigid_body_set_inertia(phy_rigid_body *body, float inertia);
+float phy_rigid_body_get_inertia(const phy_rigid_body *body);
 
-phy_vect phy_body_get_rotation(const phy_body *body);
+void phy_rigid_body_set_collision_group(phy_rigid_body *body, uint32_t group);
+uint32_t phy_rigid_body_get_collision_group(const phy_rigid_body *body);
 
-phy_data_pointer phy_body_get_user_data(const phy_body *body);
-void phy_body_set_user_data(phy_body *body, phy_data_pointer user_data);
+void phy_rigid_body_set_collision_category(phy_rigid_body *body, uint32_t category);
+uint32_t phy_rigid_body_get_collision_category(const phy_rigid_body *body);
 
-void phy_body_set_velocity_update_func(phy_body *body, phy_body_velocity_func velocity_func);
-void phy_body_set_position_update_func(phy_body *body, phy_body_position_func position_func);
+void phy_rigid_body_set_collision_mask(phy_rigid_body *body, uint32_t mask);
+uint32_t phy_rigid_body_get_collision_mask(const phy_rigid_body *body);
 
-void phy_body_update_velocity(phy_body *body, phy_vect gravity, float damping, float dt);
-void phy_body_update_position(phy_body *body, float dt);
+int phy_rigid_body_add_shape(phy_rigid_body *body, phy_shape *shape);
+int phy_rigid_body_remove_shape(phy_rigid_body *body, phy_shape *shape);
+bool phy_rigid_body_iter_shapes(phy_rigid_body *body, phy_shape **shape, size_t *index);
 
-phy_vect phy_body_local_to_world(const phy_body *body, const phy_vect point);
-phy_vect phy_body_world_to_local(const phy_body *body, const phy_vect point);
+void phy_rigid_body_apply_force(phy_rigid_body *body, phy_vector2 force);
+void phy_rigid_body_apply_force_at(phy_rigid_body *body, phy_vector2 force, phy_vector2 position);
+void phy_rigid_body_apply_torque(phy_rigid_body *body, float torque);
+void phy_rigid_body_apply_impulse(phy_rigid_body *body, phy_vector2 impulse, phy_vector2 position);
 
-void phy_body_apply_force_at_world_point(phy_body *body, phy_vect force, phy_vect point);
-void phy_body_apply_force_at_local_point(phy_body *body, phy_vect force, phy_vect point);
+void phy_rigid_body_enable_collisions(phy_rigid_body *body);
+void phy_rigid_body_disable_collisions(phy_rigid_body *body);
 
-void phy_body_apply_impulse_at_world_point(phy_body *body, phy_vect impulse, phy_vect point);
-void phy_body_apply_impulse_at_local_point(phy_body *body, phy_vect impulse, phy_vect point);
+void phy_rigid_body_reset_velocities(phy_rigid_body *body);
 
-phy_vect phy_body_get_velocity_at_world_point(const phy_body *body, phy_vect point);
-phy_vect phy_body_get_velocity_at_local_point(const phy_body *body, phy_vect point);
+phy_aabb phy_rigid_body_get_aabb(phy_rigid_body *body);
 
-float phy_body_kinetic_energy(const phy_body *body);
+float phy_rigid_body_get_kinetic_energy(const phy_rigid_body *body);
+float phy_rigid_body_get_rotational_energy(const phy_rigid_body *body);
 
-typedef void (*phy_body_shape_iterator_func)(phy_body *body, phy_shape *shape, void *data);
-void phy_body_each_shape(phy_body *body, phy_body_shape_iterator_func func, void *data);
-
-typedef void (*phy_body_constraint_iterator_func)(phy_body *body, phy_constraint *constraint, void *data);
-void phy_body_each_constraint(phy_body *body, phy_body_constraint_iterator_func func, void *data);
-
-typedef void (*phy_body_arbiter_iterator_func)(phy_body *body, phy_arbiter *arbiter, void *data);
-void phy_body_each_arbiter(phy_body *body, phy_body_arbiter_iterator_func func, void *data);
+void phy_rigid_body_integrate_accelerations(phy_rigid_body *body, phy_vector2 gravity, float dt);
+void phy_rigid_body_integrate_velocities(phy_rigid_body *body, float dt);
 

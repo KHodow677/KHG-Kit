@@ -1,713 +1,482 @@
-#include "khg_phy/phy_private.h"
-#include "khg_phy/arbiter.h"	
-#include "khg_phy/robust.h"
-#include "khg_utl/error_func.h"
+#include "khg_phy/collision.h"
+#include "khg_phy/aabb.h"
+#include "khg_phy/math.h"
+#include "khg_phy/core/phy_constants.h"
+#include <float.h>
+#include <math.h>
 
-#if DEBUG && 0
-#include "ChipmunkDemo.h"
-#define DRAW_ALL 0
-#define DRAW_GJK (0 || DRAW_ALL)
-#define DRAW_EPA (0 || DRAW_ALL)
-#define DRAW_CLOSEST (0 || DRAW_ALL)
-#define DRAW_CLIP (0 || DRAW_ALL)
-
-#define PRINT_LOG 0
-#endif
-
-#define MAX_GJK_ITERATIONS 30
-#define MAX_EPA_ITERATIONS 30
-#define WARN_GJK_ITERATIONS 20
-#define WARN_EPA_ITERATIONS 20
-
-static inline void
-cpCollisionInfoPushContact(struct phy_collision_info *info, phy_vect p1, phy_vect p2, phy_hash_value hash)
-{
-	if (info->count > PHY_MAX_CONTACTS_PER_ARBITER) {
-    utl_error_func("Tried to push too many contacts", utl_user_defined_data);
+static inline void nv_project_circle(phy_vector2 center, float radius, phy_vector2 axis, float *min_out, float *max_out) {
+  phy_vector2 a = phy_vector2_mul(phy_vector2_normalize(axis), radius);
+  phy_vector2 p1 = phy_vector2_add(center, a);
+  phy_vector2 p2 = phy_vector2_sub(center, a);
+  float min = phy_vector2_dot(p1, axis);
+  float max = phy_vector2_dot(p2, axis);
+  if (min > max) {
+    float temp = max;
+    max = min;
+    min = temp;
   }
-	
-	struct phy_contact *con = &info->arr[info->count];
-	con->r1 = p1;
-	con->r2 = p2;
-	con->hash = hash;
-	
-	info->count++;
+  *min_out = min;
+  *max_out = max;
 }
 
-//MARK: Support Points and Edges:
-
-// Support points are the maximal points on a shape's perimeter along a certain axis.
-// The GJK and EPA algorithms use support points to iteratively sample the surface of the two shapes' minkowski difference.
-
-static inline int
-PolySupportPointIndex(const int count, const struct phy_splitting_plane *planes, const phy_vect n)
-{
-	float max = -INFINITY;
-	int index = 0;
-	
-	for(int i=0; i<count; i++){
-		phy_vect v = planes[i].v0;
-		float d = phy_v_dot(v, n);
-		if(d > max){
-			max = d;
-			index = i;
-		}
-	}
-	
-	return index;
-}
-
-struct SupportPoint {
-	phy_vect p;
-	// Save an index of the point so it can be cheaply looked up as a starting point for the next frame.
-	phy_collision_id index;
-};
-
-static inline struct SupportPoint
-SupportPointNew(phy_vect p, phy_collision_id index)
-{
-	struct SupportPoint point = {p, index};
-	return point;
-}
-
-typedef struct SupportPoint (*SupportPointFunc)(const phy_shape *shape, const phy_vect n);
-
-static inline struct SupportPoint
-CircleSupportPoint(const phy_circle_shape *circle, const phy_vect n)
-{
-	return SupportPointNew(circle->tc, 0);
-}
-
-static inline struct SupportPoint
-SegmentSupportPoint(const phy_segment_shape *seg, const phy_vect n)
-{
-	if(phy_v_dot(seg->ta, n) > phy_v_dot(seg->tb, n)){
-		return SupportPointNew(seg->ta, 0);
-	} else {
-		return SupportPointNew(seg->tb, 1);
-	}
-}
-
-static inline struct SupportPoint
-PolySupportPoint(const phy_poly_shape *poly, const phy_vect n)
-{
-	const struct phy_splitting_plane *planes = poly->planes;
-	int i = PolySupportPointIndex(poly->count, planes, n);
-	return SupportPointNew(planes[i].v0, i);
-}
-
-// A point on the surface of two shape's minkowski difference.
-struct MinkowskiPoint {
-	// Cache the two original support points.
-	phy_vect a, b;
-	// b - a
-	phy_vect ab;
-	// Concatenate the two support point indexes.
-	phy_collision_id id;
-};
-
-static inline struct MinkowskiPoint
-MinkowskiPointNew(const struct SupportPoint a, const struct SupportPoint b)
-{
-	struct MinkowskiPoint point = {a.p, b.p, phy_v_sub(b.p, a.p), (a.index & 0xFF)<<8 | (b.index & 0xFF)};
-	return point;
-}
-
-struct SupportContext {
-	const phy_shape *shape1, *shape2;
-	SupportPointFunc func1, func2;
-};
-
-// Calculate the maximal point on the minkowski difference of two shapes along a particular axis.
-static inline struct MinkowskiPoint
-Support(const struct SupportContext *ctx, const phy_vect n)
-{
-	struct SupportPoint a = ctx->func1(ctx->shape1, phy_v_neg(n));
-	struct SupportPoint b = ctx->func2(ctx->shape2, n);
-	return MinkowskiPointNew(a, b);
-}
-
-struct EdgePoint {
-	phy_vect p;
-	// Keep a hash value for Chipmunk's collision hashing mechanism.
-	phy_hash_value hash;
-};
-
-// Support edges are the edges of a polygon or segment shape that are in contact.
-struct Edge {
-	struct EdgePoint a, b;
-	float r;
-	phy_vect n;
-};
-
-static struct Edge
-SupportEdgeForPoly(const phy_poly_shape *poly, const phy_vect n)
-{
-	int count = poly->count;
-	int i1 = PolySupportPointIndex(poly->count, poly->planes, n);
-	
-	// TODO: get rid of mod eventually, very expensive on ARM
-	int i0 = (i1 - 1 + count)%count;
-	int i2 = (i1 + 1)%count;
-	
-	const struct phy_splitting_plane *planes = poly->planes;
-	phy_hash_value hashid = poly->shape.hashid;
-	if(phy_v_dot(n, planes[i1].n) > phy_v_dot(n, planes[i2].n)){
-		struct Edge edge = {{planes[i0].v0, PHY_HASH_PAIR(hashid, i0)}, {planes[i1].v0, PHY_HASH_PAIR(hashid, i1)}, poly->r, planes[i1].n};
-		return edge;
-	} else {
-		struct Edge edge = {{planes[i1].v0, PHY_HASH_PAIR(hashid, i1)}, {planes[i2].v0, PHY_HASH_PAIR(hashid, i2)}, poly->r, planes[i2].n};
-		return edge;
-	}
-}
-
-static struct Edge
-SupportEdgeForSegment(const phy_segment_shape *seg, const phy_vect n)
-{
-	phy_hash_value hashid = seg->shape.hashid;
-	if(phy_v_dot(seg->tn, n) > 0.0){
-		struct Edge edge = {{seg->ta, PHY_HASH_PAIR(hashid, 0)}, {seg->tb, PHY_HASH_PAIR(hashid, 1)}, seg->r, seg->tn};
-		return edge;
-	} else {
-		struct Edge edge = {{seg->tb, PHY_HASH_PAIR(hashid, 1)}, {seg->ta, PHY_HASH_PAIR(hashid, 0)}, seg->r, phy_v_neg(seg->tn)};
-		return edge;
-	}
-}
-
-// Find the closest p(t) to (0, 0) where p(t) = a*(1-t)/2 + b*(1+t)/2
-// The range for t is [-1, 1] to avoid floating point issues if the parameters are swapped.
-static inline float
-ClosestT(const phy_vect a, const phy_vect b)
-{
-	phy_vect delta = phy_v_sub(b, a);
-	return -phy_clamp(phy_v_dot(delta, phy_v_add(a, b))/(phy_v_length_sq(delta) + FLT_MIN), -1.0f, 1.0f);
-}
-
-// Basically the same as cpvlerp(), except t = [-1, 1]
-static inline phy_vect
-LerpT(const phy_vect a, const phy_vect b, const float t)
-{
-	float ht = 0.5f*t;
-	return phy_v_add(phy_v_mult(a, 0.5f - ht), phy_v_mult(b, 0.5f + ht));
-}
-
-// Closest points on the surface of two shapes.
-struct ClosestPoints {
-	// Surface points in absolute coordinates.
-	phy_vect a, b;
-	// Minimum separating axis of the two shapes.
-	phy_vect n;
-	// Signed distance between the points.
-	float d;
-	// Concatenation of the id's of the minkoski points.
-	phy_collision_id id;
-};
-
-// Calculate the closest points on two shapes given the closest edge on their minkowski difference to (0, 0)
-static inline struct ClosestPoints
-ClosestPointsNew(const struct MinkowskiPoint v0, const struct MinkowskiPoint v1)
-{
-	// Find the closest p(t) on the minkowski difference to (0, 0)
-	float t = ClosestT(v0.ab, v1.ab);
-	phy_vect p = LerpT(v0.ab, v1.ab, t);
-	
-	// Interpolate the original support points using the same 't' value as above.
-	// This gives you the closest surface points in absolute coordinates. NEAT!
-	phy_vect pa = LerpT(v0.a, v1.a, t);
-	phy_vect pb = LerpT(v0.b, v1.b, t);
-	phy_collision_id id = (v0.id & 0xFFFF)<<16 | (v1.id & 0xFFFF);
-	
-	// First try calculating the MSA from the minkowski difference edge.
-	// This gives us a nice, accurate MSA when the surfaces are close together.
-	phy_vect delta = phy_v_sub(v1.ab, v0.ab);
-	phy_vect n = phy_v_normalize(phy_v_rperp(delta));
-	float d = phy_v_dot(n, p);
-	
-	if(d <= 0.0f || (-1.0f < t && t < 1.0f)){
-		// If the shapes are overlapping, or we have a regular vertex/edge collision, we are done.
-		struct ClosestPoints points = {pa, pb, n, d, id};
-		return points;
-	} else {
-		// Vertex/vertex collisions need special treatment since the MSA won't be shared with an axis of the minkowski difference.
-		float d2 = phy_v_length(p);
-		phy_vect n2 = phy_v_mult(p, 1.0f/(d2 + FLT_MIN));
-		
-		struct ClosestPoints points = {pa, pb, n2, d2, id};
-		return points;
-	}
-}
-
-//MARK: EPA Functions
-
-static inline float
-ClosestDist(const phy_vect v0,const phy_vect v1)
-{
-	return phy_v_length_sq(LerpT(v0, v1, ClosestT(v0, v1)));
-}
-
-// Recursive implementation of the EPA loop.
-// Each recursion adds a point to the convex hull until it's known that we have the closest point on the surface.
-static struct ClosestPoints
-EPARecurse(const struct SupportContext *ctx, const int count, const struct MinkowskiPoint *hull, const int iteration)
-{
-	int mini = 0;
-	float minDist = INFINITY;
-	
-	// TODO: precalculate this when building the hull and save a step.
-	// Find the closest segment hull[i] and hull[i + 1] to (0, 0)
-	for(int j=0, i=count-1; j<count; i=j, j++){
-		float d = ClosestDist(hull[i].ab, hull[j].ab);
-		if(d < minDist){
-			minDist = d;
-			mini = i;
-		}
-	}
-	
-	struct MinkowskiPoint v0 = hull[mini];
-	struct MinkowskiPoint v1 = hull[(mini + 1)%count];
-	if (phy_v_eql(v0.ab, v1.ab)) {
-    utl_error_func("Internal Error: EPA vertices are the same", utl_user_defined_data);
-  }
-	
-	// Check if there is a point on the minkowski difference beyond this edge.
-	struct MinkowskiPoint p = Support(ctx, phy_v_perp(phy_v_sub(v1.ab, v0.ab)));
-	
-#if DRAW_EPA
-	phy_vect verts[count];
-	for(int i=0; i<count; i++) verts[i] = hull[i].ab;
-	
-	ChipmunkDebugDrawPolygon(count, verts, 0.0, RGBAColor(1, 1, 0, 1), RGBAColor(1, 1, 0, 0.25));
-	ChipmunkDebugDrawSegment(v0.ab, v1.ab, RGBAColor(1, 0, 0, 1));
-	
-	ChipmunkDebugDrawDot(5, p.ab, LAColor(1, 1));
-#endif
-	
-	// The usual exit condition is a duplicated vertex.
-	// Much faster to check the ids than to check the signed area.
-	bool duplicate = (p.id == v0.id || p.id == v1.id);
-	
-	if(!duplicate && phy_check_point_greater(v0.ab, v1.ab, p.ab) && iteration < MAX_EPA_ITERATIONS){
-		// Rebuild the convex hull by inserting p.
-		struct MinkowskiPoint *hull2 = (struct MinkowskiPoint *)alloca((count + 1)*sizeof(struct MinkowskiPoint));
-		int count2 = 1;
-		hull2[0] = p;
-		
-		for(int i=0; i<count; i++){
-			int index = (mini + 1 + i)%count;
-			
-			phy_vect h0 = hull2[count2 - 1].ab;
-			phy_vect h1 = hull[index].ab;
-			phy_vect h2 = (i + 1 < count ? hull[(index + 1)%count] : p).ab;
-			
-			if(phy_check_point_greater(h0, h2, h1)){
-				hull2[count2] = hull[index];
-				count2++;
-			}
-		}
-		
-		return EPARecurse(ctx, count2, hull2, iteration + 1);
-	} else {
-		// Could not find a new point to insert, so we have found the closest edge of the minkowski difference.
-		if (iteration >= WARN_EPA_ITERATIONS) {
-      utl_error_func("High EPA iterations", utl_user_defined_data);
+static inline void nv_project_polyon(phy_vector2 *vertices, size_t num_vertices, phy_vector2 axis, float *min_out, float *max_out) {
+  float min = INFINITY;
+  float max = -INFINITY;
+  for (size_t i = 0; i < num_vertices; i++) {
+    float projection = phy_vector2_dot(vertices[i], axis);
+    if (projection < min) {
+      min = projection;
     }
-		return ClosestPointsNew(v0, v1);
-	}
+    if (projection > max) {
+      max = projection;
+    }
+  }
+  *min_out = min;
+  *max_out = max;
 }
 
-// Find the closest points on the surface of two overlapping shapes using the EPA algorithm.
-// EPA is called from GJK when two shapes overlap.
-// This is a moderately expensive step! Avoid it by adding radii to your shapes so their inner polygons won't overlap.
-static struct ClosestPoints
-EPA(const struct SupportContext *ctx, const struct MinkowskiPoint v0, const struct MinkowskiPoint v1, const struct MinkowskiPoint v2)
-{
-	// TODO: allocate a NxM array here and do an in place convex hull reduction in EPARecurse?
-	struct MinkowskiPoint hull[3] = {v0, v1, v2};
-	return EPARecurse(ctx, 3, hull, 1);
+static inline phy_vector2 nv_polygon_closest_vertex_to_circle(phy_vector2 center, phy_vector2 *vertices, size_t num_vertices) {
+  size_t closest = 0;
+  float min_dist = INFINITY;
+  for (size_t i = 0; i < num_vertices; i++) {
+    float dist = phy_vector2_dist2(vertices[i], center);
+    if (dist < min_dist) {
+      min_dist = dist;
+      closest = i;
+    }
+  }
+  return vertices[closest];
 }
 
-//MARK: GJK Functions.
+static inline void nv_point_segment_dist(phy_vector2 center, phy_vector2 a, phy_vector2 b, float *dist_out, phy_vector2 *contact_out) {
+  phy_vector2 ab = phy_vector2_sub(b, a);
+  phy_vector2 ap = phy_vector2_sub(center, a);
+  float projection = phy_vector2_dot(ap, ab);
+  float ab_len = phy_vector2_len2(ab);
+  float dist = projection / ab_len;
+  phy_vector2 contact;
+  if (dist <= 0.0) {
+    contact = a;
+  }
+  else if (dist >= 1.0) {
+    contact = b;
+  }
+  else {
+    contact = phy_vector2_add(a, phy_vector2_mul(ab, dist));
+  }
+  *dist_out = phy_vector2_dist2(center, contact);
+  *contact_out = contact;
+}
 
-// Recursive implementation of the GJK loop.
-static inline struct ClosestPoints
-GJKRecurse(const struct SupportContext *ctx, const struct MinkowskiPoint v0, const struct MinkowskiPoint v1, const int iteration)
-{
-	if(iteration > MAX_GJK_ITERATIONS){
-		utl_error_func("High GJK iterations", utl_user_defined_data);
-		return ClosestPointsNew(v0, v1);
-	}
-	
-	if(phy_check_point_greater(v1.ab, v0.ab, phy_v_zero)){
-		// Origin is behind axis. Flip and try again.
-		return GJKRecurse(ctx, v1, v0, iteration);
-	} else {
-		float t = ClosestT(v0.ab, v1.ab);
-		phy_vect n = (-1.0f < t && t < 1.0f ? phy_v_perp(phy_v_sub(v1.ab, v0.ab)) : phy_v_neg(LerpT(v0.ab, v1.ab, t)));
-		struct MinkowskiPoint p = Support(ctx, n);
-		
-#if DRAW_GJK
-		ChipmunkDebugDrawSegment(v0.ab, v1.ab, RGBAColor(1, 1, 1, 1));
-		phy_vect c = cpvlerp(v0.ab, v1.ab, 0.5);
-		ChipmunkDebugDrawSegment(c, cpvadd(c, cpvmult(cpvnormalize(n), 5.0)), RGBAColor(1, 0, 0, 1));
-		
-		ChipmunkDebugDrawDot(5.0, p.ab, LAColor(1, 1));
-#endif
-		
-		if(phy_check_point_greater(p.ab, v0.ab, phy_v_zero) && phy_check_point_greater(v1.ab, p.ab, phy_v_zero)){
-			// The triangle v0, p, v1 contains the origin. Use EPA to find the MSA.
-			if (iteration >= WARN_GJK_ITERATIONS) {
-        utl_error_func("High GJK->EPA iterations", utl_user_defined_data);
+static phy_persistent_contact_pair clip_polygons(phy_polygon a, phy_polygon b, int edge_a, int edge_b, bool flip) {
+  phy_polygon ref_polygon;
+  int i11, i12;
+  phy_polygon inc_polygon;
+  int i21, i22;
+  if (flip) {
+    ref_polygon = b;
+    inc_polygon = a;
+    i11 = edge_b;
+    i12 = edge_b + 1 < b.num_vertices ? edge_b + 1 : 0;
+		i21 = edge_a;
+	  i22 = edge_a + 1 < a.num_vertices ? edge_a + 1 : 0;
+  }
+  else {
+    ref_polygon = a;
+		inc_polygon = b;
+		i11 = edge_a;
+		i12 = edge_a + 1 < a.num_vertices ? edge_a + 1 : 0;
+		i21 = edge_b;
+		i22 = edge_b + 1 < b.num_vertices ? edge_b + 1 : 0;
+  }
+  phy_vector2 normal = ref_polygon.normals[i11];
+  phy_vector2 tangent = phy_vector2_perp(normal);
+  phy_vector2 v11 = ref_polygon.vertices[i11];
+  phy_vector2 v12 = ref_polygon.vertices[i12];
+  phy_vector2 v21 = inc_polygon.vertices[i21];
+  phy_vector2 v22 = inc_polygon.vertices[i22];
+  float lower1 = 0.0;
+  float upper1 = phy_vector2_dot(phy_vector2_sub(v12, v11), tangent);
+  float upper2 = phy_vector2_dot(phy_vector2_sub(v21, v11), tangent);
+  float lower2 = phy_vector2_dot(phy_vector2_sub(v22, v11), tangent);
+  float d = upper2 - lower2;
+  phy_vector2 v_lower;
+  if (lower2 < lower1 && upper2 - lower2 > FLT_EPSILON) {
+    v_lower = phy_vector2_lerp(v22, v21, (lower1 - lower2) / d);
+  }
+  else {
+    v_lower = v22;
+  }
+  phy_vector2 v_upper;
+  if (upper2 > upper1 && upper2 - lower2 > FLT_EPSILON) {
+    v_upper = phy_vector2_lerp(v22, v21, (upper1 - lower2) / d);
+  }
+  else {
+    v_upper = v21;
+  }
+  float separation_lower = phy_vector2_dot(phy_vector2_sub(v_lower, v11), normal);
+  float separation_upper = phy_vector2_dot(phy_vector2_sub(v_upper, v11), normal);
+  float lower_mid_scale = -separation_lower * 0.5;
+  float upper_mid_scale = -separation_upper * 0.5;
+  v_lower = phy_vector2_new(v_lower.x + lower_mid_scale * normal.x, v_lower.y + lower_mid_scale * normal.y);
+  v_upper = phy_vector2_new(v_upper.x + upper_mid_scale * normal.x, v_upper.y + upper_mid_scale * normal.y);
+  phy_persistent_contact_pair pcp;
+  if (!flip) {
+    pcp.normal = normal;
+    pcp.contacts[0].anchor_a = v_lower;
+    pcp.contacts[0].separation = separation_lower;
+    pcp.contacts[0].id = phy_u32_pair(i11, i22);
+    pcp.contacts[1].anchor_a = v_upper;
+    pcp.contacts[1].separation = separation_upper;
+    pcp.contacts[1].id = phy_u32_pair(i12, i21);
+    pcp.contact_count = 2;
+  }
+  else {
+    pcp.normal = phy_vector2_neg(normal);
+    pcp.contacts[0].anchor_a = v_upper;
+    pcp.contacts[0].separation = separation_upper;
+    pcp.contacts[0].id = phy_u32_pair(i21, i12);
+    pcp.contacts[1].anchor_a = v_lower;
+    pcp.contacts[1].separation = separation_lower;
+    pcp.contacts[1].id = phy_u32_pair(i22, i11);
+    pcp.contact_count = 2;
+  }
+  return pcp;
+}
+
+phy_persistent_contact_pair phy_collide_circle_x_circle(phy_shape *circle_a, phy_transform xform_a, phy_shape *circle_b, phy_transform xform_b) {
+  phy_persistent_contact_pair pcp = { .contact_count = 0, .normal = phy_vector2_zero };
+  phy_vector2 ca = phy_vector2_add(phy_vector2_rotate(circle_a->circle.center, xform_a.angle), xform_a.position);
+  phy_vector2 cb = phy_vector2_add(phy_vector2_rotate(circle_b->circle.center, xform_b.angle), xform_b.position);
+  phy_vector2 delta = phy_vector2_sub(cb, ca);
+  float dist = phy_vector2_len(delta);
+  float radii = circle_a->circle.radius + circle_b->circle.radius;
+  if (dist > radii) {
+    return pcp;
+  }
+  if (dist == 0.0) {
+    pcp.normal = PHY_DEGENERATE_NORMAL;
+  }
+  else {
+    pcp.normal = phy_vector2_div(delta, dist);
+  }
+  phy_vector2 a_support = phy_vector2_add(ca, phy_vector2_mul(pcp.normal, circle_a->circle.radius));
+  phy_vector2 b_support = phy_vector2_add(cb, phy_vector2_mul(pcp.normal, -circle_b->circle.radius));
+  phy_vector2 contact = phy_vector2_mul(phy_vector2_add(a_support, b_support), 0.5);
+  pcp.contact_count = 1;
+  pcp.contacts[0].separation = -(radii - dist);
+  pcp.contacts[0].id = 0;
+  pcp.contacts[0].anchor_a = phy_vector2_sub(contact, xform_a.position);
+  pcp.contacts[0].anchor_b = phy_vector2_sub(contact, xform_b.position);
+  pcp.contacts[0].is_persisted = false;
+  pcp.contacts[0].remove_invoked = false;
+  pcp.contacts[0].solver_info = phy_contact_solver_info_zero;
+  return pcp;
+}
+
+static void find_max_separation(int *edge, float *separation, phy_polygon a, phy_polygon b) {
+  int best_index = 0;
+  float max_separation = -INFINITY;
+  for (int i = 0; i < a.num_vertices; i++) {
+    phy_vector2 n = a.normals[i];
+    phy_vector2 v1 = a.vertices[i];
+    float si = INFINITY;
+    for (int j = 0; j < b.num_vertices; j++) {
+      float sij = phy_vector2_dot(n, phy_vector2_sub(b.vertices[j], v1));
+      if (sij < si) {
+        si = sij;
       }
-			return EPA(ctx, v0, p, v1);
-		} else {
-			if(phy_check_axis(v0.ab, v1.ab, p.ab, n)){
-				// The edge v0, v1 that we already have is the closest to (0, 0) since p was not closer.
-			  if (iteration >= WARN_GJK_ITERATIONS) {
-				  utl_error_func("High GJK iterations", utl_user_defined_data);
-        }
-				return ClosestPointsNew(v0, v1);
-			} else {
-				// p was closer to the origin than our existing edge.
-				// Need to figure out which existing point to drop.
-				if(ClosestDist(v0.ab, p.ab) < ClosestDist(p.ab, v1.ab)){
-					return GJKRecurse(ctx, v0, p, iteration + 1);
-				} else {
-					return GJKRecurse(ctx, p, v1, iteration + 1);
-				}
-			}
-		}
-	}
+    }
+    if (si > max_separation) {
+      max_separation = si;
+      best_index = i;
+    }
+  }
+  *edge = best_index;
+  *separation = max_separation;
 }
 
-// Get a SupportPoint from a cached shape and index.
-static struct SupportPoint
-ShapePoint(const phy_shape *shape, const int i)
-{
-	switch(shape->class->type){
-		case PHY_CIRCLE_SHAPE: {
-			return SupportPointNew(((phy_circle_shape *)shape)->tc, 0);
-		} case PHY_SEGMENT_SHAPE: {
-			phy_segment_shape *seg = (phy_segment_shape *)shape;
-			return SupportPointNew(i == 0 ? seg->ta : seg->tb, i);
-		} case PHY_POLY_SHAPE: {
-			phy_poly_shape *poly = (phy_poly_shape *)shape;
-			// Poly shapes may change vertex count.
-			int index = (i < poly->count ? i : 0);
-			return SupportPointNew(poly->planes[index].v0, index);
-		} default: {
-			return SupportPointNew(phy_v_zero, 0);
-		}
-	}
+static phy_persistent_contact_pair SAT(phy_polygon a, phy_polygon b) {
+  phy_persistent_contact_pair pcp;
+  pcp.contact_count = 0;
+  pcp.normal = phy_vector2_zero;
+  int edge_a = 0;
+  float separation_a;
+  find_max_separation(&edge_a, &separation_a, a, b);
+  int edge_b = 0;
+  float separation_b;
+  find_max_separation(&edge_b, &separation_b, b, a);
+  if (separation_a > 0.0 || separation_b > 0.0) {
+    return pcp;
+  }
+  bool flip;
+  if (separation_b > separation_a) {
+    flip = true;
+    phy_vector2 search_dir = b.normals[edge_b];
+    float min_dot = INFINITY;
+    edge_a = 0;
+    for (int i = 0; i < a.num_vertices; i++) {
+      float dot = phy_vector2_dot(search_dir, a.normals[i]);
+      if (dot < min_dot) {
+        min_dot = dot;
+        edge_a = i;
+      } 
+    }
+  }
+  else {
+    flip = false;
+    phy_vector2 search_dir = a.normals[edge_a];
+    float min_dot = INFINITY;
+    edge_b = 0;
+    for (int i = 0; i < b.num_vertices; i++) {
+      float dot = phy_vector2_dot(search_dir, b.normals[i]);
+      if (dot < min_dot) {
+        min_dot = dot;
+        edge_b = i;
+      }
+    }
+  }
+  return clip_polygons(a, b, edge_a, edge_b, flip);
 }
 
-// Find the closest points between two shapes using the GJK algorithm.
-static struct ClosestPoints
-GJK(const struct SupportContext *ctx, phy_collision_id *id)
-{
-#if DRAW_GJK || DRAW_EPA
-	int count1 = 1;
-	int count2 = 1;
-	
-	switch(ctx->shape1->klass->type){
-		case PHY_SEGMENT_SHAPE: count1 = 2; break;
-		case PHY_POLY_SHAPE: count1 = ((cpPolyShape *)ctx->shape1)->count; break;
-		default: break;
-	}
-	
-	switch(ctx->shape2->klass->type){
-		case PHY_SEGMENT_SHAPE: count1 = 2; break;
-		case PHY_POLY_SHAPE: count2 = ((cpPolyShape *)ctx->shape2)->count; break;
-		default: break;
-	}
-	
-	
-	// draw the minkowski difference origin
-	phy_vect origin = cpvzero;
-	ChipmunkDebugDrawDot(5.0, origin, RGBAColor(1,0,0,1));
-	
-	int mdiffCount = count1*count2;
-	phy_vect *mdiffVerts = alloca(mdiffCount*sizeof(phy_vect));
-	
-	for(int i=0; i<count1; i++){
-		for(int j=0; j<count2; j++){
-			phy_vect v = cpvsub(ShapePoint(ctx->shape2, j).p, ShapePoint(ctx->shape1, i).p);
-			mdiffVerts[i*count2 + j] = v;
-			ChipmunkDebugDrawDot(2.0, v, RGBAColor(1, 0, 0, 1));
-		}
-	}
-	 
-	phy_vect *hullVerts = alloca(mdiffCount*sizeof(phy_vect));
-	int hullCount = cpConvexHull(mdiffCount, mdiffVerts, hullVerts, NULL, 0.0);
-	
-	ChipmunkDebugDrawPolygon(hullCount, hullVerts, 0.0, RGBAColor(1, 0, 0, 1), RGBAColor(1, 0, 0, 0.25));
-#endif
-	
-	struct MinkowskiPoint v0, v1;
-	if(*id){
-		// Use the minkowski points from the last frame as a starting point using the cached indexes.
-		v0 = MinkowskiPointNew(ShapePoint(ctx->shape1, (*id>>24)&0xFF), ShapePoint(ctx->shape2, (*id>>16)&0xFF));
-		v1 = MinkowskiPointNew(ShapePoint(ctx->shape1, (*id>> 8)&0xFF), ShapePoint(ctx->shape2, (*id    )&0xFF));
-	} else {
-		// No cached indexes, use the shapes' bounding box centers as a guess for a starting axis.
-		phy_vect axis = phy_v_perp(phy_v_sub(phy_bb_center(ctx->shape1->bb), phy_bb_center(ctx->shape2->bb)));
-		v0 = Support(ctx, axis);
-		v1 = Support(ctx, phy_v_neg(axis));
-	}
-	
-	struct ClosestPoints points = GJKRecurse(ctx, v0, v1, 1);
-	*id = points.id;
-	return points;
+bool phy_collide_circle_x_point(phy_shape *circle, phy_transform xform, phy_vector2 point) {
+  phy_vector2 c = phy_vector2_add(xform.position, phy_vector2_rotate(circle->circle.center, xform.angle));
+  phy_vector2 delta = phy_vector2_sub(c, point);
+  return phy_vector2_len2(delta) <= circle->circle.radius * circle->circle.radius;
 }
 
-//MARK: Contact Clipping
-
-// Given two support edges, find contact point pairs on their surfaces.
-static inline void
-ContactPoints(const struct Edge e1, const struct Edge e2, const struct ClosestPoints points, struct phy_collision_info *info)
-{
-	float mindist = e1.r + e2.r;
-	if(points.d <= mindist){
-#ifdef DRAW_CLIP
-	ChipmunkDebugDrawFatSegment(e1.a.p, e1.b.p, e1.r, RGBAColor(0, 1, 0, 1), LAColor(0, 0));
-	ChipmunkDebugDrawFatSegment(e2.a.p, e2.b.p, e2.r, RGBAColor(1, 0, 0, 1), LAColor(0, 0));
-#endif
-		phy_vect n = info->n = points.n;
-		
-		// Distances along the axis parallel to n
-		float d_e1_a = phy_v_cross(e1.a.p, n);
-		float d_e1_b = phy_v_cross(e1.b.p, n);
-		float d_e2_a = phy_v_cross(e2.a.p, n);
-		float d_e2_b = phy_v_cross(e2.b.p, n);
-		
-		// TODO + min isn't a complete fix.
-		float e1_denom = 1.0f/(d_e1_b - d_e1_a + FLT_MIN);
-		float e2_denom = 1.0f/(d_e2_b - d_e2_a + FLT_MIN);
-		
-		// Project the endpoints of the two edges onto the opposing edge, clamping them as necessary.
-		// Compare the projected points to the collision normal to see if the shapes overlap there.
-		{
-			phy_vect p1 = phy_v_add(phy_v_mult(n,  e1.r), phy_v_lerp(e1.a.p, e1.b.p, phy_clamp_01((d_e2_b - d_e1_a)*e1_denom)));
-			phy_vect p2 = phy_v_add(phy_v_mult(n, -e2.r), phy_v_lerp(e2.a.p, e2.b.p, phy_clamp_01((d_e1_a - d_e2_a)*e2_denom)));
-			float dist = phy_v_dot(phy_v_sub(p2, p1), n);
-			if(dist <= 0.0f){
-				phy_hash_value hash_1a2b = PHY_HASH_PAIR(e1.a.hash, e2.b.hash);
-				cpCollisionInfoPushContact(info, p1, p2, hash_1a2b);
-			}
-		}{
-			phy_vect p1 = phy_v_add(phy_v_mult(n,  e1.r), phy_v_lerp(e1.a.p, e1.b.p, phy_clamp_01((d_e2_a - d_e1_a)*e1_denom)));
-			phy_vect p2 = phy_v_add(phy_v_mult(n, -e2.r), phy_v_lerp(e2.a.p, e2.b.p, phy_clamp_01((d_e1_b - d_e2_a)*e2_denom)));
-			float dist = phy_v_dot(phy_v_sub(p2, p1), n);
-			if(dist <= 0.0f){
-				phy_hash_value hash_1b2a = PHY_HASH_PAIR(e1.b.hash, e2.a.hash);
-				cpCollisionInfoPushContact(info, p1, p2, hash_1b2a);
-			}
-		}
-	}
+phy_persistent_contact_pair phy_collide_polygon_x_circle(phy_shape *polygon, phy_transform xform_poly, phy_shape *circle, phy_transform xform_circle, bool flip_anchors) {
+  phy_polygon poly = polygon->polygon;
+  phy_circle circ = circle->circle;
+  phy_polygon_transform(polygon, xform_poly);
+  phy_vector2 p = phy_polygon_centroid(poly.xvertices, poly.num_vertices);
+  phy_vector2 c = phy_vector2_add(xform_circle.position, phy_vector2_rotate(circ.center, xform_circle.angle));
+  size_t n = poly.num_vertices;
+  phy_vector2 *vertices = poly.xvertices;
+  float separation = INFINITY;
+  phy_vector2 normal = phy_vector2_zero;
+  phy_persistent_contact_pair pcp = { .contact_count = 0, .normal = phy_vector2_zero };
+  float min_a, min_b, max_a, max_b;
+  for (size_t i = 0; i < n; i++) {
+    phy_vector2 va = vertices[i];
+    phy_vector2 vb = vertices[(i + 1) % n];
+    phy_vector2 edge = phy_vector2_sub(vb, va);
+    phy_vector2 axis = phy_vector2_normalize(phy_vector2_perp(edge));
+    nv_project_polyon(vertices, n, axis, &min_a, &max_a);
+    nv_project_circle(c, circ.radius, axis, &min_b, &max_b);
+    if (min_a >= max_b || min_b >= max_a) {
+      return pcp;
+    }
+    float axis_depth = fminf(max_b - min_a, max_a - min_b);
+    if (axis_depth < separation) {
+      separation = axis_depth;
+      normal = axis;
+    }
+  }
+  phy_vector2 cp = nv_polygon_closest_vertex_to_circle(c, vertices, n);
+  phy_vector2 axis = phy_vector2_normalize(phy_vector2_sub(cp, c));
+  nv_project_polyon(vertices, n, axis, &min_a, &max_a);
+  nv_project_circle(c, circ.radius, axis, &min_b, &max_b);
+  if (min_a >= max_b || min_b >= max_a) {
+    return pcp;
+  }
+  float axis_depth = fminf(max_b - min_a, max_a - min_b);
+  if (axis_depth < separation) {
+    separation = axis_depth;
+    normal = axis;
+  }
+  separation = -separation;
+  if (phy_vector2_dot(phy_vector2_sub(p, c), normal) > 0.0) {
+    normal = phy_vector2_neg(normal);
+  }
+  if (flip_anchors) {
+    normal = phy_vector2_neg(normal);
+  }
+  float dist;
+  float min_dist = INFINITY;
+  phy_vector2 contact = phy_vector2_zero;
+  phy_vector2 new_contact = phy_vector2_zero;
+  for (size_t i = 0; i < n; i++) {
+    phy_vector2 va = vertices[i];
+    phy_vector2 vb = vertices[(i + 1) % n];
+    nv_point_segment_dist(c, va, vb, &dist, &new_contact);
+    if (dist < min_dist) {
+      min_dist = dist;
+      contact = new_contact;
+    }
+  }
+  phy_vector2 circle_contact = phy_vector2_add(contact, phy_vector2_mul(normal, separation));
+  phy_vector2 half_contact = phy_vector2_mul(phy_vector2_add(contact, circle_contact), 0.5);
+  phy_vector2 poly_anchor = phy_vector2_sub(half_contact, xform_poly.position);
+  phy_vector2 circle_anchor = phy_vector2_sub(half_contact, xform_circle.position);
+  pcp.normal = normal;
+  pcp.contact_count = 1;
+  pcp.contacts[0].id = 0;
+  pcp.contacts[0].is_persisted = false;
+  pcp.contacts[0].remove_invoked = false;
+  pcp.contacts[0].solver_info = phy_contact_solver_info_zero;
+  pcp.contacts[0].separation = separation;
+  if (flip_anchors) {
+    pcp.contacts[0].anchor_a = circle_anchor;
+    pcp.contacts[0].anchor_b = poly_anchor;
+  }
+  else {
+    pcp.contacts[0].anchor_a = poly_anchor;
+    pcp.contacts[0].anchor_b = circle_anchor;
+  }
+  return pcp;
 }
 
-//MARK: Collision Functions
-
-typedef void (*CollisionFunc)(const phy_shape *a, const phy_shape *b, struct phy_collision_info *info);
-
-// Collide circle shapes.
-static void
-CircleToCircle(const phy_circle_shape *c1, const phy_circle_shape *c2, struct phy_collision_info *info)
-{
-	float mindist = c1->r + c2->r;
-	phy_vect delta = phy_v_sub(c2->tc, c1->tc);
-	float distsq = phy_v_length_sq(delta);
-	
-	if(distsq < mindist*mindist){
-		float dist = sqrtf(distsq);
-		phy_vect n = info->n = (dist ? phy_v_mult(delta, 1.0f/dist) : phy_v(1.0f, 0.0f));
-		cpCollisionInfoPushContact(info, phy_v_add(c1->tc, phy_v_mult(n, c1->r)), phy_v_add(c2->tc, phy_v_mult(n, -c2->r)), 0);
-	}
+phy_persistent_contact_pair phy_collide_polygon_x_polygon(phy_shape *polygon_a, phy_transform xform_a, phy_shape *polygon_b, phy_transform xform_b) {
+  phy_polygon a = polygon_a->polygon;
+  phy_polygon b = polygon_b->polygon;
+  phy_vector2 origin = a.vertices[0];
+  phy_transform xform_a_translated = { phy_vector2_add(xform_a.position, phy_vector2_rotate(origin, xform_a.angle)), xform_a.angle };
+  phy_transform xform;
+  float sa = sinf(xform_a_translated.angle);
+  float ca = cosf(xform_a_translated.angle);
+  float sb = sinf(xform_b.angle);
+  float cb = cosf(xform_b.angle);
+  phy_vector2 d = phy_vector2_sub(xform_b.position, xform_a_translated.position);
+  phy_vector2 p = phy_vector2_new(ca * d.x + sa * d.y, -sa * d.x + ca * d.y);
+  float is = ca * sb - sa * cb;
+  float ic = ca * cb + sa * sb;
+  float ia = atan2f(is, ic);
+  xform = (phy_transform){p, ia};
+  phy_polygon a_local;
+  a_local.num_vertices = a.num_vertices;
+  a_local.vertices[0] = phy_vector2_zero;
+  a_local.normals[0] = a.normals[0];
+  for (size_t i = 1; i < a_local.num_vertices; i++) {
+    a_local.vertices[i] = phy_vector2_sub(a.vertices[i], origin);
+    a_local.normals[i] = a.normals[i];
+  }
+  phy_polygon b_local;
+  b_local.num_vertices = b.num_vertices;
+  for (size_t i = 0; i < b_local.num_vertices; i++) {
+    phy_vector2 xv = phy_vector2_add(phy_vector2_rotate(b.vertices[i], xform.angle), xform.position);
+    b_local.vertices[i] = xv;
+    b_local.normals[i] = phy_vector2_rotate(b.normals[i], xform.angle);
+  }
+  phy_persistent_contact_pair pcp = SAT(a_local, b_local);
+  if (pcp.contact_count > 0) {
+    pcp.normal = phy_vector2_rotate(pcp.normal, xform_a.angle);
+    for (size_t i = 0; i < pcp.contact_count; i++) {
+      phy_contact *contact = &pcp.contacts[i];
+      contact->anchor_a = phy_vector2_rotate(phy_vector2_add(contact->anchor_a, origin), xform_a.angle); 
+      contact->anchor_b = phy_vector2_add(contact->anchor_a, phy_vector2_sub(xform_a.position, xform_b.position));
+      contact->is_persisted = false;
+      contact->remove_invoked = false;
+      contact->solver_info = phy_contact_solver_info_zero;
+    } 
+  }
+  return pcp;
 }
 
-static void
-CircleToSegment(const phy_circle_shape *circle, const phy_segment_shape *segment, struct phy_collision_info *info)
-{
-	phy_vect seg_a = segment->ta;
-	phy_vect seg_b = segment->tb;
-	phy_vect center = circle->tc;
-	
-	// Find the closest point on the segment to the circle.
-	phy_vect seg_delta = phy_v_sub(seg_b, seg_a);
-	float closest_t = phy_clamp_01(phy_v_dot(seg_delta, phy_v_sub(center, seg_a))/phy_v_length_sq(seg_delta));
-	phy_vect closest = phy_v_add(seg_a, phy_v_mult(seg_delta, closest_t));
-	
-	// Compare the radii of the two shapes to see if they are colliding.
-	float mindist = circle->r + segment->r;
-	phy_vect delta = phy_v_sub(closest, center);
-	float distsq = phy_v_length_sq(delta);
-	if(distsq < mindist*mindist){
-		float dist = sqrtf(distsq);
-		// Handle coincident shapes as gracefully as possible.
-		phy_vect n = info->n = (dist ? phy_v_mult(delta, 1.0f/dist) : segment->tn);
-		
-		// Reject endcap collisions if tangents are provided.
-		phy_vect rot = phy_body_get_rotation(segment->shape.body);
-		if(
-			(closest_t != 0.0f || phy_v_dot(n, phy_v_rotate(segment->a_tangent, rot)) >= 0.0) &&
-			(closest_t != 1.0f || phy_v_dot(n, phy_v_rotate(segment->b_tangent, rot)) >= 0.0)
-		){
-			cpCollisionInfoPushContact(info, phy_v_add(center, phy_v_mult(n, circle->r)), phy_v_add(closest, phy_v_mult(n, -segment->r)), 0);
-		}
-	}
+bool phy_collide_polygon_x_point(phy_shape *polygon, phy_transform xform, phy_vector2 point) {
+  phy_polygon_transform(polygon, xform);
+  phy_vector2 *vertices = polygon->polygon.xvertices;
+  size_t n = polygon->polygon.num_vertices;
+  int low = 0;
+  int high = (int)n;
+  do {
+    int mid = (low + high) / 2;
+    if (phy_triangle_winding((phy_vector2[3]){vertices[0], vertices[mid], point}) == 1) {
+      low = mid;
+    }
+    else {
+      high = mid;
+    }
+  } while (low + 1 < high);
+  if (low == 0 || high == n) {
+    return false;
+  }
+  return phy_triangle_winding((phy_vector2[3]){vertices[low], vertices[high], point}) == 1;
 }
 
-static void
-SegmentToSegment(const phy_segment_shape *seg1, const phy_segment_shape *seg2, struct phy_collision_info *info)
-{
-	struct SupportContext context = {(phy_shape *)seg1, (phy_shape *)seg2, (SupportPointFunc)SegmentSupportPoint, (SupportPointFunc)SegmentSupportPoint};
-	struct ClosestPoints points = GJK(&context, &info->id);
-	
-#if DRAW_CLOSEST
-#if PRINT_LOG
-//	ChipmunkDemoPrintString("Distance: %.2f\n", points.d);
-#endif
-	
-	ChipmunkDebugDrawDot(6.0, points.a, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawDot(6.0, points.b, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawSegment(points.a, points.b, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawSegment(points.a, cpvadd(points.a, cpvmult(points.n, 10.0)), RGBAColor(1, 0, 0, 1));
-#endif
-	
-	phy_vect n = points.n;
-	phy_vect rot1 = phy_body_get_rotation(seg1->shape.body);
-	phy_vect rot2 = phy_body_get_rotation(seg2->shape.body);
-	
-	// If the closest points are nearer than the sum of the radii...
-	if(
-		points.d <= (seg1->r + seg2->r) && (
-			// Reject endcap collisions if tangents are provided.
-			(!phy_v_eql(points.a, seg1->ta) || phy_v_dot(n, phy_v_rotate(seg1->a_tangent, rot1)) <= 0.0) &&
-			(!phy_v_eql(points.a, seg1->tb) || phy_v_dot(n, phy_v_rotate(seg1->b_tangent, rot1)) <= 0.0) &&
-			(!phy_v_eql(points.b, seg2->ta) || phy_v_dot(n, phy_v_rotate(seg2->a_tangent, rot2)) >= 0.0) &&
-			(!phy_v_eql(points.b, seg2->tb) || phy_v_dot(n, phy_v_rotate(seg2->b_tangent, rot2)) >= 0.0)
-		)
-	){
-		ContactPoints(SupportEdgeForSegment(seg1, n), SupportEdgeForSegment(seg2, phy_v_neg(n)), points, info);
-	}
+bool phy_collide_aabb_x_aabb(phy_aabb a, phy_aabb b) {
+  return (!(a.max_x <= b.min_x || b.max_x <= a.min_x || a.max_y <= b.min_y || b.max_y <= a.min_y));
 }
 
-static void
-PolyToPoly(const phy_poly_shape *poly1, const phy_poly_shape *poly2, struct phy_collision_info *info)
-{
-	struct SupportContext context = {(phy_shape *)poly1, (phy_shape *)poly2, (SupportPointFunc)PolySupportPoint, (SupportPointFunc)PolySupportPoint};
-	struct ClosestPoints points = GJK(&context, &info->id);
-	
-#if DRAW_CLOSEST
-#if PRINT_LOG
-//	ChipmunkDemoPrintString("Distance: %.2f\n", points.d);
-#endif
-	
-	ChipmunkDebugDrawDot(3.0, points.a, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawDot(3.0, points.b, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawSegment(points.a, points.b, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawSegment(points.a, cpvadd(points.a, cpvmult(points.n, 10.0)), RGBAColor(1, 0, 0, 1));
-#endif
-	
-	// If the closest points are nearer than the sum of the radii...
-	if(points.d - poly1->r - poly2->r <= 0.0){
-		ContactPoints(SupportEdgeForPoly(poly1, points.n), SupportEdgeForPoly(poly2, phy_v_neg(points.n)), points, info);
-	}
+bool phy_collide_aabb_x_point(phy_aabb aabb, phy_vector2 point) {
+  return (aabb.min_x <= point.x && point.x <= aabb.max_x && aabb.min_y <= point.y && point.y <= aabb.max_y);
 }
 
-static void
-SegmentToPoly(const phy_segment_shape *seg, const phy_poly_shape *poly, struct phy_collision_info *info)
-{
-	struct SupportContext context = {(phy_shape *)seg, (phy_shape *)poly, (SupportPointFunc)SegmentSupportPoint, (SupportPointFunc)PolySupportPoint};
-	struct ClosestPoints points = GJK(&context, &info->id);
-	
-#if DRAW_CLOSEST
-#if PRINT_LOG
-//	ChipmunkDemoPrintString("Distance: %.2f\n", points.d);
-#endif
-	
-	ChipmunkDebugDrawDot(3.0, points.a, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawDot(3.0, points.b, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawSegment(points.a, points.b, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawSegment(points.a, cpvadd(points.a, cpvmult(points.n, 10.0)), RGBAColor(1, 0, 0, 1));
-#endif
-	
-	phy_vect n = points.n;
-	phy_vect rot = phy_body_get_rotation(seg->shape.body);
-	
-	if(
-		// If the closest points are nearer than the sum of the radii...
-		points.d - seg->r - poly->r <= 0.0 && (
-			// Reject endcap collisions if tangents are provided.
-			(!phy_v_eql(points.a, seg->ta) || phy_v_dot(n, phy_v_rotate(seg->a_tangent, rot)) <= 0.0) &&
-			(!phy_v_eql(points.a, seg->tb) || phy_v_dot(n, phy_v_rotate(seg->b_tangent, rot)) <= 0.0)
-		)
-	){
-		ContactPoints(SupportEdgeForSegment(seg, n), SupportEdgeForPoly(poly, phy_v_neg(n)), points, info);
-	}
+bool phy_collide_ray_x_circle(phy_raycast_result *result, phy_vector2 origin, phy_vector2 dir, float maxsq, phy_shape *shape, phy_transform xform) {
+  phy_circle circle = shape->circle;
+  phy_vector2 center = phy_vector2_add(phy_vector2_rotate(circle.center, xform.angle), xform.position);
+  float rsq = circle.radius * circle.radius;
+  phy_vector2 delta = phy_vector2_sub(center, origin);
+  float tca = phy_vector2_dot(delta, dir);
+  float d2 = phy_vector2_dot(delta, delta) - tca * tca;
+  if (d2 > rsq) {
+    return false;
+  }
+  float thc = sqrtf(rsq - d2);
+  float t0 = tca - thc;
+  float t1 = tca + thc;
+  if (t0 > t1) {
+    float temp = t0;
+    t0 = t1;
+    t1 = temp;
+  }
+  if (t0 < 0.0) { 
+    t0 = t1;
+    if (t0 < 0.0) {
+      return false;
+    }
+  }
+  float t = t0;
+  phy_vector2 hitpoint = phy_vector2_add(origin, phy_vector2_mul(dir, t));
+  if (phy_vector2_len2(phy_vector2_sub(hitpoint, origin)) > maxsq) {
+    return false;
+  }
+  *result = (phy_raycast_result){ .position = hitpoint, .normal = phy_vector2_normalize(phy_vector2_sub(hitpoint, center)), .shape = shape };
+  return true;
 }
 
-static void
-CircleToPoly(const phy_circle_shape *circle, const phy_poly_shape *poly, struct phy_collision_info *info)
-{
-	struct SupportContext context = {(phy_shape *)circle, (phy_shape *)poly, (SupportPointFunc)CircleSupportPoint, (SupportPointFunc)PolySupportPoint};
-	struct ClosestPoints points = GJK(&context, &info->id);
-	
-#if DRAW_CLOSEST
-	ChipmunkDebugDrawDot(3.0, points.a, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawDot(3.0, points.b, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawSegment(points.a, points.b, RGBAColor(1, 1, 1, 1));
-	ChipmunkDebugDrawSegment(points.a, cpvadd(points.a, cpvmult(points.n, 10.0)), RGBAColor(1, 0, 0, 1));
-#endif
-	
-	// If the closest points are nearer than the sum of the radii...
-	if(points.d <= circle->r + poly->r){
-		phy_vect n = info->n = points.n;
-		cpCollisionInfoPushContact(info, phy_v_add(points.a, phy_v_mult(n, circle->r)), phy_v_add(points.b, phy_v_mult(n, -poly->r)), 0);
-	}
+bool phy_collide_ray_x_polygon(phy_raycast_result *result, phy_vector2 origin, phy_vector2 dir, float maxsq, phy_shape *shape, phy_transform xform) {
+  phy_polygon poly = shape->polygon;
+  phy_vector2 hits[PHY_POLYGON_MAX_VERTICES];
+  size_t normal_idxs[PHY_POLYGON_MAX_VERTICES];
+  size_t hit_count = 0;
+  phy_polygon_transform(shape, xform);
+  for (size_t i = 0; i < poly.num_vertices; i++) {
+    phy_vector2 va = poly.xvertices[i];
+    phy_vector2 vb = poly.xvertices[(i + 1) % poly.num_vertices];
+    phy_vector2 v1 = phy_vector2_sub(origin, va);
+    phy_vector2 v2 = phy_vector2_sub(vb, va);
+    phy_vector2 v3 = phy_vector2_perp(dir);
+    float dot = phy_vector2_dot(v2, v3);
+    if (fabsf(dot) < FLT_EPSILON) {
+      continue;;
+    }
+    float t1 = phy_vector2_cross(v2, v1) / dot;
+    float t2 = phy_vector2_dot(v1, v3) / dot;
+    if (t1 >= 0.0 && (t2 >= 0.0 && t2 <= 1.0)) {
+      hits[hit_count++] = phy_vector2_add(origin, phy_vector2_mul(dir, t1));
+      normal_idxs[hit_count - 1] = i;
+    }
+  }
+  if (hit_count == 0) {
+    return false;
+  }
+  phy_vector2 closest_hit;
+  phy_vector2 normal = phy_vector2_zero;
+  float min_dist = INFINITY;
+  for (size_t i = 0; i < hit_count; i++) {
+    float dist = phy_vector2_len2(phy_vector2_sub(hits[i], origin));
+    if (dist < min_dist) {
+      min_dist = dist;
+      closest_hit = hits[i];
+      normal = poly.normals[normal_idxs[i]];
+    }
+  }
+  if (min_dist > maxsq) {
+    return false;
+  }
+  *result = (phy_raycast_result){ .position = closest_hit, .normal = phy_vector2_rotate(normal, xform.angle), .shape = shape };
+  return true;
 }
 
-static void
-CollisionError(const phy_shape *circle, const phy_shape *poly, struct phy_collision_info *info)
-{
-	utl_error_func("Shape types are not sorted", utl_user_defined_data);
-}
-
-static const CollisionFunc BuiltinCollisionFuncs[9] = {
-	(CollisionFunc)CircleToCircle,
-	CollisionError,
-	CollisionError,
-	(CollisionFunc)CircleToSegment,
-	(CollisionFunc)SegmentToSegment,
-	CollisionError,
-	(CollisionFunc)CircleToPoly,
-	(CollisionFunc)SegmentToPoly,
-	(CollisionFunc)PolyToPoly,
-};
-static const CollisionFunc *CollisionFuncs = BuiltinCollisionFuncs;
-
-struct phy_collision_info
-phy_collide(const phy_shape *a, const phy_shape *b, phy_collision_id id, struct phy_contact *contacts)
-{
-	struct phy_collision_info info = {a, b, id, phy_v_zero, 0, contacts};
-	
-	// Make sure the shape types are in order.
-	if(a->class->type > b->class->type){
-		info.a = b;
-		info.b = a;
-	}
-	
-	CollisionFuncs[info.a->class->type + info.b->class->type*PHY_NUM_SHAPES](info.a, info.b, &info);
-	
-//	if(0){
-//		for(int i=0; i<info.count; i++){
-//			phy_vect r1 = info.arr[i].r1;
-//			phy_vect r2 = info.arr[i].r2;
-//			phy_vect mid = cpvlerp(r1, r2, 0.5f);
-//			
-//			ChipmunkDebugDrawSegment(r1, mid, RGBAColor(1, 0, 0, 1));
-//			ChipmunkDebugDrawSegment(r2, mid, RGBAColor(0, 0, 1, 1));
-//		}
-//	}
-	
-	return info;
-}

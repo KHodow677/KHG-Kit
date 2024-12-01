@@ -1,6 +1,5 @@
 #include "khg_gfx/elements.h"
 #include "cglm/types-struct.h"
-#include "cglm/vec2.h"
 #include "khg_gfx/font.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/internal.h"
@@ -125,7 +124,7 @@ gfx_theme gfx_default_theme() {
     .hover_color = gfx_no_color, 
     .hover_text_color = gfx_no_color
   };
-  theme.font = gfx_load_font_asset("inter", "ttf", 24);
+  theme.font = gfx_load_font_asset("res/assets/fonts/inter.ttf", 24);
   theme.div_scroll_max_velocity = 100.0f; 
   theme.div_scroll_velocity_deceleration = 0.92;
   theme.div_scroll_acceleration = 2.5f;
@@ -249,7 +248,7 @@ gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file,
   state.pos_ptr.y += margin_top;
   gfx_clickable_item_state ret = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ img.width + padding * 2, img.height + padding * 2 }, props, color, props.border_width, true, true);
   gfx_color imageColor = gfx_white;
-  gfx_image_render((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true);
+  gfx_image_render((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
   state.pos_ptr.x += img.width + margin_right + padding * 2.0f;
   state.pos_ptr.y -= margin_top;
   return ret; 
@@ -270,7 +269,7 @@ gfx_clickable_item_state gfx_image_button_fixed_loc(gfx_texture img, float width
   state.pos_ptr.y += margin_top;
   gfx_clickable_item_state ret = gfx_internal_button(file, line, state.pos_ptr, (vec2s){ render_width + padding * 2, render_height + padding * 2 }, props, color, props.border_width, true, true);
   gfx_color imageColor = gfx_white; 
-  gfx_image_render((vec2s){ state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true);
+  gfx_image_render((vec2s){ state.pos_ptr.x + padding + (render_width - img.width) / 2.0f, state.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
   state.pos_ptr.x += render_width + margin_right + padding * 2.0f;
   state.pos_ptr.y -= margin_top;
   return ret;
@@ -308,12 +307,12 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
   gfx_clickable_item_state slider_state = gfx_internal_button_ex(file, line, state.pos_ptr, (vec2s){ (float)slider_width, (float)slider_height }, slider_props, color, 0, false, false, (vec2s){ -1, handle_size });
   slider->handle_pos = gfx_internal_map_vals(*(int32_t *)slider->val, slider->min, slider->max, handle_size / 2.0f, slider->width - handle_size / 2.0f) - (handle_size) / 2.0f;
   gfx_rect_render((vec2s){ state.pos_ptr.x + slider->handle_pos, state.pos_ptr.y - (handle_size) / 2.0f + slider_height / 2.0f }, (vec2s){ handle_size, handle_size }, props.text_color, props.border_color, props.border_width, slider->held ? props.corner_radius * 3.5f : props.corner_radius * 3.0f, 0.0f);
-  if (slider_state == gfx_clickable_held || slider_state == gfx_clickable_clicked) {
+  if (slider_state == GFX_CLICKABLE_HELD || slider_state == GFX_CLICKABLE_CLICKED) {
     slider->held = true;
   }
   if (slider->held && gfx_mouse_button_is_released(GLFW_MOUSE_BUTTON_LEFT)) {
     slider->held = false;
-    slider_state = gfx_clickable_clicked;
+    slider_state = GFX_CLICKABLE_CLICKED;
   }
   if(slider->held) {
     if (gfx_get_mouse_x() >= state.pos_ptr.x && gfx_get_mouse_x() <= state.pos_ptr.x + slider_width - handle_size) {
@@ -328,7 +327,7 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
       *(int32_t *)slider->val = slider->max;
       slider->handle_pos = slider_width - handle_size;
     }
-    slider_state = gfx_clickable_held;
+    slider_state = GFX_CLICKABLE_HELD;
   }
   state.pos_ptr.x += slider_width + margin_right;
   state.pos_ptr.y -= margin_top;
@@ -397,15 +396,15 @@ void gfx_dropdown_menu_loc_wide(const wchar_t **items, const wchar_t *placeholde
 }
 
 void gfx_input_text_loc(gfx_input_field* input, const char *file, int32_t line) {
-  gfx_internal_input_field(input, INPUT_TEXT, file, line);
+  gfx_internal_input_field(input, GFX_INPUT_TEXT, file, line);
 }
 
 void gfx_input_int_loc(gfx_input_field *input, const char *file, int32_t line) {
-  gfx_internal_input_field(input, INPUT_INT, file, line);
+  gfx_internal_input_field(input, GFX_INPUT_INT, file, line);
 }
 
 void gfx_input_float_loc(gfx_input_field *input, const char *file, int32_t line) {
-  gfx_internal_input_field(input, INPUT_FLOAT, file, line);
+  gfx_internal_input_field(input, GFX_INPUT_FLOAT, file, line);
 }
 
 void gfx_input_insert_char_idx(gfx_input_field *input, char c, uint32_t idx) {
@@ -674,21 +673,14 @@ void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_co
   state.render.index_count += 6;
 }
 
-void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle, float offset_x, float offset_y, float cam_x, float cam_y, float cam_zoom, bool cullable) {
+void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color border_color, float border_width, float corner_radius, float rotation_angle, float offset_x, float offset_y, float cam_x, float cam_y, float cam_zoom, bool cullable, bool flipped_x) {
   if (!state.renderer_render) {
     return;
   }
-  float offset_mag = glm_vec2_norm((vec2){ offset_x, offset_y });
   float window_center_x = gfx_get_display_width() / 2.0f + cam_x;
   float window_center_y = gfx_get_display_height() / 2.0f + cam_y;
-  offset_x = offset_mag * cosf(rotation_angle + M_PI * 0.5f);
-  offset_y = offset_mag * sinf(rotation_angle + M_PI * 0.5f);
-  uint32_t old_width = tex.width;
-  uint32_t old_height = tex.height;
   tex.width *= cam_zoom;
   tex.height *= cam_zoom;
-  float delta_width = (float)tex.width - old_width;
-  float delta_height = (float)tex.height - old_height;
   pos.x = (pos.x - window_center_x) * cam_zoom + window_center_x - cam_x;
   pos.y = (pos.y - window_center_y) * cam_zoom + window_center_y - cam_y;
   float bounding_width, bounding_height;
@@ -891,12 +883,12 @@ void gfx_image(gfx_texture tex) {
   gfx_internal_next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left; 
   state.pos_ptr.y += margin_top;
-  gfx_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true);
+  gfx_image_render(state.pos_ptr, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
   state.pos_ptr.x += w + margin_right;
   state.pos_ptr.y -= margin_top;
 }
 
-void gfx_image_no_block(float x, float y, gfx_texture tex, float pos_x, float pos_y, float cam_x, float cam_y, float cam_zoom, bool cullable) {
+void gfx_image_no_block(float x, float y, gfx_texture tex, float pos_x, float pos_y, float cam_x, float cam_y, float cam_zoom, bool cullable, bool flipped_x) {
   float init_x = state.pos_ptr.x, init_y = state.pos_ptr.y;
   float w, h;
   compute_bounding_box(tex.width, tex.height, tex.angle, &w, &h);
@@ -906,7 +898,7 @@ void gfx_image_no_block(float x, float y, gfx_texture tex, float pos_x, float po
   gfx_internal_next_line_on_overflow((vec2s){ w + margin_left + margin_right, h + margin_top + margin_bottom }, state.div_props.border_width);
   state.pos_ptr.x += margin_left; 
   state.pos_ptr.y += margin_top;
-  gfx_image_render((vec2s){ x - tex.width / 2.0f, y - tex.height / 2.0f}, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle, pos_x, pos_y, cam_x, cam_y, cam_zoom, cullable);
+  gfx_image_render((vec2s){ x - tex.width / 2.0f, y - tex.height / 2.0f}, color, tex, props.border_color, props.border_width, props.corner_radius, tex.angle, pos_x, pos_y, cam_x, cam_y, cam_zoom, cullable, flipped_x);
   state.pos_ptr.x += w + margin_right;
   state.pos_ptr.y -= margin_top;
   state.pos_ptr.x = init_x;
