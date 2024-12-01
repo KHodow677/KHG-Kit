@@ -59,6 +59,14 @@ void generate_animation_frame(rig *r, const char *dir_path, const char *rig_sect
       bone_frame.bone_angle_offset = atof((char *)utl_config_get_value(config, section, key));
       continue;
     }
+    else if (!strcmp(generic_key, "bone_scale")) {
+      char **bone_scale = utl_config_get_array(config, section, key, 2);
+      bone_frame.bone_scale = phy_vector2_new(atof(bone_scale[0]), atof(bone_scale[1]));
+      free(bone_scale[0]);
+      free(bone_scale[1]);
+      free(bone_scale);
+      continue;
+    }
     else if (!strcmp(generic_key, "bone_num")) {
       int bone_num = utl_config_get_int(config, section, key, 0);
       utl_array_set(new_frame, bone_num, &bone_frame);
@@ -77,10 +85,14 @@ void update_rig_with_interpolated_frame(bone *b, const bone_frame_info *current,
   float x_diff = target->bone_offset.x - current->bone_offset.x;
   float y_diff = target->bone_offset.y - current->bone_offset.y;
   float ang_diff = target->bone_angle_offset - current->bone_angle_offset;
+  float scale_x_diff = target->bone_scale.x - current->bone_scale.x;
+  float scale_y_diff = target->bone_scale.y - current->bone_scale.y;
   b->bone_tex_id = current->bone_tex;
   b->bone_offset.x = current->bone_offset.x + x_diff * utl_easing_linear_interpolation(frame_percentage);
   b->bone_offset.y = current->bone_offset.y + y_diff * utl_easing_linear_interpolation(frame_percentage);
   b->bone_angle_offset = current->bone_angle_offset + ang_diff * utl_easing_linear_interpolation(frame_percentage);
+  b->bone_scale.x = current->bone_scale.x + scale_x_diff * utl_easing_linear_interpolation(frame_percentage);
+  b->bone_scale.y = current->bone_scale.y + scale_x_diff * utl_easing_linear_interpolation(frame_percentage);
   if (!root_body) {
     phy_rigid_body_set_position(b->bone_body, phy_vector2_add(phy_rigid_body_get_position(b->parent->bone_body), b->bone_offset));
     phy_rigid_body_set_angle(b->bone_body, phy_rigid_body_get_angle(b->parent->bone_body) + b->bone_angle_offset);

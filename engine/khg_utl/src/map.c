@@ -3,10 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define RED 1
-#define BLACK 0
+#define UTL_RED 1
+#define UTL_BLACK 0
 
-struct map {
+struct utl_map {
   utl_map_node *root;
   compare_func_map compFunc;
   value_dealloc_func deallocKey;
@@ -62,7 +62,7 @@ void utl_map_iterator_decrement(utl_map_iterator *it) {
   }
 }
 
-static utl_map_node *create_node(key_type key, value_type value) {
+static utl_map_node *create_node(utl_key_type key, utl_value_type value) {
   utl_map_node *node = (utl_map_node *)malloc(sizeof(utl_map_node));
   if (!node) {
     utl_error_func("Cannot allocate memory for node in create_node", utl_user_defined_data);
@@ -71,7 +71,7 @@ static utl_map_node *create_node(key_type key, value_type value) {
   node->key = key;
   node->value = value;
   node->left = node->right = node->parent = NULL;
-  node->color = RED;
+  node->color = UTL_RED;
   return node;
 }
 
@@ -162,32 +162,32 @@ static utl_map_node *map_minimum(utl_map_node *node) {
 }
 
 static void map_erase_fixup(utl_map *map, utl_map_node *x) {
-  while (x != map->root && (x == NULL || x->color == BLACK)) {
+  while (x != map->root && (x == NULL || x->color == UTL_BLACK)) {
     if (x == x->parent->left) {
       utl_map_node *w = x->parent->right;
-      if (w->color == RED) {
-        w->color = BLACK;
-        x->parent->color = RED;
+      if (w->color == UTL_RED) {
+        w->color = UTL_BLACK;
+        x->parent->color = UTL_RED;
         map_left_rotate(map, x->parent);
         w = x->parent->right;
       }
-      if ((w->left == NULL || w->left->color == BLACK) && (w->right == NULL || w->right->color == BLACK)) {
-        w->color = RED;
+      if ((w->left == NULL || w->left->color == UTL_BLACK) && (w->right == NULL || w->right->color == UTL_BLACK)) {
+        w->color = UTL_RED;
         x = x->parent;
       } 
       else {
-        if (w->right == NULL || w->right->color == BLACK) {
+        if (w->right == NULL || w->right->color == UTL_BLACK) {
           if (w->left != NULL) {
-            w->left->color = BLACK;
+            w->left->color = UTL_BLACK;
           }
-          w->color = RED;
+          w->color = UTL_RED;
           map_right_rotate(map, w);
           w = x->parent->right;
         }
         w->color = x->parent->color;
-        x->parent->color = BLACK;
+        x->parent->color = UTL_BLACK;
         if (w->right != NULL) { 
-          w->right->color = BLACK;
+          w->right->color = UTL_BLACK;
         }
         map_left_rotate(map, x->parent);
         x = map->root;
@@ -195,29 +195,29 @@ static void map_erase_fixup(utl_map *map, utl_map_node *x) {
     } 
     else {
       utl_map_node *w = x->parent->left;
-      if (w->color == RED) {
-        w->color = BLACK;
-        x->parent->color = RED;
+      if (w->color == UTL_RED) {
+        w->color = UTL_BLACK;
+        x->parent->color = UTL_RED;
         map_right_rotate(map, x->parent);
         w = x->parent->left;
       }
-      if ((w->right == NULL || w->right->color == BLACK) && (w->left == NULL || w->left->color == BLACK)) {
-        w->color = RED;
+      if ((w->right == NULL || w->right->color == UTL_BLACK) && (w->left == NULL || w->left->color == UTL_BLACK)) {
+        w->color = UTL_RED;
         x = x->parent;
       } 
       else {
-        if (w->left == NULL || w->left->color == BLACK) {
+        if (w->left == NULL || w->left->color == UTL_BLACK) {
           if (w->right != NULL) {
-            w->right->color = BLACK;
+            w->right->color = UTL_BLACK;
           }
-          w->color = RED;
+          w->color = UTL_RED;
           map_left_rotate(map, w);
           w = x->parent->left;
         }
         w->color = x->parent->color;
-        x->parent->color = BLACK;
+        x->parent->color = UTL_BLACK;
         if (w->left != NULL) { 
-          w->left->color = BLACK;
+          w->left->color = UTL_BLACK;
         }
         map_right_rotate(map, x->parent);
         x = map->root;
@@ -225,7 +225,7 @@ static void map_erase_fixup(utl_map *map, utl_map_node *x) {
     }
   }
   if (x != NULL) { 
-    x->color = BLACK;
+    x->color = UTL_BLACK;
   }
 }
 
@@ -249,13 +249,13 @@ static void map_insert_fixup(utl_map *map, utl_map_node *newNode) {
     utl_error_func("Null pointer provided to map_insert_fixup", utl_user_defined_data);
     return;
   }
-  while (newNode != map->root && newNode->parent->color == RED) {
+  while (newNode != map->root && newNode->parent->color == UTL_RED) {
     if (newNode->parent == newNode->parent->parent->left) {
       utl_map_node *uncle = newNode->parent->parent->right;
-      if (uncle && uncle->color == RED) {
-        newNode->parent->color = BLACK;
-        uncle->color = BLACK;
-        newNode->parent->parent->color = RED;
+      if (uncle && uncle->color == UTL_RED) {
+        newNode->parent->color = UTL_BLACK;
+        uncle->color = UTL_BLACK;
+        newNode->parent->parent->color = UTL_RED;
         newNode = newNode->parent->parent;
       } 
       else {
@@ -267,10 +267,10 @@ static void map_insert_fixup(utl_map *map, utl_map_node *newNode) {
     } 
     else {
       utl_map_node *uncle = newNode->parent->parent->left;
-      if (uncle && uncle->color == RED) {
-        newNode->parent->color = BLACK;
-        uncle->color = BLACK;
-        newNode->parent->parent->color = RED;
+      if (uncle && uncle->color == UTL_RED) {
+        newNode->parent->color = UTL_BLACK;
+        uncle->color = UTL_BLACK;
+        newNode->parent->parent->color = UTL_RED;
         newNode = newNode->parent->parent;
       } 
       else {
@@ -278,14 +278,14 @@ static void map_insert_fixup(utl_map *map, utl_map_node *newNode) {
           newNode = newNode->parent;
           map_right_rotate(map, newNode);
         }
-        newNode->parent->color = BLACK;
-        newNode->parent->parent->color = RED;
+        newNode->parent->color = UTL_BLACK;
+        newNode->parent->parent->color = UTL_RED;
         map_left_rotate(map, newNode->parent->parent);
         break;
       }
     }
   }
-  map->root->color = BLACK;
+  map->root->color = UTL_BLACK;
 }
 
 utl_map *utl_map_create(compare_func_map comp, value_dealloc_func deallocKey, value_dealloc_func deallocValue) {
@@ -339,7 +339,7 @@ size_t utl_map_max_size(const utl_map *map) {
   return (size_t)(~((size_t)0)) / sizeof(utl_map_node);
 }
 
-bool utl_map_insert(utl_map *map, key_type key, value_type value) {
+bool utl_map_insert(utl_map *map, utl_key_type key, utl_value_type value) {
     if (map == NULL || key == NULL) {
       utl_error_func("Null pointer provided for map or key in map_insert", utl_user_defined_data);
       return false;
@@ -375,7 +375,7 @@ bool utl_map_insert(utl_map *map, key_type key, value_type value) {
     return true;
 }
 
-value_type utl_map_at(const utl_map *map, key_type key) {
+utl_value_type utl_map_at(const utl_map *map, utl_key_type key) {
   if (map == NULL || key == NULL) {
     utl_error_func("Null pointer provided for map or key in map_at", utl_user_defined_data);
     return NULL;
@@ -428,7 +428,7 @@ void utl_map_swap(utl_map *map1, utl_map *map2) {
   map2->deallocValue = tempDeallocValue;
 }
 
-size_t utl_map_count(const utl_map *map, key_type key) {
+size_t utl_map_count(const utl_map *map, utl_key_type key) {
   if (map == NULL) {
     utl_error_func("Null pointer provided for map in map_count", utl_user_defined_data);
     return 0;
@@ -449,7 +449,7 @@ size_t utl_map_count(const utl_map *map, key_type key) {
   return 0;
 }
 
-bool utl_map_emplace(utl_map *map, key_type key, value_type value) {
+bool utl_map_emplace(utl_map *map, utl_key_type key, utl_value_type value) {
   if (map == NULL || key == NULL) {
     utl_error_func("Null pointer provided for map or key in map_emplace", utl_user_defined_data);
     return false;
@@ -488,7 +488,7 @@ compare_func_map utl_map_key_comp(const utl_map *map) {
   return map->compFunc;
 }
 
-bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, key_type key, value_type value) {
+bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, utl_key_type key, utl_value_type value) {
   if (map == NULL || !key) {
     utl_error_func("Map or key is null cannot emplace in map_emplace_hint", utl_user_defined_data);
     exit(-1);
@@ -500,7 +500,7 @@ bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, key_type key, val
   }
   if (map->root == NULL) {
     map->root = newNode;
-    map->root->color = BLACK;
+    map->root->color = UTL_BLACK;
     map->size++;
     return true;
   }
@@ -553,7 +553,7 @@ bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, key_type key, val
   return true;
 }
 
-bool utl_map_erase(utl_map *map, key_type key) {
+bool utl_map_erase(utl_map *map, utl_key_type key) {
   if (map == NULL || map->root == NULL) {
     utl_error_func("Map or map root is null in map_erase", utl_user_defined_data);
     return false;
@@ -612,14 +612,14 @@ bool utl_map_erase(utl_map *map, key_type key) {
     map->deallocValue(z->value);
   }
   free(z);
-  if (y_original_color == BLACK) { 
+  if (y_original_color == UTL_BLACK) { 
     map_erase_fixup(map, x);
   }
   map->size--;
   return true;
 }
 
-utl_map_iterator utl_map_find(const utl_map *map, key_type key) {
+utl_map_iterator utl_map_find(const utl_map *map, utl_key_type key) {
   utl_map_iterator iterator = {0};
   if (map == NULL || key == NULL) {
     utl_error_func("Null pointer provided for map or key in map_find", utl_user_defined_data);
@@ -729,7 +729,7 @@ utl_map_iterator utl_map_crend(const utl_map *map) {
   return (utl_map_iterator){0};
 }
 
-utl_map_iterator utl_map_lower_bound(const utl_map *map, key_type key) {
+utl_map_iterator utl_map_lower_bound(const utl_map *map, utl_key_type key) {
   utl_map_iterator iterator = {0};
   if (map == NULL || key == NULL) {
     utl_error_func("Null pointer provided for map or key in map_lower_bound", utl_user_defined_data);
@@ -752,7 +752,7 @@ utl_map_iterator utl_map_lower_bound(const utl_map *map, key_type key) {
   return iterator;
 }
 
-utl_map_iterator utl_map_upper_bound(const utl_map* map, key_type key) {
+utl_map_iterator utl_map_upper_bound(const utl_map* map, utl_key_type key) {
   utl_map_iterator iterator = {0};
   if (map == NULL || key == NULL) {
     utl_error_func("Null pointer provided for map or key in map_upper_bound", utl_user_defined_data);
@@ -775,7 +775,7 @@ utl_map_iterator utl_map_upper_bound(const utl_map* map, key_type key) {
   return iterator;
 }
 
-utl_map_iterator_pair utl_map_equal_range(const utl_map *map, key_type key) {
+utl_map_iterator_pair utl_map_equal_range(const utl_map *map, utl_key_type key) {
   utl_map_iterator_pair iteratorPair = {{0}, {0}};
   if (map == NULL) {
     utl_error_func("Map object is Null in map_equal_range", utl_user_defined_data);
@@ -790,7 +790,7 @@ utl_map_iterator_pair utl_map_equal_range(const utl_map *map, key_type key) {
   return iteratorPair;
 }
 
-key_type utl_map_node_get_key(utl_map_node *node) {
+utl_key_type utl_map_node_get_key(utl_map_node *node) {
   if (!node) {
     utl_error_func("MapNode object is Null and Invalid in map_node_get_key", utl_user_defined_data);
     return NULL;
@@ -798,7 +798,7 @@ key_type utl_map_node_get_key(utl_map_node *node) {
   return node->key;
 }
 
-value_type utl_map_node_get_value(utl_map_node *node) {
+utl_value_type utl_map_node_get_value(utl_map_node *node) {
   if (!node) {
     utl_error_func("MapNode object is Null and Invalid in map_node_get_value", utl_user_defined_data);
     return NULL;

@@ -461,7 +461,7 @@ static void json_element_deallocator(void *data) {
   utl_json_deallocate(element);
 }
 
-static int compare_strings_json(const key_type a, const key_type b) {
+static int compare_strings_json(const utl_key_type a, const utl_key_type b) {
   if (!a || !b) {
     utl_error_func("One or both of the strings are null", utl_user_defined_data);
     return 0;
@@ -979,7 +979,7 @@ bool utl_json_compare(const utl_json_element *element1, const utl_json_element *
       while (it1.node != end1.node) {
         const char *key = (char *)it1.node->key;
         utl_json_element *val1 = (utl_json_element *)it1.node->value;
-        utl_json_element *val2 = (utl_json_element *)utl_map_at(element2->value.object_val, (key_type)key);
+        utl_json_element *val2 = (utl_json_element *)utl_map_at(element2->value.object_val, (utl_key_type)key);
         if (!val2 || !utl_json_compare(val1, val2)) {
           return false;
         }

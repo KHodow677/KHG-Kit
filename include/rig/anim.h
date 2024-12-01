@@ -7,6 +7,7 @@ typedef struct frame_info {
   int bone_tex;
   phy_vector2 bone_offset;
   float bone_angle_offset;
+  phy_vector2 bone_scale;
 } bone_frame_info;
 
 const bone_frame_info *get_bone_frame_info(const rig *r, const int state_id, const int frame_id);
