@@ -1,4 +1,5 @@
 #include "game.h"
+#include "camera/camera.h"
 #include "letterbox.h"
 #include "camera/camera_controller.h"
 #include "ecs/comp_animator.h"
@@ -28,6 +29,10 @@
 #include <string.h>
 #include <math.h>
 
+float SCREEN_WIDTH = INITIAL_WIDTH;
+float SCREEN_HEIGHT = INITIAL_HEIGHT;
+float SCREEN_SCALE = 1.0f;
+
 static gfx_font font;
 static uint32_t original_font_size;
 
@@ -42,7 +47,7 @@ void log_sys_info() {
 }
 
 static void update_font() {
-  uint32_t min_change = fminf((uint32_t)(gfx_get_display_width() / INITIAL_WIDTH * original_font_size), (uint32_t)(gfx_get_display_height() / INITIAL_WIDTH * original_font_size));
+  uint32_t min_change = fminf((uint32_t)(gfx_get_display_width() / SCREEN_WIDTH * original_font_size), (uint32_t)(gfx_get_display_height() / SCREEN_WIDTH * original_font_size));
   if (font.font_size != min_change) {
     gfx_free_font(&font);
     font = gfx_load_font_asset("res/assets/fonts/inter.ttf", min_change);
@@ -62,7 +67,7 @@ const int game_run() {
   if (!glfwInit()) {
     return -1;
   }
-  GLFWwindow *window = glfwCreateWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "Game", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Game", NULL, NULL);
   if (!window) {
     glfwTerminate();
     return -1;

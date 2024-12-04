@@ -71,3 +71,9 @@ void generate_textures() {
   }
 }
 
+void reset_textures() {
+  for (int i = 0; i < NUM_TEXTURES; i++) {
+    TEXTURE_LOOKUP[i].id = NO_TEXTURE.id;
+  }
+}
+
