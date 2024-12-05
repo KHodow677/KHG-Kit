@@ -40,7 +40,7 @@ target_compile_definitions("${CMAKE_PROJECT_NAME}" PUBLIC RESOURCES_PATH="./res/
 
 target_sources("${CMAKE_PROJECT_NAME}" PRIVATE ${MY_SOURCES} )
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_aud khg_dbm khg_ecs khg_gfx khg_phy khg_stm khg_tcp khg_tea khg_thd khg_utl)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE unity cglm glfw glad dr_libs jar_libs miniaudio stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_aud khg_dbm khg_ecs khg_gfx khg_phy khg_stm khg_tcp khg_tea khg_thd khg_utl)
 if (WIN32)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE Ws2_32)
   target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE Mswsock)
@@ -54,6 +54,6 @@ endif()
 enable_testing()
 file(GLOB_RECURSE TEST_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.c")
 add_executable(test_runner ${TEST_SOURCES})
-target_link_libraries(test_runner PRIVATE unity cglm glfw glad stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_ann khg_aud khg_dbm khg_ecs khg_gfx khg_phy khg_stm khg_tcp khg_tea khg_thd khg_utl)
+target_link_libraries(test_runner PRIVATE unity cglm glfw glad dr_libs jar_libs miniaudio stb_image stb_image_resize stb_truetype stb_vorbis libclipboard khg_ann khg_aud khg_dbm khg_ecs khg_gfx khg_phy khg_stm khg_tcp khg_tea khg_thd khg_utl)
 add_test(NAME test_runner COMMAND test_runner)
 
