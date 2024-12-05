@@ -34,7 +34,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
         const gfx_texture tex_ref = get_or_add_texture(info->tex_id);
         gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
         transform_letterbox_element(LETTERBOX, &pos, &cam_pos, &tex);
-        gfx_image_no_block(pos.x, pos.y, tex, 0.0f, 0.0f, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);
+        gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);
       }
     }
   }

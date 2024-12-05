@@ -52,17 +52,17 @@ void generate_rig_from_file(rig *r, const char *filepath, const char *rig_sectio
         continue;
       }
     }
-    add_bone(r, phy_vector2_zero, 0.0f, phy_vector2_new(1.0f, 1.0f), new_bone.bone_tex, new_bone.bone_num, (bone *)utl_array_at(r->bones, new_bone.bone_parent_num));
+    add_bone(r, phy_vector2_zero, 0.0f, new_bone.bone_tex, new_bone.bone_num, (bone *)utl_array_at(r->bones, new_bone.bone_parent_num));
   }
   utl_config_deallocate(config);
 }
 
-bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const phy_vector2 bone_scale, const int tex_id, const int layer, bone *parent) {
+bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent) {
   phy_rigid_body_initializer bone_init = phy_rigid_body_initializer_default;
   bone_init.type = PHY_RIGID_BODY_TYPE_DYNAMIC;
   bone_init.position = parent ? phy_vector2_add(phy_rigid_body_get_position(parent->bone_body), bone_offset) : bone_offset;
   bone_init.angle = 0.0f;
-  bone res = { false, phy_rigid_body_new(bone_init), phy_circle_shape_new(bone_offset, 0.0f), bone_offset, bone_angle_offset, bone_scale, tex_id, layer, parent };
+  bone res = { false, phy_rigid_body_new(bone_init), phy_circle_shape_new(bone_offset, 0.0f), bone_offset, bone_angle_offset, tex_id, layer, parent };
   phy_rigid_body_disable_collisions(res.bone_body);
   phy_rigid_body_set_mass(res.bone_body, 1.0f);
   phy_rigid_body_add_shape(res.bone_body, res.bone_shape);
@@ -70,8 +70,8 @@ bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, c
   return res;
 }
 
-void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const phy_vector2 bone_scale, const int tex_id, const int layer, bone *parent) {
-  bone b = create_bone(bone_offset, bone_angle_offset, bone_scale, tex_id, layer, parent);
+void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent) {
+  bone b = create_bone(bone_offset, bone_angle_offset, tex_id, layer, parent);
   utl_array_set(r->bones, layer, &b);
 }
 
@@ -81,7 +81,7 @@ void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body,
   r->bones = utl_array_create(sizeof(bone), num_bones);
   r->root_id = init_layer;
   r->animation_states = utl_array_create(sizeof(utl_array *), num_anim);
-  bone root_bone = create_bone(phy_rigid_body_get_position(bone_body), 0.0f, phy_vector2_new(1.0f, 1.0f), root_tex, init_layer, NULL);
+  bone root_bone = create_bone(phy_rigid_body_get_position(bone_body), 0.0f, root_tex, init_layer, NULL);
   utl_array_set(r->bones, init_layer, &root_bone);
 }
 
@@ -132,10 +132,8 @@ void render_rig(const rig *r, const float parallax_value, const bool flipped) {
     phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
     const gfx_texture tex_ref = get_or_add_texture(b->bone_tex_id);
     gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, angle };
-    tex.width *= b->bone_scale.x;
-    tex.height *= b->bone_scale.y;
     transform_letterbox_element(LETTERBOX, &pos, &cam_pos, &tex);
-    gfx_image_no_block(pos.x, pos.y, tex, 0.0f, 0.0f, cam_pos.x * parallax_value, cam_pos.y * parallax_value, CAMERA.zoom, true, flipped);
+    gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * parallax_value, cam_pos.y * parallax_value, CAMERA.zoom, true, flipped);
   }
 }
 
