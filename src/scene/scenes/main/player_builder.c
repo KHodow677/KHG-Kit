@@ -4,6 +4,7 @@
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
+#include "resources/texture_loader.h"
 #include "rig/anim.h"
 #include "rig/rig.h"
 #include "khg_ecs/ecs.h"
@@ -11,11 +12,11 @@
 
 player_info PLAYER_INFO = { 0 };
 
-void build_player(const int min_tex_id, const int max_tex_id, const float x, const float y, const int render_layer) {
+void build_player(const float x, const float y, const int render_layer) {
   ecs_id entity = ecs_create(ECS);
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 300.0f, 256.0f, 1.0f, phy_vector2_new(x, y), 0.0f, true, true };
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
-  comp_renderer_constructor_info comp_renderer_ci = { cp->body, min_tex_id, render_layer, 1.0f, false };
+  comp_renderer_constructor_info comp_renderer_ci = { cp->body, PLAYER_BODY, render_layer, 1.0f, false };
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci, generate_rig_builder_from_file("res/assets/anim/rigs/player.ini", "player_root", 1));
   generate_rig_from_file(&cr->rig, "res/assets/anim/rigs/player.ini", "player_bones");
   generate_animation_from_path(&cr->rig, "res/assets/anim/frames/player/idle/", "player_frame", 0, 8);

@@ -17,7 +17,7 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   camera_setup(&CAMERA);
   setup_lights_texture();
   setup_lights_shader();
-  build_player(PLAYER_IDLE_0, PLAYER_IDLE_0, 360, 600, 9);
+  build_player(360, 600, 9);
   build_environment_element(MAIN_ENVIRONMENT_BACKGROUND, 640, 360, 0, false, 0, 0.0f);
   build_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_1, 640, 360, 0, false, 1, 0.6f);
   build_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_0, 640, 360, 0, false, 2, 0.7f);

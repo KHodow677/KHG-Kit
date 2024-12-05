@@ -52,14 +52,6 @@ void generate_textures() {
   TEXTURE_ASSET_REF[MAIN_ENVIRONMENT_ROCK_0] = (texture_asset){ "res/assets/textures/main/environment/rocks/rock_00.png", 302, 104 };
   TEXTURE_ASSET_REF[MAIN_STATION_CART] = (texture_asset){ "res/assets/textures/main/station/cart.png", 370, 280 };
   TEXTURE_ASSET_REF[MAIN_STATION_TWIN_HOUSE] = (texture_asset){ "res/assets/textures/main/station/twin_house.png", 460, 468 };
-  TEXTURE_ASSET_REF[PLAYER_IDLE_0] = (texture_asset){ "res/assets/textures/player/idle/player_idle_0.png", 300, 256 };
-  TEXTURE_ASSET_REF[PLAYER_IDLE_1] = (texture_asset){ "res/assets/textures/player/idle/player_idle_1.png", 300, 256 };
-  TEXTURE_ASSET_REF[PLAYER_IDLE_2] = (texture_asset){ "res/assets/textures/player/idle/player_idle_2.png", 300, 256 };
-  TEXTURE_ASSET_REF[PLAYER_IDLE_3] = (texture_asset){ "res/assets/textures/player/idle/player_idle_3.png", 300, 256 };
-  TEXTURE_ASSET_REF[PLAYER_IDLE_4] = (texture_asset){ "res/assets/textures/player/idle/player_idle_4.png", 300, 256 };
-  TEXTURE_ASSET_REF[PLAYER_IDLE_5] = (texture_asset){ "res/assets/textures/player/idle/player_idle_5.png", 300, 256 };
-  TEXTURE_ASSET_REF[PLAYER_IDLE_6] = (texture_asset){ "res/assets/textures/player/idle/player_idle_6.png", 300, 256 };
-  TEXTURE_ASSET_REF[PLAYER_IDLE_7] = (texture_asset){ "res/assets/textures/player/idle/player_idle_7.png", 300, 256 };
   TEXTURE_ASSET_REF[PLAYER_HEAD] = (texture_asset){ "res/assets/textures/player/player_head_eyes.png", 110, 105 };
   TEXTURE_ASSET_REF[PLAYER_BODY] = (texture_asset){ "res/assets/textures/player/player_body.png", 60, 49 };
   TEXTURE_ASSET_REF[PLAYER_ARM_L] = (texture_asset){ "res/assets/textures/player/player_arm_l.png", 40, 39 };

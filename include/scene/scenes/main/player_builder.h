@@ -17,5 +17,5 @@ typedef struct player_info {
 
 extern player_info PLAYER_INFO;
 
-void build_player(const int min_tex_id, const int max_tex_id, const float x, const float y, const int render_layer);
+void build_player(const float x, const float y, const int render_layer);
 
