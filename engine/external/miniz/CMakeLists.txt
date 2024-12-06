@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(miniz)
-set(CMAKE_C_STANDARD 90)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wshadow -Wformat=2 -Wall -Wno-overlength-strings -pedantic")
-
 include(GenerateExportHeader)
 set(miniz_SOURCE miniz.c)
 add_library(${PROJECT_NAME} ${miniz_SOURCE})

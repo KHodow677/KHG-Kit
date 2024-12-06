@@ -4865,7 +4865,7 @@ static int mz_stat64(const char *path, struct __stat64 *buffer) {
 
 static int mz_mkdir(const char *pDirname) {
   WCHAR *wDirname = mz_utf8z_to_widechar(pDirname);
-  int res = mkdir((char *)wDirname);
+  int res = mkdir((const char *)wDirname);
   free(wDirname);
   return res;
 }
