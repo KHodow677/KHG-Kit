@@ -7,8 +7,6 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include <direct.h>
 #include <io.h>
-#define ftruncate(fd, sz) (-(_chsize_s((fd), (sz)) != 0))
-#define fileno _fileno
 #define HAS_DEVICE(P) ((((P)[0] >= 'A' && (P)[0] <= 'Z') || ((P)[0] >= 'a' && (P)[0] <= 'z')) && (P)[1] == ':')
 #define FILESYSTEM_PREFIX_LEN(P) (HAS_DEVICE(P) ? 2 : 0)
 #else
