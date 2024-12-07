@@ -5,32 +5,32 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include <direct.h>
 #include <io.h>
-#define HAS_DEVICE(P) ((((P)[0] >= 'A' && (P)[0] <= 'Z') || ((P)[0] >= 'a' && (P)[0] <= 'z')) && (P)[1] == ':')
-#define FILESYSTEM_PREFIX_LEN(P) (HAS_DEVICE(P) ? 2 : 0)
+#define zip_has_device(P) ((((P)[0] >= 'A' && (P)[0] <= 'Z') || ((P)[0] >= 'a' && (P)[0] <= 'z')) && (P)[1] == ':')
+#define zip_filesystem_prefix_len(P) (zip_has_device(P) ? 2 : 0)
 #else
 #include <sys/stat.h>
-#define HAS_DEVICE(P) 0
-#define FILESYSTEM_PREFIX_LEN(P) 0
+#define zip_has_device(P) 0
+#define zip_filesystem_prefix_len(P) 0
 #endif
 
-#ifndef ISSLASH
-#define ISSLASH(C) ((C) == '/' || (C) == '\\')
+#ifndef zip_is_slash
+#define zip_is_slash(C) ((C) == '/' || (C) == '\\')
 #endif
 
-#define CLEANUP(ptr) {\
+#define zip_cleanup(ptr) {\
   if (ptr) {\
     free((void *)ptr);\
     ptr = NULL;\
   }\
 }
 
-#define UNX_IFDIR 0040000
-#define UNX_IFREG 0100000
-#define UNX_IFSOCK 0140000
-#define UNX_IFLNK 0120000
-#define UNX_IFBLK 0060000
-#define UNX_IFCHR 0020000
-#define UNX_IFIFO 0010000
+#define UNIX_IFDIR 0040000
+#define UNIX_IFREG 0100000
+#define UNIX_IFSOCK 0140000
+#define UNIX_IFLNK 0120000
+#define UNIX_IFBLK 0060000
+#define UNIX_IFCHR 0020000
+#define UNIX_IFIFO 0010000
 
 #define ZIP_ENOINIT -1
 #define ZIP_EINVENTNAME -2
