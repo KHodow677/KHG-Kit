@@ -1435,10 +1435,12 @@ int zip_create(const char *zipname, const char *filenames[], size_t len) {
       err = ZIP_ENOFILE;
       break;
     }
+  mz_uint16 modes;
+  mz_uint32 ext_attributes;
 #if defined(_WIN32) || defined(_WIN64)
-    (void)modes; // unused
+    (void)modes;
 #else
-    mz_uint16 modes = file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO | S_ISUID | S_ISGID | S_ISVTX);
+    modes = file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO | S_ISUID | S_ISGID | S_ISVTX);
     if (S_ISDIR(file_stat.st_mode)) {
       modes |= UNIX_IFDIR;
     }
