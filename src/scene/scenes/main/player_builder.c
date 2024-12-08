@@ -4,9 +4,10 @@
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
+#include "resources/anim_loader.h"
+#include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
 #include "rig/anim.h"
-#include "rig/rig.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/core/phy_vector.h"
 
