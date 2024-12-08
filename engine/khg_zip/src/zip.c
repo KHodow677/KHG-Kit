@@ -1462,7 +1462,7 @@ int zip_create(const char *zipname, const char *filenames[], size_t len) {
     if (S_ISSOCK(file_stat.st_mode)) {
       modes |= UNIX_IFSOCK;
     }
-    mz_uint32 ext_attributes = (modes << 16) | !(file_stat.st_mode & S_IWUSR);
+    ext_attributes = (modes << 16) | !(file_stat.st_mode & S_IWUSR);
     if ((file_stat.st_mode & S_IFMT) == S_IFDIR) {
       ext_attributes |= MZ_ZIP_DOS_DIR_ATTRIBUTE_BITFLAG;
     }
