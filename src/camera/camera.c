@@ -38,6 +38,5 @@ const phy_vector2 world_to_screen(const float world_x, const float world_y) {
 
 const phy_vector2 world_to_screen_perc(const float world_x, const float world_y) {
   const phy_vector2 screen_pos = world_to_screen(world_x, world_y);
-  return phy_vector2_new(screen_pos.x / INITIAL_WIDTH, screen_pos.y / INITIAL_HEIGHT);
+  return phy_vector2_new(screen_pos.x / SCREEN_WIDTH, screen_pos.y / SCREEN_HEIGHT);
 }
-

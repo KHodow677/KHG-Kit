@@ -73,7 +73,7 @@ const int game_run() {
     return -1;
   }
   glfwMakeContextCurrent(window);
-  gfx_init_glfw(1280, 720, window);
+  gfx_init_glfw(SCREEN_WIDTH, SCREEN_HEIGHT, window);
   log_sys_info();
   generate_textures();
   scenes_setup();
