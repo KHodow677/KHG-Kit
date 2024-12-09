@@ -23,12 +23,13 @@ typedef struct area_object {
 } area_object;
 
 typedef struct area {
+  bool loaded;
   utl_array *tiles;
   utl_array *colliders;
   utl_vector *objects;
-  int tile_layer;
-  int object_layer;
+  int tiles_layer;
+  int objects_layer;
 } area;
 
-void create_area(area *a, size_t num_tiles, size_t num_colliders);
+void create_area(area *a, size_t num_tiles, size_t num_colliders, int tiles_layer, int objects_layer);
 void free_area(area *a);

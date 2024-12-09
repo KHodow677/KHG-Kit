@@ -154,8 +154,10 @@ typedef struct texture_asset {
 const gfx_texture generate_texture(char *filepath, float width, float height);
 const bool check_texture_loaded(int tex_id);
 const int get_tex_id_from_string(const char *tex_key);
+
 const gfx_texture get_or_add_texture(int tex_id);
 const gfx_texture get_or_add_texture_from_string(const char *tex_key);
+
 void generate_textures(void);
 void reset_textures(void);
 

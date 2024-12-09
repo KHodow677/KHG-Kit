@@ -12,6 +12,7 @@
 #include "io/key_controller.h"
 #include "graphics/light.h"
 #include "physics/physics.h"
+#include "resources/area_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/scene_manager.h"
 #include "scene/scene_utl.h"
@@ -76,11 +77,13 @@ const int game_run() {
   gfx_init_glfw(SCREEN_WIDTH, SCREEN_HEIGHT, window);
   log_sys_info();
   generate_textures();
+  generate_areas();
   scenes_setup();
   scenes_switch(TO_MAIN_SCENE);
   font = gfx_load_font_asset("res/assets/fonts/inter.ttf", 50);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
+  cleanup_areas();
   ecs_cleanup();
   physics_cleanup();
   return res;
