@@ -26,6 +26,8 @@ typedef struct area {
   utl_array *tiles;
   utl_array *colliders;
   utl_vector *objects;
+  int tile_layer;
+  int object_layer;
 } area;
 
 void create_area(area *a, size_t num_tiles, size_t num_colliders);

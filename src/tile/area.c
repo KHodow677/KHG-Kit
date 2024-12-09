@@ -14,3 +14,4 @@ void free_area(area *a) {
   utl_array_deallocate(a->colliders);
   utl_vector_deallocate(a->objects);
 }
+
