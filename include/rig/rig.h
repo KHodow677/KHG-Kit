@@ -46,7 +46,7 @@ typedef struct rig_builder {
 bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent);
 void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent);
 
-void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const int root_tex, const size_t init_layer, const int num_anim);
+void create_rig(rig *r, const rig_builder *rb);
 void free_rig(const rig *r);
 
 void update_rig(const rig *r, const phy_rigid_body *body, const float frame_percentage, utl_array *target);

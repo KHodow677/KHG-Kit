@@ -24,7 +24,6 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   build_environment_element(MAIN_ENVIRONMENT_TREE_1, 640, 360, 0, false, 3, 0.8f);
   build_environment_element(MAIN_ENVIRONMENT_TREE_0, 640, 360, 0, false, 4, 0.9f);
   build_environment_element(MAIN_ENVIRONMENT_GROUND, 640, 360, 0, false, 6, 1.0f);
-  build_environment_element(MAIN_ENVIRONMENT_ROCK_0, 360, 600, 0, false, 5, 1.0f);
   build_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_1, 1920, 360, 0, false, 1, 0.6f);
   build_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_0, 1920, 360, 0, false, 2, 0.7f);
   build_environment_element(MAIN_ENVIRONMENT_TREE_1, 1920, 360, 0, false, 3, 0.8f);

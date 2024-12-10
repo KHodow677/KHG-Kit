@@ -3,10 +3,12 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "rig/rig.h"
+#include <stddef.h>
 
 typedef struct comp_renderer {
   ecs_id id;
   int tex_id;
+  size_t area_id;
   const phy_rigid_body *body;
   rig rig;
   int render_layer;
@@ -18,6 +20,8 @@ typedef struct comp_renderer {
 typedef struct comp_renderer_constructor_info {
   const phy_rigid_body *body; 
   int tex_id;
+  size_t rig_id;
+  size_t area_id;
   int render_layer;
   float parallax_value;
   bool flipped;
@@ -31,5 +35,5 @@ extern comp_renderer_constructor_info *RENDERER_CONSTRUCTOR_INFO;
 void comp_renderer_register(void);
 void sys_renderer_register(void);
 
-comp_renderer *sys_renderer_add(const ecs_id eid, comp_renderer_constructor_info *crci, const rig_builder rb);
+comp_renderer *sys_renderer_add(const ecs_id eid, comp_renderer_constructor_info *crci);
 

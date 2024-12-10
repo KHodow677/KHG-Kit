@@ -16,6 +16,8 @@ typedef enum {
 #define AREA_STRINGS (char *[]){ FOREACH_AREA(GENERATE_AREA_STRING) }
 #define AREA_STRINGS_SIZE sizeof(AREA_STRINGS) / sizeof(AREA_STRINGS[0])
 
+#define NO_AREA_ID NUM_AREAS
+
 typedef struct area_asset {
   char *tile_filepath;
   char *collider_filepath;

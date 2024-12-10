@@ -13,6 +13,7 @@
 #include "graphics/light.h"
 #include "physics/physics.h"
 #include "resources/area_loader.h"
+#include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/scene_manager.h"
 #include "scene/scene_utl.h"
@@ -77,6 +78,7 @@ const int game_run() {
   gfx_init_glfw(SCREEN_WIDTH, SCREEN_HEIGHT, window);
   log_sys_info();
   generate_textures();
+  generate_rigs();
   generate_areas();
   scenes_setup();
   scenes_switch(TO_MAIN_SCENE);

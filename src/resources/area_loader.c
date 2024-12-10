@@ -1,9 +1,10 @@
 #include "resources/area_loader.h"
+#include "resources/texture_loader.h"
+#include "tile/area.h"
+#include "tile/tile.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
-#include "resources/texture_loader.h"
-#include "tile/area.h"
 #include <stddef.h>
 #include <string.h>
 
@@ -77,7 +78,7 @@ void generate_area_objects_from_file(area *a, const char *object_filepath) {
 }
 
 const bool check_area_loaded(size_t area_id) {
-  return (AREA_LOOKUP[area_id].loaded != NO_TEXTURE.loaded);
+  return (AREA_LOOKUP[area_id].enabled != NO_TEXTURE.enabled);
 }
 
 const size_t get_area_id_from_string(const char *area_key) {
@@ -116,6 +117,7 @@ void cleanup_areas() {
 
 void reset_areas() {
   for (size_t i = 0; i < NUM_AREAS; i++) {
-    AREA_LOOKUP[i].loaded = NO_TEXTURE.loaded;
+    AREA_LOOKUP[i].enabled = NO_TEXTURE.enabled;
   }
 }
+

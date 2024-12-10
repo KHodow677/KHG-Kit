@@ -30,14 +30,14 @@ void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offs
   utl_array_set(r->bones, layer, &b);
 }
 
-void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const int root_tex, const size_t init_layer, const int num_anim) {
+void create_rig(rig *r, const rig_builder *rb) {
   r->enabled = true;
-  r->num_bones = num_bones;
-  r->bones = utl_array_create(sizeof(bone), num_bones);
-  r->root_id = init_layer;
-  r->animation_states = utl_array_create(sizeof(utl_array *), num_anim);
-  bone root_bone = create_bone(phy_rigid_body_get_position(bone_body), 0.0f, root_tex, init_layer, NULL);
-  utl_array_set(r->bones, init_layer, &root_bone);
+  r->num_bones = rb->num_bones;
+  r->bones = utl_array_create(sizeof(bone), rb->num_bones);
+  r->root_id = rb->init_layer;
+  r->animation_states = utl_array_create(sizeof(utl_array *), rb->num_anim);
+  bone root_bone = create_bone(phy_vector2_zero, 0.0f, rb->root_tex, rb->init_layer, NULL);
+  utl_array_set(r->bones, rb->init_layer, &root_bone);
 }
 
 void free_rig(const rig *r) {
@@ -45,14 +45,16 @@ void free_rig(const rig *r) {
     phy_space_remove_rigidbody(SPACE, b->bone_body);
     phy_rigid_body_free(b->bone_body);
   }
-  for (utl_array **state = utl_array_begin(r->animation_states); state != (utl_array **)utl_array_end(r->animation_states); state++) {
-    if (state && *state) {
-      for (utl_array **frame = utl_array_begin(*state); frame != (utl_array **)utl_array_end(*state); frame++) {
-        if (frame && *frame) {
-          utl_array_deallocate(*frame);
+  if (utl_array_size(r->animation_states) > 0) {
+    for (utl_array **state = utl_array_begin(r->animation_states); state != (utl_array **)utl_array_end(r->animation_states); state++) {
+      if (state && *state) {
+        for (utl_array **frame = utl_array_begin(*state); frame != (utl_array **)utl_array_end(*state); frame++) {
+          if (frame && *frame) {
+            utl_array_deallocate(*frame);
+          }
         }
+        utl_array_deallocate(*state);
       }
-      utl_array_deallocate(*state);
     }
   }
   utl_array_deallocate(r->animation_states);
