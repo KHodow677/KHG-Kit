@@ -1,128 +1,205 @@
 #pragma once
 
-#include <stdint.h>
 #include <stddef.h>
+#include <limits.h>
+#include <float.h>
+#include <stdbool.h>
+
+typedef double i_float;
+#define BERYL_NUM_MAX_INT (1ll << DBL_MANT_DIG)
+
+typedef unsigned i_size;
+#define I_SIZE_MAX UINT_MAX
+
+typedef unsigned short i_refc;
+#define I_REFC_MAX USHRT_MAX
+
+typedef unsigned long long beryl_tag;
+#define BERYL_MAX_TAGS ULLONG_MAX
+
+typedef unsigned long long large_uint_type;
+#define LARGE_UINT_TYPE_MAX ULLONG_MAX
 
 enum {
-  GSC_OK,
-  GSC_ERROR,
-  GSC_YIELD,
-  GSC_NOT_FOUND,
-  GSC_OUT_OF_MEMORY
+	TYPE_NULL,
+	TYPE_NUMBER,
+	TYPE_BOOL,
+	TYPE_STR,
+	TYPE_TABLE,
+	TYPE_ARRAY,
+	TYPE_TAG,
+	TYPE_FN,
+	TYPE_EXT_FN,
+	TYPE_OBJECT,
+	TYPE_ERR
 };
 
-#define GSC_TYPES(X)\
-	X(UNDEFINED)\
-	X(STRING)\
-	X(INTERNED_STRING)\
-	X(INTEGER)\
-	X(BOOLEAN)\
-	X(FLOAT)\
-	X(VECTOR)\
-	X(FUNCTIO\
-	X(OBJECT)\
-	X(REFEREN\
-	X(THREAD)
+enum beryl_err_action {
+	BERYL_PRINT_ERR,
+	BERYL_CATCH_ERR,
+	BERYL_PROP_ERR
+};
 
-#define GSC_TYPES_STRINGS(TYPE) #TYPE, static const char *gsc_type_names[] = { GSC_TYPES(GSC_TYPES_STRINGS) NULL };
-#define GSC_TYPES_ENUM(TYPE) GSC_TYPE_##TYPE, enum { GSC_TYPES(GSC_TYPES_ENUM) GSC_TYPE_MAX };
+struct beryl_table;
 
-#define GSC_COMPILE_FLAG_NONE (0)
-#define GSC_COMPILE_FLAG_PRINT_EXPRESSION (1)
+struct i_managed_str;
 
-typedef struct gsc_Context gsc_Context;
-typedef int (*gsc_Function)(gsc_Context *);
-typedef struct gsc_Object gsc_Object;
+struct beryl_external_fn;
+struct beryl_fn;
 
-typedef struct {
-  void *(*allocate_memory)(void *ctx, int size);
-  void (*free_memory)(void *ctx, void *ptr);
-  const char *(*read_file)(void *ctx, const char *filename, int *status);
-  void *userdata;
-  int verbose;
-  int main_memory_size;
-  int temp_memory_size;
-  int string_table_memory_size;
-  const char *default_self;
-  int max_threads;
-} gsc_CreateOptions;
+struct beryl_object;
 
-typedef struct {
+#define BERYL_INLINE_STR_MAX_LEN (sizeof(void*))
+
+struct i_val {
+	union {
+		struct i_managed_str *managed_str;
+		struct beryl_table *table;
+		const char *str;
+		char inline_str[BERYL_INLINE_STR_MAX_LEN];
+		i_float num_v;
+		bool bool_v;
+		struct beryl_external_fn *ext_fn;
+		const char *fn;
+		beryl_tag tag;
+		struct i_val *static_array;
+		struct i_managed_array *managed_array;
+		struct beryl_object *object;
+	} val;
+	i_size len;
+	bool managed;
+	unsigned char type;
+};
+
+struct beryl_external_fn {
+	int arity;
+	bool auto_release;
 	const char *name;
-	gsc_Function function;
-} gsc_FunctionEntry;
+	size_t name_len;
+	struct i_val (*fn)(const struct i_val *, i_size);
+};
 
-typedef struct {
+struct i_val_pair {
+	struct i_val key, val;
+};
+
+struct beryl_table {
+	i_size cap;
+	i_refc ref_c;
+	struct i_val_pair entries[];
+};
+
+struct beryl_object_class {
+	void (*free)(struct beryl_object *);
+	struct i_val (*call)(struct beryl_object *, const struct i_val *, i_size);
+	size_t obj_size;
 	const char *name;
-	gsc_Function getter;
-	gsc_Function setter;
-} gsc_FieldEntry;
+	size_t name_len;
+};
 
-gsc_Context *gsc_create(gsc_CreateOptions options);
-void gsc_destroy(gsc_Context *ctx);
-void gsc_error(gsc_Context *ctx, const char *fmt, ...);
+struct beryl_object {
+	struct beryl_object_class *obj_class;
+	i_refc ref_c;
+};
 
-int gsc_link(gsc_Context *ctx);
+#define BERYL_NULL ((struct i_val) { .type = TYPE_NULL } )
+#define BERYL_NUMBER(f) ((struct i_val) { .type = TYPE_NUMBER, .val.num_v = f } )
+#define BERYL_BOOL(b) ((struct i_val) { .type = TYPE_BOOL, .val.bool_v = b } )
+#define BERYL_TRUE BERYL_BOOL(true)
+#define BERYL_FALSE BERYL_BOOL(false)
+#define BERYL_STATIC_STR(s, l) ((struct i_val) { .type = TYPE_STR, .len = l, .val.str = s, .managed = false })
+#define BERYL_CONST_STR(s) BERYL_STATIC_STR((s), sizeof(s) - 1)
+#define BERYL_STATIC_ARRAY(a, l) ((struct i_val) { .type = TYPE_ARRAY, .len = l, .val.static_array = a, .managed = false })
 
-int gsc_compile(gsc_Context *ctx, const char *filename, int flags);
-const char *gsc_next_compile_dependency(gsc_Context *ctx);
-void *gsc_temp_alloc(gsc_Context *ctx, int size);
+#define BERYL_ERR(msg_str) ((struct i_val) { .type = TYPE_ERR, .managed = false, .len = sizeof(msg_str) - 1, .val.str = msg_str } ) 
 
-int gsc_update(gsc_Context *ctx, float dt);
-int gsc_call(gsc_Context *ctx, const char *file, const char *function, int nargs);
-int gsc_call_method(gsc_Context *ctx, const char *file, const char *function, int nargs);
+#define BERYL_EXT_FN(fn_ptr) ((struct i_val) { .type = TYPE_EXT_FN, .val.ext_fn = fn_ptr } )
 
-void gsc_object_set_debug_info(gsc_Context *ctx, void *object, const char *file, const char *function, int line);
-	
-int gsc_register_string(gsc_Context *ctx, const char *s);
-const char *gsc_string(gsc_Context *ctx, int index);
+#define BERYL_TYPEOF(v) ((v).type)
+#define BERYL_LENOF(v) ((v).len)
 
-void gsc_register_function(gsc_Context *ctx, const char *file, const char *name, gsc_Function);
+#define BERYL_MAKE_LITERAL_FN(args, body) (args " do " body)
+#define BERYL_LITERAL_FN(args, ...) ((struct i_val) { .type = TYPE_FN, .managed = false, .len = sizeof(BERYL_MAKE_LITERAL_FN(#args, #__VA_ARGS__)) - 1, .val.fn = BERYL_MAKE_LITERAL_FN(#args, #__VA_ARGS__) })
 
-void gsc_object_set_field(gsc_Context *ctx, int obj_index, const char *name);
-void gsc_object_get_field(gsc_Context *ctx, int obj_index, const char *name);
-const char *gsc_object_get_tag(gsc_Context *ctx, int obj_index);
+const char *beryl_get_raw_str(const struct i_val *str);
+i_float beryl_as_num(struct i_val val);
+bool beryl_as_bool(struct i_val val);
+beryl_tag beryl_as_tag(struct i_val val);
 
-int gsc_top(gsc_Context *ctx);
-int gsc_type(gsc_Context *ctx, int index);
-void gsc_push(gsc_Context *ctx, void *value);
-int gsc_push_object(gsc_Context *ctx, void *value);
-void gsc_pop(gsc_Context *ctx, int count);
+struct i_val beryl_new_tag();
 
-void *gsc_allocate_object(gsc_Context *ctx);
+bool beryl_is_integer(struct i_val val);
 
-int gsc_add_object(gsc_Context *ctx);
-int gsc_add_tagged_object(gsc_Context *ctx, const char *tag);
-int gsc_object_get_proxy(gsc_Context *ctx, int obj_index);
-void gsc_object_set_proxy(gsc_Context *ctx, int obj_index, int proxy_index);
+int beryl_val_cmp(struct i_val a, struct i_val b);
 
-void *gsc_object_get_userdata(gsc_Context *ctx, int obj_index);
-void gsc_object_set_userdata(gsc_Context *ctx, int obj_index, void *userdata);
+bool beryl_set_var(const char *name, i_size name_len, struct i_val val, bool as_const);
 
-void gsc_add_int(gsc_Context *ctx, int64_t value);
-void gsc_add_float(gsc_Context *ctx, float value);
-void gsc_add_string(gsc_Context *ctx, const char *value);
-void gsc_add_vec3(gsc_Context *ctx, float *value);
-void gsc_add_function(gsc_Context *ctx, gsc_Function value);
-void gsc_add_bool(gsc_Context *state, int cond);
+void *beryl_new_scope();
+void beryl_restore_scope(void *prev);
+bool beryl_bind_name(const char *name, i_size name_len, struct i_val val, bool is_const);
 
-int64_t gsc_to_int(gsc_Context *ctx, int index);
-float gsc_to_float(gsc_Context *ctx, int index);
-const char *gsc_to_string(gsc_Context *ctx, int index);
-	
-int64_t gsc_get_int(gsc_Context *ctx, int index);
-int gsc_get_bool(gsc_Context *ctx, int index);
-float gsc_get_float(gsc_Context *ctx, int index);
-const char *gsc_get_string(gsc_Context *ctx, int index);
-void gsc_get_vec3(gsc_Context *ctx, int index, float *v);
-int gsc_get_object(gsc_Context *ctx, int index);
-int gsc_get_type(gsc_Context *ctx, int index);
-int gsc_numargs(gsc_Context *ctx);
-int gsc_arg(gsc_Context *ctx, int index);
+struct i_val beryl_new_table(i_size cap, bool padding);
 
-void* gsc_get_ptr(gsc_Context *ctx, int index);
+struct i_val beryl_new_array(i_size len, const struct i_val *items, i_size fit_for, bool padded);
+const struct i_val *beryl_get_raw_array(struct i_val array);
 
-int gsc_get_global(gsc_Context *ctx, const char *name);
-void gsc_set_global(gsc_Context *ctx, const char *name);
+i_size beryl_get_array_capacity(struct i_val array);
 
-void *gsc_get_internal_pointer(gsc_Context *ctx, const char *tag);
+bool beryl_array_push(struct i_val *array, struct i_val val);
+
+#define BERYL_STATIC_TABLE_SIZE(l) ( sizeof(struct beryl_table) + sizeof(struct i_val_pair) * ((l)*3 / 2) )
+struct i_val beryl_static_table(i_size cap, unsigned char *bytes, size_t bytes_size);
+
+struct i_val_pair *beryl_iter_table(struct i_val table_v, struct i_val_pair *iter);
+
+int beryl_table_insert(struct i_val *table_v, struct i_val key, struct i_val val, bool replace);
+bool beryl_table_should_grow(struct i_val table, i_size extra);
+
+void beryl_set_io(void (*print)(void *, const char *, size_t), void (*print_i_val)(void *, struct i_val), void *err_f);
+void beryl_print_i_val(void *f, struct i_val val);
+void beryl_i_vals_printf(void *f, const char *str, size_t strlen, const struct i_val *vals, unsigned n); // N must be at max 10
+
+void beryl_set_mem(void *(*alloc)(size_t), void (*free)(void *), void *(*realloc)(void *, size_t));
+
+struct i_val beryl_new_string(i_size len, const char *from);
+
+struct i_val beryl_new_object(struct beryl_object_class *obj_class);
+struct beryl_object_class *beryl_object_class_type(struct i_val val);
+struct beryl_object *beryl_as_object(struct i_val val);
+
+struct i_val beryl_str_as_err(struct i_val str);
+struct i_val beryl_err_as_str(struct i_val str);
+
+struct i_val beryl_retain(struct i_val val);
+void beryl_retain_values(const struct i_val *items, size_t n);
+void beryl_release(struct i_val val);
+void beryl_release_values(const struct i_val *items, size_t n);
+
+i_refc beryl_get_refcount(struct i_val val);
+
+void beryl_blame_arg(struct i_val val);
+
+void beryl_free(void *ptr);
+void *beryl_alloc(size_t n);
+void *beryl_realloc(void *ptr, size_t n);
+
+void *beryl_talloc(size_t n);
+void beryl_tfree(void *ptr);
+
+struct i_val beryl_call(struct i_val fn, const struct i_val *args, size_t n_args, bool borrow);
+struct i_val beryl_pcall(struct i_val fn, const struct i_val *args, size_t n_args, bool borrow, bool print_trace);
+
+struct i_val beryl_eval(const char *src, size_t src_len, enum beryl_err_action err);
+
+void beryl_clear();
+bool beryl_load_included_libs();
+
+const char *beryl_minor_version();
+const char *beryl_submajor_version();
+const char *beryl_major_version();
+const char *beryl_version();
+
+#define BERYL_LIB_CHECK_VERSION(major, submajor) ((strcmp(beryl_major_version(), major) == 0) && (strcmp(beryl_submajor_version(), submajor) == 0))
+
+#define BERYL_EVAL(src, err_action) beryl_eval(src, sizeof(src) - 1, true, err_action)
+
