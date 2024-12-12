@@ -5,20 +5,20 @@
 #include <float.h>
 #include <stdbool.h>
 
-typedef double i_float;
-#define BERYL_NUM_MAX_INT (1ll << DBL_MANT_DIG)
+typedef double khs_float;
+#define KHS_NUM_MAX_INT (1ll << DBL_MANT_DIG)
 
-typedef unsigned i_size;
-#define I_SIZE_MAX UINT_MAX
+typedef unsigned khs_size;
+#define KHS_SIZE_MAX UINT_MAX
 
-typedef unsigned short i_refc;
-#define I_REFC_MAX USHRT_MAX
+typedef unsigned short khs_refc;
+#define KHS_REFC_MAX USHRT_MAX
 
-typedef unsigned long long beryl_tag;
-#define BERYL_MAX_TAGS ULLONG_MAX
+typedef unsigned long long khs_tag;
+#define KHS_MAX_TAGS ULLONG_MAX
 
-typedef unsigned long long large_uint_type;
-#define LARGE_UINT_TYPE_MAX ULLONG_MAX
+typedef unsigned long long khs_large_uint_type;
+#define KHS_LARGE_UINT_TYPE_MAX ULLONG_MAX
 
 enum {
 	TYPE_NULL,
@@ -72,16 +72,16 @@ struct i_val {
 		beryl_table *table;
 		const char *str;
 		char inline_str[BERYL_INLINE_STR_MAX_LEN];
-		i_float num_v;
+		khs_float num_v;
 		bool bool_v;
 		beryl_external_fn *ext_fn;
 		const char *fn;
-		beryl_tag tag;
+		khs_tag tag;
 		i_val *static_array;
 		i_managed_array *managed_array;
 		beryl_object *object;
 	} val;
-	i_size len;
+	khs_size len;
 	bool managed;
 	unsigned char type;
 };
@@ -91,7 +91,7 @@ struct beryl_external_fn {
 	bool auto_release;
 	const char *name;
 	size_t name_len;
-	i_val (*fn)(const i_val *, i_size);
+	i_val (*fn)(const i_val *, khs_size);
 };
 
 typedef struct i_val_pair {
@@ -99,14 +99,14 @@ typedef struct i_val_pair {
 } i_val_pair;
 
 struct beryl_table {
-	i_size cap;
-	i_refc ref_c;
+	khs_size cap;
+	khs_refc ref_c;
 	i_val_pair entries[];
 };
 
 typedef struct beryl_object_class {
 	void (*free)(beryl_object *);
-	i_val (*call)(beryl_object *, const i_val *, i_size);
+	i_val (*call)(beryl_object *, const i_val *, khs_size);
 	size_t obj_size;
 	const char *name;
 	size_t name_len;
@@ -114,13 +114,13 @@ typedef struct beryl_object_class {
 
 struct beryl_object {
 	beryl_object_class *obj_class;
-	i_refc ref_c;
+	khs_refc ref_c;
 };
 
 const char *beryl_get_raw_str(const i_val *str);
-i_float beryl_as_num(i_val val);
+khs_float beryl_as_num(i_val val);
 bool beryl_as_bool(i_val val);
-beryl_tag beryl_as_tag(i_val val);
+khs_tag beryl_as_tag(i_val val);
 
 i_val beryl_new_tag();
 
@@ -128,27 +128,27 @@ bool beryl_is_integer(i_val val);
 
 int beryl_val_cmp(i_val a, i_val b);
 
-bool beryl_set_var(const char *name, i_size name_len, i_val val, bool as_const);
+bool beryl_set_var(const char *name, khs_size name_len, i_val val, bool as_const);
 
 void *beryl_new_scope();
 void beryl_restore_scope(void *prev);
-bool beryl_bind_name(const char *name, i_size name_len, i_val val, bool is_const);
+bool beryl_bind_name(const char *name, khs_size name_len, i_val val, bool is_const);
 
-i_val beryl_new_table(i_size cap, bool padding);
+i_val beryl_new_table(khs_size cap, bool padding);
 
-i_val beryl_new_array(i_size len, const i_val *items, i_size fit_for, bool padded);
+i_val beryl_new_array(khs_size len, const i_val *items, khs_size fit_for, bool padded);
 const i_val *beryl_get_raw_array(i_val array);
 
-i_size beryl_get_array_capacity(i_val array);
+khs_size beryl_get_array_capacity(i_val array);
 
 bool beryl_array_push(i_val *array, i_val val);
 
-i_val beryl_static_table(i_size cap, unsigned char *bytes, size_t bytes_size);
+i_val beryl_static_table(khs_size cap, unsigned char *bytes, size_t bytes_size);
 
 i_val_pair *beryl_iter_table(i_val table_v, i_val_pair *iter);
 
 int beryl_table_insert(i_val *table_v, i_val key, i_val val, bool replace);
-bool beryl_table_should_grow(i_val table, i_size extra);
+bool beryl_table_should_grow(i_val table, khs_size extra);
 
 void beryl_set_io(void (*print)(void *, const char *, size_t), void (*print_i_val)(void *, i_val), void *err_f);
 void beryl_print_i_val(void *f, i_val val);
@@ -156,7 +156,7 @@ void beryl_i_vals_printf(void *f, const char *str, size_t strlen, const i_val *v
 
 void beryl_set_mem(void *(*alloc)(size_t), void (*free)(void *), void *(*realloc)(void *, size_t));
 
-i_val beryl_new_string(i_size len, const char *from);
+i_val beryl_new_string(khs_size len, const char *from);
 
 i_val beryl_new_object(beryl_object_class *obj_class);
 beryl_object_class *beryl_object_class_type(i_val val);
@@ -170,7 +170,7 @@ void beryl_retain_values(const i_val *items, size_t n);
 void beryl_release(i_val val);
 void beryl_release_values(const i_val *items, size_t n);
 
-i_refc beryl_get_refcount(i_val val);
+khs_refc beryl_get_refcount(i_val val);
 
 void beryl_blame_arg(i_val val);
 

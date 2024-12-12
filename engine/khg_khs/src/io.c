@@ -41,7 +41,7 @@ void print_i_val(FILE *f, struct i_val val) {
 			fputs("Null", f);
 			break;
 		case TYPE_NUMBER: {
-			i_float num = beryl_as_num(val);
+			khs_float num = beryl_as_num(val);
 			if (beryl_is_integer(val) && num <= LLONG_MAX && num >= LLONG_MIN) {
 				fprintf(f, "%lli", (long long int) num);
       }
@@ -56,7 +56,7 @@ void print_i_val(FILE *f, struct i_val val) {
 			fputs("Error: ", f);
 		case TYPE_STR: {
 			const char *str = beryl_get_raw_str(&val);
-			i_size len = BERYL_LENOF(val);
+			khs_size len = BERYL_LENOF(val);
 			fwrite(str, sizeof(char), len, f); } 
       break;
 		case TYPE_TABLE: {
@@ -78,7 +78,7 @@ void print_i_val(FILE *f, struct i_val val) {
 		case TYPE_ARRAY: {
 			putc('(', f);
 			const struct i_val *items = beryl_get_raw_array(val);
-			for (i_size i = 0; i < BERYL_LENOF(val); i++) {
+			for (khs_size i = 0; i < BERYL_LENOF(val); i++) {
 				print_i_val(f, items[i]);
 				if (i != BERYL_LENOF(val) - 1) {
 					putc(' ', f);

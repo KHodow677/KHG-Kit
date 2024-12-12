@@ -35,13 +35,13 @@ enum {
 typedef struct lex_token {
 	unsigned char type;
 	const char *src;
-	i_size len;
+	khs_size len;
 	union {
 		struct {
 			const char *str;
-			i_size len;
+			khs_size len;
 		} sym;
-		i_float number;
+		khs_float number;
 		int err_type;
 	} content;
 } lex_token;

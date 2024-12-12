@@ -28,13 +28,13 @@ typedef void *dyn_lib;
 #define PLATFORM "unix"
 #endif
 
-static i_val load_dl_callback(const i_val *args, i_size n_args) {
+static i_val load_dl_callback(const i_val *args, khs_size n_args) {
 	(void)n_args;
 	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
 		beryl_blame_arg(args[0]);
 		return BERYL_ERR("Expected string path as first argument");
 	}
-	i_size path_len = BERYL_LENOF(args[0]);
+	khs_size path_len = BERYL_LENOF(args[0]);
 	char *c_path = beryl_talloc(path_len + 1);
 	if (c_path == NULL) {
 		return BERYL_ERR("Out of memory");
@@ -66,13 +66,13 @@ static i_val load_dl_callback(const i_val *args, i_size n_args) {
 	return lib_load_fn_ptr();
 }
 
-static i_val getenv_callback(const i_val *args, i_size n_args) {
+static i_val getenv_callback(const i_val *args, khs_size n_args) {
 	(void)n_args;
 	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
 		beryl_blame_arg(args[0]);
 		return BERYL_ERR("Expected string as argument for 'getenv'");
 	}
-	i_size len = BERYL_LENOF(args[0]);
+	khs_size len = BERYL_LENOF(args[0]);
 	char *c_name = beryl_talloc(len + 1);
 	if (c_name == NULL) {
 		return BERYL_ERR("Out of memory");
@@ -187,13 +187,13 @@ static char **convert_strs_to_cstrs(const i_val *strs, size_t n_strs, bool null_
 
 static i_val pass_input_tag;
 
-static i_val run_callback(const i_val *args, i_size n_args) {
+static i_val run_callback(const i_val *args, khs_size n_args) {
 	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
 		beryl_blame_arg(args[0]);
 		return BERYL_ERR("Expected command (string) as first argument for 'run'");
 	}
 	const i_val *pass = NULL;
-	for (i_size i = 1; i < n_args; i++) { 
+	for (khs_size i = 1; i < n_args; i++) { 
 		if (beryl_val_cmp(args[i], pass_input_tag) == 0) {
 			if (i + 1 != n_args - 1) {
 				printf("%u, %u\n", (unsigned) i, (unsigned) n_args);
@@ -245,7 +245,7 @@ static i_val run_callback(const i_val *args, i_size n_args) {
 	return BERYL_NUMBER(return_code);
 }
 
-static i_val random_i_string(i_size len) {
+static i_val random_i_string(khs_size len) {
 #if defined(_WIN32) || defined(_WIN64)
 	return BERYL_ERR("'rands' is not supported on this platform");
 #else
@@ -269,38 +269,38 @@ static i_val random_i_string(i_size len) {
 #endif
 }
 
-static i_val rands_callback(const i_val *args, i_size n_args) {
+static i_val rands_callback(const i_val *args, khs_size n_args) {
 	(void)n_args;
 	if (!beryl_is_integer(args[0])) {
 		beryl_blame_arg(args[0]);
 		return BERYL_ERR("Expected integer length as argument");
 	}
-	i_float len = beryl_as_num(args[0]);
-	if (len < 0 || len > I_SIZE_MAX) {
+	khs_float len = beryl_as_num(args[0]);
+	if (len < 0 || len > KHS_SIZE_MAX) {
 		beryl_blame_arg(args[0]);
 		return BERYL_ERR("Random string length is out of range");
 	}
-	return random_i_string((i_size) len);
+	return random_i_string((khs_size) len);
 }
 
-static i_val rands_hex(const i_val *args, i_size n_args) {
+static i_val rands_hex(const i_val *args, khs_size n_args) {
 	(void)n_args;
 	if (!beryl_is_integer(args[0])) {
 		beryl_blame_arg(args[0]);
 		return BERYL_ERR("Expected integer length as argument");
 	}
-	i_float len = beryl_as_num(args[0]);
-	if (len < 0 || len > I_SIZE_MAX) {
+	khs_float len = beryl_as_num(args[0]);
+	if (len < 0 || len > KHS_SIZE_MAX) {
 		beryl_blame_arg(args[0]);
 		return BERYL_ERR("Random string length is out of range");
 	}
-	i_size ilen = len;
+	khs_size ilen = len;
 	i_val str = random_i_string(ilen);
 	if (BERYL_TYPEOF(str) == TYPE_ERR) {
 		return str;
   }
 	char *str_bytes = (char *) beryl_get_raw_str(&str);
-	for (i_size i = 0; i < ilen; i++) {
+	for (khs_size i = 0; i < ilen; i++) {
 		unsigned char *byte = (unsigned char *) &str_bytes[i];
 		unsigned char hex_val = *byte % 16;
 		char hex_char = hex_val < 10 ? '0' + hex_val : 'a' + (hex_val - 10);
@@ -309,7 +309,7 @@ static i_val rands_hex(const i_val *args, i_size n_args) {
 	return str;
 }
 
-static i_val time_callback(const i_val *args, i_size n_args) {
+static i_val time_callback(const i_val *args, khs_size n_args) {
 	(void)args, (void)n_args;
 	time_t t = time(NULL);
 	if (t == -1) {
@@ -318,7 +318,7 @@ static i_val time_callback(const i_val *args, i_size n_args) {
 	return BERYL_NUMBER(t);
 }
 
-static i_val convert_time_callback(const i_val *args, i_size n_args) {
+static i_val convert_time_callback(const i_val *args, khs_size n_args) {
 	(void)n_args;
 	if (BERYL_TYPEOF(args[0]) != TYPE_NUMBER) {
 		beryl_blame_arg(args[0]);
@@ -343,14 +343,14 @@ static i_val convert_time_callback(const i_val *args, i_size n_args) {
 	return time_obj;
 }
 
-static i_val get_time_callback(const i_val *args, i_size n_args) {
+static i_val get_time_callback(const i_val *args, khs_size n_args) {
 	(void)n_args;	
-	REQ_NUM(second, "second");
-	REQ_NUM(minute, "minute");
-	REQ_NUM(hour, "hour");
-	REQ_NUM(day, "day");
-	REQ_NUM(month, "month");
-	REQ_NUM(year, "year");
+	KHS_REQ_NUM(second, "second");
+	KHS_REQ_NUM(minute, "minute");
+	KHS_REQ_NUM(hour, "hour");
+	KHS_REQ_NUM(day, "day");
+	KHS_REQ_NUM(month, "month");
+	KHS_REQ_NUM(year, "year");
 	i_val daylight_savings = beryl_call(args[0], &BERYL_CONST_STR("daylight-savings"), 1, true);
 	if (BERYL_TYPEOF(daylight_savings) == TYPE_ERR) {
 		return daylight_savings;
@@ -370,7 +370,7 @@ static i_val get_time_callback(const i_val *args, i_size n_args) {
 	return BERYL_NUMBER(t);
 }
 
-static i_val regex_callback(const i_val *args, i_size n_args) {
+static i_val regex_callback(const i_val *args, khs_size n_args) {
 	(void)n_args, (void)args;
 #if defined(_WIN32) || defined(_WIN64)
 	return BERYL_ERR("'regex' is not supported on this platform");
@@ -436,10 +436,10 @@ static i_val regex_callback(const i_val *args, i_size n_args) {
 }
 
 bool load_unix_lib() {
-	static struct beryl_external_fn fns[] = { FN(1, "load-dl", load_dl_callback), FN(1, "getenv", getenv_callback), FN(-2, "run", run_callback), FN(1, "rands", rands_callback), FN(1, "rand-hexs", rands_hex), FN(0, "time", time_callback), FN(1, "convert-time", convert_time_callback), FN(1, "get-time", get_time_callback), FN(2, "regex", regex_callback) };
+	static struct beryl_external_fn fns[] = { KHS_FN(1, "load-dl", load_dl_callback), KHS_FN(1, "getenv", getenv_callback), KHS_FN(-2, "run", run_callback), KHS_FN(1, "rands", rands_callback), KHS_FN(1, "rand-hexs", rands_hex), KHS_FN(0, "time", time_callback), KHS_FN(1, "convert-time", convert_time_callback), KHS_FN(1, "get-time", get_time_callback), KHS_FN(2, "regex", regex_callback) };
 	for (size_t i = 0; i < LENOF(fns); i++) {
 		bool ok = beryl_set_var(fns[i].name, fns[i].name_len, BERYL_EXT_FN(&fns[i]), true);
-		if(!ok) {
+		if (!ok) {
 			return false;
     }
 	}

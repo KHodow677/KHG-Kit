@@ -14,13 +14,13 @@
 #define MAX_EXPR_RECURSION 128
 
 typedef struct i_managed_str {
-	i_refc ref_c;
+	khs_refc ref_c;
 	char str[];
 } i_managed_str;
 
 typedef struct i_managed_array {
-	i_refc ref_c;
-	i_size cap;
+	khs_refc ref_c;
+	khs_size cap;
 	i_val items[];
 } i_managed_array;
 
@@ -37,7 +37,7 @@ typedef struct scope_namespace {
 
 typedef struct stack_entry {
 	const char *name;
-	i_size name_len;
+	khs_size name_len;
 	i_val val;
 	bool is_const;
 	scope_namespace namespace;
@@ -222,7 +222,7 @@ static void log_err(i_val err_val) {
 	}
 	assert(BERYL_TYPEOF(err_val) == TYPE_ERR);
 	const char *err_str = beryl_get_raw_str(&err_val);
-	i_size err_str_len = BERYL_LENOF(err_val);
+	khs_size err_str_len = BERYL_LENOF(err_val);
 	print_string(beryl_errf, "Error: ");
 	beryl_i_vals_printf(beryl_errf, err_str, err_str_len, blamed_args, n_blamed_args);
 	print_string(beryl_errf, "\n");
@@ -308,7 +308,7 @@ void beryl_tfree(void *ptr) {
 	}
 }
 
-static i_refc *get_reference_counter(i_val of_val) {
+static khs_refc *get_reference_counter(i_val of_val) {
 	switch (of_val.type) {
 		case TYPE_TABLE:
 			if (!of_val.managed) {
@@ -334,11 +334,11 @@ static i_refc *get_reference_counter(i_val of_val) {
 }
 
 i_val beryl_retain(i_val val) {
-	i_refc *ref_counter = get_reference_counter(val);
+	khs_refc *ref_counter = get_reference_counter(val);
 	if (ref_counter == NULL) {
 		return val;
   }
-	if (*ref_counter != I_REFC_MAX) {
+	if (*ref_counter != KHS_REFC_MAX) {
 		(*ref_counter)++;
   }
 	return val;
@@ -351,11 +351,11 @@ void beryl_retain_values(const i_val *items, size_t n) {
 }
 
 void beryl_release(i_val val) {
-	i_refc *ref_counter = get_reference_counter(val);
+	khs_refc *ref_counter = get_reference_counter(val);
 	if (ref_counter == NULL) {
 		return;
   }
-	if (*ref_counter == I_REFC_MAX) {
+	if (*ref_counter == KHS_REFC_MAX) {
 		return;
   }
 	assert(*ref_counter != 0);
@@ -375,7 +375,7 @@ void beryl_release(i_val val) {
         break;
 			case TYPE_ARRAY: {
 				const i_val *items = beryl_get_raw_array(val);
-				for (i_size i = 0; i < BERYL_LENOF(val); i++) {
+				for (khs_size i = 0; i < BERYL_LENOF(val); i++) {
 					beryl_release(items[i]);
         }
 				beryl_free(val.val.managed_array); } 
@@ -398,10 +398,10 @@ void beryl_release_values(const i_val *items, size_t n) {
   }
 }
 
-i_refc beryl_get_refcount(i_val val) {
-	i_refc *counter = get_reference_counter(val);
+khs_refc beryl_get_refcount(i_val val) {
+	khs_refc *counter = get_reference_counter(val);
 	if (counter == NULL) {
-		return I_REFC_MAX;
+		return KHS_REFC_MAX;
   }
 	return *counter;
 }
@@ -417,7 +417,7 @@ const char *beryl_get_raw_str(const i_val *str) {
 	return &str->val.managed_str->str[0];
 }
 
-i_float beryl_as_num(i_val val) {
+khs_float beryl_as_num(i_val val) {
 	assert(BERYL_TYPEOF(val) == TYPE_NUMBER);
 	return val.val.num_v;
 }
@@ -427,14 +427,14 @@ bool beryl_as_bool(i_val val) {
 	return val.val.bool_v;
 }
 
-beryl_tag beryl_as_tag(i_val val) {
+khs_tag beryl_as_tag(i_val val) {
 	assert(BERYL_TYPEOF(val) == TYPE_TAG);
 	return val.val.tag;
 }
 
 i_val beryl_new_tag() {
-	static beryl_tag tag_counter = 0;
-	if (tag_counter == BERYL_MAX_TAGS) {
+	static khs_tag tag_counter = 0;
+	if (tag_counter == KHS_MAX_TAGS) {
 		return BERYL_NULL;
   }
 	return (i_val){ .type = TYPE_TAG, .len = 0, .managed = false, .val.tag = tag_counter++ };
@@ -454,7 +454,7 @@ static bool push_stack(stack_entry *entry) {
 	return false;
 }
 
-bool beryl_bind_name(const char *name, i_size name_len, i_val val, bool is_const) {
+bool beryl_bind_name(const char *name, khs_size name_len, i_val val, bool is_const) {
 	stack_entry entry = { name, name_len, val, is_const, { NULL, NULL } };
 	return push_stack(&entry);
 }
@@ -481,7 +481,7 @@ void beryl_restore_scope(void *prev) {
 	leave_scope(prev);
 }
 
-static stack_entry *get_local(const char *name, i_size len) {
+static stack_entry *get_local(const char *name, khs_size len) {
 	for (stack_entry *var = stack_top - 1; var >= stack_base; var--) {
 		if (cmp_len_strs(var->name, var->name_len, name, len)) {
 			return var;
@@ -490,7 +490,7 @@ static stack_entry *get_local(const char *name, i_size len) {
 	return NULL;
 }
 
-static stack_entry *index_globals(const char *name, i_size len) {
+static stack_entry *index_globals(const char *name, khs_size len) {
 	size_t hash = 0;
 	for (const char *c = name; c < name + len; c++) {
 		hash *= 7;
@@ -518,7 +518,7 @@ static stack_entry *index_globals(const char *name, i_size len) {
 	return NULL;
 }
 
-static stack_entry *get_global(const char *name, i_size len) {
+static stack_entry *get_global(const char *name, khs_size len) {
 	for (stack_entry *var = stack_top - 1; var >= stack_start; var--) {
 		if ((var->namespace.start == NULL || namespace_overlap(var->namespace, current_namespace)) && cmp_len_strs(var->name, var->name_len, name, len)) {
 			return var;
@@ -531,7 +531,7 @@ static stack_entry *get_global(const char *name, i_size len) {
 	return global;
 }
 
-bool beryl_set_var(const char *name, i_size name_len, i_val val, bool as_const) {
+bool beryl_set_var(const char *name, khs_size name_len, i_val val, bool as_const) {
 	stack_entry new_var = { name, name_len, val, as_const, current_namespace };
 	stack_entry *entry = index_globals(name, name_len);
 	if (entry == NULL) {
@@ -579,11 +579,11 @@ bool beryl_is_integer(i_val val) {
 	if (BERYL_TYPEOF(val) != TYPE_NUMBER) {
 		return false;
   }
-	i_float f = beryl_as_num(val);
-	if (f >= BERYL_NUM_MAX_INT || f <= -BERYL_NUM_MAX_INT) {
+	khs_float f = beryl_as_num(val);
+	if (f >= KHS_NUM_MAX_INT || f <= -KHS_NUM_MAX_INT) {
 		return true;
   }
-	return (i_float)(long long)f - f == 0.0;
+	return (khs_float)(long long)f - f == 0.0;
 }
 
 int beryl_val_cmp(i_val a, i_val b) {
@@ -606,8 +606,8 @@ int beryl_val_cmp(i_val a, i_val b) {
 				return 2;
       } }
 		case TYPE_NUMBER: {
-			i_float n_a = beryl_as_num(a);
-			i_float n_b = beryl_as_num(b);
+			khs_float n_a = beryl_as_num(a);
+			khs_float n_b = beryl_as_num(b);
 			if (n_a == n_b) {
 				return 0;
       }
@@ -618,9 +618,9 @@ int beryl_val_cmp(i_val a, i_val b) {
 		case TYPE_STR: {
 			const char *s_a = beryl_get_raw_str(&a);
 			const char *s_b = beryl_get_raw_str(&b);
-			i_size l_a = BERYL_LENOF(a), l_b = BERYL_LENOF(b);
-			i_size minl = MIN(l_a, l_b);
-			for (i_size i = 0; i < minl; i++) {
+			khs_size l_a = BERYL_LENOF(a), l_b = BERYL_LENOF(b);
+			khs_size minl = MIN(l_a, l_b);
+			for (khs_size i = 0; i < minl; i++) {
 				if (s_a[i] != s_b[i]) {
 					if (s_a[i] > s_b[i]) {
 						return -1;
@@ -638,9 +638,9 @@ int beryl_val_cmp(i_val a, i_val b) {
 		case TYPE_ARRAY: {
 			const i_val *a_a = beryl_get_raw_array(a);
 			const i_val *a_b = beryl_get_raw_array(b);
-			i_size l_a = BERYL_LENOF(a), l_b = BERYL_LENOF(b);
-			i_size minl = MIN(l_a, l_b);
-			for (i_size i = 0; i < minl; i++) {
+			khs_size l_a = BERYL_LENOF(a), l_b = BERYL_LENOF(b);
+			khs_size minl = MIN(l_a, l_b);
+			for (khs_size i = 0; i < minl; i++) {
 				int cmp = beryl_val_cmp(a_a[i], a_b[i]);
 				if (cmp == -1 || cmp == 1) {
 					return cmp;
@@ -661,7 +661,7 @@ int beryl_val_cmp(i_val a, i_val b) {
 	}
 }
 
-i_val beryl_new_string(i_size len, const char *from) {
+i_val beryl_new_string(khs_size len, const char *from) {
 	i_val res = { .type = TYPE_STR, .managed = true, .len = len };
 	char *str;
 	if (len <= BERYL_INLINE_STR_MAX_LEN) {
@@ -744,7 +744,7 @@ static size_t hash_val(i_val key) {
 			return beryl_as_bool(key);
 		case TYPE_STR: {
 			size_t hash = 0;
-			i_size len = key.len;
+			khs_size len = key.len;
 			const char *str = beryl_get_raw_str(&key);
 			while (len--) {
 				hash *= 7;
@@ -758,9 +758,9 @@ static size_t hash_val(i_val key) {
 	}
 }
 
-static i_val_pair *search_table(beryl_table *table, i_val key, i_size from, i_size until) {
+static i_val_pair *search_table(beryl_table *table, i_val key, khs_size from, khs_size until) {
 	assert(until <= table->cap);
-	for (i_size i = from; i < until; i++) {
+	for (khs_size i = from; i < until; i++) {
 		if (BERYL_TYPEOF(table->entries[i].key) == TYPE_NULL) {
 			return &table->entries[i];
     }
@@ -779,7 +779,7 @@ static i_val_pair *table_get(beryl_table *table, i_val key) {
 		return NULL;
   }
 	size_t hash = hash_val(key);
-	i_size index = hash % table->cap;
+	khs_size index = hash % table->cap;
 	i_val_pair *entry = search_table(table, key, index, table->cap);
 	if (entry != NULL) {
 		return entry;
@@ -825,9 +825,9 @@ int beryl_table_insert(i_val *table_v, i_val key, i_val val, bool replace) {
 	return 0;	
 }
 
-i_val beryl_new_table(i_size cap, bool padding) {
+i_val beryl_new_table(khs_size cap, bool padding) {
 	if (padding) {
-		i_size padded_size = (cap * 3) / 2;
+		khs_size padded_size = (cap * 3) / 2;
 		if (padded_size < cap) {
 			return BERYL_NULL;
     }
@@ -839,33 +839,33 @@ i_val beryl_new_table(i_size cap, bool padding) {
   }
 	table->cap = cap;
 	table->ref_c = 1;
-	for (i_size i = 0; i < cap; i++) {
+	for (khs_size i = 0; i < cap; i++) {
 		table->entries[i] = (i_val_pair){ BERYL_NULL, BERYL_NULL };
   }
 	return (i_val){ .type = TYPE_TABLE, .val.table = table, .managed = true, .len = 0 };
 }
 
-i_val beryl_static_table(i_size cap, unsigned char *bytes, size_t bytes_size) {
+i_val beryl_static_table(khs_size cap, unsigned char *bytes, size_t bytes_size) {
 	assert(sizeof(beryl_table) + sizeof(i_val_pair) * cap <= bytes_size);
   (void) bytes_size;
 	beryl_table *table = (beryl_table *) bytes;
 	table->cap = cap;
 	table->ref_c = 1;
-	for (i_size i = 0; i < cap; i++) {
+	for (khs_size i = 0; i < cap; i++) {
 		table->entries[i] = (i_val_pair){ BERYL_NULL, BERYL_NULL };
 	}
 	return (i_val){ .type = TYPE_TABLE, .managed = false, .val.table = table, .len = 0 };
 }
 
-bool beryl_table_should_grow(i_val table, i_size extra) {
+bool beryl_table_should_grow(i_val table, khs_size extra) {
 	assert(BERYL_TYPEOF(table) == TYPE_TABLE);
-	i_size expected_capacity = (table.len + extra) * 4 / 3;
+	khs_size expected_capacity = (table.len + extra) * 4 / 3;
 	return table.val.table->cap < expected_capacity || expected_capacity < table.len;
 }
 
-i_val beryl_new_array(i_size len, const i_val *items, i_size fit_for, bool padded) {
+i_val beryl_new_array(khs_size len, const i_val *items, khs_size fit_for, bool padded) {
 	assert(fit_for >= len);
-	i_size cap = padded ? (fit_for * 3 / 2) + 1 : fit_for;
+	khs_size cap = padded ? (fit_for * 3 / 2) + 1 : fit_for;
 	if (padded && cap <= fit_for) {
 		return BERYL_NULL;
   }
@@ -876,19 +876,19 @@ i_val beryl_new_array(i_size len, const i_val *items, i_size fit_for, bool padde
 	array->cap = cap;
 	array->ref_c = 1;
   if (items != NULL) {
-		for (i_size i = 0; i < len; i++) {
+		for (khs_size i = 0; i < len; i++) {
 			array->items[i] = beryl_retain(items[i]);
 		}
 	} 
   else {
-		for (i_size i = 0; i < len; i++) {
+		for (khs_size i = 0; i < len; i++) {
 			array->items[i] = BERYL_NULL;
     }
   }
 	return (i_val){ .type = TYPE_ARRAY, .len = len, .managed = true, .val.managed_array = array };
 }
 
-i_size beryl_get_array_capacity(i_val val) {
+khs_size beryl_get_array_capacity(i_val val) {
 	assert(BERYL_TYPEOF(val) == TYPE_ARRAY);
 	if (val.managed) {
 		return val.val.managed_array->cap;
@@ -912,7 +912,7 @@ bool beryl_array_push(i_val *array, i_val val) {
 	assert(array->managed);
 	i_managed_array *ma = array->val.managed_array;
 	if (ma->cap == array->len) {
-		i_size new_cap = ma->cap * 3 / 2 + 1;
+		khs_size new_cap = ma->cap * 3 / 2 + 1;
 		if (new_cap <= ma->cap) {
 			return false;
     }
@@ -921,7 +921,7 @@ bool beryl_array_push(i_val *array, i_val val) {
 			return false;
     }
 		new_array->ref_c = 1;
-		for (i_size i = 0; i < array->len; i++) {
+		for (khs_size i = 0; i < array->len; i++) {
 			new_array->items[i] = ma->items[i];
     }
 		new_array->cap = new_cap;
@@ -955,7 +955,7 @@ i_val_pair *beryl_iter_table(i_val table_v, i_val_pair *iter) {
 
 static i_val parse_eval_expr(lex_state *lex, bool eval, bool ignore_newlines);
 static i_val parse_eval_all_exprs(lex_state *lex, bool eval, unsigned char until_tok, lex_token *end_tok);
-static i_val parse_eval_args(lex_state *lex, bool eval, bool ignore_newlines, i_size *n_args);
+static i_val parse_eval_args(lex_state *lex, bool eval, bool ignore_newlines, khs_size *n_args);
 
 static i_val parse_do_block(lex_state *lex, lex_token intial_token) {
 	lex_token end_tok;
@@ -964,7 +964,7 @@ static i_val parse_do_block(lex_state *lex, lex_token intial_token) {
 		return res;
 
 	size_t len = end_tok.src - intial_token.src;
-	if(len > I_SIZE_MAX) {
+	if(len > KHS_SIZE_MAX) {
 		blame_range(lex, intial_token.src, end_tok.src + end_tok.len);
 		return BERYL_ERR("Function body too large");
 	}
@@ -996,7 +996,7 @@ static i_val parse_eval_fn_assign(lex_state *lex, bool eval, lex_token var_tok, 
 		assign_to_var->val = BERYL_NULL;
 	}
 	i_val err;
-	i_size n_args;
+	khs_size n_args;
 	err = parse_eval_args(lex, eval, false, &n_args);
 	if (BERYL_TYPEOF(err) == TYPE_ERR) {
 		blame_token(lex, var_tok);
@@ -1099,7 +1099,7 @@ static i_val parse_eval_term(lex_state *lex, bool eval) {
 				return BERYL_NULL;
       }
 			const char *var_name = var_sym.content.sym.str;
-			i_size var_name_len = var_sym.content.sym.len;
+			khs_size var_name_len = var_sym.content.sym.len;
 			if (get_local(var_name, var_name_len) != NULL) {
 				beryl_release(assign_val);
 				blame_token(lex, var_sym);
@@ -1210,8 +1210,8 @@ static bool continue_expr(lex_state *lex) {
 	}
 }
 
-static i_val parse_eval_args(lex_state *lex, bool eval, bool ignore_newlines, i_size *out_n_args) {
-	i_size n_args = 0;
+static i_val parse_eval_args(lex_state *lex, bool eval, bool ignore_newlines, khs_size *out_n_args) {
+	khs_size n_args = 0;
 	while (true) {
 		if (ignore_newlines) {
 			lex_accept(lex, TOK_ENDLINE, NULL);
@@ -1256,7 +1256,7 @@ static i_val parse_eval_expr(lex_state *lex, bool eval, bool ignore_newlines) {
 		err = fn;
 		goto ERR;
 	}
-	i_size n_args;
+	khs_size n_args;
 	i_val arg_res = parse_eval_args(lex, eval, ignore_newlines, &n_args);
 	if (BERYL_TYPEOF(arg_res) == TYPE_ERR) {
 		err = arg_res;
@@ -1295,13 +1295,13 @@ i_val parse_eval_all_exprs(lex_state *lex, bool eval, unsigned char until_tok, l
 	return res;
 }
 
-i_size get_fn_arity(i_val fn, bool *variadic) {
+khs_size get_fn_arity(i_val fn, bool *variadic) {
 	assert(BERYL_TYPEOF(fn) == TYPE_FN);
 	lex_state lex;
 	lex_state_init(&lex, fn.val.fn, fn.len);
 	lex_accept(&lex, TOK_FN, NULL);
 	*variadic = false;
-	i_size n_args = 0;
+	khs_size n_args = 0;
 	while (!lex_accept(&lex, TOK_DO, NULL)) {
 		if (lex_accept(&lex, TOK_VARARGS, NULL)) {
 			*variadic = true;
@@ -1317,11 +1317,11 @@ i_size get_fn_arity(i_val fn, bool *variadic) {
 	return n_args;
 }
 
-i_val call_internal_fn(i_val fn, const i_val *args, i_size n_args) {
+i_val call_internal_fn(i_val fn, const i_val *args, khs_size n_args) {
 	assert(BERYL_TYPEOF(fn) == TYPE_FN);
 	i_val err;
 	bool is_variadic;
-	i_size arity = get_fn_arity(fn, &is_variadic);
+	khs_size arity = get_fn_arity(fn, &is_variadic);
   if (is_variadic) {
 		if (n_args < arity) {
 			return BERYL_ERR("Not enough arguments provided");
@@ -1336,11 +1336,11 @@ i_val call_internal_fn(i_val fn, const i_val *args, i_size n_args) {
 	lex_state lex;
 	lex_state_init(&lex, fn.val.fn, fn.len);
 	lex_accept(&lex, TOK_FN, NULL);
-	for (i_size i = 0; i < arity; i++) {
+	for (khs_size i = 0; i < arity; i++) {
 		lex_token arg_tok = lex_pop(&lex);
 		assert(arg_tok.type == TOK_SYM || arg_tok.type == TOK_OP);
 		const char *arg_name = arg_tok.content.sym.str;
-		i_size arg_name_len = arg_tok.content.sym.len;
+		khs_size arg_name_len = arg_tok.content.sym.len;
 		if (get_local(arg_name, arg_name_len) != NULL) {
 			blame_token(&lex, arg_tok);
 			err = BERYL_ERR("Redeclaration of variable");
@@ -1366,7 +1366,7 @@ i_val call_internal_fn(i_val fn, const i_val *args, i_size n_args) {
 			goto ERR;
 		}
 		assert(n_args >= arity);
-		i_size n_varargs = n_args - arity;
+		khs_size n_varargs = n_args - arity;
 		assert(args + arity + n_varargs == args + n_args);
 		i_val varargs_array = beryl_new_array(n_varargs, args + arity, n_varargs, false);
 		beryl_release_values(args + arity, n_varargs);
@@ -1401,7 +1401,7 @@ i_val beryl_call(i_val fn, const i_val *args, size_t n_args, bool borrow) {
 		beryl_retain(fn);
 		beryl_retain_values(args, n_args);
 	}	
-	if (n_args > I_SIZE_MAX) {
+	if (n_args > KHS_SIZE_MAX) {
 		err = BERYL_ERR("Too many arguments");
 		goto ERR;
 	}
@@ -1469,14 +1469,14 @@ i_val beryl_call(i_val fn, const i_val *args, size_t n_args, bool borrow) {
 				err = BERYL_ERR("Can only index array with a number");
 				goto ERR;
 			}
-			i_float f = beryl_as_num(args[0]);
+			khs_float f = beryl_as_num(args[0]);
 			if (!beryl_is_integer(args[0])) {
 				beryl_blame_arg(args[0]);
 				err = BERYL_ERR("Can only index array with an integer number");
 				goto ERR;
 			}
-			i_size index = f;
-			if (f > I_SIZE_MAX || index >= BERYL_LENOF(fn)) {
+			khs_size index = f;
+			if (f > KHS_SIZE_MAX || index >= BERYL_LENOF(fn)) {
 				beryl_release(fn);
 				beryl_release(args[0]);
 				return BERYL_NULL;

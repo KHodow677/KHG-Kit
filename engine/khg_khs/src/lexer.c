@@ -6,7 +6,7 @@
 
 #define KEYWORD(str, tok) { str, sizeof(str) - 1, tok }
 struct { 
-  const char *str; i_size len; unsigned char tok_type; } keywords[] = {
+  const char *str; khs_size len; unsigned char tok_type; } keywords[] = {
 	KEYWORD("let", TOK_LET),
 	KEYWORD("function", TOK_FN),
 	KEYWORD("with", TOK_FN),
@@ -107,7 +107,7 @@ static void skip_whitespace(lex_state *state) {
 	}
 }
 
-static bool eqlstrcmp(const char *a, const char *b, i_size len) {
+static bool eqlstrcmp(const char *a, const char *b, khs_size len) {
 	for (; len != 0; len--) {
 		if (*a != *b) {
 			return false;
@@ -118,7 +118,7 @@ static bool eqlstrcmp(const char *a, const char *b, i_size len) {
 	return true;
 }
 
-static unsigned char match_keyword(const char *sym, i_size len) {
+static unsigned char match_keyword(const char *sym, khs_size len) {
 	for (unsigned i = 0; i < LENOF(keywords); i++) {
 		if (keywords[i].len == len) {
 			if (eqlstrcmp(keywords[i].str, sym, len)) {
@@ -131,7 +131,7 @@ static unsigned char match_keyword(const char *sym, i_size len) {
 
 lex_token parse_number(lex_state *state) {
 	const char *start = state->at;
-	i_float float_v = 0;
+	khs_float float_v = 0;
 	while (!is_at_end(state) && (is_digit(*state->at) || *state->at == '\'')) {
 		if (*state->at == '\'') {
 			state->at++;
@@ -143,8 +143,8 @@ lex_token parse_number(lex_state *state) {
 	}
 	if (!is_at_end(state) && *state->at == '.') {
 		state->at++;
-		i_float decimals = 0;
-		i_float pow = 1.0;
+		khs_float decimals = 0;
+		khs_float pow = 1.0;
 		while (!is_at_end(state) && (is_digit(*state->at) || *state->at == '\'')) {
 			if (*state->at == '\'') {
 				state->at++;
@@ -204,7 +204,7 @@ START:
 		} while (*state->at != '"');
 		state->at++;
 		size_t str_len = state->at - start;
-		if (str_len > I_SIZE_MAX)
+		if (str_len > KHS_SIZE_MAX)
 			return (lex_token){ TOK_ERR, start, 1, { .err_type = TOK_ERR_SIZE_OVERFLOW } };
 		return (lex_token){ TOK_STRING, start, str_len, { .sym = { start + 1, str_len - 2 } } };
 	}
@@ -227,7 +227,7 @@ START:
 		state->at++;
 	}
 	size_t sym_len = state->at - sym_start;
-	if (sym_len > I_SIZE_MAX) {
+	if (sym_len > KHS_SIZE_MAX) {
 		return (lex_token){ TOK_ERR, sym_start, 1, { .err_type = TOK_ERR_SIZE_OVERFLOW } };
 	}
 	lex_token sym_tok = { TOK_SYM, sym_start, sym_len, { .sym = { sym_start, sym_len } } };

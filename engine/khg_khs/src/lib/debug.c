@@ -4,12 +4,12 @@
 
 typedef struct i_val i_val;
 
-static i_val refcount_callback(const i_val *args, i_size n_args) {
+static i_val refcount_callback(const i_val *args, khs_size n_args) {
 	(void)n_args;
 	return BERYL_NUMBER(beryl_get_refcount(args[0]));
 }
 
-static i_val ptrof_callback(const i_val *args, i_size n_args) {
+static i_val ptrof_callback(const i_val *args, khs_size n_args) {
 	(void)n_args;
 	const void *ptr = NULL;
 	switch (BERYL_TYPEOF(args[0])) {
@@ -23,7 +23,7 @@ static i_val ptrof_callback(const i_val *args, i_size n_args) {
 	return BERYL_NUMBER((unsigned long long) ptr);
 }
 
-static i_val container_capacity_callback(const i_val *args, i_size n_args) {
+static i_val container_capacity_callback(const i_val *args, khs_size n_args) {
 	(void)n_args;
 	switch (BERYL_TYPEOF(args[0])) {
 		case TYPE_ARRAY:
@@ -34,14 +34,14 @@ static i_val container_capacity_callback(const i_val *args, i_size n_args) {
 }
 
 bool load_debug_lib() {
-	static struct beryl_external_fn fns[] = { FN(1, "refcount", refcount_callback), FN(1, "ptrof", ptrof_callback), FN(1, "capof", container_capacity_callback) };
+	static struct beryl_external_fn fns[] = { KHS_FN(1, "refcount", refcount_callback), KHS_FN(1, "ptrof", ptrof_callback), KHS_FN(1, "capof", container_capacity_callback) };
 	for (size_t i = 0; i < LENOF(fns); i++) {
 		bool ok = beryl_set_var(fns[i].name, fns[i].name_len, BERYL_EXT_FN(&fns[i]), true);
 		if (!ok) {
 			return false;
     }
 	}
-	beryl_set_var("max-refcount", sizeof("max-refcount") - 1, BERYL_NUMBER(I_REFC_MAX), true);
+	beryl_set_var("max-refcount", sizeof("max-refcount") - 1, BERYL_NUMBER(KHS_REFC_MAX), true);
 	beryl_set_var("valsize", sizeof("valsize") - 1, BERYL_NUMBER(sizeof(i_val)), true);
 	return true;
 }
