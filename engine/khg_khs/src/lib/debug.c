@@ -1,7 +1,6 @@
 #include "khg_khs/khs.h"
+#include "khg_khs/lib/lib.h"
 #include "khg_khs/util.h"
-
-#define FN(arity, name, fn) { arity, true, name, sizeof(name) - 1, fn }
 
 typedef struct i_val i_val;
 
