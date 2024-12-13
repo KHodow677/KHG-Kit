@@ -804,7 +804,7 @@ gfx_clickable_item_state gfx_internal_checkbox_element_loc(void *text, bool *val
     *val = !*val;
   }
   if (*val) {
-    gfx_image_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, tex_color, (gfx_texture){ .id = state.tex_tick.id, .width = (uint32_t)(checkbox_size), .height = (uint32_t)(checkbox_size)}, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
+    gfx_image_render((vec2s){ state.pos_ptr.x + props.padding, state.pos_ptr.y + props.padding }, tex_color, (gfx_texture){ .id = state.tex_tick.id, .width = (uint32_t)(checkbox_size), .height = (uint32_t)(checkbox_size)}, (gfx_color){ 0.0f, 0.0f, 0.0f, 0.0f }, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
   }
   state.pos_ptr.x += checkbox_size + props.padding * 2.0f + margin_right + ((wide) ? gfx_text_dimension_wide((const wchar_t*)text).x : gfx_text_dimension((const char*)text).x) + margin_right;
   state.pos_ptr.y -= margin_top;
@@ -839,7 +839,7 @@ void gfx_internal_dropdown_menu_item_loc(void **items, void *placeholder, uint32
     gfx_internal_text_render_simple((vec2s){ state.pos_ptr.x + padding, state.pos_ptr.y + padding }, (const char*)button_text, font, props.text_color, false);
   }
   vec2s image_size = (vec2s){ 20, 10 };
-  gfx_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (gfx_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, gfx_no_color, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
+  gfx_image_render((vec2s){ state.pos_ptr.x + width + padding - image_size.x, state.pos_ptr.y + ((text_props.height + padding * 2) - image_size.y) / 2.0f }, props.text_color, (gfx_texture){ .id = state.tex_arrow_down.id, .width = (uint32_t)image_size.x, .height = (uint32_t)image_size.y }, gfx_no_color, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
   if (dropdown_button == GFX_CLICKABLE_CLICKED) {
     *opened = !*opened;
   }

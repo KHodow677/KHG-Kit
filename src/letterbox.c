@@ -22,8 +22,8 @@ static const float get_letterbox_height(const float current_aspect_ratio, const 
 }
 
 void transform_letterbox_element(const gfx_aabb letterbox, phy_vector2 *pos, phy_vector2 *cam_pos, gfx_texture *tex) {
-  const float scale_x = letterbox.size.x / INITIAL_WIDTH;
-  const float scale_y = letterbox.size.y / INITIAL_HEIGHT;
+  const float scale_x = letterbox.size.x / SCREEN_WIDTH * SCREEN_SCALE;
+  const float scale_y = letterbox.size.y / SCREEN_HEIGHT * SCREEN_SCALE;
   tex->width *= scale_x;
   tex->height *= scale_y;
   pos->x = (pos->x) * scale_x + letterbox.pos.x;

@@ -51,6 +51,7 @@
 #ifndef INCLUDE_JAR_XM_H
 #define INCLUDE_JAR_XM_H
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <limits.h>
 

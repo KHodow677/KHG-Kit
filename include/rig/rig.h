@@ -12,7 +12,6 @@ typedef struct bone {
   phy_shape *bone_shape;
   phy_vector2 bone_offset;
   float bone_angle_offset;
-  phy_vector2 bone_scale;
   int bone_tex_id;
   int layer;
   struct bone *parent;
@@ -44,13 +43,10 @@ typedef struct rig_builder {
   int num_anim;
 } rig_builder;
 
-rig_builder generate_rig_builder_from_file(const char *filepath, const char *section, const int num_anim);
-void generate_rig_from_file(rig *r, const char *filepath, const char *rig_section);
+bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent);
+void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent);
 
-bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const phy_vector2 bone_scale, const int tex_id, const int layer, bone *parent);
-void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const phy_vector2 bone_scale, const int tex_id, const int layer, bone *parent);
-
-void create_rig(rig *r, const size_t num_bones, const phy_rigid_body *bone_body, const int root_tex, const size_t init_layer, const int num_anim);
+void create_rig(rig *r, const rig_builder *rb);
 void free_rig(const rig *r);
 
 void update_rig(const rig *r, const phy_rigid_body *body, const float frame_percentage, utl_array *target);

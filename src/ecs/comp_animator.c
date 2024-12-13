@@ -22,10 +22,10 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const int ent
     if (!r_info->rig.enabled) {
       continue;
     }
+    info->frame_timer -= dt;
     if (r_info->rig.current_state_id != info->target_state_id) {
       r_info->rig.current_state_id = info->target_state_id;
       r_info->rig.current_frame_id = info->target_frame_id;
-      continue;
     }
     if (info->frame_timer <= 0 && info->target_frame_id == last_frame_num(&r_info->rig, r_info->rig.current_state_id)) {
       r_info->rig.current_frame_id = last_frame_num(&r_info->rig, r_info->rig.current_state_id);
@@ -46,8 +46,6 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       info->frame_timer = info->frame_duration;
     }
     update_rig(&r_info->rig, r_info->body, 1.0f - info->frame_timer / info->frame_duration, get_frame(&r_info->rig, info->target_state_id, info->target_frame_id));
-    info->frame_timer -= dt;
-    /*printf("Current Frame: %i\t Target Frame: %i\n", r_info->rig.current_frame_id, info->target_frame_id);*/
   }
   return 0;
 }

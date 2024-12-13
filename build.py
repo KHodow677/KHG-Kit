@@ -12,7 +12,10 @@ def clean_and_copy_resources():
 def run_cmake():
   os.makedirs("build", exist_ok=True)
   os.chdir("build")
-  subprocess.run(["cmake", "..", "-DCMAKE_C_COMPILER=gcc", "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"])
+  if platform.system() == "Windows":
+    subprocess.run(["cmake", "-G", "MinGW Makefiles", "..", "-DCMAKE_C_COMPILER=gcc", "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"])
+  else:
+    subprocess.run(["cmake", "..", "-DCMAKE_C_COMPILER=gcc", "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"])
 
 def build_project():
   subprocess.run(["cmake", "--build", "."])
@@ -32,7 +35,6 @@ def main():
   command = sys.argv[1]
   arg2 = sys.argv[2] if len(sys.argv) > 2 else ""
   arg3 = sys.argv[3] if len(sys.argv) > 3 else ""
-  arg4 = sys.argv[4] if len(sys.argv) > 4 else ""
   if command == "build" and not arg2:
     clean_and_copy_resources()
     run_cmake()
@@ -40,53 +42,27 @@ def main():
   elif command == "run" and not arg2:
     os.chdir("build")
     run_executable()
-  elif command == "run" and arg2 == "hoster":
-    os.chdir("build")
-    run_executable("hoster")
-  elif command == "run" and arg2 == "joiner":
-    os.chdir("build")
-    run_executable("joiner")
-  elif command == "test":
+  elif command == "test" and not arg2:
     os.chdir("build")
     run_test_runner()
+  elif command == "run":
+    os.chdir("build")
+    run_executable(arg2)
   elif command == "build" and arg2 == "run" and not arg3:
     clean_and_copy_resources()
     run_cmake()
     build_project()
     run_executable()
-  elif command == "build" and arg2 == "run" and arg3 == "hoster":
+  elif command == "build" and arg2 == "run":
     clean_and_copy_resources()
     run_cmake()
     build_project()
-    run_executable("hoster")
-  elif command == "build" and arg2 == "run" and arg3 == "joiner":
-    clean_and_copy_resources()
-    run_cmake()
-    build_project()
-    run_executable("joiner")
+    run_executable(arg3)
   elif command == "build" and arg2 == "test":
     clean_and_copy_resources()
     run_cmake()
     build_project()
     run_test_runner()
-  elif command == "build" and arg2 == "test" and arg3 == "run" and not arg4:
-    clean_and_copy_resources()
-    run_cmake()
-    build_project()
-    run_test_runner()
-    run_executable()
-  elif command == "build" and arg2 == "test" and arg3 == "run" and arg4 == "hoster":
-    clean_and_copy_resources()
-    run_cmake()
-    build_project()
-    run_test_runner()
-    run_executable("hoster")
-  elif command == "build" and arg2 == "test" and arg3 == "run" and arg4 == "joiner":
-    clean_and_copy_resources()
-    run_cmake()
-    build_project()
-    run_test_runner()
-    run_executable("joiner")
   else:
     print("Command keywords: [build, run, test]")
 

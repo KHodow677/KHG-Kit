@@ -3,25 +3,25 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-extern const char *STRING_ASCII_LETTERS;
-extern const char *STRING_ASCII_LOWERCASE;
-extern const char *STRING_ASCII_UPPERCASE;
-extern const char *STRING_DIGITS;
-extern const char *STRING_HEXDIGITS;
-extern const char *STRING_WHITESPACE;
-extern const char *STRING_PUNCTUATION;
+extern const char *UTL_STRING_ASCII_LETTERS;
+extern const char *UTL_STRING_ASCII_LOWERCASE;
+extern const char *UTL_STRING_ASCII_UPPERCASE;
+extern const char *UTL_STRING_DIGITS;
+extern const char *UTL_STRING_HEXDIGITS;
+extern const char *UTL_STRING_WHITESPACE;
+extern const char *UTL_STRING_PUNCTUATION;
 
 typedef struct string utl_string;
 typedef struct memory_pool_string {
   void *pool;
-  size_t poolSize;
+  size_t pool_size;
   size_t used;
 } utl_memory_pool_string;
 
 struct string {
-  char *dataStr;
+  char *data_str;
   size_t size;
-  size_t capacitySize;
+  size_t capacity_size;
   utl_memory_pool_string *pool;
 };
 
@@ -30,7 +30,7 @@ float utl_string_to_float(utl_string *str);
 double utl_string_to_double(utl_string *str);
 wchar_t *utl_string_to_unicode(const char *str);
 
-utl_string *utl_string_create(const char *initialStr);
+utl_string *utl_string_create(const char *initial_str);
 utl_string *utl_string_create_with_pool(size_t size);
 utl_string *utl_string_substr(utl_string *str, size_t pos, size_t len);
 utl_string **utl_string_split(utl_string *str, const char *delimiter, int *count);
@@ -42,7 +42,7 @@ utl_string **utl_string_tokenize(utl_string *str, const char *delimiters, int *c
 utl_string *utl_string_from_unicode(const wchar_t *wstr);
 utl_string **utl_string_create_from_initializer(size_t count, ...);
 utl_string *utl_string_to_hex(utl_string *str);
-utl_string *utl_string_from_hex(utl_string *hexStr);
+utl_string *utl_string_from_hex(utl_string *hex_str);
 utl_string *utl_string_base64_encode(const utl_string *input);
 utl_string *utl_string_base64_decode(const utl_string *input);
 utl_string *utl_string_repeat(const utl_string *str, size_t count);
@@ -79,12 +79,12 @@ int utl_string_strcmp(const char *str1, const char *str2);
 void utl_string_reverse(utl_string *str);
 void utl_string_resize(utl_string *str, size_t newSize);
 void utl_string_shrink_to_fit(utl_string *str);
-void utl_string_append(utl_string *str, const char *strItem);
-void utl_string_push_back(utl_string *str, const char chItem); 
-void utl_string_assign(utl_string *str, const char *newStr);
-void utl_string_insert(utl_string *str, size_t pos, const char *strItem);
+void utl_string_append(utl_string *str, const char *str_item);
+void utl_string_push_back(utl_string *str, const char ch_item); 
+void utl_string_assign(utl_string *str, const char *new_str);
+void utl_string_insert(utl_string *str, size_t pos, const char *str_item);
 void utl_string_erase(utl_string *str, size_t pos, size_t len);
-void utl_string_replace(utl_string *str1, const char *oldStr, const char *newStr);
+void utl_string_replace(utl_string *str1, const char *old_str, const char *new_str);
 void utl_string_swap(utl_string *str1, utl_string *str2);
 void utl_string_pop_back(utl_string *str);
 void utl_string_deallocate(utl_string *str);
@@ -122,9 +122,9 @@ void utl_string_concatenate(utl_string *str1, const utl_string *str2);
 void utl_string_trim_left(utl_string *str);
 void utl_string_trim_right(utl_string *str);
 void utl_string_trim(utl_string *str);
-void utl_string_replace_all(utl_string *str, const char *oldStr, const char *newStr);
-void utl_string_pad_left(utl_string *str, size_t totalLength, char padChar);
-void utl_string_pad_right(utl_string *str, size_t totalLength, char padChar);
+void utl_string_replace_all(utl_string *str, const char *old_str, const char *new_str);
+void utl_string_pad_left(utl_string *str, size_t total_length, char pad_char);
+void utl_string_pad_right(utl_string *str, size_t total_length, char pad_char);
 void utl_string_trim_characters(utl_string *str, const char *chars);
 void utl_string_shuffle(utl_string *str);
 void utl_string_to_title(utl_string *str);
@@ -132,6 +132,6 @@ void utl_string_to_capitalize(utl_string *str);
 void utl_string_to_casefold(utl_string *str);
 void utl_string_format(utl_string *str, const char *format, ...);
 void utl_string_remove(utl_string *str, const char *substr);
-void utl_string_remove_range(utl_string *str, size_t startPos, size_t endPos);
+void utl_string_remove_range(utl_string *str, size_t start_pos, size_t end_pos);
 void utl_string_swap_case(utl_string *str);
 
