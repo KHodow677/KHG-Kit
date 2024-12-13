@@ -1,5 +1,5 @@
 #pragma once
 
-#define LENOF(x) (sizeof(x)/sizeof(x[0]))
-#define UNPACK_S(strv) (strv).str, (strv).len
+#define KHS_UTIL_LENOF(x) (sizeof(x)/sizeof(x[0]))
+#define KHS_UTIL_UNPACK_S(strv) (strv).str, (strv).len
 

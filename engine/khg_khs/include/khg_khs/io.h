@@ -3,7 +3,7 @@
 #include "khg_khs/khs.h"
 #include <stdio.h>
 
-char *load_file(const char *path, size_t *len);
+char *khs_load_file(const char *path, size_t *len);
 
-void print_i_val(FILE *f, i_val val);
+void khs_print_file_val(FILE *f, khs_val val);
 

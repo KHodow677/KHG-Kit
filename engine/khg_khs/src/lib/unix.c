@@ -11,95 +11,97 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #include <process.h>
-typedef HINSTANCE dyn_lib;
-#define DL_IS_NULL(dl) ((dl) == NULL)
-#define DL_OPEN(path) LoadLibraryA(path)
-#define DL_PROC(dl, name) GetProcAddress(dl, name)
-#define PLATFORM "windows"
+typedef HINSTANCE khs_dyn_lib;
+#define KHS_DL_IS_NULL(dl) ((dl) == NULL)
+#define KHS_DL_OPEN(path) LoadLibraryA(path)
+#define KHS_DL_PROC(dl, name) GetProcAddress(dl, name)
+#define KHS_PLATFORM "windows"
 #else
 #include <dlfcn.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <regex.h>
-typedef void *dyn_lib;
-#define DL_IS_NULL(dl) ((dl) == NULL)
-#define DL_OPEN(path) dlopen(path, RTLD_NOW)
-#define DL_PROC(dl, name) dlsym(dl, name)
-#define PLATFORM "unix"
+typedef void *khs_dyn_lib;
+#define KHS_DL_IS_NULL(dl) ((dl) == NULL)
+#define KHS_DL_OPEN(path) dlopen(path, RTLD_NOW)
+#define KHS_DL_PROC(dl, name) dlsym(dl, name)
+#define KHS_PLATFORM "unix"
 #endif
 
-static i_val load_dl_callback(const i_val *args, khs_size n_args) {
+static khs_val PASS_INPUT_TAG;
+
+static khs_val khs_load_dl_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args;
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected string path as first argument");
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected string path as first argument");
 	}
-	khs_size path_len = BERYL_LENOF(args[0]);
-	char *c_path = beryl_talloc(path_len + 1);
+	khs_size path_len = KHS_LENOF(args[0]);
+	char *c_path = khs_talloc(path_len + 1);
 	if (c_path == NULL) {
-		return BERYL_ERR("Out of memory");
+		return KHS_ERR("Out of memory");
   }
 	c_path[path_len] = '\0';
-	memcpy(c_path, beryl_get_raw_str((i_val *) &args[0]), path_len);
-	dyn_lib dl = DL_OPEN(c_path);
-	beryl_tfree(c_path);
-	if (DL_IS_NULL(dl)) {
-		beryl_blame_arg(args[0]);
+	memcpy(c_path, khs_get_raw_str((khs_val *) &args[0]), path_len);
+	khs_dyn_lib dl = KHS_DL_OPEN(c_path);
+	khs_tfree(c_path);
+	if (KHS_DL_IS_NULL(dl)) {
+		khs_blame_arg(args[0]);
 #if defined(_WIN32) || defined(_WIN64)
 		const char *err_msg = NULL;
 #else
 		const char *err_msg = dlerror();
 		#endif
 		if (err_msg != NULL) {
-			i_val err_str = beryl_new_string(strlen(err_msg), err_msg);
-			beryl_blame_arg(err_str);
-			beryl_release(err_str);
+			khs_val err_str = khs_new_string(strlen(err_msg), err_msg);
+			khs_blame_arg(err_str);
+			khs_release(err_str);
 		}
-		return BERYL_ERR("Unable to open dynamic library");
+		return KHS_ERR("Unable to open dynamic library");
 	}
-	void *lib_load = DL_PROC(dl, "beryl_lib_load");
+	void *lib_load = KHS_DL_PROC(dl, "beryl_lib_load");
 	if (lib_load == NULL) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Not a BerylScript library");
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Not a BerylScript library");
 	}
-	i_val (*lib_load_fn_ptr)() = lib_load;
+	khs_val (*lib_load_fn_ptr)() = lib_load;
 	return lib_load_fn_ptr();
 }
 
-static i_val getenv_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_getenv_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args;
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected string as argument for 'getenv'");
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected string as argument for 'getenv'");
 	}
-	khs_size len = BERYL_LENOF(args[0]);
-	char *c_name = beryl_talloc(len + 1);
+	khs_size len = KHS_LENOF(args[0]);
+	char *c_name = khs_talloc(len + 1);
 	if (c_name == NULL) {
-		return BERYL_ERR("Out of memory");
+		return KHS_ERR("Out of memory");
   }
-	memcpy(c_name, beryl_get_raw_str(&args[0]), len);
+	memcpy(c_name, khs_get_raw_str(&args[0]), len);
 	c_name[len] = '\0';
 	const char *env_var = getenv(c_name);
-	beryl_tfree(c_name);
+	khs_tfree(c_name);
 	if (env_var == NULL) {
-		return BERYL_NULL;
+		return KHS_NULL;
   }
-	i_val res = beryl_new_string(strlen(env_var), env_var);
-	if (BERYL_TYPEOF(res) == TYPE_NULL) {
-		return BERYL_ERR("Out of memory");
+	khs_val res = khs_new_string(strlen(env_var), env_var);
+	if (KHS_TYPEOF(res) == KHS_TYPE_NULL) {
+		return KHS_ERR("Out of memory");
   }
 	return res;
 }
 
 #if defined(_WIN32) || defined(_WIN64)
 #else
-static void close_fd_pair(int p[2]) {
+static void khs_close_fd_pair(int p[2]) {
 	close(p[0]);
 	close(p[1]);
 }
 #endif
 
-static int p_spawn(const char *cmd, char **argv, int *return_code, const i_val *pass) {
+static int khs_p_spawn(const char *cmd, char **argv, int *return_code, const khs_val *pass) {
 #if defined(_WIN32) || defined(_WIN64)
 	if (pass != NULL) {
 		return -3;
@@ -118,7 +120,7 @@ static int p_spawn(const char *cmd, char **argv, int *return_code, const i_val *
   }
 	pid_t pid = fork();
 	if (pid == -1) {
-		close_fd_pair(host_to_sub);
+		khs_close_fd_pair(host_to_sub);
 		return -1;
 	}
   if (pid == 0) {
@@ -133,8 +135,8 @@ static int p_spawn(const char *cmd, char **argv, int *return_code, const i_val *
   else {
 		close(host_to_sub[0]);
 		if (pass != NULL) {
-			assert(BERYL_TYPEOF(*pass) == TYPE_STR);
-			write(host_to_sub[1], beryl_get_raw_str(pass), BERYL_LENOF(*pass));
+			assert(KHS_TYPEOF(*pass) == KHS_TYPE_STR);
+			write(host_to_sub[1], khs_get_raw_str(pass), KHS_LENOF(*pass));
 		}
 		close(host_to_sub[1]);
 		int wstatus;
@@ -153,29 +155,29 @@ static int p_spawn(const char *cmd, char **argv, int *return_code, const i_val *
 #endif
 }
 
-static char **convert_strs_to_cstrs(const i_val *strs, size_t n_strs, bool null_end) {
+static char **khs_convert_strs_to_cstrs(const khs_val *strs, size_t n_strs, bool null_end) {
 	char **array;
   if (null_end) {
-		array = beryl_talloc((n_strs + 1) * sizeof(char *));
+		array = khs_talloc((n_strs + 1) * sizeof(char *));
 		if (array != NULL) {
 			array[n_strs] = NULL;
     }
 	} 
   else {
-		array = beryl_talloc(n_strs * sizeof(char *));
+		array = khs_talloc(n_strs * sizeof(char *));
   }
 	if (array == NULL) {
 		return NULL;
   }
 	for (size_t i = 0; i < n_strs; i++) {
-		const char *str_src = beryl_get_raw_str(&strs[i]);
-		size_t len = BERYL_LENOF(strs[i]);
-		char *cstr = beryl_alloc(len + 1);
+		const char *str_src = khs_get_raw_str(&strs[i]);
+		size_t len = KHS_LENOF(strs[i]);
+		char *cstr = khs_alloc(len + 1);
 		if (cstr == NULL) {
 			for (ssize_t j = (ssize_t) i - 1; j >= 0; j--) {
-				beryl_free(array[j]);
+				khs_free(array[j]);
 			}
-			beryl_tfree(array);
+			khs_tfree(array);
 			return NULL;
 		}
 		memcpy(cstr, str_src, len);
@@ -185,121 +187,118 @@ static char **convert_strs_to_cstrs(const i_val *strs, size_t n_strs, bool null_
 	return array;
 }
 
-static i_val pass_input_tag;
-
-static i_val run_callback(const i_val *args, khs_size n_args) {
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected command (string) as first argument for 'run'");
+static khs_val khs_run_callback(const khs_val *args, khs_size n_args) {
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected command (string) as first argument for 'run'");
 	}
-	const i_val *pass = NULL;
+	const khs_val *pass = NULL;
 	for (khs_size i = 1; i < n_args; i++) { 
-		if (beryl_val_cmp(args[i], pass_input_tag) == 0) {
+		if (khs_val_cmp(args[i], PASS_INPUT_TAG) == 0) {
 			if (i + 1 != n_args - 1) {
 				printf("%u, %u\n", (unsigned) i, (unsigned) n_args);
-				return BERYL_ERR("'pass-input' must be followed by exactly one argument");
+				return KHS_ERR("'pass-input' must be followed by exactly one argument");
 			}
-			if (BERYL_TYPEOF(args[i+1]) != TYPE_STR) {
-				beryl_blame_arg(args[i+1]);
-				return BERYL_ERR("Can only pass strings to processes");
+			if (KHS_TYPEOF(args[i+1]) != KHS_TYPE_STR) {
+				khs_blame_arg(args[i+1]);
+				return KHS_ERR("Can only pass strings to processes");
 			}
 			pass = &args[n_args - 1];
 			assert(n_args > 2);
 			n_args -= 2;
 			break;
 		}
-		if (BERYL_TYPEOF(args[i]) != TYPE_STR) {
-			beryl_blame_arg(args[i]);
-			return BERYL_ERR("Expected string as argument for 'run'");
+		if (KHS_TYPEOF(args[i]) != KHS_TYPE_STR) {
+			khs_blame_arg(args[i]);
+			return KHS_ERR("Expected string as argument for 'run'");
 		}
 	}
-	
-	char **cmd = convert_strs_to_cstrs(args, n_args, true);
+	char **cmd = khs_convert_strs_to_cstrs(args, n_args, true);
 	if (cmd == NULL) {
-		return BERYL_ERR("Out of memory");
+		return KHS_ERR("Out of memory");
   }
 	int return_code = 0;
-	int res = p_spawn(cmd[0], cmd, &return_code, pass);
+	int res = khs_p_spawn(cmd[0], cmd, &return_code, pass);
 	for (size_t i = 0; i < n_args; i++) {
-		beryl_free(cmd[i]);
+		khs_free(cmd[i]);
   }
-	beryl_tfree(cmd);
+	khs_tfree(cmd);
 	switch (res) {
 		case -1: {
 			const char *cerr = strerror(errno);
-			i_val err_msg = beryl_new_string(strlen(cerr), cerr);
-			if (BERYL_TYPEOF(err_msg) == TYPE_NULL) {
-				return BERYL_ERR("Cannot display system error; Out of memory");
+			khs_val err_msg = khs_new_string(strlen(cerr), cerr);
+			if (KHS_TYPEOF(err_msg) == KHS_TYPE_NULL) {
+				return KHS_ERR("Cannot display system error; Out of memory");
       }
 			else {
-				return beryl_str_as_err(err_msg);
+				return khs_str_as_err(err_msg);
       } }
 		case -2:
-			return BERYL_ERR("Run is not supported on this platform");
+			return KHS_ERR("Run is not supported on this platform");
 		case -3:
-			return BERYL_ERR("'pass-input' is not supported on this platform");
+			return KHS_ERR("'pass-input' is not supported on this platform");
 		case -4:
-			beryl_blame_arg(args[0]);
-			return BERYL_ERR("Unable to run program");
+			khs_blame_arg(args[0]);
+			return KHS_ERR("Unable to run program");
 	}
-	return BERYL_NUMBER(return_code);
+	return KHS_NUMBER(return_code);
 }
 
-static i_val random_i_string(khs_size len) {
+static khs_val khs_random_string(khs_size len) {
 #if defined(_WIN32) || defined(_WIN64)
-	return BERYL_ERR("'rands' is not supported on this platform");
+	return KHS_ERR("'rands' is not supported on this platform");
 #else
-	i_val str_val = beryl_new_string(len, NULL);
-	if (BERYL_TYPEOF(str_val) == TYPE_NULL) {
-		return BERYL_ERR("Out of memory");
+	khs_val str_val = khs_new_string(len, NULL);
+	if (KHS_TYPEOF(str_val) == KHS_TYPE_NULL) {
+		return KHS_ERR("Out of memory");
   }
-	char *str = (char *) beryl_get_raw_str(&str_val);
+	char *str = (char *) khs_get_raw_str(&str_val);
 	FILE *f = fopen("/dev/urandom", "r");
 	if (!f) {
-		beryl_release(str_val);
-		return BERYL_ERR("Internal error; Unable to open /dev/urandom");
+		khs_release(str_val);
+		return KHS_ERR("Internal error; Unable to open /dev/urandom");
 	}
 	size_t read_len = fread(str, sizeof(char), len, f);
 	fclose(f);
 	if (read_len != len) {
-		beryl_release(str_val);
-		return BERYL_ERR("Internal error; Unable to read from /dev/urandom");
+		khs_release(str_val);
+		return KHS_ERR("Internal error; Unable to read from /dev/urandom");
 	}
 	return str_val;
 #endif
 }
 
-static i_val rands_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_rands_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args;
-	if (!beryl_is_integer(args[0])) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected integer length as argument");
+	if (!khs_is_integer(args[0])) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected integer length as argument");
 	}
-	khs_float len = beryl_as_num(args[0]);
+	khs_float len = khs_as_num(args[0]);
 	if (len < 0 || len > KHS_SIZE_MAX) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Random string length is out of range");
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Random string length is out of range");
 	}
-	return random_i_string((khs_size) len);
+	return khs_random_string((khs_size) len);
 }
 
-static i_val rands_hex(const i_val *args, khs_size n_args) {
+static khs_val khs_rands_hex(const khs_val *args, khs_size n_args) {
 	(void)n_args;
-	if (!beryl_is_integer(args[0])) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected integer length as argument");
+	if (!khs_is_integer(args[0])) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected integer length as argument");
 	}
-	khs_float len = beryl_as_num(args[0]);
+	khs_float len = khs_as_num(args[0]);
 	if (len < 0 || len > KHS_SIZE_MAX) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Random string length is out of range");
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Random string length is out of range");
 	}
 	khs_size ilen = len;
-	i_val str = random_i_string(ilen);
-	if (BERYL_TYPEOF(str) == TYPE_ERR) {
+	khs_val str = khs_random_string(ilen);
+	if (KHS_TYPEOF(str) == KHS_TYPE_ERR) {
 		return str;
   }
-	char *str_bytes = (char *) beryl_get_raw_str(&str);
+	char *str_bytes = (char *) khs_get_raw_str(&str);
 	for (khs_size i = 0; i < ilen; i++) {
 		unsigned char *byte = (unsigned char *) &str_bytes[i];
 		unsigned char hex_val = *byte % 16;
@@ -309,41 +308,41 @@ static i_val rands_hex(const i_val *args, khs_size n_args) {
 	return str;
 }
 
-static i_val time_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_time_callback(const khs_val *args, khs_size n_args) {
 	(void)args, (void)n_args;
 	time_t t = time(NULL);
 	if (t == -1) {
-		return BERYL_ERR("Time error");
+		return KHS_ERR("Time error");
 	}
-	return BERYL_NUMBER(t);
+	return KHS_NUMBER(t);
 }
 
-static i_val convert_time_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_convert_time_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args;
-	if (BERYL_TYPEOF(args[0]) != TYPE_NUMBER) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected number as argument for 'format-time'");
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_NUMBER) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected number as argument for 'format-time'");
 	}
-	time_t t = beryl_as_num(args[0]);
+	time_t t = khs_as_num(args[0]);
 	struct tm *time = localtime(&t);
-	i_val time_obj = beryl_new_table(9, true);
-	if (BERYL_TYPEOF(time_obj) == TYPE_NULL) {
-		return BERYL_ERR("Out of memory");
+	khs_val time_obj = khs_new_table(9, true);
+	if (KHS_TYPEOF(time_obj) == KHS_TYPE_NULL) {
+		return KHS_ERR("Out of memory");
   }
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("second"), BERYL_NUMBER(time->tm_sec), false);
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("minute"), BERYL_NUMBER(time->tm_min), false);
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("hour"), BERYL_NUMBER(time->tm_hour), false);
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("day"), BERYL_NUMBER(time->tm_mday), false);
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("month"), BERYL_NUMBER(time->tm_mon), false);
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("year"), BERYL_NUMBER(1900 + time->tm_year), false);
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("day-of-the-year"), BERYL_NUMBER(time->tm_yday), false);
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("daylight-savings"), BERYL_BOOL(time->tm_isdst), false);
+	khs_table_insert(&time_obj, KHS_CONST_STR("second"), KHS_NUMBER(time->tm_sec), false);
+	khs_table_insert(&time_obj, KHS_CONST_STR("minute"), KHS_NUMBER(time->tm_min), false);
+	khs_table_insert(&time_obj, KHS_CONST_STR("hour"), KHS_NUMBER(time->tm_hour), false);
+	khs_table_insert(&time_obj, KHS_CONST_STR("day"), KHS_NUMBER(time->tm_mday), false);
+	khs_table_insert(&time_obj, KHS_CONST_STR("month"), KHS_NUMBER(time->tm_mon), false);
+	khs_table_insert(&time_obj, KHS_CONST_STR("year"), KHS_NUMBER(1900 + time->tm_year), false);
+	khs_table_insert(&time_obj, KHS_CONST_STR("day-of-the-year"), KHS_NUMBER(time->tm_yday), false);
+	khs_table_insert(&time_obj, KHS_CONST_STR("daylight-savings"), KHS_BOOL(time->tm_isdst), false);
 	int weekday = time->tm_wday == 0 ? 6 : time->tm_wday - 1;
-	beryl_table_insert(&time_obj, BERYL_CONST_STR("weekday"), BERYL_NUMBER(weekday), false); 
+	khs_table_insert(&time_obj, KHS_CONST_STR("weekday"), KHS_NUMBER(weekday), false); 
 	return time_obj;
 }
 
-static i_val get_time_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_get_time_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args;	
 	KHS_REQ_NUM(second, "second");
 	KHS_REQ_NUM(minute, "minute");
@@ -351,53 +350,53 @@ static i_val get_time_callback(const i_val *args, khs_size n_args) {
 	KHS_REQ_NUM(day, "day");
 	KHS_REQ_NUM(month, "month");
 	KHS_REQ_NUM(year, "year");
-	i_val daylight_savings = beryl_call(args[0], &BERYL_CONST_STR("daylight-savings"), 1, true);
-	if (BERYL_TYPEOF(daylight_savings) == TYPE_ERR) {
+	khs_val daylight_savings = khs_call(args[0], &KHS_CONST_STR("daylight-savings"), 1, true);
+	if (KHS_TYPEOF(daylight_savings) == KHS_TYPE_ERR) {
 		return daylight_savings;
   }
-	if (BERYL_TYPEOF(daylight_savings) != TYPE_BOOL) {
-		beryl_blame_arg(args[0]);
-		beryl_blame_arg(args[1]);
-		beryl_release(daylight_savings);
-		return BERYL_ERR("Expected boolean given 'daylight-savings' for %0, got %1");
+	if (KHS_TYPEOF(daylight_savings) != KHS_TYPE_BOOL) {
+		khs_blame_arg(args[0]);
+		khs_blame_arg(args[1]);
+		khs_release(daylight_savings);
+		return KHS_ERR("Expected boolean given 'daylight-savings' for %0, got %1");
 	}
-	struct tm ts = { .tm_sec = beryl_as_num(second), .tm_min = beryl_as_num(minute), .tm_hour = beryl_as_num(hour), .tm_mday = beryl_as_num(day), .tm_mon = beryl_as_num(month), .tm_year = beryl_as_num(year) - 1900, .tm_isdst = beryl_as_bool(daylight_savings) };
+	struct tm ts = { .tm_sec = khs_as_num(second), .tm_min = khs_as_num(minute), .tm_hour = khs_as_num(hour), .tm_mday = khs_as_num(day), .tm_mon = khs_as_num(month), .tm_year = khs_as_num(year) - 1900, .tm_isdst = khs_as_bool(daylight_savings) };
 	time_t t = mktime(&ts);
 	if(t == -1)	{
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Invalid time, %0");
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Invalid time, %0");
 	}
-	return BERYL_NUMBER(t);
+	return KHS_NUMBER(t);
 }
 
-static i_val regex_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_regex_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args, (void)args;
 #if defined(_WIN32) || defined(_WIN64)
-	return BERYL_ERR("'regex' is not supported on this platform");
+	return KHS_ERR("'regex' is not supported on this platform");
 #else
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected string (pattern) as first argument for 'regex'");
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected string (pattern) as first argument for 'regex'");
 	}
-	if (BERYL_TYPEOF(args[1]) != TYPE_STR) {
-		beryl_blame_arg(args[1]);
-		return BERYL_ERR("Expected string as second argument for 'regex'");
+	if (KHS_TYPEOF(args[1]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[1]);
+		return KHS_ERR("Expected string as second argument for 'regex'");
 	}
-	size_t plen = BERYL_LENOF(args[0]);
-	size_t mlen = BERYL_LENOF(args[1]);
-	char *buff = beryl_talloc(plen + 1 + mlen + 1);
+	size_t plen = KHS_LENOF(args[0]);
+	size_t mlen = KHS_LENOF(args[1]);
+	char *buff = khs_talloc(plen + 1 + mlen + 1);
 	if (buff == NULL) {
-		return BERYL_ERR("Out of memory");
+		return KHS_ERR("Out of memory");
   }
-	memcpy(buff, beryl_get_raw_str(&args[0]), plen);
+	memcpy(buff, khs_get_raw_str(&args[0]), plen);
 	buff[plen] = '\0';
-	memcpy(buff + plen + 1, beryl_get_raw_str(&args[1]), mlen);
+	memcpy(buff + plen + 1, khs_get_raw_str(&args[1]), mlen);
 	buff[plen + 1 + mlen] = '\0';
 	regex_t reg;
 	if (regcomp(&reg, buff, 0)) {
-		beryl_tfree(buff);
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Regex error");
+		khs_tfree(buff);
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Regex error");
 	}
 #define MAX_MATCH 16
 	static regmatch_t matches[MAX_MATCH];
@@ -406,46 +405,46 @@ static i_val regex_callback(const i_val *args, khs_size n_args) {
 		matches[0] = (regmatch_t) { -1, -1 };
   }
 	regfree(&reg);
-	beryl_tfree(buff);
-	const char *match_str = beryl_get_raw_str(&args[1]);
-	i_val res_array = beryl_new_array(0, NULL, 1, false);
-	if (BERYL_TYPEOF(res_array) == TYPE_ERR) {
-		return BERYL_ERR("Out of memory");
+	khs_tfree(buff);
+	const char *match_str = khs_get_raw_str(&args[1]);
+	khs_val res_array = khs_new_array(0, NULL, 1, false);
+	if (KHS_TYPEOF(res_array) == KHS_TYPE_ERR) {
+		return KHS_ERR("Out of memory");
   }
 	for (size_t i = 0; i < MAX_MATCH; i++) {
 		if (matches[i].rm_so == -1) {
 			break;
     }
 		size_t match_end = matches[0].rm_so + matches[i].rm_eo;
-		i_val str = beryl_new_string(match_end - matches[i].rm_so, match_str + matches[i].rm_so);
-		if (BERYL_TYPEOF(str) == TYPE_ERR) {
-			beryl_release(res_array);
-			return BERYL_ERR("Out of memory");
+		khs_val str = khs_new_string(match_end - matches[i].rm_so, match_str + matches[i].rm_so);
+		if (KHS_TYPEOF(str) == KHS_TYPE_ERR) {
+			khs_release(res_array);
+			return KHS_ERR("Out of memory");
 		}
-		bool ok = beryl_array_push(&res_array, str);
-		beryl_release(str);
+		bool ok = khs_array_push(&res_array, str);
+		khs_release(str);
 		if (!ok) {
-			beryl_release(res_array);
-			return BERYL_ERR("Out of memory");
+			khs_release(res_array);
+			return KHS_ERR("Out of memory");
 		}
 	}
 	return res_array;
 	#undef MAX_MATCH
-	beryl_tfree(buff);
+	khs_tfree(buff);
 #endif
 }
 
-bool load_unix_lib() {
-	static struct beryl_external_fn fns[] = { KHS_FN(1, "load-dl", load_dl_callback), KHS_FN(1, "getenv", getenv_callback), KHS_FN(-2, "run", run_callback), KHS_FN(1, "rands", rands_callback), KHS_FN(1, "rand-hexs", rands_hex), KHS_FN(0, "time", time_callback), KHS_FN(1, "convert-time", convert_time_callback), KHS_FN(1, "get-time", get_time_callback), KHS_FN(2, "regex", regex_callback) };
-	for (size_t i = 0; i < LENOF(fns); i++) {
-		bool ok = beryl_set_var(fns[i].name, fns[i].name_len, BERYL_EXT_FN(&fns[i]), true);
+bool khs_load_unix_lib() {
+	static khs_external_fn fns[] = { KHS_FN(1, "load-dl", khs_load_dl_callback), KHS_FN(1, "getenv", khs_getenv_callback), KHS_FN(-2, "run", khs_run_callback), KHS_FN(1, "rands", khs_rands_callback), KHS_FN(1, "rand-hexs", khs_rands_hex), KHS_FN(0, "time", khs_time_callback), KHS_FN(1, "convert-time", khs_convert_time_callback), KHS_FN(1, "get-time", khs_get_time_callback), KHS_FN(2, "regex", khs_regex_callback) };
+	for (size_t i = 0; i < KHS_UTIL_LENOF(fns); i++) {
+		bool ok = khs_set_var(fns[i].name, fns[i].name_len, KHS_EXT_FN(&fns[i]), true);
 		if (!ok) {
 			return false;
     }
 	}
-	pass_input_tag = beryl_new_tag();
-	beryl_set_var("pass-input", sizeof("pass-input") - 1, pass_input_tag, true);
-	beryl_set_var("platform", sizeof("platform") - 1, BERYL_CONST_STR(PLATFORM), true);
+	PASS_INPUT_TAG = khs_new_tag();
+	khs_set_var("pass-input", sizeof("pass-input") - 1, PASS_INPUT_TAG, true);
+	khs_set_var("platform", sizeof("platform") - 1, KHS_CONST_STR(KHS_PLATFORM), true);
 	return true;
 }
 

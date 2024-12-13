@@ -4,32 +4,32 @@
 #include <stdbool.h>
 
 enum {
-	TOK_NULL,
-	TOK_LET,
-	TOK_GLOBAL,
-	TOK_VARARGS,
-	TOK_DO,
-	TOK_END,
-	TOK_FN,
-	TOK_SYM,
-	TOK_STRING,
-	TOK_OP,
-	TOK_ASSIGN,
-	TOK_ENDLINE,
-	TOK_NUMBER,
-	TOK_OPEN_BRACKET,
-	TOK_CLOSE_BRACKET,
-	TOK_FN_ASSIGN,
-	TOK_ERR,
-	TOK_EOF
+	KHS_TOK_NULL,
+	KHS_TOK_LET,
+	KHS_TOK_GLOBAL,
+	KHS_TOK_VARARGS,
+	KHS_TOK_DO,
+	KHS_TOK_END,
+	KHS_TOK_FN,
+	KHS_TOK_SYM,
+	KHS_TOK_STRING,
+	KHS_TOK_OP,
+	KHS_TOK_ASSIGN,
+	KHS_TOK_ENDLINE,
+	KHS_TOK_NUMBER,
+	KHS_TOK_OPEN_BRACKET,
+	KHS_TOK_CLOSE_BRACKET,
+	KHS_TOK_FN_ASSIGN,
+	KHS_TOK_ERR,
+	KHS_TOK_EOF
 };
 
 enum {
-	TOK_ERR_OK,
-	TOK_ERR_NULL,
-	TOK_ERR_MISSING_STR_END,
-	TOK_ERR_SIZE_OVERFLOW,
-	TOK_ERR_INT_OVERFLOW
+	KHS_TOK_ERR_OK,
+	KHS_TOK_ERR_NULL,
+	KHS_TOK_ERR_MISSING_STR_END,
+	KHS_TOK_ERR_SIZE_OVERFLOW,
+	KHS_TOK_ERR_INT_OVERFLOW
 };
 
 typedef struct lex_token {
@@ -44,19 +44,19 @@ typedef struct lex_token {
 		khs_float number;
 		int err_type;
 	} content;
-} lex_token;
+} khs_lex_token;
 
 typedef struct lex_state {
 	const char *src, *at, *end;
-	lex_token buffer;
-} lex_state;
+	khs_lex_token buffer;
+} khs_lex_state;
 
-const char *lex_err_str(lex_token tok, size_t *str_len);
+const char *khs_lex_err_str(khs_lex_token tok, size_t *str_len);
 
-void lex_state_init(lex_state *state, const char *src, size_t src_len);
+void khs_lex_state_init(khs_lex_state *state, const char *src, size_t src_len);
 
-lex_token lex_peek(lex_state *state);
-lex_token lex_pop(lex_state *state);
+khs_lex_token khs_lex_peek(khs_lex_state *state);
+khs_lex_token khs_lex_pop(khs_lex_state *state);
 
-bool lex_accept(lex_state *state, unsigned char type, lex_token *opt_tok);
+bool khs_lex_accept(khs_lex_state *state, unsigned char type, khs_lex_token *opt_tok);
 

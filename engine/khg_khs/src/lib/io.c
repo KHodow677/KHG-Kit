@@ -7,8 +7,10 @@
 #include <stdio.h>
 #include <string.h>
 
-static char *as_path(const char *str, size_t len) {
-	char *res = beryl_talloc(len + 1);
+static khs_val READ_ALL_TAG = KHS_NULL;
+
+static char *khs_as_path(const char *str, size_t len) {
+	char *res = khs_talloc(len + 1);
 	if (res == NULL) {
 		return NULL;
   }
@@ -17,114 +19,112 @@ static char *as_path(const char *str, size_t len) {
 	return res;
 }
 
-static void free_path(char *path) {
-	beryl_tfree(path);
+static void khs_free_path(char *path) {
+	khs_tfree(path);
 }
 
-static i_val read_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_read_callback(const khs_val *args, khs_size n_args) {
 	(void) n_args;
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected string path as argument for 'read'");
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected string path as argument for 'read'");
 	}
 	
-	khs_size path_len = BERYL_LENOF(args[0]);
-	char *c_path = as_path(beryl_get_raw_str(&args[0]), path_len);
+	khs_size path_len = KHS_LENOF(args[0]);
+	char *c_path = khs_as_path(khs_get_raw_str(&args[0]), path_len);
 	if (c_path == NULL) {
-		return BERYL_ERR("Out of memory");
+		return KHS_ERR("Out of memory");
   }
 	size_t file_len;
-	char *file_contents = load_file(c_path, &file_len);
-	free_path(c_path);
+	char *file_contents = khs_load_file(c_path, &file_len);
+	khs_free_path(c_path);
 	if (file_contents == NULL) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Unable to read from file");
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Unable to read from file");
 	}
 	if (file_len > KHS_SIZE_MAX) {
-		beryl_free(file_contents);
-		return BERYL_ERR("File too large");
+		khs_free(file_contents);
+		return KHS_ERR("File too large");
 	}
-	i_val str_res = beryl_new_string(file_len, file_contents);
-	beryl_free(file_contents);
-	if (BERYL_TYPEOF(str_res) == TYPE_NULL) {
-		return BERYL_ERR("Out of memory");
+	khs_val str_res = khs_new_string(file_len, file_contents);
+	khs_free(file_contents);
+	if (KHS_TYPEOF(str_res) == KHS_TYPE_NULL) {
+		return KHS_ERR("Out of memory");
   }
 	return str_res;
 }
 
-static struct i_val print_vals_callback(const struct i_val *args, khs_size n_args) {
+static khs_val khs_print_vals_callback(const khs_val *args, khs_size n_args) {
 	for (khs_size i = 0; i < n_args; i++) {
-		beryl_print_i_val(stdout, args[i]);
+		khs_print_val(stdout, args[i]);
 		if (i != n_args - 1) {
 			putchar(' ');
     }
 	}
 	putchar('\n');
-	return BERYL_NULL;
+	return KHS_NULL;
 }
 
-static i_val write_i_val_to_file(i_val path, i_val content, const char *mode) {
-	assert(BERYL_TYPEOF(path) == TYPE_STR);
-	assert(BERYL_TYPEOF(content) == TYPE_STR);
+static khs_val khs_write_val_to_file(khs_val path, khs_val content, const char *mode) {
+	assert(KHS_TYPEOF(path) == KHS_TYPE_STR);
+	assert(KHS_TYPEOF(content) == KHS_TYPE_STR);
 	
-	char *c_path = as_path(beryl_get_raw_str(&path), BERYL_LENOF(path));
+	char *c_path = khs_as_path(khs_get_raw_str(&path), KHS_LENOF(path));
 	if(c_path == NULL)
-		return BERYL_ERR("Out of memory");
+		return KHS_ERR("Out of memory");
 	
 	FILE *f = fopen(c_path, mode);
-	free_path(c_path);
+	khs_free_path(c_path);
 	if(f == NULL) {
-		beryl_blame_arg(path);
-		return BERYL_ERR("Unable to open file");
+		khs_blame_arg(path);
+		return KHS_ERR("Unable to open file");
 	}
 	
-	size_t res = fwrite(beryl_get_raw_str(&content), sizeof(char), BERYL_LENOF(content), f);
+	size_t res = fwrite(khs_get_raw_str(&content), sizeof(char), KHS_LENOF(content), f);
 	fclose(f);
 	
-	if(res != BERYL_LENOF(content)) {
-		beryl_blame_arg(path);
-		return BERYL_ERR("Error when writing to file");
+	if(res != KHS_LENOF(content)) {
+		khs_blame_arg(path);
+		return KHS_ERR("Error when writing to file");
 	}
-	return BERYL_NULL;
+	return KHS_NULL;
 }
 
-static i_val write_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_write_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args;
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected file path as first argument for 'write'");
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected file path as first argument for 'write'");
 	}
-	if (BERYL_TYPEOF(args[1]) != TYPE_STR) {
-		beryl_blame_arg(args[1]);
-		return BERYL_ERR("Expected string as second argument for 'write'");
+	if (KHS_TYPEOF(args[1]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[1]);
+		return KHS_ERR("Expected string as second argument for 'write'");
 	}
-	return write_i_val_to_file(args[0], args[1], "w");
+	return khs_write_val_to_file(args[0], args[1], "w");
 }
 
-static i_val print_exactly_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_print_exactly_callback(const khs_val *args, khs_size n_args) {
 	for (khs_size i = 0; i < n_args; i++) {
-		beryl_print_i_val(stdout, args[i]);
+		khs_print_val(stdout, args[i]);
 	}
-	return BERYL_NULL;
+	return KHS_NULL;
 }
 
-static i_val read_all_tag = BERYL_NULL;
-
-static i_val input_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_input_callback(const khs_val *args, khs_size n_args) {
 	bool stop_at_newline = true;
-	if (n_args >= 1 && beryl_val_cmp(args[0], read_all_tag) == 0) {
+	if (n_args >= 1 && khs_val_cmp(args[0], READ_ALL_TAG) == 0) {
 		args++;
 		n_args--;
 		stop_at_newline = false;
 	}
 	for (khs_size i = 0; i < n_args; i++) {
-		print_i_val(stdout, args[i]);
+		khs_print_val(stdout, args[i]);
 		if (i != n_args - 1) {
 			putchar(' ');
     }
 	}
 	khs_size line_buff_size = 256;
-	char *line_buff = beryl_talloc(line_buff_size);
+	char *line_buff = khs_talloc(line_buff_size);
 	khs_size n_read = 0;
 	int i;
 	while ((i = getchar()) != EOF) {
@@ -135,94 +135,94 @@ static i_val input_callback(const i_val *args, khs_size n_args) {
 		if (n_read == line_buff_size) {
 			line_buff_size = line_buff_size * 3 / 2 + 1;
 			if (line_buff_size <= n_read) {
-				beryl_tfree(line_buff);
-				return BERYL_ERR("Out of memory");
+				khs_tfree(line_buff);
+				return KHS_ERR("Out of memory");
 			}
-			void *newp = beryl_realloc(line_buff, line_buff_size);
+			void *newp = khs_realloc(line_buff, line_buff_size);
 			if (newp == NULL) {
-				beryl_tfree(line_buff);
-				return BERYL_ERR("Out of memory");
+				khs_tfree(line_buff);
+				return KHS_ERR("Out of memory");
 			}
 			line_buff = newp;
 		}
 		line_buff[n_read++] = c;
 	}
-	i_val res_str = beryl_new_string(n_read, line_buff);
-	beryl_tfree(line_buff);
-	if (BERYL_TYPEOF(res_str) == TYPE_NULL) {
-		return BERYL_ERR("Out of memory");
+	khs_val res_str = khs_new_string(n_read, line_buff);
+	khs_tfree(line_buff);
+	if (KHS_TYPEOF(res_str) == KHS_TYPE_NULL) {
+		return KHS_ERR("Out of memory");
   }
 	return res_str;
 }
 
-static i_val append_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_append_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args;
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected file path as first argument for 'append'");
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected file path as first argument for 'append'");
 	}
-	if (BERYL_TYPEOF(args[1]) != TYPE_STR) {
-		beryl_blame_arg(args[1]);
-		return BERYL_ERR("Expected string as second argument for 'append'");
+	if (KHS_TYPEOF(args[1]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[1]);
+		return KHS_ERR("Expected string as second argument for 'append'");
 	}
-	return write_i_val_to_file(args[0], args[1], "a");	
+	return khs_write_val_to_file(args[0], args[1], "a");	
 }
 
-static i_val file_exists_callback(const i_val *args, khs_size n_args) {
+static khs_val khs_file_exists_callback(const khs_val *args, khs_size n_args) {
 	(void)n_args;
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected file path (string) as argument for 'file-exists?'");
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected file path (string) as argument for 'file-exists?'");
 	}
-	char *path = as_path(beryl_get_raw_str(&args[0]), BERYL_LENOF(args[0]));
+	char *path = khs_as_path(khs_get_raw_str(&args[0]), KHS_LENOF(args[0]));
 	if (path == NULL) {
-		return BERYL_ERR("Out of memory");
+		return KHS_ERR("Out of memory");
   }
 	FILE *f = fopen(path, "r");
-	free_path(path);
+	khs_free_path(path);
 	if(f == NULL) {
-		return BERYL_BOOL(0);
+		return KHS_BOOL(0);
   }
 	fclose(f);
-	return BERYL_BOOL(1);
+	return KHS_BOOL(1);
 }
 
-static i_val printf_callback(const i_val *args, khs_size n_args) {
-	if (BERYL_TYPEOF(args[0]) != TYPE_STR) {
-		beryl_blame_arg(args[0]);
-		return BERYL_ERR("Expected string as first argument for 'printf', got '%0'");
+static khs_val khs_printf_callback(const khs_val *args, khs_size n_args) {
+	if (KHS_TYPEOF(args[0]) != KHS_TYPE_STR) {
+		khs_blame_arg(args[0]);
+		return KHS_ERR("Expected string as first argument for 'printf', got '%0'");
 	}
 	khs_size n_format_vals = n_args - 1;
 	if (n_format_vals > 10) {
-		beryl_blame_arg(BERYL_NUMBER(n_format_vals));
-		return BERYL_ERR("printf accepts at most 10 values to interpolate (Got %0)");
+		khs_blame_arg(KHS_NUMBER(n_format_vals));
+		return KHS_ERR("printf accepts at most 10 values to interpolate (Got %0)");
 	}
-	const char *str = beryl_get_raw_str(&args[0]);
-	khs_size strlen = BERYL_LENOF(args[0]);
-	beryl_i_vals_printf(stdout, str, strlen, args + 1, n_args - 1);
-	return BERYL_NULL;
+	const char *str = khs_get_raw_str(&args[0]);
+	khs_size strlen = KHS_LENOF(args[0]);
+	khs_vals_printf(stdout, str, strlen, args + 1, n_args - 1);
+	return KHS_NULL;
 }
 
-bool load_io_lib() {
-	static struct beryl_external_fn fns[] = {
-		KHS_FN(1, "read", read_callback),
-		KHS_FN(-2, "print", print_vals_callback),
-		KHS_FN(2, "write", write_callback),
-		KHS_FN(-2, "print-exactly", print_exactly_callback),
-		KHS_FN(-1, "input", input_callback),
-		KHS_FN(2, "append", append_callback),
-		KHS_FN(1, "file-exists?", file_exists_callback),
-		KHS_FN(-2, "printf", printf_callback),
+bool khs_load_io_lib() {
+	static khs_external_fn fns[] = {
+		KHS_FN(1, "read", khs_read_callback),
+		KHS_FN(-2, "print", khs_print_vals_callback),
+		KHS_FN(2, "write", khs_write_callback),
+		KHS_FN(-2, "print-exactly", khs_print_exactly_callback),
+		KHS_FN(-1, "input", khs_input_callback),
+		KHS_FN(2, "append", khs_append_callback),
+		KHS_FN(1, "file-exists?", khs_file_exists_callback),
+		KHS_FN(-2, "printf", khs_printf_callback),
 	};
-	for (size_t i = 0; i < LENOF(fns); i++) {
-		bool ok = beryl_set_var(fns[i].name, fns[i].name_len, BERYL_EXT_FN(&fns[i]), true);
+	for (size_t i = 0; i < KHS_UTIL_LENOF(fns); i++) {
+		bool ok = khs_set_var(fns[i].name, fns[i].name_len, KHS_EXT_FN(&fns[i]), true);
 		if (!ok) {
 			return false;
     }
 	}
-	beryl_set_var("path-separator", sizeof("path-separator") - 1, BERYL_CONST_STR(KHS_PATH_SEPARATOR), true);
-	read_all_tag = beryl_new_tag();
-	beryl_set_var("read-all", sizeof("read-all") - 1, read_all_tag, true);
+	khs_set_var("path-separator", sizeof("path-separator") - 1, KHS_CONST_STR(KHS_PATH_SEPARATOR), true);
+	READ_ALL_TAG = khs_new_tag();
+	khs_set_var("read-all", sizeof("read-all") - 1, READ_ALL_TAG, true);
 	return true;
 }
 

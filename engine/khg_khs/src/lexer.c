@@ -2,41 +2,40 @@
 #include "khg_khs/util.h"
 #include <assert.h>
 
-#define LEX_STATE_COPY(to, from) (*to = *((lex_state*) (from)))
+#define KHS_LEX_STATE_COPY(to, from) (*to = *((lex_state *)(from)))
 
-#define KEYWORD(str, tok) { str, sizeof(str) - 1, tok }
+#define KHS_KEYWORD(str, tok) { str, sizeof(str) - 1, tok }
 struct { 
   const char *str; khs_size len; unsigned char tok_type; } keywords[] = {
-	KEYWORD("let", TOK_LET),
-	KEYWORD("function", TOK_FN),
-	KEYWORD("with", TOK_FN),
-	KEYWORD("do", TOK_DO),
-	KEYWORD("end", TOK_END),
-	KEYWORD("=", TOK_ASSIGN),
-	KEYWORD("global", TOK_GLOBAL),
-	KEYWORD("...", TOK_VARARGS)
+	KHS_KEYWORD("let", KHS_TOK_LET),
+	KHS_KEYWORD("function", KHS_TOK_FN),
+	KHS_KEYWORD("with", KHS_TOK_FN),
+	KHS_KEYWORD("do", KHS_TOK_DO),
+	KHS_KEYWORD("end", KHS_TOK_END),
+	KHS_KEYWORD("=", KHS_TOK_ASSIGN),
+	KHS_KEYWORD("global", KHS_TOK_GLOBAL),
+	KHS_KEYWORD("...", KHS_TOK_VARARGS)
 };
 
-#define ERR_MSG(x) { *str_len = sizeof(x) - 1; return x; }
+#define KHS_ERR_MSG(x) { *str_len = sizeof(x) - 1; return x; }
 
-const char *lex_err_str(lex_token tok, size_t *str_len) {
-	assert(tok.type == TOK_ERR);
+const char *khs_lex_err_str(khs_lex_token tok, size_t *str_len) {
+	assert(tok.type == KHS_TOK_ERR);
 	switch (tok.content.err_type) {
-		case TOK_ERR_NULL: 
-      ERR_MSG("Lexing error: Null");
-		case TOK_ERR_MISSING_STR_END: 
-      ERR_MSG("Lexing error: Missing string terminator");
-		case TOK_ERR_SIZE_OVERFLOW: 
-      ERR_MSG( "Lexing error: Symbol too long");
-		case TOK_ERR_INT_OVERFLOW: 
-      ERR_MSG("Lexing error: Integer too large");
+		case KHS_TOK_ERR_NULL: 
+      KHS_ERR_MSG("Lexing error: Null");
+		case KHS_TOK_ERR_MISSING_STR_END: 
+      KHS_ERR_MSG("Lexing error: Missing string terminator");
+		case KHS_TOK_ERR_SIZE_OVERFLOW: 
+      KHS_ERR_MSG( "Lexing error: Symbol too long");
+		case KHS_TOK_ERR_INT_OVERFLOW: 
+      KHS_ERR_MSG("Lexing error: Integer too large");
 		default: 
-      ERR_MSG("Lexing error: None");
+      KHS_ERR_MSG("Lexing error: None");
 	}
 }
-#undef ERR_MSG
 
-static bool is_whitespace(char c) {
+static bool khs_is_whitespace(char c) {
 	switch (c) {
 		case ' ':
 		case '\t':
@@ -48,7 +47,7 @@ static bool is_whitespace(char c) {
 	}
 }
 
-static bool is_op_character(char c) {
+static bool khs_is_op_character(char c) {
 	switch (c) {
 		case '+':
 		case '-':
@@ -69,34 +68,34 @@ static bool is_op_character(char c) {
 	}
 }
 
-static unsigned char get_special_char(char c) {
+static unsigned char khs_get_special_char(char c) {
 	switch (c) {
 		case '(':
-			return TOK_OPEN_BRACKET;
+			return KHS_TOK_OPEN_BRACKET;
 		case ')':
-			return TOK_CLOSE_BRACKET;
+			return KHS_TOK_CLOSE_BRACKET;
 		case ';':
-			return TOK_ENDLINE;
+			return KHS_TOK_ENDLINE;
 		default:
-			return TOK_NULL;
+			return KHS_TOK_NULL;
 	}
 }
 
-static bool is_valid_symbol_char(char c) {
-	return !is_whitespace(c) && get_special_char(c) == TOK_NULL;
+static bool khs_is_valid_symbol_char(char c) {
+	return !khs_is_whitespace(c) && khs_get_special_char(c) == KHS_TOK_NULL;
 }
 
-static bool is_digit(char c) {
+static bool khs_is_digit(char c) {
 	return c >= '0' && c <= '9';
 }
 
-static bool is_at_end(lex_state *state) {
+static bool khs_is_at_end(khs_lex_state *state) {
 	return state->at == state->end;
 }
 
-static void skip_whitespace(lex_state *state) {
+static void khs_skip_whitespace(khs_lex_state *state) {
 	bool inside_comment = false;
-	while (!is_at_end(state) && (inside_comment || is_whitespace(*state->at) || *state->at == '#')) {
+	while (!khs_is_at_end(state) && (inside_comment || khs_is_whitespace(*state->at) || *state->at == '#')) {
 		if (*state->at == '#') {
 			inside_comment = !inside_comment;
     }
@@ -107,7 +106,7 @@ static void skip_whitespace(lex_state *state) {
 	}
 }
 
-static bool eqlstrcmp(const char *a, const char *b, khs_size len) {
+static bool khs_eqlstrcmp(const char *a, const char *b, khs_size len) {
 	for (; len != 0; len--) {
 		if (*a != *b) {
 			return false;
@@ -118,21 +117,21 @@ static bool eqlstrcmp(const char *a, const char *b, khs_size len) {
 	return true;
 }
 
-static unsigned char match_keyword(const char *sym, khs_size len) {
-	for (unsigned i = 0; i < LENOF(keywords); i++) {
+static unsigned char khs_match_keyword(const char *sym, khs_size len) {
+	for (unsigned i = 0; i < KHS_UTIL_LENOF(keywords); i++) {
 		if (keywords[i].len == len) {
-			if (eqlstrcmp(keywords[i].str, sym, len)) {
+			if (khs_eqlstrcmp(keywords[i].str, sym, len)) {
 				return keywords[i].tok_type;
       }
     }
 	}
-	return TOK_NULL;
+	return KHS_TOK_NULL;
 }
 
-lex_token parse_number(lex_state *state) {
+khs_lex_token khs_parse_number(khs_lex_state *state) {
 	const char *start = state->at;
 	khs_float float_v = 0;
-	while (!is_at_end(state) && (is_digit(*state->at) || *state->at == '\'')) {
+	while (!khs_is_at_end(state) && (khs_is_digit(*state->at) || *state->at == '\'')) {
 		if (*state->at == '\'') {
 			state->at++;
 			continue;
@@ -141,11 +140,11 @@ lex_token parse_number(lex_state *state) {
 		float_v += *state->at - '0';
 		state->at++;
 	}
-	if (!is_at_end(state) && *state->at == '.') {
+	if (!khs_is_at_end(state) && *state->at == '.') {
 		state->at++;
 		khs_float decimals = 0;
 		khs_float pow = 1.0;
-		while (!is_at_end(state) && (is_digit(*state->at) || *state->at == '\'')) {
+		while (!khs_is_at_end(state) && (khs_is_digit(*state->at) || *state->at == '\'')) {
 			if (*state->at == '\'') {
 				state->at++;
 				continue;
@@ -156,29 +155,29 @@ lex_token parse_number(lex_state *state) {
 		}
 		float_v += decimals;
 	}
-	return (lex_token){ TOK_NUMBER, start, state->at - start, { .number = float_v } };
+	return (khs_lex_token){ KHS_TOK_NUMBER, start, state->at - start, { .number = float_v } };
 }
 
-lex_token next_token(lex_state *state) {
+khs_lex_token khs_next_token(khs_lex_state *state) {
 START:
-	if(is_at_end(state)) {
-		return (lex_token){ .type = TOK_EOF, .src = state->end, .len = 0 };
+	if(khs_is_at_end(state)) {
+		return (khs_lex_token){ .type = KHS_TOK_EOF, .src = state->end, .len = 0 };
   }
 	if (*state->at == '\n' || *state->at == ';') {
 		const char *start = state->at;
 		state->at++;
-		skip_whitespace(state);
-		return (lex_token){ .type = TOK_ENDLINE, .src = start, .len = 1 };
+		khs_skip_whitespace(state);
+		return (khs_lex_token){ .type = KHS_TOK_ENDLINE, .src = start, .len = 1 };
 	}
-	if (is_whitespace(*state->at)) {
-		while (!is_at_end(state) && is_whitespace(*state->at) && *state->at != '\n') {
+	if (khs_is_whitespace(*state->at)) {
+		while (!khs_is_at_end(state) && khs_is_whitespace(*state->at) && *state->at != '\n') {
 			state->at++;
     }
 		goto START;
 	}
 	if (*state->at == '#') {
 		state->at++;
-		while (!is_at_end(state)) {
+		while (!khs_is_at_end(state)) {
 			if (*state->at == '\n') {
 				break;
       }
@@ -190,99 +189,99 @@ START:
 		}
 		goto START;
 	}
-	unsigned char special_char = get_special_char(*state->at);
-	if (special_char != TOK_NULL) {
+	unsigned char special_char = khs_get_special_char(*state->at);
+	if (special_char != KHS_TOK_NULL) {
 		state->at++;
-		return (lex_token) { special_char, state->at - 1, 1, { .err_type = 0 } };
+		return (khs_lex_token) { special_char, state->at - 1, 1, { .err_type = 0 } };
 	}
 	if (*state->at == '"') {
 		const char *start = state->at;
 		do {
 			state->at++;
-			if (is_at_end(state))
-				return (lex_token) { .type = TOK_ERR, .src = start, .len = state->at - start, .content = { .err_type = TOK_ERR_MISSING_STR_END } };
+			if (khs_is_at_end(state))
+				return (khs_lex_token) { .type = KHS_TOK_ERR, .src = start, .len = state->at - start, .content = { .err_type = KHS_TOK_ERR_MISSING_STR_END } };
 		} while (*state->at != '"');
 		state->at++;
 		size_t str_len = state->at - start;
 		if (str_len > KHS_SIZE_MAX)
-			return (lex_token){ TOK_ERR, start, 1, { .err_type = TOK_ERR_SIZE_OVERFLOW } };
-		return (lex_token){ TOK_STRING, start, str_len, { .sym = { start + 1, str_len - 2 } } };
+			return (khs_lex_token){ KHS_TOK_ERR, start, 1, { .err_type = KHS_TOK_ERR_SIZE_OVERFLOW } };
+		return (khs_lex_token){ KHS_TOK_STRING, start, str_len, { .sym = { start + 1, str_len - 2 } } };
 	}
 	if (*state->at == '-') {
 		state->at++;
-		if (is_at_end(state) || !is_digit(*state->at)) {
+		if (khs_is_at_end(state) || !khs_is_digit(*state->at)) {
 			state->at--;
     }
 		else {
-			lex_token tok = parse_number(state);
+			khs_lex_token tok = khs_parse_number(state);
 			tok.content.number = -tok.content.number;
 			return tok;
 		}
 	}
-	if (is_digit(*state->at)) {
-		return parse_number(state);
+	if (khs_is_digit(*state->at)) {
+		return khs_parse_number(state);
 	}
 	const char *sym_start = state->at;
-	while (!is_at_end(state) && is_valid_symbol_char(*state->at)) {
+	while (!khs_is_at_end(state) && khs_is_valid_symbol_char(*state->at)) {
 		state->at++;
 	}
 	size_t sym_len = state->at - sym_start;
 	if (sym_len > KHS_SIZE_MAX) {
-		return (lex_token){ TOK_ERR, sym_start, 1, { .err_type = TOK_ERR_SIZE_OVERFLOW } };
+		return (khs_lex_token){ KHS_TOK_ERR, sym_start, 1, { .err_type = KHS_TOK_ERR_SIZE_OVERFLOW } };
 	}
-	lex_token sym_tok = { TOK_SYM, sym_start, sym_len, { .sym = { sym_start, sym_len } } };
+	khs_lex_token sym_tok = { KHS_TOK_SYM, sym_start, sym_len, { .sym = { sym_start, sym_len } } };
 	if(sym_len > 0) {
     if(sym_start[0] == ':' && sym_len > 1) {
-			sym_tok.type = TOK_STRING;
+			sym_tok.type = KHS_TOK_STRING;
 			sym_tok.content.sym.len--;
 			sym_tok.content.sym.str++;
 		} 
-    else if (is_op_character(sym_start[sym_len - 1])) {
-			sym_tok.type = TOK_OP;
+    else if (khs_is_op_character(sym_start[sym_len - 1])) {
+			sym_tok.type = KHS_TOK_OP;
 			if(sym_len > 1) {
 				if(sym_start[sym_len - 1] == ':')
 					sym_tok.content.sym.len--;
 				else if(sym_start[sym_len - 1] == '=' && sym_start[0] != '=') {
-					sym_tok.type = TOK_FN_ASSIGN;
+					sym_tok.type = KHS_TOK_FN_ASSIGN;
 					sym_tok.content.sym.len--;
 				}
 			}
 		}
 	}
-	unsigned char keyword = match_keyword(sym_start, sym_len);
-	if (keyword != TOK_NULL) {
+	unsigned char keyword = khs_match_keyword(sym_start, sym_len);
+	if (keyword != KHS_TOK_NULL) {
 		sym_tok.type = keyword;
   }
 	return sym_tok;
 }
 
-lex_token lex_peek(lex_state *state) {
+khs_lex_token khs_lex_peek(khs_lex_state *state) {
 	return state->buffer;
 }
 
-lex_token lex_pop(lex_state *state) {
-	lex_token tok = state->buffer;
-	state->buffer = next_token(state);
+khs_lex_token khs_lex_pop(khs_lex_state *state) {
+	khs_lex_token tok = state->buffer;
+	state->buffer = khs_next_token(state);
 	return tok;
 }
 
-bool lex_accept(lex_state *state, unsigned char type, lex_token *opt_tok) {
-	lex_token tok = lex_peek(state);
+bool khs_lex_accept(khs_lex_state *state, unsigned char type, khs_lex_token *opt_tok) {
+	khs_lex_token tok = khs_lex_peek(state);
 	if (tok.type == type) {
-		lex_pop(state);
+		khs_lex_pop(state);
 		if (opt_tok != NULL) {
 			*opt_tok = tok;
-			assert(opt_tok->type != TOK_NULL);
+			assert(opt_tok->type != KHS_TOK_NULL);
 		}
 		return true;
 	}
 	return false;
 }
 
-void lex_state_init(lex_state *state, const char *src, size_t src_len) {
+void khs_lex_state_init(khs_lex_state *state, const char *src, size_t src_len) {
 	state->src = src;
 	state->end = src + src_len;
 	state->at = src;
-	state->buffer = next_token(state);
+	state->buffer = khs_next_token(state);
 }
 
