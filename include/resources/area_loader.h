@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tile/area.h"
+#include "tile/tile.h"
 
 #define FOREACH_AREA(AREA)\
   AREA(DUNGEON_0)\
@@ -18,26 +18,28 @@ typedef enum {
 
 #define NO_AREA_ID NUM_AREAS
 
+typedef struct area_asset_info {
+  size_t num_tiles;
+  size_t num_colliders;
+  int tiles_layer;
+  int objects_layer;
+} area_asset_info;
+
 typedef struct area_asset {
   char *tile_filepath;
   char *collider_filepath;
   char *object_filepath;
+  area_asset_info info;
 } area_asset;
 
-const area generate_area(const char *tile_filepath, const char *collider_filepath, const char *object_filepath);
+const area_asset_info generate_area_info(const char *tile_filepath, const char *collider_filepath, const char *object_filepath);
 
-void generate_area_setup(area *a, const char *tile_filepath, const char *collider_filepath, const char *object_filepath);
+const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t num_tiles, int tiles_layer);
 
-void generate_area_tiles_from_file(area *a, const char *tile_filepath);
-void generate_area_colliders_from_file(area *a, const char *collider_filepath);
-void generate_area_objects_from_file(area *a, const char *object_filepath);
-
-const bool check_area_loaded(size_t area_id);
 const size_t get_area_id_from_string(const char *area_key);
 
-const area get_or_add_area(size_t area_id);
-const area get_or_add_area_from_string(const char *area_key);
+const area_tiles get_area_tiles(size_t rig_id);
+const area_tiles get_area_tiles_from_string(const char *area_key);
 
-void generate_areas(void);
-void cleanup_areas(void);
-void reset_areas(void);
+void generate_areas();
+

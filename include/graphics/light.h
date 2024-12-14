@@ -6,7 +6,7 @@
 
 typedef struct {
   vec2s pos_perc;
-  float radius;
+  float intensity;
 } light;
 
 extern gfx_texture LIGHTING_OVERLAY;

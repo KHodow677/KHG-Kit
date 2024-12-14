@@ -3,14 +3,15 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "rig/rig.h"
+#include "tile/tile.h"
 #include <stddef.h>
 
 typedef struct comp_renderer {
   ecs_id id;
   int tex_id;
-  size_t area_id;
   const phy_rigid_body *body;
   rig rig;
+  area_tiles tiles;
   int render_layer;
   float parallax_value;
   phy_vector2 offset;

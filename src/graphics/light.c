@@ -47,9 +47,9 @@ void render_lights() {
   glUniform2fv(glGetUniformLocation(state.render.shader.id, "u_light_pos_percs"), LIGHT_COUNT, light_position_percs);
   float light_radii[LIGHT_COUNT];
   for (int i = 0; i < LIGHT_COUNT; i++) {
-    light_radii[i] = LIGHTS[i].radius * scale;
+    light_radii[i] = LIGHTS[i].intensity * scale;
   }
-  glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_radii"), LIGHT_COUNT, light_radii);
+  glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_intensities"), LIGHT_COUNT, light_radii);
   LIGHTING_OVERLAY.width = LETTERBOX.size.x + 1;
   LIGHTING_OVERLAY.height = LETTERBOX.size.y + 1;
   gfx_image_no_block(gfx_get_display_width() * 0.5f, gfx_get_display_height() * 0.5f, LIGHTING_OVERLAY, 0, 0, 1, true, false);

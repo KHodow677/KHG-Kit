@@ -85,7 +85,6 @@ const int game_run() {
   font = gfx_load_font_asset("res/assets/fonts/inter.ttf", 50);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
-  cleanup_areas();
   ecs_cleanup();
   physics_cleanup();
   return res;

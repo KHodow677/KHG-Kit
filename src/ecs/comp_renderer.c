@@ -2,6 +2,7 @@
 #include "camera/camera.h"
 #include "ecs/comp_physics.h"
 #include "ecs/ecs_manager.h"
+#include "khg_utl/array.h"
 #include "letterbox.h"
 #include "resources/area_loader.h"
 #include "resources/rig_loader.h"
@@ -30,9 +31,8 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       if (info->rig.enabled) {
         render_rig(&info->rig, info->parallax_value, info->flipped);
       }
-      else if (info->area_id != NUM_AREAS) {
-        area a = get_or_add_area(info->area_id);
-        render_tiles(&a, info->parallax_value);
+      else if (info->tiles.enabled) {
+        render_tiles(info->tiles.tiles, info->parallax_value);
       }
       else {
         phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
@@ -53,8 +53,8 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
   const comp_renderer_constructor_info *constructor_info = RENDERER_CONSTRUCTOR_INFO;
   if (info && constructor_info) {
     info->body = constructor_info->body;
-    info->area_id = constructor_info->area_id;
     info->rig = constructor_info->rig_id != NO_RIG_ID ? get_rig(constructor_info->rig_id) : (rig){ false };
+    info->tiles = constructor_info->area_id != NO_AREA_ID ? get_area_tiles(constructor_info->area_id) : (area_tiles){ false };
     info->tex_id = constructor_info->tex_id;
     info->render_layer = constructor_info->render_layer;
     info->parallax_value = constructor_info->parallax_value;
@@ -67,6 +67,9 @@ static void comp_renderer_destructor(ecs_ecs *ecs, const ecs_id entity_id, void 
   const comp_renderer *info = ptr;
   if (info && info->rig.enabled) {
     free_rig(&info->rig);
+  }
+  if (info && info->tiles.enabled) {
+    utl_array_deallocate(info->tiles.tiles);
   }
 }
 

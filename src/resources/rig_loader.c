@@ -5,7 +5,6 @@
 #include "rig/rig.h"
 #include <string.h>
 
-static rig NO_RIG = { 0 };
 static rig_asset RIG_ASSET_REF[NUM_RIGS];
 
 static int compare_rig_strings(const void *a, const void *b) {
