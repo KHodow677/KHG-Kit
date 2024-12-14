@@ -1,5 +1,6 @@
 #include "khg_utl/algorithm.h"
 #include "khg_utl/config.h"
+#include "khg_utl/string.h"
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
 #include "rig/rig.h"
@@ -40,20 +41,20 @@ void generate_rig_from_file(rig *r, const char *filepath, const char *rig_sectio
     if (strcmp(section, rig_section)) {
       continue;
     }
-    size_t len = strlen(key);
-    char generic_key[len];
-    strncpy(generic_key, key, len - 1);
-    generic_key[len - 1] = '\0'; 
-    if (!strcmp(generic_key, "bone_tex")) {
+    utl_string *key_obj = utl_string_create(key);
+    if (utl_string_starts_with(key_obj, "bone_tex")) {
       new_bone.bone_tex = get_tex_id_from_string((const char *)utl_config_get_value(config, section, key));
+      utl_string_deallocate(key_obj);
       continue;
     }
-    else if (!strcmp(generic_key, "bone_num")) {
+    else if (utl_string_starts_with(key_obj, "bone_num")) {
       new_bone.bone_num = utl_config_get_int(config, section, key, 0);
+      utl_string_deallocate(key_obj);
       continue;
     }
-    else if (!strcmp(generic_key, "bone_parent_num")) {
+    else if (utl_string_starts_with(key_obj, "bone_parent_num")) {
       new_bone.bone_parent_num = utl_config_get_int(config, section, key, 0);
+      utl_string_deallocate(key_obj);
       if (new_bone.bone_parent_num == -1) {
         continue;
       }

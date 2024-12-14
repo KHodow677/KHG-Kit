@@ -7,7 +7,6 @@
 #include "resources/texture_loader.h"
 #include "scene/scenes/main/area_builder.h"
 #include "scene/scenes/main/environment_builder.h"
-#include "scene/scenes/main/light_builder.h"
 #include "scene/scenes/main/player_builder.h"
 #include "scene/scenes/main/zone_builder.h"
 #include "khg_phy/core/phy_vector.h"
@@ -20,7 +19,7 @@ void load_main_scene(void *old_state_data, stm_event *event, void *new_state_dat
   setup_lights_texture();
   setup_lights_shader();
   build_area(DUNGEON_0, 8);
-  build_player(360, 600, 9);
+  build_player(256, 345, 9);
   build_environment_element(MAIN_ENVIRONMENT_BACKGROUND, 640, 360, 0, false, 0, 0.0f);
   build_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_1, 640, 360, 0, false, 1, 0.6f);
   build_environment_element(MAIN_ENVIRONMENT_MOUNTAIN_0, 640, 360, 0, false, 2, 0.7f);

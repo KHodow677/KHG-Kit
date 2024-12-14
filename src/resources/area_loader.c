@@ -1,11 +1,12 @@
-#include "resources/area_loader.h"
-#include "resources/texture_loader.h"
-#include "tile/area.h"
-#include "tile/tile.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
+#include "khg_utl/string.h"
+#include "resources/area_loader.h"
+#include "resources/texture_loader.h"
+#include "tile/tile.h"
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 static area_asset AREA_ASSET_REF[NUM_AREAS];
@@ -40,20 +41,19 @@ const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t
     if (strcmp(section, "area_tiles")) {
       continue;
     }
-    size_t len = strlen(key);
-    char generic_key[len];
-    strncpy(generic_key, key, len - 1);
-    generic_key[len - 1] = '\0'; 
-    if (!strcmp(generic_key, "tile_tex")) {
+    utl_string *key_obj = utl_string_create(key);
+    if (utl_string_starts_with(key_obj, "tile_tex")) {
       tile.tex_id = get_tex_id_from_string((const char *)utl_config_get_value(config, section, key));
+      utl_string_deallocate(key_obj);
       continue;
     }
-    else if (!strcmp(generic_key, "tile_pos")) {
+    else if (utl_string_starts_with(key_obj, "tile_pos")) {
       char **tile_pos = utl_config_get_array(config, section, key, 2);
       tile.pos = phy_vector2_new(atof(tile_pos[0]), atof(tile_pos[1]));
       free(tile_pos[0]);
       free(tile_pos[1]);
       free(tile_pos);
+      utl_string_deallocate(key_obj);
     }
     utl_array_set(at.tiles, count++, &tile);
   }

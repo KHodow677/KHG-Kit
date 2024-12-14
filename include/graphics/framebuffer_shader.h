@@ -22,6 +22,7 @@ const char *framebuffer_frag_src =
   "uniform float bloom_spread = 1.0;\n"
   "uniform float bloom_intensity = 1.0;\n"
   "uniform float time;\n"
+  "uniform float brightness_decrease;\n"
   "uniform float noise_intensity;\n"
   "float random(vec2 uv) {\n"
   "  return fract(sin(dot(uv.xy, vec2(12.9898, 78.233))) * 43758.5453);\n"
@@ -50,6 +51,7 @@ const char *framebuffer_frag_src =
   "  vec4 originalColor = texture(u_framebuffer_texture, TexCoord);\n"
   "  vec4 bloomColor = (sum / 9.0) * bloom_intensity;\n"
   "  vec4 noisyColor = apply_noise(originalColor + bloomColor, TexCoord);\n"
+  "  noisyColor.rgb -= brightness_decrease;\n"
   "  frag_color = clamp(noisyColor, 0.0, 1.0);\n"
   "}\n";
 
