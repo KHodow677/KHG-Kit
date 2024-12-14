@@ -4,6 +4,7 @@
 #include "khg_utl/string.h"
 #include "resources/area_loader.h"
 #include "resources/texture_loader.h"
+#include "tile/collider.h"
 #include "tile/tile.h"
 #include <stddef.h>
 #include <stdlib.h>
@@ -61,32 +62,38 @@ const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t
   return at;
 }
 
-const area_tiles generate_area_colliders_from_file(const char *tile_filepath, size_t num_tiles, int tiles_layer) {
-  const area_tiles at = { true, tiles_layer, utl_array_create(sizeof(area_tile), num_tiles) };
-  utl_config_file *config = utl_config_create(tile_filepath);
+const area_colliders generate_area_colliders_from_file(const char *collider_filepath, size_t num_colliders, bool enabled) {
+  const area_colliders at = { enabled, utl_array_create(sizeof(area_tile), num_colliders) };
+  utl_config_file *config = utl_config_create(collider_filepath);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
-  area_tile tile = { 0 };
+  phy_vector2 c_pos = { 0 };
+  phy_vector2 c_size = { 0 };
   size_t count = 0;
   while (utl_config_next_entry(&iterator, &section, &key, &value)) {
-    if (strcmp(section, "area_tiles")) {
+    if (strcmp(section, "area_colliders")) {
       continue;
     }
     utl_string *key_obj = utl_string_create(key);
-    if (utl_string_starts_with(key_obj, "tile_tex")) {
-      tile.tex_id = get_tex_id_from_string((const char *)utl_config_get_value(config, section, key));
+    if (utl_string_starts_with(key_obj, "collider_pos")) {
+      char **collider_pos = utl_config_get_array(config, section, key, 2);
+      c_pos = phy_vector2_new(atof(collider_pos[0]), atof(collider_pos[1]));
+      free(collider_pos[0]);
+      free(collider_pos[1]);
+      free(collider_pos);
       utl_string_deallocate(key_obj);
       continue;
     }
-    else if (utl_string_starts_with(key_obj, "tile_pos")) {
-      char **tile_pos = utl_config_get_array(config, section, key, 2);
-      tile.pos = phy_vector2_new(atof(tile_pos[0]), atof(tile_pos[1]));
-      free(tile_pos[0]);
-      free(tile_pos[1]);
-      free(tile_pos);
+    else if (utl_string_starts_with(key_obj, "collider_size")) {
+      char **collider_size = utl_config_get_array(config, section, key, 2);
+      c_size = phy_vector2_new(atof(collider_size[0]), atof(collider_size[1]));
+      free(collider_size[0]);
+      free(collider_size[1]);
+      free(collider_size);
       utl_string_deallocate(key_obj);
     }
-    utl_array_set(at.tiles, count++, &tile);
+    area_collider collider = create_collider(c_pos, c_size);
+    utl_array_set(at.colliders, count++, &collider);
   }
   utl_config_deallocate(config);
   return at;
@@ -106,6 +113,17 @@ const area_tiles get_area_tiles(size_t rig_id) {
 const area_tiles get_area_tiles_from_string(const char *area_key) {
   const size_t area_id = get_area_id_from_string(area_key);
   return get_area_tiles(area_id);
+}
+
+const area_colliders get_area_colliders(size_t rig_id, bool enabled) {
+  const area_asset aa = AREA_ASSET_REF[rig_id];
+  area_asset_info aai = generate_area_info(aa.tile_filepath, aa.collider_filepath, aa.object_filepath);
+  return generate_area_colliders_from_file(aa.collider_filepath, aai.num_colliders, enabled);
+}
+
+const area_colliders get_area_colliders_from_string(const char *area_key, bool enabled) {
+  const size_t area_id = get_area_id_from_string(area_key);
+  return get_area_colliders(area_id, enabled);
 }
 
 void generate_areas() {

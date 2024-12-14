@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tile/collider.h"
 #include "tile/tile.h"
 
 #define FOREACH_AREA(AREA)\
@@ -35,11 +36,15 @@ typedef struct area_asset {
 const area_asset_info generate_area_info(const char *tile_filepath, const char *collider_filepath, const char *object_filepath);
 
 const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t num_tiles, int tiles_layer);
+const area_colliders generate_area_colliders_from_file(const char *collider_filepath, size_t num_colliders, bool enabled);
 
 const size_t get_area_id_from_string(const char *area_key);
 
 const area_tiles get_area_tiles(size_t rig_id);
 const area_tiles get_area_tiles_from_string(const char *area_key);
+
+const area_colliders get_area_colliders(size_t rig_id, bool enabled);
+const area_colliders get_area_colliders_from_string(const char *area_key, bool enabled);
 
 void generate_areas();
 

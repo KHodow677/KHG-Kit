@@ -1,3 +1,4 @@
+#include "ecs/comp_collider_group.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
@@ -14,5 +15,7 @@ void build_area(size_t area_id, int render_layer) {
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
   comp_renderer_constructor_info comp_renderer_ci = { cp->body, cp->shape, PLAYER_BODY, NO_RIG_ID, DUNGEON_0, render_layer, 1.0f, false, false };
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);
+  comp_collider_group_constructor_info comp_collider_group_ci = { true, DUNGEON_0 };
+  comp_collider_group *ccg = sys_collider_group_add(entity, &comp_collider_group_ci);
 }
 

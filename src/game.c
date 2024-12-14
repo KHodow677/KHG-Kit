@@ -1,5 +1,6 @@
 #include "game.h"
 #include "camera/camera.h"
+#include "ecs/comp_collider_group.h"
 #include "letterbox.h"
 #include "camera/camera_controller.h"
 #include "ecs/comp_animator.h"
@@ -102,6 +103,7 @@ const bool gfx_loop(const float delta) {
     gfx_internal_renderer_set_shader(PRIMARY_SHADER);
     move_camera(&CAMERA, delta);
     ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, COLLIDER_GROUP_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
