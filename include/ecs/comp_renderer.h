@@ -9,23 +9,27 @@
 typedef struct comp_renderer {
   ecs_id id;
   int tex_id;
-  const phy_rigid_body *body;
+  phy_rigid_body *body;
+  phy_shape *shape;
   rig rig;
   area_tiles tiles;
   int render_layer;
   float parallax_value;
   phy_vector2 offset;
   bool flipped;
+  bool show_shape;
 } comp_renderer;
 
 typedef struct comp_renderer_constructor_info {
-  const phy_rigid_body *body; 
+  phy_rigid_body *body; 
+  phy_shape *shape; 
   int tex_id;
   size_t rig_id;
   size_t area_id;
   int render_layer;
   float parallax_value;
   bool flipped;
+  bool show_shape;
 } comp_renderer_constructor_info;
 
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;

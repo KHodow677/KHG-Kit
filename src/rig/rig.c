@@ -89,7 +89,7 @@ void render_rig(const rig *r, const float parallax_value, const bool flipped) {
     phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
     const gfx_texture tex_ref = get_or_add_texture(b->bone_tex_id);
     gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, angle };
-    transform_letterbox_element(LETTERBOX, &pos, &cam_pos, &tex);
+    transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
     gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * parallax_value, cam_pos.y * parallax_value, CAMERA.zoom, true, flipped);
   }
 }

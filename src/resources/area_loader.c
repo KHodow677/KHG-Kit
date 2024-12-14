@@ -31,7 +31,7 @@ const area_asset_info generate_area_info(const char *tile_filepath, const char *
 }
 
 const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t num_tiles, int tiles_layer) {
-  area_tiles at = { true, tiles_layer, utl_array_create(sizeof(area_tile), num_tiles) };
+  const area_tiles at = { true, tiles_layer, utl_array_create(sizeof(area_tile), num_tiles) };
   utl_config_file *config = utl_config_create(tile_filepath);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
@@ -60,6 +60,38 @@ const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t
   utl_config_deallocate(config);
   return at;
 }
+
+const area_tiles generate_area_colliders_from_file(const char *tile_filepath, size_t num_tiles, int tiles_layer) {
+  const area_tiles at = { true, tiles_layer, utl_array_create(sizeof(area_tile), num_tiles) };
+  utl_config_file *config = utl_config_create(tile_filepath);
+  utl_config_iterator iterator = utl_config_get_iterator(config);
+  const char *section, *key, *value;
+  area_tile tile = { 0 };
+  size_t count = 0;
+  while (utl_config_next_entry(&iterator, &section, &key, &value)) {
+    if (strcmp(section, "area_tiles")) {
+      continue;
+    }
+    utl_string *key_obj = utl_string_create(key);
+    if (utl_string_starts_with(key_obj, "tile_tex")) {
+      tile.tex_id = get_tex_id_from_string((const char *)utl_config_get_value(config, section, key));
+      utl_string_deallocate(key_obj);
+      continue;
+    }
+    else if (utl_string_starts_with(key_obj, "tile_pos")) {
+      char **tile_pos = utl_config_get_array(config, section, key, 2);
+      tile.pos = phy_vector2_new(atof(tile_pos[0]), atof(tile_pos[1]));
+      free(tile_pos[0]);
+      free(tile_pos[1]);
+      free(tile_pos);
+      utl_string_deallocate(key_obj);
+    }
+    utl_array_set(at.tiles, count++, &tile);
+  }
+  utl_config_deallocate(config);
+  return at;
+}
+
 
 const size_t get_area_id_from_string(const char *area_key) {
   return (size_t)utl_algorithm_find_at(AREA_STRINGS, AREA_STRINGS_SIZE, sizeof(char *), area_key, compare_area_strings);

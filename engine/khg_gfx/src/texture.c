@@ -6,10 +6,10 @@
 #else 
 #endif
 
+#include "glad/glad.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/font.h"
 #include "khg_utl/error_func.h"
-#include "glad/glad.h"
 #include "stb_image/stb_image.h"
 #include "stb_image_resize/stb_image_resize2.h"
 #include <string.h>

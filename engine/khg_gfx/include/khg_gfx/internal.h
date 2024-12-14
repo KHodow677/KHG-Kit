@@ -1,11 +1,10 @@
 #pragma once
 
+#include "cglm/types-struct.h"
+#include "GLFW/glfw3.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/events.h"
 #include "khg_gfx/texture.h"
-#include "cglm/types-struct.h"
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
 #include "libclipboard/libclipboard.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -140,7 +139,7 @@ typedef enum {
 
 extern gfx_state state;
 
-extern uint32_t gfx_internal_shader_create(GLenum type, const char *src);
+extern uint32_t gfx_internal_shader_create(unsigned int type, const char *src);
 extern gfx_shader gfx_internal_shader_prg_create(const char *vert_src, const char *frag_src);
 extern void gfx_internal_shader_set_mat(gfx_shader prg, const char *name, mat4 mat); 
 extern void gfx_internal_set_projection_matrix(void);
