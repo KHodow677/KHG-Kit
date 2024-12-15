@@ -14,7 +14,7 @@ const area_collider create_collider(phy_vector2 pos, phy_vector2 size) {
   phy_rigid_body *collider_body;
   phy_rigid_body_initializer collider_body_init = phy_rigid_body_initializer_default;
   collider_body_init.position = pos;
-  collider_body_init.material = (phy_material){ .density=1.0, .restitution=1.0, .friction=0.5 };
+  collider_body_init.material = (phy_material){ .density=1.0, .restitution=0.0, .friction=0.5 };
   collider_body = phy_rigid_body_new(collider_body_init);
   phy_shape *ground_shape = phy_rect_shape_new(size.x, size.y, phy_vector2_zero);
   phy_rigid_body_add_shape(collider_body, ground_shape);
