@@ -1,8 +1,8 @@
 #pragma once
 
+#include "cglm/types-struct.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
-#include "cglm/types-struct.h"
 #include <wchar.h>
 
 gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font font, gfx_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index);

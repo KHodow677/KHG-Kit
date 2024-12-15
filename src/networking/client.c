@@ -8,17 +8,17 @@
 #include <unistd.h>
 
 static void process_error(tcp_error e, void *user_data) {
-	tcp_channel **channel = (tcp_channel **) user_data;
-	perror(tcp_error_to_string(e));
-	tcp_close_channel(*channel);
-	tcp_term();
-	exit(-1);
+  tcp_channel **channel = (tcp_channel **) user_data;
+  perror(tcp_error_to_string(e));
+  tcp_close_channel(*channel);
+  tcp_term();
+  exit(-1);
 }
 
 void hoster_run() {
   tcp_init();
-	tcp_channel *err_channel = NULL;
-	tcp_set_error_callback(process_error, &err_channel);
+  tcp_channel *err_channel = NULL;
+  tcp_set_error_callback(process_error, &err_channel);
   tcp_channel *channel = tcp_connect("165.22.176.143", "http");
   tcp_client_receive(channel);
   tcp_close_channel(channel);

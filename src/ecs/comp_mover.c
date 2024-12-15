@@ -73,7 +73,7 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity
     if (KEYBOARD_STATE.d_key_is_down) {
       info->target.x += info->target_vel * dt;
     }
-    element_target_position(p_info, info->target, info->max_vel);
+    /*element_target_position(p_info, info->target, info->max_vel);*/
   }
   return 0;
 }

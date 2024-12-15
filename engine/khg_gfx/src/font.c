@@ -1,5 +1,6 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 
+#include "glad/glad.h"
 #include "khg_gfx/font.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"

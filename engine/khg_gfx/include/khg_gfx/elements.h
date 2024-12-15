@@ -1,7 +1,7 @@
 #pragma once
 
-#include "khg_gfx/texture.h"
 #include "cglm/types-struct.h"
+#include "khg_gfx/texture.h"
 #include <wchar.h>
 
 typedef struct {

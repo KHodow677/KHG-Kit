@@ -21,7 +21,7 @@ static ecs_ret sys_light_update(ecs_ecs *ecs, ecs_id *entities, const int entity
     const phy_vector2 screen_pos_perc = world_to_screen_perc(pos.x, pos.y);
     info->light.pos_perc.x = screen_pos_perc.x;
     info->light.pos_perc.y = screen_pos_perc.y;
-    add_light(info->light.pos_perc, info->light.radius);
+    add_light(info->light.pos_perc, info->light.intensity);
   }
   return 0;
 }

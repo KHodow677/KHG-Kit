@@ -1,3 +1,4 @@
+#include "glad/glad.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/font.h"
@@ -10,7 +11,7 @@
 
 gfx_state state;
 
-uint32_t gfx_internal_shader_create(GLenum type, const char *src) {
+uint32_t gfx_internal_shader_create(unsigned int type, const char *src) {
   uint32_t shader = glCreateShader(type);
   glShaderSource(shader, 1, &src, NULL);
   glCompileShader(shader);

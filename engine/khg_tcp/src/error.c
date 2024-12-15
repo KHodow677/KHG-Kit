@@ -14,26 +14,26 @@ static tcp_error_callback_fn tcp_error_callback = NULL;
 static void *tcp_user_data = NULL;
 
 void tcp_set_error_callback(tcp_error_callback_fn error_callback, void *user_data) {
-	tcp_error_callback = error_callback;
-	tcp_user_data = user_data;
+  tcp_error_callback = error_callback;
+  tcp_user_data = user_data;
 }
 
 tcp_error tcp_get_last_error() {
 #if defined(_WIN32) || defined(_WIN64)
-	return (tcp_error) WSAGetLastError();
+  return (tcp_error) WSAGetLastError();
 #else
-	return (tcp_error) errno;
+  return (tcp_error) errno;
 #endif
 }
 
 void tcp_raise_error(tcp_error err) {
-	if (tcp_error_callback) {
-		tcp_error_callback(err, tcp_user_data);
+  if (tcp_error_callback) {
+    tcp_error_callback(err, tcp_user_data);
   }
 }
 
 const char *tcp_error_to_string(tcp_error err) {
-	switch(err) {
+  switch(err) {
     case TCP_NO_ERROR:
       return "No error";
     case TCP_EINTR:
@@ -124,17 +124,17 @@ const char *tcp_error_to_string(tcp_error err) {
       return "EREMOTE";
     default:
       return "Unknown TCP error";
-	}
+  }
 }
 
 void tcp_print_error(tcp_error e) {
-	fprintf(stderr, "TCP error: %s\n", tcp_error_to_string(e));
+  fprintf(stderr, "TCP error: %s\n", tcp_error_to_string(e));
 }
 
 void tcp_fail(tcp_error err, const char *file, int line) {
-	tcp_print_error(err);
-	fprintf(stderr, "File: %s\nLine: %d\n", file, line);
-	fflush(stderr);
-	exit(-1);
+  tcp_print_error(err);
+  fprintf(stderr, "File: %s\nLine: %d\n", file, line);
+  fflush(stderr);
+  exit(-1);
 }
 

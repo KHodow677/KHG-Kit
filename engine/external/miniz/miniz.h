@@ -1449,13 +1449,13 @@ MINIZ_EXPORT mz_bool mz_zip_reader_extract_file_to_cfile(
 
 #if 0
 /* TODO */
-	typedef void *mz_zip_streaming_extract_state_ptr;
-	mz_zip_streaming_extract_state_ptr mz_zip_streaming_extract_begin(mz_zip_archive *pZip, mz_uint file_index, mz_uint flags);
-	mz_uint64 mz_zip_streaming_extract_get_size(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState);
-	mz_uint64 mz_zip_streaming_extract_get_cur_ofs(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState);
-	mz_bool mz_zip_streaming_extract_seek(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState, mz_uint64 new_ofs);
-	size_t mz_zip_streaming_extract_read(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState, void *pBuf, size_t buf_size);
-	mz_bool mz_zip_streaming_extract_end(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState);
+  typedef void *mz_zip_streaming_extract_state_ptr;
+  mz_zip_streaming_extract_state_ptr mz_zip_streaming_extract_begin(mz_zip_archive *pZip, mz_uint file_index, mz_uint flags);
+  mz_uint64 mz_zip_streaming_extract_get_size(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState);
+  mz_uint64 mz_zip_streaming_extract_get_cur_ofs(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState);
+  mz_bool mz_zip_streaming_extract_seek(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState, mz_uint64 new_ofs);
+  size_t mz_zip_streaming_extract_read(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState, void *pBuf, size_t buf_size);
+  mz_bool mz_zip_streaming_extract_end(mz_zip_archive *pZip, mz_zip_streaming_extract_state_ptr pState);
 #endif
 
 /* This function compares the archive's local headers, the optional local zip64
@@ -9339,10 +9339,10 @@ mz_bool mz_zip_writer_add_from_zip_reader(mz_zip_archive *pZip,
     if ((pSource_zip->m_pState->m_zip64) || (found_zip64_ext_data_in_ldir)) {
       /* src is zip64, dest must be zip64 */
 
-      /* name			uint32_t's */
-      /* id				1 (optional in zip64?) */
-      /* crc			1 */
-      /* comp_size	2 */
+      /* name      uint32_t's */
+      /* id        1 (optional in zip64?) */
+      /* crc      1 */
+      /* comp_size  2 */
       /* uncomp_size 2 */
       if (pSource_zip->m_pRead(pSource_zip->m_pIO_opaque, cur_src_file_ofs,
                                pBuf, (sizeof(mz_uint32) * 6)) !=
