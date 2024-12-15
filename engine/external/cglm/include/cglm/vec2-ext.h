@@ -180,8 +180,8 @@ glm_vec2_sign(vec2 v, vec2 dest) {
 /*!
  * @brief absolute value of v
  *
- * @param[in]	v	vector
- * @param[out]	dest	destination
+ * @param[in]  v  vector
+ * @param[out]  dest  destination
  */
 CGLM_INLINE
 void

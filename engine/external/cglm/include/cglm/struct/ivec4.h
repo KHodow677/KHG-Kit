@@ -574,7 +574,7 @@ glms_ivec4_(clamp)(ivec4s v, int minVal, int maxVal) {
 /*!
  * @brief absolute value of v
  *
- * @param[in]	v	vector
+ * @param[in]  v  vector
  * @returns     destination
  */
 CGLM_INLINE

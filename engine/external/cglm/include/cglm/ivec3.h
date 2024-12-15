@@ -699,8 +699,8 @@ glm_ivec3_clamp(ivec3 v, int minVal, int maxVal) {
 /*!
  * @brief absolute value of v
  *
- * @param[in]	v	vector
- * @param[out]	dest	destination
+ * @param[in]  v  vector
+ * @param[out]  dest  destination
  */
 CGLM_INLINE
 void

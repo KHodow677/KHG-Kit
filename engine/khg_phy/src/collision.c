@@ -79,16 +79,16 @@ static phy_persistent_contact_pair clip_polygons(phy_polygon a, phy_polygon b, i
     inc_polygon = a;
     i11 = edge_b;
     i12 = edge_b + 1 < b.num_vertices ? edge_b + 1 : 0;
-		i21 = edge_a;
-	  i22 = edge_a + 1 < a.num_vertices ? edge_a + 1 : 0;
+    i21 = edge_a;
+    i22 = edge_a + 1 < a.num_vertices ? edge_a + 1 : 0;
   }
   else {
     ref_polygon = a;
-		inc_polygon = b;
-		i11 = edge_a;
-		i12 = edge_a + 1 < a.num_vertices ? edge_a + 1 : 0;
-		i21 = edge_b;
-		i22 = edge_b + 1 < b.num_vertices ? edge_b + 1 : 0;
+    inc_polygon = b;
+    i11 = edge_a;
+    i12 = edge_a + 1 < a.num_vertices ? edge_a + 1 : 0;
+    i21 = edge_b;
+    i22 = edge_b + 1 < b.num_vertices ? edge_b + 1 : 0;
   }
   phy_vector2 normal = ref_polygon.normals[i11];
   phy_vector2 tangent = phy_vector2_perp(normal);

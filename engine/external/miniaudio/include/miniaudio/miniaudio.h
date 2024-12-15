@@ -9557,7 +9557,7 @@ int ma_vscprintf(const char* format, va_list args)
         return -1;
     }
 
-	for (;;) {
+  for (;;) {
         char* pNewTempBuffer = (char*)ma_realloc(pTempBuffer, tempBufferCap, NULL);    /* TODO: Add support for custom memory allocators? */
         if (pNewTempBuffer == NULL) {
             ma_free(pTempBuffer, NULL);
@@ -9576,7 +9576,7 @@ int ma_vscprintf(const char* format, va_list args)
 
         /* Buffer wasn't big enough. Ideally it'd be nice to use an error code to know the reason for sure, but this is reliable enough. */
         tempBufferCap *= 2;
-	}
+  }
 
     return result;
 #endif

@@ -8,11 +8,11 @@
 char BUFFER[TCP_STREAM_BUFFER_SIZE] = "";
 
 void process_error(tcp_error e, void *user_data) {
-	tcp_channel **channel = (tcp_channel **) user_data;
-	perror(tcp_error_to_string(e));
-	tcp_close_channel(*channel);
-	tcp_term();
-	exit(-1);
+  tcp_channel **channel = (tcp_channel **) user_data;
+  perror(tcp_error_to_string(e));
+  tcp_close_channel(*channel);
+  tcp_term();
+  exit(-1);
 }
 
 bool is_number(const char *str) { 
@@ -26,16 +26,16 @@ bool is_number(const char *str) {
 } 
 
 bool print_buffer(const char *buffer, int length, void *user_data) {
-	(void) user_data;
+  (void) user_data;
   memset(BUFFER, 0, sizeof(BUFFER));
   strncpy(BUFFER, buffer, length);
   printf("%s\n", BUFFER);
-	return strlen(buffer) == (size_t) length;
+  return strlen(buffer) == (size_t) length;
 }
 
 bool ignore_buffer(const char *buffer, int length, void *user_data) {
-	(void) user_data;
-	return strlen(buffer) == (size_t) length;
+  (void) user_data;
+  return strlen(buffer) == (size_t) length;
 }
 
 bool message_buffer(const char *buffer, int length, void *user_data) {
