@@ -28,21 +28,21 @@
 
 #define KHS_MATH_OP(name, start_val, start_index, op)\
 static khs_val name(const khs_val *args, khs_size n_args) {\
-	for (int i = 0; i < start_index; i++) {\
-		if (KHS_TYPEOF(args[i]) != KHS_TYPE_NUMBER) {\
-			khs_blame_arg(args[i]);\
-			return KHS_ERR("Expected number as argument for '" #op "'");\
-		}\
-	}\
-	khs_float res = start_val;\
-	for (khs_size i = start_index; i < n_args; i++) {\
-		if(KHS_TYPEOF(args[i]) != KHS_TYPE_NUMBER) {\
-			khs_blame_arg(args[i]);\
-			return KHS_ERR("Expected number as argument for '" #op "'");\
-		}\
-		res = res op khs_as_num(args[i]);\
-	}\
-	return KHS_NUMBER(res);\
+  for (int i = 0; i < start_index; i++) {\
+    if (KHS_TYPEOF(args[i]) != KHS_TYPE_NUMBER) {\
+      khs_blame_arg(args[i]);\
+      return KHS_ERR("Expected number as argument for '" #op "'");\
+    }\
+  }\
+  khs_float res = start_val;\
+  for (khs_size i = start_index; i < n_args; i++) {\
+    if(KHS_TYPEOF(args[i]) != KHS_TYPE_NUMBER) {\
+      khs_blame_arg(args[i]);\
+      return KHS_ERR("Expected number as argument for '" #op "'");\
+    }\
+    res = res op khs_as_num(args[i]);\
+  }\
+  return KHS_NUMBER(res);\
 }
 
 #define KHS_BOOL_OP(name, display_name, op)\

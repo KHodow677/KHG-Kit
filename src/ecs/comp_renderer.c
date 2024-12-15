@@ -37,6 +37,14 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       if (layer != info->render_layer) {
         continue;
       }
+      if (info->show_shape) {
+        phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
+        phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
+        const float angle = phy_rigid_body_get_angle(info->body);
+        gfx_aabb aabb = get_aabb_from_shape(info->shape);
+        transform_letterbox_element_aabb(LETTERBOX, &pos, &cam_pos, &aabb);
+        gfx_rect_no_block(pos.x, pos.y, aabb.size.x, aabb.size.y, gfx_green, 0.0, angle);
+      }
       if (info->rig.enabled) {
         render_rig(&info->rig, info->parallax_value, info->flipped);
       }
@@ -51,14 +59,6 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const int ent
         gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
         transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
         gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);
-      }
-      if (info->show_shape) {
-        phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
-        phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
-        const float angle = phy_rigid_body_get_angle(info->body);
-        gfx_aabb aabb = get_aabb_from_shape(info->shape);
-        transform_letterbox_element_aabb(LETTERBOX, &pos, &cam_pos, &aabb);
-        gfx_rect_no_block(pos.x, pos.y, aabb.size.x, aabb.size.y, gfx_green, 0.0, angle);
       }
     }
   }

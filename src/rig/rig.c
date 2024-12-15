@@ -85,7 +85,7 @@ void update_rig(const rig *r, const phy_rigid_body *body, const float frame_perc
 void render_rig(const rig *r, const float parallax_value, const bool flipped) {
   for (bone *b = utl_array_begin(r->bones); b != (bone *)utl_array_end(r->bones); b++) {
     const float angle = phy_rigid_body_get_angle(b->bone_body);
-    phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(b->bone_body), b->bone_offset);
+    phy_vector2 pos = phy_rigid_body_get_position(b->bone_body);
     phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
     const gfx_texture tex_ref = get_or_add_texture(b->bone_tex_id);
     gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, angle };

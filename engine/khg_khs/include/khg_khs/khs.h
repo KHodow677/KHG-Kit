@@ -21,23 +21,23 @@ typedef unsigned long long khs_large_uint_type;
 #define KHS_LARGE_UINT_TYPE_MAX ULLONG_MAX
 
 enum {
-	KHS_TYPE_NULL,
-	KHS_TYPE_NUMBER,
-	KHS_TYPE_BOOL,
-	KHS_TYPE_STR,
-	KHS_TYPE_TABLE,
-	KHS_TYPE_ARRAY,
-	KHS_TYPE_TAG,
-	KHS_TYPE_FN,
-	KHS_TYPE_EXT_FN,
-	KHS_TYPE_OBJECT,
-	KHS_TYPE_ERR
+  KHS_TYPE_NULL,
+  KHS_TYPE_NUMBER,
+  KHS_TYPE_BOOL,
+  KHS_TYPE_STR,
+  KHS_TYPE_TABLE,
+  KHS_TYPE_ARRAY,
+  KHS_TYPE_TAG,
+  KHS_TYPE_FN,
+  KHS_TYPE_EXT_FN,
+  KHS_TYPE_OBJECT,
+  KHS_TYPE_ERR
 };
 
 typedef enum khs_err_action {
-	KHS_PRINT_ERR,
-	KHS_CATCH_ERR,
-	KHS_PROP_ERR
+  KHS_PRINT_ERR,
+  KHS_CATCH_ERR,
+  KHS_PROP_ERR
 } khs_err_action;
 
 #define KHS_INLINE_STR_MAX_LEN (sizeof(void *))
@@ -66,54 +66,54 @@ typedef struct khs_external_fn khs_external_fn;
 typedef struct khs_object khs_object;
 
 struct khs_val {
-	union {
-		khs_managed_str *managed_str;
-		khs_table *table;
-		const char *str;
-		char inline_str[KHS_INLINE_STR_MAX_LEN];
-		khs_float num_v;
-		bool bool_v;
-		khs_external_fn *ext_fn;
-		const char *fn;
-		khs_tag tag;
-		khs_val *static_array;
-		khs_managed_array *managed_array;
-		khs_object *object;
-	} val;
-	khs_size len;
-	bool managed;
-	unsigned char type;
+  union {
+    khs_managed_str *managed_str;
+    khs_table *table;
+    const char *str;
+    char inline_str[KHS_INLINE_STR_MAX_LEN];
+    khs_float num_v;
+    bool bool_v;
+    khs_external_fn *ext_fn;
+    const char *fn;
+    khs_tag tag;
+    khs_val *static_array;
+    khs_managed_array *managed_array;
+    khs_object *object;
+  } val;
+  khs_size len;
+  bool managed;
+  unsigned char type;
 };
 
 struct khs_external_fn {
-	int arity;
-	bool auto_release;
-	const char *name;
-	size_t name_len;
-	khs_val (*fn)(const khs_val *, khs_size);
+  int arity;
+  bool auto_release;
+  const char *name;
+  size_t name_len;
+  khs_val (*fn)(const khs_val *, khs_size);
 };
 
 typedef struct khs_val_pair {
-	khs_val key, val;
+  khs_val key, val;
 } khs_val_pair;
 
 struct khs_table {
-	khs_size cap;
-	khs_refc ref_c;
-	khs_val_pair entries[];
+  khs_size cap;
+  khs_refc ref_c;
+  khs_val_pair entries[];
 };
 
 typedef struct beryl_object_class {
-	void (*free)(khs_object *);
-	khs_val (*call)(khs_object *, const khs_val *, khs_size);
-	size_t obj_size;
-	const char *name;
-	size_t name_len;
+  void (*free)(khs_object *);
+  khs_val (*call)(khs_object *, const khs_val *, khs_size);
+  size_t obj_size;
+  const char *name;
+  size_t name_len;
 } beryl_object_class;
 
 struct khs_object {
-	beryl_object_class *obj_class;
-	khs_refc ref_c;
+  beryl_object_class *obj_class;
+  khs_refc ref_c;
 };
 
 const char *khs_get_raw_str(const khs_val *str);
