@@ -1,10 +1,10 @@
+#include "area/tile.h"
 #include "camera/camera.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
 #include "khg_utl/array.h"
 #include "letterbox.h"
 #include "resources/texture_loader.h"
-#include "tile/tile.h"
 
 void render_tiles(utl_array *tiles, int parallax_value) {
   for (area_tile *at = utl_array_begin(tiles); at != (area_tile *)utl_array_end(tiles); at++) {

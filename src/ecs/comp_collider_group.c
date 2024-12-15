@@ -1,9 +1,9 @@
+#include "area/collider.h"
 #include "ecs/comp_collider_group.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_utl/array.h"
 #include "resources/area_loader.h"
-#include "tile/collider.h"
 #include <stdio.h>
 
 ecs_id COLLIDER_GROUP_COMPONENT_SIGNATURE;
@@ -31,6 +31,7 @@ static void comp_collider_group_constructor(ecs_ecs *ecs, const ecs_id entity_id
 
 static void comp_collider_group_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
   const comp_collider_group *info = ptr;
+  free_colliders(info->colliders.colliders);
   if (info) {
     utl_array_deallocate(info->colliders.colliders);
   }

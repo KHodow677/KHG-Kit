@@ -1,11 +1,11 @@
+#include "area/collider.h"
+#include "area/tile.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
 #include "khg_utl/string.h"
 #include "resources/area_loader.h"
 #include "resources/texture_loader.h"
-#include "tile/collider.h"
-#include "tile/tile.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +63,7 @@ const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t
 }
 
 const area_colliders generate_area_colliders_from_file(const char *collider_filepath, size_t num_colliders, bool enabled) {
-  const area_colliders at = { enabled, utl_array_create(sizeof(area_tile), num_colliders) };
+  const area_colliders at = { enabled, utl_array_create(sizeof(area_collider), num_colliders) };
   utl_config_file *config = utl_config_create(collider_filepath);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;

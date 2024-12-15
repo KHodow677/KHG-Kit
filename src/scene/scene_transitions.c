@@ -13,7 +13,7 @@
 #include "khg_stm/state_machine.h"
 
 void load_main_scene(void *old_state_data, stm_event *event, void *new_state_data) {
-  physics_setup(phy_vector2_new(0.0f, 300.0f));
+  physics_setup(phy_vector2_new(0.0f, 1000.0f));
   ecs_setup();
   camera_setup(&CAMERA);
   setup_lights_texture();

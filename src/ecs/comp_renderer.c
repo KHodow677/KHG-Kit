@@ -1,3 +1,4 @@
+#include "area/tile.h"
 #include "ecs/comp_renderer.h"
 #include "camera/camera.h"
 #include "ecs/comp_physics.h"
@@ -15,7 +16,6 @@
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
 #include "rig/rig.h"
-#include "tile/tile.h"
 #include <math.h>
 #include <stdio.h>
 

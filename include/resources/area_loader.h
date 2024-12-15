@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tile/collider.h"
-#include "tile/tile.h"
+#include "area/collider.h"
+#include "area/tile.h"
 
 #define FOREACH_AREA(AREA)\
   AREA(DUNGEON_0)\

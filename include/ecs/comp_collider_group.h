@@ -1,7 +1,7 @@
 #pragma once
 
+#include "area/collider.h"
 #include "khg_ecs/ecs.h"
-#include "tile/collider.h"
 
 typedef struct {
   ecs_id id;
