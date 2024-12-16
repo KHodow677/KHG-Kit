@@ -118,26 +118,6 @@ bool tcp_stream_receive(tcp_channel *channel, stream_output_fn stream_output, vo
   return true;
 }
 
-bool tcp_stream_receive_no_timeout(tcp_channel *channel, stream_output_fn stream_output, void *user_data) {
-  assert(channel);
-  assert(stream_output);
-  if (!tcp_socket_poll_read_no_timeout(&channel->socket)) {
-    return false;
-  }
-  char buffer[TCP_STREAM_BUFFER_SIZE];
-  const int length = TCP_STREAM_BUFFER_SIZE;
-  do {
-    int bytes_received = tcp_socket_read(&channel->socket, buffer, length);
-    if (bytes_received == 0) {
-      return false;
-    }
-    if (!stream_output(buffer, bytes_received, user_data)) {
-      return false;
-    }
-  } while (tcp_socket_poll_read_no_timeout(&channel->socket));
-  return true;
-}
-
 void tcp_close_channel(tcp_channel *channel) {
   if (channel) {
     tcp_socket_close(&channel->socket);
