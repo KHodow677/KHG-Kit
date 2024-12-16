@@ -14,7 +14,6 @@ typedef struct {
   bool is_moving;
 } comp_physics;
 
-
 typedef struct {
   enum {
     PHYSICS_BOX,
@@ -25,6 +24,7 @@ typedef struct {
   phy_vector2 pos;
   float ang;
   bool move_enabled;
+  bool gravity_enabled;
   bool collision_enabled;
 } comp_physics_constructor_info;
 

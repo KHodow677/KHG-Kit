@@ -188,7 +188,7 @@ void gfx_internal_renderer_init() {
       "else {\n"
         "opaque_color = texture(u_textures[int(v_tex_index)], v_texcoord) * v_color;\n"
       "}\n"
-      "if(v_corner_radius != 0.0f) {"
+      "if(v_corner_radius != 0.0f) {\n"
         "display_color = opaque_color;\n"
         "vec2 location = vec2(v_pos_px.x, -v_pos_px.y);\n"
         "location.y += u_screen_size.y - size.y;\n"

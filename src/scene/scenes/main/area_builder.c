@@ -11,7 +11,7 @@
 
 void build_area(size_t area_id, int render_layer) {
   ecs_id entity = ecs_create(ECS);
-  comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 300.0f, 256.0f, 1.0f, phy_vector2_new(0, 0), 0.0f, true, true };
+  comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 300.0f, 256.0f, 1.0f, phy_vector2_new(0, 0), 0.0f, false, false, false };
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
   comp_renderer_constructor_info comp_renderer_ci = { cp->body, cp->shape, PLAYER_BODY, NO_RIG_ID, DUNGEON_0, render_layer, 1.0f, false, false };
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);

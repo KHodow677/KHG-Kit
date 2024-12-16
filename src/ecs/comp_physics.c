@@ -20,7 +20,8 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const int enti
   for (int id = 0; id < entity_count; id++) {
     comp_physics *info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (info->move_enabled) {
-      phy_rigid_body_set_linear_velocity(info->body, phy_vector2_new(info->target_vel, 0.0f));
+      phy_vector2 current_velocity = phy_rigid_body_get_linear_velocity(info->body);
+      phy_rigid_body_set_linear_velocity(info->body, phy_vector2_new(info->target_vel, current_velocity.y));
     }
   }
   return 0;
@@ -38,6 +39,7 @@ static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void 
     phy_rigid_body_set_position(info->body, constructor_info->pos);
     phy_rigid_body_set_mass(info->body, constructor_info->mass);
     phy_rigid_body_set_angle(info->body, constructor_info->ang);
+    phy_rigid_body_set_gravity_scale(info->body, constructor_info->gravity_enabled ? 1.0f : 0.0f);
     info->is_moving = false;
     info->target_vel = 0.0f;
     info->move_enabled = constructor_info->move_enabled;

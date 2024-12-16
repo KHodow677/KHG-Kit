@@ -8,7 +8,7 @@
 
 void build_zone(const phy_rigid_body *player_body, const int min_x, const int max_x) {
   const ecs_id entity = ecs_create(ECS);
-  comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 0.0f, 0.0f, 1.0f, phy_vector2_new((min_x + max_x) / 2.0f, 0.0f), 0.0f, false, false };
+  comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 0.0f, 0.0f, 1.0f, phy_vector2_new((min_x + max_x) / 2.0f, 0.0f), 0.0f, false, false, false };
   const comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
   comp_zone_constructor_info comp_zone_ci = { player_body, min_x, max_x };
   const comp_zone *cz = sys_zone_add(entity, &comp_zone_ci);

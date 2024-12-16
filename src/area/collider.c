@@ -6,11 +6,8 @@
 #include "khg_phy/space.h"
 #include "khg_utl/array.h"
 #include "physics/physics.h"
-#include <stdio.h>
 
 const area_collider create_collider(phy_vector2 pos, phy_vector2 size) {
-  printf("POS: %f, %f\n", pos.x, pos.y);
-  printf("SIZE: %f, %f\n", size.x, size.y);
   phy_rigid_body *collider_body;
   phy_rigid_body_initializer collider_body_init = phy_rigid_body_initializer_default;
   collider_body_init.position = pos;

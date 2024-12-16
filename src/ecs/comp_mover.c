@@ -67,11 +67,14 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity
     comp_mover *info = ecs_get(ECS, entities[id], MOVER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
+    element_set_speed(p_info, 0.0f);
     if (KEYBOARD_STATE.a_key_is_down) {
       info->target.x -= info->target_vel * dt;
+      element_set_speed(p_info, -info->target_vel);
     }
     if (KEYBOARD_STATE.d_key_is_down) {
       info->target.x += info->target_vel * dt;
+      element_set_speed(p_info, info->target_vel);
     }
     /*element_target_position(p_info, info->target, info->max_vel);*/
   }
