@@ -22,6 +22,7 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const int enti
     if (info->move_enabled) {
       phy_vector2 current_velocity = phy_rigid_body_get_linear_velocity(info->body);
       phy_rigid_body_set_linear_velocity(info->body, phy_vector2_new(info->target_vel, current_velocity.y));
+      phy_rigid_body_set_angle(info->body, 0.0f);
     }
   }
   return 0;
