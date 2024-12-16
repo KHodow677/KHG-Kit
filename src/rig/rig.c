@@ -9,7 +9,6 @@
 #include "khg_phy/core/phy_vector.h"
 #include "khg_utl/array.h"
 #include <string.h>
-#include <stdio.h>
 #include <unistd.h>
 
 bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent) {
@@ -69,7 +68,7 @@ void update_rig(const rig *r, const phy_rigid_body *body, const float frame_perc
   while (!updated) {
     for (int i = 0; i < r->num_bones; i++) {
       bone *b = utl_array_at(r->bones, i);
-      const phy_rigid_body *rb = (!b->parent || !b->parent->updated) ? body : NULL;
+      const phy_rigid_body *rb = (!b->parent) ? body : NULL;
       update_rig_with_interpolated_frame(b, utl_array_at(r->current_frame_bones, i), utl_array_at(target, i), frame_percentage, rb);
     }
     updated = true;
