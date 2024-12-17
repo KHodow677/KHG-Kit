@@ -1,6 +1,5 @@
 #pragma once
 
-#include <sys/wait.h>
 extern const char *framebuffer_vert_src;
 extern const char *framebuffer_frag_src;
 
