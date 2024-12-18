@@ -24,9 +24,9 @@ void build_player(const float x, const float y, const int render_layer) {
   set_state_and_frame(&cr->rig, 0, 0);
   comp_light_constructor_info comp_light_ci = { cp->body, (light){ (vec2s){ 0.0, 0.0 }, 50.0f }, phy_vector2_new(0.0f, 0.0f) };
   comp_light *cl = sys_light_add(entity, &comp_light_ci);
-  comp_animator_constructor_info comp_animator_ci = { 0, 1, 0.128, false };
+  comp_animator_constructor_info comp_animator_ci = { 0, 1, 0.128f, false };
   comp_animator *ca = sys_animator_add(entity, &comp_animator_ci);
-  comp_mover_constructor_info comp_mover_ci = { cp->body, 200, 200 };
+  comp_mover_constructor_info comp_mover_ci = { cp->body, 400, 1.0f };
   comp_mover *cm = sys_mover_add(entity, &comp_mover_ci);
   PLAYER_INFO = (player_info){ entity, cp, cr, cl, ca, cm };
 }

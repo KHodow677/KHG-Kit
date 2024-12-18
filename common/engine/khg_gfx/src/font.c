@@ -19,54 +19,54 @@ static void renderer_add_glyph(stbtt_aligned_quad q, int32_t max_descended_char_
     (vec2s){ q.x0, q.y1 + max_descended_char_height }
   }; 
   for (uint32_t i = 0; i < 4; i++) {
-    if(state.render.vert_count >= MAX_RENDER_BATCH) {
+    if(GFX_STATE.render.vert_count >= MAX_RENDER_BATCH) {
       gfx_internal_renderer_flush();
       gfx_internal_renderer_begin();
     }
     const vec2 verts_arr = { verts[i].x, verts[i].y };
-    memcpy(state.render.verts[state.render.vert_count].pos, verts_arr, sizeof(vec2));
+    memcpy(GFX_STATE.render.verts[GFX_STATE.render.vert_count].pos, verts_arr, sizeof(vec2));
     const vec4 border_color = { 0, 0, 0, 0 };
-    memcpy(state.render.verts[state.render.vert_count].border_color, border_color, sizeof(vec4));
-    state.render.verts[state.render.vert_count].border_width = 0;
+    memcpy(GFX_STATE.render.verts[GFX_STATE.render.vert_count].border_color, border_color, sizeof(vec4));
+    GFX_STATE.render.verts[GFX_STATE.render.vert_count].border_width = 0;
     vec4s color_zto = gfx_color_to_zto(color);
     const vec4 color_arr = { color_zto.r, color_zto.g, color_zto.b, color_zto.a };
-    memcpy(state.render.verts[state.render.vert_count].color, color_arr, sizeof(vec4));
+    memcpy(GFX_STATE.render.verts[GFX_STATE.render.vert_count].color, color_arr, sizeof(vec4));
     const vec2 texcoord_arr = { texcoords[i].x, texcoords[i].y };
-    memcpy(state.render.verts[state.render.vert_count].texcoord, texcoord_arr, sizeof(vec2));
-    state.render.verts[state.render.vert_count].tex_index = tex_index;
+    memcpy(GFX_STATE.render.verts[GFX_STATE.render.vert_count].texcoord, texcoord_arr, sizeof(vec2));
+    GFX_STATE.render.verts[GFX_STATE.render.vert_count].tex_index = tex_index;
     const vec2 scale_arr = { 0, 0 };
-    memcpy(state.render.verts[state.render.vert_count].scale, scale_arr, sizeof(vec2));
+    memcpy(GFX_STATE.render.verts[GFX_STATE.render.vert_count].scale, scale_arr, sizeof(vec2));
     const vec2 pos_px_arr = { 0, 0 };
-    memcpy(state.render.verts[state.render.vert_count].pos_px, pos_px_arr, sizeof(vec2));
-    state.render.verts[state.render.vert_count].corner_radius = 0;
-    const vec2 cull_start_arr = { state.cull_start.x, state.cull_start.y };
-    const vec2 cull_end_arr = { state.cull_end.x, state.cull_end.y };
-    memcpy(state.render.verts[state.render.vert_count].min_coord, cull_start_arr, sizeof(vec2));
-    memcpy(state.render.verts[state.render.vert_count].max_coord, cull_end_arr, sizeof(vec2));
-    state.render.vert_count++;
+    memcpy(GFX_STATE.render.verts[GFX_STATE.render.vert_count].pos_px, pos_px_arr, sizeof(vec2));
+    GFX_STATE.render.verts[GFX_STATE.render.vert_count].corner_radius = 0;
+    const vec2 cull_start_arr = { GFX_STATE.cull_start.x, GFX_STATE.cull_start.y };
+    const vec2 cull_end_arr = { GFX_STATE.cull_end.x, GFX_STATE.cull_end.y };
+    memcpy(GFX_STATE.render.verts[GFX_STATE.render.vert_count].min_coord, cull_start_arr, sizeof(vec2));
+    memcpy(GFX_STATE.render.verts[GFX_STATE.render.vert_count].max_coord, cull_end_arr, sizeof(vec2));
+    GFX_STATE.render.vert_count++;
   }
-  state.render.index_count += 6; 
+  GFX_STATE.render.index_count += 6; 
 }
 
 gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font font, gfx_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index) {
   bool culled = gfx_internal_item_should_cull((gfx_aabb){ .pos = (vec2s){ pos.x, pos.y + gfx_internal_get_current_font().font_size }, .size = (vec2s){ -1, -1 } }, true);
   float tex_index = -1.0f;
   if (!culled && !no_render) {
-    if (state.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
+    if (GFX_STATE.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
       gfx_internal_renderer_flush();
       gfx_internal_renderer_begin();
     }
-    for (uint32_t i = 0; i < state.render.tex_count; i++) {
-      if (state.render.textures[i].id == font.bitmap.id) {
+    for (uint32_t i = 0; i < GFX_STATE.render.tex_count; i++) {
+      if (GFX_STATE.render.textures[i].id == font.bitmap.id) {
         tex_index = (float)i;
         break;
       }
     }
     if (tex_index == -1.0f) {
-      tex_index = (float)state.render.tex_index;
+      tex_index = (float)GFX_STATE.render.tex_index;
       gfx_texture tex = font.bitmap;
-      state.render.textures[state.render.tex_count++] = tex;
-      state.render.tex_index++;
+      GFX_STATE.render.textures[GFX_STATE.render.tex_count++] = tex;
+      GFX_STATE.render.tex_index++;
     }
   }
   gfx_text_props ret = { 0 };
@@ -135,7 +135,7 @@ gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font fon
         break;
       }
     }
-    if (!culled && !no_render && state.renderer_render) {
+    if (!culled && !no_render && GFX_STATE.renderer_render) {
       if (render_solid) {
         gfx_rect_render((vec2s){ x, y }, (vec2s){ last_x - x, get_max_char_height_font(font) }, color, gfx_no_color, 0.0f, 0.0f, 0.0f);
       } else {

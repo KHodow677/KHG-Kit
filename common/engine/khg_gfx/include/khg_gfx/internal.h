@@ -137,7 +137,7 @@ typedef enum {
   GFX_INPUT_TEXT
 } gfx_input_field_type;
 
-extern gfx_state state;
+extern gfx_state GFX_STATE;
 
 extern uint32_t gfx_internal_shader_create(unsigned int type, const char *src);
 extern gfx_shader gfx_internal_shader_prg_create(const char *vert_src, const char *frag_src);

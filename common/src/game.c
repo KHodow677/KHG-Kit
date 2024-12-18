@@ -110,7 +110,7 @@ const bool gfx_loop(const float delta) {
     ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
     phy_space_step(SPACE, delta);
     gfx_div_end();
-    state.current_div.scrollable = false;
+    GFX_STATE.current_div.scrollable = false;
   }
   return true;
 }
@@ -120,7 +120,7 @@ const bool gfx_loop_post(const float delta) {
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
   render_lights();
-  state.current_div.scrollable = false;
+  GFX_STATE.current_div.scrollable = false;
   return true;
 };
 
@@ -131,7 +131,7 @@ const bool gfx_loop_ui(const float delta) {
   gfx_push_font(&font);
   gfx_text("Test the Font");
   gfx_pop_font();
-  state.current_div.scrollable = false;
+  GFX_STATE.current_div.scrollable = false;
   return true;
 };
 

@@ -2,23 +2,27 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
-#include "khg_phy/core/phy_vector.h"
+
+typedef enum move_direction {
+  MOVE_LEFT,
+  MOVE_RIGHT
+} move_direction;
 
 typedef struct comp_mover {
   ecs_id id;
-  phy_vector2 target;
-  float target_vel;
-  float max_vel;
-  int idle_min_tex_id;
-  int idle_max_tex_id;
-  int walk_min_tex_id;
-  int walk_max_tex_id;
+  move_direction current_direction;
+  float left_current_speed;
+  float right_current_speed;
+  float max_speed;
+  float time_to_max_speed;
+  float left_pressed_time;
+  float right_pressed_time;
 } comp_mover;
 
 typedef struct comp_mover_constructor_info {
   const phy_rigid_body *body; 
-  const float target_vel;
-  const float max_vel;
+  const float max_speed;
+  const float time_to_max_speed;
 } comp_mover_constructor_info;
 
 extern ecs_id MOVER_COMPONENT_SIGNATURE;

@@ -4,8 +4,6 @@
 #include "ecs/ecs_manager.h"
 #include "io/key_controller.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/body.h"
-#include "khg_phy/core/phy_vector.h"
 #include <stdio.h>
 
 static const float POSITION_TOLERANCE = 10.0f;
@@ -23,60 +21,26 @@ static void element_set_speed(comp_physics *p_info, const float vel) {
   p_info->is_moving = fabsf(vel) <= SPEED_TOLERANCE ? false : true;
 }
 
-static float ease_in_out(const float t) {
-  return t * t * (3 - 2 * t);
-}
-
-static const bool element_is_at_position(comp_physics *info, const phy_vector2 pos, const float tolerance) {
-  phy_vector2 body_pos = phy_rigid_body_get_position(info->body);
-  float pos_diff = phy_vector2_dist(pos, body_pos);
-  if (pos_diff <= tolerance) {
-    return true;
-  }
-  return false;
-}
-
-static void element_set_position(comp_physics *info, const phy_vector2 pos) {
-  element_set_speed(info, 0.0f);
-  phy_rigid_body_set_position(info->body, pos);
-}
-
-static void element_move_to_position_x(comp_physics *info, const float max_vel, const phy_vector2 body_pos, const phy_vector2 target_pos, const float easing_factor) {
-  float pos_diff = target_pos.x - body_pos.x;
-  if (fabsf(pos_diff) < POSITION_TOLERANCE) {
-    element_set_position(info, target_pos);
-    return;
-  }
-  float speed = fmaxf(fminf(POSITION_SPEED_SCALE * pos_diff * easing_factor * (0.01f), max_vel), -max_vel);
-  element_set_speed(info, speed);
-}
-
-static void element_target_position(comp_physics *info, const phy_vector2 pos, const float max_vel) {
-  phy_vector2 body_pos = phy_rigid_body_get_position(info->body);
-  if (element_is_at_position(info, pos, POSITION_TOLERANCE)) {
-    element_set_speed(info, 0.0f);
-    return;
-  }
-  else {
-    element_move_to_position_x(info, max_vel, body_pos, pos, POSITION_EASING);
-  }
-}
-
 static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity_count, const ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     comp_mover *info = ecs_get(ECS, entities[id], MOVER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
-    element_set_speed(p_info, 0.0f);
-    if (KEYBOARD_STATE.a_key_is_down) {
-      info->target.x -= info->target_vel * dt;
-      element_set_speed(p_info, -info->target_vel);
+    if (key_button_went_down(GLFW_KEY_D)) {
+      r_info->flipped = false;
     }
-    if (KEYBOARD_STATE.d_key_is_down) {
-      info->target.x += info->target_vel * dt;
-      element_set_speed(p_info, info->target_vel);
+    else if (key_button_went_down(GLFW_KEY_A)) {
+      r_info->flipped = true;
     }
-    /*element_target_position(p_info, info->target, info->max_vel);*/
+    bool d_key_pressed = key_button_is_down(GLFW_KEY_D);
+    info->right_current_speed = info->max_speed * phy_fclamp(info->right_pressed_time / info->time_to_max_speed, 0.0f, 1.0f);
+    info->right_pressed_time += d_key_pressed ? dt : -dt;
+    info->right_pressed_time = phy_fclamp(info->right_pressed_time, 0.0f, info->time_to_max_speed);
+    bool a_key_pressed = key_button_is_down(GLFW_KEY_A);
+    info->left_current_speed = info->max_speed * phy_fclamp(info->left_pressed_time / info->time_to_max_speed, 0.0f, 1.0f);
+    info->left_pressed_time += a_key_pressed ? dt : -dt;
+    info->left_pressed_time = phy_fclamp(info->left_pressed_time, 0.0f, info->time_to_max_speed);
+    element_set_speed(p_info, info->right_current_speed - info->left_current_speed);
   }
   return 0;
 }
@@ -85,9 +49,13 @@ static void comp_mover_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *p
   comp_mover *info = ptr;
   const comp_mover_constructor_info *constructor_info = MOVER_CONSTRUCTOR_INFO;
   if (info && constructor_info) {
-    info->target = phy_rigid_body_get_position(constructor_info->body);
-    info->target_vel = constructor_info->target_vel;
-    info->max_vel = constructor_info->max_vel;
+    info->current_direction = MOVE_RIGHT;
+    info->left_current_speed = 0.0f;
+    info->right_current_speed = 0.0f;
+    info->time_to_max_speed = constructor_info->time_to_max_speed;
+    info->max_speed = constructor_info->max_speed;
+    info->left_pressed_time = 0.0f;
+    info->right_pressed_time = 0.0f;
   }
 }
 

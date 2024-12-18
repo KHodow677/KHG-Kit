@@ -56,35 +56,35 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
     utl_error_func("Failed to initialize Glad", utl_user_defined_data);
     return;
   }
-  memset(&state, 0, sizeof(state));
-  state.init = true;
-  state.dsp_w = display_width;
-  state.dsp_h = display_height;
-  state.window_handle = glfw_window;
-  state.input.mouse.first_mouse_press = true;
-  state.render.tex_count = 0;
-  state.pos_ptr = (vec2s){0, 0};
-  state.image_color_stack = gfx_no_color;
-  state.active_element_id = 0;
-  state.text_wrap = false;
-  state.line_overflow = true;
-  state.theme = gfx_default_theme();
-  state.renderer_render = true;
-  state.drag_state = (gfx_drag_state){ false, { 0, 0 }, 0 };
-  gfx_internal_props_stack_create(&state.props_stack);
-  memset(&state.grabbed_div, 0, sizeof(gfx_div));
-  state.grabbed_div.id = -1;
-  state.clipboard = clipboard_new(NULL);
-  state.drawcalls = 0;
-  glfwSetKeyCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_key_callback);
-  glfwSetMouseButtonCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_mouse_button_callback);
-  glfwSetScrollCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_scroll_callback);
-  glfwSetCursorPosCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_cursor_callback);
-  glfwSetCharCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_char_callback);
-  glfwSetWindowSizeCallback((GLFWwindow *)state.window_handle, gfx_internal_glfw_window_size_callback);
+  memset(&GFX_STATE, 0, sizeof(GFX_STATE));
+  GFX_STATE.init = true;
+  GFX_STATE.dsp_w = display_width;
+  GFX_STATE.dsp_h = display_height;
+  GFX_STATE.window_handle = glfw_window;
+  GFX_STATE.input.mouse.first_mouse_press = true;
+  GFX_STATE.render.tex_count = 0;
+  GFX_STATE.pos_ptr = (vec2s){0, 0};
+  GFX_STATE.image_color_stack = gfx_no_color;
+  GFX_STATE.active_element_id = 0;
+  GFX_STATE.text_wrap = false;
+  GFX_STATE.line_overflow = true;
+  GFX_STATE.theme = gfx_default_theme();
+  GFX_STATE.renderer_render = true;
+  GFX_STATE.drag_state = (gfx_drag_state){ false, { 0, 0 }, 0 };
+  gfx_internal_props_stack_create(&GFX_STATE.props_stack);
+  memset(&GFX_STATE.grabbed_div, 0, sizeof(gfx_div));
+  GFX_STATE.grabbed_div.id = -1;
+  GFX_STATE.clipboard = clipboard_new(NULL);
+  GFX_STATE.drawcalls = 0;
+  glfwSetKeyCallback((GLFWwindow *)GFX_STATE.window_handle, gfx_internal_glfw_key_callback);
+  glfwSetMouseButtonCallback((GLFWwindow *)GFX_STATE.window_handle, gfx_internal_glfw_mouse_button_callback);
+  glfwSetScrollCallback((GLFWwindow *)GFX_STATE.window_handle, gfx_internal_glfw_scroll_callback);
+  glfwSetCursorPosCallback((GLFWwindow *)GFX_STATE.window_handle, gfx_internal_glfw_cursor_callback);
+  glfwSetCharCallback((GLFWwindow *)GFX_STATE.window_handle, gfx_internal_glfw_char_callback);
+  glfwSetWindowSizeCallback((GLFWwindow *)GFX_STATE.window_handle, gfx_internal_glfw_window_size_callback);
   gfx_internal_renderer_init();
-  state.tex_arrow_down = gfx_load_texture_asset("res/assets/textures/arrow_down.png");
-  state.tex_tick = gfx_load_texture_asset("res/assets/textures/tick.png");
+  GFX_STATE.tex_arrow_down = gfx_load_texture_asset("res/assets/textures/arrow_down.png");
+  GFX_STATE.tex_tick = gfx_load_texture_asset("res/assets/textures/tick.png");
 }
 
 const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
@@ -138,6 +138,6 @@ const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
 }
 
 void gfx_terminate() {
-  gfx_free_font(&state.theme.font);
+  gfx_free_font(&GFX_STATE.theme.font);
 }
 

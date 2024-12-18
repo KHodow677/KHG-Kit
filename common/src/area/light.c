@@ -20,7 +20,7 @@ void setup_lights_texture() {
 }
 
 void setup_lights_shader() {
-  PRIMARY_SHADER = state.render.shader;
+  PRIMARY_SHADER = GFX_STATE.render.shader;
   utl_file_reader *reader = utl_file_reader_open("res/assets/shaders/vertex/primary.vert", UTL_READ_TEXT);
   char light_vert_src[(int)pow(2, 18)];
   utl_file_reader_read(light_vert_src, sizeof(char), sizeof(light_vert_src) - 1, reader);
@@ -52,19 +52,19 @@ void add_light(vec2s pos_perc, float radius) {
 
 void render_lights() {
   const float scale = LETTERBOX.size.x / INITIAL_WIDTH;
-  glUniform3f(glGetUniformLocation(state.render.shader.id, "u_light_color"), LIGHTING_OVERLAY_COLOR[0], LIGHTING_OVERLAY_COLOR[1], LIGHTING_OVERLAY_COLOR[2]);
-  glUniform1i(glGetUniformLocation(state.render.shader.id, "u_num_lights"), LIGHT_COUNT);
+  glUniform3f(glGetUniformLocation(GFX_STATE.render.shader.id, "u_light_color"), LIGHTING_OVERLAY_COLOR[0], LIGHTING_OVERLAY_COLOR[1], LIGHTING_OVERLAY_COLOR[2]);
+  glUniform1i(glGetUniformLocation(GFX_STATE.render.shader.id, "u_num_lights"), LIGHT_COUNT);
   float light_position_percs[LIGHT_COUNT * 2];
   for (int i = 0; i < LIGHT_COUNT; i++) {
     light_position_percs[i * 2] = LIGHTS[i].pos_perc.x;
     light_position_percs[i * 2 + 1] = LIGHTS[i].pos_perc.y;
   }
-  glUniform2fv(glGetUniformLocation(state.render.shader.id, "u_light_pos_percs"), LIGHT_COUNT, light_position_percs);
+  glUniform2fv(glGetUniformLocation(GFX_STATE.render.shader.id, "u_light_pos_percs"), LIGHT_COUNT, light_position_percs);
   float light_radii[LIGHT_COUNT];
   for (int i = 0; i < LIGHT_COUNT; i++) {
     light_radii[i] = LIGHTS[i].intensity * scale;
   }
-  glUniform1fv(glGetUniformLocation(state.render.shader.id, "u_light_intensities"), LIGHT_COUNT, light_radii);
+  glUniform1fv(glGetUniformLocation(GFX_STATE.render.shader.id, "u_light_intensities"), LIGHT_COUNT, light_radii);
   LIGHTING_OVERLAY.width = LETTERBOX.size.x + 1;
   LIGHTING_OVERLAY.height = LETTERBOX.size.y + 1;
   gfx_image_no_block(gfx_get_display_width() * 0.5f, gfx_get_display_height() * 0.5f, LIGHTING_OVERLAY, 0, 0, 1, true, false);
