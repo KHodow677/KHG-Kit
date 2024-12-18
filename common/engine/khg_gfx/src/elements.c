@@ -698,7 +698,13 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
   if (state.image_color_stack.a != 0.0) {
     color = state.image_color_stack;
   }
-  vec2s texcoords[4] = { (vec2s){ 0.0f, 0.0f }, (vec2s){ 1.0f, 0.0f }, (vec2s){ 1.0f, 1.0f }, (vec2s){ 0.0f, 1.0f } };
+  /*vec2s texcoords[4] = { (vec2s){ 0.0f, 0.0f }, (vec2s){ 1.0f, 0.0f }, (vec2s){ 1.0f, 1.0f }, (vec2s){ 0.0f, 1.0f } };*/
+  vec2s texcoords[4] = {
+    flipped_x ? (vec2s){ 1.0f, 0.0f } : (vec2s){ 0.0f, 0.0f },
+    flipped_x ? (vec2s){ 0.0f, 0.0f } : (vec2s){ 1.0f, 0.0f },
+    flipped_x ? (vec2s){ 0.0f, 1.0f } : (vec2s){ 1.0f, 1.0f },
+    flipped_x ? (vec2s){ 1.0f, 1.0f } : (vec2s){ 0.0f, 1.0f }
+  };
   float tex_index = -1.0f;
   for (uint32_t i = 0; i < state.render.tex_count; i++) {
     if (tex.id == state.render.textures[i].id) {
