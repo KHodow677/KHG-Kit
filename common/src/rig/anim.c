@@ -14,17 +14,21 @@ const int last_frame_num(rig *r, const int state_id) {
   return utl_array_size(*(utl_array **)utl_array_at(r->animation_states, state_id)) - 1;
 }
 
-void update_rig_with_interpolated_frame(bone *b, const bone_frame_info *current, const bone_frame_info *target, const float frame_percentage, const phy_rigid_body *root_body) {
+void update_rig_with_interpolated_frame(bone *b, const bone_frame_info *current, const bone_frame_info *target, const float frame_percentage, const phy_rigid_body *root_body, const bool flipped) {
   if (b->updated) {
     return;
   }
-  float x_diff = target->bone_offset.x - current->bone_offset.x;
-  float y_diff = target->bone_offset.y - current->bone_offset.y;
-  float ang_diff = target->bone_angle_offset - current->bone_angle_offset;
+  phy_vector2 target_bone_offset = flipped ? phy_vector2_new(-target->bone_offset.x, target->bone_offset.y) : target->bone_offset;
+  phy_vector2 current_bone_offset = flipped ? phy_vector2_new(-current->bone_offset.x, current->bone_offset.y) : current->bone_offset;
+  float target_bone_angle_offset = flipped ? -target->bone_angle_offset : target->bone_angle_offset;
+  float current_bone_angle_offset = flipped ? -current->bone_angle_offset : current->bone_angle_offset;
+  float x_diff = target_bone_offset.x - current_bone_offset.x;
+  float y_diff = target_bone_offset.y - current_bone_offset.y;
+  float ang_diff = target_bone_angle_offset - current_bone_angle_offset;
   b->bone_tex_id = current->bone_tex;
-  b->bone_offset.x = current->bone_offset.x + x_diff * utl_easing_linear_interpolation(frame_percentage);
-  b->bone_offset.y = current->bone_offset.y + y_diff * utl_easing_linear_interpolation(frame_percentage);
-  b->bone_angle_offset = current->bone_angle_offset + ang_diff * utl_easing_linear_interpolation(frame_percentage);
+  b->bone_offset.x = current_bone_offset.x + x_diff * utl_easing_linear_interpolation(frame_percentage);
+  b->bone_offset.y = current_bone_offset.y + y_diff * utl_easing_linear_interpolation(frame_percentage);
+  b->bone_angle_offset = current_bone_angle_offset + ang_diff * utl_easing_linear_interpolation(frame_percentage);
   if (!root_body) {
     if (!b->parent->updated) {
       return;

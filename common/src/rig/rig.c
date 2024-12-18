@@ -60,7 +60,7 @@ void free_rig(const rig *r) {
   utl_array_deallocate(r->bones);
 }
 
-void update_rig(const rig *r, const phy_rigid_body *body, const float frame_percentage, utl_array *target) {
+void update_rig(const rig *r, const phy_rigid_body *body, const float frame_percentage, utl_array *target, const bool flipped) {
   for (bone *b = utl_array_begin(r->bones); b != (bone *)utl_array_end(r->bones); b++) {
     b->updated = false;
   }
@@ -69,7 +69,7 @@ void update_rig(const rig *r, const phy_rigid_body *body, const float frame_perc
     for (int i = 0; i < r->num_bones; i++) {
       bone *b = utl_array_at(r->bones, i);
       const phy_rigid_body *rb = (!b->parent) ? body : NULL;
-      update_rig_with_interpolated_frame(b, utl_array_at(r->current_frame_bones, i), utl_array_at(target, i), frame_percentage, rb);
+      update_rig_with_interpolated_frame(b, utl_array_at(r->current_frame_bones, i), utl_array_at(target, i), frame_percentage, rb, flipped);
     }
     updated = true;
     for (bone *b = utl_array_begin(r->bones); b != (bone *)utl_array_end(r->bones); b++) {

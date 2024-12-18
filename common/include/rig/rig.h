@@ -49,6 +49,6 @@ void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offs
 void create_rig(rig *r, const rig_builder *rb);
 void free_rig(const rig *r);
 
-void update_rig(const rig *r, const phy_rigid_body *body, const float frame_percentage, utl_array *target);
+void update_rig(const rig *r, const phy_rigid_body *body, const float frame_percentage, utl_array *target, const bool flipped);
 void render_rig(const rig *r, const float parallax_value, const bool flipped);
 

@@ -45,7 +45,7 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const int ent
       info->target_frame_id++;
       info->frame_timer = info->frame_duration;
     }
-    update_rig(&r_info->rig, r_info->body, 1.0f - info->frame_timer / info->frame_duration, get_frame(&r_info->rig, info->target_state_id, info->target_frame_id));
+    update_rig(&r_info->rig, r_info->body, 1.0f - info->frame_timer / info->frame_duration, get_frame(&r_info->rig, info->target_state_id, info->target_frame_id), r_info->flipped);
   }
   return 0;
 }
