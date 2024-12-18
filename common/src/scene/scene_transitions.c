@@ -1,7 +1,7 @@
+#include "area/light.h"
 #include "scene/scene_transitions.h"
 #include "camera/camera.h"
 #include "ecs/ecs_manager.h"
-#include "graphics/light.h"
 #include "physics/physics.h"
 #include "resources/area_loader.h"
 #include "scene/scenes/main/area_builder.h"

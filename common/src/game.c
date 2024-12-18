@@ -1,3 +1,4 @@
+#include "area/light.h"
 #include "game.h"
 #include "camera/camera.h"
 #include "ecs/comp_collider_group.h"
@@ -11,7 +12,6 @@
 #include "ecs/comp_zone.h"
 #include "ecs/ecs_manager.h"
 #include "io/key_controller.h"
-#include "graphics/light.h"
 #include "physics/physics.h"
 #include "resources/area_loader.h"
 #include "resources/rig_loader.h"

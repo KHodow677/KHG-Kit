@@ -1,11 +1,10 @@
-#include "graphics/light.h"
+#include "area/light.h"
 #include "game.h"
-#include "letterbox.h"
-#include "graphics/framebuffer_shader.h"
-#include "graphics/light_shader.h"
+#include "glad/glad.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"
-#include "glad/glad.h"
+#include "khg_utl/file_reader.h"
+#include "letterbox.h"
 #include "resources/texture_loader.h"
 
 gfx_texture LIGHTING_OVERLAY = { 0 };
@@ -22,7 +21,23 @@ void setup_lights_texture() {
 
 void setup_lights_shader() {
   PRIMARY_SHADER = state.render.shader;
+  utl_file_reader *reader = utl_file_reader_open("res/assets/shaders/vertex/primary.vert", UTL_READ_TEXT);
+  char light_vert_src[(int)pow(2, 18)];
+  utl_file_reader_read(light_vert_src, sizeof(char), sizeof(light_vert_src) - 1, reader);
+  utl_file_reader_close(reader);
+  reader = utl_file_reader_open("res/assets/shaders/fragment/light.frag", UTL_READ_TEXT);
+  char light_frag_src[(int)pow(2, 18)];
+  utl_file_reader_read(light_frag_src, sizeof(char), sizeof(light_frag_src) - 1, reader);
+  utl_file_reader_close(reader);
   LIGHTING_SHADER = gfx_internal_shader_prg_create(light_vert_src, light_frag_src);
+  reader = utl_file_reader_open("res/assets/shaders/vertex/framebuffer.vert", UTL_READ_TEXT);
+  char framebuffer_vert_src[(int)pow(2, 14)];
+  utl_file_reader_read(framebuffer_vert_src, sizeof(char), sizeof(framebuffer_vert_src) - 1, reader);
+  utl_file_reader_close(reader);
+  reader = utl_file_reader_open("res/assets/shaders/fragment/framebuffer.frag", UTL_READ_TEXT);
+  char framebuffer_frag_src[(int)pow(2, 14)];
+  utl_file_reader_read(framebuffer_frag_src, sizeof(char), sizeof(framebuffer_frag_src) - 1, reader);
+  utl_file_reader_close(reader);
   FRAMEBUFFER_SHADER = gfx_internal_shader_prg_create(framebuffer_vert_src, framebuffer_frag_src);
 }
 
