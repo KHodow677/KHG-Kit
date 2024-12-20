@@ -3,7 +3,6 @@
 #include "khg_phy/body.h"
 #include "khg_utl/array.h"
 #include "khg_utl/easing.h"
-#include <stdio.h>
 #include <unistd.h>
 
 const bone_frame_info *get_bone_frame_info(const rig *r, const int state_id, const int frame_id) {
