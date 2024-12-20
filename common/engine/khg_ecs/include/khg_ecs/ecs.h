@@ -17,7 +17,7 @@ typedef float ecs_dt;
 typedef void (*ecs_constructor_fn)(ecs_ecs *ecs, ecs_id entity_id, void *ptr, void *args);
 typedef void (*ecs_destructor_fn)(ecs_ecs *ecs, ecs_id entity_id, void *ptr);
 
-typedef ecs_ret (*ecs_system_fn)(ecs_ecs *ecs, ecs_id *entities, int entity_count, ecs_dt dt, void *udata);
+typedef ecs_ret (*ecs_system_fn)(ecs_ecs *ecs, ecs_id *entities, size_t entity_count, ecs_dt dt, void *udata);
 typedef void (*ecs_added_fn)(ecs_ecs *ecs, ecs_id entity_id, void *udata);
 typedef void (*ecs_removed_fn)(ecs_ecs *ecs, ecs_id entity_id, void *udata);
 

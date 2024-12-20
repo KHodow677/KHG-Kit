@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,9 +36,8 @@ double ann_act_sigmoid(const ann_ann *ann, double a) {
 
 void ann_init_sigmoid_lookup(const ann_ann *ann) {
   const double f = (SIGMOID_DOM_MAX - SIGMOID_DOM_MIN) / ANN_LOOKUP_SIZE;
-  int i;
   INTERVAL = ANN_LOOKUP_SIZE / (SIGMOID_DOM_MAX - SIGMOID_DOM_MIN);
-  for (i = 0; i < ANN_LOOKUP_SIZE; ++i) {
+  for (size_t i = 0; i < ANN_LOOKUP_SIZE; ++i) {
     LOOKUP[i] = ann_act_sigmoid(ann, SIGMOID_DOM_MIN + f * i);
   }
 }
@@ -65,7 +65,7 @@ double ann_act_threshold(const struct ann_ann *ann, double a) {
   return a > 0;
 }
 
-ann_ann *ann_init(int inputs, int hidden_layers, int hidden, int outputs) {
+ann_ann *ann_init(size_t inputs, size_t hidden_layers, size_t hidden, size_t outputs) {
   if (hidden_layers < 0) {
     return 0;
   }
@@ -78,11 +78,11 @@ ann_ann *ann_init(int inputs, int hidden_layers, int hidden, int outputs) {
   if (hidden_layers > 0 && hidden < 1) {
     return 0;
   }
-  const int hidden_weights = hidden_layers ? (inputs+1) * hidden + (hidden_layers-1) * (hidden+1) * hidden : 0;
-  const int output_weights = (hidden_layers ? (hidden+1) : (inputs+1)) * outputs;
-  const int total_weights = (hidden_weights + output_weights);
-  const int total_neurons = (inputs + hidden * hidden_layers + outputs);
-  const int size = sizeof(ann_ann) + sizeof(double) * (total_weights + total_neurons + (total_neurons - inputs));
+  const size_t hidden_weights = hidden_layers ? (inputs+1) * hidden + (hidden_layers-1) * (hidden+1) * hidden : 0;
+  const size_t output_weights = (hidden_layers ? (hidden+1) : (inputs+1)) * outputs;
+  const size_t total_weights = (hidden_weights + output_weights);
+  const size_t total_neurons = (inputs + hidden * hidden_layers + outputs);
+  const size_t size = sizeof(ann_ann) + sizeof(double) * (total_weights + total_neurons + (total_neurons - inputs));
   ann_ann *ret = malloc(size);
   if (!ret) {
     return 0;
@@ -104,15 +104,15 @@ ann_ann *ann_init(int inputs, int hidden_layers, int hidden, int outputs) {
 }
 
 ann_ann *ann_read(FILE *in) {
-  int inputs, hidden_layers, hidden, outputs;
-  int rc = fscanf(in, "%d %d %d %d", &inputs, &hidden_layers, &hidden, &outputs);
+  size_t inputs, hidden_layers, hidden, outputs;
+  size_t rc = fscanf(in, "%zu %zu %zu %zu", &inputs, &hidden_layers, &hidden, &outputs);
   errno = 0;
   if (rc < 4 || errno != 0) {
     utl_error_func("Fscanf error", utl_user_defined_data);
     return NULL;
   }
   ann_ann *ann = ann_init(inputs, hidden_layers, hidden, outputs);
-  for (int i = 0; i < ann->total_weights; ++i) {
+  for (size_t i = 0; i < ann->total_weights; ++i) {
     errno = 0;
     rc = fscanf(in, " %le", ann->weight + i);
     if (rc < 1 || errno != 0) {
@@ -125,7 +125,7 @@ ann_ann *ann_read(FILE *in) {
 }
 
 ann_ann *ann_copy(ann_ann const *ann) {
-  const int size = sizeof(ann_ann) + sizeof(double) * (ann->total_weights + ann->total_neurons + (ann->total_neurons - ann->inputs));
+  const size_t size = sizeof(ann_ann) + sizeof(double) * (ann->total_weights + ann->total_neurons + (ann->total_neurons - ann->inputs));
   ann_ann *ret = malloc(size);
   if (!ret) {
     return 0;
@@ -136,7 +136,6 @@ ann_ann *ann_copy(ann_ann const *ann) {
   ret->delta = ret->output + ret->total_neurons;
   return ret;
 }
-
 
 void ann_rand(ann_ann *ann) {
   for (int i = 0; i < ann->total_weights; ++i) {
@@ -261,7 +260,7 @@ void ann_train(ann_ann const *ann, double const *inputs, double const *desired_o
 }
 
 void ann_write(ann_ann const *ann, FILE *out) {
-  fprintf(out, "%d %d %d %d", ann->inputs, ann->hidden_layers, ann->hidden, ann->outputs);
+  fprintf(out, "%zu %zu %zu %zu", ann->inputs, ann->hidden_layers, ann->hidden, ann->outputs);
   for (int i = 0; i < ann->total_weights; ++i) {
     fprintf(out, " %.20e", ann->weight[i]);
   }

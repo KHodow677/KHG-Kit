@@ -818,7 +818,7 @@ int32_t gfx_internal_menu_item_list_item_loc(void **items, uint32_t item_count, 
   return clicked_item;
 }
 
-void gfx_internal_remove_i_str(char *str, int32_t index) {
+void gfx_internal_remove_i_str(char *str, size_t index) {
   int32_t len = strlen(str);
   if (index >= 0 && index < len) {
     for (int32_t i = index; i < len - 1; i++) {
@@ -828,28 +828,28 @@ void gfx_internal_remove_i_str(char *str, int32_t index) {
   }
 }
 
-void gfx_internal_remove_substr_str(char *str, int start_index, int end_index) {
-  int len = strlen(str);
+void gfx_internal_remove_substr_str(char *str, size_t start_index, size_t end_index) {
+  size_t len = strlen(str);
   memmove(str + start_index, str + end_index + 1, len - end_index);
   str[len - (end_index - start_index) + 1] = '\0'; 
 }
 
-void gfx_internal_insert_i_str(char *str, char ch, int32_t index) {
-  int len = strlen(str);
+void gfx_internal_insert_i_str(char *str, char ch, size_t index) {
+  size_t len = strlen(str);
   if (index < 0 || index > len) {
     utl_error_func("Invalid string index for inserting", utl_user_defined_data);
     return;
   }
-  for (int i = len; i > index; i--) {
+  for (size_t i = len; i > index; i--) {
     str[i] = str[i - 1];
   }
   str[index] = ch;
   str[len + 1] = '\0'; 
 }
 
-void gfx_internal_insert_str_str(char *source, const char *insert, int32_t index) {
-  int source_len = strlen(source);
-  int insert_len = strlen(insert);
+void gfx_internal_insert_str_str(char *source, const char *insert, size_t index) {
+  size_t source_len = strlen(source);
+  size_t insert_len = strlen(insert);
   if (index < 0 || index > source_len) {
     utl_error_func("Index for inserting out of bounds", utl_user_defined_data);
     return;
@@ -858,20 +858,17 @@ void gfx_internal_insert_str_str(char *source, const char *insert, int32_t index
   memcpy(source + index, insert, insert_len);
 }
 
-void gfx_internal_substr_str(const char *str, int start_index, int end_index, char *substring) {
-  int substring_length = end_index - start_index + 1; 
+void gfx_internal_substr_str(const char *str, size_t start_index, size_t end_index, char *substring) {
+  size_t substring_length = end_index - start_index + 1; 
   strncpy(substring, str + start_index, substring_length);
   substring[substring_length] = '\0';
 }
 
-int gfx_internal_map_vals(int value, int from_min, int from_max, int to_min, int to_max) {
+int gfx_internal_map_vals(int32_t value, int32_t from_min, int32_t from_max, int32_t to_min, int32_t to_max) {
   return (value - from_min) * (to_max - to_min) / (from_max - from_min) + to_min;
 }
 
-void gfx_internal_glfw_key_callback(GLFWwindow *window, int32_t key, int scancode, int action, int mods) {
-  (void)window;
-  (void)mods;
-  (void)scancode;
+void gfx_internal_glfw_key_callback(GLFWwindow *window, int32_t key, int32_t scancode, int32_t action, int32_t mods) {
   if (action != GLFW_RELEASE) {
     if (!GFX_STATE.input.keyboard.keys[key]) {
       GFX_STATE.input.keyboard.keys[key] = true;
@@ -889,9 +886,7 @@ void gfx_internal_glfw_key_callback(GLFWwindow *window, int32_t key, int scancod
   GFX_STATE.key_ev.key_code = key;
 }
 
-void gfx_internal_glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int action, int mods) {
-  (void)window;
-  (void)mods;
+void gfx_internal_glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int32_t action, int32_t mods) {
   if (action != GLFW_RELEASE)  {
     if (!GFX_STATE.input.mouse.buttons_current[button]) {
       GFX_STATE.input.mouse.buttons_current[button] = true;
@@ -909,7 +904,6 @@ void gfx_internal_glfw_mouse_button_callback(GLFWwindow *window, int32_t button,
 }
 
 void gfx_internal_glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-  (void)window;
   GFX_STATE.input.mouse.xscroll_delta = xoffset;
   GFX_STATE.input.mouse.yscroll_delta = yoffset;
   for (uint32_t i = 0; i< GFX_STATE.input.scroll_cb_count; i++) {
@@ -922,7 +916,9 @@ void gfx_internal_glfw_scroll_callback(GLFWwindow *window, double xoffset, doubl
   if (!selected_div->scrollable) {
     return;
   }
-  if ((GFX_STATE.grabbed_div.id != -1 && selected_div->id != GFX_STATE.grabbed_div.id)) return;
+  if ((GFX_STATE.grabbed_div.id != -1 && selected_div->id != GFX_STATE.grabbed_div.id)) {
+    return;
+  }
   if (yoffset < 0.0f) {
     if (selected_div->total_area.y > (selected_div->aabb.size.y + selected_div->aabb.pos.y)) { 
       if (GFX_STATE.theme.div_smooth_scroll) {
@@ -977,7 +973,7 @@ void gfx_internal_glfw_char_callback(GLFWwindow *window, uint32_t charcode) {
   GFX_STATE.ch_ev.happened = true;
 }
 
-void gfx_internal_glfw_window_size_callback(GLFWwindow *window, int width, int height) {
+void gfx_internal_glfw_window_size_callback(GLFWwindow *window, int32_t width, int32_t height) {
   (void)window;
   glViewport(0, 0, width, height);
   gfx_resize_display(width, height);

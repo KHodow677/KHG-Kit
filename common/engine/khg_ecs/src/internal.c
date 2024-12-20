@@ -42,7 +42,7 @@ bool ecs_bitset_is_zero(ecs_bitset *set) {
   return *set == 0;
 }
 
-void ecs_bitset_flip(ecs_bitset *set, int bit, bool on) {
+void ecs_bitset_flip(ecs_bitset *set, size_t bit, bool on) {
   if (on) {
     *set |=  ((uint64_t)1 << bit);
   }
@@ -51,7 +51,7 @@ void ecs_bitset_flip(ecs_bitset *set, int bit, bool on) {
   }
 }
 
-bool ecs_bitset_test(ecs_bitset *set, int bit) {
+bool ecs_bitset_test(ecs_bitset *set, size_t bit) {
   return *set & ((uint64_t)1 << bit);
 }
 
@@ -151,7 +151,7 @@ bool ecs_entity_system_test(ecs_bitset *require_bits, ecs_bitset *exclude_bits, 
   return ecs_bitset_equal(&entity_and_require, require_bits);
 }
 
-void ecs_stack_init(ecs_ecs *ecs, ecs_stack *stack, int capacity) {
+void ecs_stack_init(ecs_ecs *ecs, ecs_stack *stack, size_t capacity) {
   assert(ecs_is_not_null(ecs));
   assert(ecs_is_not_null(stack));
   assert(capacity > 0);
@@ -185,7 +185,7 @@ ecs_id ecs_stack_pop(ecs_stack *stack) {
   return stack->array[--stack->size];
 }
 
-int ecs_stack_size(ecs_stack *stack) {
+size_t ecs_stack_size(ecs_stack *stack) {
   return stack->size;
 }
 

@@ -1,22 +1,23 @@
 #pragma once
 
+#include <stdint.h>
 #include <stdio.h>
 
 struct ann_ann;
 typedef double (*ann_actfun)(const struct ann_ann *ann, double a);
 
 typedef struct ann_ann {
-  int inputs, hidden_layers, hidden, outputs;
+  size_t inputs, hidden_layers, hidden, outputs;
   ann_actfun activation_hidden;
   ann_actfun activation_output;
-  int total_weights;
-  int total_neurons;
+  size_t total_weights;
+  size_t total_neurons;
   double *weight;
   double *output;
   double *delta;
 } ann_ann;
 
-ann_ann *ann_init(int inputs, int hidden_layers, int hidden, int outputs);
+ann_ann *ann_init(size_t inputs, size_t hidden_layers, size_t hidden, size_t outputs);
 ann_ann *ann_read(FILE *in);
 void ann_rand(ann_ann *ann);
 ann_ann *ann_copy(ann_ann const *ann);

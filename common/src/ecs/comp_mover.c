@@ -21,7 +21,7 @@ static void element_set_speed(comp_physics *p_info, const float vel) {
   p_info->is_moving = fabsf(vel) <= SPEED_TOLERANCE ? false : true;
 }
 
-static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const int entity_count, const ecs_dt dt, void *udata) {
+static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const size_t entity_count, const ecs_dt dt, void *udata) {
   for (int id = 0; id < entity_count; id++) {
     comp_mover *info = ecs_get(ECS, entities[id], MOVER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
