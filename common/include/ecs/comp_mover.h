@@ -2,6 +2,7 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
+#include "khg_phy/contact.h"
 
 typedef enum move_direction {
   MOVE_LEFT,
@@ -10,6 +11,7 @@ typedef enum move_direction {
 
 typedef struct comp_mover {
   ecs_id id;
+  phy_contact_listener listener;
   move_direction current_direction;
   float left_current_speed;
   float right_current_speed;
@@ -20,7 +22,7 @@ typedef struct comp_mover {
 } comp_mover;
 
 typedef struct comp_mover_constructor_info {
-  const phy_rigid_body *body; 
+  phy_rigid_body *body; 
   const float max_speed;
   const float time_to_max_speed;
 } comp_mover_constructor_info;

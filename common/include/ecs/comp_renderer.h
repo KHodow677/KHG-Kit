@@ -23,13 +23,13 @@ typedef struct comp_renderer {
 typedef struct comp_renderer_constructor_info {
   phy_rigid_body *body; 
   phy_shape *shape; 
-  int tex_id;
-  size_t rig_id;
-  size_t area_id;
-  int render_layer;
-  float parallax_value;
-  bool flipped;
-  bool show_shape;
+  const int tex_id;
+  const size_t rig_id;
+  const size_t area_id;
+  const int render_layer;
+  const float parallax_value;
+  const bool flipped;
+  const bool show_shape;
 } comp_renderer_constructor_info;
 
 extern ecs_id RENDERER_COMPONENT_SIGNATURE;

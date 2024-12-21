@@ -31,7 +31,7 @@ typedef struct {
   float min, max;
   bool held, selected;
   float width, height;
-  uint32_t handle_size;
+  size_t handle_size;
   gfx_color handle_color;
 } gfx_slider;
 
@@ -83,7 +83,7 @@ typedef void (*gfx_menu_item_callback)(uint32_t *);
 gfx_theme gfx_default_theme(void);
 gfx_theme gfx_get_theme(void);
 void gfx_set_theme(gfx_theme theme);
-void gfx_resize_display(uint32_t display_width, uint32_t display_height);
+void gfx_resize_display(size_t display_width, size_t display_height);
 
 #define gfx_div_begin(pos, size, scrollable) {\
   static float scroll = 0.0f; \

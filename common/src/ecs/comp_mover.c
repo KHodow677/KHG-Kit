@@ -4,6 +4,10 @@
 #include "ecs/ecs_manager.h"
 #include "io/key_controller.h"
 #include "khg_ecs/ecs.h"
+#include "khg_phy/contact.h"
+#include "khg_phy/space.h"
+#include "khg_utl/easing.h"
+#include "physics/physics.h"
 #include <stdio.h>
 
 static const float POSITION_TOLERANCE = 10.0f;
@@ -16,9 +20,17 @@ ecs_id MOVER_SYSTEM_SIGNATURE;
 
 comp_mover_constructor_info *MOVER_CONSTRUCTOR_INFO = NULL;
 
-static void element_set_speed(comp_physics *p_info, const float vel) {
+static void player_set_speed(comp_physics *p_info, const float vel) {
   p_info->target_vel = vel;
   p_info->is_moving = fabsf(vel) <= SPEED_TOLERANCE ? false : true;
+}
+
+void player_on_collision(phy_space *space, phy_contact_event event, void *user_arg) {
+  phy_rigid_body *player = (phy_rigid_body *)user_arg;
+  if (event.body_a == player || event.body_b == player) {
+    printf("Player is Body A\n");
+
+  }
 }
 
 static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const size_t entity_count, const ecs_dt dt, void *udata) {
@@ -33,14 +45,14 @@ static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const size_t ent
       r_info->flipped = true;
     }
     bool d_key_pressed = key_button_is_down(GLFW_KEY_D);
-    info->right_current_speed = info->max_speed * phy_fclamp(info->right_pressed_time / info->time_to_max_speed, 0.0f, 1.0f);
+    info->right_current_speed = info->max_speed * utl_easing_quadratic_ease_out(phy_fclamp(info->right_pressed_time / info->time_to_max_speed, 0.0f, 1.0f));
     info->right_pressed_time += d_key_pressed ? dt : -dt;
     info->right_pressed_time = phy_fclamp(info->right_pressed_time, 0.0f, info->time_to_max_speed);
     bool a_key_pressed = key_button_is_down(GLFW_KEY_A);
-    info->left_current_speed = info->max_speed * phy_fclamp(info->left_pressed_time / info->time_to_max_speed, 0.0f, 1.0f);
+    info->left_current_speed = info->max_speed * utl_easing_quadratic_ease_out(phy_fclamp(info->left_pressed_time / info->time_to_max_speed, 0.0f, 1.0f));
     info->left_pressed_time += a_key_pressed ? dt : -dt;
     info->left_pressed_time = phy_fclamp(info->left_pressed_time, 0.0f, info->time_to_max_speed);
-    element_set_speed(p_info, info->right_current_speed - info->left_current_speed);
+    player_set_speed(p_info, info->right_current_speed - info->left_current_speed);
   }
   return 0;
 }
@@ -49,6 +61,8 @@ static void comp_mover_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *p
   comp_mover *info = ptr;
   const comp_mover_constructor_info *constructor_info = MOVER_CONSTRUCTOR_INFO;
   if (info && constructor_info) {
+    info->listener.on_contact_added = player_on_collision;
+    phy_space_set_contact_listener(SPACE, info->listener, constructor_info->body);
     info->current_direction = MOVE_RIGHT;
     info->left_current_speed = 0.0f;
     info->right_current_speed = 0.0f;

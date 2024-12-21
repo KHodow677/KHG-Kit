@@ -18,14 +18,14 @@ typedef struct {
   enum {
     PHYSICS_BOX,
   } mode;
-  float width;
-  float height;
-  float mass;
-  phy_vector2 pos;
-  float ang;
-  bool move_enabled;
-  bool gravity_enabled;
-  bool collision_enabled;
+  const float width;
+  const float height;
+  const float mass;
+  const phy_vector2 pos;
+  const float ang;
+  const bool move_enabled;
+  const bool gravity_enabled;
+  const bool collision_enabled;
 } comp_physics_constructor_info;
 
 extern ecs_id PHYSICS_COMPONENT_SIGNATURE;

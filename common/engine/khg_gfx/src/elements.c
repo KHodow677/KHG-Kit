@@ -142,7 +142,7 @@ void gfx_set_theme(gfx_theme theme) {
   GFX_STATE.theme = theme;
 }
 
-void gfx_resize_display(uint32_t display_width, uint32_t display_height) {
+void gfx_resize_display(size_t display_width, size_t display_height) {
   GFX_STATE.dsp_w = display_width;
   GFX_STATE.dsp_h = display_height;
   gfx_internal_set_projection_matrix();
