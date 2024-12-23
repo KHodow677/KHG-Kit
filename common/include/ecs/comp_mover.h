@@ -3,6 +3,7 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/contact.h"
+#include "physics/physics.h"
 
 typedef enum move_direction {
   MOVE_LEFT,
@@ -31,6 +32,8 @@ extern ecs_id MOVER_COMPONENT_SIGNATURE;
 extern ecs_id MOVER_SYSTEM_SIGNATURE;
 
 extern comp_mover_constructor_info *MOVER_CONSTRUCTOR_INFO;
+
+void mover_on_collision_added(phy_contact_event event, physics_collision_info *collision_info);
 
 void comp_mover_register(void);
 void sys_mover_register(void);

@@ -9,7 +9,8 @@ typedef struct {
   ecs_id id;
   phy_rigid_body *body;
   phy_shape *shape;
-  float target_vel;
+  float horizontal_vel;
+  float vertical_vel;
   bool move_enabled;
   bool is_moving;
 } comp_physics;
