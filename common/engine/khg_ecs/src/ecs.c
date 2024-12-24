@@ -15,10 +15,10 @@ ecs_ecs *ecs_new(size_t entity_count, void *mem_ctx) {
   }
   memset(ecs, 0, sizeof(ecs_ecs));
   ecs->entity_count = entity_count;
-  ecs->mem_ctx      = mem_ctx;
-  ecs_stack_init(ecs, &ecs->entity_pool,   entity_count);
+  ecs->mem_ctx = mem_ctx;
+  ecs_stack_init(ecs, &ecs->entity_pool, entity_count);
   ecs_stack_init(ecs, &ecs->destroy_queue, entity_count);
-  ecs_stack_init(ecs, &ecs->remove_queue,  entity_count * 2);
+  ecs_stack_init(ecs, &ecs->remove_queue, entity_count * 2);
   ecs->entities = (ecs_entity *)malloc(ecs->entity_count * sizeof(ecs_entity));
   memset(ecs->entities, 0, ecs->entity_count * sizeof(ecs_entity));
   for (ecs_id id = 0; id < entity_count; id++) {
@@ -31,7 +31,7 @@ void ecs_free(ecs_ecs *ecs) {
   assert(ecs_is_not_null(ecs));
   for (ecs_id entity_id = 0; entity_id < ecs->entity_count; entity_id++) {
     if (ecs->entities[entity_id].ready) {
-        ecs_destroy(ecs, entity_id);
+      ecs_destroy(ecs, entity_id);
     }
   }
   ecs_stack_free(ecs, &ecs->entity_pool);
@@ -53,7 +53,7 @@ void ecs_reset(ecs_ecs *ecs) {
   assert(ecs_is_not_null(ecs));
   for (ecs_id entity_id = 0; entity_id < ecs->entity_count; entity_id++) {
     if (ecs->entities[entity_id].ready) {
-        ecs_destroy(ecs, entity_id);
+      ecs_destroy(ecs, entity_id);
     }
   }
   ecs->entity_pool.size   = 0;
@@ -61,10 +61,10 @@ void ecs_reset(ecs_ecs *ecs) {
   ecs->remove_queue.size  = 0;
   memset(ecs->entities, 0, ecs->entity_count * sizeof(ecs_entity));
   for (ecs_id entity_id = 0; entity_id < ecs->entity_count; entity_id++) {
-      ecs_stack_push(ecs, &ecs->entity_pool, entity_id);
+    ecs_stack_push(ecs, &ecs->entity_pool, entity_id);
   }
   for (ecs_id sys_id = 0; sys_id < ecs->system_count; sys_id++) {
-      ecs->systems[sys_id].entity_ids.size = 0;
+    ecs->systems[sys_id].entity_ids.size = 0;
   }
 }
 
