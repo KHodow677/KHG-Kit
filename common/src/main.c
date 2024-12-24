@@ -18,7 +18,10 @@ const int main(int argc, char *argv[]) {
   /*printf("%f, %f\n", num, 1.0 + 2.0 + 3.0 + 4.0 + 5.0 + 6.0 + 7.0 + 8.0 + 9.0 + 10.0);*/
   /* return 0;*/
   if (argc > 1) {
-    if (strcmp(argv[1], "hoster") == 0) {
+    if (strcmp(argv[1], "server") == 0) {
+      server_run();
+    }
+    else if (strcmp(argv[1], "hoster") == 0) {
       hoster_run();
     }
     else if (strcmp(argv[1], "joiner") == 0) {

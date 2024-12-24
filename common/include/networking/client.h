@@ -2,6 +2,9 @@
 
 #include "khg_tcp/tcp.h"
 
+extern char SERVER_IP_ADDRESS[];
+extern char SERVER_PROTOCOL[];
+
 void hoster_run();
 void joiner_run();
 
