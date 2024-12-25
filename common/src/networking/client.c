@@ -8,6 +8,9 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+static const char *NETWORK_DELIMITER = "::";
+static const char *NETWORK_RESULT_COMMAND = "RESLT";
+
 char SERVER_IP_ADDRESS[256];
 char SERVER_PROTOCOL[8];
 
@@ -35,19 +38,6 @@ void hoster_run() {
   tcp_term();
 }
 
-void joiner_run() {
-  utl_config_file *config = utl_config_create("res/assets/data/net/info.ini");
-  strcpy(SERVER_IP_ADDRESS, (char *)utl_config_get_value(config, "net_info", "connect_ip"));
-  strcpy(SERVER_PROTOCOL, (char *)utl_config_get_value(config, "net_info", "connect_protocol"));
-  utl_config_deallocate(config);
-  printf("IP: %s\nPORT: %s\n", SERVER_IP_ADDRESS, SERVER_PROTOCOL);
-  tcp_init();
-  tcp_channel *channel = tcp_connect(SERVER_IP_ADDRESS, SERVER_PROTOCOL);
-  tcp_client_send(channel, "INSRT", "");
-  tcp_close_channel(channel);
-  tcp_term();
-}
-
 void tcp_client_send(tcp_channel *channel, const char *command, const char *parameter) {
   tcp_init();
   const char *data = "KHGSVR_V1::%s::%s";
@@ -59,6 +49,9 @@ void tcp_client_send(tcp_channel *channel, const char *command, const char *para
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
   char formatted_response[1024];
   tcp_receive(channel, formatted_response, 1024, 500);
-  printf("%s\n", formatted_response);
+  char *packet_info = strstr(formatted_response, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_RESULT_COMMAND);
+  if (packet_info) {
+    printf("%s\n", packet_info);
+  }
 }
 

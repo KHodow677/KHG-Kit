@@ -34,7 +34,7 @@ void server_run(const char *version) {
     if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
       char *packet_info = strstr(request_buffer, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_NULL_COMMAND);
       if (packet_info) {
-        const char *data = "KHGSVR_V1::RES::%s";
+        const char *data = "KHGSVR_V1::RESLT::%s";
         const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
         char formatted_data[256];
         snprintf(formatted_data, sizeof(formatted_data), data, packet_info);

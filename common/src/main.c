@@ -24,9 +24,6 @@ const int main(int argc, char *argv[]) {
     else if (strcmp(argv[1], "hoster") == 0) {
       hoster_run();
     }
-    else if (strcmp(argv[1], "joiner") == 0) {
-      joiner_run();
-    }
   }
   else {
     return game_run();
