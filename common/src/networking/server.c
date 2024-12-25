@@ -26,29 +26,29 @@ void server_run(const char *version) {
   tcp_server *server = tcp_open_server("localhost", "3000", 10);
   while (1) {
     tcp_channel *channel = tcp_accept(server, 0);
-    if (channel) {
-      while (1) {
-        char request_buffer[1024];
-        if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
-          printf("%s\n", request_buffer);
-          char *packet_info = strtok(request_buffer, NETWORK_DELIMITER);
-          packet_info = strtok(NULL, NETWORK_DELIMITER);
+    if (!channel) {
+      continue;
+    }
+    while (1) {
+      char request_buffer[1024];
+      if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
+        printf("%s\n", request_buffer);
+        char *packet_info = strstr(request_buffer, NETWORK_DELIMITER);
+        if (packet_info) {
+          packet_info += strlen(NETWORK_DELIMITER);
           printf("%s\n", packet_info);
-          if (!packet_info) {
-            continue;
-          }
           const char *data = "KHGSVR_V1::RES::%s";
           const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
           char formatted_data[256];
-          snprintf(formatted_data, sizeof(formatted_data), formatted_data, packet_info);
+          snprintf(formatted_data, sizeof(formatted_data), data, packet_info);
           char formatted_response[1024];
           snprintf(formatted_response, sizeof(formatted_response), response, formatted_data);
           tcp_send(channel, formatted_response, strlen(formatted_response), 500);
           break;
         }
       }
-      tcp_close_channel(channel);
     }
+    tcp_close_channel(channel);
   }
   tcp_term();
 /*  dbm_db *db;*/
