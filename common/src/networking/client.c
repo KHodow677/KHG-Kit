@@ -29,7 +29,7 @@ void hoster_run() {
   tcp_channel *err_channel = NULL;
   tcp_set_error_callback(process_error, &err_channel);
   tcp_channel *channel = tcp_connect(SERVER_IP_ADDRESS, SERVER_PROTOCOL);
-  tcp_client_send(channel, "FETCH", "");
+  tcp_client_send(channel, "FETCH", "AA");
   tcp_close_channel(channel);
   tcp_close_channel(err_channel);
   tcp_term();

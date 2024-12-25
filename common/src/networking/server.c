@@ -33,7 +33,6 @@ void server_run(const char *version) {
           printf("%s\n", request_buffer);
           char *packet_info = strtok(request_buffer, NETWORK_DELIMITER);
           packet_info = strtok(NULL, NETWORK_DELIMITER);
-          packet_info = strtok(NULL, NETWORK_DELIMITER);
           if (!packet_info) {
             continue;
           }
