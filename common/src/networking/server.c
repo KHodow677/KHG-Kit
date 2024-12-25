@@ -36,7 +36,7 @@ void server_run(const char *version) {
         printf("%s\n", request_buffer);
         char *packet_info = strstr(request_buffer, NETWORK_DELIMITER);
         if (packet_info) {
-          packet_info += 2 * strlen(NETWORK_DELIMITER) * strlen(NETWORK_NULL_COMMAND);
+          packet_info += 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_NULL_COMMAND);
           if (packet_info) {
             printf("%s\n", packet_info);
             const char *data = "KHGSVR_V1::RES::%s";
