@@ -20,6 +20,7 @@ typedef struct user {
 } user;
 
 static const char *NETWORK_DELIMITER = "::";
+static const char *NETWORK_NULL_COMMAND = "NULLC";
 
 void server_run(const char *version) {
   tcp_init();
@@ -35,16 +36,18 @@ void server_run(const char *version) {
         printf("%s\n", request_buffer);
         char *packet_info = strstr(request_buffer, NETWORK_DELIMITER);
         if (packet_info) {
-          packet_info += strlen(NETWORK_DELIMITER);
-          printf("%s\n", packet_info);
-          const char *data = "KHGSVR_V1::RES::%s";
-          const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
-          char formatted_data[256];
-          snprintf(formatted_data, sizeof(formatted_data), data, packet_info);
-          char formatted_response[1024];
-          snprintf(formatted_response, sizeof(formatted_response), response, formatted_data);
-          tcp_send(channel, formatted_response, strlen(formatted_response), 500);
-          break;
+          packet_info += 2 * strlen(NETWORK_DELIMITER) * strlen(NETWORK_NULL_COMMAND);
+          if (packet_info) {
+            printf("%s\n", packet_info);
+            const char *data = "KHGSVR_V1::RES::%s";
+            const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
+            char formatted_data[256];
+            snprintf(formatted_data, sizeof(formatted_data), data, packet_info);
+            char formatted_response[1024];
+            snprintf(formatted_response, sizeof(formatted_response), response, formatted_data);
+            tcp_send(channel, formatted_response, strlen(formatted_response), 500);
+            break;
+          }
         }
       }
     }
