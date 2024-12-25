@@ -30,6 +30,7 @@ void server_run(const char *version) {
     if (!channel) {
       continue;
     }
+    printf("Hi\n");
     char request_buffer[1024];
     if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
       char *packet_info = strstr(request_buffer, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_NULL_COMMAND);
