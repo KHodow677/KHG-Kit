@@ -27,7 +27,8 @@ void server_run() {
       while (1) {
         char request_buffer[1024];
         if (tcp_receive(channel, request_buffer, 1024, 500)) {
-          const char *data = "1111";
+          printf("%s\n", request_buffer);
+          const char *data = "KHGSVR_V1::RES::";
           const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
           char formatted_response[1024];
           snprintf(formatted_response, sizeof(formatted_response), response, data);
