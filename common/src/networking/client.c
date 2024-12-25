@@ -32,7 +32,7 @@ void hoster_run() {
   tcp_channel *err_channel = NULL;
   tcp_set_error_callback(process_error, &err_channel);
   tcp_channel *channel = tcp_connect(SERVER_IP_ADDRESS, SERVER_PROTOCOL);
-  tcp_client_send(channel, "FETCH", "AA");
+  tcp_client_send(channel, "FETCH", "AABB");
   tcp_close_channel(channel);
   tcp_close_channel(err_channel);
   tcp_term();
@@ -51,6 +51,10 @@ void tcp_client_send(tcp_channel *channel, const char *command, const char *para
   tcp_receive(channel, formatted_response, 1024, 500);
   char *packet_info = strstr(formatted_response, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_RESULT_COMMAND);
   if (packet_info) {
+    char *newline = strchr(packet_info, '\n');
+    if (newline) {
+      *newline = '\0';
+    }
     printf("%s\n", packet_info);
   }
 }
