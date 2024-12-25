@@ -14,10 +14,12 @@
 #include <string.h>
 #include <unistd.h>
 
-typedef struct player {
+typedef struct user {
   char name[50];
   int age;
-} player;
+} user;
+
+static const char *NETWORK_DELIMITER = "::";
 
 void server_run(const char *version) {
   tcp_init();
@@ -29,8 +31,15 @@ void server_run(const char *version) {
         char request_buffer[1024];
         if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
           printf("%s\n", request_buffer);
-          const char *data = "KHGSVR_V1::RES::";
+          char *packet_info = strtok(request_buffer, NETWORK_DELIMITER);
+          packet_info = strtok(NULL, NETWORK_DELIMITER);
+          if (!packet_info) {
+            continue;
+          }
+          const char *data = "KHGSVR_V1::RES::%s";
           const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
+          char formatted_data[256];
+          snprintf(formatted_data, sizeof(formatted_data), formatted_data, packet_info);
           char formatted_response[1024];
           snprintf(formatted_response, sizeof(formatted_response), response, data);
           tcp_send(channel, formatted_response, strlen(formatted_response), 500);
@@ -41,15 +50,15 @@ void server_run(const char *version) {
     }
   }
   tcp_term();
-  /*dbm_db *db;*/
-  /*create_or_open_db("server_player", &db, sizeof(player)); */
-  /*int64_t key = 1;*/
-  /*player result = {"John Doe", 20 };*/
-  /*dbm_insert(db, key, &result);*/
-  /*player select_result;*/
-  /*dbm_select(db, 1, &select_result);*/
-  /*printf("HUMAN:\nname: %s\nage: %i \n", select_result.name, select_result.age);*/
-  /*dbm_close(&db);*/
+/*  dbm_db *db;*/
+/*  create_or_open_db("server_player", &db, sizeof(user)); */
+/*  int64_t key = 1;*/
+/*  user result = {"John Doe", 20 };*/
+/*  dbm_insert(db, key, &result);*/
+/*  user select_result;*/
+/*  dbm_select(db, 1, &select_result);*/
+/*  printf("HUMAN:\nname: %s\nage: %i \n", select_result.name, select_result.age);*/
+/*  dbm_close(&db);*/
 }
 
 dbm_db_state create_or_open_db(const char *asset_name, dbm_db **db, size_t size) {
