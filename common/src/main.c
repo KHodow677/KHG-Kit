@@ -19,7 +19,7 @@ const int main(int argc, char *argv[]) {
   /* return 0;*/
   if (argc > 1) {
     if (strcmp(argv[1], "server") == 0) {
-      server_run();
+      server_run("KHGSVR_V1");
     }
     else if (strcmp(argv[1], "hoster") == 0) {
       hoster_run();
@@ -31,7 +31,6 @@ const int main(int argc, char *argv[]) {
   else {
     return game_run();
     return main_dbm();
-    server_run();
   }
   return 0;
 }

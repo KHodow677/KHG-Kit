@@ -1,3 +1,10 @@
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#else
+#include <linux/limits.h>
+#endif
+
+
 #include "networking/server.h"
 #include "networking/processing.h"
 #include "khg_dbm/dbm.h"
@@ -7,18 +14,12 @@
 #include <string.h>
 #include <unistd.h>
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#else
-#include <linux/limits.h>
-#endif
-
 typedef struct player {
   char name[50];
   int age;
 } player;
 
-void server_run() {
+void server_run(const char *version) {
   tcp_init();
   tcp_server *server = tcp_open_server("localhost", "3000", 10);
   while (1) {
@@ -26,7 +27,7 @@ void server_run() {
     if (channel) {
       while (1) {
         char request_buffer[1024];
-        if (tcp_receive(channel, request_buffer, 1024, 500)) {
+        if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
           printf("%s\n", request_buffer);
           const char *data = "KHGSVR_V1::RES::";
           const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
