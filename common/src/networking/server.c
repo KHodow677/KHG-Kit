@@ -30,13 +30,10 @@ void server_run(const char *version) {
     if (!channel) {
       continue;
     }
-    while (1) {
-      char request_buffer[1024];
-      if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
-        char *packet_info = strstr(request_buffer, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_NULL_COMMAND);
-        if (!packet_info) {
-          break;
-        }
+    char request_buffer[1024];
+    if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
+      char *packet_info = strstr(request_buffer, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_NULL_COMMAND);
+      if (packet_info) {
         const char *data = "KHGSVR_V1::RES::%s";
         const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
         char formatted_data[256];
@@ -44,7 +41,6 @@ void server_run(const char *version) {
         char formatted_response[1024];
         snprintf(formatted_response, sizeof(formatted_response), response, formatted_data);
         tcp_send(channel, formatted_response, strlen(formatted_response), 500);
-        break;
       }
     }
     tcp_close_channel(channel);
