@@ -33,6 +33,7 @@ void server_run(const char *version) {
           printf("%s\n", request_buffer);
           char *packet_info = strtok(request_buffer, NETWORK_DELIMITER);
           packet_info = strtok(NULL, NETWORK_DELIMITER);
+          packet_info = strtok(NULL, NETWORK_DELIMITER);
           if (!packet_info) {
             continue;
           }
@@ -41,7 +42,7 @@ void server_run(const char *version) {
           char formatted_data[256];
           snprintf(formatted_data, sizeof(formatted_data), formatted_data, packet_info);
           char formatted_response[1024];
-          snprintf(formatted_response, sizeof(formatted_response), response, data);
+          snprintf(formatted_response, sizeof(formatted_response), response, formatted_data);
           tcp_send(channel, formatted_response, strlen(formatted_response), 500);
           break;
         }
