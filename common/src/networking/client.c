@@ -52,6 +52,7 @@ void tcp_client_send(tcp_channel *channel, const char *tag, const char *command,
       }
       printf("%s\n", packet_info);
     }
+    printf("%s\n", formatted_response);
   }
 }
 
