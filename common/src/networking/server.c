@@ -4,7 +4,7 @@
 #include <linux/limits.h>
 #endif
 
-
+#include "networking/info.h"
 #include "networking/server.h"
 #include "networking/processing.h"
 #include "khg_dbm/dbm.h"
@@ -22,7 +22,8 @@ typedef struct user {
 static const char *NETWORK_DELIMITER = "::";
 static const char *NETWORK_NULL_COMMAND = "NULLC";
 
-void server_run(const char *version) {
+void server_run(const char *tag) {
+  net_info_setup("res/assets/data/net/info.ini");
   tcp_init();
   tcp_server *server = tcp_open_server("localhost", "3000", 10);
   while (1) {
@@ -31,13 +32,13 @@ void server_run(const char *version) {
       continue;
     }
     char request_buffer[1024];
-    if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, version)) {
+    if (tcp_receive(channel, request_buffer, 1024, 500) && strstr(request_buffer, tag)) {
       char *packet_info = strstr(request_buffer, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_NULL_COMMAND);
       if (packet_info) {
-        const char *data = "KHGSVR_V1::RESLT::%s";
+        const char *data = "%s::RESLT::%s";
         const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
         char formatted_data[256];
-        snprintf(formatted_data, sizeof(formatted_data), data, packet_info);
+        snprintf(formatted_data, sizeof(formatted_data), data, SERVER_TAG, packet_info);
         char formatted_response[1024];
         snprintf(formatted_response, sizeof(formatted_response), response, formatted_data);
         tcp_send(channel, formatted_response, strlen(formatted_response), 500);
