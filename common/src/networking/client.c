@@ -51,9 +51,8 @@ void tcp_client_send(tcp_channel *channel, const char *tag, const char *command,
       if (newline) {
         *newline = '\0';
       }
-      printf("%s\n", packet_info);
+      printf("RESLT: %s\n", packet_info);
     }
-    printf("RESLT: %s\n", formatted_response);
   }
 }
 

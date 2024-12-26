@@ -36,11 +36,11 @@ void server_run(const char *tag) {
       char *packet_info = strstr(request_buffer, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_NULL_COMMAND);
       if (packet_info) {
         const char *data = "%s::RESLT::%s";
-        const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %zu\r\n\r\n%s";
+        const char *response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n%s";
         char formatted_data[256];
         snprintf(formatted_data, sizeof(formatted_data), data, SERVER_TAG, packet_info);
         char formatted_response[1024];
-        snprintf(formatted_response, sizeof(formatted_response), response, strlen(formatted_data), formatted_data);
+        snprintf(formatted_response, sizeof(formatted_response), response, formatted_data);
         tcp_send(channel, formatted_response, strlen(formatted_response), 500);
       }
     }
