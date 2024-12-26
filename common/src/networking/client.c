@@ -43,6 +43,7 @@ void tcp_client_send(tcp_channel *channel, const char *tag, const char *command,
   tcp_send(channel, formatted_request, strlen(formatted_request), 500);
   char formatted_response[1024];
   tcp_receive(channel, formatted_response, 1024, 500);
+  printf("%s\n", formatted_response);
   if (strstr(formatted_response, tag)) {
     char *packet_info = strstr(formatted_response, NETWORK_DELIMITER) + 2 * strlen(NETWORK_DELIMITER) + strlen(NETWORK_RESULT_COMMAND);
     if (packet_info) {
@@ -52,7 +53,7 @@ void tcp_client_send(tcp_channel *channel, const char *tag, const char *command,
       }
       printf("%s\n", packet_info);
     }
-    printf("%s\n", formatted_response);
+    printf("RESLT: %s\n", formatted_response);
   }
 }
 
