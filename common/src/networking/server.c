@@ -25,7 +25,7 @@ static const char *NETWORK_NULL_COMMAND = "NULLC";
 void server_run(const char *tag) {
   net_info_setup("res/assets/data/net/info.ini");
   tcp_init();
-  tcp_server *server = tcp_open_server("localhost", "http", 10);
+  tcp_server *server = tcp_open_server("165.22.176.143", "80", 10);
   while (1) {
     tcp_channel *channel = tcp_accept(server, 0);
     if (!channel) {
