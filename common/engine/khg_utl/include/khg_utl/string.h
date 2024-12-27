@@ -100,6 +100,7 @@ char *utl_string_back(utl_string *str);
 char *utl_string_front(utl_string *str);
 char *utl_string_strdup(const char *s);
 char *utl_string_from_int_cstr(int value);
+char* utl_string_strndup(const char* str, size_t n);
 
 size_t utl_string_length_cstr(const char *str);
 size_t utl_string_length_utf8(const char *str);
