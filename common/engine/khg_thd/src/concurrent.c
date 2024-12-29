@@ -1,9 +1,10 @@
 #include "khg_thd/concurrent.h"
+#include <bits/pthreadtypes.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
 
-int mutex_init(Mutex *mtx, int type) {
+int thd_mutex_init(thd_mutex *mtx, int type) {
 #if defined(_WIN32) || defined(_WIN64)
   mtx->mAlreadyLocked = false;
   mtx->mRecursive = type & MUTEX_RECURSIVE;
@@ -22,16 +23,16 @@ int mutex_init(Mutex *mtx, int type) {
   int ret;
   pthread_mutexattr_t attr;
   pthread_mutexattr_init(&attr);
-  if (type & MUTEX_RECURSIVE) {
+  if (type & THD_MUTEX_RECURSIVE) {
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
   }
   ret = pthread_mutex_init(mtx, &attr);
   pthread_mutexattr_destroy(&attr);
-  return ret == 0 ? THREAD_SUCCESS : THREAD_ERROR;
+  return ret == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
 }
 
-void mutex_destroy(Mutex *mtx) {
+void thd_mutex_destroy(thd_mutex *mtx) {
 #if defined(_WIN32) || defined(_WIN64)
   if (!mtx->mTimed) {
     DeleteCriticalSection(&(mtx->mHandle.cs));
@@ -44,7 +45,7 @@ void mutex_destroy(Mutex *mtx) {
 #endif
 }
 
-int mutex_lock(Mutex *mtx) {
+int thd_mutex_lock(thd_mutex *mtx) {
 #if defined(_WIN32) || defined(_WIN64)
   if (!mtx->mTimed) {
     EnterCriticalSection(&(mtx->mHandle.cs));
@@ -67,11 +68,11 @@ int mutex_lock(Mutex *mtx) {
   }
   return THREAD_SUCCESS;
 #else
-  return pthread_mutex_lock(mtx) == 0 ? THREAD_SUCCESS : THREAD_ERROR;
+  return pthread_mutex_lock(mtx) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
 }
 
-int MUTEX_TIMEDlock(Mutex *mtx, const struct timespec *ts) {
+int thd_mutex_timed_lock(thd_mutex *mtx, const struct timespec *ts) {
 #if defined(_WIN32) || defined(_WIN64)
   struct timespec current_ts;
   DWORD timeoutMs;
@@ -106,16 +107,16 @@ int MUTEX_TIMEDlock(Mutex *mtx, const struct timespec *ts) {
 #else
   switch (pthread_mutex_timedlock(mtx, ts)) {
     case 0:
-      return THREAD_SUCCESS;
+      return THD_THREAD_SUCCESS;
     case ETIMEDOUT:
-      return THREAD_TIMEOUT;
+      return THD_THREAD_TIMEOUT;
     default:
-      return THREAD_ERROR;
+      return THD_THREAD_ERROR;
   }
 #endif
 }
 
-int mutex_trylock(Mutex *mtx) {
+int thd_mutex_trylock(thd_mutex *mtx) {
 #if defined(_WIN32) || defined(_WIN64)
   int ret;
   if (!mtx->mTimed) {
@@ -135,11 +136,11 @@ int mutex_trylock(Mutex *mtx) {
   }
   return ret;
 #else
-  return (pthread_mutex_trylock(mtx) == 0) ? THREAD_SUCCESS : THREAD_BUSY;
+  return (pthread_mutex_trylock(mtx) == 0) ? THD_THREAD_SUCCESS : THD_THREAD_BUSY;
 #endif
 }
 
-int mutex_unlock(Mutex *mtx) {
+int thd_mutex_unlock(thd_mutex *mtx) {
 #if defined(_WIN32) || defined(_WIN64)
   mtx->mAlreadyLocked = false;
   if (!mtx->mTimed) {
@@ -152,11 +153,11 @@ int mutex_unlock(Mutex *mtx) {
   }
   return THREAD_SUCCESS;
 #else
-  return pthread_mutex_unlock(mtx) == 0 ? THREAD_SUCCESS : THREAD_ERROR;;
+  return pthread_mutex_unlock(mtx) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;;
 #endif
 }
 
-int condition_init(ThreadCondition *cond) {
+int thd_condition_init(thd_thread_condition *cond) {
 #if defined(_WIN32) || defined(_WIN64)
   cond->mWaitersCount = 0;
   InitializeCriticalSection(&cond->mWaitersCountLock);
@@ -173,11 +174,11 @@ int condition_init(ThreadCondition *cond) {
   }
   return THREAD_SUCCESS;
 #else
-  return pthread_cond_init(cond, NULL) == 0 ? THREAD_SUCCESS : THREAD_ERROR;
+  return pthread_cond_init(cond, NULL) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
 }
 
-void condition_destroy(ThreadCondition *cond) {
+void thd_condition_destroy(thd_thread_condition *cond) {
 #if defined(_WIN32) || defined(_WIN64)
   if (cond->mEvents[_CONDITION_EVENT_ONE] != NULL) {
     CloseHandle(cond->mEvents[_CONDITION_EVENT_ONE]);
@@ -191,7 +192,7 @@ void condition_destroy(ThreadCondition *cond) {
 #endif
 }
 
-int condition_signal(ThreadCondition *cond) {
+int thd_condition_signal(thd_thread_condition *cond) {
 #if defined(_WIN32) || defined(_WIN64)
   int haveWaiters;
   EnterCriticalSection(&cond->mWaitersCountLock);
@@ -204,11 +205,11 @@ int condition_signal(ThreadCondition *cond) {
   }
   return THREAD_SUCCESS;
 #else
-  return pthread_cond_signal(cond) == 0 ? THREAD_SUCCESS : THREAD_ERROR;
+  return pthread_cond_signal(cond) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
 }
 
-int condition_broadcast(ThreadCondition *cond) {
+int thd_condition_broadcast(thd_thread_condition *cond) {
 #if defined(_WIN32) || defined(_WIN64)
   int haveWaiters;
   EnterCriticalSection(&cond->mWaitersCountLock);
@@ -221,12 +222,12 @@ int condition_broadcast(ThreadCondition *cond) {
   }
   return THREAD_SUCCESS;
 #else
-  return pthread_cond_broadcast(cond) == 0 ? THREAD_SUCCESS : THREAD_ERROR;
+  return pthread_cond_broadcast(cond) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
 }
 
 #if defined(_WIN32) || defined(_WIN64)
-static int _cnd_timedwait_win32(ThreadCondition *cond, Mutex *mtx, DWORD timeout) {
+static int _cnd_timedwait_win32(ThreadCondition *cond, thd_mutex *mtx, DWORD timeout) {
   DWORD result;
   int lastWaiter;
   EnterCriticalSection(&cond->mWaitersCountLock);
@@ -257,15 +258,15 @@ static int _cnd_timedwait_win32(ThreadCondition *cond, Mutex *mtx, DWORD timeout
 }
 #endif
 
-int condition_wait(ThreadCondition *cond, Mutex *mtx) {
+int thd_condition_wait(thd_thread_condition *cond, thd_mutex *mtx) {
 #if defined(_WIN32) || defined(_WIN64)
   return _cnd_timedwait_win32(cond, mtx, INFINITE);
 #else
-  return pthread_cond_wait(cond, mtx) == 0 ? THREAD_SUCCESS: THREAD_ERROR;
+  return pthread_cond_wait(cond, mtx) == 0 ? THD_THREAD_SUCCESS: THD_THREAD_ERROR;
 #endif
 }
 
-int condition_timedwait(ThreadCondition *cond, Mutex *mtx, const struct timespec *ts) {
+int thd_condition_timedwait(thd_thread_condition *cond, thd_mutex *mtx, const struct timespec *ts) {
 #if defined(_WIN32) || defined(_WIN64)
   struct timespec now;
   if (timespec_get(&now, TIME_UTC) == TIME_UTC) {
@@ -282,9 +283,9 @@ int condition_timedwait(ThreadCondition *cond, Mutex *mtx, const struct timespec
   int ret;
   ret = pthread_cond_timedwait(cond, mtx, ts);
   if (ret == ETIMEDOUT) {
-    return THREAD_TIMEOUT;
+    return THD_THREAD_TIMEOUT;
   }
-  return ret == 0 ? THREAD_SUCCESS : THREAD_ERROR;
+  return ret == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
 }
 
@@ -355,7 +356,7 @@ PIMAGE_TLS_CALLBACK p_thread_callback __attribute__((section(".CRT$XLB"))) = _ct
 #endif
 
 typedef struct {
-  ThreadStart mFunction;
+  thd_thread_start mFunction;
   void * mArg;
 } ThreadStartInfo;
 
@@ -365,7 +366,7 @@ static DWORD WINAPI _thrd_wrapper_function(LPVOID aArg) {
 #else
 static void * _thrd_wrapper_function(void * aArg) {
 #endif
-  ThreadStart fun;
+  thd_thread_start fun;
   void *arg;
   int  res;
   ThreadStartInfo *ti = (ThreadStartInfo *) aArg;
@@ -383,10 +384,10 @@ static void * _thrd_wrapper_function(void * aArg) {
 #endif
 }
 
-int thread_create(Thread *thr, ThreadStart func, void *arg) {
+int thd_thread_create(thd_thread *thr, thd_thread_start func, void *arg) {
   ThreadStartInfo* ti = (ThreadStartInfo*)malloc(sizeof(ThreadStartInfo));
   if (ti == NULL) {
-    return THREAD_NOMEM;
+    return THD_THREAD_NOMEM;
   }
   ti->mFunction = func;
   ti->mArg = arg;
@@ -399,12 +400,12 @@ int thread_create(Thread *thr, ThreadStart func, void *arg) {
   #endif
   if(!*thr) {
     free(ti);
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 }
 
-unsigned long thread_current(void) {
+uint32_t thd_thread_current(void) {
 #if defined(_WIN32) || defined(_WIN64)
   return GetCurrentThreadId();
 #else
@@ -412,7 +413,7 @@ unsigned long thread_current(void) {
 #endif
 }
 
-unsigned long thread_hardware_concurrency(void) {
+uint32_t thd_thread_hardware_concurrency(void) {
 #if defined(_WIN32) || defined(_WIN64)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
@@ -422,15 +423,15 @@ unsigned long thread_hardware_concurrency(void) {
 #endif
 }
 
-int thread_detach(Thread thr) {
+int thd_thread_detach(thd_thread thr) {
 #if defined(_WIN32) || defined(_WIN64)
   return CloseHandle(thr) != 0 ? THREAD_SUCCESS : THREAD_ERROR;
 #else
-  return pthread_detach(thr) == 0 ? THREAD_SUCCESS : THREAD_ERROR;
+  return pthread_detach(thr) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
 }
 
-int thread_equal(Thread thr0, Thread thr1) {
+int thd_thread_equal(thd_thread thr0, thd_thread thr1) {
 #if defined(_WIN32) || defined(_WIN64)
   return GetThreadId(thr0) == GetThreadId(thr1);
 #else
@@ -438,7 +439,7 @@ int thread_equal(Thread thr0, Thread thr1) {
 #endif
 }
 
-void thread_exit(int res) {
+void thd_thread_exit(int res) {
 #if defined(_WIN32) || defined(_WIN64)
   if (_cthread_tss_head != NULL) {
     _cthread_tss_cleanup();
@@ -449,7 +450,7 @@ void thread_exit(int res) {
 #endif
 }
 
-int thread_join(Thread thr, int *res) {
+int thd_thread_join(thd_thread thr, int *res) {
 #if defined(_WIN32) || defined(_WIN64)
   DWORD dwRes;
   if (WaitForSingleObject(thr, INFINITE) == WAIT_FAILED) {
@@ -467,16 +468,16 @@ int thread_join(Thread thr, int *res) {
 #else
   void *pres;
   if (pthread_join(thr, &pres) != 0) {
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
   if (res != NULL) {
     *res = (int)(intptr_t)pres;
   }
 #endif
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 }
 
-int thread_sleep(const struct timespec *duration, struct timespec *remaining) {
+int thd_thread_sleep(const struct timespec *duration, struct timespec *remaining) {
 #if !defined(_WIN32) && !defined(_WIN64)
   int res = nanosleep(duration, remaining);
   if (res == 0) {
@@ -511,7 +512,7 @@ int thread_sleep(const struct timespec *duration, struct timespec *remaining) {
   #endif
 }
 
-void thread_yield(void) {
+void thd_thread_yield(void) {
 #if defined(_WIN32) || defined(_WIN64)
   Sleep(0);
 #else
@@ -519,7 +520,7 @@ void thread_yield(void) {
 #endif
 }
 
-int thread_specific_create(ThreadSpecific *key, ThreadSpecificDestructor dtor) {
+int thd_thread_specific_create(thd_thread_specific *key, thd_thread_specific_destructor dtor) {
 #if defined(_WIN32) || defined(_WIN64)
   *key = TlsAlloc();
   if (*key == TLS_OUT_OF_INDEXES) {
@@ -528,13 +529,13 @@ int thread_specific_create(ThreadSpecific *key, ThreadSpecificDestructor dtor) {
   _cthread_tss_dtors[*key] = dtor;
 #else
   if (pthread_key_create(key, dtor) != 0) {
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
 #endif
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 }
 
-void thread_specific_delete(ThreadSpecific key) {
+void thd_thread_specific_delete(thd_thread_specific key) {
 #if defined(_WIN32) || defined(_WIN64)
   struct CThreadTSSData* data = (struct CThreadTSSData*) TlsGetValue (key);
   struct CThreadTSSData* prev = NULL;
@@ -562,7 +563,7 @@ void thread_specific_delete(ThreadSpecific key) {
 #endif
 }
 
-void *thread_specific_get(ThreadSpecific key) {
+void *thd_thread_specific_get(thd_thread_specific key) {
 #if defined(_WIN32) || defined(_WIN64)
   struct CThreadTSSData* data = (struct CThreadTSSData*)TlsGetValue(key);
   if (data == NULL) {
@@ -574,7 +575,7 @@ void *thread_specific_get(ThreadSpecific key) {
 #endif
 }
 
-int thread_specific_set(ThreadSpecific key, void *val) {
+int thd_thread_specific_set(thd_thread_specific key, void *val) {
 #if defined(_WIN32) || defined(_WIN64)
   struct CThreadTSSData* data = (struct CThreadTSSData*)TlsGetValue(key);
   if (data == NULL) {
@@ -606,14 +607,14 @@ int thread_specific_set(ThreadSpecific key, void *val) {
   data->value = val;
 #else
   if (pthread_setspecific(key, val) != 0){
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
 #endif
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 }
 
 #if defined(_WIN32) || defined(_WIN64)
-void call_once(OnceFlag *flag, void (*func)(void)) {
+void thd_call_once(thd_once_flag *flag, void (*func)(void)) {
   while (flag->status < 3) {
     switch (flag->status) {
       case 0: {

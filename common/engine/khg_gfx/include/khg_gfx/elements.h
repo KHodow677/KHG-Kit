@@ -26,7 +26,7 @@ typedef struct {
 
 typedef struct {
   void *val;
-  int32_t handle_pos;
+  int16_t handle_pos;
   bool init;
   float min, max;
   bool held, selected;

@@ -13,7 +13,7 @@ typedef SOCKET net_tcp_socket;
 #include <unistd.h>
 #include <fcntl.h>
 #include <netdb.h>
-typedef int32_t net_tcp_socket;
+typedef int16_t net_tcp_socket;
 #endif
 
 #include "openssl/crypto.h"
@@ -71,7 +71,7 @@ net_tcp_status net_tcp_init(void);
 net_tcp_status net_tcp_cleanup(void);
 net_tcp_status net_tcp_socket_create(net_tcp_socket *socket);
 net_tcp_status net_tcp_bind(net_tcp_socket socket, const char *host, uint16_t port);
-net_tcp_status net_tcp_listen(net_tcp_socket socket, int32_t backlog);
+net_tcp_status net_tcp_listen(net_tcp_socket socket, int16_t backlog);
 net_tcp_status net_tcp_accept(net_tcp_socket socket, net_tcp_socket *client_socket);
 net_tcp_status net_tcp_connect(net_tcp_socket socket, const char *host, uint16_t port);
 net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, size_t len, size_t *sent);

@@ -12,7 +12,7 @@
 
 gfx_state GFX_STATE;
 
-uint32_t gfx_internal_shader_create(unsigned int type, const char *src) {
+uint32_t gfx_internal_shader_create(uint32_t type, const char *src) {
   uint32_t shader = glCreateShader(type);
   glShaderSource(shader, 1, &src, NULL);
   glCompileShader(shader);
@@ -391,8 +391,8 @@ void gfx_internal_input_field(gfx_input_field *input, gfx_input_field_type type,
       } 
       else {
         if (input->selection_start != -1) {
-          int start = input->selection_dir != 0 ?  input->selection_start : input->selection_start - 1;
-          int end = input->selection_end;
+          int32_t start = input->selection_dir != 0 ?  input->selection_start : input->selection_start - 1;
+          int32_t end = input->selection_end;
 
           gfx_internal_remove_substr_str(input->buf, start, end);
 
@@ -406,8 +406,8 @@ void gfx_internal_input_field(gfx_input_field *input, gfx_input_field_type type,
       switch(gfx_key_event_occur().key_code) {
         case GLFW_KEY_BACKSPACE: {
           if (input->selection_start != -1) {
-            int start = input->selection_dir != 0 ?  input->selection_start : input->selection_start - 1;
-            int end = input->selection_end;
+            int32_t start = input->selection_dir != 0 ?  input->selection_start : input->selection_start - 1;
+            int32_t end = input->selection_end;
             gfx_internal_remove_substr_str(input->buf, start, end);
             input->cursor_index = input->selection_start;
             gfx_input_field_unselect_all(input);
@@ -543,7 +543,7 @@ void gfx_internal_input_field(gfx_input_field *input, gfx_input_field_type type,
           memset(selection, 0, strlen(input->buf));
           gfx_internal_substr_str(input->buf, input->selection_start, input->selection_end, selection);
           clipboard_set_text(GFX_STATE.clipboard, selection);
-          int start = input->selection_dir != 0 ?  input->selection_start : input->selection_start - 1;
+          int32_t start = input->selection_dir != 0 ?  input->selection_start : input->selection_start - 1;
           gfx_internal_remove_substr_str(input->buf, start, input->selection_end);
           input->cursor_index = input->selection_start;
           gfx_input_field_unselect_all(input);
@@ -864,7 +864,7 @@ void gfx_internal_substr_str(const char *str, size_t start_index, size_t end_ind
   substring[substring_length] = '\0';
 }
 
-int gfx_internal_map_vals(int32_t value, int32_t from_min, int32_t from_max, int32_t to_min, int32_t to_max) {
+int32_t gfx_internal_map_vals(int32_t value, int32_t from_min, int32_t from_max, int32_t to_min, int32_t to_max) {
   return (value - from_min) * (to_max - to_min) / (from_max - from_min) + to_min;
 }
 
@@ -995,7 +995,7 @@ void gfx_internal_clear_events() {
 
 uint64_t gfx_internal_djb2_hash(uint64_t hash, const void *buf, size_t size) {
   uint8_t *bytes = (uint8_t *)buf;
-  int c;
+  int8_t c;
   while ((c = *bytes++)) {
     hash = ((hash << 5) + hash) + c;
   }

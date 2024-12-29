@@ -112,7 +112,7 @@ net_tcp_status net_tcp_bind(net_tcp_socket sock, const char *host, uint16_t port
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_listen(net_tcp_socket socket, int32_t backlog) {
+net_tcp_status net_tcp_listen(net_tcp_socket socket, int16_t backlog) {
   if (listen(socket, backlog) < 0) {
     utl_error_func("Listening on socket failed", utl_user_defined_data);
     return NET_TCP_ERR_LISTEN;
@@ -174,7 +174,7 @@ net_tcp_status net_tcp_connect(net_tcp_socket socket, const char *host, uint16_t
 net_tcp_status net_tcp_init(void) {
 #if defined(_WIN32) || defined(_WIN64)
   WSADATA wsaData;
-  int32_t result = WSAStartup(MAKEWORD(2,2), &wsaData);
+  int16_t result = WSAStartup(MAKEWORD(2,2), &wsaData);
   if (result != 0) {
     utl_error_func("WSAStartup failed", utl_user_defined_data);
     return TCP_ERR_SETUP;
@@ -203,7 +203,7 @@ net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, size_t len, 
     wsaBuf.len = (ULONG)len;
     DWORD flags = 0;
     DWORD bytesSent = 0;
-    int32_t result = WSASend(socket, &wsaBuf, 1, &bytesSent, flags, NULL, NULL);
+    int16_t result = WSASend(socket, &wsaBuf, 1, &bytesSent, flags, NULL, NULL);
     if (result == SOCKET_ERROR) {
       if (sent) {
         *sent = (size_t)bytes_sent;
@@ -246,7 +246,7 @@ net_tcp_status net_tcp_recv(net_tcp_socket socket, void *buf, size_t len, size_t
   wsaBuf.len = (ULONG)len;
   DWORD flags = 0;
   DWORD bytesRecvd = 0;
-  int32_t result = WSARecv(socket, &wsaBuf, 1, &bytesRecvd, &flags, NULL, NULL);
+  int16_t result = WSARecv(socket, &wsaBuf, 1, &bytesRecvd, &flags, NULL, NULL);
   if (result == SOCKET_ERROR) {
     bytes_received = SOCKET_ERROR;
   } 
@@ -272,7 +272,7 @@ net_tcp_status net_tcp_recv(net_tcp_socket socket, void *buf, size_t len, size_t
 }
 
 net_tcp_status net_tcp_close(net_tcp_socket socket) {
-  int32_t result = 0;
+  int16_t result = 0;
 #if defined(_WIN32) || defined(_WIN64)
   result = closesocket(socket);
   if (result == SOCKET_ERROR) {
@@ -290,7 +290,7 @@ net_tcp_status net_tcp_close(net_tcp_socket socket) {
 }
 
 net_tcp_status net_tcp_shutdown(net_tcp_socket socket, net_tcp_shutdown_how how) {
-  int32_t shutdownHow;
+  int16_t shutdownHow;
 #if defined(_WIN32) || defined(_WIN64)
   switch (how) {
     case TCP_SHUTDOWN_RECEIVE:
@@ -332,7 +332,7 @@ net_tcp_status net_tcp_shutdown(net_tcp_socket socket, net_tcp_shutdown_how how)
 }
 
 net_tcp_status net_tcp_set_timeout(net_tcp_socket socket, net_tcp_timeout_operation operation, uint32_t timeout_ms) {
-  int32_t result;
+  int16_t result;
 #if defined(_WIN32) || defined(_WIN64)
   DWORD timeout = (DWORD)timeout_ms;
 #else
@@ -359,7 +359,7 @@ net_tcp_status net_tcp_set_timeout(net_tcp_socket socket, net_tcp_timeout_operat
 
 net_tcp_status net_tcp_resolve_hostname(const char *hostname, char *ip_address, size_t ip_address_len) {
   struct addrinfo hints, *res, *p;
-  int32_t status;
+  int16_t status;
   void *addr;
   if (!hostname || !ip_address) {
     utl_error_func("Null parameter provided", utl_user_defined_data);
@@ -404,7 +404,7 @@ net_tcp_status net_tcp_set_non_blocking(net_tcp_socket socket, bool enable) {
     return TCP_ERR_GENERIC;
   }
 #else
-  int32_t flags = fcntl(socket, F_GETFL, 0);
+  int16_t flags = fcntl(socket, F_GETFL, 0);
   if (flags == -1) {
     net_tcp_status_info status_info;
     net_tcp_get_last_error(&status_info);
@@ -491,8 +491,8 @@ net_tcp_status net_tcp_get_remote_address(net_tcp_socket socket, char *address, 
 }
 
 net_tcp_status net_tcp_set_reuse_address(net_tcp_socket socket, bool enabled) {
-  int32_t optval = enabled ? 1 : 0;
-  int32_t result;
+  int16_t optval = enabled ? 1 : 0;
+  int16_t result;
 #if defined(_WIN32) || defined(_WIN64)
   result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&optval, sizeof(optval));
 #else
@@ -602,7 +602,7 @@ net_tcp_status net_tcp_disable_ssl(net_tcp_socket socket) {
     utl_error_func("No SSL object associated with the socket", utl_user_defined_data);
     return NET_TCP_ERR_NO_SSL;
   }
-  int32_t shutdownResult = SSL_shutdown(ssl);
+  int16_t shutdownResult = SSL_shutdown(ssl);
   if (shutdownResult == 0) {
     SSL_shutdown(ssl);
   }
@@ -708,9 +708,9 @@ net_tcp_status net_tcp_ssl_accept(net_tcp_socket socket) {
     SSL_free(ssl);
     return NET_TCP_ERR_SSL;
   }
-  int32_t acceptResult = SSL_accept(ssl);
+  int16_t acceptResult = SSL_accept(ssl);
   if (acceptResult <= 0) {
-    int32_t sslError = SSL_get_error(ssl, acceptResult);
+    int16_t sslError = SSL_get_error(ssl, acceptResult);
     utl_error_func("SSL accept failed", utl_user_defined_data);
     if (sslError == SSL_ERROR_SYSCALL) {
       unsigned long err;
@@ -741,7 +741,7 @@ net_tcp_status net_tcp_ssl_close(net_tcp_socket socket) {
     net_tcp_close(socket);
     return NET_TCP_ERR_NO_SSL;
   }
-  int32_t shutdownResult = SSL_shutdown(ssl);
+  int16_t shutdownResult = SSL_shutdown(ssl);
   if (shutdownResult == 0) {
     shutdownResult = SSL_shutdown(ssl);
     if (shutdownResult != 1) {
@@ -771,13 +771,13 @@ net_tcp_status net_tcp_ssl_send(net_tcp_socket socket, const void *buf, size_t l
     utl_error_func("No SSL object associated with the socket", utl_user_defined_data);
     return NET_TCP_ERR_NO_SSL;
   }
-  int32_t totalSent = 0;
-  int32_t result = 0;
+  int16_t totalSent = 0;
+  int16_t result = 0;
   const char *dataPtr = (const char *)buf;
   while (len > 0) {
     result = SSL_write(ssl, dataPtr, len);
     if (result <= 0) {
-      int32_t sslError = SSL_get_error(ssl, result);
+      int16_t sslError = SSL_get_error(ssl, result);
       switch (sslError) {
         case SSL_ERROR_WANT_WRITE:
         case SSL_ERROR_WANT_READ:
@@ -816,7 +816,7 @@ net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, size_t len, si
     utl_error_func("[tcp_ssl_recv] No SSL object associated with the socket", utl_user_defined_data);
     return NET_TCP_ERR_NO_SSL;
   }
-  int32_t result = SSL_read(ssl, buf, len);
+  int16_t result = SSL_read(ssl, buf, len);
   if (result > 0) {
     if (received) {
       *received = result;
@@ -824,7 +824,7 @@ net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, size_t len, si
     return NET_TCP_SUCCESS;
   } 
   else {
-    int32_t sslError = SSL_get_error(ssl, result);
+    int16_t sslError = SSL_get_error(ssl, result);
     switch (sslError) {
       case SSL_ERROR_WANT_READ:
       case SSL_ERROR_WANT_WRITE:
@@ -882,7 +882,7 @@ net_tcp_status net_tcp_async_send(net_tcp_socket socket, const void *buf, size_t
   size_t result = send(socket, buf, len, 0);
   if (result == (size_t)NET_TCP_INVALID_SOCKET) {
 #if defined(_WIN32) || defined(_WIN64)
-    int32_t lastError = WSAGetLastError();
+    int16_t lastError = WSAGetLastError();
     if (lastError == WSAEWOULDBLOCK) {
       utl_error_func("Connection is blocked", utl_user_defined_data);
       return TCP_ERR_WOULD_BLOCK;
@@ -902,7 +902,7 @@ net_tcp_status net_tcp_async_recv(net_tcp_socket socket, void *buf, size_t len) 
   size_t result = recv(socket, buf, len, 0);
   if (result == (size_t)NET_TCP_INVALID_SOCKET) {
 #if defined(_WIN32) || defined(_WIN64)
-    int32_t lastError = WSAGetLastError();
+    int16_t lastError = WSAGetLastError();
     if (lastError == WSAEWOULDBLOCK) {
         TCP_LOG("[tcp_async_recv] Error: No data available to read; non-blocking operation.\n");
         return TCP_ERR_WOULD_BLOCK;

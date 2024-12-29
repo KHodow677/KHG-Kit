@@ -38,7 +38,7 @@ typedef struct net_http_request {
   net_http_query_param query_params[NET_MAX_QUERY_PARAMS];
   size_t header_count;
   size_t query_param_count;
-  int32_t id;
+  int16_t id;
 } net_http_request;
 
 typedef struct net_http_response {

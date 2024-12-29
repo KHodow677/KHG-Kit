@@ -132,14 +132,14 @@ typedef struct {
 } gfx_state;
 
 typedef enum {
-  GFX_INPUT_INT = 0, 
+  GFX_INPUT_INT, 
   GFX_INPUT_FLOAT, 
   GFX_INPUT_TEXT
 } gfx_input_field_type;
 
 extern gfx_state GFX_STATE;
 
-uint32_t gfx_internal_shader_create(unsigned int type, const char *src);
+uint32_t gfx_internal_shader_create(uint32_t type, const char *src);
 gfx_shader gfx_internal_shader_prg_create(const char *vert_src, const char *frag_src);
 void gfx_internal_shader_set_mat(gfx_shader prg, const char *name, mat4 mat); 
 void gfx_internal_set_projection_matrix(void);
@@ -170,7 +170,7 @@ void gfx_internal_remove_substr_str(char *str, size_t start_index, size_t end_in
 void gfx_internal_insert_i_str(char *str, char ch, size_t index);
 void gfx_internal_insert_str_str(char *source, const char *insert, size_t index);
 void gfx_internal_substr_str(const char *str, size_t start_index, size_t end_index, char *substring);
-int gfx_internal_map_vals(int32_t value, int32_t from_min, int32_t from_max, int32_t to_min, int32_t to_max);
+int32_t gfx_internal_map_vals(int32_t value, int32_t from_min, int32_t from_max, int32_t to_min, int32_t to_max);
 
 void gfx_internal_glfw_key_callback(GLFWwindow *window, int32_t key, int32_t scancode, int32_t action, int32_t mods);
 void gfx_internal_glfw_mouse_button_callback(GLFWwindow *window, int32_t button, int32_t action, int32_t mods); 

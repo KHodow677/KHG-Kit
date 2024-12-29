@@ -8,7 +8,7 @@ static net_http_route ROUTES[NET_MAX_ROUTES];
 static size_t ROUTE_COUNT = 0;
 static bool SERVER_RUNNING = true;
 
-static bool net_match_route(const char *route, const char *path, int32_t *id_out) {
+static bool net_match_route(const char *route, const char *path, int16_t *id_out) {
   const char* route_ptr = route;
   const char* path_ptr = path;
   while (*route_ptr && *path_ptr) {
@@ -36,7 +36,7 @@ static bool net_match_route(const char *route, const char *path, int32_t *id_out
 
 static void net_handle_request(net_http_request *req, net_http_response *res) {
   for (size_t i = 0; i < ROUTE_COUNT; i++) {
-    int32_t id = -1;
+    int16_t id = -1;
     if (net_match_route(ROUTES[i].path, req->path, &id) && ROUTES[i].method == req->method) {
       req->id = id;
       ROUTES[i].handler(req, res);

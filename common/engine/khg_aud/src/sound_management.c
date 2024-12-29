@@ -26,11 +26,11 @@ void aud_play_sound_multi(aud_sound s) {
   unsigned int old_age = 0;
   int old_index = -1;
   for (int i = 0; i < AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    if (audio.multi_channel.channels[i] > old_age) {
-      old_age = audio.multi_channel.channels[i];
+    if (AUD_AUDIO.multi_channel.channels[i] > old_age) {
+      old_age = AUD_AUDIO.multi_channel.channels[i];
       old_index = i;
     }
-    if (!aud_is_audio_buffer_playing(audio.multi_channel.pool[i])) {
+    if (!aud_is_audio_buffer_playing(AUD_AUDIO.multi_channel.pool[i])) {
       index = i;
       break;
     }
@@ -42,31 +42,31 @@ void aud_play_sound_multi(aud_sound s) {
       return;
     }
     index = old_index;
-    aud_stop_audio_buffer(audio.multi_channel.pool[index]);
+    aud_stop_audio_buffer(AUD_AUDIO.multi_channel.pool[index]);
   }
-  audio.multi_channel.channels[index] = audio.multi_channel.pool_counter;
-  audio.multi_channel.pool_counter++;
-  audio.multi_channel.pool[index]->volume = s.stream.buffer->volume;
-  audio.multi_channel.pool[index]->pitch = s.stream.buffer->pitch;
-  audio.multi_channel.pool[index]->looping = s.stream.buffer->looping;
-  audio.multi_channel.pool[index]->usage = s.stream.buffer->usage;
-  audio.multi_channel.pool[index]->is_sub_buffer_processed[0] = false;
-  audio.multi_channel.pool[index]->is_sub_buffer_processed[1] = false;
-  audio.multi_channel.pool[index]->size_in_frames = s.stream.buffer->size_in_frames;
-  audio.multi_channel.pool[index]->data = s.stream.buffer->data;
-  aud_play_audio_buffer(audio.multi_channel.pool[index]);
+  AUD_AUDIO.multi_channel.channels[index] = AUD_AUDIO.multi_channel.pool_counter;
+  AUD_AUDIO.multi_channel.pool_counter++;
+  AUD_AUDIO.multi_channel.pool[index]->volume = s.stream.buffer->volume;
+  AUD_AUDIO.multi_channel.pool[index]->pitch = s.stream.buffer->pitch;
+  AUD_AUDIO.multi_channel.pool[index]->looping = s.stream.buffer->looping;
+  AUD_AUDIO.multi_channel.pool[index]->usage = s.stream.buffer->usage;
+  AUD_AUDIO.multi_channel.pool[index]->is_sub_buffer_processed[0] = false;
+  AUD_AUDIO.multi_channel.pool[index]->is_sub_buffer_processed[1] = false;
+  AUD_AUDIO.multi_channel.pool[index]->size_in_frames = s.stream.buffer->size_in_frames;
+  AUD_AUDIO.multi_channel.pool[index]->data = s.stream.buffer->data;
+  aud_play_audio_buffer(AUD_AUDIO.multi_channel.pool[index]);
 }
 
 void aud_stop_sound_multi(void) {
   for (int i = 0; i < AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    aud_stop_audio_buffer(audio.multi_channel.pool[i]);
+    aud_stop_audio_buffer(AUD_AUDIO.multi_channel.pool[i]);
   }
 }
 
 int aud_get_sounds_playing(void) {
   int counter = 0;
   for (int i = 0; i < AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    if (aud_is_audio_buffer_playing(audio.multi_channel.pool[i])) {
+    if (aud_is_audio_buffer_playing(AUD_AUDIO.multi_channel.pool[i])) {
       counter++;
     }
   }
@@ -88,14 +88,14 @@ void aud_set_sound_pitch(aud_sound s, float pitch) {
 void aud_wave_format(aud_wave *w, int sample_rate, int sample_size, int channels) {
   ma_format format_in  = ((w->sample_size == 8)? ma_format_u8 : ((w->sample_size == 16)? ma_format_s16 : ma_format_f32));
   ma_format format_out = ((sample_size == 8)? ma_format_u8 : ((sample_size == 16)? ma_format_s16 : ma_format_f32));
-  ma_uint32 frame_count_in = w->sample_count;
-  ma_uint32 frame_count = (ma_uint32)ma_convert_frames(NULL, 0, format_out, channels, sample_rate, NULL, frame_count_in, format_in, w->channels, w->sample_rate);
+  unsigned int frame_count_in = w->sample_count;
+  unsigned int frame_count = (unsigned int)ma_convert_frames(NULL, 0, format_out, channels, sample_rate, NULL, frame_count_in, format_in, w->channels, w->sample_rate);
   if (frame_count == 0) {
     utl_error_func("Failed to get frame count for format conversion", utl_user_defined_data);
     return;
   }
   void *data = malloc(frame_count * channels * (sample_size / 8));
-  frame_count = (ma_uint32)ma_convert_frames(data, frame_count, format_out, channels, sample_rate, w->data, frame_count_in, format_in, w->channels, w->sample_rate);
+  frame_count = (unsigned int)ma_convert_frames(data, frame_count, format_out, channels, sample_rate, w->data, frame_count_in, format_in, w->channels, w->sample_rate);
   if (frame_count == 0) {
     utl_error_func("Failed format conversion", utl_user_defined_data);
     return;
