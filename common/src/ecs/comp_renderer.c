@@ -30,7 +30,7 @@ static const gfx_aabb get_aabb_from_shape(phy_shape *shape) {
   return (gfx_aabb){ (point1.x + point2.x) / 2.0f, (point1.y + point2.y) / 2.0f, fabsf(point2.x - point1.x), fabsf(point2.y - point1.y) };
 }
 
-static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const size_t entity_count, const ecs_dt dt, void *udata) {
+static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
   if (dt == 0.0f) {
     return 0;
   }
