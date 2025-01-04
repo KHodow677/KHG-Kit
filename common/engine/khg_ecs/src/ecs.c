@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-void *ecs_realloc_zero(ecs_ecs *ecs, void *ptr, size_t old_size, size_t new_size);
+void *ecs_realloc_zero(ecs_ecs *ecs, void *ptr, unsigned int old_size, unsigned int new_size);
 
-ecs_ecs *ecs_new(size_t entity_count, void *mem_ctx) {
+ecs_ecs *ecs_new(unsigned int entity_count, void *mem_ctx) {
   assert(entity_count > 0);
   ecs_ecs *ecs = (ecs_ecs *)malloc(sizeof(ecs_ecs));
   if (NULL == ecs) {
@@ -68,7 +68,7 @@ void ecs_reset(ecs_ecs *ecs) {
   }
 }
 
-ecs_id ecs_register_component(ecs_ecs *ecs, size_t size, ecs_constructor_fn constructor, ecs_destructor_fn destructor) {
+ecs_id ecs_register_component(ecs_ecs *ecs, unsigned int size, ecs_constructor_fn constructor, ecs_destructor_fn destructor) {
   assert(ecs_is_not_null(ecs));
   assert(ecs->comp_count < ECS_MAX_COMPONENTS);
   assert(size > 0);
@@ -137,8 +137,8 @@ ecs_id ecs_create(ecs_ecs *ecs) {
   assert(ecs_is_not_null(ecs));
   ecs_stack *pool = &ecs->entity_pool;
   if (0 == ecs_stack_size(pool)) {
-    size_t old_count = ecs->entity_count;
-    size_t new_count = old_count + (old_count / 2) + 2;
+    unsigned int old_count = ecs->entity_count;
+    unsigned int new_count = old_count + (old_count / 2) + 2;
     ecs->entities = (ecs_entity *)ecs_realloc_zero(ecs, ecs->entities, old_count * sizeof(ecs_entity), new_count * sizeof(ecs_entity));
     for (ecs_id id = old_count; id < new_count; id++) {
       ecs_stack_push(ecs, pool, id);

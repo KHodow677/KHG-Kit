@@ -5,19 +5,19 @@
 #include <stddef.h>
 
 typedef struct {
-  uint32_t id;
-  uint32_t width, height;
+  unsigned int id;
+  unsigned int width, height;
   float angle;
 } gfx_texture;
 
 typedef struct {
   void *cdata;
   void *font_info;
-  uint8_t *buffer;
-  uint32_t tex_width, tex_height;
-  uint32_t line_gap_add, font_size;
+  unsigned char *buffer;
+  unsigned int tex_width, tex_height;
+  unsigned int line_gap_add, font_size;
   gfx_texture bitmap;
-  uint32_t num_glyphs;
+  unsigned int num_glyphs;
 } gfx_font;
 
 typedef enum {
@@ -27,34 +27,34 @@ typedef enum {
 
 typedef struct {
   float width, height;
-  int32_t end_x, end_y;
-  uint32_t rendered_count;
+  int end_x, end_y;
+  unsigned int rendered_count;
 } gfx_text_props;
 
-gfx_font gfx_load_font(const char *filepath, uint32_t size);
-gfx_font gfx_load_font_ex(const char *filepath, uint32_t size, uint32_t bitmap_w, uint32_t bitmap_h);
+gfx_font gfx_load_font(const char *filepath, unsigned int size);
+gfx_font gfx_load_font_ex(const char *filepath, unsigned int size, unsigned int bitmap_w, unsigned int bitmap_h);
 
 gfx_texture gfx_load_texture(const char *filepath, bool flip, gfx_texture_filtering filter);
-gfx_texture gfx_load_texture_resized(const char *filepath, bool flip, gfx_texture_filtering filter, uint32_t w, uint32_t h);
+gfx_texture gfx_load_texture_resized(const char *filepath, bool flip, gfx_texture_filtering filter, unsigned int w, unsigned int h);
 gfx_texture gfx_load_texture_resized_factor(const char *filepath, bool flip, gfx_texture_filtering filter, float wfactor, float hfactor);
-gfx_texture gfx_load_texture_from_memory(const void *data, size_t size, bool flip, gfx_texture_filtering filter);
-gfx_texture gfx_load_texture_from_memory_resized(const void *data, size_t size, bool flip, gfx_texture_filtering filter, uint32_t w, uint32_t h);
-gfx_texture gfx_load_texture_from_memory_resized_factor(const void *data, size_t size, bool flip, gfx_texture_filtering filter, float wfactor, float hfactor);
-gfx_texture gfx_load_texture_from_memory_resized_to_fit(const void *data, size_t size, bool flip, gfx_texture_filtering filter, int32_t container_w, int32_t container_h);
+gfx_texture gfx_load_texture_from_memory(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter);
+gfx_texture gfx_load_texture_from_memory_resized(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter, unsigned int w, unsigned int h);
+gfx_texture gfx_load_texture_from_memory_resized_factor(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter, float wfactor, float hfactor);
+gfx_texture gfx_load_texture_from_memory_resized_to_fit(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter, int container_w, int container_h);
 
-unsigned char *gfx_load_texture_data(const char *filepath, int32_t *width, int32_t *height, int32_t *channels, bool flip);
-unsigned char *gfx_load_texture_data_resized(const char *filepath, int32_t w, int32_t h, int32_t *channels, bool flip);
-unsigned char *gfx_load_texture_data_resized_factor(const char *filepath, int32_t wfactor, int32_t hfactor, int32_t *width, int32_t *height, int32_t *channels, bool flip);
-unsigned char *gfx_load_texture_data_from_memory(const void *data, size_t size, int32_t *width, int32_t *height, int32_t *channels, bool flip);
-unsigned char *gfx_load_texture_data_from_memory_resized(const void *data, size_t size, int32_t *channels, int32_t *o_w, int32_t *o_h, bool flip, uint32_t w, uint32_t h);
-unsigned char *gfx_load_texture_data_from_memory_resized_to_fit_ex(const void *data, size_t size, int32_t *o_width, int32_t *o_height, int32_t i_channels, int32_t i_width, int32_t i_height, bool flip, int32_t container_w, int32_t container_h);
-unsigned char *gfx_load_texture_data_from_memory_resized_to_fit(const void *data, size_t size, int32_t *o_width, int32_t *o_height, int32_t *o_channels, bool flip, int32_t container_w, int32_t container_h);
-unsigned char *gfx_load_texture_data_from_memory_resized_factor(const void *data, size_t size, int32_t *width, int32_t *height, int32_t *channels, bool flip, float wfactor, float hfactor);
+unsigned char *gfx_load_texture_data(const char *filepath, int *width, int *height, int *channels, bool flip);
+unsigned char *gfx_load_texture_data_resized(const char *filepath, int w, int h, int *channels, bool flip);
+unsigned char *gfx_load_texture_data_resized_factor(const char *filepath, int wfactor, int hfactor, int *width, int *height, int *channels, bool flip);
+unsigned char *gfx_load_texture_data_from_memory(const void *data, unsigned int size, int *width, int *height, int *channels, bool flip);
+unsigned char *gfx_load_texture_data_from_memory_resized(const void *data, unsigned int size, int *channels, int *o_w, int *o_h, bool flip, unsigned int w, unsigned int h);
+unsigned char *gfx_load_texture_data_from_memory_resized_to_fit_ex(const void *data, unsigned int size, int *o_width, int *o_height, int i_channels, int i_width, int i_height, bool flip, int container_w, int container_h);
+unsigned char *gfx_load_texture_data_from_memory_resized_to_fit(const void *data, unsigned int size, int *o_width, int *o_height, int *o_channels, bool flip, int container_w, int container_h);
+unsigned char *gfx_load_texture_data_from_memory_resized_factor(const void *data, unsigned int size, int *width, int *height, int *channels, bool flip, float wfactor, float hfactor);
 
-void gfx_create_texture_from_image_data(gfx_texture_filtering filter, uint32_t *id, int32_t width, int32_t height, int32_t channels, unsigned char* data); 
+void gfx_create_texture_from_image_data(gfx_texture_filtering filter, unsigned int *id, int width, int height, int channels, unsigned char* data); 
 void gfx_free_texture(gfx_texture *tex);
 gfx_texture gfx_load_texture_asset(const char *filepath);
 
 void gfx_free_font(gfx_font *font);
-gfx_font gfx_load_font_asset(const char *filepath, const uint32_t font_size);
+gfx_font gfx_load_font_asset(const char *filepath, const unsigned int font_size);
 

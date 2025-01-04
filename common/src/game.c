@@ -59,7 +59,7 @@ static void render_div(float pos_x, float pos_y, float div_width, float div_heig
   gfx_element_props div_props = gfx_get_theme().div_props;
   div_props.corner_radius = 0.0f;
   div_props.border_width = 0.0f;
-  div_props.color = gfx_white;
+  div_props.color = GFX_WHITE;
   gfx_push_style_props(div_props);
   gfx_div_begin(((vec2s){ pos_x, pos_y }), ((vec2s){ div_width, div_height }), false);
 }
@@ -94,7 +94,7 @@ const bool gfx_loop(const float delta) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
-  update_key_controls(&KEYBOARD_STATE);
+  update_key_controls();
   if (check_current_scene("MAIN")) {
     gfx_clear_style_props();
     get_letterbox();

@@ -7,8 +7,8 @@
 
 typedef struct dbm_headers {
   size_t data_size;
-  int64_t row_count;
-  int64_t free_count;
+  long row_count;
+  long free_count;
 } dbm_headers;
 
 typedef struct dbm_index {
@@ -25,8 +25,8 @@ typedef struct dbm_db {
 
 typedef struct dbm_db_info {
   size_t data_size;
-  int64_t row_count;
-  int64_t free_count;
+  long row_count;
+  long free_count;
 } dbm_db_info;
 
 typedef enum dbm_db_state {
@@ -47,9 +47,10 @@ void dbm_close(dbm_db **db);
 
 void dbm_get_info(const dbm_db *db, dbm_db_info *result);
 
-dbm_db_state dbm_select(const dbm_db *db, int64_t key, void *result);
-dbm_db_state dbm_select_all(const dbm_db *db, void (*callback)(int64_t, void *));
+dbm_db_state dbm_select(const dbm_db *db, long key, void *result);
+dbm_db_state dbm_select_all(const dbm_db *db, void (*callback)(long, void *));
 
-dbm_db_state dbm_insert(dbm_db *db, int64_t key, void *data);
-dbm_db_state dbm_update(dbm_db *db, int64_t key, void *data);
-dbm_db_state dbm_delete(dbm_db *db, int64_t key);
+dbm_db_state dbm_insert(dbm_db *db, long key, void *data);
+dbm_db_state dbm_update(dbm_db *db, long key, void *data);
+dbm_db_state dbm_delete(dbm_db *db, long key);
+

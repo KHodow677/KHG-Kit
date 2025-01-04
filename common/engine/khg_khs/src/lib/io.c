@@ -35,7 +35,7 @@ static khs_val khs_read_callback(const khs_val *args, khs_size n_args) {
   if (c_path == NULL) {
     return KHS_ERR("Out of memory");
   }
-  size_t file_len;
+  unsigned int file_len;
   char *file_contents = khs_load_file(c_path, &file_len);
   khs_free_path(c_path);
   if (file_contents == NULL) {

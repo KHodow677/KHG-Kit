@@ -46,7 +46,7 @@ static void gfx_setup_framebuffer(GLuint *framebuffer, GLuint *texture, GLuint *
   }
 }
 
-void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_window) {
+void gfx_init_glfw(unsigned int display_width, unsigned int display_height, void* glfw_window) {
   setlocale(LC_ALL, "");
   if(!glfwInit()) {
     utl_error_func("Trying to initialize gfx with GLFW without initializing GLFW first", utl_user_defined_data);
@@ -64,7 +64,7 @@ void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void* glfw_w
   GFX_STATE.input.mouse.first_mouse_press = true;
   GFX_STATE.render.tex_count = 0;
   GFX_STATE.pos_ptr = (vec2s){0, 0};
-  GFX_STATE.image_color_stack = gfx_no_color;
+  GFX_STATE.image_color_stack = GFX_NO_COLOR;
   GFX_STATE.active_element_id = 0;
   GFX_STATE.text_wrap = false;
   GFX_STATE.line_overflow = true;

@@ -1,4 +1,5 @@
 #include "khg_stm/state_machine.h"
+#include <time.h>
 
 static void stm_go_to_error_state(stm_state_machine *fsm, stm_event *const event) {
   fsm->previous_state = fsm->current_state;
@@ -9,7 +10,7 @@ static void stm_go_to_error_state(stm_state_machine *fsm, stm_event *const event
 }
 
 static stm_transition *stm_get_transition(stm_state_machine *fsm, stm_state *state, stm_event *const event) {
-  for (size_t i = 0; i < state->num_transitions; i++) {
+  for (unsigned int i = 0; i < state->num_transitions; i++) {
     stm_transition *t = &state->transitions[ i ];
     if (t->event_type == event->type) {
       if ( !t->guard ) {

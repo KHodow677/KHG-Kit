@@ -20,10 +20,10 @@ static inline void nv_project_circle(phy_vector2 center, float radius, phy_vecto
   *max_out = max;
 }
 
-static inline void nv_project_polyon(phy_vector2 *vertices, size_t num_vertices, phy_vector2 axis, float *min_out, float *max_out) {
+static inline void nv_project_polyon(phy_vector2 *vertices, unsigned int num_vertices, phy_vector2 axis, float *min_out, float *max_out) {
   float min = INFINITY;
   float max = -INFINITY;
-  for (size_t i = 0; i < num_vertices; i++) {
+  for (unsigned int i = 0; i < num_vertices; i++) {
     float projection = phy_vector2_dot(vertices[i], axis);
     if (projection < min) {
       min = projection;
@@ -36,10 +36,10 @@ static inline void nv_project_polyon(phy_vector2 *vertices, size_t num_vertices,
   *max_out = max;
 }
 
-static inline phy_vector2 nv_polygon_closest_vertex_to_circle(phy_vector2 center, phy_vector2 *vertices, size_t num_vertices) {
-  size_t closest = 0;
+static inline phy_vector2 nv_polygon_closest_vertex_to_circle(phy_vector2 center, phy_vector2 *vertices, unsigned int num_vertices) {
+  unsigned int closest = 0;
   float min_dist = INFINITY;
-  for (size_t i = 0; i < num_vertices; i++) {
+  for (unsigned int i = 0; i < num_vertices; i++) {
     float dist = phy_vector2_dist2(vertices[i], center);
     if (dist < min_dist) {
       min_dist = dist;
@@ -252,13 +252,13 @@ phy_persistent_contact_pair phy_collide_polygon_x_circle(phy_shape *polygon, phy
   phy_polygon_transform(polygon, xform_poly);
   phy_vector2 p = phy_polygon_centroid(poly.xvertices, poly.num_vertices);
   phy_vector2 c = phy_vector2_add(xform_circle.position, phy_vector2_rotate(circ.center, xform_circle.angle));
-  size_t n = poly.num_vertices;
+  unsigned int n = poly.num_vertices;
   phy_vector2 *vertices = poly.xvertices;
   float separation = INFINITY;
   phy_vector2 normal = phy_vector2_zero;
   phy_persistent_contact_pair pcp = { .contact_count = 0, .normal = phy_vector2_zero };
   float min_a, min_b, max_a, max_b;
-  for (size_t i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     phy_vector2 va = vertices[i];
     phy_vector2 vb = vertices[(i + 1) % n];
     phy_vector2 edge = phy_vector2_sub(vb, va);
@@ -297,7 +297,7 @@ phy_persistent_contact_pair phy_collide_polygon_x_circle(phy_shape *polygon, phy
   float min_dist = INFINITY;
   phy_vector2 contact = phy_vector2_zero;
   phy_vector2 new_contact = phy_vector2_zero;
-  for (size_t i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     phy_vector2 va = vertices[i];
     phy_vector2 vb = vertices[(i + 1) % n];
     nv_point_segment_dist(c, va, vb, &dist, &new_contact);
@@ -348,13 +348,13 @@ phy_persistent_contact_pair phy_collide_polygon_x_polygon(phy_shape *polygon_a, 
   a_local.num_vertices = a.num_vertices;
   a_local.vertices[0] = phy_vector2_zero;
   a_local.normals[0] = a.normals[0];
-  for (size_t i = 1; i < a_local.num_vertices; i++) {
+  for (unsigned int i = 1; i < a_local.num_vertices; i++) {
     a_local.vertices[i] = phy_vector2_sub(a.vertices[i], origin);
     a_local.normals[i] = a.normals[i];
   }
   phy_polygon b_local;
   b_local.num_vertices = b.num_vertices;
-  for (size_t i = 0; i < b_local.num_vertices; i++) {
+  for (unsigned int i = 0; i < b_local.num_vertices; i++) {
     phy_vector2 xv = phy_vector2_add(phy_vector2_rotate(b.vertices[i], xform.angle), xform.position);
     b_local.vertices[i] = xv;
     b_local.normals[i] = phy_vector2_rotate(b.normals[i], xform.angle);
@@ -362,7 +362,7 @@ phy_persistent_contact_pair phy_collide_polygon_x_polygon(phy_shape *polygon_a, 
   phy_persistent_contact_pair pcp = SAT(a_local, b_local);
   if (pcp.contact_count > 0) {
     pcp.normal = phy_vector2_rotate(pcp.normal, xform_a.angle);
-    for (size_t i = 0; i < pcp.contact_count; i++) {
+    for (unsigned int i = 0; i < pcp.contact_count; i++) {
       phy_contact *contact = &pcp.contacts[i];
       contact->anchor_a = phy_vector2_rotate(phy_vector2_add(contact->anchor_a, origin), xform_a.angle); 
       contact->anchor_b = phy_vector2_add(contact->anchor_a, phy_vector2_sub(xform_a.position, xform_b.position));
@@ -377,7 +377,7 @@ phy_persistent_contact_pair phy_collide_polygon_x_polygon(phy_shape *polygon_a, 
 bool phy_collide_polygon_x_point(phy_shape *polygon, phy_transform xform, phy_vector2 point) {
   phy_polygon_transform(polygon, xform);
   phy_vector2 *vertices = polygon->polygon.xvertices;
-  size_t n = polygon->polygon.num_vertices;
+  unsigned int n = polygon->polygon.num_vertices;
   int low = 0;
   int high = (int)n;
   do {
@@ -439,10 +439,10 @@ bool phy_collide_ray_x_circle(phy_raycast_result *result, phy_vector2 origin, ph
 bool phy_collide_ray_x_polygon(phy_raycast_result *result, phy_vector2 origin, phy_vector2 dir, float maxsq, phy_shape *shape, phy_transform xform) {
   phy_polygon poly = shape->polygon;
   phy_vector2 hits[PHY_POLYGON_MAX_VERTICES];
-  size_t normal_idxs[PHY_POLYGON_MAX_VERTICES];
-  size_t hit_count = 0;
+  unsigned int normal_idxs[PHY_POLYGON_MAX_VERTICES];
+  unsigned int hit_count = 0;
   phy_polygon_transform(shape, xform);
-  for (size_t i = 0; i < poly.num_vertices; i++) {
+  for (unsigned int i = 0; i < poly.num_vertices; i++) {
     phy_vector2 va = poly.xvertices[i];
     phy_vector2 vb = poly.xvertices[(i + 1) % poly.num_vertices];
     phy_vector2 v1 = phy_vector2_sub(origin, va);
@@ -465,7 +465,7 @@ bool phy_collide_ray_x_polygon(phy_raycast_result *result, phy_vector2 origin, p
   phy_vector2 closest_hit;
   phy_vector2 normal = phy_vector2_zero;
   float min_dist = INFINITY;
-  for (size_t i = 0; i < hit_count; i++) {
+  for (unsigned int i = 0; i < hit_count; i++) {
     float dist = phy_vector2_len2(phy_vector2_sub(hits[i], origin));
     if (dist < min_dist) {
       min_dist = dist;

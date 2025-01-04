@@ -2,64 +2,64 @@
 #include "khg_gfx/internal.h"
 
 void gfx_add_key_callback(void *cb) {
-  GFX_STATE.input.key_cbs[GFX_STATE.input.key_cb_count++] = (KEY_CALLBACK_t)cb;
+  GFX_STATE.input.key_cbs[GFX_STATE.input.key_cb_count++] = (GFX_KEY_CALLBACK)cb;
 }
 
 void gfx_add_mouse_button_callback(void *cb) {
-  GFX_STATE.input.mouse_button_cbs[GFX_STATE.input.mouse_button_cb_count++] = (MOUSE_BUTTON_CALLBACK_t)cb;
+  GFX_STATE.input.mouse_button_cbs[GFX_STATE.input.mouse_button_cb_count++] = (GFX_MOUSE_BUTTON_CALLBACK)cb;
 }
 
 void gfx_add_scroll_callback(void *cb) {
-  GFX_STATE.input.scroll_cbs[GFX_STATE.input.scroll_cb_count++] = (SCROLL_CALLBACK_t)cb;
+  GFX_STATE.input.scroll_cbs[GFX_STATE.input.scroll_cb_count++] = (GFX_SCROLL_CALLBACK)cb;
 }
 
 void gfx_add_cursor_pos_callback(void *cb) {
-  GFX_STATE.input.cursor_pos_cbs[GFX_STATE.input.cursor_pos_cb_count++] = (CURSOR_CALLBACK_t)cb;
+  GFX_STATE.input.cursor_pos_cbs[GFX_STATE.input.cursor_pos_cb_count++] = (GFX_CURSOR_CALLBACK)cb;
 }
 
-bool gfx_key_went_down(uint32_t key) {
+bool gfx_key_went_down(unsigned int key) {
   return gfx_key_changed(key) && GFX_STATE.input.keyboard.keys[key];
 }
 
-bool gfx_key_is_down(uint32_t key) {
+bool gfx_key_is_down(unsigned int key) {
   return GFX_STATE.input.keyboard.keys[key];
 }
 
-bool gfx_key_is_released(uint32_t key) {
+bool gfx_key_is_released(unsigned int key) {
   return gfx_key_changed(key) && !GFX_STATE.input.keyboard.keys[key];
 }
 
-bool gfx_key_changed(uint32_t key) {
+bool gfx_key_changed(unsigned int key) {
   bool ret = GFX_STATE.input.keyboard.keys_changed[key];
   GFX_STATE.input.keyboard.keys_changed[key] = false;
   return ret;
 }
 
-bool gfx_mouse_button_went_down(uint32_t button) {
+bool gfx_mouse_button_went_down(unsigned int button) {
   return gfx_mouse_button_changed(button) && GFX_STATE.input.mouse.buttons_current[button];
 }
 
-bool gfx_mouse_button_is_down(uint32_t button) {
+bool gfx_mouse_button_is_down(unsigned int button) {
   return GFX_STATE.input.mouse.buttons_current[button];
 }
 
-bool gfx_mouse_button_is_released(uint32_t button) {
+bool gfx_mouse_button_is_released(unsigned int button) {
   return gfx_mouse_button_changed(button) && !GFX_STATE.input.mouse.buttons_current[button];
 }
 
-bool gfx_mouse_button_changed(uint32_t button) {
+bool gfx_mouse_button_changed(unsigned int button) {
   return GFX_STATE.input.mouse.buttons_current[button] != GFX_STATE.input.mouse.buttons_last[button];
 }
 
-bool gfx_mouse_button_went_down_on_div(uint32_t button) {
+bool gfx_mouse_button_went_down_on_div(unsigned int button) {
   return gfx_mouse_button_went_down(button) && GFX_STATE.scrollbar_div.id == GFX_STATE.current_div.id;
 }
 
-bool gfx_mouse_button_is_released_on_div(uint32_t button) {
+bool gfx_mouse_button_is_released_on_div(unsigned int button) {
   return gfx_mouse_button_is_released(button) && GFX_STATE.scrollbar_div.id == GFX_STATE.current_div.id;
 }
 
-bool gfx_mouse_button_changed_on_div(uint32_t button) {
+bool gfx_mouse_button_changed_on_div(unsigned int button) {
   return gfx_mouse_button_changed(button) && GFX_STATE.scrollbar_div.id == GFX_STATE.current_div.id;
 }
 

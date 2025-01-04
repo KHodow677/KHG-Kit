@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stddef.h>
 #include <stdbool.h>
 
 enum stm_handle_event_return_vals {
@@ -31,7 +30,7 @@ struct stm_state {
   stm_state *parent_state;
   stm_state *entry_state;
   stm_transition *transitions;
-  size_t num_transitions;
+  unsigned int num_transitions;
   void *data;
   void (*entry_action)(void *state_data, stm_event *event);
   void (*exit_action)(void *state_data, stm_event *event);

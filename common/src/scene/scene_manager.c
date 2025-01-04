@@ -3,6 +3,7 @@
 #include "scene/scene_utl.h"
 #include "khg_stm/state_machine.h"
 #include <stdint.h>
+#include <time.h>
 
 stm_state_machine SCENE_FSM;
 

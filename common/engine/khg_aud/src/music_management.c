@@ -147,7 +147,7 @@ void aud_unload_music_stream(aud_music m) {
 
 void aud_play_music_stream(aud_music m) {
   if (m.stream.buffer != NULL) {
-    ma_uint32 frame_cursor_pos = m.stream.buffer->frame_cursor_pos;
+    unsigned int frame_cursor_pos = m.stream.buffer->frame_cursor_pos;
     aud_play_audio_stream(m.stream);
     m.stream.buffer->frame_cursor_pos = frame_cursor_pos;
   }

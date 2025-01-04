@@ -7,14 +7,13 @@
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
-#include "khg_utl/error_func.h"
 #include "libclipboard/libclipboard.h"
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 
-void compute_bounding_box(uint32_t width, uint32_t height, float angle, float* boundingWidth, float* boundingHeight) {
+void compute_bounding_box(unsigned int width, unsigned int height, float angle, float* boundingWidth, float* boundingHeight) {
   float cosA = fabs(cos(angle));
   float sinA = fabs(sin(angle));
   *boundingWidth = width * cosA + height * sinA;
@@ -28,13 +27,13 @@ gfx_theme gfx_default_theme() {
     .border_color = (gfx_color){ 0, 0, 0, 0 }, 
     .border_width = 0.0f, 
     .corner_radius = 0.0f,
-    .hover_color = gfx_no_color,
+    .hover_color = GFX_NO_COLOR,
   };
   float global_padding = 10;
   float global_margin = 5;
   theme.text_props = (gfx_element_props) {
-    .text_color = gfx_white, 
-    .border_color = gfx_no_color,
+    .text_color = GFX_WHITE, 
+    .border_color = GFX_NO_COLOR,
     .padding = 0, 
     .margin_left = global_margin, 
     .margin_right = global_margin, 
@@ -42,13 +41,13 @@ gfx_theme gfx_default_theme() {
     .margin_bottom = global_margin,
     .border_width = global_margin,
     .corner_radius = 0, 
-    .hover_color = gfx_no_color, 
-    .hover_text_color = gfx_no_color
+    .hover_color = GFX_NO_COLOR, 
+    .hover_text_color = GFX_NO_COLOR
   };
   theme.button_props = (gfx_element_props) { 
-    .color = gfx_primary_item_color, 
-    .text_color = gfx_black,
-    .border_color = gfx_secondary_item_color,
+    .color = GFX_PRIMARY_ITEM_COLOR, 
+    .text_color = GFX_BLACK,
+    .border_color = GFX_SECONDARY_ITEM_COLOR,
     .padding = global_padding,
     .margin_left = global_margin, 
     .margin_right = global_margin, 
@@ -56,23 +55,23 @@ gfx_theme gfx_default_theme() {
     .margin_bottom = global_margin, 
     .border_width = 4, 
     .corner_radius = 0, 
-    .hover_color = gfx_no_color, 
-    .hover_text_color = gfx_no_color
+    .hover_color = GFX_NO_COLOR, 
+    .hover_text_color = GFX_NO_COLOR
   };
   theme.image_props = (gfx_element_props) { 
-    .color = gfx_white,
+    .color = GFX_WHITE,
     .margin_left = global_margin, 
     .margin_right = global_margin, 
     .margin_top = global_margin, 
     .margin_bottom = global_margin,
     .corner_radius = 0,
-    .hover_color = gfx_no_color, 
-    .hover_text_color = gfx_no_color
+    .hover_color = GFX_NO_COLOR, 
+    .hover_text_color = GFX_NO_COLOR
   };
   theme.input_field_props = (gfx_element_props) { 
-    .color = gfx_primary_item_color,
-    .text_color = gfx_black,
-    .border_color = gfx_secondary_item_color,
+    .color = GFX_PRIMARY_ITEM_COLOR,
+    .text_color = GFX_BLACK,
+    .border_color = GFX_SECONDARY_ITEM_COLOR,
     .padding = global_padding, 
     .margin_left = global_margin, 
     .margin_right = global_margin, 
@@ -80,13 +79,13 @@ gfx_theme gfx_default_theme() {
     .margin_bottom = global_margin, 
     .border_width = 4,
     .corner_radius = 0,
-    .hover_color = gfx_no_color, 
-    .hover_text_color = gfx_no_color
+    .hover_color = GFX_NO_COLOR, 
+    .hover_text_color = GFX_NO_COLOR
   };
   theme.checkbox_props = (gfx_element_props) { 
-    .color = gfx_primary_item_color, 
-    .text_color = gfx_white, 
-    .border_color = gfx_secondary_item_color,
+    .color = GFX_PRIMARY_ITEM_COLOR, 
+    .text_color = GFX_WHITE, 
+    .border_color = GFX_SECONDARY_ITEM_COLOR,
     .padding = global_padding, 
     .margin_left = global_margin, 
     .margin_right = global_margin, 
@@ -94,13 +93,13 @@ gfx_theme gfx_default_theme() {
     .margin_bottom = global_margin, 
     .border_width = 4,
     .corner_radius = 0,
-    .hover_color = gfx_no_color, 
-    .hover_text_color = gfx_no_color
+    .hover_color = GFX_NO_COLOR, 
+    .hover_text_color = GFX_NO_COLOR
   };
   theme.slider_props = (gfx_element_props) { 
-    .color = gfx_primary_item_color, 
-    .text_color = gfx_secondary_item_color, 
-    .border_color = gfx_secondary_item_color,
+    .color = GFX_PRIMARY_ITEM_COLOR, 
+    .text_color = GFX_SECONDARY_ITEM_COLOR, 
+    .border_color = GFX_SECONDARY_ITEM_COLOR,
     .padding = global_padding,
     .margin_left = global_margin, 
     .margin_right = global_margin, 
@@ -108,12 +107,12 @@ gfx_theme gfx_default_theme() {
     .margin_bottom = global_margin, 
     .border_width = 4,
     .corner_radius = 0,
-    .hover_color = gfx_no_color, 
-    .hover_text_color = gfx_no_color
+    .hover_color = GFX_NO_COLOR, 
+    .hover_text_color = GFX_NO_COLOR
   };
   theme.scrollbar_props = (gfx_element_props) { 
-    .color = gfx_secondary_item_color, 
-    .border_color = gfx_black,
+    .color = GFX_SECONDARY_ITEM_COLOR, 
+    .border_color = GFX_BLACK,
     .padding = 0,
     .margin_left = 0, 
     .margin_right = 5, 
@@ -121,8 +120,8 @@ gfx_theme gfx_default_theme() {
     .margin_bottom = 0, 
     .border_width = 0,
     .corner_radius = 0,
-    .hover_color = gfx_no_color, 
-    .hover_text_color = gfx_no_color
+    .hover_color = GFX_NO_COLOR, 
+    .hover_text_color = GFX_NO_COLOR
   };
   theme.font = gfx_load_font_asset("res/assets/fonts/inter.ttf", 24);
   theme.div_scroll_max_velocity = 100.0f; 
@@ -142,7 +141,7 @@ void gfx_set_theme(gfx_theme theme) {
   GFX_STATE.theme = theme;
 }
 
-void gfx_resize_display(size_t display_width, size_t display_height) {
+void gfx_resize_display(unsigned int display_width, unsigned int display_height) {
   GFX_STATE.dsp_w = display_width;
   GFX_STATE.dsp_h = display_height;
   gfx_internal_set_projection_matrix();
@@ -150,13 +149,13 @@ void gfx_resize_display(size_t display_width, size_t display_height) {
   GFX_STATE.current_div.aabb.size.y = GFX_STATE.dsp_h;
 }
 
-gfx_div *gfx_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll, float *scroll_velocity, const char *file, int32_t line) {
+gfx_div *gfx_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll, float *scroll_velocity, const char *file, int line) {
   bool hovered_div = gfx_area_hovered(pos, size);
   if (hovered_div) {
     GFX_STATE.scroll_velocity_ptr = scroll_velocity;
     GFX_STATE.scroll_ptr = scroll;
   }
-  uint64_t id = DJB2_INIT;
+  unsigned long id = GFX_DJB2_INIT;
   id = gfx_internal_djb2_hash(id, file, strlen(file));
   id = gfx_internal_djb2_hash(id, &line, sizeof(line));
   if (GFX_STATE.element_id_stack != -1) {
@@ -216,7 +215,7 @@ void gfx_div_end() {
   GFX_STATE.cull_end = (vec2s){ -1, -1 };
 }
 
-gfx_clickable_item_state gfx_item_loc(vec2s size, const char *file, int32_t line) {
+gfx_clickable_item_state gfx_item_loc(vec2s size, const char *file, int line) {
   gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.button_props);
   gfx_internal_next_line_on_overflow((vec2s){ size.x + props.padding * 2.0f + props.margin_right + props.margin_left, size.y + props.padding * 2.0f + props.margin_bottom + props.margin_top }, GFX_STATE.div_props.border_width);
   GFX_STATE.pos_ptr.x += props.margin_left;
@@ -227,15 +226,11 @@ gfx_clickable_item_state gfx_item_loc(vec2s size, const char *file, int32_t line
   return item;
 }
 
-gfx_clickable_item_state gfx_button_loc(const char *text, const char *file, int32_t line) {
-  return gfx_internal_button_element_loc((void *)text, file, line, false);
+gfx_clickable_item_state gfx_button_loc(const char *text, const char *file, int line) {
+  return gfx_internal_button_element_loc((void *)text, file, line);
 }
 
-gfx_clickable_item_state gfx_button_wide_loc(const wchar_t *text, const char *file, int32_t line) {
-  return gfx_internal_button_element_loc((void *)text, file, line, true);
-}
-
-gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file, int32_t line) {
+gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file, int line) {
   gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.button_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right,
@@ -247,14 +242,14 @@ gfx_clickable_item_state gfx_image_button_loc(gfx_texture img, const char *file,
   GFX_STATE.pos_ptr.x += margin_left;
   GFX_STATE.pos_ptr.y += margin_top;
   gfx_clickable_item_state ret = gfx_internal_button(file, line, GFX_STATE.pos_ptr, (vec2s){ img.width + padding * 2, img.height + padding * 2 }, props, color, props.border_width, true, true);
-  gfx_color imageColor = gfx_white;
-  gfx_image_render((vec2s){ GFX_STATE.pos_ptr.x + padding, GFX_STATE.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
+  gfx_color imageColor = GFX_WHITE;
+  gfx_image_render((vec2s){ GFX_STATE.pos_ptr.x + padding, GFX_STATE.pos_ptr.y + padding }, imageColor, img, GFX_NO_COLOR, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
   GFX_STATE.pos_ptr.x += img.width + margin_right + padding * 2.0f;
   GFX_STATE.pos_ptr.y -= margin_top;
   return ret; 
 }
 
-gfx_clickable_item_state gfx_image_button_fixed_loc(gfx_texture img, float width, float height, const char *file, int32_t line) {
+gfx_clickable_item_state gfx_image_button_fixed_loc(gfx_texture img, float width, float height, const char *file, int line) {
   gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.button_props);
   float padding = props.padding;
   float margin_left = props.margin_left, margin_right = props.margin_right,
@@ -262,28 +257,24 @@ gfx_clickable_item_state gfx_image_button_fixed_loc(gfx_texture img, float width
   gfx_color color = props.color;
   gfx_color text_color = GFX_STATE.theme.button_props.text_color;
   gfx_font font = gfx_internal_get_current_font();
-  int32_t render_width = ((width == -1) ? img.width : width);
-  int32_t render_height = ((height == -1) ? img.height : height);
+  int render_width = ((width == -1) ? img.width : width);
+  int render_height = ((height == -1) ? img.height : height);
   gfx_internal_next_line_on_overflow((vec2s){ render_width + padding * 2.0f, render_height + padding * 2.0f }, GFX_STATE.div_props.border_width);
   GFX_STATE.pos_ptr.x += margin_left;
   GFX_STATE.pos_ptr.y += margin_top;
   gfx_clickable_item_state ret = gfx_internal_button(file, line, GFX_STATE.pos_ptr, (vec2s){ render_width + padding * 2, render_height + padding * 2 }, props, color, props.border_width, true, true);
-  gfx_color imageColor = gfx_white; 
-  gfx_image_render((vec2s){ GFX_STATE.pos_ptr.x + padding + (render_width - img.width) / 2.0f, GFX_STATE.pos_ptr.y + padding }, imageColor, img, gfx_no_color, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
+  gfx_color imageColor = GFX_WHITE; 
+  gfx_image_render((vec2s){ GFX_STATE.pos_ptr.x + padding + (render_width - img.width) / 2.0f, GFX_STATE.pos_ptr.y + padding }, imageColor, img, GFX_NO_COLOR, 0, props.corner_radius, 0.0f, 0.0f, 0.0f, 1.0f, true, false);
   GFX_STATE.pos_ptr.x += render_width + margin_right + padding * 2.0f;
   GFX_STATE.pos_ptr.y -= margin_top;
   return ret;
 }
 
-gfx_clickable_item_state gfx_button_fixed_loc(const char *text, float width, float height, const char *file, int32_t line) {
-  return gfx_internal_button_fixed_element_loc((void*)text, width, height, file, line, false);
+gfx_clickable_item_state gfx_button_fixed_loc(const char *text, float width, float height, const char *file, int line) {
+  return gfx_internal_button_fixed_element_loc((void*)text, width, height, file, line);
 }
 
-gfx_clickable_item_state gfx_button_fixed_loc_wide(const wchar_t *text, float width, float height, const char *file, int32_t line) {
-  return gfx_internal_button_fixed_element_loc((void*)text, width, height, file, line, true);
-}
-
-gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file, int32_t line) {
+gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file, int line) {
   gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.button_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom;
   float handle_size;
@@ -305,7 +296,7 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
   gfx_element_props slider_props = props;
   slider_props.border_width /= 2.0f;
   gfx_clickable_item_state slider_state = gfx_internal_button_ex(file, line, GFX_STATE.pos_ptr, (vec2s){ (float)slider_width, (float)slider_height }, slider_props, color, 0, false, false, (vec2s){ -1, handle_size });
-  slider->handle_pos = gfx_internal_map_vals(*(int32_t *)slider->val, slider->min, slider->max, handle_size / 2.0f, slider->width - handle_size / 2.0f) - (handle_size) / 2.0f;
+  slider->handle_pos = gfx_internal_map_vals(*(int *)slider->val, slider->min, slider->max, handle_size / 2.0f, slider->width - handle_size / 2.0f) - (handle_size) / 2.0f;
   gfx_rect_render((vec2s){ GFX_STATE.pos_ptr.x + slider->handle_pos, GFX_STATE.pos_ptr.y - (handle_size) / 2.0f + slider_height / 2.0f }, (vec2s){ handle_size, handle_size }, props.text_color, props.border_color, props.border_width, slider->held ? props.corner_radius * 3.5f : props.corner_radius * 3.0f, 0.0f);
   if (slider_state == GFX_CLICKABLE_HELD || slider_state == GFX_CLICKABLE_CLICKED) {
     slider->held = true;
@@ -317,14 +308,14 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
   if(slider->held) {
     if (gfx_get_mouse_x() >= GFX_STATE.pos_ptr.x && gfx_get_mouse_x() <= GFX_STATE.pos_ptr.x + slider_width - handle_size) {
       slider->handle_pos = gfx_get_mouse_x() - GFX_STATE.pos_ptr.x;
-      *(int32_t *)slider->val = gfx_internal_map_vals(GFX_STATE.pos_ptr.x + slider->handle_pos, GFX_STATE.pos_ptr.x,  GFX_STATE.pos_ptr.x + slider_width - handle_size, slider->min, slider->max);
+      *(int *)slider->val = gfx_internal_map_vals(GFX_STATE.pos_ptr.x + slider->handle_pos, GFX_STATE.pos_ptr.x,  GFX_STATE.pos_ptr.x + slider_width - handle_size, slider->min, slider->max);
     }
     else if (gfx_get_mouse_x() <= GFX_STATE.pos_ptr.x) {
-      *(int32_t *)slider->val = slider->min;
+      *(int *)slider->val = slider->min;
       slider->handle_pos = 0;
     } 
     else if (gfx_get_mouse_x() >= GFX_STATE.pos_ptr.x + slider_width - handle_size) {
-      *(int32_t *)slider->val = slider->max;
+      *(int *)slider->val = slider->max;
       slider->handle_pos = slider_width - handle_size;
     }
     slider_state = GFX_CLICKABLE_HELD;
@@ -334,7 +325,7 @@ gfx_clickable_item_state gfx_slider_int_loc(gfx_slider *slider, const char *file
   return slider_state;
 }
 
-gfx_clickable_item_state gfx_progress_bar_int_loc(float val, float min, float max, float width, float height, const char *file, int32_t line) {
+gfx_clickable_item_state gfx_progress_bar_int_loc(float val, float min, float max, float width, float height, const char *file, int line) {
   gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.slider_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom = props.margin_bottom; 
   gfx_color color = props.color;
@@ -351,7 +342,7 @@ gfx_clickable_item_state gfx_progress_bar_int_loc(float val, float min, float ma
   return bar;
 }
 
-gfx_clickable_item_state gfx_progress_stripe_int_loc(gfx_slider *slider, const char *file, int32_t line) {
+gfx_clickable_item_state gfx_progress_stripe_int_loc(gfx_slider *slider, const char *file, int line) {
   gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.slider_props);
   float margin_left = props.margin_left, margin_right = props.margin_right, margin_top = props.margin_top, margin_bottom =props.margin_bottom; 
   const float handle_size = 20;
@@ -361,7 +352,7 @@ gfx_clickable_item_state gfx_progress_stripe_int_loc(gfx_slider *slider, const c
   GFX_STATE.pos_ptr.x += margin_left;
   GFX_STATE.pos_ptr.y += margin_top;
   gfx_clickable_item_state bar = gfx_internal_button(file, line, GFX_STATE.pos_ptr, (vec2s){ (float)slider->width, (float)height },props, color, props.border_width, false, false);
-  slider->handle_pos = gfx_internal_map_vals(*(int32_t *)slider->val, slider->min, slider->max, 0, slider->width);
+  slider->handle_pos = gfx_internal_map_vals(*(int *)slider->val, slider->min, slider->max, 0, slider->width);
   gfx_push_element_id(1);
   gfx_clickable_item_state handle = gfx_internal_button(file, line, GFX_STATE.pos_ptr, (vec2s){ (float)slider->handle_pos, (float)height }, props, props.text_color, 0, false, false);
   gfx_pop_element_id();
@@ -371,48 +362,36 @@ gfx_clickable_item_state gfx_progress_stripe_int_loc(gfx_slider *slider, const c
   return bar;
 }
 
-gfx_clickable_item_state gfx_checkbox_loc(const char *text, bool *val, gfx_color tick_color, gfx_color tex_color, const char *file, int32_t line) { 
-  return gfx_internal_checkbox_element_loc((void *)text, val, tick_color, tex_color, file, line, false);
+gfx_clickable_item_state gfx_checkbox_loc(const char *text, bool *val, gfx_color tick_color, gfx_color tex_color, const char *file, int line) { 
+  return gfx_internal_checkbox_element_loc((void *)text, val, tick_color, tex_color, file, line);
 }
 
-gfx_clickable_item_state gfx_checkbox_wide_loc(const wchar_t *text, bool *val, gfx_color tick_color, gfx_color tex_color, const char* file, int32_t line) {
-  return gfx_internal_checkbox_element_loc((void *)text, val, tick_color, tex_color, file, line, true);
+int gfx_menu_item_list_loc(const char ** items, unsigned int item_count, int selected_index, gfx_menu_item_callback per_cb, bool vertical, const char *file, int line) {
+  return gfx_internal_menu_item_list_item_loc((void **)items, item_count, selected_index, per_cb, vertical, file, line);
 }
 
-int32_t gfx_menu_item_list_loc(const char ** items, uint32_t item_count, int32_t selected_index, gfx_menu_item_callback per_cb, bool vertical, const char *file, int32_t line) {
-  return gfx_internal_menu_item_list_item_loc((void **)items, item_count, selected_index, per_cb, vertical, file, line, false);
+void gfx_dropdown_menu_loc(const char **items, const char *placeholder, unsigned int item_count, float width, float height, int *selected_index, bool *opened, const char *file, int line) {
+  return gfx_internal_dropdown_menu_item_loc((void **)items, (void *)placeholder, item_count, width, height, selected_index, opened, file, line);
 }
 
-int32_t gfx_menu_item_list_loc_wide(const wchar_t **items, uint32_t item_count, int32_t selected_index, gfx_menu_item_callback per_cb, bool vertical, const char *file, int32_t line) {
-  return gfx_internal_menu_item_list_item_loc((void **)items, item_count, selected_index, per_cb, vertical, file, line, true);
-}
-
-void gfx_dropdown_menu_loc(const char **items, const char *placeholder, uint32_t item_count, float width, float height, int32_t *selected_index, bool *opened, const char *file, int32_t line) {
-  return gfx_internal_dropdown_menu_item_loc((void **)items, (void *)placeholder, item_count, width, height, selected_index, opened, file, line, false);
-}
-
-void gfx_dropdown_menu_loc_wide(const wchar_t **items, const wchar_t *placeholder, uint32_t item_count, float width, float height, int32_t *selected_index, bool *opened, const char *file, int32_t line) {
-  return gfx_internal_dropdown_menu_item_loc((void **)items, (void *)placeholder, item_count, width, height, selected_index, opened, file, line, true);
-}
-
-void gfx_input_text_loc(gfx_input_field* input, const char *file, int32_t line) {
+void gfx_input_text_loc(gfx_input_field* input, const char *file, int line) {
   gfx_internal_input_field(input, GFX_INPUT_TEXT, file, line);
 }
 
-void gfx_input_int_loc(gfx_input_field *input, const char *file, int32_t line) {
+void gfx_input_int_loc(gfx_input_field *input, const char *file, int line) {
   gfx_internal_input_field(input, GFX_INPUT_INT, file, line);
 }
 
-void gfx_input_float_loc(gfx_input_field *input, const char *file, int32_t line) {
+void gfx_input_float_loc(gfx_input_field *input, const char *file, int line) {
   gfx_internal_input_field(input, GFX_INPUT_FLOAT, file, line);
 }
 
-void gfx_input_insert_char_idx(gfx_input_field *input, char c, uint32_t idx) {
+void gfx_input_insert_char_idx(gfx_input_field *input, char c, unsigned int idx) {
   gfx_input_field_unselect_all(input);
   gfx_internal_insert_i_str(input->buf, c, idx); 
 }
 
-void gfx_input_insert_str_idx(gfx_input_field *input, const char *insert, uint32_t len, uint32_t idx) {
+void gfx_input_insert_str_idx(gfx_input_field *input, const char *insert, unsigned int len, unsigned int idx) {
   if (len > input->buf_size || strlen(input->buf) + len > input->buf_size) {
     return;
   }
@@ -447,7 +426,7 @@ gfx_div gfx_get_grabbed_div() {
   return GFX_STATE.grabbed_div;
 }
 
-void gfx_begin_loc(const char *file, int32_t line) {
+void gfx_begin_loc(const char *file, int line) {
   GFX_STATE.pos_ptr = (vec2s){ 0.0f, 0.0f };
   gfx_internal_renderer_begin();
   gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.div_props);
@@ -472,23 +451,13 @@ void gfx_next_line() {
   GFX_STATE.current_line_height = 0;
 }
 
-vec2s gfx_text_dimension(const char* str) {
+vec2s gfx_text_dimension(const char *str) {
   return gfx_text_dimension_ex(str, -1);
 }
 
 vec2s gfx_text_dimension_ex(const char *str, float wrap_point) {
   gfx_font font = gfx_internal_get_current_font();
   gfx_text_props props = gfx_text_render((vec2s){ 0.0f, 0.0f }, str, font, GFX_STATE.theme.text_props.text_color, wrap_point, (vec2s){ -1, -1 }, true, false, -1, -1);
-  return (vec2s){ (float)props.width, (float)props.height };
-}
-
-vec2s gfx_text_dimension_wide(const wchar_t *str) {
-  return gfx_text_dimension_wide_ex(str, -1);
-}
-
-vec2s gfx_text_dimension_wide_ex(const wchar_t *str, float wrap_point) {
-  gfx_font font = gfx_internal_get_current_font();
-  gfx_text_props props = gfx_text_render_wchar((vec2s){ 0.0f, 0.0f }, str, font, gfx_no_color, wrap_point, (vec2s){ -1, -1 }, true, false, -1, -1);
   return (vec2s){ (float)props.width, (float)props.height };
 }
 
@@ -518,24 +487,6 @@ void gfx_text(const char *text) {
   GFX_STATE.pos_ptr.y += margin_top;
   gfx_text_render((vec2s){ GFX_STATE.pos_ptr.x + padding, GFX_STATE.pos_ptr.y + padding }, text, font, text_color, GFX_STATE.text_wrap ? (GFX_STATE.current_div.aabb.size.x + GFX_STATE.current_div.aabb.pos.x) - margin_right - margin_left : -1, (vec2s){ -1, -1 }, false, false, -1, -1);
   GFX_STATE.pos_ptr.x += text_props.width + margin_right + padding;
-  GFX_STATE.pos_ptr.y -= margin_top;
-}
-
-void gfx_text_wide(const wchar_t *text) {
-  gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.text_props);
-  float padding = props.padding;
-  float margin_left = props.margin_left, margin_right = props.margin_right, 
-  margin_top = props.margin_top, margin_bottom = props.margin_bottom;
-  gfx_color text_color = props.text_color;
-  gfx_color color = props.color;
-  gfx_font font = gfx_internal_get_current_font();
-  gfx_text_props text_props = gfx_text_render_wchar(GFX_STATE.pos_ptr, text, font, text_color, (GFX_STATE.text_wrap ? (GFX_STATE.current_div.aabb.size.x + GFX_STATE.current_div.aabb.pos.x) - margin_right - margin_left : -1), (vec2s){-1, -1}, true, false, -1, -1);
-  gfx_internal_next_line_on_overflow((vec2s){ text_props.width + padding * 2.0f + margin_left + margin_right, text_props.height + padding * 2.0f + margin_top + margin_bottom }, GFX_STATE.div_props.border_width);
-  GFX_STATE.pos_ptr.x += margin_left;
-  GFX_STATE.pos_ptr.y += margin_top;
-  gfx_rect_render(GFX_STATE.pos_ptr, (vec2s){ text_props.width + padding * 2.0f, text_props.height + padding * 2.0f }, props.color, props.border_color, props.border_width, props.corner_radius, 0.0f);
-  gfx_text_render_wchar((vec2s){ GFX_STATE.pos_ptr.x + padding, GFX_STATE.pos_ptr.y + padding }, text, font, text_color, (GFX_STATE.text_wrap ? (GFX_STATE.current_div.aabb.size.x + GFX_STATE.current_div.aabb.pos.x) - margin_right - margin_left : -1), (vec2s){-1, -1}, false, false, -1, -1);
-  GFX_STATE.pos_ptr.x += text_props.width + padding * 2.0f + margin_right + padding;
   GFX_STATE.pos_ptr.y -= margin_top;
 }
 
@@ -582,11 +533,11 @@ float gfx_get_ptr_y() {
   return GFX_STATE.pos_ptr.y;
 }
 
-uint32_t gfx_get_display_width() {
+unsigned int gfx_get_display_width() {
   return GFX_STATE.dsp_w;
 }
 
-uint32_t gfx_get_display_height() {
+unsigned int gfx_get_display_height() {
   return GFX_STATE.dsp_h;
 }
 
@@ -598,25 +549,8 @@ void gfx_pop_font() {
   GFX_STATE.font_stack = NULL;
 }
 
-static wchar_t *str_to_wstr(const char *str) {
-  size_t len = strlen(str) + 1;
-  wchar_t *wstr = (wchar_t *)malloc(len * sizeof(wchar_t));
-  if (wstr == NULL) {
-    utl_error_func("Memory allocation failed", utl_user_defined_data);
-    return NULL;
-  }
-  if (mbstowcs(wstr, str, len) == (size_t)-1) {
-    utl_error_func("Conversion failed", utl_user_defined_data);
-    free(wstr);
-    return NULL;
-  }
-  return wstr;
-}
-
-gfx_text_props gfx_text_render(vec2s pos, const char *str, gfx_font font, gfx_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index) {
-  wchar_t *wstr = str_to_wstr(str);
-  gfx_text_props textprops = gfx_text_render_wchar(pos, (const wchar_t *)wstr, font, color, wrap_point, stop_point, no_render, render_solid, start_index, end_index);
-  free(wstr);
+gfx_text_props gfx_text_render(vec2s pos, const char *str, gfx_font font, gfx_color color, int wrap_point, vec2s stop_point, bool no_render, bool render_solid, int start_index, int end_index) {
+  gfx_text_props textprops = gfx_text_render_char(pos, str, font, color, wrap_point, stop_point, no_render, render_solid, start_index, end_index);
   return textprops;
 }
 
@@ -641,8 +575,8 @@ void gfx_rect_render(vec2s pos, vec2s size, gfx_color color, gfx_color border_co
   glm_rotate_make(rotation, rotation_angle, (vec3){ 0.0f, 0.0f, 1.0f });
   glm_mat4_mul(rotation, scale, transform);
   glm_mat4_mul(translate, transform, transform);
-  for (uint32_t i = 0; i < 4; i++) {
-    if (GFX_STATE.render.vert_count >= MAX_RENDER_BATCH) {
+  for (unsigned int i = 0; i < 4; i++) {
+    if (GFX_STATE.render.vert_count >= GFX_MAX_RENDER_BATCH) {
       gfx_internal_renderer_flush();
       gfx_internal_renderer_begin();
     }
@@ -688,7 +622,7 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
   if (gfx_internal_item_should_cull((gfx_aabb){ .pos = pos, .size = (vec2s){ bounding_width, bounding_height } }, cullable)) {
     return;
   }
-  if (GFX_STATE.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
+  if (GFX_STATE.render.tex_count - 1 >= GFX_MAX_TEX_COUNT_BATCH - 1) {
     gfx_internal_renderer_flush();
     gfx_internal_renderer_begin();
   }
@@ -728,8 +662,8 @@ void gfx_image_render(vec2s pos, gfx_color color, gfx_texture tex, gfx_color bor
   glm_rotate_make(rotation, rotation_angle, (vec3){ 0.0f, 0.0f, 1.0f });
   glm_mat4_mul(rotation, scale, transform);
   glm_mat4_mul(translate, transform, transform);
-  for (uint32_t i = 0; i < 4; i++) {
-    if (GFX_STATE.render.vert_count >= MAX_RENDER_BATCH) {
+  for (unsigned int i = 0; i < 4; i++) {
+    if (GFX_STATE.render.vert_count >= GFX_MAX_RENDER_BATCH) {
       gfx_internal_renderer_flush();
       gfx_internal_renderer_begin();
     }
@@ -806,7 +740,7 @@ void gfx_set_image_color(gfx_color color) {
 }
 
 void gfx_unset_image_color() {
-  GFX_STATE.image_color_stack = gfx_no_color;
+  GFX_STATE.image_color_stack = GFX_NO_COLOR;
 }
 
 void gfx_set_current_div_scroll(float scroll) {
@@ -825,11 +759,11 @@ float gfx_get_current_div_scroll_velocity() {
   return *GFX_STATE.scroll_ptr;
 }
 
-void gfx_set_line_height(uint32_t line_height) {
+void gfx_set_line_height(unsigned int line_height) {
   GFX_STATE.current_line_height = line_height;
 }
 
-uint32_t gfx_get_line_height() {
+unsigned int gfx_get_line_height() {
   return GFX_STATE.current_line_height;
 }
 
@@ -841,7 +775,7 @@ void gfx_set_div_hoverable(bool clickable) {
   GFX_STATE.div_hoverable = clickable;
 }
 
-void gfx_push_element_id(int64_t id) {
+void gfx_push_element_id(long id) {
   GFX_STATE.element_id_stack = id;
 }
 
@@ -850,16 +784,16 @@ void gfx_pop_element_id() {
 }
 
 gfx_color gfx_color_brightness(gfx_color color, float brightness) {
-  uint32_t adjustedR = (int)(color.r * brightness);
-  uint32_t adjustedG = (int)(color.g * brightness);
-  uint32_t adjustedB = (int)(color.b * brightness);
+  unsigned int adjustedR = (int)(color.r * brightness);
+  unsigned int adjustedG = (int)(color.g * brightness);
+  unsigned int adjustedB = (int)(color.b * brightness);
   color.r = (unsigned char)(adjustedR > 255 ? 255 : adjustedR);
   color.g = (unsigned char)(adjustedG > 255 ? 255 : adjustedG);
   color.b = (unsigned char)(adjustedB > 255 ? 255 : adjustedB);
   return color; 
 }
 
-gfx_color gfx_color_alpha(gfx_color color, uint8_t a) {
+gfx_color gfx_color_alpha(gfx_color color, unsigned char a) {
   return (gfx_color){ color.r, color.g, color.b, a };
 }
 
@@ -867,7 +801,7 @@ vec4s gfx_color_to_zto(gfx_color color) {
   return (vec4s){ color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f };
 }
 
-gfx_color gfx_color_from_hex(uint32_t hex) {
+gfx_color gfx_color_from_hex(unsigned int hex) {
   gfx_color color;
   color.r = (hex>> 16) & 0xFF;
   color.g = (hex >> 8) & 0xFF; 
@@ -877,7 +811,7 @@ gfx_color gfx_color_from_hex(uint32_t hex) {
 }
 
 gfx_color gfx_color_from_zto(vec4s zto) {
-  return (gfx_color){ (uint8_t)(zto.r * 255.0f), (uint8_t)(zto.g * 255.0f), (uint8_t)(zto.b * 255.0f), (uint8_t)(zto.a * 255.0f) };
+  return (gfx_color){ (unsigned char)(zto.r * 255.0f), (unsigned char)(zto.g * 255.0f), (unsigned char)(zto.b * 255.0f), (unsigned char)(zto.a * 255.0f) };
 }
 
 void gfx_image(gfx_texture tex) {
@@ -935,14 +869,14 @@ void gfx_seperator() {
   gfx_element_props props = gfx_internal_get_props_for(GFX_STATE.theme.button_props);
   GFX_STATE.pos_ptr.x += props.margin_left;
   GFX_STATE.pos_ptr.y += props.margin_top;
-  const uint32_t seperator_height = 1;
+  const unsigned int seperator_height = 1;
   gfx_set_line_height(props.margin_top + seperator_height + props.margin_bottom);
-  gfx_rect_render(GFX_STATE.pos_ptr, (vec2s){ GFX_STATE.current_div.aabb.size.x - props.margin_left * 2.0f, seperator_height }, props.color, gfx_no_color, 0, props.corner_radius, 0.0f);
+  gfx_rect_render(GFX_STATE.pos_ptr, (vec2s){ GFX_STATE.current_div.aabb.size.x - props.margin_left * 2.0f, seperator_height }, props.color, GFX_NO_COLOR, 0, props.corner_radius, 0.0f);
   GFX_STATE.pos_ptr.y -= props.margin_top;
   gfx_next_line();
 }
 
-void gfx_set_clipboard_text(const char* text) {
+void gfx_set_clipboard_text(const char *text) {
   clipboard_set_text(GFX_STATE.clipboard, text);
 }
 

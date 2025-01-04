@@ -10,7 +10,7 @@ void phy_contact_presolve(phy_space *space, phy_persistent_contact_pair *pcp, fl
   phy_vector2 tangent = phy_vector2_perpr(normal);
   float e = phy_mix_coefficients(a->material.restitution, b->material.restitution, space->settings.restitution_mix);
   float friction = phy_mix_coefficients(a->material.friction, b->material.friction, space->settings.friction_mix);
-  for (size_t i = 0; i < pcp->contact_count; i++) {
+  for (unsigned int i = 0; i < pcp->contact_count; i++) {
     phy_contact *contact = &pcp->contacts[i];
     if (contact->separation > 0.0) {
       continue;
@@ -40,7 +40,7 @@ void phy_contact_warmstart(phy_space *space, phy_persistent_contact_pair *pcp) {
   phy_rigid_body *b = pcp->body_b;
   phy_vector2 normal = pcp->normal;
   phy_vector2 tangent = phy_vector2_perpr(normal);
-  for (size_t i = 0; i < pcp->contact_count; i++) { 
+  for (unsigned int i = 0; i < pcp->contact_count; i++) { 
     phy_contact *contact = &pcp->contacts[i];
     if (contact->separation > 0.0) {
       continue;
@@ -66,7 +66,7 @@ void phy_contact_solve_velocity(phy_persistent_contact_pair *pcp) {
   phy_rigid_body *b = pcp->body_b;
   phy_vector2 normal = pcp->normal;
   phy_vector2 tangent = phy_vector2_perpr(normal);
-  for (size_t i = 0; i < pcp->contact_count; i++) {
+  for (unsigned int i = 0; i < pcp->contact_count; i++) {
     phy_contact *contact = &pcp->contacts[i];
     phy_contact_solver_info *solver_info = &contact->solver_info;
     if (solver_info->friction == 0.0) {
@@ -82,7 +82,7 @@ void phy_contact_solve_velocity(phy_persistent_contact_pair *pcp) {
     phy_rigid_body_apply_impulse(a, phy_vector2_neg(impulse), contact->anchor_a);
     phy_rigid_body_apply_impulse(b, impulse, contact->anchor_b);
   }
-  for (size_t i = 0; i < pcp->contact_count; i++) {
+  for (unsigned int i = 0; i < pcp->contact_count; i++) {
     phy_contact *contact = &pcp->contacts[i];
     if (contact->separation > 0.0) {
       continue;

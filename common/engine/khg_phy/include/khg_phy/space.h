@@ -10,7 +10,6 @@
 #include "khg_phy/core/phy_hashmap.h"
 #include "khg_phy/core/phy_pool.h"
 #include <stdbool.h>
-#include <stdint.h>
 
 typedef struct phy_space {
   phy_array *bodies;
@@ -19,7 +18,7 @@ typedef struct phy_space {
   phy_hashmap *removed_contacts;
   phy_memory_pool *broadphase_pairs;
   phy_array *bvh_traversed;
-  uint32_t id_counter;
+  unsigned int id_counter;
   phy_vector2 gravity;
   phy_space_settings settings;
   phy_broadphase_algorithm broadphase_algorithm;
@@ -49,10 +48,10 @@ int phy_space_remove_rigidbody(phy_space *space, phy_rigid_body *body);
 int phy_space_add_constraint(phy_space *space, phy_constraint *cons);
 int phy_space_remove_constraint(phy_space *space, phy_constraint *cons);
 
-bool phy_space_iter_bodies(phy_space *space, phy_rigid_body **body, size_t *index);
-bool phy_space_iter_constraints(phy_space *space, phy_constraint **cons, size_t *index);
+bool phy_space_iter_bodies(phy_space *space, phy_rigid_body **body, unsigned int *index);
+bool phy_space_iter_constraints(phy_space *space, phy_constraint **cons, unsigned int *index);
 
 void phy_space_step(phy_space *space, float dt);
 
-void phy_space_cast_ray(phy_space *space, phy_vector2 from, phy_vector2 to, phy_raycast_result *results_array, size_t *num_hits, size_t capacity);
+void phy_space_cast_ray(phy_space *space, phy_vector2 from, phy_vector2 to, phy_raycast_result *results_array, unsigned int *num_hits, unsigned int capacity);
 

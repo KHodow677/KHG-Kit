@@ -13,7 +13,7 @@ ecs_id PHYSICS_SYSTEM_SIGNATURE;
 
 comp_physics_constructor_info *PHYSICS_CONSTRUCTOR_INFO = NULL;
 
-static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const size_t entity_count, const ecs_dt dt, void *udata) {
+static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
   if (dt == 0.0f) {
     return 0;
   }

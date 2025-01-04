@@ -51,9 +51,9 @@ typedef struct lex_state {
   khs_lex_token buffer;
 } khs_lex_state;
 
-const char *khs_lex_err_str(khs_lex_token tok, size_t *str_len);
+const char *khs_lex_err_str(khs_lex_token tok, unsigned int *str_len);
 
-void khs_lex_state_init(khs_lex_state *state, const char *src, size_t src_len);
+void khs_lex_state_init(khs_lex_state *state, const char *src, unsigned int src_len);
 
 khs_lex_token khs_lex_peek(khs_lex_state *state);
 khs_lex_token khs_lex_pop(khs_lex_state *state);

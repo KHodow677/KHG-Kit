@@ -4,17 +4,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define gfx_primary_item_color (gfx_color){ 133, 138, 148, 255 }
-#define gfx_secondary_item_color (gfx_color){ 96, 100, 107, 255 }
+#define GFX_PRIMARY_ITEM_COLOR (gfx_color){ 133, 138, 148, 255 }
+#define GFX_SECONDARY_ITEM_COLOR (gfx_color){ 96, 100, 107, 255 }
 
-#define gfx_no_color (gfx_color){0, 0, 0, 0}
-#define gfx_white (gfx_color){ 255, 255, 255, 255 }
-#define gfx_black (gfx_color){ 0, 0, 0, 255 }
-#define gfx_red (gfx_color){ 255, 0, 0, 255 }
-#define gfx_green (gfx_color){ 0, 255, 0, 255 }
-#define gfx_blue (gfx_color){ 0, 0, 255, 255 }
+#define GFX_NO_COLOR (gfx_color){0, 0, 0, 0}
+#define GFX_WHITE (gfx_color){ 255, 255, 255, 255 }
+#define GFX_BLACK (gfx_color){ 0, 0, 0, 255 }
+#define GFX_RED (gfx_color){ 255, 0, 0, 255 }
+#define GFX_GREEN (gfx_color){ 0, 255, 0, 255 }
+#define GFX_BLUE (gfx_color){ 0, 0, 255, 255 }
 
-void gfx_init_glfw(uint32_t display_width, uint32_t display_height, void *glfw_window);
+void gfx_init_glfw(unsigned int display_width, unsigned int display_height, void *glfw_window);
 const int gfx_loop_manager(GLFWwindow *window, const bool show_fps);
 const bool gfx_loop(const float delta);
 const bool gfx_loop_post(const float delta);

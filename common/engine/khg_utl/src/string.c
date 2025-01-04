@@ -1782,6 +1782,21 @@ size_t utl_string_length_cstr(const char *str) {
   return (size_t)strlen(str);
 }
 
+char* utl_string_strndup(const char* str, size_t n) {
+  size_t len = strlen(str);
+  if (len > n) { 
+    len = n;
+  }
+  char* result = (char*)malloc(len + 1);
+  if (!result) { 
+    utl_error_func("Memory allocation failed", utl_user_defined_data);
+    return NULL;
+  }
+  result[len] = '\0';
+  memcpy(result, str, len);
+  return result;
+}
+
 size_t utl_string_length_utf8(const char *str) {
   if (!str) {
     utl_error_func("The string is null", utl_user_defined_data);

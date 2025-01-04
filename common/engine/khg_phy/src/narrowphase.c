@@ -27,7 +27,7 @@ static void generate_contact_pair(phy_persistent_contact_pair *pcp, phy_rigid_bo
 }
 
 void phy_narrow_phase(phy_space *space) {
-  for (size_t i = 0; i < space->broadphase_pairs->current_size; i++) {
+  for (unsigned int i = 0; i < space->broadphase_pairs->current_size; i++) {
     void *pool_i = (char *)space->broadphase_pairs->pool + i * space->broadphase_pairs->chunk_size;
     phy_rigid_body *body_a = ((phy_broadphase_pair *)pool_i)->a;
     phy_rigid_body *body_b = ((phy_broadphase_pair *)pool_i)->b;
@@ -36,9 +36,9 @@ void phy_narrow_phase(phy_space *space) {
     }
     phy_vector2 com_a = phy_vector2_rotate(body_a->com, body_a->angle);
     phy_vector2 com_b = phy_vector2_rotate(body_b->com, body_b->angle);
-    for (size_t j = 0; j < body_a->shapes->size; j++) {
+    for (unsigned int j = 0; j < body_a->shapes->size; j++) {
       phy_shape *shape_a = body_a->shapes->data[j];
-      for (size_t k = 0; k < body_b->shapes->size; k++) {
+      for (unsigned int k = 0; k < body_b->shapes->size; k++) {
         phy_shape *shape_b = body_b->shapes->data[k];
         phy_persistent_contact_pair *old_pcp = phy_hashmap_get(space->contacts, &(phy_persistent_contact_pair){.shape_a=shape_a, .shape_b=shape_b});
         if (old_pcp) {
@@ -46,13 +46,13 @@ void phy_narrow_phase(phy_space *space) {
           generate_contact_pair(&pcp, body_a, body_b, shape_a, shape_b);
           phy_contact_event persisted_queue[6];
           phy_contact_event removed_queue[6];
-          size_t persisted_queue_size = 0;
-          size_t removed_queue_size = 0;
-          for (size_t c = 0; c < pcp.contact_count; c++) {
+          unsigned int persisted_queue_size = 0;
+          unsigned int removed_queue_size = 0;
+          for (unsigned int c = 0; c < pcp.contact_count; c++) {
             phy_contact *contact = &pcp.contacts[c];
             contact->anchor_a = phy_vector2_sub(contact->anchor_a, com_a);
             contact->anchor_b = phy_vector2_sub(contact->anchor_b, com_b);
-            for (size_t old_c = 0; old_c < old_pcp->contact_count; old_c++) {
+            for (unsigned int old_c = 0; old_c < old_pcp->contact_count; old_c++) {
               phy_contact old_contact = old_pcp->contacts[old_c];
               if (old_contact.id == contact->id) {
                 contact->is_persisted = true;
@@ -79,7 +79,7 @@ void phy_narrow_phase(phy_space *space) {
             }
           }
           if (pcp.contact_count == 0 && old_pcp->contact_count > 0) {
-            for (size_t old_c = 0; old_c < old_pcp->contact_count; old_c++) {
+            for (unsigned int old_c = 0; old_c < old_pcp->contact_count; old_c++) {
               phy_contact *contact = &old_pcp->contacts[old_c];
               phy_contact_event event = { .body_a = body_a, .body_b = body_b, .shape_a = shape_a, .shape_b = shape_b, .normal = pcp.normal, .penetration = contact->separation, .position = phy_vector2_add(body_a->position, contact->anchor_a), .normal_impulse = {contact->solver_info.normal_impulse}, .friction_impulse = {contact->solver_info.tangent_impulse}, .id = contact->id };
               if (space->listener && !contact->remove_invoked) {
@@ -91,23 +91,23 @@ void phy_narrow_phase(phy_space *space) {
             }
           }
           phy_hashmap_set(space->contacts, &pcp);
-          for (size_t qi = 0; qi < persisted_queue_size; qi++) {
+          for (unsigned int qi = 0; qi < persisted_queue_size; qi++) {
             space->listener->on_contact_persisted(space, persisted_queue[qi], space->listener_arg);
           }
-          for (size_t qi = 0; qi < removed_queue_size; qi++) {
+          for (unsigned int qi = 0; qi < removed_queue_size; qi++) {
             space->listener->on_contact_removed(space, removed_queue[qi], space->listener_arg);
           }
         }
         else {
           phy_persistent_contact_pair pcp;
           generate_contact_pair(&pcp, body_a, body_b, shape_a, shape_b);
-          for (size_t c = 0; c < pcp.contact_count; c++) {
+          for (unsigned int c = 0; c < pcp.contact_count; c++) {
             phy_contact *contact = &pcp.contacts[c];
             contact->anchor_a = phy_vector2_sub(contact->anchor_a, com_a);
             contact->anchor_b = phy_vector2_sub(contact->anchor_b, com_b);
           }
           phy_hashmap_set(space->contacts, &pcp);
-          for (size_t c = 0; c < pcp.contact_count; c++) {
+          for (unsigned int c = 0; c < pcp.contact_count; c++) {
             phy_contact *contact = &pcp.contacts[c];
             if (space->listener && space->listener->on_contact_added && contact->separation < 0.0) {
               phy_contact_event event = { .body_a = body_a, .body_b = body_b, .shape_a = shape_a, .shape_b = shape_b, .normal = pcp.normal, .penetration = contact->separation, .position = phy_vector2_add(body_a->position, contact->anchor_a), .normal_impulse = {contact->solver_info.normal_impulse}, .friction_impulse = {contact->solver_info.tangent_impulse}, .id = contact->id }; space->listener->on_contact_added(space, event, space->listener_arg);

@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-void *ecs_realloc_zero(ecs_ecs *ecs, void *ptr, size_t old_size, size_t new_size) {
+void *ecs_realloc_zero(ecs_ecs *ecs, void *ptr, unsigned int old_size, unsigned int new_size) {
   (void)ecs;
   ptr = realloc(ptr, new_size);
   if (new_size > old_size && ptr) {
-    size_t diff = new_size - old_size;
+    unsigned int diff = new_size - old_size;
     void *start = ((char *)ptr)+ old_size;
     memset(start, 0, diff);
   }
@@ -17,7 +17,7 @@ void *ecs_realloc_zero(ecs_ecs *ecs, void *ptr, size_t old_size, size_t new_size
 
 void ecs_flush_destroyed(ecs_ecs *ecs) {
   ecs_stack *destroy_queue = &ecs->destroy_queue;
-  for (size_t i = 0; i < destroy_queue->size; i++) {
+  for (unsigned int i = 0; i < destroy_queue->size; i++) {
     ecs_id entity_id = destroy_queue->array[i];
     if (ecs_is_ready(ecs, entity_id)) {
       ecs_destroy(ecs, entity_id);
@@ -28,7 +28,7 @@ void ecs_flush_destroyed(ecs_ecs *ecs) {
 
 void ecs_flush_removed(ecs_ecs *ecs) {
   ecs_stack *remove_queue = &ecs->remove_queue;
-  for (size_t i = 0; i < remove_queue->size; i += 2) {
+  for (unsigned int i = 0; i < remove_queue->size; i += 2) {
     ecs_id entity_id = remove_queue->array[i];
     if (ecs_is_ready(ecs, entity_id)) {
       ecs_id comp_id = remove_queue->array[i + 1];
@@ -42,7 +42,7 @@ bool ecs_bitset_is_zero(ecs_bitset *set) {
   return *set == 0;
 }
 
-void ecs_bitset_flip(ecs_bitset *set, size_t bit, bool on) {
+void ecs_bitset_flip(ecs_bitset *set, unsigned int bit, bool on) {
   if (on) {
     *set |=  ((uint64_t)1 << bit);
   }
@@ -51,7 +51,7 @@ void ecs_bitset_flip(ecs_bitset *set, size_t bit, bool on) {
   }
 }
 
-bool ecs_bitset_test(ecs_bitset *set, size_t bit) {
+bool ecs_bitset_test(ecs_bitset *set, unsigned int bit) {
   return *set & ((uint64_t)1 << bit);
 }
 
@@ -75,7 +75,7 @@ bool ecs_bitset_true(ecs_bitset *set) {
   return *set;
 }
 
-void ecs_sparse_set_init(ecs_ecs *ecs, ecs_sparse_set *set, size_t capacity) {
+void ecs_sparse_set_init(ecs_ecs *ecs, ecs_sparse_set *set, unsigned int capacity) {
   assert(ecs_is_not_null(ecs));
   assert(ecs_is_not_null(set));
   assert(capacity > 0);
@@ -83,8 +83,8 @@ void ecs_sparse_set_init(ecs_ecs *ecs, ecs_sparse_set *set, size_t capacity) {
   set->capacity = capacity;
   set->size = 0;
   set->dense  = (ecs_id *)malloc(capacity * sizeof(ecs_id));
-  set->sparse = (size_t *)malloc(capacity * sizeof(size_t));
-  memset(set->sparse, 0, capacity * sizeof(size_t));
+  set->sparse = (unsigned int *)malloc(capacity * sizeof(unsigned int));
+  memset(set->sparse, 0, capacity * sizeof(unsigned int));
 }
 
 void ecs_sparse_set_free(ecs_ecs *ecs, ecs_sparse_set *set) {
@@ -100,13 +100,13 @@ bool ecs_sparse_set_add(ecs_ecs *ecs, ecs_sparse_set *set, ecs_id id) {
   assert(ecs_is_not_null(set));
   (void)ecs;
   if (id >= set->capacity) {
-    size_t old_capacity = set->capacity;
-    size_t new_capacity = old_capacity;
+    unsigned int old_capacity = set->capacity;
+    unsigned int new_capacity = old_capacity;
     while (new_capacity <= id) {
       new_capacity += (new_capacity / 2) + 2;
     }
     set->dense = (ecs_id *)realloc(set->dense, new_capacity * sizeof(ecs_id));
-    set->sparse = (size_t *)ecs_realloc_zero(ecs, set->sparse, old_capacity * sizeof(size_t), new_capacity * sizeof(size_t));
+    set->sparse = (unsigned int *)ecs_realloc_zero(ecs, set->sparse, old_capacity * sizeof(unsigned int), new_capacity * sizeof(unsigned int));
     set->capacity = new_capacity;
   }
   if (ECS_NULL != ecs_sparse_set_find(set, id)) {
@@ -118,7 +118,7 @@ bool ecs_sparse_set_add(ecs_ecs *ecs, ecs_sparse_set *set, ecs_id id) {
   return true;
 }
 
-size_t ecs_sparse_set_find(ecs_sparse_set *set, ecs_id id) {
+unsigned int ecs_sparse_set_find(ecs_sparse_set *set, ecs_id id) {
   assert(ecs_is_not_null(set));
   if (set->sparse[id] < set->size && set->dense[set->sparse[id]] == id) {
     return set->sparse[id];
@@ -151,7 +151,7 @@ bool ecs_entity_system_test(ecs_bitset *require_bits, ecs_bitset *exclude_bits, 
   return ecs_bitset_equal(&entity_and_require, require_bits);
 }
 
-void ecs_stack_init(ecs_ecs *ecs, ecs_stack *stack, size_t capacity) {
+void ecs_stack_init(ecs_ecs *ecs, ecs_stack *stack, unsigned int capacity) {
   assert(ecs_is_not_null(ecs));
   assert(ecs_is_not_null(stack));
   assert(capacity > 0);
@@ -185,11 +185,11 @@ ecs_id ecs_stack_pop(ecs_stack *stack) {
   return stack->array[--stack->size];
 }
 
-size_t ecs_stack_size(ecs_stack *stack) {
+unsigned int ecs_stack_size(ecs_stack *stack) {
   return stack->size;
 }
 
-void ecs_array_init(ecs_ecs *ecs, ecs_array *array, size_t size, size_t capacity) {
+void ecs_array_init(ecs_ecs *ecs, ecs_array *array, unsigned int size, unsigned int capacity) {
   assert(ecs_is_not_null(ecs));
   assert(ecs_is_not_null(array));
   (void)ecs;
@@ -207,7 +207,7 @@ void ecs_array_free(ecs_ecs *ecs, ecs_array *array) {
   free(array->data);
 }
 
-void ecs_array_resize(ecs_ecs *ecs, ecs_array *array, size_t capacity) {
+void ecs_array_resize(ecs_ecs *ecs, ecs_array *array, unsigned int capacity) {
   assert(ecs_is_not_null(ecs));
   assert(ecs_is_not_null(array));
   (void)ecs;
