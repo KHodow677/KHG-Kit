@@ -1,5 +1,4 @@
 #include "khg_thd/concurrent.h"
-#include <bits/pthreadtypes.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -405,7 +404,7 @@ int thd_thread_create(thd_thread *thr, thd_thread_start func, void *arg) {
   return THD_THREAD_SUCCESS;
 }
 
-uint32_t thd_thread_current(void) {
+unsigned int thd_thread_current(void) {
 #if defined(_WIN32) || defined(_WIN64)
   return GetCurrentThreadId();
 #else
@@ -413,7 +412,7 @@ uint32_t thd_thread_current(void) {
 #endif
 }
 
-uint32_t thd_thread_hardware_concurrency(void) {
+unsigned int thd_thread_hardware_concurrency(void) {
 #if defined(_WIN32) || defined(_WIN64)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
@@ -446,7 +445,7 @@ void thd_thread_exit(int res) {
   }
   ExitThread((DWORD)res);
 #else
-  pthread_exit((void*)(intptr_t)res);
+  pthread_exit((void *)&res);
 #endif
 }
 
@@ -471,7 +470,7 @@ int thd_thread_join(thd_thread thr, int *res) {
     return THD_THREAD_ERROR;
   }
   if (res != NULL) {
-    *res = (int)(intptr_t)pres;
+    *res = (int)(*(int *)pres);
   }
 #endif
   return THD_THREAD_SUCCESS;

@@ -21,7 +21,7 @@ static inline bool nvBroadPhase_early_out(phy_space *space, phy_rigid_body *a, p
   if ((a->collision_mask & b->collision_category) == 0 || (b->collision_mask & a->collision_category) == 0) {
     return true;
   }
-  for (size_t i = 0; i < space->constraints->size; i++) {
+  for (unsigned int i = 0; i < space->constraints->size; i++) {
     phy_constraint *cons = space->constraints->data[i];
     if (cons->ignore_collision && ((a == cons->a && b == cons->b) || (a == cons->b && b == cons->a))) {
       return true;
@@ -32,11 +32,11 @@ static inline bool nvBroadPhase_early_out(phy_space *space, phy_rigid_body *a, p
 
 void phy_broadphase_brute_force(phy_space *space) {
   phy_memory_pool_clear(space->broadphase_pairs);
-  for (size_t i = 0; i < space->bodies->size; i++) {
+  for (unsigned int i = 0; i < space->bodies->size; i++) {
     phy_rigid_body *a = (phy_rigid_body *)space->bodies->data[i];
     phy_transform xform_a = (phy_transform){a->origin, a->angle};
     phy_aabb abox = phy_rigid_body_get_aabb(a);
-    for (size_t j = 0; j < space->bodies->size; j++) { 
+    for (unsigned int j = 0; j < space->bodies->size; j++) { 
       phy_rigid_body *b = (phy_rigid_body *)space->bodies->data[j];
       if (nvBroadPhase_early_out(space, a, b)) {
         continue;
@@ -46,10 +46,10 @@ void phy_broadphase_brute_force(phy_space *space) {
       phy_aabb bbox = phy_rigid_body_get_aabb(b);
       bool overlaps = false;
       if (phy_collide_aabb_x_aabb(abox, bbox)) {
-        for (size_t k = 0; k < a->shapes->size; k++) {
+        for (unsigned int k = 0; k < a->shapes->size; k++) {
           phy_shape *shape_a = a->shapes->data[k];
           phy_aabb sabox = phy_shape_get_aabb(shape_a, xform_a);
-          for (size_t l = 0; l < b->shapes->size; l++) {
+          for (unsigned int l = 0; l < b->shapes->size; l++) {
             phy_shape *shape_b = b->shapes->data[l];
             phy_aabb sbbox = phy_shape_get_aabb(shape_b, xform_b);
             if (phy_collide_aabb_x_aabb(sabox, sbbox)) {
@@ -71,14 +71,14 @@ void phy_broadphase_brute_force(phy_space *space) {
 
 void phy_broadphase_bvh(phy_space *space) {
   phy_memory_pool_clear(space->broadphase_pairs);
-  for (size_t i = 0; i < space->bodies->size; i++) {
+  for (unsigned int i = 0; i < space->bodies->size; i++) {
     phy_rigid_body *body = space->bodies->data[i];
     phy_aabb aabb = phy_rigid_body_get_aabb(body);
     body->bvh_median_x = (aabb.min_x + aabb.max_x) * 0.5;
     body->bvh_median_y = (aabb.min_y + aabb.max_y) * 0.5;
   }
   phy_bvh_node *bvh = phy_bvh_tree_new(space->bodies);
-  for (size_t i = 0; i < space->bodies->size; i++) {
+  for (unsigned int i = 0; i < space->bodies->size; i++) {
     phy_rigid_body *a = space->bodies->data[i];
     phy_aabb aabb = phy_rigid_body_get_aabb(a);
     phy_array_clear(space->bvh_traversed, NULL);
@@ -86,7 +86,7 @@ void phy_broadphase_bvh(phy_space *space) {
     if (space->bvh_traversed->size == 0) {
       continue;
     }
-    for (size_t j = 0; j < space->bvh_traversed->size; j++) {
+    for (unsigned int j = 0; j < space->bvh_traversed->size; j++) {
       phy_rigid_body *b = space->bvh_traversed->data[j];
       if (nvBroadPhase_early_out(space, a, b)) {
         continue;
@@ -104,7 +104,7 @@ void phy_broadphase_bvh(phy_space *space) {
 void phy_broadphase_finalize(phy_space *space) {
   phy_hashmap_clear(space->removed_contacts);
   void *map_val;
-  size_t map_iter = 0;
+  unsigned int map_iter = 0;
   while (phy_hashmap_iter(space->contacts, &map_iter, &map_val)) {
     phy_persistent_contact_pair *pcp = map_val;
     phy_rigid_body *a = pcp->body_a;
@@ -112,14 +112,14 @@ void phy_broadphase_finalize(phy_space *space) {
     phy_aabb abox = phy_rigid_body_get_aabb(a);
     phy_aabb bbox = phy_rigid_body_get_aabb(b);
     if (!phy_collide_aabb_x_aabb(abox, bbox)) {
-      for (size_t k = 0; k < a->shapes->size; k++) {
+      for (unsigned int k = 0; k < a->shapes->size; k++) {
         phy_shape *shape_a = a->shapes->data[k];
-        for (size_t l = 0; l < b->shapes->size; l++) {
+        for (unsigned int l = 0; l < b->shapes->size; l++) {
           phy_shape *shape_b = b->shapes->data[l];
           phy_persistent_contact_pair *key = &(phy_persistent_contact_pair){.shape_a=shape_a, .shape_b=shape_b};
           phy_persistent_contact_pair *pcp = phy_hashmap_get(space->contacts, key);
           if (pcp) {
-            for (size_t c = 0; c < pcp->contact_count; c++) {
+            for (unsigned int c = 0; c < pcp->contact_count; c++) {
               phy_contact *contact = &pcp->contacts[c];
               phy_contact_event event = { .body_a = pcp->body_a, .body_b = pcp->body_b, .shape_a = pcp->shape_a, .shape_b = pcp->shape_b, .normal = pcp->normal, .penetration = contact->separation, .position = phy_vector2_add(pcp->body_a->position, contact->anchor_a), .normal_impulse = {contact->solver_info.normal_impulse}, .friction_impulse = {contact->solver_info.tangent_impulse}, .id = contact->id };
               if (space->listener && !contact->remove_invoked) {

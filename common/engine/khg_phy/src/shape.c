@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-static uint32_t id_counter;
+static unsigned int id_counter;
 
 phy_shape *phy_circle_shape_new(phy_vector2 center, float radius) {
   phy_shape *shape = malloc(sizeof(phy_shape));
@@ -19,7 +19,7 @@ phy_shape *phy_circle_shape_new(phy_vector2 center, float radius) {
   return shape;
 }
 
-phy_shape *phy_polygon_shape_new(phy_vector2 *vertices, size_t num_vertices, phy_vector2 offset) {
+phy_shape *phy_polygon_shape_new(phy_vector2 *vertices, unsigned int num_vertices, phy_vector2 offset) {
   if (num_vertices > PHY_POLYGON_MAX_VERTICES) {
     utl_error_func("Maximum number of vertices per convex polygon shape exceeded", utl_user_defined_data);
     return NULL;
@@ -36,13 +36,13 @@ phy_shape *phy_polygon_shape_new(phy_vector2 *vertices, size_t num_vertices, phy
   shape->type = PHY_SHAPE_TYPE_POLYGON;
   phy_polygon *polygon = &shape->polygon;
   polygon->num_vertices = num_vertices;
-  for (size_t i = 0; i < num_vertices; i++) {
+  for (unsigned int i = 0; i < num_vertices; i++) {
     polygon->vertices[i] = phy_vector2_add(vertices[i], offset);
   }
-  for (size_t i = 0; i < num_vertices; i++) {
+  for (unsigned int i = 0; i < num_vertices; i++) {
     polygon->xvertices[i] = phy_vector2_zero;
   }
-  for (size_t i = 0; i < num_vertices; i++) {
+  for (unsigned int i = 0; i < num_vertices; i++) {
     phy_vector2 va = polygon->vertices[i];
     phy_vector2 vb = polygon->vertices[(i + 1) % num_vertices];
     phy_vector2 edge = phy_vector2_sub(vb, va);
@@ -59,7 +59,7 @@ phy_shape *phy_rect_shape_new(float width, float height, phy_vector2 offset) {
   return phy_polygon_shape_new(vertices, 4, offset);
 }
 
-phy_shape *phy_ngon_shape_new(size_t n, float radius, phy_vector2 offset) {
+phy_shape *phy_ngon_shape_new(unsigned int n, float radius, phy_vector2 offset) {
   if (n < 3) {
     utl_error_func("Polygon shape created with fewer than 3 vertices", utl_user_defined_data);
     return NULL;
@@ -70,23 +70,23 @@ phy_shape *phy_ngon_shape_new(size_t n, float radius, phy_vector2 offset) {
   }
   phy_vector2 vertices[PHY_POLYGON_MAX_VERTICES];
   phy_vector2 arm = phy_vector2_new(radius, 0.0);
-  for (size_t i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     vertices[i] = arm;
     arm = phy_vector2_rotate(arm, 2.0 * PHY_PI / (float)n);
   }
   return phy_polygon_shape_new(vertices, n, offset);
 }
 
-phy_shape *phy_convex_hull_shape_new(phy_vector2 *points, size_t num_points, phy_vector2 offset, bool center){
+phy_shape *phy_convex_hull_shape_new(phy_vector2 *points, unsigned int num_points, phy_vector2 offset, bool center){
   if (num_points < 3) {
     utl_error_func("Polygon shape created with fewer than 3 vertices", utl_user_defined_data);
     return NULL;
   }
   phy_vector2 vertices[PHY_POLYGON_MAX_VERTICES];
-  size_t num_vertices = phy_generate_convex_hull(points, num_points, vertices);
+  unsigned int num_vertices = phy_generate_convex_hull(points, num_points, vertices);
   if (center) {
     phy_vector2 hull_centroid = phy_polygon_centroid(vertices, num_vertices);
-    for (size_t i = 0; i < num_vertices; i++) {
+    for (unsigned int i = 0; i < num_vertices; i++) {
       vertices[i] = phy_vector2_sub(vertices[i], hull_centroid);
     }
   }
@@ -119,7 +119,7 @@ phy_aabb phy_shape_get_aabb(phy_shape *shape, phy_transform xform) {
       max_x = -INFINITY;
       max_y = -INFINITY;
       phy_polygon_transform(shape, xform);
-      for (size_t i = 0; i < shape->polygon.num_vertices; i++) {
+      for (unsigned int i = 0; i < shape->polygon.num_vertices; i++) {
         phy_vector2 v = shape->polygon.xvertices[i];
         if (v.x < min_x) {
           min_x = v.x;
@@ -165,7 +165,7 @@ phy_shape_mass_info phy_shape_calculate_mass(phy_shape *shape, float density) {
 }
 
 void phy_polygon_transform(phy_shape *shape, phy_transform xform) {
-  for (size_t i = 0; i < shape->polygon.num_vertices; i++) {
+  for (unsigned int i = 0; i < shape->polygon.num_vertices; i++) {
     phy_vector2 new = phy_vector2_add(xform.position, phy_vector2_rotate(shape->polygon.vertices[i], xform.angle));
     shape->polygon.xvertices[i] = new;
   }

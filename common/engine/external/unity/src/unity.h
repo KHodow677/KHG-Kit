@@ -29,8 +29,8 @@ extern "C"
  * If using unity directly, these will need to be provided for each test
  * executable built. If you are using the test runner generator and/or
  * Ceedling, these are optional. */
-void setUp(void);
-void tearDown(void);
+void set_up(void);
+void tear_down(void);
 
 /* These functions are intended to be called at the beginning and end of an
  * entire test suite.  suiteTearDown() is passed the number of tests that
@@ -38,8 +38,8 @@ void tearDown(void);
  * Unity directly, you're in charge of calling these if they are desired.
  * If using Ceedling or the test runner generator, these will be called
  * automatically if they exist. */
-void suiteSetUp(void);
-int suiteTearDown(int num_failures);
+void suite_set_up(void);
+int suite_tear_down(int num_failures);
 
 /*-------------------------------------------------------
  * Test Reset and Verify
@@ -50,8 +50,8 @@ int suiteTearDown(int num_failures);
  * the test runner generator will create them. resetTest will run teardown and
  * setup again, verifying any end-of-test needs between. verifyTest will only
  * run the verification. */
-void resetTest(void);
-void verifyTest(void);
+void reset_test(void);
+void verify_test(void);
 
 /*-------------------------------------------------------
  * Configuration Options
@@ -119,7 +119,7 @@ void verifyTest(void);
  *-------------------------------------------------------
 
  * These macros do nothing, but they are useful for additional build context.
- * Tools (like Ceedling) can scan for these directives and make use of them for 
+ * Tools (like Ceedling) can scan for these directives and make use of them for
  * per-test-executable #include search paths and linking. */
 
 /* Add source files to a test executable's compilation and linking. Ex: TEST_SOURCE_FILE("sandwiches.c") */

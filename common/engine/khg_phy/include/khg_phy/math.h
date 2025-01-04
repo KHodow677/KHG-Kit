@@ -4,7 +4,6 @@
 #include "khg_phy/core/phy_vector.h"
 #include <math.h>
 #include <stdlib.h>
-#include <stdint.h>
 
 typedef struct phy_transform {
   phy_vector2 position;
@@ -13,11 +12,11 @@ typedef struct phy_transform {
 
 static phy_vector2 phy_convex_hull_pivot;
 
-static inline uint64_t phy_u32_pair(uint32_t x, uint32_t y) {
-  return (uint64_t)x << 32 | y;
+static inline unsigned long phy_u32_pair(unsigned int x, unsigned int y) {
+  return (unsigned long)x << 32 | y;
 }
 
-static inline uint32_t phy_u32_hash(uint32_t x) {
+static inline unsigned int phy_u32_hash(unsigned int x) {
   x = ((x >> 16) ^ x) * 0x45d9f3b;
   x = ((x >> 16) ^ x) * 0x45d9f3b;
   x = (x >> 16) ^ x;
@@ -52,10 +51,10 @@ static inline float phy_circle_inertia(float mass, float radius, phy_vector2 off
   return 0.5 * mass * (radius * radius) + mass * phy_vector2_len2(offset);
 }
 
-static inline float phy_polygon_area(phy_vector2 *vertices, size_t num_vertices) {
+static inline float phy_polygon_area(phy_vector2 *vertices, unsigned int num_vertices) {
   float area = 0.0f;
-  size_t j = num_vertices - 1;
-  for (size_t i = 0; i < num_vertices; i++) {
+  unsigned int j = num_vertices - 1;
+  for (unsigned int i = 0; i < num_vertices; i++) {
     phy_vector2 va = vertices[i];
     phy_vector2 vb = vertices[j];
     area += (vb.x + va.x) * (vb.y - va.y);
@@ -64,10 +63,10 @@ static inline float phy_polygon_area(phy_vector2 *vertices, size_t num_vertices)
   return fabsf(area / 2.0f);
 }
 
-static inline float phy_polygon_inertia(float mass, phy_vector2 *vertices, size_t num_vertices) {
+static inline float phy_polygon_inertia(float mass, phy_vector2 *vertices, unsigned int num_vertices) {
   float sum1 = 0.0;
   float sum2 = 0.0;
-  for (size_t i = 0; i < num_vertices; i++) {
+  for (unsigned int i = 0; i < num_vertices; i++) {
     phy_vector2 v1 = vertices[i];
     phy_vector2 v2 = vertices[(i + 1) % num_vertices];
     float a = phy_vector2_cross(v2, v1);
@@ -78,9 +77,9 @@ static inline float phy_polygon_inertia(float mass, phy_vector2 *vertices, size_
   return (mass * sum1) / (6.0 * sum2);
 }
 
-static inline phy_vector2 phy_polygon_centroid(phy_vector2 *vertices, size_t num_vertices) {
+static inline phy_vector2 phy_polygon_centroid(phy_vector2 *vertices, unsigned int num_vertices) {
   phy_vector2 sum = phy_vector2_zero;
-  for (size_t i = 0; i < num_vertices; i++) {
+  for (unsigned int i = 0; i < num_vertices; i++) {
     sum = phy_vector2_add(sum, vertices[i]);
   }
   return phy_vector2_div(sum, (float)num_vertices);
@@ -131,12 +130,12 @@ static int phy_convex_hull_cmp(const void *el0, const void *el1) {
   }
 }
 
-static inline size_t phy_generate_convex_hull(phy_vector2 *points, size_t num_points, phy_vector2 *vertices) {
-  size_t n = num_points;
-  size_t current_min_i = 0;
+static inline unsigned int phy_generate_convex_hull(phy_vector2 *points, unsigned int num_points, phy_vector2 *vertices) {
+  unsigned int n = num_points;
+  unsigned int current_min_i = 0;
   float min_y = points[current_min_i].x;
   phy_vector2 pivot;
-  for (size_t i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     phy_vector2 v = points[i];
     if (v.y < min_y || (v.y == min_y && v.x < points[current_min_i].x)) {
       current_min_i = i;
@@ -149,35 +148,35 @@ static inline size_t phy_generate_convex_hull(phy_vector2 *points, size_t num_po
   pivot = points[0];
   phy_convex_hull_pivot = pivot;
   phy_vector2 tmp_points[n];
-  for (size_t i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     phy_vector2 v = points[i];
     tmp_points[i] = v;
   }
   qsort(&tmp_points[1], n - 1, sizeof(phy_vector2), phy_convex_hull_cmp);
-  for (size_t i = 0; i < n; i++) {
+  for (unsigned int i = 0; i < n; i++) {
     phy_vector2 *v = &points[i];
     v->x = tmp_points[i].x;
     v->y = tmp_points[i].y;
   }
   phy_vector2 *hull = malloc(sizeof(phy_vector2) * n);
-  size_t hull_size = 3;
+  unsigned int hull_size = 3;
   hull[0] = points[0];
   hull[1] = points[1];
   hull[2] = points[2];
-  for (size_t i = 3; i < n; i++) {
+  for (unsigned int i = 3; i < n; i++) {
     while (hull_size > 1 && phy_convex_hull_orientation(hull[hull_size - 2], hull[hull_size - 1], points[i]) != 2) {
       hull_size--;
     }
     hull[hull_size++] = points[i];
   }
-  size_t final_size;
+  unsigned int final_size;
   if (hull_size > PHY_POLYGON_MAX_VERTICES) {
     final_size = PHY_POLYGON_MAX_VERTICES;
   }
   else {
     final_size = hull_size;
   }
-  for (size_t i = 0; i < final_size; i++) {
+  for (unsigned int i = 0; i < final_size; i++) {
     vertices[i] = hull[i];
   }
   free(hull);

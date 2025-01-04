@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdint.h>
 #include <time.h>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -104,8 +103,8 @@ int thd_thread_detach(thd_thread thr);
 int thd_thread_equal(thd_thread thr0, thd_thread thr1);
 int thd_thread_join(thd_thread thr, int *res);
 int thd_thread_sleep(const struct timespec *duration, struct timespec *remaining);
-uint32_t thd_thread_current(void);
-uint32_t thd_thread_hardware_concurrency(void);
+unsigned int thd_thread_current(void);
+unsigned int thd_thread_hardware_concurrency(void);
 
 void thd_thread_exit(int res);
 void thd_thread_yield(void);

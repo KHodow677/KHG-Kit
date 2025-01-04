@@ -10,25 +10,25 @@ static net_socket_ssl_mapping SSL_MAPPINGS[NET_MAX_SSL_CONNECTIONS];
 static SSL_CTX *SSL_CONTEXT = NULL;
 
 static void net_initialize_ssl_mappings() {
-  for (size_t i = 0; i < NET_MAX_SSL_CONNECTIONS; i++) {
+  for (unsigned int i = 0; i < NET_MAX_SSL_CONNECTIONS; i++) {
     SSL_MAPPINGS[i].socket = -1;
     SSL_MAPPINGS[i].ssl = NULL;
   }
 }
 
 static net_socket_ssl_mapping *net_get_ssl_mapping(net_tcp_socket socket, bool allocate) {
-  net_socket_ssl_mapping *emptySlot = NULL;
-  for (size_t i = 0; i < NET_MAX_SSL_CONNECTIONS; i++) {
+  net_socket_ssl_mapping *empty_slot = NULL;
+  for (unsigned int i = 0; i < NET_MAX_SSL_CONNECTIONS; i++) {
     if (SSL_MAPPINGS[i].socket == socket) {
       return &SSL_MAPPINGS[i];
     } 
-    else if (!emptySlot && SSL_MAPPINGS[i].socket == NET_TCP_INVALID_SOCKET && allocate) {
-      emptySlot = &SSL_MAPPINGS[i];
+    else if (!empty_slot && SSL_MAPPINGS[i].socket == NET_TCP_INVALID_SOCKET && allocate) {
+      empty_slot = &SSL_MAPPINGS[i];
     }
   }
-  if (allocate && emptySlot) {
-    emptySlot->socket = socket;
-    return emptySlot;
+  if (allocate && empty_slot) {
+    empty_slot->socket = socket;
+    return empty_slot;
   }
   return NULL;
 }
@@ -79,7 +79,7 @@ net_tcp_status net_tcp_socket_create(net_tcp_socket *sock) {
   *sock = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
   if (*sock == NET_TCP_INVALID_SOCKET) {
     utl_error_func("Socket creation failed", utl_user_defined_data);
-    return TCP_ERR_SOCKET;
+    return NET_TCP_ERR_SOCKET;
   }
 #else
   *sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -91,7 +91,7 @@ net_tcp_status net_tcp_socket_create(net_tcp_socket *sock) {
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_bind(net_tcp_socket sock, const char *host, uint16_t port) {
+net_tcp_status net_tcp_bind(net_tcp_socket sock, const char *host, unsigned short port) {
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof(addr));
   addr.sin_family = AF_INET;
@@ -112,7 +112,7 @@ net_tcp_status net_tcp_bind(net_tcp_socket sock, const char *host, uint16_t port
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_listen(net_tcp_socket socket, int16_t backlog) {
+net_tcp_status net_tcp_listen(net_tcp_socket socket, short backlog) {
   if (listen(socket, backlog) < 0) {
     utl_error_func("Listening on socket failed", utl_user_defined_data);
     return NET_TCP_ERR_LISTEN;
@@ -134,7 +134,7 @@ net_tcp_status net_tcp_accept(net_tcp_socket socket, net_tcp_socket *client_sock
     net_tcp_get_last_error(&status_info);
 #if defined(_WIN32) || defined(_WIN64)
     if (status_info.sys_errno == WSAEWOULDBLOCK) {
-      return TCP_ERR_WOULD_BLOCK;
+      return NET_TCP_ERR_WOULD_BLOCK;
     }
 #else
     if (status_info.sys_errno == EAGAIN || status_info.sys_errno == EWOULDBLOCK) {
@@ -149,7 +149,7 @@ net_tcp_status net_tcp_accept(net_tcp_socket socket, net_tcp_socket *client_sock
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_connect(net_tcp_socket socket, const char *host, uint16_t port) {
+net_tcp_status net_tcp_connect(net_tcp_socket socket, const char *host, unsigned short port) {
   if (host == NULL || host[0] == '\0') {
     utl_error_func("Host parameter is null or empty", utl_user_defined_data);
     return NET_TCP_ERR_RESOLVE; 
@@ -173,11 +173,11 @@ net_tcp_status net_tcp_connect(net_tcp_socket socket, const char *host, uint16_t
 
 net_tcp_status net_tcp_init(void) {
 #if defined(_WIN32) || defined(_WIN64)
-  WSADATA wsaData;
-  int16_t result = WSAStartup(MAKEWORD(2,2), &wsaData);
+  WSADATA wsa_data;
+  short result = WSAStartup(MAKEWORD(2,2), &wsa_data);
   if (result != 0) {
     utl_error_func("WSAStartup failed", utl_user_defined_data);
-    return TCP_ERR_SETUP;
+    return NET_TCP_ERR_SETUP;
   }
 #endif
   return NET_TCP_SUCCESS;
@@ -190,12 +190,12 @@ net_tcp_status net_tcp_cleanup(void) {
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, size_t len, size_t *sent) {
+net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, unsigned int len, unsigned int *sent) {
   if (!buf || len == 0) {
     utl_error_func("Buffer is null or length is 0", utl_user_defined_data);
     return NET_TCP_ERR_SEND;
   }
-  size_t bytes_sent = 0;
+  unsigned int bytes_sent = 0;
   while (len > 0) {
 #if defined(_WIN32) || defined(_WIN64)
     WSABUF wsaBuf;
@@ -203,10 +203,10 @@ net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, size_t len, 
     wsaBuf.len = (ULONG)len;
     DWORD flags = 0;
     DWORD bytesSent = 0;
-    int16_t result = WSASend(socket, &wsaBuf, 1, &bytesSent, flags, NULL, NULL);
+    short result = WSASend(socket, &wsaBuf, 1, &bytesSent, flags, NULL, NULL);
     if (result == SOCKET_ERROR) {
       if (sent) {
-        *sent = (size_t)bytes_sent;
+        *sent = (unsigned int)bytes_sent;
       }
       utl_error_func("Sending data failed", utl_user_defined_data);
       return TCP_ERR_SEND;
@@ -219,7 +219,7 @@ net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, size_t len, 
         return NET_TCP_ERR_CLOSE;
       }
       if (sent) {
-        *sent = (size_t)bytes_sent;
+        *sent = (unsigned int)bytes_sent;
       }
       utl_error_func("Sending data failed", utl_user_defined_data);
       return NET_TCP_ERR_SEND;
@@ -229,36 +229,36 @@ net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, size_t len, 
     len -= bytes_sent;
   }
   if (sent) {
-    *sent = (size_t)bytes_sent;
+    *sent = (unsigned int)bytes_sent;
   }
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_recv(net_tcp_socket socket, void *buf, size_t len, size_t *received) {
+net_tcp_status net_tcp_recv(net_tcp_socket socket, void *buf, unsigned int len, unsigned int *received) {
   if (!buf || len == 0) {
     utl_error_func("Buffer is null or length is 0", utl_user_defined_data);
     return NET_TCP_ERR_RECV;
   }
-  size_t bytes_received = 0;
+  unsigned int bytes_received = 0;
 #if defined(_WIN32) || defined(_WIN64)
   WSABUF wsaBuf;
   wsaBuf.buf = (CHAR*)buf;
   wsaBuf.len = (ULONG)len;
   DWORD flags = 0;
   DWORD bytesRecvd = 0;
-  int16_t result = WSARecv(socket, &wsaBuf, 1, &bytesRecvd, &flags, NULL, NULL);
+  short result = WSARecv(socket, &wsaBuf, 1, &bytesRecvd, &flags, NULL, NULL);
   if (result == SOCKET_ERROR) {
     bytes_received = SOCKET_ERROR;
   } 
   else {
-    bytes_received = (size_t)bytesRecvd;
+    bytes_received = (unsigned int)bytesRecvd;
   }
 #else
   bytes_received = recv(socket, buf, len, 0);
 #endif
   if (bytes_received > 0) {
     if (received) {
-      *received = (size_t)bytes_received;
+      *received = (unsigned int)bytes_received;
     }
     return NET_TCP_SUCCESS;
   } 
@@ -272,7 +272,7 @@ net_tcp_status net_tcp_recv(net_tcp_socket socket, void *buf, size_t len, size_t
 }
 
 net_tcp_status net_tcp_close(net_tcp_socket socket) {
-  int16_t result = 0;
+  short result = 0;
 #if defined(_WIN32) || defined(_WIN64)
   result = closesocket(socket);
   if (result == SOCKET_ERROR) {
@@ -290,39 +290,39 @@ net_tcp_status net_tcp_close(net_tcp_socket socket) {
 }
 
 net_tcp_status net_tcp_shutdown(net_tcp_socket socket, net_tcp_shutdown_how how) {
-  int16_t shutdownHow;
+  short shutdown_how;
 #if defined(_WIN32) || defined(_WIN64)
   switch (how) {
     case TCP_SHUTDOWN_RECEIVE:
-      shutdownHow = SD_RECEIVE;
+      shutdown_how = SD_RECEIVE;
       break;
     case TCP_SHUTDOWN_SEND:
-      shutdownHow = SD_SEND;
+      shutdown_how = SD_SEND;
       break;
     case TCP_SHUTDOWN_BOTH:
-      shutdownHow = SD_BOTH;
+      shutdown_how = SD_BOTH;
       break;
     default:
       utl_error_func("Invalid shutdown operation specified", utl_user_defined_data);
-      return TCP_ERR_GENERIC;
+      return NET_TCP_ERR_GENERIC;
     }
 #else
   switch (how) {
     case NET_TCP_SHUTDOWN_RECEIVE:
-      shutdownHow = SHUT_RD;
+      shutdown_how = SHUT_RD;
       break;
     case NET_TCP_SHUTDOWN_SEND:
-      shutdownHow = SHUT_WR;
+      shutdown_how = SHUT_WR;
       break;
     case NET_TCP_SHUTDOWN_BOTH:
-      shutdownHow = SHUT_RDWR;
+      shutdown_how = SHUT_RDWR;
       break;
     default:
       utl_error_func("Invalid shutdown operation specified", utl_user_defined_data);
       return NET_TCP_ERR_GENERIC;
     }
 #endif
-  if (shutdown(socket, shutdownHow) == -1) {
+  if (shutdown(socket, shutdown_how) == -1) {
     net_tcp_status_info status_info;
     net_tcp_get_last_error(&status_info);
     utl_error_func("Shutting down socket failed", utl_user_defined_data);
@@ -331,8 +331,8 @@ net_tcp_status net_tcp_shutdown(net_tcp_socket socket, net_tcp_shutdown_how how)
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_set_timeout(net_tcp_socket socket, net_tcp_timeout_operation operation, uint32_t timeout_ms) {
-  int16_t result;
+net_tcp_status net_tcp_set_timeout(net_tcp_socket socket, net_tcp_timeout_operation operation, unsigned int timeout_ms) {
+  short result;
 #if defined(_WIN32) || defined(_WIN64)
   DWORD timeout = (DWORD)timeout_ms;
 #else
@@ -357,9 +357,9 @@ net_tcp_status net_tcp_set_timeout(net_tcp_socket socket, net_tcp_timeout_operat
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_resolve_hostname(const char *hostname, char *ip_address, size_t ip_address_len) {
+net_tcp_status net_tcp_resolve_hostname(const char *hostname, char *ip_address, unsigned int ip_address_len) {
   struct addrinfo hints, *res, *p;
-  int16_t status;
+  short status;
   void *addr;
   if (!hostname || !ip_address) {
     utl_error_func("Null parameter provided", utl_user_defined_data);
@@ -404,7 +404,7 @@ net_tcp_status net_tcp_set_non_blocking(net_tcp_socket socket, bool enable) {
     return TCP_ERR_GENERIC;
   }
 #else
-  int16_t flags = fcntl(socket, F_GETFL, 0);
+  short flags = fcntl(socket, F_GETFL, 0);
   if (flags == -1) {
     net_tcp_status_info status_info;
     net_tcp_get_last_error(&status_info);
@@ -420,7 +420,7 @@ net_tcp_status net_tcp_set_non_blocking(net_tcp_socket socket, bool enable) {
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_get_local_address(net_tcp_socket socket, char *address, size_t address_len, uint16_t *port) {
+net_tcp_status net_tcp_get_local_address(net_tcp_socket socket, char *address, unsigned int address_len, unsigned short *port) {
   struct sockaddr_storage addr;
   socklen_t len = sizeof(addr);
   if (!address || address_len == 0 || !port) {
@@ -455,7 +455,7 @@ net_tcp_status net_tcp_get_local_address(net_tcp_socket socket, char *address, s
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_get_remote_address(net_tcp_socket socket, char *address, size_t address_len, uint16_t *port) {
+net_tcp_status net_tcp_get_remote_address(net_tcp_socket socket, char *address, unsigned int address_len, unsigned short *port) {
   struct sockaddr_storage addr;
   socklen_t len = sizeof(addr);
   if (!address || address_len == 0 || !port) {
@@ -491,8 +491,8 @@ net_tcp_status net_tcp_get_remote_address(net_tcp_socket socket, char *address, 
 }
 
 net_tcp_status net_tcp_set_reuse_address(net_tcp_socket socket, bool enabled) {
-  int16_t optval = enabled ? 1 : 0;
-  int16_t result;
+  short optval = enabled ? 1 : 0;
+  short result;
 #if defined(_WIN32) || defined(_WIN64)
   result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&optval, sizeof(optval));
 #else
@@ -505,7 +505,7 @@ net_tcp_status net_tcp_set_reuse_address(net_tcp_socket socket, bool enabled) {
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_get_peer_name(net_tcp_socket socket, char *host, size_t host_len, uint16_t *port) {
+net_tcp_status net_tcp_get_peer_name(net_tcp_socket socket, char *host, unsigned int host_len, unsigned short *port) {
   struct sockaddr_storage addr;
   socklen_t len = sizeof(addr);
   if (getpeername(socket, (struct sockaddr *)&addr, &len) != 0) {
@@ -535,7 +535,7 @@ net_tcp_status net_tcp_get_peer_name(net_tcp_socket socket, char *host, size_t h
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_get_sock_name(net_tcp_socket socket, char *host, size_t host_len, uint16_t *port) {
+net_tcp_status net_tcp_get_sock_name(net_tcp_socket socket, char *host, unsigned int host_len, unsigned short *port) {
   struct sockaddr_storage addr;
   socklen_t len = sizeof(addr);
   if (getsockname(socket, (struct sockaddr *)&addr, &len) != 0) {
@@ -602,8 +602,8 @@ net_tcp_status net_tcp_disable_ssl(net_tcp_socket socket) {
     utl_error_func("No SSL object associated with the socket", utl_user_defined_data);
     return NET_TCP_ERR_NO_SSL;
   }
-  int16_t shutdownResult = SSL_shutdown(ssl);
-  if (shutdownResult == 0) {
+  short shutdown_result = SSL_shutdown(ssl);
+  if (shutdown_result == 0) {
     SSL_shutdown(ssl);
   }
   SSL_free(ssl);
@@ -708,9 +708,9 @@ net_tcp_status net_tcp_ssl_accept(net_tcp_socket socket) {
     SSL_free(ssl);
     return NET_TCP_ERR_SSL;
   }
-  int16_t acceptResult = SSL_accept(ssl);
-  if (acceptResult <= 0) {
-    int16_t sslError = SSL_get_error(ssl, acceptResult);
+  short accept_result = SSL_accept(ssl);
+  if (accept_result <= 0) {
+    short sslError = SSL_get_error(ssl, accept_result);
     utl_error_func("SSL accept failed", utl_user_defined_data);
     if (sslError == SSL_ERROR_SYSCALL) {
       unsigned long err;
@@ -741,27 +741,27 @@ net_tcp_status net_tcp_ssl_close(net_tcp_socket socket) {
     net_tcp_close(socket);
     return NET_TCP_ERR_NO_SSL;
   }
-  int16_t shutdownResult = SSL_shutdown(ssl);
-  if (shutdownResult == 0) {
-    shutdownResult = SSL_shutdown(ssl);
-    if (shutdownResult != 1) {
+  short shutdown_result = SSL_shutdown(ssl);
+  if (shutdown_result == 0) {
+    shutdown_result = SSL_shutdown(ssl);
+    if (shutdown_result != 1) {
       utl_error_func("SSL shutdown did not complete cleanly", utl_user_defined_data);
     }
   } 
-  else if (shutdownResult < 0) {
+  else if (shutdown_result < 0) {
     utl_error_func("SSL shutdown failed", utl_user_defined_data);
   }
   SSL_free(ssl);
   net_tcp_set_ssl(socket, NULL);
-  net_tcp_status closeStatus = net_tcp_close(socket);
-  if (closeStatus != NET_TCP_SUCCESS) {
+  net_tcp_status close_status = net_tcp_close(socket);
+  if (close_status != NET_TCP_SUCCESS) {
     utl_error_func("Socket close failed", utl_user_defined_data);
-    return closeStatus;
+    return close_status;
   }
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_ssl_send(net_tcp_socket socket, const void *buf, size_t len, size_t *sent) {
+net_tcp_status net_tcp_ssl_send(net_tcp_socket socket, const void *buf, unsigned int len, unsigned int *sent) {
   if (!buf || len == 0) {
     utl_error_func("Invalid buffer or length for SSL send", utl_user_defined_data);
     return NET_TCP_ERR_SEND;
@@ -771,18 +771,18 @@ net_tcp_status net_tcp_ssl_send(net_tcp_socket socket, const void *buf, size_t l
     utl_error_func("No SSL object associated with the socket", utl_user_defined_data);
     return NET_TCP_ERR_NO_SSL;
   }
-  int16_t totalSent = 0;
-  int16_t result = 0;
-  const char *dataPtr = (const char *)buf;
+  short total_sent = 0;
+  short result = 0;
+  const char *data_ptr = (const char *)buf;
   while (len > 0) {
-    result = SSL_write(ssl, dataPtr, len);
+    result = SSL_write(ssl, data_ptr, len);
     if (result <= 0) {
-      int16_t sslError = SSL_get_error(ssl, result);
+      short sslError = SSL_get_error(ssl, result);
       switch (sslError) {
         case SSL_ERROR_WANT_WRITE:
         case SSL_ERROR_WANT_READ:
           if (sent) {
-            *sent = totalSent;
+            *sent = total_sent;
           }
           return NET_TCP_SUCCESS;
         case SSL_ERROR_ZERO_RETURN:
@@ -796,17 +796,17 @@ net_tcp_status net_tcp_ssl_send(net_tcp_socket socket, const void *buf, size_t l
           return NET_TCP_ERR_SEND;
       }
     }
-    totalSent += result;
-    dataPtr += result;
+    total_sent += result;
+    data_ptr += result;
     len -= result;
   }
   if (sent) {
-    *sent = totalSent;
+    *sent = total_sent;
   }
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, size_t len, size_t *received) {
+net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, unsigned int len, unsigned int *received) {
   if (!buf || len == 0) {
     utl_error_func("Invalid buffer or length for SSL receive", utl_user_defined_data);
     return NET_TCP_ERR_RECV;
@@ -816,7 +816,7 @@ net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, size_t len, si
     utl_error_func("[tcp_ssl_recv] No SSL object associated with the socket", utl_user_defined_data);
     return NET_TCP_ERR_NO_SSL;
   }
-  int16_t result = SSL_read(ssl, buf, len);
+  short result = SSL_read(ssl, buf, len);
   if (result > 0) {
     if (received) {
       *received = result;
@@ -824,8 +824,8 @@ net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, size_t len, si
     return NET_TCP_SUCCESS;
   } 
   else {
-    int16_t sslError = SSL_get_error(ssl, result);
-    switch (sslError) {
+    short ssl_error = SSL_get_error(ssl, result);
+    switch (ssl_error) {
       case SSL_ERROR_WANT_READ:
       case SSL_ERROR_WANT_WRITE:
         if (received) {
@@ -861,7 +861,7 @@ net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, size_t len, si
 net_tcp_status net_tcp_get_connection_quality(net_tcp_socket socket, float *rtt, float *variance) {
 #if defined(_WIN32) || defined(_WIN64)
   utl_error_func("Direct RTT measurement not supported on Windows", utl_user_defined_data);
-  return TCP_ERR_UNSUPPORTED;
+  return NET_TCP_ERR_UNSUPPORTED;
 #else
   struct tcp_info info;
   socklen_t len = sizeof(info);
@@ -878,11 +878,11 @@ net_tcp_status net_tcp_get_connection_quality(net_tcp_socket socket, float *rtt,
 #endif
 }
 
-net_tcp_status net_tcp_async_send(net_tcp_socket socket, const void *buf, size_t len) {
-  size_t result = send(socket, buf, len, 0);
-  if (result == (size_t)NET_TCP_INVALID_SOCKET) {
+net_tcp_status net_tcp_async_send(net_tcp_socket socket, const void *buf, unsigned int len) {
+  unsigned int result = send(socket, buf, len, 0);
+  if (result == (unsigned int)NET_TCP_INVALID_SOCKET) {
 #if defined(_WIN32) || defined(_WIN64)
-    int16_t lastError = WSAGetLastError();
+    short lastError = WSAGetLastError();
     if (lastError == WSAEWOULDBLOCK) {
       utl_error_func("Connection is blocked", utl_user_defined_data);
       return TCP_ERR_WOULD_BLOCK;
@@ -898,14 +898,14 @@ net_tcp_status net_tcp_async_send(net_tcp_socket socket, const void *buf, size_t
   return NET_TCP_SUCCESS;
 }
 
-net_tcp_status net_tcp_async_recv(net_tcp_socket socket, void *buf, size_t len) {
-  size_t result = recv(socket, buf, len, 0);
-  if (result == (size_t)NET_TCP_INVALID_SOCKET) {
+net_tcp_status net_tcp_async_recv(net_tcp_socket socket, void *buf, unsigned int len) {
+  unsigned int result = recv(socket, buf, len, 0);
+  if (result == (unsigned int)NET_TCP_INVALID_SOCKET) {
 #if defined(_WIN32) || defined(_WIN64)
-    int16_t lastError = WSAGetLastError();
-    if (lastError == WSAEWOULDBLOCK) {
-        TCP_LOG("[tcp_async_recv] Error: No data available to read; non-blocking operation.\n");
-        return TCP_ERR_WOULD_BLOCK;
+    short last_error = WSAGetLastError();
+    if (last_error == WSAEWOULDBLOCK) {
+      utl_error_func("No data available to read", utl_user_defined_data);
+      return NET_TCP_ERR_WOULD_BLOCK;
     }
 #else
     if (errno == EAGAIN || errno == EWOULDBLOCK) {

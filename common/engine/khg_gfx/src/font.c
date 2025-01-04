@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <wctype.h>
 
-static void renderer_add_glyph(stbtt_aligned_quad q, int32_t max_descended_char_height, gfx_color color, uint32_t tex_index) {
+static void renderer_add_glyph(stbtt_aligned_quad q, int max_descended_char_height, gfx_color color, unsigned int tex_index) {
   vec2s texcoords[4] = { q.s0, q.t0, q.s1, q.t0, q.s1, q.t1, q.s0, q.t1 };
   vec2s verts[4] = { 
     (vec2s){ q.x0, q.y0 + max_descended_char_height }, 
@@ -18,8 +18,8 @@ static void renderer_add_glyph(stbtt_aligned_quad q, int32_t max_descended_char_
     (vec2s){ q.x1, q.y1 + max_descended_char_height },
     (vec2s){ q.x0, q.y1 + max_descended_char_height }
   }; 
-  for (uint32_t i = 0; i < 4; i++) {
-    if(GFX_STATE.render.vert_count >= MAX_RENDER_BATCH) {
+  for (unsigned int i = 0; i < 4; i++) {
+    if(GFX_STATE.render.vert_count >= GFX_MAX_RENDER_BATCH) {
       gfx_internal_renderer_flush();
       gfx_internal_renderer_begin();
     }
@@ -48,15 +48,15 @@ static void renderer_add_glyph(stbtt_aligned_quad q, int32_t max_descended_char_
   GFX_STATE.render.index_count += 6; 
 }
 
-gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font font, gfx_color color, int32_t wrap_point, vec2s stop_point, bool no_render, bool render_solid, int32_t start_index, int32_t end_index) {
+gfx_text_props gfx_text_render_char(vec2s pos, const char *str, gfx_font font, gfx_color color, int wrap_point, vec2s stop_point, bool no_render, bool render_solid, int start_index, int end_index) {
   bool culled = gfx_internal_item_should_cull((gfx_aabb){ .pos = (vec2s){ pos.x, pos.y + gfx_internal_get_current_font().font_size }, .size = (vec2s){ -1, -1 } }, true);
   float tex_index = -1.0f;
   if (!culled && !no_render) {
-    if (GFX_STATE.render.tex_count - 1 >= MAX_TEX_COUNT_BATCH - 1) {
+    if (GFX_STATE.render.tex_count - 1 >= GFX_MAX_TEX_COUNT_BATCH - 1) {
       gfx_internal_renderer_flush();
       gfx_internal_renderer_begin();
     }
-    for (uint32_t i = 0; i < GFX_STATE.render.tex_count; i++) {
+    for (unsigned int i = 0; i < GFX_STATE.render.tex_count; i++) {
       if (GFX_STATE.render.textures[i].id == font.bitmap.id) {
         tex_index = (float)i;
         break;
@@ -72,11 +72,11 @@ gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font fon
   gfx_text_props ret = { 0 };
   float x = pos.x;
   float y = pos.y;
-  int32_t max_descended_char_height = get_max_char_height_font(font);
+  int max_descended_char_height = get_max_char_height_font(font);
   float last_x = x;
   float height = get_max_char_height_font(font);
   float width = 0;
-  uint32_t i = 0;
+  int i = 0;
   while (str[i] != L'\0') {
     if (str[i] >= font.num_glyphs) {
       i++;
@@ -91,7 +91,7 @@ gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font fon
       break;
     }
     float word_width = 0;
-    uint32_t j = i;
+    unsigned int j = i;
     while (str[j] != L' ' && str[j] != L'\n' && str[j] != L'\0') {
       stbtt_aligned_quad q;
       stbtt_GetBakedQuad((stbtt_bakedchar *)font.cdata, font.tex_width, font.tex_height, str[j] - 32, &word_width, &y, &q, 0);
@@ -137,7 +137,7 @@ gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font fon
     }
     if (!culled && !no_render && GFX_STATE.renderer_render) {
       if (render_solid) {
-        gfx_rect_render((vec2s){ x, y }, (vec2s){ last_x - x, get_max_char_height_font(font) }, color, gfx_no_color, 0.0f, 0.0f, 0.0f);
+        gfx_rect_render((vec2s){ x, y }, (vec2s){ last_x - x, get_max_char_height_font(font) }, color, GFX_NO_COLOR, 0.0f, 0.0f, 0.0f);
       } else {
         renderer_add_glyph(q, max_descended_char_height, color, tex_index);
       }
@@ -156,7 +156,7 @@ gfx_text_props gfx_text_render_wchar(vec2s pos, const wchar_t *str, gfx_font fon
   return ret;
  }
 
-gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32_t tex_width, uint32_t tex_height,  uint32_t line_gap_add) {
+gfx_font gfx_internal_load_font(const char *filepath, unsigned int pixelsize, unsigned int tex_width, unsigned int tex_height, unsigned int line_gap_add) {
   gfx_font font = { 0 };
   FILE *file = fopen(filepath, "rb");
   if (file == NULL) {
@@ -165,8 +165,8 @@ gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32
   fseek(file, 0, SEEK_END);
   long fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
-  uint8_t *buffer = (uint8_t *)malloc(fileSize);
-  size_t bytesRead = fread(buffer, 1, fileSize, file);
+  unsigned char *buffer = (unsigned char *)malloc(fileSize);
+  unsigned int bytesRead = fread(buffer, 1, fileSize, file);
   fclose(file); 
   if (bytesRead != fileSize) {
     utl_error_func("Failed to read font file", utl_user_defined_data);
@@ -178,8 +178,8 @@ gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32
   stbtt_InitFont((stbtt_fontinfo*)font.font_info, buffer, stbtt_GetFontOffsetForIndex(buffer, 0));
   stbtt_fontinfo *fontinfo = (stbtt_fontinfo *)font.font_info;
   int numglyphs = fontinfo->numGlyphs;
-  uint8_t *bitmap = (uint8_t *)malloc(tex_width * tex_height * sizeof(uint32_t));
-  uint8_t *bitmap_4bpp = (uint8_t *)malloc(tex_width * tex_height * 4 * sizeof(uint32_t));
+  unsigned char *bitmap = malloc(tex_width * tex_height * sizeof(unsigned int));
+  unsigned char *bitmap_4bpp = malloc(tex_width * tex_height * 4 * sizeof(unsigned int));
   font.cdata = malloc(sizeof(stbtt_bakedchar) * numglyphs);
   font.tex_width = tex_width;
   font.tex_height = tex_height;
@@ -187,8 +187,8 @@ gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32
   font.font_size = pixelsize;
   font.num_glyphs = numglyphs;
   stbtt_BakeFontBitmap(buffer, 0, pixelsize, bitmap, tex_width, tex_height, 32, numglyphs, (stbtt_bakedchar *)font.cdata);
-  uint32_t bitmap_index = 0;
-  for (uint32_t i = 0; i < (uint32_t)(tex_width * tex_height * 4); i++) {
+  unsigned int bitmap_index = 0;
+  for (unsigned int i = 0; i < (unsigned int)(tex_width * tex_height * 4); i++) {
     bitmap_4bpp[i] = bitmap[bitmap_index];
     if ((i + 1) % 4 == 0) {
       bitmap_index++;
@@ -208,10 +208,10 @@ gfx_font gfx_internal_load_font(const char *filepath, uint32_t pixelsize, uint32
   return font;
 }
 
-int32_t get_max_char_height_font(gfx_font font) {
+int get_max_char_height_font(gfx_font font) {
   float fontScale = stbtt_ScaleForPixelHeight((stbtt_fontinfo *)font.font_info, font.font_size);
-  int32_t xmin, ymin, xmax, ymax;
-  int32_t codepoint = 'p';
+  int xmin, ymin, xmax, ymax;
+  int codepoint = 'p';
   stbtt_GetCodepointBitmapBox((stbtt_fontinfo *)font.font_info, codepoint, fontScale, fontScale, &xmin, &ymin, &xmax, &ymax);
   return ymax - ymin;
 }

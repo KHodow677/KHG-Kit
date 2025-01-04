@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-char *khs_load_file(const char *path, size_t *len) {
+char *khs_load_file(const char *path, unsigned int *len) {
   FILE *f = fopen(path, "r");
   if (f == NULL) {
     return NULL;
@@ -94,7 +94,7 @@ void khs_print_file_val(FILE *f, khs_val val) {
       fprintf(f, "Tag (%llu)", (unsigned long long) khs_as_tag(val));
       break;
     case KHS_TYPE_OBJECT: {
-      struct beryl_object_class *c = khs_object_class_type(val);
+      khs_object_class *c = khs_object_class_type(val);
       fputs("Object (", f);
       fwrite(c->name, sizeof(char), c->name_len, f);
       putc(')', f); } 

@@ -28,7 +28,7 @@ typedef struct khs_stack_trace_entry {
   unsigned char type;
   const char *src, *src_end;
   const char *str;
-  size_t len;
+  unsigned int len;
 } khs_stack_trace_entry;
 
 typedef struct khs_scope_namespace {
@@ -43,15 +43,15 @@ typedef struct khs_stack_entry {
   khs_scope_namespace namespace;
 } khs_stack_entry;
 
-static size_t N_ERR_STACK_TRACE_ENTRIES = 0;
+static unsigned int N_ERR_STACK_TRACE_ENTRIES = 0;
 static khs_stack_trace_entry ERR_STACK_TRACE[KHS_ERR_STACK_TRACE_SIZE];
 
-static size_t N_BLAMED_ARGS = 0;
+static unsigned int N_BLAMED_ARGS = 0;
 static khs_val BLAMED_ARGS[KHS_MAX_BLAMED_ARGS];
 
 static void *KHS_ERRF = NULL;
 
-static void (*PRINT_CALLBACK)(void *, const char *str, size_t len) = NULL;
+static void (*PRINT_CALLBACK)(void *, const char *str, unsigned int len) = NULL;
 static void (*PRINT_VAL_CALLBACK)(void *, khs_val val) = NULL;
 
 static unsigned char TMP_ALLOC_BUFFER[KHS_TMP_ALLOC_BUFFER_SIZE];
@@ -84,7 +84,7 @@ static void khs_blame_range(khs_lex_state *lex, const char *start, const char *e
   khs_push_stack_trace((khs_stack_trace_entry){ 0, lex->src, lex->end, start, end - start });
 }
 
-static void khs_blame_name(const char *str, size_t len) {
+static void khs_blame_name(const char *str, unsigned int len) {
   khs_push_stack_trace((khs_stack_trace_entry){ .type = 1, .str = str, .len = len });
 }
 
@@ -96,14 +96,14 @@ void khs_blame_arg(khs_val val) {
 }
 
 static void khs_clear_err() {
-  for (size_t i = 0; i < N_BLAMED_ARGS; i++) {
+  for (unsigned int i = 0; i < N_BLAMED_ARGS; i++) {
     khs_release(BLAMED_ARGS[i]);
   }
   N_BLAMED_ARGS = 0;
   N_ERR_STACK_TRACE_ENTRIES = 0;
 }
 
-void khs_set_io(void (*print)(void *, const char *, size_t), void (*print_i_val)(void *, khs_val), void *err_f) {
+void khs_set_io(void (*print)(void *, const char *, unsigned int), void (*print_i_val)(void *, khs_val), void *err_f) {
   KHS_ERRF = err_f;
   PRINT_CALLBACK = print;
   PRINT_VAL_CALLBACK = print_i_val;
@@ -120,21 +120,21 @@ static void khs_print_string(void *f, const char *msg) {
   if (PRINT_CALLBACK == NULL) {
     return;
   }
-  size_t len = 0;
+  unsigned int len = 0;
   for (const char *c = msg; *c != '\0'; c++) {
     len++;
   }
   PRINT_CALLBACK(f, msg, len);
 }
 
-static void khs_print_bytes(void *f, const char *b, size_t len) {
+static void khs_print_bytes(void *f, const char *b, unsigned int len) {
   if (PRINT_CALLBACK == NULL) {
     return;
   }
   PRINT_CALLBACK(f, b, len);
 }
 
-void khs_vals_printf(void *f, const char *str, size_t strlen, const khs_val *vals, unsigned n) {
+void khs_vals_printf(void *f, const char *str, unsigned int strlen, const khs_val *vals, unsigned n) {
   assert(n <= 10);
   const char *str_end = str + strlen;
   const char *prev = NULL;
@@ -164,8 +164,8 @@ void khs_vals_printf(void *f, const char *str, size_t strlen, const khs_val *val
 
 static void khs_log_err(khs_val err_val) {
   khs_print_string(KHS_ERRF, "\n----------------\n");
-  for (size_t i = 1; i <= N_ERR_STACK_TRACE_ENTRIES; i++) {
-    size_t index = N_ERR_STACK_TRACE_ENTRIES - i;
+  for (unsigned int i = 1; i <= N_ERR_STACK_TRACE_ENTRIES; i++) {
+    unsigned int index = N_ERR_STACK_TRACE_ENTRIES - i;
     khs_stack_trace_entry entry = ERR_STACK_TRACE[index];
     if (entry.type == 1) {
       khs_print_string(KHS_ERRF, "In:\n");
@@ -174,8 +174,8 @@ static void khs_log_err(khs_val err_val) {
     else if (entry.type == 0) {
       khs_print_string(KHS_ERRF, "At:\n");
       const char *line_start;
-      size_t n_tabs = 0;
-      size_t n_spaces = 0;
+      unsigned int n_tabs = 0;
+      unsigned int n_spaces = 0;
       for (line_start = entry.str - 1; line_start >= entry.src; line_start--) {
         if (*line_start == '\n') {
           line_start++;
@@ -208,14 +208,14 @@ static void khs_log_err(khs_val err_val) {
       while (n_spaces--) {
         khs_print_bytes(KHS_ERRF, " ", 1);
       }
-      for (size_t i = 0; i < entry.len; i++) {
+      for (unsigned int i = 0; i < entry.len; i++) {
         khs_print_bytes(KHS_ERRF, "^", 1);
       }
     }
     khs_print_string(KHS_ERRF, "\n----------------\n");
   }
   if (N_BLAMED_ARGS > 0) {
-    for (size_t i = 0; i < N_BLAMED_ARGS; i++) {
+    for (unsigned int i = 0; i < N_BLAMED_ARGS; i++) {
       khs_print_val(KHS_ERRF, BLAMED_ARGS[i]);
       khs_print_string(KHS_ERRF, " ");
     }
@@ -229,7 +229,7 @@ static void khs_log_err(khs_val err_val) {
   khs_print_string(KHS_ERRF, "\n");
 }
 
-bool khs_cmp_len_strs(const char *a, size_t alen, const char *b, size_t blen) {
+bool khs_cmp_len_strs(const char *a, unsigned int alen, const char *b, unsigned int blen) {
   if (alen != blen) {
     return false;
   }
@@ -243,10 +243,10 @@ bool khs_cmp_len_strs(const char *a, size_t alen, const char *b, size_t blen) {
 }
 
 void (*free_callback)(void *ptr) = NULL;
-void *(*alloc_callback)(size_t n) = NULL;
-void *(*realloc_callback)(void *ptr, size_t) = NULL;
+void *(*alloc_callback)(unsigned int n) = NULL;
+void *(*realloc_callback)(void *ptr, unsigned int) = NULL;
 
-void khs_set_mem(void *(*alloc)(size_t), void (*free)(void *), void *(*realloc)(void *, size_t)) {
+void khs_set_mem(void *(*alloc)(unsigned int), void (*free)(void *), void *(*realloc)(void *, unsigned int)) {
   free_callback = free;
   alloc_callback = alloc;
   realloc_callback = realloc;
@@ -259,14 +259,14 @@ void khs_free(void *ptr) {
   free_callback(ptr);
 }
 
-void *khs_alloc(size_t n) {
+void *khs_alloc(unsigned int n) {
   if (alloc_callback == NULL) {
     return NULL;
   }
   return alloc_callback(n);
 }
 
-void *khs_realloc(void *ptr, size_t n) {
+void *khs_realloc(void *ptr, unsigned int n) {
   if (ptr == TMP_ALLOC_BUFFER) {
     assert(!TMP_BUFFER_FREE);
     if (n <= KHS_TMP_ALLOC_BUFFER_SIZE) {
@@ -277,7 +277,7 @@ void *khs_realloc(void *ptr, size_t n) {
       return NULL;
     }
     unsigned char *p = ptr;
-    size_t cpy_len = KHS_MIN(KHS_TMP_ALLOC_BUFFER_SIZE, n);
+    unsigned int cpy_len = KHS_MIN(KHS_TMP_ALLOC_BUFFER_SIZE, n);
     unsigned char *t = new_alloc;
     while (cpy_len--) {
       *(t++) = *(p++);
@@ -291,7 +291,7 @@ void *khs_realloc(void *ptr, size_t n) {
   return realloc_callback(ptr, n);
 }
 
-void *khs_talloc(size_t n) {
+void *khs_talloc(unsigned int n) {
   if (n < sizeof(TMP_ALLOC_BUFFER) && TMP_BUFFER_FREE) {
     TMP_BUFFER_FREE = false;
     return TMP_ALLOC_BUFFER;
@@ -345,7 +345,7 @@ khs_val khs_retain(khs_val val) {
   return val;
 }
 
-void khs_retain_values(const khs_val *items, size_t n) {
+void khs_retain_values(const khs_val *items, unsigned int n) {
   while (n--) {
     khs_retain(*(items++));
   }
@@ -393,7 +393,7 @@ void khs_release(khs_val val) {
   }
 }
 
-void khs_release_values(const khs_val *items, size_t n) {
+void khs_release_values(const khs_val *items, unsigned int n) {
   while (n--) {
     khs_release(*(items++));
   }
@@ -492,13 +492,13 @@ static khs_stack_entry *khs_get_local(const char *name, khs_size len) {
 }
 
 static khs_stack_entry *khs_index_globals(const char *name, khs_size len) {
-  size_t hash = 0;
+  unsigned int hash = 0;
   for (const char *c = name; c < name + len; c++) {
     hash *= 7;
     hash += *c;
   }
-  size_t index = hash % KHS_GLOBALS_LOOKUP_TABLE_SIZE;
-  for (size_t i = index; i < KHS_GLOBALS_LOOKUP_TABLE_SIZE; i++) {
+  unsigned int index = hash % KHS_GLOBALS_LOOKUP_TABLE_SIZE;
+  for (unsigned int i = index; i < KHS_GLOBALS_LOOKUP_TABLE_SIZE; i++) {
     khs_stack_entry *entry = &GLOBALS_LOOKUP[i];
     if (entry->name == NULL) {
       return entry;
@@ -507,7 +507,7 @@ static khs_stack_entry *khs_index_globals(const char *name, khs_size len) {
       return entry;
     }
   }
-  for (size_t i = 0; i < index; i++) {
+  for (unsigned int i = 0; i < index; i++) {
     khs_stack_entry *entry = &GLOBALS_LOOKUP[i];
     if (entry->name == NULL) {
       return entry;
@@ -685,7 +685,7 @@ khs_val khs_new_string(khs_size len, const char *from) {
   return res;
 }
 
-khs_val khs_new_object(beryl_object_class *obj_class) {
+khs_val khs_new_object(khs_object_class *obj_class) {
   assert(obj_class->obj_size >= sizeof(khs_object));
   khs_object *obj = khs_alloc(obj_class->obj_size);
   if (obj == NULL) {
@@ -697,7 +697,7 @@ khs_val khs_new_object(beryl_object_class *obj_class) {
   return val;
 }
 
-beryl_object_class *khs_object_class_type(khs_val val) {
+khs_object_class *khs_object_class_type(khs_val val) {
   if (KHS_TYPEOF(val) != KHS_TYPE_OBJECT) {
     return NULL;
   }
@@ -736,7 +736,7 @@ static bool khs_is_hashable(khs_val key) {
   }
 }
 
-static size_t khs_hash_val(khs_val key) {
+static unsigned int khs_hash_val(khs_val key) {
   assert(khs_is_hashable(key));
   switch(KHS_TYPEOF(key)) {
     case KHS_TYPE_NUMBER:
@@ -744,7 +744,7 @@ static size_t khs_hash_val(khs_val key) {
     case KHS_TYPE_BOOL:
       return khs_as_bool(key);
     case KHS_TYPE_STR: {
-      size_t hash = 0;
+      unsigned int hash = 0;
       khs_size len = key.len;
       const char *str = khs_get_raw_str(&key);
       while (len--) {
@@ -779,7 +779,7 @@ static khs_val_pair *table_get(khs_table *table, khs_val key) {
   if (table->cap == 0) {
     return NULL;
   }
-  size_t hash = khs_hash_val(key);
+  unsigned int hash = khs_hash_val(key);
   khs_size index = hash % table->cap;
   khs_val_pair *entry = khs_search_table(table, key, index, table->cap);
   if (entry != NULL) {
@@ -846,7 +846,7 @@ khs_val khs_new_table(khs_size cap, bool padding) {
   return (khs_val){ .type = KHS_TYPE_TABLE, .val.table = table, .managed = true, .len = 0 };
 }
 
-khs_val khs_static_table(khs_size cap, unsigned char *bytes, size_t bytes_size) {
+khs_val khs_static_table(khs_size cap, unsigned char *bytes, unsigned int bytes_size) {
   assert(sizeof(khs_table) + sizeof(khs_val_pair) * cap <= bytes_size);
   (void) bytes_size;
   khs_table *table = (khs_table *) bytes;
@@ -964,7 +964,7 @@ static khs_val khs_parse_do_block(khs_lex_state *lex, khs_lex_token intial_token
   if(KHS_TYPEOF(res) == KHS_TYPE_ERR)
     return res;
 
-  size_t len = end_tok.src - intial_token.src;
+  unsigned int len = end_tok.src - intial_token.src;
   if(len > KHS_SIZE_MAX) {
     khs_blame_range(lex, intial_token.src, end_tok.src + end_tok.len);
     return KHS_ERR("Function body too large");
@@ -1158,7 +1158,7 @@ static khs_val khs_parse_eval_term(khs_lex_state *lex, bool eval) {
       return KHS_ERR("Unexpected end of line");
     case KHS_TOK_ERR: {
       khs_blame_token(lex, tok);
-      size_t len;
+      unsigned int len;
       const char *msg = khs_lex_err_str(tok, &len);
       return (khs_val){ .type = KHS_TYPE_ERR, .managed = false, .len = len, .val.str = msg }; }
     default:
@@ -1396,7 +1396,7 @@ ERR:
   return err;
 }
 
-khs_val khs_call(khs_val fn, const khs_val *args, size_t n_args, bool borrow) {
+khs_val khs_call(khs_val fn, const khs_val *args, unsigned int n_args, bool borrow) {
   khs_val err;
   if (borrow) {
     khs_retain(fn);
@@ -1410,12 +1410,12 @@ khs_val khs_call(khs_val fn, const khs_val *args, size_t n_args, bool borrow) {
     case KHS_TYPE_EXT_FN: {
       khs_external_fn *ext_fn = fn.val.ext_fn;
       if (ext_fn->arity < 0) {
-        if (n_args < (size_t) -(ext_fn->arity + 1)) {
+        if (n_args < (unsigned int)-(ext_fn->arity + 1)) {
           err = KHS_ERR("Not enough arguments");
           goto ERR;
         }
       } 
-      else if (n_args != (size_t) ext_fn->arity) {
+      else if (n_args != (unsigned int)ext_fn->arity) {
         err = KHS_ERR("Wrong number of arguments");
         goto ERR;
       }
@@ -1512,7 +1512,7 @@ ERR:
   return err;
 }
 
-khs_val khs_pcall(khs_val fn, const khs_val *args, size_t n_args, bool borrow, bool print_trace) {
+khs_val khs_pcall(khs_val fn, const khs_val *args, unsigned int n_args, bool borrow, bool print_trace) {
   khs_val res = khs_call(fn, args, n_args, borrow);
   if (print_trace && KHS_TYPEOF(res) == KHS_TYPE_ERR) {
     khs_log_err(res);
@@ -1522,7 +1522,7 @@ khs_val khs_pcall(khs_val fn, const khs_val *args, size_t n_args, bool borrow, b
 }
 
 
-khs_val khs_eval(const char *src, size_t src_len, khs_err_action err) {
+khs_val khs_eval(const char *src, unsigned int src_len, khs_err_action err) {
   khs_lex_state lex;
   khs_lex_state_init(&lex, src, src_len);
   khs_stack_entry *prev_scope = khs_enter_scope();
@@ -1548,7 +1548,7 @@ void khs_clear() {
   for (khs_stack_entry *p = stack_top - 1; p >= stack_start; p--) {
     khs_release(p->val);
   }
-  for (size_t i = 0; i < KHS_GLOBALS_LOOKUP_TABLE_SIZE; i++) {
+  for (unsigned int i = 0; i < KHS_GLOBALS_LOOKUP_TABLE_SIZE; i++) {
     khs_stack_entry *entry = &GLOBALS_LOOKUP[i];
     entry->name = NULL;
     khs_release(entry->val);

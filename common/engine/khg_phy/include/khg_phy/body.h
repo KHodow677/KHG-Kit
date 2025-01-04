@@ -6,7 +6,6 @@
 #include "khg_phy/core/phy_array.h"
 #include "khg_phy/core/phy_vector.h"
 #include <stdbool.h>
-#include <stdint.h>
 #include <sys/types.h>
 
 typedef enum {
@@ -28,7 +27,7 @@ typedef struct phy_rigid_body {
   phy_vector2 com;
   void *user_data;
   struct phy_space *space;
-  uint32_t id;
+  unsigned int id;
   phy_rigid_body_type type;
   phy_array *shapes;
   phy_vector2 position;
@@ -42,9 +41,9 @@ typedef struct phy_rigid_body {
   float mass;
   float inertia;
   bool collision_enabled;
-  uint32_t collision_group;
-  uint32_t collision_category;
-  uint32_t collision_mask;
+  unsigned int collision_group;
+  unsigned int collision_category;
+  unsigned int collision_mask;
 } phy_rigid_body;
 
 typedef struct phy_rigid_body_initializer {
@@ -67,7 +66,7 @@ void *phy_rigid_body_get_user_data(const phy_rigid_body *body);
 
 struct phy_space *phy_rigid_body_get_space(const phy_rigid_body *body);
 
-uint32_t phy_rigid_body_get_id(const phy_rigid_body *body);
+unsigned int phy_rigid_body_get_id(const phy_rigid_body *body);
 
 int phy_rigid_body_set_type(phy_rigid_body *body, phy_rigid_body_type type);
 phy_rigid_body_type phy_rigid_body_get_type(const phy_rigid_body *body);
@@ -102,18 +101,18 @@ float phy_rigid_body_get_mass(const phy_rigid_body *body);
 void phy_rigid_body_set_inertia(phy_rigid_body *body, float inertia);
 float phy_rigid_body_get_inertia(const phy_rigid_body *body);
 
-void phy_rigid_body_set_collision_group(phy_rigid_body *body, uint32_t group);
-uint32_t phy_rigid_body_get_collision_group(const phy_rigid_body *body);
+void phy_rigid_body_set_collision_group(phy_rigid_body *body, unsigned int group);
+unsigned int phy_rigid_body_get_collision_group(const phy_rigid_body *body);
 
-void phy_rigid_body_set_collision_category(phy_rigid_body *body, uint32_t category);
-uint32_t phy_rigid_body_get_collision_category(const phy_rigid_body *body);
+void phy_rigid_body_set_collision_category(phy_rigid_body *body, unsigned int category);
+unsigned int phy_rigid_body_get_collision_category(const phy_rigid_body *body);
 
-void phy_rigid_body_set_collision_mask(phy_rigid_body *body, uint32_t mask);
-uint32_t phy_rigid_body_get_collision_mask(const phy_rigid_body *body);
+void phy_rigid_body_set_collision_mask(phy_rigid_body *body, unsigned int mask);
+unsigned int phy_rigid_body_get_collision_mask(const phy_rigid_body *body);
 
 int phy_rigid_body_add_shape(phy_rigid_body *body, phy_shape *shape);
 int phy_rigid_body_remove_shape(phy_rigid_body *body, phy_shape *shape);
-bool phy_rigid_body_iter_shapes(phy_rigid_body *body, phy_shape **shape, size_t *index);
+bool phy_rigid_body_iter_shapes(phy_rigid_body *body, phy_shape **shape, unsigned int *index);
 
 void phy_rigid_body_apply_force(phy_rigid_body *body, phy_vector2 force);
 void phy_rigid_body_apply_force_at(phy_rigid_body *body, phy_vector2 force, phy_vector2 position);

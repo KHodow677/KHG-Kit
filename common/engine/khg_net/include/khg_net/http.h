@@ -36,18 +36,18 @@ typedef struct net_http_request {
   utl_json_element *json_body;
   net_http_header headers[NET_MAX_HEADERS];
   net_http_query_param query_params[NET_MAX_QUERY_PARAMS];
-  size_t header_count;
-  size_t query_param_count;
-  int16_t id;
+  unsigned int header_count;
+  unsigned int query_param_count;
+  short id;
 } net_http_request;
 
 typedef struct net_http_response {
-  uint16_t status_code;
+  unsigned short status_code;
   char *status_message;
   net_http_header headers[NET_MAX_HEADERS];
   utl_json_element *json_body;
   char *body;
-  size_t header_count;
+  unsigned int header_count;
 } net_http_response;
 
 typedef void (*net_http_handler)(net_http_request *req, net_http_response *res);
@@ -62,20 +62,20 @@ net_http_method net_http_parse_method(const char *request);
 net_http_request *net_http_parse_request(const char *request);
 void net_http_free_request(net_http_request *request);
 
-void net_http_set_status(net_http_response *response, uint16_t code, const char *message);
+void net_http_set_status(net_http_response *response, unsigned short code, const char *message);
 void net_http_set_json_body(net_http_response *response, utl_json_element *json);
 void net_http_set_body(net_http_response *response, const char *body);
 void net_http_add_header(net_http_response *response, const char *header, const char *value);
 void net_http_free_response(net_http_response *response);
 
 void net_http_register_route(const char *path, net_http_method method, net_http_handler handler);
-void net_http_start_server(uint16_t port);
+void net_http_start_server(unsigned short port);
 void net_http_stop_server(void);
 void net_http_handle_request(net_tcp_socket client_socket);
 
 const char *net_http_get_header(net_http_request *req, const char *name);
 const char *net_http_get_query_param(net_http_request *req, const char *name);
-void net_http_send_error(net_http_response *res, uint16_t code, const char *message);
+void net_http_send_error(net_http_response *res, unsigned short code, const char *message);
 
 char *net_http_serialize_response(net_http_response *response);
 

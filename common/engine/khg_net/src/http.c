@@ -5,12 +5,12 @@
 #include "khg_utl/string.h"
 
 static net_http_route ROUTES[NET_MAX_ROUTES];
-static size_t ROUTE_COUNT = 0;
+static unsigned int ROUTE_COUNT = 0;
 static bool SERVER_RUNNING = true;
 
-static bool net_match_route(const char *route, const char *path, int16_t *id_out) {
-  const char* route_ptr = route;
-  const char* path_ptr = path;
+static bool net_match_route(const char *route, const char *path, short *id_out) {
+  const char *route_ptr = route;
+  const char *path_ptr = path;
   while (*route_ptr && *path_ptr) {
     if (*route_ptr == '{') {
       while (*route_ptr && *route_ptr != '}') {
@@ -35,8 +35,8 @@ static bool net_match_route(const char *route, const char *path, int16_t *id_out
 }
 
 static void net_handle_request(net_http_request *req, net_http_response *res) {
-  for (size_t i = 0; i < ROUTE_COUNT; i++) {
-    int16_t id = -1;
+  for (unsigned int i = 0; i < ROUTE_COUNT; i++) {
+    short id = -1;
     if (net_match_route(ROUTES[i].path, req->path, &id) && ROUTES[i].method == req->method) {
       req->id = id;
       ROUTES[i].handler(req, res);
@@ -134,18 +134,18 @@ void net_http_free_request(net_http_request *request) {
   if (request->json_body) {
     utl_json_deallocate(request->json_body);
   }
-  for (size_t i = 0; i < request->header_count; i++) {
+  for (unsigned int i = 0; i < request->header_count; i++) {
     free(request->headers[i].name);
     free(request->headers[i].value);
   }
-  for (size_t i = 0; i < request->query_param_count; i++) {
+  for (unsigned int i = 0; i < request->query_param_count; i++) {
     free(request->query_params[i].name);
     free(request->query_params[i].value);
   }
   free(request);
 }
 
-void net_http_set_status(net_http_response *response, uint16_t code, const char *message) {
+void net_http_set_status(net_http_response *response, unsigned short code, const char *message) {
   response->status_code = code;
   response->status_message = utl_string_strdup(message);
 }
@@ -181,10 +181,10 @@ void net_http_add_header(net_http_response *response, const char *header, const 
 }
 
 char *net_http_serialize_response(net_http_response *response) {
-  size_t estimated_size = 1024 + (response->json_body ? 1024 : 0) + (response->body ? strlen(response->body) : 0);
+  unsigned int estimated_size = 1024 + (response->json_body ? 1024 : 0) + (response->body ? strlen(response->body) : 0);
   char *buffer = (char *)malloc(estimated_size);
   snprintf(buffer, estimated_size, "HTTP/1.1 %d %s\r\n", response->status_code, response->status_message);
-  for (size_t i = 0; i < response->header_count; i++) {
+  for (unsigned int i = 0; i < response->header_count; i++) {
     strcat(buffer, response->headers[i].name);
     strcat(buffer, ": ");
     strcat(buffer, response->headers[i].value);
@@ -213,7 +213,7 @@ void net_http_free_response(net_http_response *response) {
   if (response->body) { 
     free(response->body);
   }
-  for (size_t i = 0; i < response->header_count; i++) {
+  for (unsigned int i = 0; i < response->header_count; i++) {
     free(response->headers[i].name);
     free(response->headers[i].value);
   }
@@ -228,7 +228,7 @@ void net_http_register_route(const char *path, net_http_method method, net_http_
   }
 }
 
-void net_http_start_server(uint16_t port) {
+void net_http_start_server(unsigned short port) {
   net_tcp_socket server_socket;
   net_tcp_status status;
   status = net_tcp_init();
@@ -269,7 +269,7 @@ void net_http_stop_server(void) {
 
 void net_http_handle_request(net_tcp_socket client_socket) {
   char buffer[4096];
-  size_t received;
+  unsigned int received;
   net_tcp_status status = net_tcp_recv(client_socket, buffer, sizeof(buffer), &received);
   if (status == NET_TCP_SUCCESS && received > 0) {
     buffer[received] = '\0';
@@ -289,7 +289,7 @@ void net_http_handle_request(net_tcp_socket client_socket) {
     net_handle_request(req, &res);
     char *response_str = net_http_serialize_response(&res);
     if (response_str) {
-      size_t sent;
+      unsigned int sent;
       net_tcp_send(client_socket, response_str, strlen(response_str), &sent);
       free(response_str);
     }
@@ -302,7 +302,7 @@ void net_http_handle_request(net_tcp_socket client_socket) {
 }
 
 const char *net_http_get_header(net_http_request *req, const char *name) {
-  for (size_t i = 0; i < req->header_count; i++) {
+  for (unsigned int i = 0; i < req->header_count; i++) {
     if (strcmp(req->headers[i].name, name) == 0) {
       return req->headers[i].value;
     }
@@ -311,7 +311,7 @@ const char *net_http_get_header(net_http_request *req, const char *name) {
 }
 
 const char *net_http_get_query_param(net_http_request *req, const char *name) {
-  for (size_t i = 0; i < req->query_param_count; i++) {
+  for (unsigned int i = 0; i < req->query_param_count; i++) {
     if (strcmp(req->query_params[i].name, name) == 0) {
       return req->query_params[i].value;
     }
@@ -319,7 +319,7 @@ const char *net_http_get_query_param(net_http_request *req, const char *name) {
   return NULL;
 }
 
-void net_http_send_error(net_http_response *res, uint16_t code, const char *message) {
+void net_http_send_error(net_http_response *res, unsigned short code, const char *message) {
   net_http_set_status(res, code, message);
   net_http_set_body(res, message);
 }

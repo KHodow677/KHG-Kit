@@ -14,11 +14,8 @@ typedef unsigned khs_size;
 typedef unsigned short khs_refc;
 #define KHS_REFC_MAX USHRT_MAX
 
-typedef unsigned long long khs_tag;
-#define KHS_MAX_TAGS ULLONG_MAX
-
-typedef unsigned long long khs_large_uint_type;
-#define KHS_LARGE_UINT_TYPE_MAX ULLONG_MAX
+typedef unsigned long khs_tag;
+#define KHS_MAX_TAGS ULONG_MAX
 
 enum {
   KHS_TYPE_NULL,
@@ -89,7 +86,7 @@ struct khs_external_fn {
   int arity;
   bool auto_release;
   const char *name;
-  size_t name_len;
+  unsigned int name_len;
   khs_val (*fn)(const khs_val *, khs_size);
 };
 
@@ -103,16 +100,16 @@ struct khs_table {
   khs_val_pair entries[];
 };
 
-typedef struct beryl_object_class {
+typedef struct khs_object_class {
   void (*free)(khs_object *);
   khs_val (*call)(khs_object *, const khs_val *, khs_size);
-  size_t obj_size;
+  unsigned int obj_size;
   const char *name;
-  size_t name_len;
-} beryl_object_class;
+  unsigned int name_len;
+} khs_object_class;
 
 struct khs_object {
-  beryl_object_class *obj_class;
+  khs_object_class *obj_class;
   khs_refc ref_c;
 };
 
@@ -142,48 +139,48 @@ khs_size khs_get_array_capacity(khs_val array);
 
 bool khs_array_push(khs_val *array, khs_val val);
 
-khs_val khs_static_table(khs_size cap, unsigned char *bytes, size_t bytes_size);
+khs_val khs_static_table(khs_size cap, unsigned char *bytes, unsigned int bytes_size);
 
 khs_val_pair *khs_iter_table(khs_val table_v, khs_val_pair *iter);
 
 int khs_table_insert(khs_val *table_v, khs_val key, khs_val val, bool replace);
 bool khs_table_should_grow(khs_val table, khs_size extra);
 
-void khs_set_io(void (*print)(void *, const char *, size_t), void (*print_i_val)(void *, khs_val), void *err_f);
+void khs_set_io(void (*print)(void *, const char *, unsigned int), void (*print_i_val)(void *, khs_val), void *err_f);
 void khs_print_val(void *f, khs_val val);
-void khs_vals_printf(void *f, const char *str, size_t strlen, const khs_val *vals, unsigned n); // N must be at max 10
+void khs_vals_printf(void *f, const char *str, unsigned int strlen, const khs_val *vals, unsigned n);
 
-void khs_set_mem(void *(*alloc)(size_t), void (*free)(void *), void *(*realloc)(void *, size_t));
+void khs_set_mem(void *(*alloc)(unsigned int), void (*free)(void *), void *(*realloc)(void *, unsigned int));
 
 khs_val khs_new_string(khs_size len, const char *from);
 
-khs_val khs_new_object(beryl_object_class *obj_class);
-beryl_object_class *khs_object_class_type(khs_val val);
+khs_val khs_new_object(khs_object_class *obj_class);
+khs_object_class *khs_object_class_type(khs_val val);
 khs_object *khs_as_object(khs_val val);
 
 khs_val khs_str_as_err(khs_val str);
 khs_val khs_err_as_str(khs_val str);
 
 khs_val khs_retain(khs_val val);
-void khs_retain_values(const khs_val *items, size_t n);
+void khs_retain_values(const khs_val *items, unsigned int n);
 void khs_release(khs_val val);
-void khs_release_values(const khs_val *items, size_t n);
+void khs_release_values(const khs_val *items, unsigned int n);
 
 khs_refc khs_get_refcount(khs_val val);
 
 void khs_blame_arg(khs_val val);
 
 void khs_free(void *ptr);
-void *khs_alloc(size_t n);
-void *khs_realloc(void *ptr, size_t n);
+void *khs_alloc(unsigned int n);
+void *khs_realloc(void *ptr, unsigned int n);
 
-void *khs_talloc(size_t n);
+void *khs_talloc(unsigned int n);
 void khs_tfree(void *ptr);
 
-khs_val khs_call(khs_val fn, const khs_val *args, size_t n_args, bool borrow);
-khs_val khs_pcall(khs_val fn, const khs_val *args, size_t n_args, bool borrow, bool print_trace);
+khs_val khs_call(khs_val fn, const khs_val *args, unsigned int n_args, bool borrow);
+khs_val khs_pcall(khs_val fn, const khs_val *args, unsigned int n_args, bool borrow, bool print_trace);
 
-khs_val khs_eval(const char *src, size_t src_len, enum khs_err_action err);
+khs_val khs_eval(const char *src, unsigned int src_len, enum khs_err_action err);
 
 void khs_clear();
 bool khs_load_included_libs();

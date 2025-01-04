@@ -1,14 +1,13 @@
 #pragma once
 
 #include "khg_phy/body.h"
-#include <stdint.h>
 
 typedef struct phy_broadphase_pair {
   phy_rigid_body *a;
   phy_rigid_body *b;
 } phy_broadphase_pair;
 
-static inline uint64_t phy_broadphase_pair_hash(void *item) {
+static inline unsigned long phy_broadphase_pair_hash(void *item) {
   phy_broadphase_pair *pair = (phy_broadphase_pair *)item;
   return phy_u32_pair(pair->a->id, pair->b->id);
 }
