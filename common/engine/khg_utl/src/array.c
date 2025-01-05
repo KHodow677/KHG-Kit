@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-utl_array *utl_array_create(size_t element_size, size_t size) {
+utl_array *utl_array_create(unsigned int element_size, unsigned int size) {
   utl_array *arr = (utl_array *)malloc(sizeof(utl_array));
   if (!arr) {
     utl_error_func("Cannot allocate memory", utl_user_defined_data);
@@ -35,7 +35,7 @@ bool utl_array_is_less(const utl_array *arr1, const utl_array *arr2) {
     utl_error_func("One or both arrays are null or their vectors are null", utl_user_defined_data);
     return false;
   }
-  size_t minSize = arr1->vec->size < arr2->vec->size ? arr1->vec->size : arr2->vec->size;
+  unsigned int minSize = arr1->vec->size < arr2->vec->size ? arr1->vec->size : arr2->vec->size;
   int cmp = memcmp(arr1->vec->items, arr2->vec->items, minSize * arr1->vec->itemSize);
   bool result = cmp < 0 || (cmp == 0 && arr1->vec->size < arr2->vec->size);
   return result;
@@ -60,7 +60,7 @@ bool utl_array_is_less_or_equal(const utl_array *arr1, const utl_array *arr2) {
   if (arr1 == NULL || arr2 == NULL) {
     return (arr1 == NULL) && (arr2 != NULL);
   }
-  size_t minSize = arr1->vec->size < arr2->vec->size ? arr1->vec->size : arr2->vec->size;
+  unsigned int minSize = arr1->vec->size < arr2->vec->size ? arr1->vec->size : arr2->vec->size;
   int cmp = memcmp(arr1->vec->items, arr2->vec->items, minSize * arr1->vec->itemSize);
   bool result = cmp < 0 || (cmp == 0 && arr1->vec->size <= arr2->vec->size);
   return result;
@@ -73,7 +73,7 @@ bool utl_array_is_greater_or_equal(const utl_array *arr1, const utl_array *arr2)
   if (arr1 == NULL || arr2 == NULL) {
     return (arr1 != NULL) && (arr2 == NULL);
   }
-  size_t minSize = arr1->vec->size < arr2->vec->size ? arr1->vec->size : arr2->vec->size;
+  unsigned int minSize = arr1->vec->size < arr2->vec->size ? arr1->vec->size : arr2->vec->size;
   int cmp = memcmp(arr1->vec->items, arr2->vec->items, minSize * arr1->vec->itemSize);
   bool result = cmp > 0 || (cmp == 0 && arr1->vec->size >= arr2->vec->size);
   return result;
@@ -93,7 +93,7 @@ void utl_array_deallocate(utl_array *arr) {
   } 
 }
 
-void utl_array_set(utl_array *arr, size_t index, const void *value) {
+void utl_array_set(utl_array *arr, unsigned int index, const void *value) {
   if (arr == NULL) {
     utl_error_func("Array is null", utl_user_defined_data);
     return;
@@ -113,7 +113,7 @@ void utl_array_set(utl_array *arr, size_t index, const void *value) {
   memcpy((char *)arr->vec->items + (index * arr->vec->itemSize), value, arr->vec->itemSize);
 }
 
-void utl_array_insert(utl_array *mainArr, const utl_array *otherArr, size_t index) {
+void utl_array_insert(utl_array *mainArr, const utl_array *otherArr, unsigned int index) {
   if (mainArr == NULL) {
     utl_error_func("Main array is null", utl_user_defined_data);
     return;
@@ -130,11 +130,11 @@ void utl_array_insert(utl_array *mainArr, const utl_array *otherArr, size_t inde
     utl_error_func("Other array's vector is null", utl_user_defined_data);
     return;
   }
-  size_t newTotalSize = index + otherArr->vec->size;
+  unsigned int newTotalSize = index + otherArr->vec->size;
   if (newTotalSize > mainArr->vec->size) {
     utl_vector_resize(mainArr->vec, newTotalSize);
   }
-  for (size_t i = 0; i < otherArr->vec->size; ++i) {
+  for (unsigned int i = 0; i < otherArr->vec->size; ++i) {
     void *value = utl_vector_at(otherArr->vec, i);
     memcpy((char *)mainArr->vec->items + ((index + i) * mainArr->vec->itemSize), value, mainArr->vec->itemSize);
   }
@@ -153,7 +153,7 @@ void utl_array_fill(utl_array *arr, const void *value) {
     utl_error_func("Value is null", utl_user_defined_data);
     return;
   }
-  for (size_t i = 0; i < arr->vec->size; ++i) { 
+  for (unsigned int i = 0; i < arr->vec->size; ++i) { 
     memcpy((char *)arr->vec->items + (i * arr->vec->itemSize), value, arr->vec->itemSize);
   }
 }
@@ -180,7 +180,7 @@ void utl_array_swap(utl_array *arr1, utl_array *arr2) {
   arr2->vec = temp;
 }
 
-void *utl_array_at(utl_array *arr, size_t index) {
+void *utl_array_at(utl_array *arr, unsigned int index) {
   if (arr == NULL) {
     utl_error_func("Array is null", utl_user_defined_data);
     return NULL;
@@ -300,7 +300,7 @@ void *utl_array_data(utl_array *arr) {
   return arr->vec->items;
 }
 
-size_t utl_array_size(utl_array *arr) {
+unsigned int utl_array_size(utl_array *arr) {
   if (arr == NULL) {
     utl_error_func("Array is null", utl_user_defined_data);
     return 0;
@@ -312,7 +312,7 @@ size_t utl_array_size(utl_array *arr) {
   return arr->vec->size;
 }
 
-size_t utl_array_max_size(utl_array *arr) {
+unsigned int utl_array_max_size(utl_array *arr) {
   if (arr == NULL) {
     utl_error_func("Array is null", utl_user_defined_data);
     return 0;
@@ -396,8 +396,8 @@ void utl_array_reverse(utl_array *arr) {
   if (arr->vec->size <= 1) {
     return;
   }
-  size_t start = 0;
-  size_t end = arr->vec->size - 1;
+  unsigned int start = 0;
+  unsigned int end = arr->vec->size - 1;
   char *temp = (char *)malloc(arr->vec->itemSize);
   if (!temp) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);

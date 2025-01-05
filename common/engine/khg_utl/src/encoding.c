@@ -8,9 +8,9 @@
 #include <limits.h>
 #include <locale.h>
 
-bool (*b58_sha256_impl)(void *, const void *, size_t) = NULL;
+bool (*b58_sha256_impl)(void *, const void *, unsigned int) = NULL;
 
-#define UNI_REPLACEMENT_CHAR (uint32_t)0x0000FFFD
+#define UNI_REPLACEMENT_CHAR (unsigned int)0x0000FFFD
 #define UNI_SUR_HIGH_START (unsigned int)0xD800
 #define UNI_SUR_HIGH_END (unsigned int)0xDBFF
 #define UNI_SUR_LOW_START (unsigned int)0xDC00
@@ -20,13 +20,13 @@ bool (*b58_sha256_impl)(void *, const void *, size_t) = NULL;
 #define UNI_MAX_UTF32 (unsigned int)0x7FFFFFFF
 #define UNI_MAX_LEGAL_UTF32 (unsigned int)0x0010FFFF
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
-#define b58_almostmaxint_bits (sizeof(uint32_t) * 8)
+#define b58_almostmaxint_bits (sizeof(unsigned int) * 8)
 
 static const char base64_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const char base32[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567=";
 static const char base16_chars[] = "0123456789ABCDEF";
 static const int halfShift = 10;
-static const uint8_t firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
+static const unsigned char firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
 static const char trailingBytesForUTF8[256] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -37,7 +37,7 @@ static const char trailingBytesForUTF8[256] = {
   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5
 };
-static const uint32_t offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL, 0x03C82080UL, 0xFA082080UL, 0x82082080UL };
+static const unsigned int offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL, 0x03C82080UL, 0xFA082080UL, 0x82082080UL };
 static const unsigned int halfBase = 0x0010000UL;
 static const unsigned int halfMask = 0x3FFUL;
 static const char b58digits_ordered[] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -62,9 +62,9 @@ static int base91_decode_value(char c) {
   return -1;
 }
 
-bool utl_encoding_is_utf8(const uint8_t *input, size_t length) {
-  uint8_t a;
-  const uint8_t *srcptr = input + length;
+bool utl_encoding_is_utf8(const unsigned char *input, unsigned int length) {
+  unsigned char a;
+  const unsigned char *srcptr = input + length;
   switch (length) {
   default:
     utl_error_func("Invalid sequence length", utl_user_defined_data);
@@ -128,20 +128,20 @@ bool utl_encoding_is_utf8(const uint8_t *input, size_t length) {
   return true;
 }
 
-static utl_conversion_result ConvertUTF16toUTF8(const uint16_t **sourceStart, const uint16_t *sourceEnd, uint8_t **targetStart, uint8_t *targetEnd, utl_conversion_flags flags) {
+static utl_conversion_result ConvertUTF16toUTF8(const unsigned short **sourceStart, const unsigned short *sourceEnd, unsigned char **targetStart, unsigned char *targetEnd, utl_conversion_flags flags) {
   utl_conversion_result result = utl_conversion_ok;
-  const uint16_t *source = *sourceStart;
-  uint8_t *target = *targetStart;
+  const unsigned short *source = *sourceStart;
+  unsigned char *target = *targetStart;
   while (source < sourceEnd) {
-    uint32_t ch;
+    unsigned int ch;
     unsigned short bytesToWrite = 0;
-    const uint32_t byteMask = 0xBF;
-    const uint32_t byteMark = 0x80; 
-    const uint16_t* oldSource = source;
+    const unsigned int byteMask = 0xBF;
+    const unsigned int byteMark = 0x80; 
+    const unsigned short* oldSource = source;
     ch = *source++;
     if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_HIGH_END) {
       if (source < sourceEnd) {
-        uint32_t ch2 = *source;
+        unsigned int ch2 = *source;
         if (ch2 >= UNI_SUR_LOW_START && ch2 <= UNI_SUR_LOW_END) {
           ch = ((ch - UNI_SUR_HIGH_START) << halfShift) + (ch2 - UNI_SUR_LOW_START) + halfBase;
           ++source;
@@ -168,16 +168,16 @@ static utl_conversion_result ConvertUTF16toUTF8(const uint16_t **sourceStart, co
         break;
       }
     }
-    if (ch < (uint32_t)0x80) {      
+    if (ch < (unsigned int)0x80) {      
       bytesToWrite = 1;
     } 
-    else if (ch < (uint32_t)0x800) {     
+    else if (ch < (unsigned int)0x800) {     
       bytesToWrite = 2;
     } 
-    else if (ch < (uint32_t)0x10000) {   
+    else if (ch < (unsigned int)0x10000) {   
       bytesToWrite = 3;
     } 
-    else if (ch < (uint32_t)0x110000) {  
+    else if (ch < (unsigned int)0x110000) {  
       bytesToWrite = 4;
     } 
     else {          
@@ -194,13 +194,13 @@ static utl_conversion_result ConvertUTF16toUTF8(const uint16_t **sourceStart, co
     }
     switch (bytesToWrite) {
       case 4: 
-        *--target = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+        *--target = (unsigned char)((ch | byteMark) & byteMask); ch >>= 6;
       case 3: 
-        *--target = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+        *--target = (unsigned char)((ch | byteMark) & byteMask); ch >>= 6;
       case 2: 
-        *--target = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+        *--target = (unsigned char)((ch | byteMark) & byteMask); ch >>= 6;
       case 1: 
-        *--target =  (uint8_t)(ch | firstByteMark[bytesToWrite]);
+        *--target =  (unsigned char)(ch | firstByteMark[bytesToWrite]);
     }
     target += bytesToWrite;
   }
@@ -209,15 +209,15 @@ static utl_conversion_result ConvertUTF16toUTF8(const uint16_t **sourceStart, co
   return result;
 }
 
-static utl_conversion_result ConvertUTF32toUTF8(const uint32_t **sourceStart, const uint32_t *sourceEnd, uint8_t **targetStart, uint8_t *targetEnd, utl_conversion_flags flags) {
+static utl_conversion_result ConvertUTF32toUTF8(const unsigned int **sourceStart, const unsigned int *sourceEnd, unsigned char **targetStart, unsigned char *targetEnd, utl_conversion_flags flags) {
   utl_conversion_result result = utl_conversion_ok;
-  const uint32_t *source = *sourceStart;
-  uint8_t *target = *targetStart;
+  const unsigned int *source = *sourceStart;
+  unsigned char *target = *targetStart;
   while (source < sourceEnd) {
-    uint32_t ch;
+    unsigned int ch;
     unsigned short bytesToWrite = 0;
-    const uint32_t byteMask = 0xBF;
-    const uint32_t byteMark = 0x80; 
+    const unsigned int byteMask = 0xBF;
+    const unsigned int byteMark = 0x80; 
     ch = *source++;
     if (flags == utl_strict_conversion ) {
       if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
@@ -227,13 +227,13 @@ static utl_conversion_result ConvertUTF32toUTF8(const uint32_t **sourceStart, co
         break;
       }
     }
-    if (ch < (uint32_t)0x80) {      
+    if (ch < (unsigned int)0x80) {      
       bytesToWrite = 1;
     } 
-    else if (ch < (uint32_t)0x800) {     
+    else if (ch < (unsigned int)0x800) {     
       bytesToWrite = 2;
     } 
-    else if (ch < (uint32_t)0x10000) {   
+    else if (ch < (unsigned int)0x10000) {   
       bytesToWrite = 3;
     } 
     else if (ch <= UNI_MAX_LEGAL_UTF32) {  
@@ -254,13 +254,13 @@ static utl_conversion_result ConvertUTF32toUTF8(const uint32_t **sourceStart, co
     }
     switch (bytesToWrite) {
       case 4: 
-        *--target = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+        *--target = (unsigned char)((ch | byteMark) & byteMask); ch >>= 6;
       case 3: 
-        *--target = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+        *--target = (unsigned char)((ch | byteMark) & byteMask); ch >>= 6;
       case 2: 
-        *--target = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+        *--target = (unsigned char)((ch | byteMark) & byteMask); ch >>= 6;
       case 1: 
-        *--target = (uint8_t) (ch | firstByteMark[bytesToWrite]);
+        *--target = (unsigned char) (ch | firstByteMark[bytesToWrite]);
     }
     target += bytesToWrite;
   }
@@ -269,12 +269,12 @@ static utl_conversion_result ConvertUTF32toUTF8(const uint32_t **sourceStart, co
   return result;
 }
 
-static utl_conversion_result ConvertUTF8toUTF16(const uint8_t **sourceStart, const uint8_t *sourceEnd, uint16_t **targetStart, uint16_t *targetEnd, utl_conversion_flags flags) {
+static utl_conversion_result ConvertUTF8toUTF16(const unsigned char **sourceStart, const unsigned char *sourceEnd, unsigned short **targetStart, unsigned short *targetEnd, utl_conversion_flags flags) {
   utl_conversion_result result = utl_conversion_ok;
-  const uint8_t *source = *sourceStart;
-  uint16_t *target = *targetStart;
+  const unsigned char *source = *sourceStart;
+  unsigned short *target = *targetStart;
   while (source < sourceEnd) {
-    uint32_t ch = 0;
+    unsigned int ch = 0;
     unsigned short extraBytesToRead = trailingBytesForUTF8[*source];
     if (extraBytesToRead >= sourceEnd - source) {
       utl_error_func("Source exhausted", utl_user_defined_data);
@@ -325,7 +325,7 @@ static utl_conversion_result ConvertUTF8toUTF16(const uint8_t **sourceStart, con
           }
         } 
         else {
-          *target++ = (uint16_t)ch;
+          *target++ = (unsigned short)ch;
         }
     } 
     else if (ch > UNI_MAX_UTF16) {
@@ -346,8 +346,8 @@ static utl_conversion_result ConvertUTF8toUTF16(const uint8_t **sourceStart, con
         result = utl_target_exhausted; break;
       }
       ch -= halfBase;
-      *target++ = (uint16_t)((ch >> halfShift) + UNI_SUR_HIGH_START);
-      *target++ = (uint16_t)((ch & halfMask) + UNI_SUR_LOW_START);
+      *target++ = (unsigned short)((ch >> halfShift) + UNI_SUR_HIGH_START);
+      *target++ = (unsigned short)((ch & halfMask) + UNI_SUR_LOW_START);
     }
   }
   *sourceStart = source;
@@ -355,12 +355,12 @@ static utl_conversion_result ConvertUTF8toUTF16(const uint8_t **sourceStart, con
   return result;
 }
 
-utl_conversion_result ConvertUTF8toUTF32(const uint8_t **sourceStart, const uint8_t *sourceEnd, uint32_t **targetStart, uint32_t *targetEnd, utl_conversion_flags flags) {
+utl_conversion_result ConvertUTF8toUTF32(const unsigned char **sourceStart, const unsigned char *sourceEnd, unsigned int **targetStart, unsigned int *targetEnd, utl_conversion_flags flags) {
   utl_conversion_result result = utl_conversion_ok;
-  const uint8_t *source = *sourceStart;
-  uint32_t *target = *targetStart;
+  const unsigned char *source = *sourceStart;
+  unsigned int *target = *targetStart;
   while (source < sourceEnd) {
-    uint32_t ch = 0;
+    unsigned int ch = 0;
     unsigned short extraBytesToRead = trailingBytesForUTF8[*source];
     if (extraBytesToRead >= sourceEnd - source) {
       utl_error_func("Source exhausted", utl_user_defined_data);
@@ -484,37 +484,37 @@ static int decode_sequence(const unsigned char *coded, unsigned char *plain) {
   return 5;
 }
 
-char *utl_encoding_base64_encode(const char *input, size_t length) {
-  size_t output_length = 4 * ((length + 2) / 3);
+char *utl_encoding_base64_encode(const char *input, unsigned int length) {
+  unsigned int output_length = 4 * ((length + 2) / 3);
   char *encoded = malloc(output_length + 1);
   if (!encoded) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t i, j;
+  unsigned int i, j;
   for (i = 0, j = 0; i < length;) {
-    uint32_t octet_a = i < length ? (unsigned char)input[i++] : 0;
-    uint32_t octet_b = i < length ? (unsigned char)input[i++] : 0;
-    uint32_t octet_c = i < length ? (unsigned char)input[i++] : 0;
-    uint32_t triple = (octet_a << 16) + (octet_b << 8) + octet_c;
+    unsigned int octet_a = i < length ? (unsigned char)input[i++] : 0;
+    unsigned int octet_b = i < length ? (unsigned char)input[i++] : 0;
+    unsigned int octet_c = i < length ? (unsigned char)input[i++] : 0;
+    unsigned int triple = (octet_a << 16) + (octet_b << 8) + octet_c;
     encoded[j++] = base64_chars[(triple >> 18) & 0x3F];
     encoded[j++] = base64_chars[(triple >> 12) & 0x3F];
     encoded[j++] = base64_chars[(triple >> 6) & 0x3F];
     encoded[j++] = base64_chars[triple & 0x3F];
   }
-  for (size_t k = 0; k < (3 - length % 3) % 3; k++) {
+  for (unsigned int k = 0; k < (3 - length % 3) % 3; k++) {
     encoded[output_length - 1 - k] = '=';
   }
   encoded[output_length] = '\0';
   return encoded;
 }
 
-char *utl_encoding_base64_decode(const char *input, size_t length) {
+char *utl_encoding_base64_decode(const char *input, unsigned int length) {
   if (length % 4 != 0) {
     utl_error_func("Invalid input length, length must be a multiple of 4", utl_user_defined_data);
     return NULL;
   }
-  size_t output_length = length / 4 * 3;
+  unsigned int output_length = length / 4 * 3;
   if (input[length - 1] == '=') {
     output_length--;
   }
@@ -532,12 +532,12 @@ char *utl_encoding_base64_decode(const char *input, size_t length) {
     0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0,
     0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
   };
-  for (size_t i = 0, j = 0; i < length;) {
-    uint32_t sextet_a = input[i] == '=' ? 0 & i++ : d[(unsigned char)input[i++]];
-    uint32_t sextet_b = input[i] == '=' ? 0 & i++ : d[(unsigned char)input[i++]];
-    uint32_t sextet_c = input[i] == '=' ? 0 & i++ : d[(unsigned char)input[i++]];
-    uint32_t sextet_d = input[i] == '=' ? 0 & i++ : d[(unsigned char)input[i++]];
-    uint32_t triple = (sextet_a << 18) + (sextet_b << 12) + (sextet_c << 6) + sextet_d;
+  for (unsigned int i = 0, j = 0; i < length;) {
+    unsigned int sextet_a = input[i] == '=' ? 0 & i++ : d[(unsigned char)input[i++]];
+    unsigned int sextet_b = input[i] == '=' ? 0 & i++ : d[(unsigned char)input[i++]];
+    unsigned int sextet_c = input[i] == '=' ? 0 & i++ : d[(unsigned char)input[i++]];
+    unsigned int sextet_d = input[i] == '=' ? 0 & i++ : d[(unsigned char)input[i++]];
+    unsigned int triple = (sextet_a << 18) + (sextet_b << 12) + (sextet_c << 6) + sextet_d;
     if (j < output_length) {
       decoded[j++] = (triple >> 16) & 0xFF;
     }
@@ -552,14 +552,14 @@ char *utl_encoding_base64_decode(const char *input, size_t length) {
   return decoded;
 }
 
-char *utl_encoding_url_encode(const char *input, size_t length) {
+char *utl_encoding_url_encode(const char *input, unsigned int length) {
   char *result = malloc(3 * length + 1);
   if (!result) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t result_index = 0;
-  for (size_t i = 0; i < length; ++i) {
+  unsigned int result_index = 0;
+  for (unsigned int i = 0; i < length; ++i) {
     char ch = input[i];
     if (isalnum(ch) || ch == '-' || ch == '.' || ch == '_' || ch == '~') {
       result[result_index++] = ch;
@@ -576,14 +576,14 @@ char *utl_encoding_url_encode(const char *input, size_t length) {
   return result;
 }
 
-char *utl_encoding_url_decode(const char *input, size_t length) {
+char *utl_encoding_url_decode(const char *input, unsigned int length) {
   char *result = malloc(length + 1);
   if (!result) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t result_index = 0;
-  for (size_t i = 0; i < length; ++i) {
+  unsigned int result_index = 0;
+  for (unsigned int i = 0; i < length; ++i) {
     char ch = input[i];
     if (ch == '%') {
       if (i + 2 >= length) {
@@ -614,19 +614,19 @@ char *utl_encoding_url_decode(const char *input, size_t length) {
   return result;
 }
 
-char *utl_encoding_base32_encode(const char *input, size_t length) {
-  size_t output_length = ((length + 4) / 5) * 8;
+char *utl_encoding_base32_encode(const char *input, unsigned int length) {
+  unsigned int output_length = ((length + 4) / 5) * 8;
   char *encoded = malloc(output_length + 1);
   if (!encoded) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t input_index = 0;
-  size_t output_index = 0;
-  size_t bit_count = 0;
-  uint32_t buffer = 0;
+  unsigned int input_index = 0;
+  unsigned int output_index = 0;
+  unsigned int bit_count = 0;
+  unsigned int buffer = 0;
   while (input_index < length) {
-    buffer = (buffer << 8) | (uint8_t)input[input_index++];
+    buffer = (buffer << 8) | (unsigned char)input[input_index++];
     bit_count += 8;
     while (bit_count >= 5) {
       encoded[output_index++] = base32[(buffer >> (bit_count - 5)) & 0x1F];
@@ -643,18 +643,18 @@ char *utl_encoding_base32_encode(const char *input, size_t length) {
   return encoded;
 }
 
-char *utl_encoding_base32_decode(const char *input, size_t length) {
+char *utl_encoding_base32_decode(const char *input, unsigned int length) {
   if (length % 8 != 0) {
     utl_error_func("Invalid input length, length must be a multiple of 8", utl_user_defined_data);
     return NULL;
   }
-  size_t olength = (length / 8) * 5;
+  unsigned int olength = (length / 8) * 5;
   unsigned char *result = malloc(olength + 1);
   if (!result) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t i = 0, j = 0;
+  unsigned int i = 0, j = 0;
   while (i < length) {
     if (input[i] == '=') {
       break; 
@@ -671,15 +671,15 @@ char *utl_encoding_base32_decode(const char *input, size_t length) {
   return (char *)result;
 }
 
-char *utl_encoding_base16_encode(const char *input, size_t length) {
-  size_t output_length = length * 2;
+char *utl_encoding_base16_encode(const char *input, unsigned int length) {
+  unsigned int output_length = length * 2;
   char *encoded = malloc(output_length + 1);
   if (!encoded) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0, j = 0; i < length; ++i) {
-    uint8_t ch = (uint8_t)input[i];
+  for (unsigned int i = 0, j = 0; i < length; ++i) {
+    unsigned char ch = (unsigned char)input[i];
     encoded[j++] = base16_chars[(ch & 0xF0) >> 4];
     encoded[j++] = base16_chars[ch & 0x0F];
   }
@@ -687,7 +687,7 @@ char *utl_encoding_base16_encode(const char *input, size_t length) {
   return encoded;
 }
 
-char *utl_encoding_base16_decode(const char *input, size_t length) {
+char *utl_encoding_base16_decode(const char *input, unsigned int length) {
   if (input == NULL) {
     utl_error_func("Invalid input parameter", utl_user_defined_data);
     return NULL;
@@ -714,15 +714,15 @@ char *utl_encoding_base16_decode(const char *input, size_t length) {
     utl_error_func("Invalid input length", utl_user_defined_data);
     return NULL; 
   }
-  size_t olength = length / 2;
+  unsigned int olength = length / 2;
   char *decoded = malloc(olength + 1);
   if (!decoded) {
     utl_error_func("Memory allocation failed for decoded string", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0, j = 0; i < length;) {
-    uint8_t a = base16_decode[(unsigned char)input[i++]];
-    uint8_t b = base16_decode[(unsigned char)input[i++]];
+  for (unsigned int i = 0, j = 0; i < length;) {
+    unsigned char a = base16_decode[(unsigned char)input[i++]];
+    unsigned char b = base16_decode[(unsigned char)input[i++]];
     if (a == 0xFF || b == 0xFF) {
       utl_error_func("Invalid character encountered", utl_user_defined_data);
       free(decoded);
@@ -734,53 +734,53 @@ char *utl_encoding_base16_decode(const char *input, size_t length) {
   return decoded;
 }
 
-uint16_t *utl_encoding_utf32_to_utf16(const uint32_t *input, size_t length) {
+unsigned short *utl_encoding_utf32_to_utf16(const unsigned int *input, unsigned int length) {
   if (input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return NULL;
   }
-  uint16_t *output = malloc(sizeof(uint16_t) * (length * 2 + 1));
+  unsigned short *output = malloc(sizeof(unsigned short) * (length * 2 + 1));
   if (!output) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t j = 0;
-  for (size_t i = 0; i < length; ++i) {
-    uint32_t ch = input[i];
+  unsigned int j = 0;
+  for (unsigned int i = 0; i < length; ++i) {
+    unsigned int ch = input[i];
     if (ch > UNI_MAX_LEGAL_UTF32) {
       utl_error_func("Invalid character encountered", utl_user_defined_data);
       free(output);
       return NULL;
     }
     if (ch <= UNI_MAX_BMP) {
-      output[j++] = (uint16_t)ch;
+      output[j++] = (unsigned short)ch;
     } 
     else if (ch > UNI_MAX_BMP && ch <= UNI_MAX_UTF16) {
       ch -= halfBase;
-      output[j++] = (uint16_t)((ch >> halfShift) + UNI_SUR_HIGH_START);
-      output[j++] = (uint16_t)((ch & halfMask) + UNI_SUR_LOW_START);
+      output[j++] = (unsigned short)((ch >> halfShift) + UNI_SUR_HIGH_START);
+      output[j++] = (unsigned short)((ch & halfMask) + UNI_SUR_LOW_START);
     }
   }
   output[j] = 0;
   return output;
 }
 
-uint32_t *utl_encoding_utf16_to_utf32(const uint16_t *input, size_t length) {
+unsigned int *utl_encoding_utf16_to_utf32(const unsigned short *input, unsigned int length) {
   if (input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return NULL;
   }
-  uint32_t *output = malloc(sizeof(uint32_t) * (length + 1));
+  unsigned int *output = malloc(sizeof(unsigned int) * (length + 1));
   if (!output) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t j = 0;
-  for (size_t i = 0; i < length; ++i) {
-    uint32_t ch = input[i];
+  unsigned int j = 0;
+  for (unsigned int i = 0; i < length; ++i) {
+    unsigned int ch = input[i];
     if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_HIGH_END) {
         if (i + 1 < length) {
-          uint32_t ch2 = input[i + 1];
+          unsigned int ch2 = input[i + 1];
           if (ch2 >= UNI_SUR_LOW_START && ch2 <= UNI_SUR_LOW_END) {
             ch = ((ch - UNI_SUR_HIGH_START) << 10) + (ch2 - UNI_SUR_LOW_START) + 0x10000;
             i++;
@@ -803,29 +803,29 @@ uint32_t *utl_encoding_utf16_to_utf32(const uint16_t *input, size_t length) {
   return output;
 }
 
-uint8_t *utl_encoding_utf16_to_utf8(const uint16_t *input, size_t length) {
+unsigned char *utl_encoding_utf16_to_utf8(const unsigned short *input, unsigned int length) {
   if (input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return NULL;
   }
-  size_t maxOutLength = length * 4;
-  uint8_t *output = (uint8_t *)malloc(maxOutLength);
+  unsigned int maxOutLength = length * 4;
+  unsigned char *output = (unsigned char *)malloc(maxOutLength);
   if (!output) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  const uint16_t *sourceStart = input;
-  const uint16_t *sourceEnd = input + length;
-  uint8_t *targetStart = output;
-  uint8_t *targetEnd = output + maxOutLength;
+  const unsigned short *sourceStart = input;
+  const unsigned short *sourceEnd = input + length;
+  unsigned char *targetStart = output;
+  unsigned char *targetEnd = output + maxOutLength;
   utl_conversion_result result = ConvertUTF16toUTF8(&sourceStart, sourceEnd, &targetStart, targetEnd, utl_lenient_conversion);
   if (result != utl_conversion_ok) {
     utl_error_func("Conversion from UTF-16 to UTF-8 failed", utl_user_defined_data);
     free(output);
     return NULL;
   }
-  size_t actualLength = targetStart - output;
-  uint8_t* resizedOutput = (uint8_t*)realloc(output, actualLength + 1);
+  unsigned int actualLength = targetStart - output;
+  unsigned char* resizedOutput = (unsigned char*)realloc(output, actualLength + 1);
   if (!resizedOutput) {
     utl_error_func("Reallocation failed", utl_user_defined_data);
     free(output);
@@ -835,29 +835,29 @@ uint8_t *utl_encoding_utf16_to_utf8(const uint16_t *input, size_t length) {
   return resizedOutput;
 }
 
-uint8_t *utl_encoding_utf32_to_utf8(const uint32_t *input, size_t length) {
+unsigned char *utl_encoding_utf32_to_utf8(const unsigned int *input, unsigned int length) {
   if (input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return NULL;
   }
-  size_t maxOutLength = length * 4;
-  uint8_t *output = (uint8_t *)malloc(maxOutLength);
+  unsigned int maxOutLength = length * 4;
+  unsigned char *output = (unsigned char *)malloc(maxOutLength);
   if (!output) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  const uint32_t *sourceStart = input;
-  const uint32_t *sourceEnd = input + length;
-  uint8_t *targetStart = output;
-  uint8_t *targetEnd = output + maxOutLength;
+  const unsigned int *sourceStart = input;
+  const unsigned int *sourceEnd = input + length;
+  unsigned char *targetStart = output;
+  unsigned char *targetEnd = output + maxOutLength;
   utl_conversion_result result = ConvertUTF32toUTF8(&sourceStart, sourceEnd, &targetStart, targetEnd, utl_lenient_conversion);
   if (result != utl_conversion_ok) {
     utl_error_func("Conversion from UTF-32 to UTF-8 failed", utl_user_defined_data);
     free(output);
     return NULL;
   }
-  size_t actualLength = targetStart - output;
-  uint8_t *resizedOutput = (uint8_t*)realloc(output, actualLength + 1);
+  unsigned int actualLength = targetStart - output;
+  unsigned char *resizedOutput = (unsigned char*)realloc(output, actualLength + 1);
   if (!resizedOutput) {
     utl_error_func("Reallocation failed", utl_user_defined_data);
     free(output);
@@ -867,13 +867,13 @@ uint8_t *utl_encoding_utf32_to_utf8(const uint32_t *input, size_t length) {
   return resizedOutput;
 }
 
-bool utl_encoding_is_utf8_string(const uint8_t **input, size_t length) {
+bool utl_encoding_is_utf8_string(const unsigned char **input, unsigned int length) {
   if (input == NULL || *input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return false;
   }
-  const uint8_t *source = *input;
-  const uint8_t *sourceEnd = source + length;
+  const unsigned char *source = *input;
+  const unsigned char *sourceEnd = source + length;
   while (source < sourceEnd) {
     int trailLength = trailingBytesForUTF8[*source] + 1;
     if (trailLength > sourceEnd - source || !utl_encoding_is_utf8(source, trailLength)) {
@@ -886,29 +886,29 @@ bool utl_encoding_is_utf8_string(const uint8_t **input, size_t length) {
   return true;
 }
 
-uint16_t *utl_encoding_utf8_to_utf16(const uint8_t *input, size_t length) {
+unsigned short *utl_encoding_utf8_to_utf16(const unsigned char *input, unsigned int length) {
   if (input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return NULL;
   }
-  size_t maxOutLength = length * 2;
-  uint16_t *output = (uint16_t *)malloc(maxOutLength * sizeof(uint16_t));
+  unsigned int maxOutLength = length * 2;
+  unsigned short *output = malloc(maxOutLength * sizeof(unsigned short));
   if (!output) {
     utl_error_func("Memory allocation failed for output", utl_user_defined_data);
     return NULL;
   }
-  const uint8_t *sourceStart = input;
-  const uint8_t *sourceEnd = input + length;
-  uint16_t *targetStart = output;
-  uint16_t *targetEnd = output + maxOutLength;
+  const unsigned char *sourceStart = input;
+  const unsigned char *sourceEnd = input + length;
+  unsigned short *targetStart = output;
+  unsigned short *targetEnd = output + maxOutLength;
   utl_conversion_result result = ConvertUTF8toUTF16(&sourceStart, sourceEnd, &targetStart, targetEnd, utl_lenient_conversion);
   if (result != utl_conversion_ok) {
     utl_error_func("Conversion from UTF-8 to UTF-16 failed", utl_user_defined_data);
     free(output);
     return NULL;
   }
-  size_t actualLength = targetStart - output;
-  uint16_t *resizedOutput = (uint16_t *)realloc(output, actualLength * sizeof(uint16_t) + 1);
+  unsigned int actualLength = targetStart - output;
+  unsigned short *resizedOutput = realloc(output, actualLength * sizeof(unsigned short) + 1);
   if (!resizedOutput) {
     utl_error_func("Reallocation failed", utl_user_defined_data);
     free(output);
@@ -918,29 +918,29 @@ uint16_t *utl_encoding_utf8_to_utf16(const uint8_t *input, size_t length) {
   return resizedOutput;
 }
 
-uint32_t *utl_encoding_utf8_to_utf32(const uint8_t *input, size_t length) {
+unsigned int *utl_encoding_utf8_to_utf32(const unsigned char *input, unsigned int length) {
   if (input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return NULL;
   }
-  size_t maxOutLength = length;
-  uint32_t *output = (uint32_t *)malloc(maxOutLength * sizeof(uint32_t));
+  unsigned int maxOutLength = length;
+  unsigned int *output = malloc(maxOutLength * sizeof(unsigned int));
   if (!output) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  const uint8_t *sourceStart = input;
-  const uint8_t *sourceEnd = input + length;
-  uint32_t *targetStart = output;
-  uint32_t *targetEnd = output + maxOutLength;
+  const unsigned char *sourceStart = input;
+  const unsigned char *sourceEnd = input + length;
+  unsigned int *targetStart = output;
+  unsigned int *targetEnd = output + maxOutLength;
   utl_conversion_result result = ConvertUTF8toUTF32(&sourceStart, sourceEnd, &targetStart, targetEnd, utl_lenient_conversion);
   if (result != utl_conversion_ok) {
     utl_error_func("Conversion to UTF-32 failed", utl_user_defined_data);
     free(output);
     return NULL;
   }
-  size_t actualLength = targetStart - output;
-  uint32_t *resizedOutput = (uint32_t *)realloc(output, (actualLength + 1) * sizeof(uint32_t));
+  unsigned int actualLength = targetStart - output;
+  unsigned int *resizedOutput = (unsigned int *)realloc(output, (actualLength + 1) * sizeof(unsigned int));
   if (resizedOutput) {
     resizedOutput[actualLength] = 0;
     return resizedOutput;
@@ -948,18 +948,18 @@ uint32_t *utl_encoding_utf8_to_utf32(const uint8_t *input, size_t length) {
   return output;
 }
 
-void utl_encoding_hex_dump(const void *data, size_t size) {
+void utl_encoding_hex_dump(const void *data, unsigned int size) {
   if (!data || size == 0) {
     utl_error_func("Invalid input data or size", utl_user_defined_data);
     return;
   }
   const unsigned char *byte = (const unsigned char *)data;
-  size_t i, j;
+  unsigned int i, j;
   for (i = 0; i < size; i += 16) {
-    printf("%08zx  ", i);
+    printf("%i  ", i);
     for (j = 0; j < 16; j++) {
       if (i + j < size) {
-        printf("%02x ", byte[i + j]);
+        printf("%i ", byte[i + j]);
       } 
       else {
         printf("   ");
@@ -975,23 +975,23 @@ void utl_encoding_hex_dump(const void *data, size_t size) {
   }
 }
 
-char *utl_encoding_base85_encode(const uint8_t *input, size_t length) {
+char *utl_encoding_base85_encode(const unsigned char *input, unsigned int length) {
   if (input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return NULL;
   }
-  size_t encoded_max_length = ((length + 3) / 4) * 5 + 2;
+  unsigned int encoded_max_length = ((length + 3) / 4) * 5 + 2;
   char* encoded = malloc(encoded_max_length);
   if (!encoded) {
     utl_error_func("Memory allocation failed for encoded string", utl_user_defined_data);
     return NULL;
   }
-  size_t input_index = 0;
-  size_t encoded_index = 0;
+  unsigned int input_index = 0;
+  unsigned int encoded_index = 0;
   while (input_index < length) {
-    uint32_t acc = 0;
-    size_t chunk_len = (length - input_index < 4) ? (length - input_index) : 4;
-    for (size_t i = 0; i < chunk_len; ++i) {
+    unsigned int acc = 0;
+    unsigned int chunk_len = (length - input_index < 4) ? (length - input_index) : 4;
+    for (unsigned int i = 0; i < chunk_len; ++i) {
       acc = (acc << 8) | input[input_index++];
     }
     if (chunk_len < 4) {
@@ -1016,19 +1016,19 @@ char *utl_encoding_base85_encode(const uint8_t *input, size_t length) {
   return encoded;
 }
 
-uint8_t *utl_encoding_base85_decode(const char *input, size_t length) {
+unsigned char *utl_encoding_base85_decode(const char *input, unsigned int length) {
   if (input == NULL || length == 0) {
     utl_error_func("Invalid input or length", utl_user_defined_data);
     return NULL;
   }
-  size_t decoded_max_length = (length / 5) * 4;
-  uint8_t *decoded = malloc(decoded_max_length);
+  unsigned int decoded_max_length = (length / 5) * 4;
+  unsigned char *decoded = malloc(decoded_max_length);
   if (!decoded) {
     utl_error_func("Memory allocation failed for decoded string", utl_user_defined_data);
     return NULL;
   }
-  size_t input_index = 0;
-  size_t decoded_index = 0;
+  unsigned int input_index = 0;
+  unsigned int decoded_index = 0;
   while (input_index < length) {
     if (isspace(input[input_index])) {
       input_index++;
@@ -1040,7 +1040,7 @@ uint8_t *utl_encoding_base85_decode(const char *input, size_t length) {
       input_index++;
       continue;
     }
-    uint32_t acc = 0;
+    unsigned int acc = 0;
     int count = 0;
     for (int i = 0; i < 5 && input_index < length; ++i) {
       if (isspace(input[input_index])) {
@@ -1073,7 +1073,7 @@ uint8_t *utl_encoding_base85_decode(const char *input, size_t length) {
         break;
     }
   }
-  uint8_t *resized_decoded = realloc(decoded, decoded_index + 1);
+  unsigned char *resized_decoded = realloc(decoded, decoded_index + 1);
   if (!resized_decoded) {
     utl_error_func("Reallocation failed", utl_user_defined_data);
     free(decoded);
@@ -1083,20 +1083,20 @@ uint8_t *utl_encoding_base85_decode(const char *input, size_t length) {
   return resized_decoded;
 }
 
-char *utl_encoding_base58_encode(const void *data, size_t binsz) {
+char *utl_encoding_base58_encode(const void *data, unsigned int binsz) {
   if (!data) {
     utl_error_func("Invalid input data", utl_user_defined_data);
     return NULL;
   }
-  const uint8_t *bin = data;
+  const unsigned char *bin = data;
   int carry;
-  size_t i, j, high, zcount = 0;
-  size_t size;
+  unsigned int i, j, high, zcount = 0;
+  unsigned int size;
   while (zcount < binsz && !bin[zcount]) {
     ++zcount;
   }
   size = (binsz - zcount) * 138 / 100 + 1;
-  uint8_t *buf = malloc(size * sizeof(uint8_t));
+  unsigned char *buf = malloc(size * sizeof(unsigned char));
   if (!buf) {
     utl_error_func("Memory allocation failed for buffer", utl_user_defined_data);
     return NULL;
@@ -1113,7 +1113,7 @@ char *utl_encoding_base58_encode(const void *data, size_t binsz) {
     }
   }
   for (j = 0; j < size && !buf[j]; ++j) {}
-  size_t b58sz = zcount + size - j + 1;
+  unsigned int b58sz = zcount + size - j + 1;
   char *b58 = malloc(b58sz);
   if (!b58) {
     utl_error_func("Memory allocation failed for Base58 encoded result", utl_user_defined_data);
@@ -1131,22 +1131,22 @@ char *utl_encoding_base58_encode(const void *data, size_t binsz) {
   return b58;
 }
 
-char *utl_encoding_base58_decode(const char *b58, size_t *binszp) {
+char *utl_encoding_base58_decode(const char *b58, unsigned int *binszp) {
   if (b58 == NULL || binszp == NULL) {
     utl_error_func("Invalid input or binszp pointer", utl_user_defined_data);
     return NULL;
   }
-  size_t b58sz = strlen(b58);
-  size_t binsz = b58sz * 733 / 1000 + 1;
-  uint8_t *bin = malloc(binsz);
+  unsigned int b58sz = strlen(b58);
+  unsigned int binsz = b58sz * 733 / 1000 + 1;
+  unsigned char *bin = malloc(binsz);
   if (!bin) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
   memset(bin, 0, binsz);
-  size_t i, j;
+  unsigned int i, j;
   int carry;
-  size_t high = binsz - 1;
+  unsigned int high = binsz - 1;
   for (i = 0; i < b58sz; ++i) {
     if (b58[i] & 0x80 || b58digits_map[(unsigned char)b58[i]] == -1) {
       utl_error_func("Invalid Base58 character encountered", utl_user_defined_data);
@@ -1176,14 +1176,14 @@ char *utl_encoding_base58_decode(const char *b58, size_t *binszp) {
   return result;
 }
 
-uint8_t *utl_encoding_base91_decode(const char *encoded, size_t *decoded_length) {
+unsigned char *utl_encoding_base91_decode(const char *encoded, unsigned int *decoded_length) {
   if (!encoded || !decoded_length) {
     utl_error_func("Invalid input or decoded_length pointer", utl_user_defined_data);
     return NULL;
   }
-  size_t len = strlen(encoded);
+  unsigned int len = strlen(encoded);
   *decoded_length = 0;
-  uint8_t *decoded = malloc(len);
+  unsigned char *decoded = malloc(len);
   if (!decoded) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
@@ -1191,8 +1191,8 @@ uint8_t *utl_encoding_base91_decode(const char *encoded, size_t *decoded_length)
   int v = -1;
   int b = 0;
   int n = 0;
-  size_t index = 0;
-  for (size_t i = 0; i < len; ++i) {
+  unsigned int index = 0;
+  for (unsigned int i = 0; i < len; ++i) {
     int c = base91_decode_value(encoded[i]);
     if (c == -1) {
       utl_error_func("Invalid character encountered", utl_user_defined_data);
@@ -1212,7 +1212,7 @@ uint8_t *utl_encoding_base91_decode(const char *encoded, size_t *decoded_length)
           free(decoded);
           return NULL;
         }
-        decoded[index++] = (uint8_t)(b & 255);
+        decoded[index++] = (unsigned char)(b & 255);
         b >>= 8;
         n -= 8;
       }
@@ -1225,28 +1225,28 @@ uint8_t *utl_encoding_base91_decode(const char *encoded, size_t *decoded_length)
       free(decoded);
       return NULL;
     }
-    decoded[index++] = (uint8_t)((b | v << n) & 255);
+    decoded[index++] = (unsigned char)((b | v << n) & 255);
   }
   *decoded_length = index;
   return decoded;
 }
 
-char *utl_encoding_base91_encode(const uint8_t *data, size_t length) {
+char *utl_encoding_base91_encode(const unsigned char *data, unsigned int length) {
   if (!data || length == 0) {
     utl_error_func("Invalid input data or length", utl_user_defined_data);
     return NULL;
   }
-  size_t estimated_length = length * 1.23 + 2;
+  unsigned int estimated_length = length * 1.23 + 2;
   char *encoded = malloc(estimated_length);
   if (!encoded) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t index = 0;
+  unsigned int index = 0;
   int b = 0;
   int n = 0;
   int v;
-  for (size_t i = 0; i < length; ++i) {
+  for (unsigned int i = 0; i < length; ++i) {
     b |= (data[i] << n);
     n += 8;
     if (n > 13) {
@@ -1331,8 +1331,8 @@ char *utl_encoding_wchar_to_utf8(const wchar_t *wstr) {
   }
 #else
   setlocale(LC_ALL, "en_US.UTF-8");
-  size_t utf8Length = wcstombs(NULL, wstr, 0);
-  if (utf8Length == (size_t)-1) {
+  unsigned int utf8Length = wcstombs(NULL, wstr, 0);
+  if (utf8Length == (unsigned int)-1) {
     utl_error_func("Wcstombs failed", utl_user_defined_data);
     return NULL;
   }
@@ -1341,7 +1341,7 @@ char *utl_encoding_wchar_to_utf8(const wchar_t *wstr) {
     utl_error_func("Cannot allocate memory for UTF-8 string", utl_user_defined_data);
     return NULL;
   }
-  if (wcstombs(utf8Str, wstr, utf8Length + 1) == (size_t)-1) {
+  if (wcstombs(utf8Str, wstr, utf8Length + 1) == (unsigned int)-1) {
     utl_error_func("Conversion from wchar to UTF-8 failed", utl_user_defined_data);
     free(utf8Str);
     return NULL;

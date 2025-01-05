@@ -13,16 +13,16 @@
 #include <unistd.h>
 #endif 
 
-static size_t u16_strlen(const uint16_t *str) {
-  const uint16_t *s = str;
+static size_t u16_strlen(const unsigned short *str) {
+  const unsigned short *s = str;
   while (*s != 0) {
     s++;
   }
   return s - str;
 }
 
-static size_t u32_strlen(const uint32_t *str) {
-  const uint32_t *s = str;
+static size_t u32_strlen(const unsigned int *str) {
+  const unsigned int *s = str;
   while (*s != 0) {
     s++;
   }
@@ -216,12 +216,12 @@ size_t utl_file_writer_write(void *buffer, size_t size, size_t count, utl_file_w
   size_t written = 0;
   switch (writer->encoding) {
     case UTL_WRITE_ENCODING_UTF32: {
-      uint32_t *utf32Buffer = utl_encoding_utf8_to_utf32((const uint8_t*)buffer, size * count);
+      unsigned int *utf32Buffer = utl_encoding_utf8_to_utf32((const unsigned char*)buffer, size * count);
       if (!utf32Buffer) {
         utl_error_func("Conversion to UTF-32 failed", utl_user_defined_data);
         return 0;
       }
-      written = fwrite(utf32Buffer, sizeof(uint32_t), u32_strlen((uint32_t *)utf32Buffer), writer->file_writer);
+      written = fwrite(utf32Buffer, sizeof(unsigned int), u32_strlen((unsigned int *)utf32Buffer), writer->file_writer);
       free(utf32Buffer);
       break;
     }
@@ -241,12 +241,12 @@ size_t utl_file_writer_write(void *buffer, size_t size, size_t count, utl_file_w
       }
 #else
       if (writer->encoding == UTL_WRITE_ENCODING_UTF16) {
-        uint16_t *utf16Buffer = utl_encoding_utf8_to_utf16((const uint8_t *)buffer, size * count);
+        unsigned short *utf16Buffer = utl_encoding_utf8_to_utf16((const unsigned char *)buffer, size * count);
         if (!utf16Buffer) {
           utl_error_func("Conversion to UTF-16 failed", utl_user_defined_data);
           return 0;
         }
-        written = fwrite(utf16Buffer, sizeof(uint16_t), u16_strlen((uint16_t *)utf16Buffer), writer->file_writer);
+        written = fwrite(utf16Buffer, sizeof(unsigned short), u16_strlen((unsigned short *)utf16Buffer), writer->file_writer);
         free(utf16Buffer);
       } 
       else {
@@ -576,13 +576,13 @@ bool utl_file_writer_write_batch(utl_file_writer *writer, const void **buffers, 
     size_t convertedSize = 0;     
     switch (writer->encoding) {
       case UTL_WRITE_ENCODING_UTF32: {
-        uint32_t *utf32Buffer = utl_encoding_utf8_to_utf32((const uint8_t *)buffer, size);
+        unsigned int *utf32Buffer = utl_encoding_utf8_to_utf32((const unsigned char *)buffer, size);
         if (!utf32Buffer) {
           utl_error_func("Conversion to UTF-32 failed at index", utl_user_defined_data);
           continue;
         }
         convertedBuffer = utf32Buffer;
-        convertedSize = wcslen((wchar_t *)utf32Buffer) * sizeof(uint32_t);
+        convertedSize = wcslen((wchar_t *)utf32Buffer) * sizeof(unsigned int);
         break;
       }
       default:
@@ -596,13 +596,13 @@ bool utl_file_writer_write_batch(utl_file_writer *writer, const void **buffers, 
         convertedBuffer = wBuffer;
         convertedSize = wcslen(wBuffer) * sizeof(wchar_t);
 #else
-        uint16_t *utf16Buffer = utl_encoding_utf8_to_utf16((const uint8_t *)buffer, size);
+        unsigned short *utf16Buffer = utl_encoding_utf8_to_utf16((const unsigned char *)buffer, size);
         if (!utf16Buffer) {
           utl_error_func("Conversion to UTF-16 failed at index", utl_user_defined_data);
           continue;
         }
         convertedBuffer = utf16Buffer;
-        convertedSize = wcslen((wchar_t*)utf16Buffer) * sizeof(uint16_t);
+        convertedSize = wcslen((wchar_t*)utf16Buffer) * sizeof(unsigned short);
 #endif
         break;
       }
