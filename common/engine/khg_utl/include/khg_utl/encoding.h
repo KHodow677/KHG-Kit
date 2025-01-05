@@ -4,8 +4,6 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
-#else
-#include <wchar.h>
 #endif
 
 enum utl_ascii85_errs_e {
@@ -29,12 +27,6 @@ typedef enum {
 
 void utl_encoding_hex_dump(const void *data, unsigned int size);
 void utl_encoding_initialize(void);
-
-#if defined(_WIN32) || defined(_WIN64)
-wchar_t *utl_encoding_utf8_to_wchar(const char *utf8Str);
-#endif 
-
-char *utl_encoding_wchar_to_utf8(const wchar_t* wstr);
 
 char *utl_encoding_base64_encode(const char *input, unsigned int length);
 char *utl_encoding_base64_decode(const char *input, unsigned int length);
