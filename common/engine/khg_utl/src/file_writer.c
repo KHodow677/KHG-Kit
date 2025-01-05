@@ -60,37 +60,13 @@ utl_file_writer *utl_file_writer_open(const char *filename, const utl_write_mode
       modeStr = "w";
       break;
     case UTL_WRITE_APPEND:
-#if defined(_WIN32) || defined(_WIN64)
-      modeStr = "a, ccs=UTF-8";
-#else 
       modeStr = "a";
-#endif 
       break;
     default:
-#if defined(_WIN32) || defined(_WIN64)
-      modeStr = "w, ccs=UTF-8";
-#else
       modeStr = "w";
-#endif 
       break;
   }
-#if defined(_WIN32) || defined(_WIN64)
-  wchar_t *wFileName = utl_encoding_utf8_to_wchar(filename);
-  wchar_t *wMode = utl_encoding_utf8_to_wchar(modeStr);
-  if (!wMode) {
-    utl_error_func("Cannot convert mode to wchar", utl_user_defined_data);
-    exit(-1);
-  }
-  if (!wFileName) {
-    utl_error_func("Cannot convert filename to wchar", utl_user_defined_data);
-    exit(-1);
-  }
-  writer->file_writer = _wfopen(wFileName, wMode);
-  free(wMode);
-  free(wFileName);
-#else 
   writer->file_writer = fopen(filename, modeStr);
-#endif 
   if (writer->file_writer == NULL) {
     utl_error_func("Cannot open file", utl_user_defined_data);
     free(writer);
@@ -134,36 +110,13 @@ utl_file_writer *utl_file_writer_append(const char *filename, const utl_write_mo
       modeStr = "a";
       break;
     case UTL_WRITE_APPEND:
-#if defined(_WIN32) || defined(_WIN64)
-      modeStr = "a, ccs=UTF-8";
-#else 
       modeStr = "a";
-#endif 
       break;
     default:
       modeStr = "a";
       break;
   }
-#if defined(_WIN32) || defined(_WIN64)
-  wchar_t *wFileName = utl_encoding_utf8_to_wchar(filename);
-  wchar_t *wMode = utl_encoding_utf8_to_wchar(modeStr);
-  if (!wMode) {
-    utl_error_func("Cannot convert mode to wchar", utl_user_defined_data);
-    free(writer);
-    return NULL;
-  }
-  if (!wFileName) {
-    utl_error_func("Cannot convert filename to wchar", utl_user_defined_data);
-    free(writer);
-    free(wMode);
-    return NULL;
-  }
-  writer->file_writer = _wfopen(wFileName, wMode);
-  free(wMode);
-  free(wFileName);
-#else 
   writer->file_writer = fopen(filename, modeStr);
-#endif 
   if (writer->file_writer == NULL) {
     utl_error_func("Cannot open file", utl_user_defined_data);
     free(writer);
