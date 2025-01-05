@@ -135,8 +135,8 @@ aud_wave aud_load_FLAC(const char *file_name) {
   aud_wave w = { 0 };
   unsigned int file_size = 0;
   unsigned char *file_data = aud_load_file_data(file_name, &file_size);
-  unsigned long long int total_sample_count = 0;
-  w.data = drflac_open_memory_and_read_pcm_frames_s16(file_data, file_size, &w.channels, &w.sample_rate, (unsigned long *)&total_sample_count);
+  unsigned long long total_sample_count = 0;
+  w.data = drflac_open_memory_and_read_pcm_frames_s16(file_data, file_size, &w.channels, &w.sample_rate, &total_sample_count);
   if (w.data == NULL) {
     utl_error_func("Failed to load FLAC data", utl_user_defined_data);
   }
@@ -152,9 +152,9 @@ aud_wave aud_load_MP3(const char *file_name) {
   aud_wave w = { 0 };
   unsigned int file_size = 0;
   unsigned char *file_data = aud_load_file_data(file_name, &file_size);
-  unsigned long long int total_frame_count = 0;
+  unsigned long long total_frame_count = 0;
   drmp3_config config = { 0 };
-  w.data = drmp3_open_memory_and_read_f32(file_data, file_size, &config, (unsigned long *)&total_frame_count);
+  w.data = drmp3_open_memory_and_read_f32(file_data, file_size, &config, &total_frame_count);
   if (w.data == NULL) {
     utl_error_func("Failed to load MP3 data", utl_user_defined_data);
   }

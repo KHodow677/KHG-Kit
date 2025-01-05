@@ -76,15 +76,14 @@ typedef unsigned int     drmp3_uint32;
 typedef   signed __int64 drmp3_int64;
 typedef unsigned __int64 drmp3_uint64;
 #else
-#include <stdint.h>
-typedef int8_t           drmp3_int8;
-typedef uint8_t          drmp3_uint8;
-typedef int16_t          drmp3_int16;
-typedef uint16_t         drmp3_uint16;
-typedef int32_t          drmp3_int32;
-typedef uint32_t         drmp3_uint32;
-typedef int64_t          drmp3_int64;
-typedef uint64_t         drmp3_uint64;
+typedef char drmp3_int8;
+typedef unsigned char drmp3_uint8;
+typedef short drmp3_int16;
+typedef unsigned short drmp3_uint16;
+typedef int drmp3_int32;
+typedef unsigned int drmp3_uint32;
+typedef long long drmp3_int64;
+typedef unsigned long long drmp3_uint64;
 #endif
 typedef drmp3_uint8      drmp3_bool8;
 typedef drmp3_uint32     drmp3_bool32;

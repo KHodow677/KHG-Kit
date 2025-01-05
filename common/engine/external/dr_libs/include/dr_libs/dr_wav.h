@@ -169,15 +169,14 @@ extern "C" {
         #pragma GCC diagnostic pop
     #endif
 #else
-    #include <stdint.h>
-    typedef int8_t           drwav_int8;
-    typedef uint8_t          drwav_uint8;
-    typedef int16_t          drwav_int16;
-    typedef uint16_t         drwav_uint16;
-    typedef int32_t          drwav_int32;
-    typedef uint32_t         drwav_uint32;
-    typedef int64_t          drwav_int64;
-    typedef uint64_t         drwav_uint64;
+    typedef char           drwav_int8;
+    typedef unsigned char          drwav_uint8;
+    typedef short          drwav_int16;
+    typedef unsigned short         drwav_uint16;
+    typedef int          drwav_int32;
+    typedef unsigned int         drwav_uint32;
+    typedef long long          drwav_int64;
+    typedef unsigned long long         drwav_uint64;
 #endif
 typedef drwav_uint8          drwav_bool8;
 typedef drwav_uint32         drwav_bool32;

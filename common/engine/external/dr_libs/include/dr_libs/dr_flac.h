@@ -129,15 +129,14 @@ typedef unsigned int     drflac_uint32;
 typedef   signed __int64 drflac_int64;
 typedef unsigned __int64 drflac_uint64;
 #else
-#include <stdint.h>
-typedef int8_t           drflac_int8;
-typedef uint8_t          drflac_uint8;
-typedef int16_t          drflac_int16;
-typedef uint16_t         drflac_uint16;
-typedef int32_t          drflac_int32;
-typedef uint32_t         drflac_uint32;
-typedef int64_t          drflac_int64;
-typedef uint64_t         drflac_uint64;
+typedef char drflac_int8;
+typedef unsigned char drflac_uint8;
+typedef short drflac_int16;
+typedef unsigned short drflac_uint16;
+typedef int drflac_int32;
+typedef unsigned int drflac_uint32;
+typedef long long drflac_int64;
+typedef unsigned long long drflac_uint64;
 #endif
 typedef drflac_uint8     drflac_bool8;
 typedef drflac_uint32    drflac_bool32;
@@ -864,8 +863,8 @@ DRFLAC_DEPRECATED float* drflac_open_and_decode_memory_f32(const void* data, siz
 #endif
 
 #ifdef __linux__
-    #ifndef _BSD_SOURCE
-        #define _BSD_SOURCE
+    #ifndef _DEFAULT_SOURCE
+        #define _DEFAULT_SOURCE
     #endif
     #ifndef __USE_BSD
         #define __USE_BSD
