@@ -14,10 +14,10 @@ int thd_mutex_init(thd_mutex *mtx, int type) {
   else {
     mtx->mHandle.mut = CreateMutex(NULL, false, NULL);
     if (mtx->mHandle.mut == NULL) {
-      return THREAD_ERROR;
+      return THD_THREAD_ERROR;
     }
   }
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 #else
   int ret;
   pthread_mutexattr_t attr;
@@ -55,7 +55,7 @@ int thd_mutex_lock(thd_mutex *mtx) {
         break;
       case WAIT_ABANDONED:
       default:
-        return THREAD_ERROR;
+        return THD_THREAD_ERROR;
     }
   }
 
@@ -65,7 +65,7 @@ int thd_mutex_lock(thd_mutex *mtx) {
     }
     mtx->mAlreadyLocked = true;
   }
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 #else
   return pthread_mutex_lock(mtx) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
@@ -76,7 +76,7 @@ int thd_mutex_timed_lock(thd_mutex *mtx, const struct timespec *ts) {
   struct timespec current_ts;
   DWORD timeoutMs;
   if (!mtx->mTimed) {
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
   timespec_get(&current_ts, TIME_UTC);
   if ((current_ts.tv_sec > ts->tv_sec) || ((current_ts.tv_sec == ts->tv_sec) && (current_ts.tv_nsec >= ts->tv_nsec))) {
@@ -91,10 +91,10 @@ int thd_mutex_timed_lock(thd_mutex *mtx, const struct timespec *ts) {
     case WAIT_OBJECT_0:
       break;
     case WAIT_TIMEOUT:
-      return THREAD_TIMEOUT;
+      return THD_THREAD_TIMEOUT;
     case WAIT_ABANDONED:
     default:
-      return THREAD_ERROR;
+      return THD_THREAD_ERROR;
   }
   if (!mtx->mRecursive) {
     while(mtx->mAlreadyLocked) {
@@ -102,7 +102,7 @@ int thd_mutex_timed_lock(thd_mutex *mtx, const struct timespec *ts) {
     }
     mtx->mAlreadyLocked = true;
   }
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 #else
   switch (pthread_mutex_timedlock(mtx, ts)) {
     case 0:
@@ -119,15 +119,15 @@ int thd_mutex_trylock(thd_mutex *mtx) {
 #if defined(_WIN32) || defined(_WIN64)
   int ret;
   if (!mtx->mTimed) {
-    ret = TryEnterCriticalSection(&(mtx->mHandle.cs)) ? THREAD_SUCCESS : THREAD_BUSY;
+    ret = TryEnterCriticalSection(&(mtx->mHandle.cs)) ? THD_THREAD_SUCCESS : THD_THREAD_BUSY;
   }
   else {
-    ret = (WaitForSingleObject(mtx->mHandle.mut, 0) == WAIT_OBJECT_0) ? THREAD_SUCCESS : THREAD_BUSY;
+    ret = (WaitForSingleObject(mtx->mHandle.mut, 0) == WAIT_OBJECT_0) ? THD_THREAD_SUCCESS : THD_THREAD_BUSY;
   }
-  if ((!mtx->mRecursive) && (ret == THREAD_SUCCESS)){
+  if ((!mtx->mRecursive) && (ret == THD_THREAD_SUCCESS)){
     if (mtx->mAlreadyLocked) {
       LeaveCriticalSection(&(mtx->mHandle.cs));
-      ret = THREAD_BUSY;
+      ret = THD_THREAD_BUSY;
     }
     else {
       mtx->mAlreadyLocked = true;
@@ -147,10 +147,10 @@ int thd_mutex_unlock(thd_mutex *mtx) {
   }
   else {
     if (!ReleaseMutex(mtx->mHandle.mut)) {
-      return THREAD_ERROR;
+      return THD_THREAD_ERROR;
     }
   }
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 #else
   return pthread_mutex_unlock(mtx) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;;
 #endif
@@ -163,15 +163,15 @@ int thd_condition_init(thd_thread_condition *cond) {
   cond->mEvents[_CONDITION_EVENT_ONE] = CreateEvent(NULL, false, false, NULL);
   if (cond->mEvents[_CONDITION_EVENT_ONE] == NULL) {
     cond->mEvents[_CONDITION_EVENT_ALL] = NULL;
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
   cond->mEvents[_CONDITION_EVENT_ALL] = CreateEvent(NULL, true, false, NULL);
   if (cond->mEvents[_CONDITION_EVENT_ALL] == NULL) {
     CloseHandle(cond->mEvents[_CONDITION_EVENT_ONE]);
     cond->mEvents[_CONDITION_EVENT_ONE] = NULL;
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 #else
   return pthread_cond_init(cond, NULL) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
@@ -216,10 +216,10 @@ int thd_condition_broadcast(thd_thread_condition *cond) {
   LeaveCriticalSection(&cond->mWaitersCountLock);
   if(haveWaiters) {
     if (SetEvent(cond->mEvents[_CONDITION_EVENT_ALL]) == 0) {
-      return THREAD_ERROR;
+      return THD_THREAD_ERROR;
     }
   }
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 #else
   return pthread_cond_broadcast(cond) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
@@ -236,11 +236,11 @@ static int _cnd_timedwait_win32(ThreadCondition *cond, thd_mutex *mtx, DWORD tim
   result = WaitForMultipleObjects(2, cond->mEvents, false, timeout);
   if (result == WAIT_TIMEOUT) {
     mutex_lock(mtx);
-    return THREAD_TIMEOUT;
+    return THD_THREAD_TIMEOUT;
   }
   else if (result == WAIT_FAILED) {
     mutex_lock(mtx);
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
   EnterCriticalSection(&cond->mWaitersCountLock);
   --cond->mWaitersCount;
@@ -249,11 +249,11 @@ static int _cnd_timedwait_win32(ThreadCondition *cond, thd_mutex *mtx, DWORD tim
   if (lastWaiter) {
     if (ResetEvent(cond->mEvents[_CONDITION_EVENT_ALL]) == 0) {
       mutex_lock(mtx);
-      return THREAD_ERROR;
+      return THD_THREAD_ERROR;
     }
   }
   mutex_lock(mtx);
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 }
 #endif
 
@@ -276,7 +276,7 @@ int thd_condition_timedwait(thd_thread_condition *cond, thd_mutex *mtx, const st
     return _cnd_timedwait_win32(cond, mtx, delta);
   }
   else {
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
   #else
   int ret;
@@ -424,7 +424,7 @@ unsigned int thd_thread_hardware_concurrency(void) {
 
 int thd_thread_detach(thd_thread thr) {
 #if defined(_WIN32) || defined(_WIN64)
-  return CloseHandle(thr) != 0 ? THREAD_SUCCESS : THREAD_ERROR;
+  return CloseHandle(thr) != 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #else
   return pthread_detach(thr) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
@@ -453,14 +453,14 @@ int thd_thread_join(thd_thread thr, int *res) {
 #if defined(_WIN32) || defined(_WIN64)
   DWORD dwRes;
   if (WaitForSingleObject(thr, INFINITE) == WAIT_FAILED) {
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
   if (res != NULL) {
     if (GetExitCodeThread(thr, &dwRes) != 0) {
       *res = (int) dwRes;
     }
     else {
-      return THREAD_ERROR;
+      return THD_THREAD_ERROR;
     }
   }
   CloseHandle(thr);
@@ -523,7 +523,7 @@ int thd_thread_specific_create(thd_thread_specific *key, thd_thread_specific_des
 #if defined(_WIN32) || defined(_WIN64)
   *key = TlsAlloc();
   if (*key == TLS_OUT_OF_INDEXES) {
-    return THREAD_ERROR;
+    return THD_THREAD_ERROR;
   }
   _cthread_tss_dtors[*key] = dtor;
 #else
@@ -580,7 +580,7 @@ int thd_thread_specific_set(thd_thread_specific key, void *val) {
   if (data == NULL) {
       data = (struct CThreadTSSData*)malloc(sizeof(struct CThreadTSSData));
       if (data == NULL) {
-        return THREAD_ERROR;
+        return THD_THREAD_ERROR;
       }
 
     data->value = NULL;
@@ -600,7 +600,7 @@ int thd_thread_specific_set(thd_thread_specific key, void *val) {
 
     if (!TlsSetValue(key, data)){
         free (data);
-        return THREAD_ERROR;
+        return THD_THREAD_ERROR;
     }
   }
   data->value = val;
