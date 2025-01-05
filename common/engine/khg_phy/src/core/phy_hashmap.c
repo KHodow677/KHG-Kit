@@ -14,7 +14,7 @@ static inline void *phy_hashmap_get_bucket_item(phy_hashmap_bucket *entry) {
   return ((char *)entry) + sizeof(phy_hashmap_bucket);
 }
 
-static inline unsigned long phy_hashmap_clip(unsigned long hash) {
+static inline unsigned long long phy_hashmap_clip(unsigned long long hash) {
   return hash & 0xFFFFFFFFFFFF;
 }
 
@@ -55,7 +55,7 @@ static inline bool phy_hashmap_resize(phy_hashmap *hashmap, unsigned int new_cap
   return true;
 }
 
-phy_hashmap *phy_hashmap_new(unsigned int item_size, unsigned int cap, unsigned long (*hash_func)(void *item)) {
+phy_hashmap *phy_hashmap_new(unsigned int item_size, unsigned int cap, unsigned long long (*hash_func)(void *item)) {
   unsigned int ncap = PHY_HASHMAP_CAPACITY;
   if (cap < ncap) {
     cap = ncap;
@@ -120,7 +120,7 @@ void phy_hashmap_clear(phy_hashmap *hashmap) {
 }
 
 void *phy_hashmap_set(phy_hashmap *hashmap, void *item) {
-  unsigned long hash = phy_hashmap_clip(hashmap->hash_func(item));
+  unsigned long long hash = phy_hashmap_clip(hashmap->hash_func(item));
   hash = phy_hashmap_clip(hash);
   hashmap->oom = false;
   if (hashmap->count == hashmap->grow_at) {
@@ -161,7 +161,7 @@ void *phy_hashmap_set(phy_hashmap *hashmap, void *item) {
 }
 
 void *phy_hashmap_get(phy_hashmap *hashmap, void *key) {
-  unsigned long hash = phy_hashmap_clip(hashmap->hash_func(key));
+  unsigned long long hash = phy_hashmap_clip(hashmap->hash_func(key));
   hash = phy_hashmap_clip(hash);
   unsigned int i = hash & hashmap->mask;
   while (true) {
@@ -180,7 +180,7 @@ void *phy_hashmap_get(phy_hashmap *hashmap, void *key) {
 }
 
 void *phy_hashmap_remove(phy_hashmap *hashmap, void *key) {
-  unsigned long hash = phy_hashmap_clip(hashmap->hash_func(key));
+  unsigned long long hash = phy_hashmap_clip(hashmap->hash_func(key));
   hash = phy_hashmap_clip(hash);
   hashmap->oom = false;
   unsigned int i = hash & hashmap->mask;

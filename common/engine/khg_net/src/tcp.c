@@ -713,7 +713,7 @@ net_tcp_status net_tcp_ssl_accept(net_tcp_socket socket) {
     short sslError = SSL_get_error(ssl, accept_result);
     utl_error_func("SSL accept failed", utl_user_defined_data);
     if (sslError == SSL_ERROR_SYSCALL) {
-      unsigned long err;
+      unsigned long long err;
       while ((err = ERR_get_error()) != 0) {
         utl_error_func("OpenSSL Error", utl_user_defined_data);
       }

@@ -54,8 +54,8 @@ typedef struct {
 
 typedef struct {
   char* input;
-  size_t input_len;
-  size_t position;
+  unsigned int input_len;
+  unsigned int position;
   utl_json_token current_token;
 } utl_json_parser_state;
 
@@ -76,8 +76,8 @@ char *utl_json_serialize(const utl_json_element *element);
 char *utl_json_format(const utl_json_element *element);
 char *utl_json_generate_schema(const utl_json_element* element);
 
-char **utl_json_to_string_array(const utl_json_element *array, size_t *length);
-char **utl_json_get_keys(const utl_json_element *object, size_t *num_keys);
+char **utl_json_to_string_array(const utl_json_element *array, unsigned int *length);
+char **utl_json_get_keys(const utl_json_element *object, unsigned int *num_keys);
 
 bool utl_json_write_to_file(const utl_json_element *element, const char *filename);
 bool utl_json_set_element(utl_json_element *element, const char *key_or_index, utl_json_element *new_element);
@@ -89,8 +89,8 @@ bool utl_json_add_to_object(utl_json_element *object, const char* key, utl_json_
 
 void *utl_json_convert(const utl_json_element *element, utl_json_type type);
 void *utl_json_reduce(const utl_json_element *array, utl_json_reduce_function reduce_func, void *initial_value, void *user_data);
-size_t utl_json_array_size(const utl_json_element *array);
-size_t utl_json_object_size(const utl_json_element *object);
+unsigned int utl_json_array_size(const utl_json_element *array);
+unsigned int utl_json_object_size(const utl_json_element *object);
 
 utl_json_type utl_json_type_of_element(const utl_json_element *element);
 

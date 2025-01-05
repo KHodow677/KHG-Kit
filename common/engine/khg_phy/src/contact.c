@@ -15,7 +15,7 @@ bool phy_persistent_contact_pair_penetrating(phy_persistent_contact_pair *pcp) {
   return penetrating;
 }
 
-unsigned long phy_persistent_contact_pair_hash(void *item) {
+unsigned long long phy_persistent_contact_pair_hash(void *item) {
   phy_persistent_contact_pair *pcp = (phy_persistent_contact_pair *)item;
   return phy_persistent_contact_pair_key(pcp->shape_a, pcp->shape_b);
 }

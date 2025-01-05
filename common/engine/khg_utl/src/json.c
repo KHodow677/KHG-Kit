@@ -116,7 +116,7 @@ static utl_json_element *utl_parse_string(utl_json_parser_state *state) {
     utl_error_func("Expected string token", utl_user_defined_data);
     return NULL;
   }
-  size_t start = state->position;
+  unsigned int start = state->position;
   while (state->input[state->position] != '\"' && state->input[state->position] != '\0') {
     if (state->input[state->position] == '\0') {
       utl_error_func("Unterminated string", utl_user_defined_data);
@@ -128,7 +128,7 @@ static utl_json_element *utl_parse_string(utl_json_parser_state *state) {
     utl_error_func("Unterminated string", utl_user_defined_data);
     return NULL;
   }
-  size_t length = state->position - start;
+  unsigned int length = state->position - start;
   char *str_content = (char *)malloc(length + 1);
   if (!str_content) {
     utl_error_func("Memory allocation failed for string", utl_user_defined_data);
@@ -152,11 +152,11 @@ static utl_json_element *utl_parse_number(utl_json_parser_state *state) {
     utl_error_func("Expected number token", utl_user_defined_data);
     return NULL;
   }
-  size_t start = state->position - 1;
+  unsigned int start = state->position - 1;
   while (isdigit((unsigned char)state->input[state->position]) || state->input[state->position] == '.' || state->input[state->position] == 'e' || state->input[state->position] == 'E' || (state->position != start && (state->input[state->position] == '+' || state->input[state->position] == '-'))) {
     state->position++;
   }
-  size_t length = state->position - start;
+  unsigned int length = state->position - start;
   char *number_str = (char *)malloc(length + 1);
   if (!number_str) {
     utl_error_func("Memory allocation failed for number string", utl_user_defined_data);
@@ -200,7 +200,7 @@ static utl_json_element *utl_parse_boolean(utl_json_parser_state *state) {
     utl_error_func("Expected boolean token", utl_user_defined_data);
     return NULL;
   }
-  size_t start = state->position - 1;
+  unsigned int start = state->position - 1;
   bool boolean_value;
   if (strncmp(state->input + start, "true", 4) == 0) {
     state->current_token.type = UTL_JSON_TOKEN_BOOLEAN;
@@ -322,7 +322,7 @@ static void json_print_internal(const utl_json_element *element, int indent) {
       break;
     case UTL_JSON_ARRAY:
       printf("[\n");
-      for (size_t i = 0; i < utl_vector_size(element->value.array_val); ++i) {
+      for (unsigned int i = 0; i < utl_vector_size(element->value.array_val); ++i) {
           print_indent(indent + 2);
           json_print_internal(*(utl_json_element **)utl_vector_at(element->value.array_val, i), indent + 2);
           if (i < utl_vector_size(element->value.array_val) - 1) {
@@ -394,7 +394,7 @@ void utl_json_deallocate(utl_json_element *element) {
       break;
     case UTL_JSON_ARRAY:
       if (element->value.array_val) {
-        for (size_t i = 0; i < utl_vector_size(element->value.array_val); ++i) {
+        for (unsigned int i = 0; i < utl_vector_size(element->value.array_val); ++i) {
           utl_json_element* e = *(utl_json_element **)utl_vector_at(element->value.array_val, i);
           utl_json_deallocate(e);
         }
@@ -443,7 +443,7 @@ static bool utl_json_find_in_array(const utl_json_element *array, utl_json_predi
     utl_error_func("Predicate function is null", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < utl_vector_size(array->value.array_val); ++i) {
+  for (unsigned int i = 0; i < utl_vector_size(array->value.array_val); ++i) {
     utl_json_element *current_element = *(utl_json_element **)utl_vector_at(array->value.array_val, i);
     if (predicate(current_element, user_data)) {
       *found_element = current_element;
@@ -485,7 +485,7 @@ static void serialize_string(const char *value, utl_string *str) {
 
 static void serialize_array(const utl_json_element *element, utl_string *str) {
   utl_string_append(str, "[");
-  for (size_t i = 0; i < utl_vector_size(element->value.array_val); ++i) {
+  for (unsigned int i = 0; i < utl_vector_size(element->value.array_val); ++i) {
     utl_json_serialize_internal(*(utl_json_element **)utl_vector_at(element->value.array_val, i), str);
     if (i < utl_vector_size(element->value.array_val) - 1) {
       utl_string_append(str, ", ");
@@ -557,7 +557,7 @@ static void format_string(const char *value, utl_string *str) {
 
 static void format_array(const utl_json_element *element, utl_string *str, int indent) {
   utl_string_append(str, "[\n");
-  for (size_t i = 0; i < utl_vector_size(element->value.array_val); ++i) {
+  for (unsigned int i = 0; i < utl_vector_size(element->value.array_val); ++i) {
     append_indent(str, indent + 2);
     utl_json_format_internal(*(utl_json_element **)utl_vector_at(element->value.array_val, i), str, indent + 2);
     if (i < utl_vector_size(element->value.array_val) - 1) {
@@ -722,14 +722,14 @@ utl_json_element *utl_json_read_from_file(const char *filename) {
     utl_error_func("Failed to open file", utl_user_defined_data);
     return NULL;
   }
-  size_t json_file_size = utl_file_reader_get_size(json);
+  unsigned int json_file_size = utl_file_reader_get_size(json);
   char *buffer = (char *)malloc(sizeof(char) * (json_file_size + 1));
   if (!buffer) {
     utl_error_func("Memory allocation failed for buffer", utl_user_defined_data);
     utl_file_reader_close(json);
     return NULL;
   }
-  size_t size = utl_file_reader_read(buffer, sizeof(char), json_file_size, json);
+  unsigned int size = utl_file_reader_read(buffer, sizeof(char), json_file_size, json);
   if (size == 0) {
     utl_error_func("Cannot read JSON file", utl_user_defined_data);
     free(buffer);
@@ -774,18 +774,18 @@ utl_json_element *utl_json_get_element(const utl_json_element *element, const ch
     case UTL_JSON_ARRAY: {
       char *end;
       long index = strtol(key_or_index, &end, 10);
-      if (end == key_or_index || *end != '\0' || index < 0 || (size_t)index >= utl_vector_size(element->value.array_val)) {
+      if (end == key_or_index || *end != '\0' || index < 0 || (unsigned int)index >= utl_vector_size(element->value.array_val)) {
         utl_error_func("Invalid index '%s'", utl_user_defined_data);
         return NULL;
       }
-      return *(utl_json_element **)utl_vector_at(element->value.array_val, (size_t)index); }
+      return *(utl_json_element **)utl_vector_at(element->value.array_val, (unsigned int)index); }
     default:
       utl_error_func("Attempted to access non-object/non-array JSON element", utl_user_defined_data);
       return NULL;
   }
 }
 
-size_t utl_json_array_size(const utl_json_element *array) {
+unsigned int utl_json_array_size(const utl_json_element *array) {
   if (!array) {
     utl_error_func("The provided JSON element is null", utl_user_defined_data);
     return 0;
@@ -797,7 +797,7 @@ size_t utl_json_array_size(const utl_json_element *array) {
   return utl_vector_size(array->value.array_val);
 }
 
-size_t utl_json_object_size(const utl_json_element *object) {
+unsigned int utl_json_object_size(const utl_json_element *object) {
   if (!object) {
     utl_error_func("The provided JSON element is null", utl_user_defined_data);
     return 0;
@@ -838,7 +838,7 @@ utl_json_element *utl_json_deep_copy(const utl_json_element *element) {
       }
       break;
     case UTL_JSON_ARRAY:
-      for (size_t i = 0; i < utl_vector_size(element->value.array_val); ++i) {
+      for (unsigned int i = 0; i < utl_vector_size(element->value.array_val); ++i) {
         utl_json_element *item = utl_json_deep_copy(*(utl_json_element **)utl_vector_at(element->value.array_val, i));
         if (!item) {
           utl_json_deallocate(copy);
@@ -906,7 +906,7 @@ bool utl_json_write_to_file(const utl_json_element *element, const char *filenam
     free(jsonString);
     return false;
   }
-  size_t written = utl_file_writer_write(jsonString, sizeof(char), strlen(jsonString), writer);
+  unsigned int written = utl_file_writer_write(jsonString, sizeof(char), strlen(jsonString), writer);
   free(jsonString);
   if (written == 0) {
     utl_error_func("Failed to write to file", utl_user_defined_data);
@@ -962,7 +962,7 @@ bool utl_json_compare(const utl_json_element *element1, const utl_json_element *
       if (utl_vector_size(element1->value.array_val) != utl_vector_size(element2->value.array_val)) {
         return false;
       }
-      for (size_t i = 0; i < utl_vector_size(element1->value.array_val); ++i) {
+      for (unsigned int i = 0; i < utl_vector_size(element1->value.array_val); ++i) {
         utl_json_element *item1 = *(utl_json_element **)utl_vector_at(element1->value.array_val, i);
         utl_json_element *item2 = *(utl_json_element **)utl_vector_at(element2->value.array_val, i);
         if (!utl_json_compare(item1, item2)) {
@@ -1009,11 +1009,11 @@ bool utl_json_set_element(utl_json_element *element, const char *key_or_index, u
     case UTL_JSON_ARRAY: {
       char *end;
       long index = strtol(key_or_index, &end, 10);
-      if (end == key_or_index || *end != '\0' || index < 0 || (size_t)index >= utl_vector_size(element->value.array_val)) {
+      if (end == key_or_index || *end != '\0' || index < 0 || (unsigned int)index >= utl_vector_size(element->value.array_val)) {
         utl_error_func("Invalid index", utl_user_defined_data);
         return false;
       }
-      utl_json_element **array_element = utl_vector_at(element->value.array_val, (size_t)index);
+      utl_json_element **array_element = utl_vector_at(element->value.array_val, (unsigned int)index);
       utl_json_deallocate(*array_element);
       *array_element = new_element;
       return true; }
@@ -1041,13 +1041,13 @@ bool utl_json_remove_element(utl_json_element *element, const char *key_or_index
     case UTL_JSON_ARRAY: {
       char *end;
       long index = strtol(key_or_index, &end, 10);
-      if (end == key_or_index || *end != '\0' || index < 0 || (size_t)index >= utl_vector_size(element->value.array_val)) {
+      if (end == key_or_index || *end != '\0' || index < 0 || (unsigned int)index >= utl_vector_size(element->value.array_val)) {
         utl_error_func("Invalid array index", utl_user_defined_data);
         return false;
       }
-      utl_json_element **array_element = utl_vector_at(element->value.array_val, (size_t)index);
+      utl_json_element **array_element = utl_vector_at(element->value.array_val, (unsigned int)index);
       utl_json_deallocate(*array_element);
-      utl_vector_erase(element->value.array_val, (size_t)index, 1);
+      utl_vector_erase(element->value.array_val, (unsigned int)index, 1);
       return true; }
     default:
       utl_error_func("JSON Element is neither an object nor an array", utl_user_defined_data);
@@ -1130,7 +1130,7 @@ utl_json_element *utl_json_merge(const utl_json_element *element1, const utl_jso
   return merged;
 }
 
-char **utl_json_to_string_array(const utl_json_element *array, size_t *length) {
+char **utl_json_to_string_array(const utl_json_element *array, unsigned int *length) {
   if (!array || array->type != UTL_JSON_ARRAY || !length) {
     utl_error_func("Invalid input", utl_user_defined_data);
     return NULL;
@@ -1146,7 +1146,7 @@ char **utl_json_to_string_array(const utl_json_element *array, size_t *length) {
     *length = 0;
     return NULL;
   }
-  for (size_t i = 0; i < *length; ++i) {
+  for (unsigned int i = 0; i < *length; ++i) {
     utl_json_element *element = *(utl_json_element **)utl_vector_at(array->value.array_val, i);
     if (!element || element->type != UTL_JSON_STRING) {
       utl_error_func("Non-string element found", utl_user_defined_data);
@@ -1233,10 +1233,10 @@ void *utl_json_convert(const utl_json_element *element, utl_json_type type) {
       }
       switch (element->type) {
         case UTL_JSON_STRING: {
-          size_t i = 0;
-          size_t len = strlen(element->value.string_val);
+          unsigned int i = 0;
+          unsigned int len = strlen(element->value.string_val);
           while (i < len) {
-            size_t char_len = utl_string_utf8_char_len(element->value.string_val[i]);
+            unsigned int char_len = utl_string_utf8_char_len(element->value.string_val[i]);
             if (char_len == 0 || i + char_len > len) {
               utl_json_deallocate(array);
               utl_error_func("Invalid UTF-8", utl_user_defined_data); 
@@ -1342,12 +1342,12 @@ utl_json_element *utl_json_map(const utl_json_element *array, utl_json_map_funct
     utl_error_func("Memory allocation failed for result array", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < utl_vector_size(array->value.array_val); ++i) {
+  for (unsigned int i = 0; i < utl_vector_size(array->value.array_val); ++i) {
     utl_json_element *currentElement = *(utl_json_element **)utl_vector_at(array->value.array_val, i);
     utl_json_element *transformedElement = map_func(currentElement, user_data);
     if (!transformedElement) {
       utl_error_func("Transformation failed for JSON element", utl_user_defined_data);
-      for (size_t j = 0; j < i; ++j) {
+      for (unsigned int j = 0; j < i; ++j) {
         utl_json_element *previousElement = *(utl_json_element **)utl_vector_at(resultArray->value.array_val, j);
         utl_json_deallocate(previousElement);
       }
@@ -1374,13 +1374,13 @@ utl_json_element *utl_json_filter(const utl_json_element *array, utl_json_predic
     utl_error_func("Memory allocation failed for the result array", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < utl_vector_size(array->value.array_val); ++i) {
+  for (unsigned int i = 0; i < utl_vector_size(array->value.array_val); ++i) {
     utl_json_element *currentElement = *(utl_json_element **)utl_vector_at(array->value.array_val, i);
     if (predicate(currentElement, user_data)) {
       utl_json_element *elementCopy = utl_json_deep_copy(currentElement);
       if (!elementCopy) {
         utl_error_func("Memory allocation failed during deep copy", utl_user_defined_data);
-        for (size_t j = 0; j < utl_vector_size(resultArray->value.array_val); ++j) {
+        for (unsigned int j = 0; j < utl_vector_size(resultArray->value.array_val); ++j) {
           utl_json_element *previousElement = *(utl_json_element **)utl_vector_at(resultArray->value.array_val, j);
           utl_json_deallocate(previousElement);
         }
@@ -1404,7 +1404,7 @@ void *utl_json_reduce(const utl_json_element *array, utl_json_reduce_function re
     return NULL;
   }
   void *accumulator = initial_value;
-  for (size_t i = 0; i < utl_vector_size(array->value.array_val); ++i) {
+  for (unsigned int i = 0; i < utl_vector_size(array->value.array_val); ++i) {
     utl_json_element *currentElement = *(utl_json_element **)utl_vector_at(array->value.array_val, i);
     accumulator = reduce_func(currentElement, accumulator, user_data);
   }
@@ -1466,7 +1466,7 @@ utl_json_element *utl_json_clone(const utl_json_element *element) {
   return clonedElement;
 }
 
-char **utl_json_get_keys(const utl_json_element *object, size_t *num_keys) {
+char **utl_json_get_keys(const utl_json_element *object, unsigned int *num_keys) {
   if (!object || object->type != UTL_JSON_OBJECT || !num_keys) {
     utl_error_func("Invalid input", utl_user_defined_data);
     return NULL;
@@ -1477,7 +1477,7 @@ char **utl_json_get_keys(const utl_json_element *object, size_t *num_keys) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
     return NULL;
   }
-  size_t i = 0;
+  unsigned int i = 0;
   utl_map_iterator it = utl_map_begin(object->value.object_val);
   utl_map_iterator end = utl_map_end(object->value.object_val);
   while (it.node != end.node) {

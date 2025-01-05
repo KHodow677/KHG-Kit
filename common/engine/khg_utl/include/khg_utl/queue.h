@@ -6,14 +6,14 @@ typedef struct {
   utl_vector *vec;
 } utl_queue;
 
-utl_queue *utl_queue_create(size_t itemSize);
-size_t utl_queue_size(const utl_queue *q);
+utl_queue *utl_queue_create(unsigned int itemSize);
+unsigned int utl_queue_size(const utl_queue *q);
 
 void *utl_queue_front(const utl_queue *q);
 void *utl_queue_back(const utl_queue *q);
 
 void utl_queue_pop(utl_queue *q);
-void utl_queue_emplace(utl_queue *q, void *item, size_t itemSize);
+void utl_queue_emplace(utl_queue *q, void *item, unsigned int itemSize);
 void utl_queue_swap(utl_queue *q1, utl_queue *q2);
 void utl_queue_deallocate(utl_queue *q); 
 void utl_queue_push(utl_queue *q, void *item);

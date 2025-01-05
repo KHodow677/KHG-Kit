@@ -24,7 +24,7 @@ typedef struct {
 utl_file_reader *utl_file_reader_open(const char *filename, const utl_read_mode mode);
 
 bool utl_file_reader_close(utl_file_reader *reader);
-bool utl_file_reader_seek(utl_file_reader *reader, long offset, const utl_cursor_position cursor_pos);
+bool utl_file_reader_seek(utl_file_reader *reader, long long offset, const utl_cursor_position cursor_pos);
 bool utl_file_reader_is_open(utl_file_reader *reader);
 bool utl_file_reader_eof(utl_file_reader *reader);
 bool utl_file_reader_copy(utl_file_reader *src_reader, utl_file_writer *dest_writer);

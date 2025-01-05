@@ -107,7 +107,7 @@ typedef struct {
   gfx_font *font_stack, *prev_font_stack;
   gfx_element_props div_props, prev_props_stack;
   gfx_color image_color_stack;
-  long element_id_stack;
+  long long element_id_stack;
   gfx_props_stack props_stack;
   gfx_key_event key_ev;
   gfx_mouse_button_event mb_ev;
@@ -117,7 +117,7 @@ typedef struct {
   vec2s cull_start, cull_end;
   gfx_texture tex_arrow_down, tex_tick;
   bool text_wrap, line_overflow, div_hoverable, input_grabbed;
-  unsigned long active_element_id;
+  unsigned long long active_element_id;
   float *scroll_velocity_ptr;
   float *scroll_ptr;
   gfx_div selected_div, selected_div_tmp, scrollbar_div, grabbed_div;
@@ -180,7 +180,7 @@ void gfx_internal_glfw_window_size_callback(GLFWwindow *window, int width, int h
 extern void gfx_internal_update_input(void);
 extern void gfx_internal_clear_events(void);
 
-extern unsigned long gfx_internal_djb2_hash(unsigned long hash, const void *buf, unsigned int size);
+extern unsigned long long gfx_internal_djb2_hash(unsigned long long hash, const void *buf, unsigned int size);
 
 extern void gfx_internal_props_stack_create(gfx_props_stack *stack); 
 extern void gfx_internal_props_stack_resize(gfx_props_stack *stack, unsigned int newcap); 

@@ -71,7 +71,7 @@ size_t utl_file_reader_get_position(utl_file_reader *reader) {
     utl_error_func("Object is null or invalid", utl_user_defined_data);
     return (size_t)-1;
   }
-  long cursor_position = ftell(reader->file_reader);
+  long long cursor_position = ftell(reader->file_reader);
   if (cursor_position == -1L) {
     utl_error_func("Could not determine file position", utl_user_defined_data);
     return (size_t)-1;
@@ -103,7 +103,7 @@ const char *utl_file_reader_get_file_name(utl_file_reader *reader) {
   return (const char *)reader->file_path;
 }
 
-bool utl_file_reader_seek(utl_file_reader *reader, long offset, const utl_cursor_position cursor_pos) {
+bool utl_file_reader_seek(utl_file_reader *reader, long long offset, const utl_cursor_position cursor_pos) {
   if (!reader || reader->file_reader == NULL) {
     utl_error_func("Object is null or invalid", utl_user_defined_data);
     return false;
@@ -144,7 +144,7 @@ size_t utl_file_reader_get_size(utl_file_reader *reader) {
     utl_error_func("FileReader object is not valid or NULL", utl_user_defined_data);
     return 0;
   }
-  long current_position = utl_file_reader_get_position(reader);
+  long long current_position = utl_file_reader_get_position(reader);
   if (fseek(reader->file_reader, 0, SEEK_END) != 0) {
     utl_error_func("Fseek failed to seek to end of file", utl_user_defined_data);
     return 0;

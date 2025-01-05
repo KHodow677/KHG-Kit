@@ -12,8 +12,8 @@ typedef struct phy_transform {
 
 static phy_vector2 phy_convex_hull_pivot;
 
-static inline unsigned long phy_u32_pair(unsigned int x, unsigned int y) {
-  return (unsigned long)x << 32 | y;
+static inline unsigned long long phy_u32_pair(unsigned int x, unsigned int y) {
+  return (unsigned long long)x << 32 | y;
 }
 
 static inline unsigned int phy_u32_hash(unsigned int x) {

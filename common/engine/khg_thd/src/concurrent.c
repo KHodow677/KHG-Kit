@@ -408,7 +408,7 @@ unsigned int thd_thread_current(void) {
 #if defined(_WIN32) || defined(_WIN64)
   return GetCurrentThreadId();
 #else
-  return (unsigned long)pthread_self();
+  return (unsigned long long)pthread_self();
 #endif
 }
 

@@ -3,14 +3,14 @@
 #include <stdbool.h>
 
 typedef struct {
-  unsigned long hash: 48;
-  unsigned long dib: 16;
+  unsigned long long hash: 48;
+  unsigned long long dib: 16;
 } phy_hashmap_bucket;
 
 typedef struct {
   unsigned int size;
   unsigned int cap;
-  unsigned long (*hash_func)(void *item);
+  unsigned long long (*hash_func)(void *item);
   unsigned int count;
   bool oom;
   unsigned int z_buckets;
@@ -24,7 +24,7 @@ typedef struct {
   void *edata;
 } phy_hashmap;
 
-phy_hashmap *phy_hashmap_new(unsigned int item_size, unsigned int cap, unsigned long (*hash_func)(void *item));
+phy_hashmap *phy_hashmap_new(unsigned int item_size, unsigned int cap, unsigned long long (*hash_func)(void *item));
 
 void phy_hashmap_free(phy_hashmap *hashmap);
 void phy_hashmap_clear(phy_hashmap *hashmap);

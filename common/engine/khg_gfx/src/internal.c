@@ -185,7 +185,7 @@ gfx_clickable_item_state gfx_internal_button(const char *file, int line, vec2s p
 }
 
 gfx_clickable_item_state gfx_internal_button_ex(const char *file, int line, vec2s pos, vec2s size, gfx_element_props props, gfx_color color, float border_width, bool click_color, bool hover_color, vec2s hitbox_override) {
-  unsigned long id = GFX_DJB2_INIT;
+  unsigned long long id = GFX_DJB2_INIT;
   id = gfx_internal_djb2_hash(id, file, strlen(file));
   id = gfx_internal_djb2_hash(id, &line, sizeof(line));
   if (GFX_STATE.element_id_stack != -1) {
@@ -937,7 +937,7 @@ void gfx_internal_clear_events() {
   GFX_STATE.input.mouse.ypos_delta = 0;
 }
 
-unsigned long gfx_internal_djb2_hash(unsigned long hash, const void *buf, unsigned int size) {
+unsigned long long gfx_internal_djb2_hash(unsigned long long hash, const void *buf, unsigned int size) {
   unsigned char *bytes = (unsigned char *)buf;
   char c;
   while ((c = *bytes++)) {

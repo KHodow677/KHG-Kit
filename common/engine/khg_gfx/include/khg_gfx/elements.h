@@ -60,7 +60,7 @@ typedef struct {
 } gfx_aabb;
 
 typedef struct {
-  long id;
+  long long id;
   gfx_aabb aabb;
   gfx_clickable_item_state interact_state;
   bool scrollable;
@@ -231,7 +231,7 @@ void gfx_set_line_should_overflow(bool overflow);
 
 void gfx_set_div_hoverable(bool hoverable);
 
-void gfx_push_element_id(long id);
+void gfx_push_element_id(long long id);
 void gfx_pop_element_id(void);
 
 gfx_color gfx_color_brightness(gfx_color color, float brightness);

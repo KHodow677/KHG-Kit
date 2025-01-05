@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef struct utl_map utl_map;
-typedef struct utl_map_node utl_map_node;
+#define UTL_RED 1
+#define UTL_BLACK 0
 
 typedef void *utl_key_type;
 typedef void *utl_value_type;
@@ -12,6 +12,7 @@ typedef void *utl_value_type;
 typedef int (*compare_func_map)(const utl_key_type, const utl_key_type);
 typedef void (*value_dealloc_func)(void *);
 
+typedef struct utl_map_node utl_map_node;
 struct utl_map_node {
   void *key;
   void *value;
@@ -34,6 +35,14 @@ typedef struct utl_map_iterator_pair {
   utl_map_iterator first;
   utl_map_iterator second;
 } utl_map_iterator_pair;
+
+typedef struct utl_map {
+  utl_map_node *root;
+  compare_func_map compFunc;
+  value_dealloc_func deallocKey;
+  value_dealloc_func deallocValue;
+  unsigned int size;
+} utl_map;
 
 compare_func_map utl_map_key_comp(const utl_map *map);
 utl_map_iterator_pair utl_map_equal_range(const utl_map *map, utl_key_type key);
@@ -60,9 +69,9 @@ utl_map_iterator utl_map_lower_bound(const utl_map *map, utl_key_type key);
 utl_map_iterator utl_map_upper_bound(const utl_map *map, utl_key_type key);
 utl_map_iterator utl_map_find(const utl_map *map, utl_key_type key);
 
-size_t utl_map_size(const utl_map *map);
-size_t utl_map_max_size(const utl_map *map);
-size_t utl_map_count(const utl_map *map, utl_key_type key);
+unsigned int utl_map_size(const utl_map *map);
+unsigned int utl_map_max_size(const utl_map *map);
+unsigned int utl_map_count(const utl_map *map, utl_key_type key);
 
 utl_value_type utl_map_at(const utl_map *map, utl_key_type key);
 utl_value_type utl_map_node_get_value(utl_map_node *node);

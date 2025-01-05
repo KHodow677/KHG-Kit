@@ -113,8 +113,8 @@ void dbm_get_info(const dbm_db *db, dbm_db_info *result) {
   result->free_count = db->header.free_count;
 }
 
-dbm_db_state dbm_select(const dbm_db *db, long key, void *result) {
-  dbm_btree_node *node = btree_search(&db->index.search, key);
+dbm_db_state dbm_select(const dbm_db *db, long long key, void *result) {
+  dbm_btree_node *node = dbm_btree_search(&db->index.search, key);
   if (!node) {
     return DBM_ERROR_ROW_NOT_FOUND;
   }
@@ -123,7 +123,7 @@ dbm_db_state dbm_select(const dbm_db *db, long key, void *result) {
   return DBM_OK;
 }
 
-static void dbm_index_traverse(const dbm_db *db, dbm_btree_node *current, void *result, void (*callback)(long, void *)) {
+static void dbm_index_traverse(const dbm_db *db, dbm_btree_node *current, void *result, void (*callback)(long long, void *)) {
   if (current) {
     dbm_index_traverse(db, current->left, result, callback);
     dbm_select(db, current->key, result);
@@ -132,7 +132,7 @@ static void dbm_index_traverse(const dbm_db *db, dbm_btree_node *current, void *
   }
 }
 
-dbm_db_state dbm_select_all(const dbm_db *db, void (*callback)(long, void *)) {
+dbm_db_state dbm_select_all(const dbm_db *db, void (*callback)(long long, void *)) {
   void *result = malloc(db->header.data_size);
   if (!result) {
     return DBM_ERROR_MALLOC_FAIL;
@@ -152,32 +152,32 @@ static const dbm_btree_node *dbm_freelist_find_node(const dbm_db *db) {
   return node;
 }
 
-dbm_db_state dbm_insert(dbm_db *db, long key, void *data) {
-  if (btree_contains(&db->index.search, key)) {
+dbm_db_state dbm_insert(dbm_db *db, long long key, void *data) {
+  if (dbm_btree_contains(&db->index.search, key)) {
     return DBM_ERROR_DUPLICATED_KEY_VIOLATION;
   }
   const dbm_btree_node *free_node = dbm_freelist_find_node(db);
-  long address;
+  long long address;
   if (!free_node) {
     address = sizeof(dbm_headers) + db->header.data_size * db->header.row_count;
   } 
   else {
     address = free_node->value;
-    btree_remove(&db->index.freelist, free_node->key, NULL);
+    dbm_btree_remove(&db->index.freelist, free_node->key, NULL);
     db->header.free_count--;
     assert(db->header.free_count == db->index.freelist.size);
   }
   fseek(db->fd, address, SEEK_SET);
   fwrite(data, db->header.data_size, 1, db->fd);
   db->header.row_count++;
-  btree_insert(&db->index.search, key, address);
+  dbm_btree_insert(&db->index.search, key, address);
   dbm_header_write(db);
   dbm_index_write(&db->index);
   return DBM_OK;
 }
 
-dbm_db_state dbm_update(dbm_db *db, long key, void *data) {
-  dbm_btree_node *node = btree_search(&db->index.search, key);
+dbm_db_state dbm_update(dbm_db *db, long long key, void *data) {
+  dbm_btree_node *node = dbm_btree_search(&db->index.search, key);
   if (!node) {
     return DBM_ERROR_ROW_NOT_FOUND;
   }
@@ -187,14 +187,14 @@ dbm_db_state dbm_update(dbm_db *db, long key, void *data) {
   return DBM_OK;
 }
 
-dbm_db_state dbm_delete(dbm_db *db, long key) {
+dbm_db_state dbm_delete(dbm_db *db, long long key) {
   if (db->header.row_count > 0) {
-    long old_address;
-    bool removed = btree_remove(&db->index.search, key, &old_address);
+    long long old_address;
+    bool removed = dbm_btree_remove(&db->index.search, key, &old_address);
     if (removed) {
       db->header.row_count--;
       assert(db->header.row_count == db->index.search.size);
-      btree_insert(&db->index.freelist, old_address, old_address);
+      dbm_btree_insert(&db->index.freelist, old_address, old_address);
       db->header.free_count++;
       assert(db->header.free_count == db->index.freelist.size);
       dbm_header_write(db);

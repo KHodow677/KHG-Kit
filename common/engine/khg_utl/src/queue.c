@@ -2,7 +2,7 @@
 #include "khg_utl/error_func.h"
 #include <stdlib.h>
 
-utl_queue *utl_queue_create(size_t itemSize) {
+utl_queue *utl_queue_create(unsigned int itemSize) {
   if (itemSize == 0) {
     utl_error_func("Item size must be greater than zero in queue_create", utl_user_defined_data);
     exit(-1);
@@ -33,7 +33,7 @@ bool utl_queue_empty(const utl_queue *q) {
   return utl_vector_is_empty(q->vec);
 }
 
-size_t utl_queue_size(const utl_queue *q) {
+unsigned int utl_queue_size(const utl_queue *q) {
   if (!q) {
     utl_error_func("Queue pointer is NULL in queue_size", utl_user_defined_data);
     return 0;
@@ -109,7 +109,7 @@ void utl_queue_pop(utl_queue *q) {
   utl_vector_erase(q->vec, 0, 1);
 }
 
-void utl_queue_emplace(utl_queue *q, void *item, size_t itemSize) {
+void utl_queue_emplace(utl_queue *q, void *item, unsigned int itemSize) {
   if (!q) {
     utl_error_func("Queue pointer is NULL in queue_emplace", utl_user_defined_data);
     return;

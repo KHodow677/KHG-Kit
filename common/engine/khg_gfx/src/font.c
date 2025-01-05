@@ -163,7 +163,7 @@ gfx_font gfx_internal_load_font(const char *filepath, unsigned int pixelsize, un
     utl_error_func("Failed to open font file", utl_user_defined_data);
   }
   fseek(file, 0, SEEK_END);
-  long fileSize = ftell(file);
+  long long fileSize = ftell(file);
   fseek(file, 0, SEEK_SET);
   unsigned char *buffer = (unsigned char *)malloc(fileSize);
   unsigned int bytesRead = fread(buffer, 1, fileSize, file);

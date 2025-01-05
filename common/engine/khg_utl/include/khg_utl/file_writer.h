@@ -43,7 +43,7 @@ bool utl_file_writer_flush(utl_file_writer *writer);
 bool utl_file_writer_copy(utl_file_writer *src_writer, utl_file_writer *dest_writer);
 bool utl_file_writer_lock(utl_file_writer *writer);
 bool utl_file_writer_unlock(utl_file_writer *writer);
-bool utl_file_writer_seek(utl_file_writer *writer, long offset, const utl_cursor_position cursor_pos);
+bool utl_file_writer_seek(utl_file_writer *writer, long long offset, const utl_cursor_position cursor_pos);
 bool utl_file_writer_truncate(utl_file_writer *writer, size_t size);
 bool utl_file_writer_write_batch(utl_file_writer *writer, const void **buffers, const size_t *sizes, size_t count);
 bool utl_file_writer_append_fmt(utl_file_writer *writer, const char *format, ...);

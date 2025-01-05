@@ -147,7 +147,7 @@ size_t utl_file_writer_get_position(utl_file_writer *writer) {
     utl_error_func("Object is NULL and invalid", utl_user_defined_data);
     return (size_t)-1;
   }
-  long cursor_position = ftell(writer->file_writer);
+  long long cursor_position = ftell(writer->file_writer);
   if (cursor_position == -1L) {
     utl_error_func("Could not determine file position", utl_user_defined_data);
     return (size_t)-1;
@@ -348,7 +348,7 @@ bool utl_file_writer_unlock(utl_file_writer *writer) {
   return true;
 }
 
-bool utl_file_writer_seek(utl_file_writer *writer, long offset, const utl_cursor_position cursor_pos) {
+bool utl_file_writer_seek(utl_file_writer *writer, long long offset, const utl_cursor_position cursor_pos) {
   if (!writer || writer->file_writer == NULL) {
     utl_error_func("Object is NULL or invalid", utl_user_defined_data);
     return false;

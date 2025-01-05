@@ -155,7 +155,7 @@ gfx_div *gfx_div_begin_loc(vec2s pos, vec2s size, bool scrollable, float *scroll
     GFX_STATE.scroll_velocity_ptr = scroll_velocity;
     GFX_STATE.scroll_ptr = scroll;
   }
-  unsigned long id = GFX_DJB2_INIT;
+  unsigned long long id = GFX_DJB2_INIT;
   id = gfx_internal_djb2_hash(id, file, strlen(file));
   id = gfx_internal_djb2_hash(id, &line, sizeof(line));
   if (GFX_STATE.element_id_stack != -1) {
@@ -775,7 +775,7 @@ void gfx_set_div_hoverable(bool clickable) {
   GFX_STATE.div_hoverable = clickable;
 }
 
-void gfx_push_element_id(long id) {
+void gfx_push_element_id(long long id) {
   GFX_STATE.element_id_stack = id;
 }
 
