@@ -1445,19 +1445,18 @@ extern "C" {
     #endif
 #else
     #define MA_HAS_STDINT
-    #include <stdint.h>
-    typedef int8_t   ma_int8;
-    typedef uint8_t  ma_uint8;
-    typedef int16_t  ma_int16;
-    typedef uint16_t ma_uint16;
-    typedef int32_t  ma_int32;
-    typedef uint32_t ma_uint32;
-    typedef int64_t  ma_int64;
-    typedef uint64_t ma_uint64;
+    typedef char ma_int8;
+    typedef unsigned char ma_uint8;
+    typedef short  ma_int16;
+    typedef unsigned short ma_uint16;
+    typedef int  ma_int32;
+    typedef unsigned int ma_uint32;
+    typedef long  ma_int64;
+    typedef unsigned long ma_uint64;
 #endif
 
 #ifdef MA_HAS_STDINT
-    typedef uintptr_t ma_uintptr;
+    typedef unsigned long ma_uintptr;
 #else
     #if defined(_WIN32)
         #if defined(_WIN64)

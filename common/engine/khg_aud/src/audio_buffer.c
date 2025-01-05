@@ -198,8 +198,8 @@ unsigned int aud_read_audio_buffer_frames_in_mixing_format(aud_audio_buffer *b, 
   unsigned int input_buffer_frame_cap = sizeof(input_buffer) / ma_get_bytes_per_frame(b->converter.config.formatIn, b->converter.config.channelsIn);
   unsigned int total_output_frames_processed = 0;
   while (total_output_frames_processed < frame_count) {
-    unsigned long output_frames_to_process_this_iteration = frame_count - total_output_frames_processed;
-    unsigned long input_frames_to_process_this_iteration = ma_data_converter_get_required_input_frame_count(&b->converter, output_frames_to_process_this_iteration);
+    unsigned long long output_frames_to_process_this_iteration = frame_count - total_output_frames_processed;
+    unsigned long long input_frames_to_process_this_iteration = ma_data_converter_get_required_input_frame_count(&b->converter, output_frames_to_process_this_iteration);
     if (input_frames_to_process_this_iteration > input_buffer_frame_cap) {
       input_frames_to_process_this_iteration = input_buffer_frame_cap;
     }
