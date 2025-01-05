@@ -14,7 +14,7 @@ typedef unsigned khs_size;
 typedef unsigned short khs_refc;
 #define KHS_REFC_MAX USHRT_MAX
 
-typedef unsigned long khs_tag;
+typedef unsigned long long khs_tag;
 #define KHS_MAX_TAGS ULONG_MAX
 
 enum {
