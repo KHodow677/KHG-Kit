@@ -204,8 +204,8 @@ unsigned int aud_read_audio_buffer_frames_in_mixing_format(aud_audio_buffer *b, 
       input_frames_to_process_this_iteration = input_buffer_frame_cap;
     }
     float *running_frames_out = frames_out + (total_output_frames_processed * b->converter.config.channelsOut);
-    unsigned long input_frames_processed_this_iteration = aud_read_audio_buffer_frames_in_internal_format(b, input_buffer, (unsigned int)input_frames_to_process_this_iteration); 
-    unsigned long output_frames_processed_this_iteration = output_frames_to_process_this_iteration;
+    unsigned long long input_frames_processed_this_iteration = aud_read_audio_buffer_frames_in_internal_format(b, input_buffer, (unsigned int)input_frames_to_process_this_iteration); 
+    unsigned long long output_frames_processed_this_iteration = output_frames_to_process_this_iteration;
     ma_data_converter_process_pcm_frames(&b->converter, input_buffer, &input_frames_processed_this_iteration, running_frames_out, &output_frames_processed_this_iteration);
     total_output_frames_processed += (unsigned int)output_frames_processed_this_iteration;
     if (input_frames_processed_this_iteration < input_frames_to_process_this_iteration) {

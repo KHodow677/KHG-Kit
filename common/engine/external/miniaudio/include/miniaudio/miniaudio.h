@@ -1451,8 +1451,8 @@ extern "C" {
     typedef unsigned short ma_uint16;
     typedef int  ma_int32;
     typedef unsigned int ma_uint32;
-    typedef long  ma_int64;
-    typedef unsigned long ma_uint64;
+    typedef long long ma_int64;
+    typedef unsigned long long ma_uint64;
 #endif
 
 #ifdef MA_HAS_STDINT
