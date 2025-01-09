@@ -6,7 +6,6 @@
 #include "khg_utl/string.h"
 #include "resources/area_loader.h"
 #include "resources/texture_loader.h"
-#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,13 +30,13 @@ const area_asset_info generate_area_info(const char *tile_filepath, const char *
   return area_info;
 }
 
-const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t num_tiles, int tiles_layer) {
+const area_tiles generate_area_tiles_from_file(const char *tile_filepath, unsigned int num_tiles, int tiles_layer) {
   const area_tiles at = { true, tiles_layer, utl_array_create(sizeof(area_tile), num_tiles) };
   utl_config_file *config = utl_config_create(tile_filepath);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
   area_tile tile = { 0 };
-  size_t count = 0;
+  unsigned int count = 0;
   while (utl_config_next_entry(&iterator, &section, &key, &value)) {
     if (strcmp(section, "area_tiles")) {
       continue;
@@ -62,14 +61,14 @@ const area_tiles generate_area_tiles_from_file(const char *tile_filepath, size_t
   return at;
 }
 
-const area_colliders generate_area_colliders_from_file(const char *collider_filepath, size_t num_colliders, bool enabled) {
+const area_colliders generate_area_colliders_from_file(const char *collider_filepath, unsigned int num_colliders, bool enabled) {
   const area_colliders at = { enabled, utl_array_create(sizeof(area_collider), num_colliders) };
   utl_config_file *config = utl_config_create(collider_filepath);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
   phy_vector2 c_pos = { 0 };
   phy_vector2 c_size = { 0 };
-  size_t count = 0;
+  unsigned int count = 0;
   while (utl_config_next_entry(&iterator, &section, &key, &value)) {
     if (strcmp(section, "area_colliders")) {
       continue;
@@ -100,29 +99,29 @@ const area_colliders generate_area_colliders_from_file(const char *collider_file
 }
 
 
-const size_t get_area_id_from_string(const char *area_key) {
-  return (size_t)utl_algorithm_find_at(AREA_STRINGS, AREA_STRINGS_SIZE, sizeof(char *), area_key, compare_area_strings);
+const unsigned int get_area_id_from_string(const char *area_key) {
+  return utl_algorithm_find_at(AREA_STRINGS, AREA_STRINGS_SIZE, sizeof(char *), area_key, compare_area_strings);
 }
 
-const area_tiles get_area_tiles(size_t rig_id) {
+const area_tiles get_area_tiles(unsigned int rig_id) {
   const area_asset aa = AREA_ASSET_REF[rig_id];
   area_asset_info aai = generate_area_info(aa.tile_filepath, aa.collider_filepath, aa.object_filepath);
   return generate_area_tiles_from_file(aa.tile_filepath, aai.num_tiles, aai.tiles_layer);
 }
 
 const area_tiles get_area_tiles_from_string(const char *area_key) {
-  const size_t area_id = get_area_id_from_string(area_key);
+  const unsigned int area_id = get_area_id_from_string(area_key);
   return get_area_tiles(area_id);
 }
 
-const area_colliders get_area_colliders(size_t rig_id, bool enabled) {
+const area_colliders get_area_colliders(unsigned int rig_id, bool enabled) {
   const area_asset aa = AREA_ASSET_REF[rig_id];
   area_asset_info aai = generate_area_info(aa.tile_filepath, aa.collider_filepath, aa.object_filepath);
   return generate_area_colliders_from_file(aa.collider_filepath, aai.num_colliders, enabled);
 }
 
 const area_colliders get_area_colliders_from_string(const char *area_key, bool enabled) {
-  const size_t area_id = get_area_id_from_string(area_key);
+  const unsigned int area_id = get_area_id_from_string(area_key);
   return get_area_colliders(area_id, enabled);
 }
 

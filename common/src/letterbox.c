@@ -1,7 +1,6 @@
 #include "letterbox.h"
 #include "game.h"
 #include "khg_gfx/elements.h"
-#include "khg_phy/aabb.h"
 
 static const float TARGET_ASPECT_RATIO = 16.0f / 9.0f;
 gfx_aabb LETTERBOX = { 0 };

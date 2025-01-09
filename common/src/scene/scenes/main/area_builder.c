@@ -8,7 +8,7 @@
 #include "resources/texture_loader.h"
 #include "scene/scenes/main/area_builder.h"
 
-void build_area(size_t area_id, int render_layer, bool is_background) {
+void build_area(unsigned int area_id, unsigned int render_layer, bool is_background) {
   ecs_id entity = ecs_create(ECS);
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 300.0f, 256.0f, 1.0f, phy_vector2_new(0, 0), 0.0f, false, false, false };
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);

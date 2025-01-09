@@ -26,7 +26,6 @@
 #include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -37,7 +36,7 @@ float SCREEN_HEIGHT = INITIAL_HEIGHT;
 float SCREEN_SCALE = 1.0f;
 
 static gfx_font font;
-static uint32_t original_font_size;
+static unsigned int original_font_size;
 
 static GLFWwindow *game_init() {
   glfwInit();
@@ -48,7 +47,7 @@ static GLFWwindow *game_init() {
 }
 
 static void update_font() {
-  uint32_t min_change = fminf((uint32_t)(gfx_get_display_width() / SCREEN_WIDTH * original_font_size), (uint32_t)(gfx_get_display_height() / SCREEN_WIDTH * original_font_size));
+  unsigned int min_change = fminf((unsigned int)(gfx_get_display_width() / SCREEN_WIDTH * original_font_size), (unsigned int)(gfx_get_display_height() / SCREEN_WIDTH * original_font_size));
   if (font.font_size != min_change) {
     gfx_free_font(&font);
     font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", min_change);

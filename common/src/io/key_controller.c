@@ -18,7 +18,7 @@ const bool key_button_went_up(int key) {
 }
 
 void update_key_controls() {
-  for (uint32_t i = 0; i < GLFW_KEY_LAST; i++) {
+  for (unsigned int i = 0; i < GLFW_KEY_LAST; i++) {
     KEYBOARD_STATE[i] = gfx_key_changed(i);
   }
 }

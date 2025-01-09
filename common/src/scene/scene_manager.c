@@ -2,7 +2,6 @@
 #include "scene/scene_transitions.h"
 #include "scene/scene_utl.h"
 #include "khg_stm/state_machine.h"
-#include <stdint.h>
 #include <time.h>
 
 stm_state_machine SCENE_FSM;
@@ -10,7 +9,7 @@ stm_state_machine SCENE_FSM;
 stm_state PARENT_SCENE = {
   .parent_state = NULL,
   .entry_state = &MAIN_SCENE,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)'!', &compare_scene_switch_command, NULL, &MAIN_SCENE } },
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)'!', &compare_scene_switch_command, NULL, &MAIN_SCENE } },
   .num_transitions = 2,
   .data = "GROUP",
 };
@@ -18,7 +17,7 @@ stm_state PARENT_SCENE = {
 stm_state INIT_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_MAIN_SCENE, &compare_scene_switch_command, &load_main_scene, &MAIN_SCENE } },
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)TO_MAIN_SCENE, &compare_scene_switch_command, &load_main_scene, &MAIN_SCENE } },
   .num_transitions = 2,
   .data = "INIT",
 };
@@ -26,7 +25,7 @@ stm_state INIT_SCENE = {
 stm_state MAIN_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_GAME_SCENE, &compare_scene_switch_command, &load_game_scene, &GAME_SCENE } },
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)TO_GAME_SCENE, &compare_scene_switch_command, &load_game_scene, &GAME_SCENE } },
   .num_transitions = 2,
   .data = "MAIN",
 };
@@ -34,7 +33,7 @@ stm_state MAIN_SCENE = {
 stm_state GAME_SCENE = {
   .parent_state = &PARENT_SCENE,
   .entry_state = NULL,
-  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)(intptr_t)TO_MAIN_SCENE, &compare_scene_switch_command, &load_main_scene, &MAIN_SCENE } },
+  .transitions = (stm_transition[]){ { EVENT_SCENE_SWITCH, (void *)TO_MAIN_SCENE, &compare_scene_switch_command, &load_main_scene, &MAIN_SCENE } },
   .num_transitions = 1,
   .data = "GAME",
 };
@@ -50,6 +49,6 @@ void scenes_setup(void) {
 }
 
 void scenes_switch(event_transition_command event) {
-  stm_handle_event(&SCENE_FSM, &(stm_event){ EVENT_SCENE_SWITCH, (void *)(intptr_t)event });
+  stm_handle_event(&SCENE_FSM, &(stm_event){ EVENT_SCENE_SWITCH, (void *)event });
 }
 

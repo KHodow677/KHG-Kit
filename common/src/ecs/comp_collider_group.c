@@ -12,11 +12,6 @@ ecs_id COLLIDER_GROUP_SYSTEM_SIGNATURE;
 comp_collider_group_constructor_info *COLLIDER_GROUP_CONSTRUCTOR_INFO = NULL;
 
 static ecs_ret sys_collider_group_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
-  if (dt == 0.0f) {
-    return 0;
-  }
-  for (int id = 0; id < entity_count; id++) {
-  }
   return 0;
 }
 

@@ -1,9 +1,9 @@
-#include "rig/rig.h"
 #include "camera/camera.h"
 #include "letterbox.h"
 #include "physics/physics.h"
 #include "resources/texture_loader.h"
 #include "rig/anim.h"
+#include "rig/rig.h"
 #include "khg_phy/body.h"
 #include "khg_phy/space.h"
 #include "khg_phy/core/phy_vector.h"
@@ -11,7 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 
-bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent) {
+bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const unsigned int tex_id, const unsigned int layer, bone *parent) {
   phy_rigid_body_initializer bone_init = phy_rigid_body_initializer_default;
   bone_init.type = PHY_RIGID_BODY_TYPE_DYNAMIC;
   bone_init.position = parent ? phy_vector2_add(phy_rigid_body_get_position(parent->bone_body), bone_offset) : bone_offset;
@@ -24,7 +24,7 @@ bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, c
   return res;
 }
 
-void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent) {
+void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const unsigned int tex_id, const unsigned int layer, bone *parent) {
   bone b = create_bone(bone_offset, bone_angle_offset, tex_id, layer, parent);
   utl_array_set(r->bones, layer, &b);
 }
@@ -66,7 +66,7 @@ void update_rig(const rig *r, const phy_rigid_body *body, const float frame_perc
   }
   bool updated = false;
   while (!updated) {
-    for (int i = 0; i < r->num_bones; i++) {
+    for (unsigned int i = 0; i < r->num_bones; i++) {
       bone *b = utl_array_at(r->bones, i);
       const phy_rigid_body *rb = (!b->parent) ? body : NULL;
       update_rig_with_interpolated_frame(b, utl_array_at(r->current_frame_bones, i), utl_array_at(target, i), frame_percentage, rb, flipped);
