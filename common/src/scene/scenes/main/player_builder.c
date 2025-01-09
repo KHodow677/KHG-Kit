@@ -14,7 +14,7 @@
 
 player_info PLAYER_INFO = { 0 };
 
-void build_player(const float x, const float y, const int render_layer) {
+void build_player(const float x, const float y, const unsigned int render_layer) {
   ecs_id entity = ecs_create(ECS);
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 50.0f, 140.0f, 5.0f, phy_vector2_new(x, y), 0.0f, true, true, false };
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);

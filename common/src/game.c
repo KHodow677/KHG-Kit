@@ -26,7 +26,6 @@
 #include "khg_gfx/elements.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
-#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -37,7 +36,7 @@ float SCREEN_HEIGHT = INITIAL_HEIGHT;
 float SCREEN_SCALE = 1.0f;
 
 static gfx_font font;
-static uint32_t original_font_size;
+static unsigned int original_font_size;
 
 static GLFWwindow *game_init() {
   glfwInit();
@@ -48,7 +47,7 @@ static GLFWwindow *game_init() {
 }
 
 static void update_font() {
-  uint32_t min_change = fminf((uint32_t)(gfx_get_display_width() / SCREEN_WIDTH * original_font_size), (uint32_t)(gfx_get_display_height() / SCREEN_WIDTH * original_font_size));
+  unsigned int min_change = fminf((unsigned int)(gfx_get_display_width() / SCREEN_WIDTH * original_font_size), (unsigned int)(gfx_get_display_height() / SCREEN_WIDTH * original_font_size));
   if (font.font_size != min_change) {
     gfx_free_font(&font);
     font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", min_change);
@@ -59,7 +58,7 @@ static void render_div(float pos_x, float pos_y, float div_width, float div_heig
   gfx_element_props div_props = gfx_get_theme().div_props;
   div_props.corner_radius = 0.0f;
   div_props.border_width = 0.0f;
-  div_props.color = gfx_white;
+  div_props.color = GFX_WHITE;
   gfx_push_style_props(div_props);
   gfx_div_begin(((vec2s){ pos_x, pos_y }), ((vec2s){ div_width, div_height }), false);
 }
@@ -94,7 +93,7 @@ const bool gfx_loop(const float delta) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
-  update_key_controls(&KEYBOARD_STATE);
+  update_key_controls();
   if (check_current_scene("MAIN")) {
     gfx_clear_style_props();
     get_letterbox();

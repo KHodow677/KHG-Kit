@@ -4,7 +4,6 @@
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
 #include <stdbool.h>
-#include <stdint.h>
 
 typedef struct phy_contact_solver_info {
   float normal_impulse;
@@ -20,7 +19,7 @@ typedef struct phy_contact {
   phy_vector2 anchor_a;
   phy_vector2 anchor_b;
   float separation;
-  uint64_t id;
+  unsigned long long id;
   bool is_persisted;
   bool remove_invoked;
   phy_contact_solver_info solver_info;
@@ -29,7 +28,7 @@ typedef struct phy_contact {
 typedef struct phy_persistent_contact_pair {
   phy_vector2 normal;
   phy_contact contacts[2];
-  uint32_t contact_count;
+  unsigned int contact_count;
   phy_shape *shape_a;
   phy_shape *shape_b;
   phy_rigid_body *body_a;
@@ -46,7 +45,7 @@ typedef struct phy_contact_event {
   phy_vector2 position;
   phy_vector2 normal_impulse;
   phy_vector2 friction_impulse;
-  uint64_t id;
+  unsigned long long id;
 } phy_contact_event;
 
 typedef void (*phy_contact_listener_callback)(struct phy_space *space, phy_contact_event event, void *user_arg);
@@ -59,13 +58,13 @@ typedef struct phy_contact_listener {
 
 static const phy_contact_solver_info phy_contact_solver_info_zero = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
-static inline uint64_t phy_persistent_contact_pair_key(phy_shape *a, phy_shape *b) {
-  uint32_t fpa = phy_u32_hash(a->id);
-  uint32_t fpb = phy_u32_hash(b->id);
+static inline unsigned long long phy_persistent_contact_pair_key(phy_shape *a, phy_shape *b) {
+  unsigned int fpa = phy_u32_hash(a->id);
+  unsigned int fpb = phy_u32_hash(b->id);
   return phy_u32_pair(fpa, fpb);
 }
 
 bool phy_persistent_contact_pair_penetrating(phy_persistent_contact_pair *pcp);
-uint64_t phy_persistent_contact_pair_hash(void *item);
+unsigned long long phy_persistent_contact_pair_hash(void *item);
 void phy_persistent_contact_pair_remove(struct phy_space *space, phy_persistent_contact_pair *pcp);
 

@@ -15,11 +15,11 @@
 #include <string.h>
 #include <unistd.h>
 
-gfx_font gfx_load_font(const char *filepath, uint32_t size) {
+gfx_font gfx_load_font(const char *filepath, unsigned int size) {
   return gfx_internal_load_font(filepath, size, 1024, 1024, 0);
 }
 
-gfx_font gfx_load_font_ex(const char *filepath, uint32_t size, uint32_t bitmap_w, uint32_t bitmap_h) {
+gfx_font gfx_load_font_ex(const char *filepath, unsigned int size, unsigned int bitmap_w, unsigned int bitmap_h) {
   return gfx_internal_load_font(filepath, size, bitmap_w, bitmap_h, 0);
 }
 
@@ -53,9 +53,9 @@ gfx_texture gfx_load_texture(const char *filepath, bool flip, gfx_texture_filter
   return tex;
 }
 
-gfx_texture gfx_load_texture_resized(const char *filepath, bool flip, gfx_texture_filtering filter, uint32_t w, uint32_t h) {
+gfx_texture gfx_load_texture_resized(const char *filepath, bool flip, gfx_texture_filtering filter, unsigned int w, unsigned int h) {
   gfx_texture tex; 
-  int32_t width, height, channels;
+  int width, height, channels;
   stbi_uc *image_data = stbi_load(filepath, &width, &height, &channels, 0);
   unsigned char *downscaled_image = (unsigned char*)malloc(sizeof(unsigned char) * w * h * channels);
   stbir_resize_uint8_linear(image_data, width, height, 0, downscaled_image, w, h, 0,(stbir_pixel_layout)channels);
@@ -84,14 +84,14 @@ gfx_texture gfx_load_texture_resized(const char *filepath, bool flip, gfx_textur
 
 gfx_texture gfx_load_texture_resized_factor(const char *filepath, bool flip, gfx_texture_filtering filter, float wfactor, float hfactor) {
   gfx_texture tex;
-  int32_t width, height, channels;
+  int width, height, channels;
   stbi_uc *data = gfx_load_texture_data_resized_factor(filepath, wfactor, hfactor, &width, &height, &channels, flip);
   if(!data) {
     utl_error_func("Failed to load texture file", utl_user_defined_data);
     return tex;
   }
-  int32_t w = width * wfactor;
-  int32_t h = height * hfactor;
+  int w = width * wfactor;
+  int h = height * hfactor;
   gfx_create_texture_from_image_data(filter, &tex.id, w, h, channels, data);
   free(data);
   tex.width = w;
@@ -99,7 +99,7 @@ gfx_texture gfx_load_texture_resized_factor(const char *filepath, bool flip, gfx
   return tex;
 }
 
-gfx_texture gfx_load_texture_from_memory(const void *data, size_t size, bool flip, gfx_texture_filtering filter) {
+gfx_texture gfx_load_texture_from_memory(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter) {
   gfx_texture tex;
   int width, height, channels;
   unsigned char *image = stbi_load_from_memory(data, size, &width, &height, &channels, STBI_rgb_alpha);
@@ -128,9 +128,9 @@ gfx_texture gfx_load_texture_from_memory(const void *data, size_t size, bool fli
   return tex;
 }
 
-gfx_texture gfx_load_texture_from_memory_resized(const void *data, size_t size, bool flip, gfx_texture_filtering filter, uint32_t w, uint32_t h) {
+gfx_texture gfx_load_texture_from_memory_resized(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter, unsigned int w, unsigned int h) {
   gfx_texture tex;
-  int32_t channels;
+  int channels;
   unsigned char *resized = gfx_load_texture_data_from_memory_resized(data, size, &channels, NULL, NULL, flip, w, h);
   gfx_create_texture_from_image_data(GFX_TEX_FILTER_LINEAR, &tex.id, w, h, channels, resized);
   tex.width = w;
@@ -138,9 +138,9 @@ gfx_texture gfx_load_texture_from_memory_resized(const void *data, size_t size, 
   return tex;
 }
 
-gfx_texture gfx_load_texture_from_memory_resized_factor(const void *data, size_t size, bool flip, gfx_texture_filtering filter, float wfactor, float hfactor) {
+gfx_texture gfx_load_texture_from_memory_resized_factor(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter, float wfactor, float hfactor) {
   gfx_texture tex;
-  int32_t width, height, channels;
+  int width, height, channels;
   stbi_uc *image_data = stbi_load_from_memory((const stbi_uc *)data, size, &width, &height, &channels, 0);
   int w = width * wfactor;
   int h = height * hfactor;
@@ -153,11 +153,11 @@ gfx_texture gfx_load_texture_from_memory_resized_factor(const void *data, size_t
   return tex;
 }
 
-gfx_texture gfx_load_texture_from_memory_resized_to_fit(const void *data, size_t size, bool flip, gfx_texture_filtering filter, int32_t container_w, int32_t container_h) {
+gfx_texture gfx_load_texture_from_memory_resized_to_fit(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter, int container_w, int container_h) {
   gfx_texture tex;
-  int32_t image_width, image_height, channels;
+  int image_width, image_height, channels;
   stbi_uc *image_data = gfx_load_texture_data_from_memory((const stbi_uc*)data, size, &image_width, &image_height, &channels, flip);
-  int32_t new_width, new_height;
+  int new_width, new_height;
   unsigned char *resized_data =  gfx_load_texture_data_from_memory_resized_to_fit_ex(image_data, size, &new_width, &new_height, channels, image_width, image_height, flip, container_w, container_h);
   stbi_image_free(image_data);
   gfx_create_texture_from_image_data(GFX_TEX_FILTER_LINEAR, &tex.id, new_width, new_height, channels, resized_data);
@@ -166,14 +166,14 @@ gfx_texture gfx_load_texture_from_memory_resized_to_fit(const void *data, size_t
   return tex;
 }
 
-unsigned char *gfx_load_texture_data(const char *filepath, int32_t *width, int32_t *height, int32_t *channels, bool flip) {
+unsigned char *gfx_load_texture_data(const char *filepath, int *width, int *height, int *channels, bool flip) {
   stbi_set_flip_vertically_on_load(!flip);
   stbi_uc *data = stbi_load(filepath, width, height, channels, STBI_rgb_alpha);
   return data;
 }
 
-unsigned char *gfx_load_texture_data_resized(const char *filepath, int32_t w, int32_t h, int32_t *channels, bool flip) {
-  int32_t width, height;
+unsigned char *gfx_load_texture_data_resized(const char *filepath, int w, int h, int *channels, bool flip) {
+  int width, height;
   stbi_uc *data = gfx_load_texture_data(filepath, &width, &height, channels, flip);
   unsigned char *downscaled_image = (unsigned char *)malloc(sizeof(unsigned char) * w * h * *channels);
   stbir_resize_uint8_linear(data, width, height, *channels, downscaled_image, w, h, 0, (stbir_pixel_layout)*channels);
@@ -181,14 +181,14 @@ unsigned char *gfx_load_texture_data_resized(const char *filepath, int32_t w, in
   return downscaled_image;
 }
 
-unsigned char *gfx_load_texture_data_resized_factor(const char *filepath, int32_t wfactor, int32_t hfactor, int32_t *width, int32_t *height, int32_t *channels, bool flip) {
+unsigned char *gfx_load_texture_data_resized_factor(const char *filepath, int wfactor, int hfactor, int *width, int *height, int *channels, bool flip) {
   unsigned char *image = stbi_load(filepath, width, height, channels, STBI_rgb_alpha);
   if (!image) {
     return NULL;
   }
   float w = (wfactor * (*width));
   float h = (hfactor * (*height));
-  size_t new_size = w * h * (*channels);
+  unsigned int new_size = w * h * (*channels);
   unsigned char *resized_data = (unsigned char*)malloc(new_size);
   if (resized_data == NULL) {
     return NULL;
@@ -198,7 +198,7 @@ unsigned char *gfx_load_texture_data_resized_factor(const char *filepath, int32_
   return resized_data;
 }
 
-unsigned char *gfx_load_texture_data_from_memory(const void *data, size_t size, int32_t *width, int32_t *height, int32_t *channels, bool flip) {
+unsigned char *gfx_load_texture_data_from_memory(const void *data, unsigned int size, int *width, int *height, int *channels, bool flip) {
   stbi_set_flip_vertically_on_load(!flip);
   unsigned char *image = stbi_load_from_memory(data, size, width, height, channels, 0);
   if (!image) {
@@ -207,15 +207,15 @@ unsigned char *gfx_load_texture_data_from_memory(const void *data, size_t size, 
   return image;
 }
 
-unsigned char *gfx_load_texture_data_from_memory_resized(const void *data, size_t size, int32_t *channels, int32_t *o_w, int32_t *o_h, bool flip, uint32_t w, uint32_t h) {
-  int32_t width, height;
+unsigned char *gfx_load_texture_data_from_memory_resized(const void *data, unsigned int size, int *channels, int *o_w, int *o_h, bool flip, unsigned int w, unsigned int h) {
+  int width, height;
   stbi_uc *image_data = stbi_load_from_memory((const stbi_uc *)data, size, &width, &height, channels, 0);
   unsigned char *resized_data = gfx_load_texture_data_from_memory_resized_to_fit_ex(image_data, size, o_w, o_h, *channels, width, height, flip, 48, 48);
   stbi_image_free(image_data);
   return resized_data;
 }
 
-unsigned char *gfx_load_texture_data_from_memory_resized_to_fit_ex(const void *data, size_t size, int32_t *o_width, int32_t *o_height, int32_t i_channels, int32_t i_width, int32_t i_height, bool flip, int32_t container_w, int32_t container_h) {
+unsigned char *gfx_load_texture_data_from_memory_resized_to_fit_ex(const void *data, unsigned int size, int *o_width, int *o_height, int i_channels, int i_width, int i_height, bool flip, int container_w, int container_h) {
   float container_aspect_ratio = (float)container_w / container_h;
   float image_aspect_ratio = (float)i_width / i_height;
   int new_width, new_height;
@@ -238,10 +238,10 @@ unsigned char *gfx_load_texture_data_from_memory_resized_to_fit_ex(const void *d
   return resized_image;
 }
 
-unsigned char *gfx_load_texture_data_from_memory_resized_to_fit(const void *data, size_t size, int32_t *o_width, int32_t *o_height, int32_t *o_channels, bool flip, int32_t container_w, int32_t container_h) {
-  int32_t image_width, image_height, channels;
+unsigned char *gfx_load_texture_data_from_memory_resized_to_fit(const void *data, unsigned int size, int *o_width, int *o_height, int *o_channels, bool flip, int container_w, int container_h) {
+  int image_width, image_height, channels;
   stbi_uc *image_data = gfx_load_texture_data_from_memory((const stbi_uc *)data, size, &image_width, &image_height, &channels, flip);
-  int32_t new_width, new_height;
+  int new_width, new_height;
   unsigned char *resized_data =  gfx_load_texture_data_from_memory_resized_to_fit_ex(image_data, size, &new_width, &new_height, channels, image_width, image_height, flip, container_w, container_h);
   *o_width = new_width;
   *o_height = new_height;
@@ -250,7 +250,7 @@ unsigned char *gfx_load_texture_data_from_memory_resized_to_fit(const void *data
   return image_data;
 }
 
-unsigned char *gfx_load_texture_data_from_memory_resized_factor(const void *data, size_t size, int32_t *width, int32_t *height, int32_t *channels, bool flip, float wfactor, float hfactor) {
+unsigned char *gfx_load_texture_data_from_memory_resized_factor(const void *data, unsigned int size, int *width, int *height, int *channels, bool flip, float wfactor, float hfactor) {
   stbi_uc *image_data = stbi_load_from_memory((const stbi_uc *)data, size, width, height, channels, 0);
   int w = (*width) * wfactor;
   int h = (*height) * hfactor;
@@ -260,7 +260,7 @@ unsigned char *gfx_load_texture_data_from_memory_resized_factor(const void *data
   return resized_data;
 }
 
-void gfx_create_texture_from_image_data(gfx_texture_filtering filter, uint32_t *id, int32_t width, int32_t height, int32_t channels, unsigned char *data) {
+void gfx_create_texture_from_image_data(gfx_texture_filtering filter, unsigned int *id, int width, int height, int channels, unsigned char *data) {
   GLenum internal_format = (channels == 4) ? GL_RGBA8 : GL_RGB8;
   GLenum data_format = (channels == 4) ? GL_RGBA : GL_RGB;
   glGenTextures(1, id);
@@ -296,7 +296,7 @@ void gfx_free_font(gfx_font *font) {
   free(font->buffer);
 }
 
-gfx_font gfx_load_font_asset(const char *filepath, const uint32_t font_size) {
+gfx_font gfx_load_font_asset(const char *filepath, const unsigned int font_size) {
   return gfx_load_font(filepath, font_size);
 }
 

@@ -13,11 +13,11 @@ ecs_id PHYSICS_SYSTEM_SIGNATURE;
 
 comp_physics_constructor_info *PHYSICS_CONSTRUCTOR_INFO = NULL;
 
-static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const size_t entity_count, const ecs_dt dt, void *udata) {
+static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
   if (dt == 0.0f) {
     return 0;
   }
-  for (int id = 0; id < entity_count; id++) {
+  for (unsigned int id = 0; id < entity_count; id++) {
     comp_physics *info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     if (info->move_enabled) {
       phy_vector2 current_velocity = phy_rigid_body_get_linear_velocity(info->body);

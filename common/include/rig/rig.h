@@ -12,39 +12,39 @@ typedef struct bone {
   phy_shape *bone_shape;
   phy_vector2 bone_offset;
   float bone_angle_offset;
-  int bone_tex_id;
-  int layer;
+  unsigned int bone_tex_id;
+  unsigned int layer;
   struct bone *parent;
 } bone;
 
 typedef struct rig {
   bool enabled;
-  size_t num_bones;
+  unsigned int num_bones;
   utl_array *bones;
-  int root_id;
+  unsigned int root_id;
   utl_array *animation_states;
   utl_array *current_frame_bones;
-  int current_state_id;
-  int current_frame_id;
+  unsigned int current_state_id;
+  unsigned int current_frame_id;
 } rig;
 
 typedef struct bone_info {
-  int bone_tex;
-  int bone_num;
+  unsigned int bone_tex;
+  unsigned int bone_num;
   phy_vector2 bone_offset;
-  int bone_parent_num;
+  unsigned int bone_parent_num;
 } bone_info;
 
 typedef struct rig_builder {
   bool valid;
-  int num_bones;
-  int root_tex;
-  int init_layer;
-  int num_anim;
+  unsigned int num_bones;
+  unsigned int root_tex;
+  unsigned int init_layer;
+  unsigned int num_anim;
 } rig_builder;
 
-bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent);
-void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const int tex_id, const int layer, bone *parent);
+bone create_bone(const phy_vector2 bone_offset, const float bone_angle_offset, const unsigned int tex_id, const unsigned int layer, bone *parent);
+void add_bone(rig *r, const phy_vector2 bone_offset, const float bone_angle_offset, const unsigned int tex_id, const unsigned int layer, bone *parent);
 
 void create_rig(rig *r, const rig_builder *rb);
 void free_rig(const rig *r);

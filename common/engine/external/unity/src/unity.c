@@ -2205,12 +2205,12 @@ void UnityDefaultTestRun(UnityTestFunction Func, const char* FuncName, const int
     UNITY_EXEC_TIME_START();
     if (TEST_PROTECT())
     {
-        setUp();
+        set_up();
         Func();
     }
     if (TEST_PROTECT())
     {
-        tearDown();
+        tear_down();
     }
     UNITY_EXEC_TIME_STOP();
     UnityConcludeTest();

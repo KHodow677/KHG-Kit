@@ -23,8 +23,8 @@ const bool check_texture_loaded(int tex_id) {
   return (TEXTURE_LOOKUP[tex_id].id != NO_TEXTURE.id);
 }
 
-const int get_tex_id_from_string(const char *tex_key) {
-  return (int)utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
+const unsigned int get_tex_id_from_string(const char *tex_key) {
+  return utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
 }
 
 const gfx_texture get_or_add_texture(int tex_id) {
@@ -37,7 +37,7 @@ const gfx_texture get_or_add_texture(int tex_id) {
 }
 
 const gfx_texture get_or_add_texture_from_string(const char *tex_key) {
-  const int tex_id = get_tex_id_from_string(tex_key);
+  const unsigned int tex_id = get_tex_id_from_string(tex_key);
   return get_or_add_texture(tex_id);
 }
 

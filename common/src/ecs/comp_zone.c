@@ -10,11 +10,11 @@ ecs_id ZONE_SYSTEM_SIGNATURE;
 
 comp_zone_constructor_info *ZONE_CONSTRUCTOR_INFO = NULL;
 
-static ecs_ret sys_zone_update(ecs_ecs *ecs, ecs_id *entities, const size_t entity_count, const ecs_dt dt, void *udata) {
+static ecs_ret sys_zone_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
   if (dt == 0.0f) {
     return 0;
   }
-  for (int id = 0; id < entity_count; id++) {
+  for (unsigned int id = 0; id < entity_count; id++) {
     comp_zone *info = ecs_get(ECS, entities[id], ZONE_COMPONENT_SIGNATURE);
     const float body_x = phy_rigid_body_get_position(info->body).x;
     if (body_x > info->min_x && body_x < info->max_x) {

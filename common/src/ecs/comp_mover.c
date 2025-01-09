@@ -19,8 +19,8 @@ static void player_set_speed(comp_physics *p_info, const float vel) {
   p_info->is_moving = fabsf(vel) > 0.0f; 
 }
 
-static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const size_t entity_count, const ecs_dt dt, void *udata) {
-  for (int id = 0; id < entity_count; id++) {
+static ecs_ret sys_mover_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
+  for (unsigned int id = 0; id < entity_count; id++) {
     comp_mover *info = ecs_get(ECS, entities[id], MOVER_COMPONENT_SIGNATURE);
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     comp_renderer *r_info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);

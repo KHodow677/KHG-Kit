@@ -17,7 +17,7 @@ static int phy_rigid_body_accumulate_mass(phy_rigid_body *body) {
     return 0;
   }
   phy_vector2 local_com = phy_vector2_zero;
-  for (size_t i = 0; i < body->shapes->size; i++) {
+  for (unsigned int i = 0; i < body->shapes->size; i++) {
     phy_shape *shape = body->shapes->data[i];
     phy_shape_mass_info mass_info = phy_shape_calculate_mass(shape, body->material.density);
     body->mass += mass_info.mass;
@@ -79,7 +79,7 @@ void phy_rigid_body_free(phy_rigid_body *body) {
   if (!body) {
     return;
   }
-  for (size_t i = 0; i < body->shapes->size; i++) {
+  for (unsigned int i = 0; i < body->shapes->size; i++) {
     phy_shape_free(body->shapes->data[i]);
   }
   phy_array_free(body->shapes);
@@ -98,7 +98,7 @@ phy_space *phy_rigid_body_get_space(const phy_rigid_body *body) {
   return body->space;
 }
 
-uint32_t phy_rigid_body_get_id(const phy_rigid_body *body) {
+unsigned int phy_rigid_body_get_id(const phy_rigid_body *body) {
   return body->id;
 }
 
@@ -220,27 +220,27 @@ float phy_rigid_body_get_inertia(const phy_rigid_body *body) {
   return body->inertia;
 }
 
-void phy_rigid_body_set_collision_group(phy_rigid_body *body, uint32_t group) {
+void phy_rigid_body_set_collision_group(phy_rigid_body *body, unsigned int group) {
   body->collision_group = group;
 }
 
-uint32_t phy_rigid_body_get_collision_group(const phy_rigid_body *body) {
+unsigned int phy_rigid_body_get_collision_group(const phy_rigid_body *body) {
   return body->collision_group;
 }
 
-void phy_rigid_body_set_collision_category(phy_rigid_body *body, uint32_t category) {
+void phy_rigid_body_set_collision_category(phy_rigid_body *body, unsigned int category) {
   body->collision_category = category;
 }
 
-uint32_t phy_rigid_body_get_collision_category(const phy_rigid_body *body) {
+unsigned int phy_rigid_body_get_collision_category(const phy_rigid_body *body) {
   return body->collision_category;
 }
 
-void phy_rigid_body_set_collision_mask(phy_rigid_body *body, uint32_t mask) {
+void phy_rigid_body_set_collision_mask(phy_rigid_body *body, unsigned int mask) {
   body->collision_mask = mask;
 }
 
-uint32_t phy_rigid_body_get_collision_mask(const phy_rigid_body *body) {
+unsigned int phy_rigid_body_get_collision_mask(const phy_rigid_body *body) {
   return body->collision_mask;
 }
 
@@ -255,17 +255,17 @@ int phy_rigid_body_add_shape(phy_rigid_body *body, phy_shape *shape) {
 }
 
 int phy_rigid_body_remove_shape(phy_rigid_body *body, phy_shape *shape) {
-  if (phy_array_remove(body->shapes, shape) == (size_t)(-1)) {
+  if (phy_array_remove(body->shapes, shape) == (unsigned int)(-1)) {
     return 1;
   }
   if (phy_rigid_body_accumulate_mass(body)) {
     return 2;
   }
   void *map_val;
-  size_t map_iter = 0;
+  unsigned int map_iter = 0;
   while (phy_hashmap_iter(body->space->contacts, &map_iter, &map_val)) {
     phy_persistent_contact_pair *pcp = map_val;
-    for (size_t i = 0; i < body->shapes->size; i++) {
+    for (unsigned int i = 0; i < body->shapes->size; i++) {
       phy_shape *shape = body->shapes->data[i];
       if ((pcp->body_a == body && shape == pcp->shape_a) || (pcp->body_b == body && shape == pcp->shape_b)) {
         phy_persistent_contact_pair_remove(body->space, pcp);
@@ -276,7 +276,7 @@ int phy_rigid_body_remove_shape(phy_rigid_body *body, phy_shape *shape) {
   return 0;
 }
 
-bool phy_rigid_body_iter_shapes(phy_rigid_body *body, phy_shape **shape, size_t *index) {
+bool phy_rigid_body_iter_shapes(phy_rigid_body *body, phy_shape **shape, unsigned int *index) {
   *shape = body->shapes->data[(*index)++];
   return (*index <= body->shapes->size);
 }
@@ -333,7 +333,7 @@ phy_aabb phy_rigid_body_get_aabb(phy_rigid_body *body) {
   body->cache_aabb = true;
   phy_transform xform = (phy_transform){body->origin, body->angle};
   phy_aabb total_aabb = phy_shape_get_aabb(body->shapes->data[0], xform);
-  for (size_t i = 1; i < body->shapes->size; i++) {
+  for (unsigned int i = 1; i < body->shapes->size; i++) {
     total_aabb = nvAABB_merge(total_aabb, phy_shape_get_aabb(body->shapes->data[i], xform));
   }
   body->cached_aabb = total_aabb;

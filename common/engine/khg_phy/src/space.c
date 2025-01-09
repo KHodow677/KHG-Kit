@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define phy_iter_bodies(iter) for (size_t iter = 0; iter < space->bodies->size; iter++)
+#define phy_iter_bodies(iter) for (unsigned int iter = 0; iter < space->bodies->size; iter++)
 
 phy_space *phy_space_new() {
   phy_space *space = malloc(sizeof(phy_space));
@@ -128,10 +128,10 @@ int phy_space_add_rigidbody(phy_space *space, phy_rigid_body *body) {
 }
 
 int phy_space_remove_rigidbody(phy_space *space, phy_rigid_body *body) {
-  if (phy_array_remove(space->bodies, body) == (size_t)(-1)) {
+  if (phy_array_remove(space->bodies, body) == (unsigned int)(-1)) {
     return 1;
   }
-  for (size_t i = 0; i < space->broadphase_pairs->current_size; i++) {
+  for (unsigned int i = 0; i < space->broadphase_pairs->current_size; i++) {
     void *pool_i = (char *)space->broadphase_pairs->pool + i * space->broadphase_pairs->chunk_size;
     phy_broadphase_pair *pair = (phy_broadphase_pair *)pool_i;
     phy_rigid_body *body_a = pair->a;
@@ -142,7 +142,7 @@ int phy_space_remove_rigidbody(phy_space *space, phy_rigid_body *body) {
     }
   }
   void *map_val;
-  size_t map_iter = 0;
+  unsigned int map_iter = 0;
   while (phy_hashmap_iter(body->space->contacts, &map_iter, &map_val)) {
     phy_persistent_contact_pair *pcp = map_val;
     if (pcp->body_a == body || pcp->body_b == body) {
@@ -152,13 +152,13 @@ int phy_space_remove_rigidbody(phy_space *space, phy_rigid_body *body) {
     }
   }
   phy_array *removed_constraints = phy_array_new();
-  for (size_t i = 0; i < space->constraints->size; i++) {
+  for (unsigned int i = 0; i < space->constraints->size; i++) {
     phy_constraint *cons = space->constraints->data[i];
     if (cons->a == body || cons->b == body) {
       phy_array_add(removed_constraints, cons);
     }
   }
-  for (size_t i = 0; i < removed_constraints->size; i++) {
+  for (unsigned int i = 0; i < removed_constraints->size; i++) {
     phy_array_remove(space->constraints, removed_constraints->data[i]);
   }
   phy_array_free(removed_constraints);
@@ -166,7 +166,7 @@ int phy_space_remove_rigidbody(phy_space *space, phy_rigid_body *body) {
 }
 
 int phy_space_add_constraint(phy_space *space, phy_constraint *cons) {
-  for (size_t i = 0; i < space->constraints->size; i++) {
+  for (unsigned int i = 0; i < space->constraints->size; i++) {
     phy_constraint *lcons = space->constraints->data[i];
     if (lcons == cons) { 
       utl_error_func("Constraint already exists in space", utl_user_defined_data);
@@ -177,18 +177,18 @@ int phy_space_add_constraint(phy_space *space, phy_constraint *cons) {
 }
 
 int phy_space_remove_constraint(phy_space *space, phy_constraint *cons) {
-  if (phy_array_remove(space->constraints, cons) == (size_t)(-1)) {
+  if (phy_array_remove(space->constraints, cons) == (unsigned int)(-1)) {
     return 1;
   }
   return 0;
 }
 
-bool phy_space_iter_bodies(phy_space *space, phy_rigid_body **body, size_t *index) {
+bool phy_space_iter_bodies(phy_space *space, phy_rigid_body **body, unsigned int *index) {
   *body = space->bodies->data[(*index)++];
   return (*index <= space->bodies->size);
 }
 
-bool phy_space_iter_constraints(phy_space *space, phy_constraint **cons, size_t *index) {
+bool phy_space_iter_constraints(phy_space *space, phy_constraint **cons, unsigned int *index) {
   *cons = space->constraints->data[(*index)++];
   return (*index <= space->constraints->size);
 }
@@ -197,13 +197,13 @@ void phy_space_step(phy_space *space, float dt) {
   if (dt == 0.0 || space->settings.substeps <= 0) {
     return;
   }
-  uint32_t substeps = space->settings.substeps;
-  uint32_t velocity_iters = space->settings.velocity_iterations;
-  size_t l;
+  unsigned int substeps = space->settings.substeps;
+  unsigned int velocity_iters = space->settings.velocity_iterations;
+  unsigned int l;
   void *map_val;
   dt /= (float)substeps;
   float inv_dt = 1.0 / dt;
-  for (uint32_t substep = 0; substep < substeps; substep++) {
+  for (unsigned int substep = 0; substep < substeps; substep++) {
     phy_iter_bodies(body_i) {
       phy_rigid_body *body = (phy_rigid_body *)space->bodies->data[body_i];
       phy_rigid_body_integrate_accelerations(body, space->gravity, dt);
@@ -218,7 +218,7 @@ void phy_space_step(phy_space *space, float dt) {
     }
     phy_broadphase_finalize(space);
     phy_narrow_phase(space);
-    for (size_t i = 0; i < space->constraints->size; i++) {
+    for (unsigned int i = 0; i < space->constraints->size; i++) {
       phy_constraint_presolve(space, (phy_constraint *)space->constraints->data[i], dt, inv_dt);
     }
     l = 0;
@@ -226,7 +226,7 @@ void phy_space_step(phy_space *space, float dt) {
       phy_persistent_contact_pair *pcp = map_val;
       phy_contact_presolve(space, pcp, inv_dt);
     }
-    for (size_t i = 0; i < space->constraints->size; i++) {
+    for (unsigned int i = 0; i < space->constraints->size; i++) {
       phy_constraint_warmstart(space, (phy_constraint *)space->constraints->data[i]);
     }
     l = 0;
@@ -234,8 +234,8 @@ void phy_space_step(phy_space *space, float dt) {
       phy_persistent_contact_pair *pcp = map_val;
       phy_contact_warmstart(space, pcp);
     }
-    for (size_t i = 0; i < velocity_iters; i++) {
-      for (size_t j = 0; j < space->constraints->size; j++) {
+    for (unsigned int i = 0; i < velocity_iters; i++) {
+      for (unsigned int j = 0; j < space->constraints->size; j++) {
         phy_constraint_solve((phy_constraint *)space->constraints->data[j], inv_dt);
       }
       l = 0;
@@ -256,7 +256,7 @@ void phy_space_step(phy_space *space, float dt) {
   }
 }
 
-void phy_space_cast_ray(phy_space *space, phy_vector2 from, phy_vector2 to, phy_raycast_result *results_array, size_t *num_hits, size_t capacity) {
+void phy_space_cast_ray(phy_space *space, phy_vector2 from, phy_vector2 to, phy_raycast_result *results_array, unsigned int *num_hits, unsigned int capacity) {
   *num_hits = 0;
   phy_vector2 delta = phy_vector2_sub(to, from);
   phy_vector2 dir = phy_vector2_normalize(delta);
@@ -267,7 +267,7 @@ void phy_space_cast_ray(phy_space *space, phy_vector2 from, phy_vector2 to, phy_
     phy_raycast_result closest_result;
     float min_dist = INFINITY;
     float any_hit = false;
-    for (size_t shape_i = 0; shape_i < body->shapes->size; shape_i++) {
+    for (unsigned int shape_i = 0; shape_i < body->shapes->size; shape_i++) {
       phy_shape *shape = body->shapes->data[shape_i];
       phy_raycast_result result;
       bool hit = false;

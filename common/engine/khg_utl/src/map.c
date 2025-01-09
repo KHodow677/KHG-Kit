@@ -3,18 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define UTL_RED 1
-#define UTL_BLACK 0
-
-struct utl_map {
-  utl_map_node *root;
-  compare_func_map compFunc;
-  value_dealloc_func deallocKey;
-  value_dealloc_func deallocValue;
-  size_t size;
-};
-
-
 void utl_map_iterator_increment(utl_map_iterator *it) {
   if (it == NULL) {
     utl_error_func("Null iterator provided in map_iterator_increment", utl_user_defined_data);
@@ -323,7 +311,7 @@ bool utl_map_empty(const utl_map *map) {
   return map->size == 0;
 }
 
-size_t utl_map_size(const utl_map *map) {
+unsigned int utl_map_size(const utl_map *map) {
   if (map == NULL) {
     utl_error_func("Null pointer provided for map in map_size", utl_user_defined_data);
     return 0;
@@ -331,12 +319,12 @@ size_t utl_map_size(const utl_map *map) {
   return map->size;
 }
 
-size_t utl_map_max_size(const utl_map *map) {
+unsigned int utl_map_max_size(const utl_map *map) {
   if (map == NULL) {
     utl_error_func("Null pointer provided for map in map_max_size", utl_user_defined_data);
     return 0;
   }
-  return (size_t)(~((size_t)0)) / sizeof(utl_map_node);
+  return (unsigned int)(~((unsigned int)0)) / sizeof(utl_map_node);
 }
 
 bool utl_map_insert(utl_map *map, utl_key_type key, utl_value_type value) {
@@ -414,7 +402,7 @@ void utl_map_swap(utl_map *map1, utl_map *map2) {
   utl_map_node *tempRoot = map1->root;
   map1->root = map2->root;
   map2->root = tempRoot;
-  size_t tempSize = map1->size;
+  unsigned int tempSize = map1->size;
   map1->size = map2->size;
   map2->size = tempSize;
   compare_func_map tempCompFunc = map1->compFunc;
@@ -428,7 +416,7 @@ void utl_map_swap(utl_map *map1, utl_map *map2) {
   map2->deallocValue = tempDeallocValue;
 }
 
-size_t utl_map_count(const utl_map *map, utl_key_type key) {
+unsigned int utl_map_count(const utl_map *map, utl_key_type key) {
   if (map == NULL) {
     utl_error_func("Null pointer provided for map in map_count", utl_user_defined_data);
     return 0;

@@ -6,7 +6,7 @@
 
 typedef struct area_tile {
   phy_vector2 pos;
-  size_t tex_id;
+  unsigned int tex_id;
 } area_tile;
 
 typedef struct area_tiles {

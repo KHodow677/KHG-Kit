@@ -48,14 +48,6 @@ void generate_animation_frame(rig *r, const char *dir_path, const char *rig_sect
       bone_frame.bone_angle_offset = atof((char *)utl_config_get_value(config, section, key));
       continue;
     }
-    else if (!strcmp(generic_key, "bone_scale")) {
-      char **bone_scale = utl_config_get_array(config, section, key, 2);
-      bone_frame.bone_scale = phy_vector2_new(atof(bone_scale[0]), atof(bone_scale[1]));
-      free(bone_scale[0]);
-      free(bone_scale[1]);
-      free(bone_scale);
-      continue;
-    }
     else if (!strcmp(generic_key, "bone_num")) {
       int bone_num = utl_config_get_int(config, section, key, 0);
       utl_array_set(new_frame, bone_num, &bone_frame);

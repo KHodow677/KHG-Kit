@@ -7,37 +7,37 @@
 #define ECS_MAX_COMPONENTS 32
 #define ECS_MAX_SYSTEMS 32
 
-typedef uint32_t ecs_bitset;
+typedef unsigned int ecs_bitset;
 typedef struct ecs_ecs ecs_ecs;
-typedef uint32_t ecs_id;
+typedef unsigned int ecs_id;
 #define ECS_NULL ((ecs_id)-1)
-typedef int8_t ecs_ret;
+typedef char ecs_ret;
 typedef float ecs_dt;
 
 typedef void (*ecs_constructor_fn)(ecs_ecs *ecs, ecs_id entity_id, void *ptr, void *args);
 typedef void (*ecs_destructor_fn)(ecs_ecs *ecs, ecs_id entity_id, void *ptr);
 
-typedef ecs_ret (*ecs_system_fn)(ecs_ecs *ecs, ecs_id *entities, size_t entity_count, ecs_dt dt, void *udata);
+typedef ecs_ret (*ecs_system_fn)(ecs_ecs *ecs, ecs_id *entities, unsigned int entity_count, ecs_dt dt, void *udata);
 typedef void (*ecs_added_fn)(ecs_ecs *ecs, ecs_id entity_id, void *udata);
 typedef void (*ecs_removed_fn)(ecs_ecs *ecs, ecs_id entity_id, void *udata);
 
 typedef struct {
-  size_t capacity;
-  size_t size;
-  size_t *sparse;
+  unsigned int capacity;
+  unsigned int size;
+  unsigned int *sparse;
   ecs_id *dense;
 } ecs_sparse_set;
 
 typedef struct {
-  size_t capacity;
-  size_t size;
+  unsigned int capacity;
+  unsigned int size;
   ecs_id *array;
 } ecs_stack;
 
 typedef struct {
-  size_t capacity;
-  size_t count;
-  size_t size;
+  unsigned int capacity;
+  unsigned int count;
+  unsigned int size;
   void *data;
 } ecs_array;
 
@@ -67,20 +67,20 @@ struct ecs_ecs {
   ecs_stack destroy_queue;
   ecs_stack remove_queue;
   ecs_entity *entities;
-  size_t entity_count;
+  unsigned int entity_count;
   ecs_comp comps[ECS_MAX_COMPONENTS];
   ecs_array comp_arrays[ECS_MAX_COMPONENTS];
-  size_t comp_count;
+  unsigned int comp_count;
   ecs_sys systems[ECS_MAX_SYSTEMS];
-  size_t system_count;
+  unsigned int system_count;
   void *mem_ctx;
 };
 
-ecs_ecs *ecs_new(size_t entity_count, void *mem_ctx);
+ecs_ecs *ecs_new(unsigned int entity_count, void *mem_ctx);
 void ecs_free(ecs_ecs *ecs);
 void ecs_reset(ecs_ecs *ecs);
 
-ecs_id ecs_register_component(ecs_ecs *ecs, size_t size, ecs_constructor_fn constructor, ecs_destructor_fn destructor);
+ecs_id ecs_register_component(ecs_ecs *ecs, unsigned int size, ecs_constructor_fn constructor, ecs_destructor_fn destructor);
 
 ecs_id ecs_register_system(ecs_ecs *ecs, ecs_system_fn system_cb, ecs_added_fn add_cb, ecs_removed_fn remove_cb, void *udata);
 void ecs_require_component(ecs_ecs *ecs, ecs_id sys_id, ecs_id comp_id);

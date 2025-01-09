@@ -13,12 +13,12 @@ ecs_id LIGHT_SYSTEM_SIGNATURE;
 
 comp_light_constructor_info *LIGHT_CONSTRUCTOR_INFO = NULL;
 
-static ecs_ret sys_light_update(ecs_ecs *ecs, ecs_id *entities, const size_t entity_count, const ecs_dt dt, void *udata) {
+static ecs_ret sys_light_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
   if (dt == 0.0f) {
     return 0;
   }
   clear_lights();
-  for (int id = 0; id < entity_count; id++) {
+  for (unsigned int id = 0; id < entity_count; id++) {
     comp_light *info = ecs_get(ECS, entities[id], LIGHT_COMPONENT_SIGNATURE);
     const phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
     const phy_vector2 screen_pos_perc = world_to_screen_perc(pos.x, pos.y);

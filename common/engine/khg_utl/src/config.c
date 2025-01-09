@@ -27,12 +27,12 @@ static char *utl_trim_whitespace(char *str) {
   return str;
 }
 
-static void utl_xor_encrypt_decrypt(const char *input, char *output, char key, size_t size) {
+static void utl_xor_encrypt_decrypt(const char *input, char *output, char key, unsigned int size) {
   if (!input || !output) {
     utl_error_func("Null input or output provided to xor_encrypt_decrypt", utl_user_defined_data);
     return;
   }
-  for (size_t i = 0; i < size; ++i) {
+  for (unsigned int i = 0; i < size; ++i) {
     output[i] = input[i] ^ key;
   }
 }
@@ -77,7 +77,7 @@ utl_config_file *utl_config_create(const char *filename) {
         utl_file_reader_close(fr);
         exit(-1);
       }
-      size_t section_name_length = strlen(writable_trimmed) - 2;
+      unsigned int section_name_length = strlen(writable_trimmed) - 2;
       current_section->section_name = malloc(section_name_length + 1);
       strncpy(current_section->section_name, writable_trimmed + 1, section_name_length);
       current_section->section_name[section_name_length] = '\0';
@@ -108,10 +108,10 @@ void utl_config_save(const utl_config_file *config, const char *filename) {
     utl_error_func("Unable to open file for writing", utl_user_defined_data);
     return;
   }
-  for (size_t i = 0; i < config->section_count; i++) {
+  for (unsigned int i = 0; i < config->section_count; i++) {
     utl_config_section *section = config->sections[i];
     utl_file_writer_write_fmt(fw, "[%s]\n", section->section_name);
-    for (size_t j = 0; j < section->entry_count; j++) {
+    for (unsigned int j = 0; j < section->entry_count; j++) {
       utl_config_entry *entry = &section->entries[j];
       if (entry->is_comment) {
         utl_file_writer_write_fmt(fw, "%s\n", entry->value);
@@ -138,10 +138,10 @@ const char *utl_config_get_value(const utl_config_file *config, const char *sect
     utl_error_func("Key name is null", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < config->section_count; ++i) {
+  for (unsigned int i = 0; i < config->section_count; ++i) {
     if (strcmp(config->sections[i]->section_name, section) == 0) {
       utl_config_section *sec = config->sections[i];
-      for (size_t j = 0; j < sec->entry_count; ++j) {
+      for (unsigned int j = 0; j < sec->entry_count; ++j) {
         if (sec->entries[j].key && strcmp(sec->entries[j].key, key) == 0) {
           return sec->entries[j].value;
         }
@@ -170,7 +170,7 @@ void utl_config_set_value(utl_config_file *config, const char *section, const ch
     return;
   }
   utl_config_section *sec = NULL;
-  for (size_t i = 0; i < config->section_count; ++i) {
+  for (unsigned int i = 0; i < config->section_count; ++i) {
     if (strcmp(config->sections[i]->section_name, section) == 0) {
       sec = config->sections[i];
       break;
@@ -194,7 +194,7 @@ void utl_config_set_value(utl_config_file *config, const char *section, const ch
     }
     config->sections[config->section_count++] = sec;
   }
-  for (size_t j = 0; j < sec->entry_count; ++j) {
+  for (unsigned int j = 0; j < sec->entry_count; ++j) {
     if (sec->entries[j].key && strcmp(sec->entries[j].key, key) == 0) {
       free(sec->entries[j].value);
       sec->entries[j].value = utl_string_strdup(value);
@@ -216,16 +216,16 @@ void utl_config_remove_section(utl_config_file *config, const char *section) {
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
     return;
   }
-  for (size_t i = 0; i < config->section_count; ++i) {
+  for (unsigned int i = 0; i < config->section_count; ++i) {
     if (strcmp(config->sections[i]->section_name, section) == 0) {
       free(config->sections[i]->section_name);
-      for (size_t j = 0; j < config->sections[i]->entry_count; ++j) {
+      for (unsigned int j = 0; j < config->sections[i]->entry_count; ++j) {
         free(config->sections[i]->entries[j].key);
         free(config->sections[i]->entries[j].value);
       }
       free(config->sections[i]->entries);
       free(config->sections[i]);
-      for (size_t k = i; k < config->section_count - 1; ++k) {
+      for (unsigned int k = i; k < config->section_count - 1; ++k) {
         config->sections[k] = config->sections[k + 1];
       }
       config->section_count--;
@@ -240,14 +240,14 @@ void utl_config_remove_key(utl_config_file *config, const char *section, const c
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
     return;
   }
-  for (size_t i = 0; i < config->section_count; ++i) {
+  for (unsigned int i = 0; i < config->section_count; ++i) {
     if (strcmp(config->sections[i]->section_name, section) == 0) {
       utl_config_section *sec = config->sections[i];
-      for (size_t j = 0; j < sec->entry_count; ++j) {
+      for (unsigned int j = 0; j < sec->entry_count; ++j) {
         if (strcmp(sec->entries[j].key, key) == 0) {
           free(sec->entries[j].key);
           free(sec->entries[j].value);
-          for (size_t k = j; k < sec->entry_count - 1; ++k) {
+          for (unsigned int k = j; k < sec->entry_count - 1; ++k) {
             sec->entries[k] = sec->entries[k + 1];
           }
           sec->entry_count--;
@@ -265,9 +265,9 @@ void utl_config_deallocate(utl_config_file *config) {
     utl_error_func("Config file pointer is null", utl_error_func);
     return;
   }
-  for (size_t i = 0; i < config->section_count; ++i) {
+  for (unsigned int i = 0; i < config->section_count; ++i) {
     free(config->sections[i]->section_name);
-    for (size_t j = 0; j < config->sections[i]->entry_count; ++j) {
+    for (unsigned int j = 0; j < config->sections[i]->entry_count; ++j) {
         free(config->sections[i]->entries[j].key);
         free(config->sections[i]->entries[j].value);
     }
@@ -285,7 +285,7 @@ bool utl_config_has_section(const utl_config_file *config, const char *section) 
     utl_error_func("Invalid arguments provided.", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < config->section_count; ++i) {
+  for (unsigned int i = 0; i < config->section_count; ++i) {
     if (strcmp(config->sections[i]->section_name, section) == 0) {
       return true;
     }
@@ -298,13 +298,13 @@ bool utl_config_has_key(const utl_config_file *config, const char *section, cons
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < config->section_count; ++i) {
+  for (unsigned int i = 0; i < config->section_count; ++i) {
     if (strcmp(config->sections[i]->section_name, section) == 0) {
       utl_config_section *sec = config->sections[i];
-      for (size_t j = 0; j < sec->entry_count; ++j) {
+      for (unsigned int j = 0; j < sec->entry_count; ++j) {
         if (strcmp(config->sections[i]->section_name, section) == 0) {
           utl_config_section *sec = config->sections[i];
-          for (size_t j = 0; j < sec->entry_count; ++j) {   
+          for (unsigned int j = 0; j < sec->entry_count; ++j) {   
             if (sec->entries[j].key && strcmp(sec->entries[j].key, key) == 0) { 
               return true;
             }
@@ -372,7 +372,7 @@ void utl_config_set_comment(utl_config_file *config, const char *section, const 
     utl_error_func("Invalid arguments provided", utl_error_func);
     return;
   }
-  for (size_t i = 0; i < config->section_count; ++i) {
+  for (unsigned int i = 0; i < config->section_count; ++i) {
     utl_config_section *sec = config->sections[i];
     if (strcmp(config->sections[i]->section_name, section) == 0) {
       sec->comment = utl_string_strdup(comment); 
@@ -437,14 +437,14 @@ void utl_config_register_modification_callback(utl_config_file *config, void (*c
   config->modification_callback = callback;
 }
 
-void utl_config_validate_structure(const utl_config_file *config, const utl_config_section *expected_structure, size_t structure_size) {
+void utl_config_validate_structure(const utl_config_file *config, const utl_config_section *expected_structure, unsigned int structure_size) {
   if (!config || !expected_structure) {
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
     return;
   }
-  for (size_t i = 0; i < structure_size; ++i) {
+  for (unsigned int i = 0; i < structure_size; ++i) {
     const utl_config_section *expected_sec = &expected_structure[i];
-    for (size_t j = 0; j < config->section_count; ++j) {
+    for (unsigned int j = 0; j < config->section_count; ++j) {
       if (strcmp(config->sections[j]->section_name, expected_sec->section_name) == 0) {
         break;
       }
@@ -452,7 +452,7 @@ void utl_config_validate_structure(const utl_config_file *config, const utl_conf
   }
 }
 
-char **utl_config_get_array(const utl_config_file *config, const char *section, const char *key, size_t array_size) {
+char **utl_config_get_array(const utl_config_file *config, const char *section, const char *key, unsigned int array_size) {
   if (!config || !section || !key || !array_size) {
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
     array_size = 0;
@@ -477,7 +477,7 @@ char **utl_config_get_array(const utl_config_file *config, const char *section, 
   }
   char *value_copy = utl_string_strdup(value);
   char *token = strtok(value_copy, ", ");
-  size_t idx = 0;
+  unsigned int idx = 0;
   while (token) {
     array[idx++] = utl_string_strdup(token);
     token = strtok(NULL, ",");
@@ -486,13 +486,13 @@ char **utl_config_get_array(const utl_config_file *config, const char *section, 
   return array;
 }
 
-void utl_config_set_array(utl_config_file *config, const char *section, const char *key, const char *const *array, size_t array_size) {
+void utl_config_set_array(utl_config_file *config, const char *section, const char *key, const char *const *array, unsigned int array_size) {
   if (!config || !section || !key || !array || array_size == 0) {
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
     return;
   }
-  size_t total_length = strlen(key) + 2;
-  for (size_t i = 0; i < array_size; i++) {
+  unsigned int total_length = strlen(key) + 2;
+  for (unsigned int i = 0; i < array_size; i++) {
     total_length += strlen(array[i]) + ((i < array_size - 1) ? 1 : 0); // +1 for comma, if not the last element
   }
   char *combined = malloc(total_length);
@@ -502,7 +502,7 @@ void utl_config_set_array(utl_config_file *config, const char *section, const ch
   }
   char *ptr = combined;
   ptr += sprintf(ptr, "%s=", key);
-  for (size_t i = 0; i < array_size; i++) {
+  for (unsigned int i = 0; i < array_size; i++) {
     ptr += sprintf(ptr, "%s%s", array[i], (i < array_size - 1) ? ", " : "");
   }
   utl_config_set_value(config, section, key, combined);
@@ -519,7 +519,7 @@ char *utl_config_get_encrypted_value(const utl_config_file *config, const char *
     utl_error_func("Unable to find encrypted value for key", utl_user_defined_data);
     return NULL;
   }
-  size_t value_size = strlen(encrypted_value);
+  unsigned int value_size = strlen(encrypted_value);
   char *decrypted_value = malloc(value_size + 1);
   if (!decrypted_value) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
@@ -535,7 +535,7 @@ void utl_config_set_encrypted_value(utl_config_file *config, const char *section
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
     return;
   }
-  size_t value_size = strlen(value);
+  unsigned int value_size = strlen(value);
   char *encrypted_value = malloc(value_size + 1);
   if (!encrypted_value) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);

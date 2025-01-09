@@ -3,48 +3,48 @@
 #include <stdlib.h>
 
 static int thread_pool_worker(void *arg) {
-  ThreadPool *pool = (ThreadPool *)arg;
-  while (pool->keepAlive) {
-    mutex_lock(&pool->queue.lock);
-    while (pool->queue.count == 0 && pool->keepAlive) {
-      condition_wait(&pool->queue.hasTasks, &pool->queue.lock);
+  thd_thread_pool *pool = (thd_thread_pool *)arg;
+  while (pool->keep_alive) {
+    thd_mutex_lock(&pool->queue.lock);
+    while (pool->queue.count == 0 && pool->keep_alive) {
+      thd_condition_wait(&pool->queue.hasTasks, &pool->queue.lock);
     }
-    if (!pool->keepAlive) {
-      mutex_unlock(&pool->queue.lock);
+    if (!pool->keep_alive) {
+      thd_mutex_unlock(&pool->queue.lock);
       break;
     }
-    Task* task = pool->queue.front;
+    thd_task* task = pool->queue.front;
     if(task != NULL) {
       pool->queue.front = task->next;
       pool->queue.count--;
-      mutex_unlock(&pool->queue.lock);
+      thd_mutex_unlock(&pool->queue.lock);
       if (task->function) {
           task->function(task->arg);
       }
       free(task);
     } 
     else {
-      mutex_unlock(&pool->queue.lock);
+      thd_mutex_unlock(&pool->queue.lock);
     }
   }
-  mutex_lock(&pool->workMutex);
-  pool->numWorking--;
-  if (pool->numWorking == 0) {
-    condition_signal(&pool->allIdle);
+  thd_mutex_lock(&pool->work_mutex);
+  pool->num_working--;
+  if (pool->num_working == 0) {
+    thd_condition_signal(&pool->all_idle);
   }
-  mutex_unlock(&pool->workMutex);
+  thd_mutex_unlock(&pool->work_mutex);
   return 0;
 }
 
-static void task_queue_init(TaskQueue *queue) {
+static void task_queue_init(thd_task_queue *queue) {
   queue->front = queue->rear = NULL;
   queue->count = 0;
-  mutex_init(&queue->lock, MUTEX_PLAIN);
-  condition_init(&queue->hasTasks);
+  thd_mutex_init(&queue->lock, THD_MUTEX_PLAIN);
+  thd_condition_init(&queue->hasTasks);
 }
 
-static void task_queue_push(TaskQueue *queue, Task *task) {
-  mutex_lock(&queue->lock);
+static void task_queue_push(thd_task_queue *queue, thd_task *task) {
+  thd_mutex_lock(&queue->lock);
   if (queue->rear == NULL) {
     queue->front = queue->rear = task;
   } 
@@ -54,40 +54,40 @@ static void task_queue_push(TaskQueue *queue, Task *task) {
   }
   task->next = NULL;
   queue->count++;
-  condition_signal(&queue->hasTasks);
-  mutex_unlock(&queue->lock);
+  thd_condition_signal(&queue->hasTasks);
+  thd_mutex_unlock(&queue->lock);
 }
 
-ThreadPool *thread_pool_create(int num_threads) {
-  ThreadPool *pool = (ThreadPool *)malloc(sizeof(ThreadPool));
+thd_thread_pool *thd_thread_pool_create(int num_threads) {
+  thd_thread_pool *pool = (thd_thread_pool *)malloc(sizeof(thd_thread_pool));
   if (!pool) {
     utl_error_func("Could not allocate memory for thread pool", utl_user_defined_data);
     return NULL;
   }
-  pool->numThreads = num_threads;
-  pool->keepAlive = true;
-  pool->numWorking = 0;
-  mutex_init(&pool->workMutex, MUTEX_PLAIN);
-  condition_init(&pool->allIdle);
+  pool->num_threads = num_threads;
+  pool->keep_alive = true;
+  pool->num_working = 0;
+  thd_mutex_init(&pool->work_mutex, THD_MUTEX_PLAIN);
+  thd_condition_init(&pool->all_idle);
   task_queue_init(&pool->queue);
-  pool->threads = (Thread *)malloc(num_threads * sizeof(Thread));
+  pool->threads = (thd_thread *)malloc(num_threads * sizeof(thd_thread));
   if (!pool->threads) {
     utl_error_func("Could not allocate memory for worker threads", utl_user_defined_data);
     free(pool);
     return NULL;
   }
   for (int i = 0; i < num_threads; ++i) {
-    if (thread_create(&pool->threads[i], thread_pool_worker, pool) != THREAD_SUCCESS) {
+    if (thd_thread_create(&pool->threads[i], thread_pool_worker, pool) != THD_THREAD_SUCCESS) {
       utl_error_func("Failed to create worker thread", utl_user_defined_data);
-      thread_pool_destroy(pool);
+      thd_thread_pool_destroy(pool);
       return NULL;
     }
   }
   return pool;
 }
 
-void thread_pool_add_task(ThreadPool *pool, TaskFunction function, void *arg) {
-  Task *newTask = (Task *)malloc(sizeof(Task));
+void thd_thread_pool_add_task(thd_thread_pool *pool, thd_task_function function, void *arg) {
+  thd_task *newTask = (thd_task *)malloc(sizeof(thd_task));
   if (newTask == NULL) {
     utl_error_func("Could not allocating memory for new task", utl_user_defined_data);
     return;
@@ -98,34 +98,34 @@ void thread_pool_add_task(ThreadPool *pool, TaskFunction function, void *arg) {
   task_queue_push(&pool->queue, newTask);
 }
 
-void thread_pool_wait(ThreadPool *pool) {
-  mutex_lock(&pool->workMutex);
-  while (pool->queue.count > 0 || pool->numWorking) {
-    condition_wait(&pool->allIdle, &pool->workMutex);
+void thd_thread_pool_wait(thd_thread_pool *pool) {
+  thd_mutex_lock(&pool->work_mutex);
+  while (pool->queue.count > 0 || pool->num_working) {
+    thd_condition_wait(&pool->all_idle, &pool->work_mutex);
   }
-  mutex_unlock(&pool->workMutex);
+  thd_mutex_unlock(&pool->work_mutex);
 }
 
-void thread_pool_destroy(ThreadPool *pool) {
+void thd_thread_pool_destroy(thd_thread_pool *pool) {
   if (pool == NULL) {
     return;
   }
-  mutex_lock(&pool->queue.lock);
-  pool->keepAlive = false;
-  condition_broadcast(&pool->queue.hasTasks);
-  mutex_unlock(&pool->queue.lock);
-  for (int i = 0; i < pool->numThreads; ++i) {
-    if (thread_join(pool->threads[i], NULL) != THREAD_SUCCESS) {
+  thd_mutex_lock(&pool->queue.lock);
+  pool->keep_alive = false;
+  thd_condition_broadcast(&pool->queue.hasTasks);
+  thd_mutex_unlock(&pool->queue.lock);
+  for (int i = 0; i < pool->num_threads; ++i) {
+    if (thd_thread_join(pool->threads[i], NULL) != THD_THREAD_SUCCESS) {
       utl_error_func("Error joining thread", utl_user_defined_data);
     } 
   }
   free(pool->threads);
-  mutex_destroy(&pool->workMutex);
-  condition_destroy(&pool->allIdle);
-  mutex_destroy(&pool->queue.lock);
-  condition_destroy(&pool->queue.hasTasks);
+  thd_mutex_destroy(&pool->work_mutex);
+  thd_condition_destroy(&pool->all_idle);
+  thd_mutex_destroy(&pool->queue.lock);
+  thd_condition_destroy(&pool->queue.hasTasks);
   while (pool->queue.front != NULL) {
-    Task *task = pool->queue.front;
+    thd_task *task = pool->queue.front;
     pool->queue.front = task->next;
     free(task);
   }

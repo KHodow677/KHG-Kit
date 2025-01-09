@@ -1,5 +1,4 @@
 #include "khg_utl/file_reader.h"
-#include "khg_utl/encoding.h"
 #include "khg_utl/error_func.h"
 #include "khg_utl/string.h"
 #include <stdlib.h>
@@ -24,11 +23,7 @@ utl_file_reader *utl_file_reader_open(const char *filename, const utl_read_mode 
       modeStr = "rb";
       break;
     case UTL_READ_UNICODE:
-#if defined(_WIN32) || defined(_WIN64)
-      modeStr = "r, ccs=UTF-16LE";
-#else
       modeStr = "r";
-#endif
       break;
     case UTL_READ_BUFFERED:
       modeStr = "r";
@@ -38,30 +33,10 @@ utl_file_reader *utl_file_reader_open(const char *filename, const utl_read_mode 
       break;
     default:
       utl_error_func("Not a valid mode for reading, initializing default mode 'r'", utl_user_defined_data);
-#if defined(_WIN32) || defined(_WIN64)
-      modeStr = "r, ccs=UTF-16LE";
-#else
       modeStr = "r";
-#endif
       break;
   }
-#if defined(_WIN32) || defined(_WIN64)
-  wchar_t* wFileName = utl_encoding_utf8_to_wchar(filename);
-  wchar_t* wMode = utl_encoding_utf8_to_wchar(modeStr);
-  if (!wMode) {
-    utl_error_func("Cannot convert mode to wchar", utl_user_defined_data);
-    exit(-1);
-  }
-  if (!wFileName) {
-    utl_error_func("Cannot convert filename to wchar", utl_user_defined_data);
-    exit(-1);
-  }
-  reader->file_reader = _wfopen(wFileName, wMode);
-  free(wMode);
-  free(wFileName);
-#else 
   reader->file_reader = fopen(filename, modeStr);
-#endif 
   if (reader->file_reader == NULL) {
     utl_error_func("Cannot open file", utl_user_defined_data);
     free(reader);
@@ -69,7 +44,6 @@ utl_file_reader *utl_file_reader_open(const char *filename, const utl_read_mode 
   }
   reader->mode = mode;
   reader->is_open = true;
-  reader->encoding = UTL_READ_ENCODING_UTF16;
   reader->file_path = utl_string_strdup(filename);
   return reader;
 }
@@ -97,7 +71,7 @@ size_t utl_file_reader_get_position(utl_file_reader *reader) {
     utl_error_func("Object is null or invalid", utl_user_defined_data);
     return (size_t)-1;
   }
-  long cursor_position = ftell(reader->file_reader);
+  long long cursor_position = ftell(reader->file_reader);
   if (cursor_position == -1L) {
     utl_error_func("Could not determine file position", utl_user_defined_data);
     return (size_t)-1;
@@ -117,19 +91,6 @@ bool utl_file_reader_is_open(utl_file_reader *reader) {
   return reader->is_open;
 }
 
-bool utl_file_reader_set_encoding(utl_file_reader *reader, const utl_read_encoding_type encoding) {
-  if (!reader || reader->file_reader == NULL) {
-    utl_error_func("Object is invalid or NULL", utl_user_defined_data);
-    return false;
-  }
-  if (!(encoding >= UTL_READ_ENCODING_UTF16 && encoding <= UTL_READ_ENCODING_UTF32)) {
-    utl_error_func("Invalid encoding type", utl_user_defined_data);
-    return false;
-  }
-  reader->encoding = encoding;
-  return true;
-}
-
 const char *utl_file_reader_get_file_name(utl_file_reader *reader) {
   if (!reader || reader->file_reader == NULL) {
     utl_error_func("Object is null or invalid", utl_user_defined_data);
@@ -142,7 +103,7 @@ const char *utl_file_reader_get_file_name(utl_file_reader *reader) {
   return (const char *)reader->file_path;
 }
 
-bool utl_file_reader_seek(utl_file_reader *reader, long offset, const utl_cursor_position cursor_pos) {
+bool utl_file_reader_seek(utl_file_reader *reader, long long offset, const utl_cursor_position cursor_pos) {
   if (!reader || reader->file_reader == NULL) {
     utl_error_func("Object is null or invalid", utl_user_defined_data);
     return false;
@@ -183,7 +144,7 @@ size_t utl_file_reader_get_size(utl_file_reader *reader) {
     utl_error_func("FileReader object is not valid or NULL", utl_user_defined_data);
     return 0;
   }
-  long current_position = utl_file_reader_get_position(reader);
+  long long current_position = utl_file_reader_get_position(reader);
   if (fseek(reader->file_reader, 0, SEEK_END) != 0) {
     utl_error_func("Fseek failed to seek to end of file", utl_user_defined_data);
     return 0;
@@ -225,22 +186,17 @@ bool utl_file_reader_read_line(char *buffer, size_t size, utl_file_reader *reade
     utl_error_func("Invalid argument", utl_user_defined_data);
     return false;
   }
-  if (reader->encoding == UTL_READ_ENCODING_UTF16 && reader->mode == UTL_READ_UNICODE) {
-    wchar_t wBuffer[1024];
-    if (fgetws(wBuffer, 1024, reader->file_reader) == NULL) {
+  if (reader->mode == UTL_READ_UNICODE) {
+    char wBuffer[1024];
+    if (fgets(wBuffer, 1024, reader->file_reader) == NULL) {
       if (!feof(reader->file_reader)) {
         utl_error_func("Failed to read line in UTF-16 mode", utl_user_defined_data);
       }
       return false;
     }
-    char *utf8Buffer = utl_encoding_wchar_to_utf8(wBuffer);
-    if (!utf8Buffer) {
-      utl_error_func("Conversion to UTF-8 failed", utl_user_defined_data);
-      return false;
-    }
+    char *utf8Buffer = wBuffer;
     strncpy(buffer, utf8Buffer, size - 1);
     buffer[size - 1] = '\0';
-    free(utf8Buffer);
   } 
   else {
     if (fgets(buffer, size, reader->file_reader) == NULL) {
@@ -259,21 +215,16 @@ size_t utl_file_reader_read_fmt(utl_file_reader *reader, const char *format, ...
     utl_error_func("Invalid argument", utl_user_defined_data);
     return 0;
   }
-  wchar_t wBuffer[1024]; 
-  if (fgetws(wBuffer, sizeof(wBuffer) / sizeof(wchar_t), reader->file_reader) == NULL) {
+  char wBuffer[1024]; 
+  if (fgets(wBuffer, sizeof(wBuffer) / sizeof(char), reader->file_reader) == NULL) {
     utl_error_func("Failed to read formatted data", utl_user_defined_data);
     return 0; 
   }
-  char *utf8Buffer = utl_encoding_wchar_to_utf8(wBuffer);
-  if (!utf8Buffer) {
-    utl_error_func("UTF-16 to UTF-8 conversion failed", utl_user_defined_data);
-    return 0;
-  }
+  char *utf8Buffer = wBuffer;
   va_list args;
   va_start(args, format);
   size_t read = vsscanf(utf8Buffer, format, args);
   va_end(args);
-  free(utf8Buffer);
   return read; 
 }
 
@@ -282,27 +233,15 @@ bool utl_file_reader_copy(utl_file_reader* src_reader, utl_file_writer* dest_wri
     utl_error_func("Invalid argument", utl_user_defined_data);
     return false;
   }
-  wchar_t wBuffer[1024];
+  char wBuffer[1024];
   size_t bytesRead, bytesToWrite;
-  while ((bytesRead = fread(wBuffer, sizeof(wchar_t), 1024, src_reader->file_reader)) > 0) {
+  while ((bytesRead = fread(wBuffer, sizeof(char), 1024, src_reader->file_reader)) > 0) {
     char *utf8Buffer = NULL;
     size_t utf8BufferSize = 0;
-    switch (src_reader->encoding) {
-      case UTL_READ_ENCODING_UTF16:
-        utf8Buffer = utl_encoding_wchar_to_utf8(wBuffer);
-        if (!utf8Buffer) {
-          utl_error_func("Conversion to UTF-8 failed", utl_user_defined_data);
-          return false;
-        }
-        utf8BufferSize = utl_string_length_utf8(utf8Buffer);
-        break;
-      default:
-        utl_error_func("Unsupported encoding in file_reader_copy", utl_user_defined_data);
-        return false;
-    }
+    utf8Buffer = wBuffer;
+    utf8BufferSize = utl_string_length_utf8(utf8Buffer);
     bytesToWrite = utf8BufferSize;
     size_t bytesWritten = utl_file_writer_write(utf8Buffer, sizeof(char), bytesToWrite, dest_writer);
-    free(utf8Buffer);
     if (bytesWritten < bytesToWrite) {
       utl_error_func("Could not write all data to the destination file", utl_user_defined_data);
       return false;

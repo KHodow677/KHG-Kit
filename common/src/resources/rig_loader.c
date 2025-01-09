@@ -12,7 +12,7 @@ static int compare_rig_strings(const void *a, const void *b) {
   return strcmp(*(const char **)a, (const char *)b);
 }
 
-const rig generate_rig(const char *filepath, const char *rb_section, const char *rig_section, const size_t num_anim) {
+const rig generate_rig(const char *filepath, const char *rb_section, const char *rig_section, const unsigned int num_anim) {
   rig_builder rb = generate_rig_builder_from_file(filepath, rb_section, num_anim);
   rig r;
   create_rig(&r, &rb);
@@ -64,11 +64,11 @@ void generate_rig_from_file(rig *r, const char *filepath, const char *rig_sectio
   utl_config_deallocate(config);
 }
 
-const size_t get_rig_id_from_string(const char *rig_key) {
-  return (size_t)utl_algorithm_find_at(RIG_STRINGS, RIG_STRINGS_SIZE, sizeof(char *), rig_key, compare_rig_strings);
+const unsigned int get_rig_id_from_string(const char *rig_key) {
+  return utl_algorithm_find_at(RIG_STRINGS, RIG_STRINGS_SIZE, sizeof(char *), rig_key, compare_rig_strings);
 }
 
-const rig get_rig(size_t rig_id) {
+const rig get_rig(unsigned int rig_id) {
   const rig_asset ra = RIG_ASSET_REF[rig_id];
   return generate_rig(ra.rig_filepath, ra.rb_section, ra.rig_section, ra.num_anim);
 }

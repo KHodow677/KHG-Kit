@@ -1,9 +1,10 @@
 #include "khg_aud/audio_buffer.h"
 #include "khg_utl/error_func.h"
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
-aud_audio_buffer *aud_load_audio_buffer(ma_format format, ma_uint32 channels, ma_uint32 sample_rate, ma_uint32 size_in_frames, int usage) {
+aud_audio_buffer *aud_load_audio_buffer(ma_format format, unsigned int channels, unsigned int sample_rate, unsigned int size_in_frames, int usage) {
   aud_audio_buffer *a_buffer = (aud_audio_buffer *)calloc(1, sizeof(aud_audio_buffer));
   if (a_buffer == NULL) {
     utl_error_func("Failed to allocate memory for buffer", utl_user_defined_data);
@@ -93,55 +94,55 @@ void aud_set_audio_buffer_volume(aud_audio_buffer *b, float volume) {
 void aud_set_audio_buffer_pitch(aud_audio_buffer *b, float pitch) {
   if (b != NULL) {
     float pitch_mul = pitch/b->pitch;
-    ma_uint32 new_output_sample_rate = (ma_uint32)((float)b->converter.config.sampleRateOut/pitch_mul);
+    unsigned int new_output_sample_rate = (unsigned int)((float)b->converter.config.sampleRateOut/pitch_mul);
     b->pitch *= (float)b->converter.config.sampleRateOut/new_output_sample_rate;
     ma_data_converter_set_rate(&b->converter, b->converter.config.sampleRateIn, new_output_sample_rate);
   }
 }
 
 void aud_track_audio_buffer(aud_audio_buffer *b) {
-  ma_mutex_lock(&audio.system.lock);
-  if (audio.buffer.first == NULL) {
-    audio.buffer.first = b;
+  ma_mutex_lock(&AUD_AUDIO.system.lock);
+  if (AUD_AUDIO.buffer.first == NULL) {
+    AUD_AUDIO.buffer.first = b;
   }
   else {
-    audio.buffer.last->next = b;
-    b->prev = audio.buffer.last;
+    AUD_AUDIO.buffer.last->next = b;
+    b->prev = AUD_AUDIO.buffer.last;
   }
-  audio.buffer.last = b;
-  ma_mutex_unlock(&audio.system.lock);
+  AUD_AUDIO.buffer.last = b;
+  ma_mutex_unlock(&AUD_AUDIO.system.lock);
 }
 
 void aud_untrack_audio_buffer(aud_audio_buffer *b) {
-  ma_mutex_lock(&audio.system.lock);
+  ma_mutex_lock(&AUD_AUDIO.system.lock);
   if (b->prev == NULL) {
-    audio.buffer.first = b->next;
+    AUD_AUDIO.buffer.first = b->next;
   }
   else {
     b->prev->next = b->next;
   }
   if (b->next == NULL) {
-    audio.buffer.last = b->prev;
+    AUD_AUDIO.buffer.last = b->prev;
   }
   else {
     b->next->prev = b->prev;
   }
   b->prev = NULL;
   b->next = NULL;
-  ma_mutex_unlock(&audio.system.lock);
+  ma_mutex_unlock(&AUD_AUDIO.system.lock);
 }
 
-ma_uint32 aud_read_audio_buffer_frames_in_internal_format(aud_audio_buffer *b, void *frames_out, ma_uint32 frame_count) {
-  ma_uint32 sub_buffer_size_in_frames = (b->size_in_frames > 1)? b->size_in_frames/2 : b->size_in_frames;
-  ma_uint32 current_sub_buffer_index = b->frame_cursor_pos/sub_buffer_size_in_frames;
+unsigned int aud_read_audio_buffer_frames_in_internal_format(aud_audio_buffer *b, void *frames_out, unsigned int frame_count) {
+  unsigned int sub_buffer_size_in_frames = (b->size_in_frames > 1)? b->size_in_frames/2 : b->size_in_frames;
+  unsigned int current_sub_buffer_index = b->frame_cursor_pos/sub_buffer_size_in_frames;
   if (current_sub_buffer_index > 1){
     return 0;
   }
   bool is_sub_buffer_processed[2];
   is_sub_buffer_processed[0] = b->is_sub_buffer_processed[0];
   is_sub_buffer_processed[1] = b->is_sub_buffer_processed[1];
-  ma_uint32 frame_size_in_bytes = ma_get_bytes_per_frame(b->converter.config.formatIn, b->converter.config.channelsIn);
-  ma_uint32 frames_read = 0;
+  unsigned int frame_size_in_bytes = ma_get_bytes_per_frame(b->converter.config.formatIn, b->converter.config.channelsIn);
+  unsigned int frames_read = 0;
   while (1) {
     if (b->usage == AUD_AUDIO_BUFFER_USAGE_STATIC) {
       if (frames_read >= frame_count) {
@@ -153,19 +154,19 @@ ma_uint32 aud_read_audio_buffer_frames_in_internal_format(aud_audio_buffer *b, v
         break;
       }
     }
-    ma_uint32 total_frames_remaining = (frame_count - frames_read);
+    unsigned int total_frames_remaining = (frame_count - frames_read);
     if (total_frames_remaining == 0) {
       break;
     }
-    ma_uint32 frames_remaining_in_output_buffer;
+    unsigned int frames_remaining_in_output_buffer;
     if (b->usage == AUD_AUDIO_BUFFER_USAGE_STATIC) {
       frames_remaining_in_output_buffer = b->size_in_frames - b->frame_cursor_pos;
     }
     else {
-      ma_uint32 firstFrameIndexOfThisSubBuffer = sub_buffer_size_in_frames*current_sub_buffer_index;
+      unsigned int firstFrameIndexOfThisSubBuffer = sub_buffer_size_in_frames*current_sub_buffer_index;
       frames_remaining_in_output_buffer = sub_buffer_size_in_frames - (b->frame_cursor_pos - firstFrameIndexOfThisSubBuffer);
     }
-    ma_uint32 frames_to_read = total_frames_remaining;
+    unsigned int frames_to_read = total_frames_remaining;
     if (frames_to_read > frames_remaining_in_output_buffer) {
       frames_to_read = frames_remaining_in_output_buffer;
     }
@@ -182,7 +183,7 @@ ma_uint32 aud_read_audio_buffer_frames_in_internal_format(aud_audio_buffer *b, v
       }
     }
   }
-  ma_uint32 total_frames_remaining = (frame_count - frames_read);
+  unsigned int total_frames_remaining = (frame_count - frames_read);
   if (total_frames_remaining > 0) {
     memset((unsigned char *)frames_out + (frames_read*frame_size_in_bytes), 0, total_frames_remaining*frame_size_in_bytes);
     if (b->usage != AUD_AUDIO_BUFFER_USAGE_STATIC) {
@@ -192,26 +193,26 @@ ma_uint32 aud_read_audio_buffer_frames_in_internal_format(aud_audio_buffer *b, v
   return frames_read;
 }
 
-ma_uint32 aud_read_audio_buffer_frames_in_mixing_format(aud_audio_buffer *b, float *frames_out, ma_uint32 frame_count) {
-  ma_uint8 input_buffer[4096];
-  ma_uint32 input_buffer_frame_cap = sizeof(input_buffer) / ma_get_bytes_per_frame(b->converter.config.formatIn, b->converter.config.channelsIn);
-  ma_uint32 total_output_frames_processed = 0;
+unsigned int aud_read_audio_buffer_frames_in_mixing_format(aud_audio_buffer *b, float *frames_out, unsigned int frame_count) {
+  char input_buffer[4096];
+  unsigned int input_buffer_frame_cap = sizeof(input_buffer) / ma_get_bytes_per_frame(b->converter.config.formatIn, b->converter.config.channelsIn);
+  unsigned int total_output_frames_processed = 0;
   while (total_output_frames_processed < frame_count) {
-    ma_uint64 output_frames_to_process_this_iteration = frame_count - total_output_frames_processed;
-    ma_uint64 input_frames_to_process_this_iteration = ma_data_converter_get_required_input_frame_count(&b->converter, output_frames_to_process_this_iteration);
+    unsigned long long output_frames_to_process_this_iteration = frame_count - total_output_frames_processed;
+    unsigned long long input_frames_to_process_this_iteration = ma_data_converter_get_required_input_frame_count(&b->converter, output_frames_to_process_this_iteration);
     if (input_frames_to_process_this_iteration > input_buffer_frame_cap) {
-        input_frames_to_process_this_iteration = input_buffer_frame_cap;
+      input_frames_to_process_this_iteration = input_buffer_frame_cap;
     }
     float *running_frames_out = frames_out + (total_output_frames_processed * b->converter.config.channelsOut);
-    ma_uint64 input_frames_processed_this_iteration = aud_read_audio_buffer_frames_in_internal_format(b, input_buffer, (ma_uint32)input_frames_to_process_this_iteration); 
-    ma_uint64 output_frames_processed_this_iteration = output_frames_to_process_this_iteration;
+    unsigned long long input_frames_processed_this_iteration = aud_read_audio_buffer_frames_in_internal_format(b, input_buffer, (unsigned int)input_frames_to_process_this_iteration); 
+    unsigned long long output_frames_processed_this_iteration = output_frames_to_process_this_iteration;
     ma_data_converter_process_pcm_frames(&b->converter, input_buffer, &input_frames_processed_this_iteration, running_frames_out, &output_frames_processed_this_iteration);
-    total_output_frames_processed += (ma_uint32)output_frames_processed_this_iteration; /* Safe cast. */
+    total_output_frames_processed += (unsigned int)output_frames_processed_this_iteration;
     if (input_frames_processed_this_iteration < input_frames_to_process_this_iteration) {
-        break;
+      break;
     }
     if (input_frames_processed_this_iteration == 0 && output_frames_processed_this_iteration == 0) {
-        break;
+      break;
     }
   }
   return total_output_frames_processed;
@@ -219,12 +220,12 @@ ma_uint32 aud_read_audio_buffer_frames_in_mixing_format(aud_audio_buffer *b, flo
 
 void aud_init_audio_buffer_pool(void) {
   for (int i = 0; i < AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    audio.multi_channel.pool[i] = aud_load_audio_buffer(AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, 0, AUD_AUDIO_BUFFER_USAGE_STATIC);
+    AUD_AUDIO.multi_channel.pool[i] = aud_load_audio_buffer(AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, 0, AUD_AUDIO_BUFFER_USAGE_STATIC);
   }
 }
 
 void aud_close_audio_buffer_pool(void) {
   for (int i = 0; i < AUD_MAX_AUDIO_BUFFER_POOL_CHANNELS; i++) {
-    free(audio.multi_channel.pool[i]);
+    free(AUD_AUDIO.multi_channel.pool[i]);
   }
 }

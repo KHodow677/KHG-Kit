@@ -3,10 +3,10 @@
 #include <assert.h>
 
 #define KHS_LEX_STATE_COPY(to, from) (*to = *((lex_state *)(from)))
+#define KHS_ERR_MSG(x) { *str_len = sizeof(x) - 1; return x; }
 
 #define KHS_KEYWORD(str, tok) { str, sizeof(str) - 1, tok }
-struct { 
-  const char *str; khs_size len; unsigned char tok_type; } keywords[] = {
+struct { const char *str; khs_size len; unsigned char tok_type; } KEYWORDS[] = {
   KHS_KEYWORD("let", KHS_TOK_LET),
   KHS_KEYWORD("function", KHS_TOK_FN),
   KHS_KEYWORD("with", KHS_TOK_FN),
@@ -17,9 +17,7 @@ struct {
   KHS_KEYWORD("...", KHS_TOK_VARARGS)
 };
 
-#define KHS_ERR_MSG(x) { *str_len = sizeof(x) - 1; return x; }
-
-const char *khs_lex_err_str(khs_lex_token tok, size_t *str_len) {
+const char *khs_lex_err_str(khs_lex_token tok, unsigned int *str_len) {
   assert(tok.type == KHS_TOK_ERR);
   switch (tok.content.err_type) {
     case KHS_TOK_ERR_NULL: 
@@ -118,10 +116,10 @@ static bool khs_eqlstrcmp(const char *a, const char *b, khs_size len) {
 }
 
 static unsigned char khs_match_keyword(const char *sym, khs_size len) {
-  for (unsigned i = 0; i < KHS_UTIL_LENOF(keywords); i++) {
-    if (keywords[i].len == len) {
-      if (khs_eqlstrcmp(keywords[i].str, sym, len)) {
-        return keywords[i].tok_type;
+  for (unsigned i = 0; i < KHS_UTIL_LENOF(KEYWORDS); i++) {
+    if (KEYWORDS[i].len == len) {
+      if (khs_eqlstrcmp(KEYWORDS[i].str, sym, len)) {
+        return KEYWORDS[i].tok_type;
       }
     }
   }
@@ -202,9 +200,10 @@ START:
         return (khs_lex_token) { .type = KHS_TOK_ERR, .src = start, .len = state->at - start, .content = { .err_type = KHS_TOK_ERR_MISSING_STR_END } };
     } while (*state->at != '"');
     state->at++;
-    size_t str_len = state->at - start;
-    if (str_len > KHS_SIZE_MAX)
+    unsigned int str_len = state->at - start;
+    if (str_len > KHS_SIZE_MAX) {
       return (khs_lex_token){ KHS_TOK_ERR, start, 1, { .err_type = KHS_TOK_ERR_SIZE_OVERFLOW } };
+    }
     return (khs_lex_token){ KHS_TOK_STRING, start, str_len, { .sym = { start + 1, str_len - 2 } } };
   }
   if (*state->at == '-') {
@@ -225,7 +224,7 @@ START:
   while (!khs_is_at_end(state) && khs_is_valid_symbol_char(*state->at)) {
     state->at++;
   }
-  size_t sym_len = state->at - sym_start;
+  unsigned int sym_len = state->at - sym_start;
   if (sym_len > KHS_SIZE_MAX) {
     return (khs_lex_token){ KHS_TOK_ERR, sym_start, 1, { .err_type = KHS_TOK_ERR_SIZE_OVERFLOW } };
   }
@@ -278,7 +277,7 @@ bool khs_lex_accept(khs_lex_state *state, unsigned char type, khs_lex_token *opt
   return false;
 }
 
-void khs_lex_state_init(khs_lex_state *state, const char *src, size_t src_len) {
+void khs_lex_state_init(khs_lex_state *state, const char *src, unsigned int src_len) {
   state->src = src;
   state->end = src + src_len;
   state->at = src;

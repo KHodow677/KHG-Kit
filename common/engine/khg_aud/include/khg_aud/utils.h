@@ -89,4 +89,5 @@ typedef enum {
   AUD_AUDIO_BUFFER_USAGE_STREAM
 } aud_audio_buffer_usage;
 
-extern aud_audio_data audio;
+extern aud_audio_data AUD_AUDIO;
+

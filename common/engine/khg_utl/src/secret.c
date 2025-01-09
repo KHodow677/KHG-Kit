@@ -13,7 +13,7 @@
   #include <unistd.h>
 #endif
 
-void utl_secret_token_bytes(unsigned char *buffer, size_t size) {
+void utl_secret_token_bytes(unsigned char *buffer, unsigned int size) {
 #ifdef _WIN32
   if (!BCRYPT_SUCCESS(BCryptGenRandom(NULL, buffer, (ULONG)size, BCRYPT_USE_SYSTEM_PREFERRED_RNG))) {
     utl_error_func("BCryptGenRandom failed", utl_user_defined_data);
@@ -25,7 +25,7 @@ void utl_secret_token_bytes(unsigned char *buffer, size_t size) {
     utl_error_func("Unable to open /dev/urandom", utl_user_defined_data);
     exit(EXIT_FAILURE);
   }
-  if (read(fd, buffer, size) != (ssize_t)size) {
+  if (read(fd, buffer, size) != (long long)size) {
     utl_error_func("Unable to read from /dev/urandom", utl_user_defined_data);
     close(fd);
     exit(EXIT_FAILURE);
@@ -42,34 +42,34 @@ int utl_secret_randbelow(int n) {
   return result;
 }
 
-void utl_secret_token_hex(char *buffer, size_t nbytes) {
+void utl_secret_token_hex(char *buffer, unsigned int nbytes) {
   unsigned char *bytes = malloc(nbytes);
   utl_secret_token_bytes(bytes, nbytes);
-  for (size_t i = 0; i < nbytes; i++) {
+  for (unsigned int i = 0; i < nbytes; i++) {
     sprintf(buffer + (i * 2), "%02x", bytes[i]);
   }
   free(bytes);
 }
 
-void utl_secret_token_urlsafe(char *buffer, size_t nbytes) {
+void utl_secret_token_urlsafe(char *buffer, unsigned int nbytes) {
   static const char urlsafe_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
   unsigned char *bytes = malloc(nbytes);
   utl_secret_token_bytes(bytes, nbytes);
-  for (size_t i = 0; i < nbytes; i++) {
+  for (unsigned int i = 0; i < nbytes; i++) {
     buffer[i] = urlsafe_table[bytes[i] % 64];
   }
   free(bytes);
 }
 
-int utl_secret_compare_digest(const unsigned char *a, const unsigned char *b, size_t length) {
+int utl_secret_compare_digest(const unsigned char *a, const unsigned char *b, unsigned int length) {
   unsigned char result = 0;
-  for (size_t i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++) {
     result |= a[i] ^ b[i];
   }
   return result == 0;
 }
 
-void *utl_secret_choice(const void* seq, size_t size, size_t elem_size) {
+void *utl_secret_choice(const void* seq, unsigned int size, unsigned int elem_size) {
   if (size == 0) {
     utl_error_func("Cannot choose from an empty sequence", utl_user_defined_data);
     return NULL;

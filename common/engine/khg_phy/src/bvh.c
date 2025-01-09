@@ -36,7 +36,7 @@ void phy_bvh_node_build_aabb(phy_bvh_node *node) {
   }
   if (node->bodies->size > 0) {
     node->aabb = (phy_aabb){ INFINITY, INFINITY, -INFINITY, -INFINITY };
-    for (size_t i = 0; i < node->bodies->size; i++) {
+    for (unsigned int i = 0; i < node->bodies->size; i++) {
       phy_rigid_body *body = node->bodies->data[i];
       phy_aabb aabb = phy_rigid_body_get_aabb(body);
       node->aabb.min_x = fminf(node->aabb.min_x, aabb.min_x);
@@ -60,12 +60,12 @@ void phy_bvh_node_subdivide(phy_bvh_node *node) {
   phy_array *rights = phy_array_new();
   if (width > height) {
     float split = 0.0;
-    for (size_t i = 0; i < node->bodies->size; i++) {
+    for (unsigned int i = 0; i < node->bodies->size; i++) {
       phy_rigid_body *body = node->bodies->data[i];
       split += body->bvh_median_x;
     }
     split /= (float)node->bodies->size;
-    for (size_t i = 0; i < node->bodies->size; i++) {
+    for (unsigned int i = 0; i < node->bodies->size; i++) {
       phy_rigid_body *body = node->bodies->data[i];
       float c = body->bvh_median_x;
       if (c <= split) {
@@ -78,12 +78,12 @@ void phy_bvh_node_subdivide(phy_bvh_node *node) {
   }
   else {
     float split = 0.0;
-    for (size_t i = 0; i < node->bodies->size; i++) {
+    for (unsigned int i = 0; i < node->bodies->size; i++) {
       phy_rigid_body *body = node->bodies->data[i];;
       split += body->bvh_median_y;
     }
     split /= (float)node->bodies->size;
-    for (size_t i = 0; i < node->bodies->size; i++) {
+    for (unsigned int i = 0; i < node->bodies->size; i++) {
       phy_rigid_body *body = node->bodies->data[i];
       float c = body->bvh_median_y;
       if (c <= split) {
@@ -121,7 +121,7 @@ void phy_bvh_node_collide(phy_bvh_node *node, phy_aabb aabb, phy_array *collided
     return;
   }
   if (node->is_leaf) {
-    for (size_t i = 0; i < node->bodies->size; i++) {
+    for (unsigned int i = 0; i < node->bodies->size; i++) {
       phy_array_add(collided, node->bodies->data[i]);
     }
   }
@@ -131,7 +131,7 @@ void phy_bvh_node_collide(phy_bvh_node *node, phy_aabb aabb, phy_array *collided
   }
 }
 
-size_t phy_bvh_node_size(phy_bvh_node *node) {
+unsigned int phy_bvh_node_size(phy_bvh_node *node) {
   if (!node) {
     return 0;
   }
@@ -139,8 +139,8 @@ size_t phy_bvh_node_size(phy_bvh_node *node) {
     return 0;
   }
   else {
-    size_t a = phy_bvh_node_size(node->left);
-    size_t b = phy_bvh_node_size(node->right);
+    unsigned int a = phy_bvh_node_size(node->left);
+    unsigned int b = phy_bvh_node_size(node->right);
     return 1 + a + b;
   }
 }

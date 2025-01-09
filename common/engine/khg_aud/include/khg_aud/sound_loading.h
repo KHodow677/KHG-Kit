@@ -1,4 +1,5 @@
 #include "khg_aud/utils.h"
+#include <stdint.h>
 
 bool aud_is_file_extension(const char *file_name, const char *ext);
 unsigned char *aud_load_file_data(const char *fileName, unsigned int *bytesRead);

@@ -135,8 +135,8 @@ aud_wave aud_load_FLAC(const char *file_name) {
   aud_wave w = { 0 };
   unsigned int file_size = 0;
   unsigned char *file_data = aud_load_file_data(file_name, &file_size);
-  unsigned long long int total_sample_count = 0;
-  w.data = drflac_open_memory_and_read_pcm_frames_s16(file_data, file_size, &w.channels, &w.sample_rate, (drflac_uint64 *)&total_sample_count);
+  unsigned long long total_sample_count = 0;
+  w.data = drflac_open_memory_and_read_pcm_frames_s16(file_data, file_size, &w.channels, &w.sample_rate, &total_sample_count);
   if (w.data == NULL) {
     utl_error_func("Failed to load FLAC data", utl_user_defined_data);
   }
@@ -152,9 +152,9 @@ aud_wave aud_load_MP3(const char *file_name) {
   aud_wave w = { 0 };
   unsigned int file_size = 0;
   unsigned char *file_data = aud_load_file_data(file_name, &file_size);
-  unsigned long long int total_frame_count = 0;
+  unsigned long long total_frame_count = 0;
   drmp3_config config = { 0 };
-  w.data = drmp3_open_memory_and_read_f32(file_data, file_size, &config, (drmp3_uint64 *)&total_frame_count);
+  w.data = drmp3_open_memory_and_read_f32(file_data, file_size, &config, &total_frame_count);
   if (w.data == NULL) {
     utl_error_func("Failed to load MP3 data", utl_user_defined_data);
   }
@@ -213,8 +213,8 @@ aud_sound aud_load_sound_from_wave(aud_wave w) {
   aud_sound sound = { 0 };
   if (w.data != NULL) {
     ma_format format_in  = ((w.sample_size == 8)? ma_format_u8 : ((w.sample_size == 16)? ma_format_s16 : ma_format_f32));
-    ma_uint32 frame_count_in = w.sample_count / w.channels;
-    ma_uint32 frame_count = (ma_uint32)ma_convert_frames(NULL, 0, AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, NULL, frame_count_in, format_in, w.channels, w.sample_rate);
+    unsigned int frame_count_in = w.sample_count / w.channels;
+    unsigned int frame_count = (unsigned int)ma_convert_frames(NULL, 0, AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, NULL, frame_count_in, format_in, w.channels, w.sample_rate);
     if (frame_count == 0) {
       utl_error_func("Failed to get frame count for format conversion", utl_user_defined_data);
     }
@@ -222,7 +222,7 @@ aud_sound aud_load_sound_from_wave(aud_wave w) {
     if (audio_buffer == NULL) {
       utl_error_func("Failed to create buffer", utl_user_defined_data);
     }
-    frame_count = (ma_uint32)ma_convert_frames(audio_buffer->data, frame_count, AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, w.data, frame_count_in, format_in, w.channels, w.sample_rate);
+    frame_count = (unsigned int)ma_convert_frames(audio_buffer->data, frame_count, AUD_AUDIO_DEVICE_FORMAT, AUD_AUDIO_DEVICE_CHANNELS, AUD_AUDIO_DEVICE_SAMPLE_RATE, w.data, frame_count_in, format_in, w.channels, w.sample_rate);
     if (frame_count == 0) {
       utl_error_func("Failed format conversion", utl_user_defined_data);
     }

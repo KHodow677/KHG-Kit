@@ -6,16 +6,16 @@
 typedef struct {
   ecs_id id;
   utl_array *target_frame_bones;
-  int target_state_id;
-  int target_frame_id;
+  unsigned int target_state_id;
+  unsigned int target_frame_id;
   float frame_duration;
   float frame_timer;
   bool destroy_on_max;
 } comp_animator;
 
 typedef struct {
-  int initial_target_state_id;
-  int initial_target_frame_id;
+  unsigned int initial_target_state_id;
+  unsigned int initial_target_frame_id;
   float frame_duration;
   bool destroy_on_max;
 } comp_animator_constructor_info;

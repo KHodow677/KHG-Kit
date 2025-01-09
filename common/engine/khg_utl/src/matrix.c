@@ -2,10 +2,10 @@
 #include "khg_utl/error_func.h"
 #include <float.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 #include <time.h>
 
 static bool utl_is_effectively_zero(double value) {
@@ -69,22 +69,22 @@ static int64_t utl_binomial_factorial(int n, int k) {
 }
 
 
-static double utl_dot_product(const double *v1, const double *v2, size_t length) {
+static double utl_dot_product(const double *v1, const double *v2, unsigned int length) {
   double sum = 0.0;
-  for (size_t i = 0; i < length; ++i) {
+  for (unsigned int i = 0; i < length; ++i) {
     sum += v1[i] * v2[i];
   }
   return sum;
 }
 
-static void utl_normalize_vector(double *v, size_t length) {
+static void utl_normalize_vector(double *v, unsigned int length) {
   double norm = sqrt(utl_dot_product(v, v, length));
-  for (size_t i = 0; i < length; ++i) {
+  for (unsigned int i = 0; i < length; ++i) {
     v[i] /= norm;
   }
 }
 
-static bool utl_matrix_check_diagonal(const utl_matrix *mat, size_t i, size_t j) {
+static bool utl_matrix_check_diagonal(const utl_matrix *mat, unsigned int i, unsigned int j) {
   double res = utl_matrix_get(mat, i, j);
   while (++i < mat->rows && ++j < mat->cols) {
     double next_value = utl_matrix_get(mat, i, j);
@@ -95,60 +95,60 @@ static bool utl_matrix_check_diagonal(const utl_matrix *mat, size_t i, size_t j)
   return true;
 }
 
-void utl_subtract_projection(double *u, const double *v, size_t length) {
+void utl_subtract_projection(double *u, const double *v, unsigned int length) {
   double dot_uv = utl_dot_product(u, v, length);
   double dot_vv = utl_dot_product(v, v, length);
   double scale = dot_uv / dot_vv;
-  for (size_t i = 0; i < length; ++i) {
+  for (unsigned int i = 0; i < length; ++i) {
     u[i] -= scale * v[i];
   }
 }
 
-void utl_matrix_swap_rows(utl_matrix *mat, size_t row1, size_t row2) {
+void utl_matrix_swap_rows(utl_matrix *mat, unsigned int row1, unsigned int row2) {
   if (!mat || row1 >= mat->rows || row2 >= mat->rows) {
     utl_error_func("Invalid row indices or matrix is null", utl_user_defined_data);
     return;
   }
-  for (size_t i = 0; i < mat->cols; i++) {
+  for (unsigned int i = 0; i < mat->cols; i++) {
     double temp = mat->data[row1 * mat->cols + i];
     mat->data[row1 * mat->cols + i] = mat->data[row2 * mat->cols + i];
     mat->data[row2 * mat->cols + i] = temp;
   }
 }
 
-void utl_matrix_swap_cols(utl_matrix *mat, size_t col1, size_t col2) {
+void utl_matrix_swap_cols(utl_matrix *mat, unsigned int col1, unsigned int col2) {
   if (!mat || col1 >= mat->cols || col2 >= mat->cols) {
     utl_error_func("Invalid column indices or matrix is null", utl_user_defined_data);
     return;
   }
-  for (size_t i = 0; i < mat->rows; i++) {
+  for (unsigned int i = 0; i < mat->rows; i++) {
     double temp = mat->data[i * mat->cols + col1];
     mat->data[i * mat->cols + col1] = mat->data[i * mat->cols + col2];
     mat->data[i * mat->cols + col2] = temp;
   }
 }
 
-void utl_matrix_row_divide(utl_matrix *matrix, size_t row, double scalar) {
+void utl_matrix_row_divide(utl_matrix *matrix, unsigned int row, double scalar) {
   if (!matrix || row >= matrix->rows) {
     utl_error_func("Invalid row index or matrix is null", utl_user_defined_data);
     return;
   }
-  for (size_t col = 0; col < matrix->cols; col++) {
+  for (unsigned int col = 0; col < matrix->cols; col++) {
     matrix->data[row * matrix->cols + col] /= scalar;
   }
 }
 
-void utl_matrix_row_subtract(utl_matrix *matrix, size_t targetRow, size_t subtractRow, double scalar) {
+void utl_matrix_row_subtract(utl_matrix *matrix, unsigned int targetRow, unsigned int subtractRow, double scalar) {
   if (!matrix || targetRow >= matrix->rows || subtractRow >= matrix->rows) {
     utl_error_func("Invalid row indices or matrix is null", utl_user_defined_data);
     return;
   }
-  for (size_t col = 0; col < matrix->cols; col++) {
+  for (unsigned int col = 0; col < matrix->cols; col++) {
     matrix->data[targetRow * matrix->cols + col] -= scalar * matrix->data[subtractRow * matrix->cols + col];
   }
 }
 
-utl_matrix *utl_matrix_create(size_t rows, size_t cols) {
+utl_matrix *utl_matrix_create(unsigned int rows, unsigned int cols) {
   if (rows == 0 || cols == 0) {
     utl_error_func("Number of rows or columns is zero", utl_user_defined_data);
     return NULL;
@@ -158,7 +158,7 @@ utl_matrix *utl_matrix_create(size_t rows, size_t cols) {
     utl_error_func("Memory allocation failed for matrix object", utl_user_defined_data);
     return NULL;
   }
-  size_t total_size = rows * cols * sizeof(double);
+  unsigned int total_size = rows * cols * sizeof(double);
   matrix->data = (double *)malloc(total_size);
   if (!matrix->data) {
     utl_error_func("Memory allocation failed for matrix data", utl_user_defined_data);
@@ -167,7 +167,7 @@ utl_matrix *utl_matrix_create(size_t rows, size_t cols) {
   }
   matrix->rows = rows;
   matrix->cols = cols;
-  for (size_t index = 0; index < rows * cols; index++) {
+  for (unsigned int index = 0; index < rows * cols; index++) {
     matrix->data[index] = 0.0;
   }
   return matrix;
@@ -191,9 +191,9 @@ utl_matrix *utl_matrix_add(const utl_matrix *matrix1, const utl_matrix *matrix2)
     utl_error_func("Failed to create result matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix1->rows; i++) {
-    for (size_t j = 0; j < matrix1->cols; j++) {
-      size_t index = i * matrix1->cols + j;
+  for (unsigned int i = 0; i < matrix1->rows; i++) {
+    for (unsigned int j = 0; j < matrix1->cols; j++) {
+      unsigned int index = i * matrix1->cols + j;
       addition->data[index] = matrix1->data[index] + matrix2->data[index];
     }
   }
@@ -218,9 +218,9 @@ utl_matrix *utl_matrix_subtract(const utl_matrix *matrix1, const utl_matrix *mat
     utl_error_func("Failed to create result matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix1->rows; i++) {
-    for (size_t j = 0; j < matrix1->cols; j++) {
-      size_t index = i * matrix1->cols + j;
+  for (unsigned int i = 0; i < matrix1->rows; i++) {
+    for (unsigned int j = 0; j < matrix1->cols; j++) {
+      unsigned int index = i * matrix1->cols + j;
       subtraction->data[index] = matrix1->data[index] - matrix2->data[index];
     }
   }
@@ -245,10 +245,10 @@ utl_matrix *utl_matrix_multiply(const utl_matrix *matrix1, const utl_matrix *mat
     utl_error_func("Memory allocation failed for product matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix1->rows; i++) {
-    for (size_t j = 0; j < matrix2->cols; j++) {
+  for (unsigned int i = 0; i < matrix1->rows; i++) {
+    for (unsigned int j = 0; j < matrix2->cols; j++) {
       double sum = 0.0;
-      for (size_t k = 0; k < matrix1->cols; k++) {
+      for (unsigned int k = 0; k < matrix1->cols; k++) {
         sum += matrix1->data[i * matrix1->cols + k] * matrix2->data[k * matrix2->cols + j];
       }
       product->data[i * product->cols + j] = sum;
@@ -265,7 +265,7 @@ void utl_matrix_deallocate(utl_matrix *matrix) {
   free(matrix);
 }
 
-bool utl_matrix_set(utl_matrix *matrix, size_t rows, size_t cols, double value) {
+bool utl_matrix_set(utl_matrix *matrix, unsigned int rows, unsigned int cols, double value) {
   if (!matrix) {
     utl_error_func("Matrix object is null", utl_user_defined_data);
     return false;
@@ -274,7 +274,7 @@ bool utl_matrix_set(utl_matrix *matrix, size_t rows, size_t cols, double value) 
     utl_error_func("Row or column out of bounds", utl_user_defined_data);
     return false;
   }
-  size_t index = rows * matrix->cols + cols;
+  unsigned int index = rows * matrix->cols + cols;
   matrix->data[index] = value;
   return true;
 }
@@ -284,23 +284,23 @@ void utl_matrix_print(utl_matrix *matrix) {
     return;
   }
   int max_width = 0;
-  for (size_t i = 0; i < matrix->rows * matrix->cols; ++i) {
+  for (unsigned int i = 0; i < matrix->rows * matrix->cols; ++i) {
     int width = snprintf(NULL, 0, "%.5lf", matrix->data[i]);
     if (width > max_width) {
       max_width = width;
     }
   }
-  for (size_t row = 0; row < matrix->rows; row++) {
+  for (unsigned int row = 0; row < matrix->rows; row++) {
     printf("| ");
-    for (size_t col = 0; col < matrix->cols; col++) {
-      size_t index = row * matrix->cols + col;
+    for (unsigned int col = 0; col < matrix->cols; col++) {
+      unsigned int index = row * matrix->cols + col;
       printf("%*.*lf ", max_width, 5, matrix->data[index]);
     }
     printf("|\n");
   }
 }
 
-double utl_matrix_get(const utl_matrix *matrix, size_t row, size_t col) {
+double utl_matrix_get(const utl_matrix *matrix, unsigned int row, unsigned int col) {
   if (!matrix) {
     utl_error_func("Matrix object is null", utl_user_defined_data);
     exit(-1);
@@ -309,7 +309,7 @@ double utl_matrix_get(const utl_matrix *matrix, size_t row, size_t col) {
     utl_error_func("Row or column out of bounds", utl_user_defined_data);
     exit(-1);
   }
-  size_t index = row * matrix->cols + col;
+  unsigned int index = row * matrix->cols + col;
   double value = matrix->data[index];
   return value;
 }
@@ -319,9 +319,9 @@ bool utl_matrix_scalar_multiply(utl_matrix *matrix, double scalar) {
     utl_error_func("Matrix object is null", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < matrix->cols; j++) {
-      size_t index = i * matrix->cols + j;
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
+      unsigned int index = i * matrix->cols + j;
       matrix->data[index] *= scalar;
     }
   }
@@ -337,14 +337,14 @@ bool utl_matrix_is_square(const utl_matrix *matrix) {
   return is_square;
 }
 
-utl_matrix *utl_matrix_create_identity(size_t n) {
+utl_matrix *utl_matrix_create_identity(unsigned int n) {
   utl_matrix *matrix = utl_matrix_create(n, n);
   if (!matrix) {
     utl_error_func("Memory allocation failed for identity matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
       double value = (i == j) ? 1.0 : 0.0;
       utl_matrix_set(matrix, i, j, value);
     }
@@ -365,7 +365,7 @@ bool utl_matrix_is_equal(const utl_matrix *matrix1, const utl_matrix *matrix2) {
     utl_error_func("Matrices are not of the same dimensions", utl_user_defined_data);
     return false;
   }
-  for (size_t index = 0; index < (matrix1->rows * matrix1->cols); index++) {
+  for (unsigned int index = 0; index < (matrix1->rows * matrix1->cols); index++) {
     if (matrix1->data[index] != matrix2->data[index]) {
       return false;
     }
@@ -382,9 +382,9 @@ bool utl_matrix_is_identity(const utl_matrix *matrix) {
     utl_error_func("Matrix is not square", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < matrix->cols; j++) {
-      size_t index = i * matrix->cols + j;
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
+      unsigned int index = i * matrix->cols + j;
       if (i == j) {
         if (matrix->data[index] != 1.0) {
           return false;
@@ -445,7 +445,7 @@ utl_matrix *utl_matrix_get_main_diagonal_as_column(const utl_matrix *matrix) {
     utl_error_func("Memory allocation failed for diagonal matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
     double value = matrix->data[i * matrix->cols + i];
     utl_matrix_set(diagonal_matrix, i, 0, value);
   }
@@ -466,7 +466,7 @@ utl_matrix *utl_matrix_get_main_diagonal_as_row(const utl_matrix *matrix) {
     utl_error_func("Memory allocation failed for diagonal matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix->cols; i++) {
+  for (unsigned int i = 0; i < matrix->cols; i++) {
     double value = matrix->data[i * matrix->cols + i];
     utl_matrix_set(diagonal_matrix, 0, i, value);
   }
@@ -487,7 +487,7 @@ utl_matrix *utl_matrix_get_minor_diagonal_as_row(const utl_matrix *matrix) {
     utl_error_func("Memory allocation failed for diagonal matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix->cols; i++) {
+  for (unsigned int i = 0; i < matrix->cols; i++) {
     double value = matrix->data[i * matrix->cols + (matrix->cols - 1 - i)];
     utl_matrix_set(diagonal_matrix, 0, i, value);
   }
@@ -508,7 +508,7 @@ utl_matrix *utl_matrix_get_minor_diagonal_as_column(const utl_matrix *matrix) {
     utl_error_func("Memory allocation failed for diagonal matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
     double value = matrix->data[i * matrix->cols + (matrix->cols - 1 - i)];
     utl_matrix_set(diagonal_matrix, i, 0, value);
   }
@@ -525,8 +525,8 @@ utl_matrix *utl_matrix_transpose(const utl_matrix* matrix) {
     utl_error_func("Memory allocation failed for transposed matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < matrix->cols; j++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
       double value = matrix->data[i * matrix->cols + j];
       utl_matrix_set(transposed, j, i, value);
     }
@@ -543,8 +543,8 @@ bool utl_matrix_is_symmetric(const utl_matrix *matrix) {
     utl_error_func("Matrix is not square", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = i + 1; j < matrix->cols; j++) { 
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = i + 1; j < matrix->cols; j++) { 
       if (matrix->data[i * matrix->cols + j] != matrix->data[j * matrix->cols + i]) {
         return false;
       }
@@ -562,8 +562,8 @@ bool utl_matrix_is_upper_triangular(const utl_matrix *matrix) {
     utl_error_func("Matrix is not square", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < i; j++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < i; j++) {
       if (matrix->data[i * matrix->cols + j] != 0) {
         return false;
       }
@@ -581,8 +581,8 @@ bool utl_matrix_is_lower_triangular(const utl_matrix *matrix) {
     utl_error_func("Matrix is not square", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = i + 1; j < matrix->cols; j++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = i + 1; j < matrix->cols; j++) {
       if (matrix->data[i * matrix->cols + j] != 0) {
         return false;
       }
@@ -600,11 +600,11 @@ bool utl_matrix_is_skew_symmetric(const utl_matrix *matrix) {
     utl_error_func("Matrix is not square", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
     if (matrix->data[i * matrix->cols + i] != 0) {
       return false;
     }
-    for (size_t j = i + 1; j < matrix->cols; j++) {
+    for (unsigned int j = i + 1; j < matrix->cols; j++) {
       if (matrix->data[i * matrix->cols + j] != -matrix->data[j * matrix->cols + i]) {
         return false;
       }
@@ -657,13 +657,13 @@ double utl_matrix_trace(const utl_matrix *matrix) {
     return 0.0;
   }
   double trace = 0.0;
-  for (size_t i = 0; i < matrix->rows; i++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
     trace += matrix->data[i * matrix->cols + i];
   }
   return trace;
 }
 
-utl_matrix *utl_matrix_create_submatrix(const utl_matrix *matrix, size_t exclude_row, size_t exclude_col) {
+utl_matrix *utl_matrix_create_submatrix(const utl_matrix *matrix, unsigned int exclude_row, unsigned int exclude_col) {
   if (!matrix) {
     utl_error_func("Input matrix is null", utl_user_defined_data);
     return NULL;
@@ -677,11 +677,11 @@ utl_matrix *utl_matrix_create_submatrix(const utl_matrix *matrix, size_t exclude
     utl_error_func("Memory allocation failed for submatrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0, sub_i = 0; i < matrix->rows; i++) {
+  for (unsigned int i = 0, sub_i = 0; i < matrix->rows; i++) {
     if (i == exclude_row) {
       continue;
     }
-    for (size_t j = 0, sub_j = 0; j < matrix->cols; j++) {
+    for (unsigned int j = 0, sub_j = 0; j < matrix->cols; j++) {
       if (j == exclude_col) {
         continue;
       }
@@ -704,8 +704,8 @@ utl_matrix *utl_matrix_adjugate(const utl_matrix *matrix) {
     utl_error_func("Memory allocation failed for cofactor matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < matrix->cols; j++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
       utl_matrix *submatrix = utl_matrix_create_submatrix(matrix, i, j);
       double minor = utl_matrix_determinant(submatrix);
       double cofactor = pow(-1, i + j) * minor;
@@ -737,8 +737,8 @@ utl_matrix *utl_matrix_inverse(const utl_matrix *matrix) {
     utl_error_func("Failed to calculate adjugate matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < inverse->rows; i++) {
-    for (size_t j = 0; j < inverse->cols; j++) {
+  for (unsigned int i = 0; i < inverse->rows; i++) {
+    for (unsigned int j = 0; j < inverse->cols; j++) {
       inverse->data[i * inverse->cols + j] /= det;
     }
   }
@@ -755,8 +755,8 @@ utl_matrix *utl_matrix_copy(const utl_matrix *matrix) {
     utl_error_func("Memory allocation failed for matrix copy", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < matrix->cols; j++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
       copy->data[i * matrix->cols + j] = matrix->data[i * matrix->cols + j];
     }
   }
@@ -862,8 +862,8 @@ bool utl_matrix_is_diagonal(const utl_matrix *matrix) {
     utl_error_func("Matrix is not square", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < matrix->cols; j++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
       if (i != j && !utl_is_effectively_zero(matrix->data[i * matrix->cols + j])) {
         return false;
       }
@@ -903,16 +903,16 @@ utl_matrix *utl_matrix_kronecker_product(const utl_matrix *matrix1, const utl_ma
     utl_error_func("One or both matrices are null", utl_user_defined_data);
     return NULL;
   }
-  size_t m = matrix1->rows, n = matrix1->cols, p = matrix2->rows, q = matrix2->cols;
+  unsigned int m = matrix1->rows, n = matrix1->cols, p = matrix2->rows, q = matrix2->cols;
   utl_matrix *product = utl_matrix_create(m * p, n * q);
   if (!product) {
     utl_error_func("Memory allocation failed for the result matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < m; ++i) {
-    for (size_t j = 0; j < n; ++j) {
-      for (size_t k = 0; k < p; ++k) {
-        for (size_t l = 0; l < q; ++l) {
+  for (unsigned int i = 0; i < m; ++i) {
+    for (unsigned int j = 0; j < n; ++j) {
+      for (unsigned int k = 0; k < p; ++k) {
+        for (unsigned int l = 0; l < q; ++l) {
           double a = utl_matrix_get(matrix1, i, j);
           double b = utl_matrix_get(matrix2, k, l);
           utl_matrix_set(product, i * p + k, j * q + l, a * b);
@@ -928,7 +928,7 @@ utl_matrix *utl_matrix_hankel(const utl_matrix *first_row, const utl_matrix *las
     utl_error_func("Invalid input matrices (must be a row vector and a column vector)", utl_user_defined_data);
     return NULL;
   }
-  size_t n = first_row->cols;
+  unsigned int n = first_row->cols;
   if (last_col->rows != n) {
     utl_error_func("First row and last column dimensions are incompatible", utl_user_defined_data);
     return NULL;
@@ -938,8 +938,8 @@ utl_matrix *utl_matrix_hankel(const utl_matrix *first_row, const utl_matrix *las
     utl_error_func("Memory allocation failed for Hankel matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
       double value;
       if (i + j < n) {
         value = utl_matrix_get(first_row, 0, i + j);
@@ -958,8 +958,8 @@ bool utl_matrix_is_hankel(const utl_matrix *matrix) {
     utl_error_func("Matrix object is null", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows - 1; i++) {
-    for (size_t j = 0; j < matrix->cols - 1; j++) {
+  for (unsigned int i = 0; i < matrix->rows - 1; i++) {
+    for (unsigned int j = 0; j < matrix->cols - 1; j++) {
       if (i + j >= matrix->rows - 1) {
         continue;
       }
@@ -988,15 +988,15 @@ utl_matrix *utl_matrix_toeplitz(const utl_matrix *first_row, const utl_matrix *f
     utl_error_func("Matrix must be a column vector", utl_user_defined_data);
     return NULL;
   }
-  size_t rows = first_col->rows;
-  size_t cols = first_row->cols;
+  unsigned int rows = first_col->rows;
+  unsigned int cols = first_row->cols;
   utl_matrix *toeplitz_matrix = utl_matrix_create(rows, cols);
   if (!toeplitz_matrix) {
     utl_error_func("Memory allocation failed for Toeplitz matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < rows; i++) {
-    for (size_t j = 0; j < cols; j++) {
+  for (unsigned int i = 0; i < rows; i++) {
+    for (unsigned int j = 0; j < cols; j++) {
       double value;
       if (j >= i) {
         value = utl_matrix_get(first_row, 0, j - i);
@@ -1010,7 +1010,7 @@ utl_matrix *utl_matrix_toeplitz(const utl_matrix *first_row, const utl_matrix *f
   return toeplitz_matrix;
 }
 
-utl_matrix *utl_matrix_from_array(const double *data, size_t rows, size_t cols) {
+utl_matrix *utl_matrix_from_array(const double *data, unsigned int rows, unsigned int cols) {
   if (!data) {
     utl_error_func("Input data is null", utl_user_defined_data);
     return NULL;
@@ -1024,8 +1024,8 @@ utl_matrix *utl_matrix_from_array(const double *data, size_t rows, size_t cols) 
     utl_error_func("Memory allocation failed for matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < rows; i++) {
-    for (size_t j = 0; j < cols; j++) {
+  for (unsigned int i = 0; i < rows; i++) {
+    for (unsigned int j = 0; j < cols; j++) {
       matrix->data[i * cols + j] = data[i * cols + j];
     }
   }
@@ -1037,13 +1037,13 @@ bool utl_matrix_is_toeplitz(const utl_matrix *matrix) {
     utl_error_func("Matrix object is null", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->cols; i++) {
+  for (unsigned int i = 0; i < matrix->cols; i++) {
     if (!utl_matrix_check_diagonal(matrix, 0, i)) {
       utl_error_func("Diagonal check failed", utl_user_defined_data);
       return false;
     }
   }
-  for (size_t i = 1; i < matrix->rows; i++) {
+  for (unsigned int i = 1; i < matrix->rows; i++) {
     if (!utl_matrix_check_diagonal(matrix, i, 0)) {
       utl_error_func("Diagonal check failed", utl_user_defined_data);
       return false;
@@ -1057,15 +1057,15 @@ utl_matrix *utl_matrix_circulant(const utl_matrix *first_row) {
     utl_error_func("Input must be a single-row matrix", utl_user_defined_data);
     return NULL;
   }
-  size_t n = first_row->cols;
+  unsigned int n = first_row->cols;
   utl_matrix *circulant_matrix = utl_matrix_create(n, n);
   if (!circulant_matrix) {
     utl_error_func("Memory allocation failed for circulant matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t row = 0; row < n; ++row) {
-    for (size_t col = 0; col < n; ++col) {
-      size_t index = (col + row) % n;
+  for (unsigned int row = 0; row < n; ++row) {
+    for (unsigned int col = 0; col < n; ++col) {
+      unsigned int index = (col + row) % n;
       double value = utl_matrix_get(first_row, 0, index);
       utl_matrix_set(circulant_matrix, row, col, value);
     }
@@ -1073,7 +1073,7 @@ utl_matrix *utl_matrix_circulant(const utl_matrix *first_row) {
   return circulant_matrix;
 }
 
-utl_matrix *utl_matrix_hilbert(size_t n) {
+utl_matrix *utl_matrix_hilbert(unsigned int n) {
   if (n == 0) {
     utl_error_func("Size must be greater than 0", utl_user_defined_data);
     return NULL;
@@ -1083,8 +1083,8 @@ utl_matrix *utl_matrix_hilbert(size_t n) {
     utl_error_func("Memory allocation failed for Hilbert matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
       double value = 1.0 / ((i + 1) + (j + 1) - 1.0);
       if (!utl_matrix_set(hilbert_matrix, i, j, value)) {
         utl_error_func("Failed to set value", utl_user_defined_data);
@@ -1096,14 +1096,14 @@ utl_matrix *utl_matrix_hilbert(size_t n) {
   return hilbert_matrix;
 }
 
-utl_matrix *utl_matrix_helmert(size_t n, bool full) {
+utl_matrix *utl_matrix_helmert(unsigned int n, bool full) {
   utl_matrix *helmert_matrix = utl_matrix_create(n, full ? n : n - 1);
   if (!helmert_matrix) {
     utl_error_func("Memory allocation failed for Helmert matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < n; ++j) {
+  for (unsigned int i = 0; i < n; ++i) {
+    for (unsigned int j = 0; j < n; ++j) {
       if (i == 0) {
         utl_matrix_set(helmert_matrix, i, j, 1.0 / sqrt(n));
       } 
@@ -1129,14 +1129,14 @@ utl_matrix *utl_matrix_cofactor(const utl_matrix *matrix) {
     utl_error_func("Matrix must be square", utl_user_defined_data);
     return NULL;
   }
-  size_t n = matrix->rows;
+  unsigned int n = matrix->rows;
   utl_matrix *cofactor_matrix = utl_matrix_create(n, n);
   if (!cofactor_matrix) {
     utl_error_func("Memory allocation failed for cofactor matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < n; ++j) {
+  for (unsigned int i = 0; i < n; ++i) {
+    for (unsigned int j = 0; j < n; ++j) {
       utl_matrix *submatrix = utl_matrix_create_submatrix(matrix, i, j);
       if (!submatrix) {
         utl_error_func("Failed to create submatrix", utl_user_defined_data);
@@ -1157,16 +1157,16 @@ utl_matrix *utl_matrix_cholesky_decomposition(const utl_matrix *matrix) {
     utl_error_func("Input must be a square matrix", utl_user_defined_data);
     return NULL;
   }
-  size_t n = matrix->rows;
+  unsigned int n = matrix->rows;
   utl_matrix *chol = utl_matrix_create(n, n);
   if (!chol) {
     utl_error_func("Memory allocation failed for Cholesky matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = i; j < n; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = i; j < n; j++) {
       double sum = utl_matrix_get(matrix, i, j);
-      for (size_t k = 0; k < i; k++) {
+      for (unsigned int k = 0; k < i; k++) {
         sum -= utl_matrix_get(chol, k, i) * utl_matrix_get(chol, k, j);
       }
       if (i == j) {
@@ -1182,8 +1182,8 @@ utl_matrix *utl_matrix_cholesky_decomposition(const utl_matrix *matrix) {
       }
     }
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < i; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < i; j++) {
       utl_matrix_set(chol, i, j, 0.0);
     }
   }
@@ -1195,7 +1195,7 @@ bool utl_matrix_lu_decomposition(const utl_matrix *matrix, utl_matrix **l, utl_m
     utl_error_func("Matrix must be square for LU decomposition", utl_user_defined_data);
     return false;
   }
-  size_t n = matrix->rows;
+  unsigned int n = matrix->rows;
   *l = utl_matrix_create(n, n);
   *u = utl_matrix_create(n, n);
   if (!(*l) || !(*u)) {
@@ -1204,21 +1204,21 @@ bool utl_matrix_lu_decomposition(const utl_matrix *matrix, utl_matrix **l, utl_m
     if (*u) utl_matrix_deallocate(*u);
     return false;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t k = i; k < n; k++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int k = i; k < n; k++) {
       double sum = 0.0;
-      for (size_t j = 0; j < i; j++) {
+      for (unsigned int j = 0; j < i; j++) {
         sum += utl_matrix_get(*l, i, j) * utl_matrix_get(*u, j, k);
       }
       utl_matrix_set(*u, i, k, utl_matrix_get(matrix, i, k) - sum);
     }
-    for (size_t k = i; k < n; k++) {
+    for (unsigned int k = i; k < n; k++) {
       if (i == k) {
         utl_matrix_set(*l, i, i, 1.0); 
       } 
       else {
         double sum = 0.0;
-        for (size_t j = 0; j < i; j++) {
+        for (unsigned int j = 0; j < i; j++) {
           sum += utl_matrix_get(*l, k, j) * utl_matrix_get(*u, j, i);
         }
         utl_matrix_set(*l, k, i, (utl_matrix_get(matrix, k, i) - sum) / utl_matrix_get(*u, i, i));
@@ -1233,8 +1233,8 @@ bool utl_matrix_qr_decomposition(const utl_matrix *a, utl_matrix **q, utl_matrix
     utl_error_func("Matrix must have more rows than columns", utl_user_defined_data);
     return false;
   }
-  size_t m = a->rows;
-  size_t n = a->cols;
+  unsigned int m = a->rows;
+  unsigned int n = a->cols;
   *q = utl_matrix_create(m, n);
   *r = utl_matrix_create(n, n);
   if (!*q || !*r) {
@@ -1247,25 +1247,25 @@ bool utl_matrix_qr_decomposition(const utl_matrix *a, utl_matrix **q, utl_matrix
     utl_error_func("Memory allocation failed for column vectors", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < m; ++j) {
+  for (unsigned int i = 0; i < n; ++i) {
+    for (unsigned int j = 0; j < m; ++j) {
       a_col[j] = utl_matrix_get(a, j, i);
     }
-    for (size_t k = 0; k < i; ++k) {
-      for (size_t j = 0; j < m; ++j) {
+    for (unsigned int k = 0; k < i; ++k) {
+      for (unsigned int j = 0; j < m; ++j) {
         q_col[j] = utl_matrix_get(*q, j, k);
       }
       utl_subtract_projection(a_col, q_col, m);
     }
     utl_normalize_vector(a_col, m);  
-    for (size_t j = 0; j < m; ++j) {
+    for (unsigned int j = 0; j < m; ++j) {
       utl_matrix_set(*q, j, i, a_col[j]);
     }
   }
-  for (size_t j = 0; j < n; ++j) {
-    for (size_t i = 0; i <= j; ++i) {
+  for (unsigned int j = 0; j < n; ++j) {
+    for (unsigned int i = 0; i <= j; ++i) {
       double r_ij = 0.0;
-      for (size_t k = 0; k < m; ++k) {
+      for (unsigned int k = 0; k < m; ++k) {
         r_ij += utl_matrix_get(*q, k, i) * utl_matrix_get(a, k, j);
       }
       utl_matrix_set(*r, i, j, r_ij);
@@ -1276,14 +1276,14 @@ bool utl_matrix_qr_decomposition(const utl_matrix *a, utl_matrix **q, utl_matrix
   return true;
 }
 
-utl_matrix *utl_matrix_pascal(size_t n) {
+utl_matrix *utl_matrix_pascal(unsigned int n) {
   utl_matrix *pascal_matrix = utl_matrix_create(n, n);
   if (!pascal_matrix) {
     utl_error_func("Memory allocation failed for Pascal matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j <= i; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j <= i; j++) {
       double value = utl_binomial_coefficient(i + j, i);
       utl_matrix_set(pascal_matrix, i, j, value);
       utl_matrix_set(pascal_matrix, j, i, value);
@@ -1294,8 +1294,8 @@ utl_matrix *utl_matrix_pascal(size_t n) {
 
 double utl_matrix_frobenius_norm(const utl_matrix *matrix) {
   double sum = 0.0;
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < matrix->cols; j++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
       double value = utl_matrix_get(matrix, i, j);
       sum += value * value;
     }
@@ -1306,9 +1306,9 @@ double utl_matrix_frobenius_norm(const utl_matrix *matrix) {
 
 double utl_matrix_l1_norm(const utl_matrix *matrix) {
   double max_sum = 0.0;
-  for (size_t j = 0; j < matrix->cols; j++) {
+  for (unsigned int j = 0; j < matrix->cols; j++) {
     double column_sum = 0.0;
-    for (size_t i = 0; i < matrix->rows; i++) {
+    for (unsigned int i = 0; i < matrix->rows; i++) {
       column_sum += fabs(utl_matrix_get(matrix, i, j));
     }
     if (column_sum > max_sum) {
@@ -1320,9 +1320,9 @@ double utl_matrix_l1_norm(const utl_matrix *matrix) {
 
 double utl_matrix_infinity_norm(const utl_matrix *matrix) {
   double max_sum = 0.0;
-  for (size_t i = 0; i < matrix->rows; i++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
     double row_sum = 0.0;
-    for (size_t j = 0; j < matrix->cols; j++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
       row_sum += fabs(utl_matrix_get(matrix, i, j));
     }
     if (row_sum > max_sum) {
@@ -1337,21 +1337,21 @@ utl_matrix *utl_matrix_inverse_gauss_jordan(const utl_matrix *matrix) {
     utl_error_func("Matrix must be square for inversion", utl_user_defined_data);
     return NULL;
   }
-  size_t n = matrix->rows;
+  unsigned int n = matrix->rows;
   utl_matrix *augmented = utl_matrix_create(n, 2 * n);
   if (!augmented) {
     utl_error_func("Memory allocation failed for augmented matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
       augmented->data[i * 2 * n + j] = matrix->data[i * n + j]; 
       augmented->data[i * 2 * n + j + n] = (i == j) ? 1.0 : 0.0; 
     }
   }
-  for (size_t col = 0; col < n; col++) {
+  for (unsigned int col = 0; col < n; col++) {
     if (augmented->data[col * 2 * n + col] == 0) {
-      size_t swapRow = col + 1;
+      unsigned int swapRow = col + 1;
       while (swapRow < n && augmented->data[swapRow * 2 * n + col] == 0) {
         swapRow++;
       }
@@ -1363,7 +1363,7 @@ utl_matrix *utl_matrix_inverse_gauss_jordan(const utl_matrix *matrix) {
       utl_matrix_swap_rows(augmented, col, swapRow);
     }
     utl_matrix_row_divide(augmented, col, augmented->data[col * 2 * n + col]);
-    for (size_t row = 0; row < n; row++) {
+    for (unsigned int row = 0; row < n; row++) {
       if (row != col) {
         utl_matrix_row_subtract(augmented, row, col, augmented->data[row * 2 * n + col]);
       }
@@ -1375,8 +1375,8 @@ utl_matrix *utl_matrix_inverse_gauss_jordan(const utl_matrix *matrix) {
     utl_matrix_deallocate(augmented);
     return NULL;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
       inverse->data[i * n + j] = augmented->data[i * 2 * n + j + n];
     }
   }
@@ -1447,7 +1447,7 @@ utl_matrix *utl_matrix_projection(const utl_matrix *matrix) {
   return projection;
 }
 
-utl_matrix *utl_matrix_vandermonde(const utl_matrix *matrix, size_t n) {
+utl_matrix *utl_matrix_vandermonde(const utl_matrix *matrix, unsigned int n) {
   if (!matrix) {
     utl_error_func("Matrix object is null", utl_user_defined_data);
     return NULL;
@@ -1457,27 +1457,27 @@ utl_matrix *utl_matrix_vandermonde(const utl_matrix *matrix, size_t n) {
     utl_error_func("Memory allocation failed for Vandermonde matrix", utl_user_defined_data);
     return NULL; 
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
       vandermonde->data[i * n + j] = pow(matrix->data[i], j);
     }
   }
   return vandermonde;
 }
 
-utl_matrix *utl_matrix_companion(const utl_matrix *coefficients, size_t degree) {
+utl_matrix *utl_matrix_companion(const utl_matrix *coefficients, unsigned int degree) {
   if (!coefficients) {
     utl_error_func("Coefficients matrix is null", utl_user_defined_data);
     return NULL;
   }
-  size_t n = degree - 1; 
+  unsigned int n = degree - 1; 
   utl_matrix *companion = utl_matrix_create(n, n);
   if (!companion) {
     utl_error_func("Memory allocation failed for companion matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < n; j++) {
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
       if (j == n - 1) { 
         companion->data[i * n + j] = -coefficients->data[n - 1 - i] / coefficients->data[degree - 1];
       } 
@@ -1501,8 +1501,8 @@ bool utl_matrix_fill(utl_matrix *matrix, double value) {
     utl_error_func("Matrix data is null", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
-    for (size_t j = 0; j < matrix->cols; j++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
+    for (unsigned int j = 0; j < matrix->cols; j++) {
       matrix->data[i * matrix->cols + j] = value;
     }
   }
@@ -1527,8 +1527,8 @@ utl_matrix *utl_matrix_map(const utl_matrix *matrix, matrix_func func) {
   }
   result->rows = matrix->rows;
   result->cols = matrix->cols;
-  for (size_t i = 0; i < matrix->rows; ++i) {
-    for (size_t j = 0; j < matrix->cols; ++j) {
+  for (unsigned int i = 0; i < matrix->rows; ++i) {
+    for (unsigned int j = 0; j < matrix->cols; ++j) {
       result->data[i * matrix->cols + j] = func(matrix->data[i * matrix->cols + j]);
     }
   }
@@ -1541,8 +1541,8 @@ double utl_matrix_min_element(const utl_matrix *matrix) {
     return DBL_MAX; 
   }
   double min = DBL_MAX;
-  for (size_t i = 0; i < matrix->rows; ++i) {
-    for (size_t j = 0; j < matrix->cols; ++j) {
+  for (unsigned int i = 0; i < matrix->rows; ++i) {
+    for (unsigned int j = 0; j < matrix->cols; ++j) {
       double value = matrix->data[i * matrix->cols + j];
       if (value < min) {
         min = value;
@@ -1558,8 +1558,8 @@ double utl_matrix_max_element(const utl_matrix *matrix) {
     return -DBL_MAX; 
   }
   double max = -DBL_MAX;
-  for (size_t i = 0; i < matrix->rows; ++i) {
-    for (size_t j = 0; j < matrix->cols; ++j) {
+  for (unsigned int i = 0; i < matrix->rows; ++i) {
+    for (unsigned int j = 0; j < matrix->cols; ++j) {
       double value = matrix->data[i * matrix->cols + j];
       if (value > max) {
         max = value;
@@ -1569,51 +1569,51 @@ double utl_matrix_max_element(const utl_matrix *matrix) {
   return max;
 }
 
-bool utl_matrix_apply_to_row(utl_matrix *matrix, size_t row, matrix_func func) {
+bool utl_matrix_apply_to_row(utl_matrix *matrix, unsigned int row, matrix_func func) {
   if (!matrix || !func || row >= matrix->rows) {
     utl_error_func("Invalid arguments, matrix is null or row index out of bounds", utl_user_defined_data);
     return false;
   }
-  for (size_t j = 0; j < matrix->cols; ++j) {
+  for (unsigned int j = 0; j < matrix->cols; ++j) {
     matrix->data[row * matrix->cols + j] = func(matrix->data[row * matrix->cols + j]);
   }
   return true;
 }
 
-bool utl_matrix_apply_to_col(utl_matrix *matrix, size_t col, matrix_func func) {
+bool utl_matrix_apply_to_col(utl_matrix *matrix, unsigned int col, matrix_func func) {
   if (!matrix || !func || col >= matrix->cols) {
     utl_error_func("Invalid arguments, matrix is null or column index out of bounds", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; ++i) {
+  for (unsigned int i = 0; i < matrix->rows; ++i) {
     matrix->data[i * matrix->cols + col] = func(matrix->data[i * matrix->cols + col]);
   }
   return true;
 }
 
-bool utl_matrix_row_addition(utl_matrix *matrix, size_t targetRow, size_t sourceRow, double scale) {
+bool utl_matrix_row_addition(utl_matrix *matrix, unsigned int targetRow, unsigned int sourceRow, double scale) {
   if (!matrix || targetRow >= matrix->rows || sourceRow >= matrix->rows) {
     utl_error_func("Invalid arguments, matrix is null or row indices out of bounds", utl_user_defined_data);
     return false;
   }
-  for (size_t j = 0; j < matrix->cols; ++j) {
+  for (unsigned int j = 0; j < matrix->cols; ++j) {
     matrix->data[targetRow * matrix->cols + j] += scale * matrix->data[sourceRow * matrix->cols + j];
   }
   return true;
 }
 
-bool utl_matrix_col_addition(utl_matrix *matrix, size_t targetCol, size_t sourceCol, double scale) {
+bool utl_matrix_col_addition(utl_matrix *matrix, unsigned int targetCol, unsigned int sourceCol, double scale) {
   if (!matrix || targetCol >= matrix->cols || sourceCol >= matrix->cols) {
     utl_error_func("Invalid arguments, matrix is null or column indices out of bounds", utl_user_defined_data);
     return false;
   }
-  for (size_t i = 0; i < matrix->rows; ++i) {
+  for (unsigned int i = 0; i < matrix->rows; ++i) {
     matrix->data[i * matrix->cols + targetCol] += scale * matrix->data[i * matrix->cols + sourceCol];
   }
   return true;
 }
 
-utl_matrix* utl_matrix_leslie(utl_matrix *f, size_t f_size, utl_matrix *s, size_t s_size) {
+utl_matrix* utl_matrix_leslie(utl_matrix *f, unsigned int f_size, utl_matrix *s, unsigned int s_size) {
   if (!f) {
     utl_error_func("Matrix f is null", utl_user_defined_data);
     return NULL;
@@ -1627,10 +1627,10 @@ utl_matrix* utl_matrix_leslie(utl_matrix *f, size_t f_size, utl_matrix *s, size_
     utl_error_func("Memory allocation failed for Leslie matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < f_size; ++i) {
+  for (unsigned int i = 0; i < f_size; ++i) {
     utl_matrix_set(leslie, 0, i, f->data[i]);
   }
-  for (size_t i = 1; i < f_size; ++i) {
+  for (unsigned int i = 1; i < f_size; ++i) {
     utl_matrix_set(leslie, i, i - 1, s->data[i - 1]);
   }
   return leslie;
@@ -1641,14 +1641,14 @@ utl_matrix *utl_matrix_fiedler(const utl_matrix *matrix) {
     utl_error_func("Matrix object is null", utl_user_defined_data);
     return NULL;
   }
-  size_t n = matrix->cols >= matrix->rows ? matrix->cols : matrix->rows;
+  unsigned int n = matrix->cols >= matrix->rows ? matrix->cols : matrix->rows;
   utl_matrix *fiedler = utl_matrix_create(n, n);
   if (!fiedler) {
     utl_error_func("Memory allocation failed for Fiedler matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < n; ++j) {
+  for (unsigned int i = 0; i < n; ++i) {
+    for (unsigned int j = 0; j < n; ++j) {
       double value = fabs(matrix->data[i] - matrix->data[j]);
       utl_matrix_set(fiedler, i, j, value);
     }
@@ -1656,14 +1656,14 @@ utl_matrix *utl_matrix_fiedler(const utl_matrix *matrix) {
   return fiedler;
 }
 
-utl_matrix *utl_matrix_inverse_hilbert(size_t n) {
+utl_matrix *utl_matrix_inverse_hilbert(unsigned int n) {
   utl_matrix *inv_h = utl_matrix_create(n, n);
   if (!inv_h) {
     utl_error_func("Memory allocation failed for inverse Hilbert matrix", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < n; ++j) {
+  for (unsigned int i = 0; i < n; ++i) {
+    for (unsigned int j = 0; j < n; ++j) {
       int s = i + j;
       int64_t sign = (s % 2 == 0) ? 1 : -1;
       int64_t numerator = sign * (i + j + 1) * utl_binomial_factorial(n + i, n - j - 1) * utl_binomial_factorial(n + j, n - i - 1) * utl_binomial_factorial(s, i) * utl_binomial_factorial(s, j);
@@ -1675,7 +1675,7 @@ utl_matrix *utl_matrix_inverse_hilbert(size_t n) {
   return inv_h;
 }
 
-utl_matrix *utl_matrix_get_row(const utl_matrix *matrix, size_t row) {
+utl_matrix *utl_matrix_get_row(const utl_matrix *matrix, unsigned int row) {
   if (!matrix) {
     utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
     return NULL;
@@ -1689,13 +1689,13 @@ utl_matrix *utl_matrix_get_row(const utl_matrix *matrix, size_t row) {
     utl_error_func("Memory allocation failed for row", utl_user_defined_data);
     return NULL;
   }
-  for (size_t j = 0; j < matrix->cols; j++) {
+  for (unsigned int j = 0; j < matrix->cols; j++) {
     utl_matrix_set(r, 0, j, utl_matrix_get(matrix, row, j));
   }
   return r;
 }
 
-utl_matrix *utl_matrix_get_col(const utl_matrix *matrix, size_t col) {
+utl_matrix *utl_matrix_get_col(const utl_matrix *matrix, unsigned int col) {
   if (!matrix) {
     utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
     return NULL;
@@ -1709,7 +1709,7 @@ utl_matrix *utl_matrix_get_col(const utl_matrix *matrix, size_t col) {
     utl_error_func("Memory allocation failed for column", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < matrix->rows; i++) {
+  for (unsigned int i = 0; i < matrix->rows; i++) {
     utl_matrix_set(c, i, 0, utl_matrix_get(matrix, i, col));
   }
   return c;
@@ -1720,7 +1720,7 @@ double *utl_matrix_to_array(const utl_matrix *matrix) {
     utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
     return NULL;
   }
-  size_t size = matrix->rows * matrix->cols * sizeof(double);
+  unsigned int size = matrix->rows * matrix->cols * sizeof(double);
   double *data = (double *)malloc(size);
   if (!data) {
     utl_error_func("Memory allocation failed", utl_user_defined_data);
@@ -1730,11 +1730,11 @@ double *utl_matrix_to_array(const utl_matrix *matrix) {
   return data;
 }
 
-utl_matrix *utl_matrix_block_diag(size_t count, ...) {
+utl_matrix *utl_matrix_block_diag(unsigned int count, ...) {
   va_list args;
-  size_t total_rows = 0, total_cols = 0;
+  unsigned int total_rows = 0, total_cols = 0;
   va_start(args, count);
-  for (size_t i = 0; i < count; ++i) {
+  for (unsigned int i = 0; i < count; ++i) {
     utl_matrix* mat = va_arg(args, utl_matrix*);
     total_rows += mat->rows;
     total_cols += mat->cols;
@@ -1745,11 +1745,11 @@ utl_matrix *utl_matrix_block_diag(size_t count, ...) {
     utl_error_func("Memory allocation failed for block diagonal matrix", utl_user_defined_data);
     return NULL;
   }
-  size_t current_row = 0, current_col = 0;
+  unsigned int current_row = 0, current_col = 0;
   va_start(args, count);
-  for (size_t i = 0; i < count; ++i) {
+  for (unsigned int i = 0; i < count; ++i) {
     utl_matrix *mat = va_arg(args, utl_matrix*);
-    for (size_t r = 0; r < mat->rows; ++r) {
+    for (unsigned int r = 0; r < mat->rows; ++r) {
       memcpy(result->data + (current_row + r) * total_cols + current_col, mat->data + r * mat->cols, mat->cols * sizeof(double));
     }
     current_row += mat->rows;
@@ -1764,9 +1764,9 @@ bool utl_matrix_is_sparse(const utl_matrix *matrix) {
     utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
     return false;
   }
-  size_t total_elements = matrix->rows * matrix->cols;
-  size_t non_zero_count = 0;
-  for (size_t i = 0; i < total_elements; ++i) {
+  unsigned int total_elements = matrix->rows * matrix->cols;
+  unsigned int non_zero_count = 0;
+  for (unsigned int i = 0; i < total_elements; ++i) {
     if (matrix->data[i] != 0) {
       ++non_zero_count;
     }
@@ -1776,29 +1776,29 @@ bool utl_matrix_is_sparse(const utl_matrix *matrix) {
   return is_sparse;
 }
 
-size_t utl_matrix_size(const utl_matrix *matrix) {
+unsigned int utl_matrix_size(const utl_matrix *matrix) {
   if (!matrix) {
     utl_error_func("Matrix object is null or invalid", utl_user_defined_data);
     return 0;
   }
-  size_t size = matrix->rows * matrix->cols;
+  unsigned int size = matrix->rows * matrix->cols;
   return size;
 }
 
-utl_matrix *utl_matrix_random(size_t row, size_t col, size_t start, size_t end) {
+utl_matrix *utl_matrix_random(unsigned int row, unsigned int col, unsigned int start, unsigned int end) {
   utl_matrix *matrix = utl_matrix_create(row, col);
   srand(time(NULL));
   if (!matrix) {
     utl_error_func("Creation of Matrix object failed", utl_user_defined_data);
     return NULL;
   }
-  for (size_t i = 0; i < utl_matrix_size(matrix); i++) {
+  for (unsigned int i = 0; i < utl_matrix_size(matrix); i++) {
     matrix->data[i] = (rand() % end) + start;
   }
   return matrix;
 }
 
-utl_matrix* utl_matrix_walsh(size_t n) {
+utl_matrix* utl_matrix_walsh(unsigned int n) {
   if (n & (n - 1)) {
     utl_error_func("N is not a power of 2", utl_user_defined_data);
     return NULL;

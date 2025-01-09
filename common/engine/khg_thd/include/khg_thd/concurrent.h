@@ -38,22 +38,22 @@
 #define TSS_DTOR_ITERATIONS PTHREAD_DESTRUCTOR_ITERATIONS
 #endif
 
-typedef enum {
-  THREAD_ERROR = 0,
-  THREAD_SUCCESS,
-  THREAD_TIMEOUT,
-  THREAD_BUSY,
-  THREAD_NOMEM
-} ThreadResult;
+typedef enum thd_thread_result {
+  THD_THREAD_ERROR,
+  THD_THREAD_SUCCESS,
+  THD_THREAD_TIMEOUT,
+  THD_THREAD_BUSY,
+  THD_THREAD_NOMEM
+} thd_thread_result;
 
-typedef enum {
-  MUTEX_PLAIN = 0,
-  MUTEX_TIMED,
-  MUTEX_RECURSIVE
-} MutexType;
+typedef enum thd_mutex_type {
+  THD_MUTEX_PLAIN,
+  THD_MUTEX_TIMED,
+  THD_MUTEX_RECURSIVE
+} thd_mutex_type;
 
 #if defined(_WIN32) || defined(_WIN64)
-typedef struct {
+typedef struct thd_mutex {
   union {
     CRITICAL_SECTION cs;
     HANDLE mut;
@@ -61,80 +61,80 @@ typedef struct {
   int mAlreadyLocked;
   int mRecursive;
   int mTimed;
-} Mutex;
+} thd_mutex;
 #else
-  typedef pthread_mutex_t Mutex;
+  typedef pthread_mutex_t thd_mutex;
 #endif
 
-int mutex_init(Mutex *mutex, int type);
-int mutex_lock(Mutex *mutex);
-int MUTEX_TIMEDlock(Mutex *mutex, const struct timespec *ts);
-int mutex_unlock(Mutex *mutex);
-int mutex_trylock(Mutex *mutex);
-void mutex_destroy(Mutex *mutex);
+int thd_mutex_init(thd_mutex *mutex, int type);
+int thd_mutex_lock(thd_mutex *mutex);
+int thd_mutex_timed_lock(thd_mutex *mutex, const struct timespec *ts);
+int thd_mutex_unlock(thd_mutex *mutex);
+int thd_mutex_trylock(thd_mutex *mutex);
+void thd_mutex_destroy(thd_mutex *mutex);
 
 #if defined(_WIN32) || defined(_WIN64)
-typedef struct {
+typedef struct thd_thread_condition {
   HANDLE mEvents[2];
   unsigned int mWaitersCount;
   CRITICAL_SECTION mWaitersCountLock;
-} ThreadCondition;
+} thd_thread_condition;
 #else
-  typedef pthread_cond_t ThreadCondition;
+  typedef pthread_cond_t thd_thread_condition;
 #endif
 
-int condition_init(ThreadCondition *cond);
-int condition_signal(ThreadCondition *cond);
-int condition_broadcast(ThreadCondition *cond);
-int condition_wait(ThreadCondition *cond, Mutex *mutex);
-int condition_timedwait(ThreadCondition *cond, Mutex *mutex, const struct timespec *ts);
-void condition_destroy(ThreadCondition *cond);
+int thd_condition_init(thd_thread_condition *cond);
+int thd_condition_signal(thd_thread_condition *cond);
+int thd_condition_broadcast(thd_thread_condition *cond);
+int thd_condition_wait(thd_thread_condition *cond, thd_mutex *mutex);
+int thd_condition_timedwait(thd_thread_condition *cond, thd_mutex *mutex, const struct timespec *ts);
+void thd_condition_destroy(thd_thread_condition *cond);
 
 #if defined(_WIN32) || defined(_WIN64)
-typedef HANDLE Thread;
+typedef HANDLE thd_thread;
 #else
-typedef pthread_t Thread;
+typedef pthread_t thd_thread;
 #endif
 
-typedef int (*ThreadStart)(void *arg);
+typedef int (*thd_thread_start)(void *arg);
 
-int thread_create(Thread *thr, ThreadStart func, void *arg);
-int thread_detach(Thread thr);
-int thread_equal(Thread thr0, Thread thr1);
-int thread_join(Thread thr, int *res);
-int thread_sleep(const struct timespec *duration, struct timespec *remaining);
-unsigned long thread_current(void);
-unsigned long thread_hardware_concurrency(void);
+int thd_thread_create(thd_thread *thr, thd_thread_start func, void *arg);
+int thd_thread_detach(thd_thread thr);
+int thd_thread_equal(thd_thread thr0, thd_thread thr1);
+int thd_thread_join(thd_thread thr, int *res);
+int thd_thread_sleep(const struct timespec *duration, struct timespec *remaining);
+unsigned int thd_thread_current(void);
+unsigned int thd_thread_hardware_concurrency(void);
 
-void thread_exit(int res);
-void thread_yield(void);
+void thd_thread_exit(int res);
+void thd_thread_yield(void);
 
 #if defined(_WIN32) || defined(_WIN64)
-typedef DWORD ThreadSpecific;
+typedef DWORD thd_thread_specific;
 #else
-typedef pthread_key_t ThreadSpecific;
+typedef pthread_key_t thd_thread_specific;
 #endif
 
-typedef void (*ThreadSpecificDestructor)(void *val);
+typedef void (*thd_thread_specific_destructor)(void *val);
 
-int thread_specific_create(ThreadSpecific *key, ThreadSpecificDestructor dtor);
-int thread_specific_set(ThreadSpecific key, void *val);
-void thread_specific_delete(ThreadSpecific key);
-void *thread_specific_get(ThreadSpecific key);
+int thd_thread_specific_create(thd_thread_specific *key, thd_thread_specific_destructor dtor);
+int thd_thread_specific_set(thd_thread_specific key, void *val);
+void thd_thread_specific_delete(thd_thread_specific key);
+void *thd_thread_specific_get(thd_thread_specific key);
 
 #if defined(_WIN32) || defined(_WIN64)
 typedef struct {
   LONG volatile status;
   CRITICAL_SECTION lock;
-} OnceFlag;
-#define ONCE_FLAG_INIT {0,}
+} thd_once_flag;
+#define THD_ONCE_FLAG_INIT {0,}
 #else
-#define ONCE_FLAG_INIT PTHREAD_ONCE_INIT
+#define THD_ONCE_FLAG_INIT PTHREAD_ONCE_INIT
 #endif
 
 #if defined(_WIN32) || defined(_WIN64)
-void call_once(OnceFlag *flag, void (*func)(void));
+void thd_call_once(thd_once_flag *flag, void (*func)(void));
 #else
-#define call_once(flag,func) pthread_once(flag,func)
+#define thd_call_once(flag,func) pthread_once(flag,func)
 #endif
 

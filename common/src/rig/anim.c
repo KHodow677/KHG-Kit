@@ -5,11 +5,11 @@
 #include "khg_utl/easing.h"
 #include <unistd.h>
 
-const bone_frame_info *get_bone_frame_info(const rig *r, const int state_id, const int frame_id) {
+const bone_frame_info *get_bone_frame_info(const rig *r, const unsigned int state_id, const unsigned int frame_id) {
   return (bone_frame_info *)utl_array_at(*(utl_array **)utl_array_at(r->animation_states, state_id), frame_id);
 }
 
-const int last_frame_num(rig *r, const int state_id) {
+const unsigned int last_frame_num(rig *r, const unsigned int state_id) {
   return utl_array_size(*(utl_array **)utl_array_at(r->animation_states, state_id)) - 1;
 }
 
@@ -42,13 +42,13 @@ void update_rig_with_interpolated_frame(bone *b, const bone_frame_info *current,
   b->updated = true;
 }
 
-void set_state_and_frame(rig *r, const int state_id, const int frame_id) {
+void set_state_and_frame(rig *r, const unsigned int state_id, const unsigned int frame_id) {
   r->current_state_id = state_id;
   r->current_frame_id = frame_id;
   r->current_frame_bones = *(utl_array **)utl_array_at(*(utl_array **)utl_array_at(r->animation_states, r->current_state_id), r->current_frame_id);
 }
 
-utl_array *get_frame(const rig *r, const int state_id, const int frame_id) {
+utl_array *get_frame(const rig *r, const unsigned int state_id, const unsigned int frame_id) {
   return *(utl_array **)utl_array_at(*(utl_array **)utl_array_at(r->animation_states, state_id), frame_id);
 }
 

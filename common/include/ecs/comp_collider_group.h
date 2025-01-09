@@ -5,13 +5,13 @@
 
 typedef struct {
   ecs_id id;
-  size_t area_id;
+  unsigned int area_id;
   area_colliders colliders;
 } comp_collider_group;
 
 typedef struct {
   bool enabled;
-  size_t area_id;
+  unsigned int area_id;
 } comp_collider_group_constructor_info;
 
 extern ecs_id COLLIDER_GROUP_COMPONENT_SIGNATURE;

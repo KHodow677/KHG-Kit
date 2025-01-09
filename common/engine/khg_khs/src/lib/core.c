@@ -57,7 +57,7 @@ static khs_val ARRAYOF_ARRAY = KHS_NULL;
 
 static bool SORT_ERR = false;
 
-static khs_large_uint_type TAPE[] = { 59243892, 2014914089654949231, 120301499583420, 23, 3230239239, 120302102103, 904924490212, 10412  };
+static unsigned long long TAPE[] = { 59243892, 2014914089654949231, 120301499583420, 23, 3230239239, 120302102103, 904924490212, 10412  };
 
 static void khs_mcpy(void *to_ptr, const void *from_ptr, size_t n) {
   char *to = to_ptr;
@@ -1188,7 +1188,7 @@ static khs_val khs_num_to_str(khs_float num) {
       return KHS_CONST_STR("infinity");
     }
   }
-  if (num > KHS_LARGE_UINT_TYPE_MAX) {
+  if (num > ULONG_MAX) {
     khs_float  significand;
     size_t exp = khs_iflog10(num, &significand);
     size_t n_sig_digits = 4;
@@ -1221,7 +1221,7 @@ static khs_val khs_num_to_str(khs_float num) {
     }
     return res;
   }
-  khs_large_uint_type int_v = num;
+  unsigned long long int_v = num;
   size_t n_idigits = khs_iilog10(int_v) + 1;
   size_t n_ddigits = khs_is_integer(KHS_NUMBER(num)) ? 0 : 4;
   size_t n_total = (negative ? 1 : 0) + n_idigits + n_ddigits;
@@ -1237,7 +1237,7 @@ static khs_val khs_num_to_str(khs_float num) {
   if (negative) {
     khs_write_char(&s, '-');
   }
-  khs_large_uint_type i_num = int_v;
+  unsigned long long i_num = int_v;
   for (size_t i = n_idigits - 1; true; i--) {
     char digit = khs_int_as_digit(i_num % 10);
     i_num /= 10;
@@ -1253,7 +1253,7 @@ static khs_val khs_num_to_str(khs_float num) {
   khs_float dec_part = num - int_v;
   for (size_t i = 0; i < n_ddigits; i++) {
     dec_part *= 10;
-    char digit = khs_int_as_digit(((khs_large_uint_type) dec_part) % 10);
+    char digit = khs_int_as_digit(((unsigned long long) dec_part) % 10);
     khs_write_char_at(&s, i, digit);
   }
   return res;
@@ -1301,7 +1301,7 @@ static khs_val khs_round_callback(const khs_val *args, khs_size n_args) {
   if (num > KHS_NUM_MAX_INT) {
     return khs_retain(args[0]);
   }
-  khs_large_uint_type i = (khs_large_uint_type) (num + 0.5);
+  unsigned long long i = (num + 0.5);
   khs_float res = i;
   if (negative) {
     res = -res;
@@ -1458,13 +1458,13 @@ static khs_val khs_sort_callback(const khs_val *args, khs_size n_args) {
   return array_to_sort;
 }
 
-static khs_large_uint_type khs_random_from(khs_large_uint_type from) {
+static unsigned long long khs_random_from(unsigned long long from) {
   for(size_t i = 0; i < KHS_TAPE_LEN; i++) {
     TAPE[i] *= TAPE[i] + (from+1);
   }
   size_t tape_head = 0;
-  khs_large_uint_type res = from;
-  for (khs_large_uint_type i = 1; i != 0; i = i << 1) {
+  unsigned long long res = from;
+  for (unsigned long long i = 1; i != 0; i = i << 1) {
     char bit = from & 1;
     from = from >> 1;
     if (bit) {
@@ -1481,9 +1481,9 @@ static khs_large_uint_type khs_random_from(khs_large_uint_type from) {
 
 static khs_val khs_random_callback(const khs_val *args, khs_size n_args) {
   (void)n_args, (void)args;
-  static khs_large_uint_type seed = (khs_large_uint_type) &khs_random_callback;
+  static unsigned long long seed = (unsigned long long)&khs_random_callback;
   seed = khs_random_from(seed);
-  return KHS_NUMBER((khs_float) (seed) / (khs_float) KHS_LARGE_UINT_TYPE_MAX);
+  return KHS_NUMBER((khs_float) (seed) / (khs_float)ULONG_MAX);
 }
 
 static khs_val khs_slice_array(khs_val array, khs_size from, khs_size to) {
@@ -1920,7 +1920,7 @@ static khs_val khs_floor_callback(const khs_val *args, khs_size n_args) {
   if (khs_is_integer(args[0])) {
     return khs_retain(args[0]);
   }
-  return KHS_NUMBER((khs_large_uint_type) khs_as_num(args[0]));
+  return KHS_NUMBER((unsigned long long)khs_as_num(args[0]));
 }
 
 static khs_val khs_ceil_callback(const khs_val *args, khs_size n_args) {
@@ -1928,7 +1928,7 @@ static khs_val khs_ceil_callback(const khs_val *args, khs_size n_args) {
   if (khs_is_integer(args[0])) {
     return khs_retain(args[0]);
   }
-  khs_float res = (khs_large_uint_type) khs_as_num(args[0]);
+  khs_float res = (unsigned long long)khs_as_num(args[0]);
   res += 1;
   return KHS_NUMBER(res);
 }

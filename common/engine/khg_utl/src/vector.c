@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-static MemoryPoolVector *utl_memory_pool_create(size_t size);
-static void *utl_memory_pool_allocate(MemoryPoolVector *pool, size_t size);
+static MemoryPoolVector *utl_memory_pool_create(unsigned int size);
+static void *utl_memory_pool_allocate(MemoryPoolVector *pool, unsigned int size);
 static void utl_memory_pool_destroy(MemoryPoolVector *pool);
 
-static MemoryPoolVector *utl_memory_pool_create(size_t size) {
+static MemoryPoolVector *utl_memory_pool_create(unsigned int size) {
   if (size == 0) {
     utl_error_func("Memory pool size cannot be zero", utl_user_defined_data);
     return NULL;
@@ -28,7 +28,7 @@ static MemoryPoolVector *utl_memory_pool_create(size_t size) {
   return pool;
 }
 
-static void *utl_memory_pool_allocate(MemoryPoolVector *pool, size_t size) {
+static void *utl_memory_pool_allocate(MemoryPoolVector *pool, unsigned int size) {
   if (!pool) {
     utl_error_func("Memory pool is not initialized", utl_user_defined_data);
     return NULL;
@@ -55,7 +55,7 @@ static void utl_memory_pool_destroy(MemoryPoolVector *pool) {
   free(pool);
 }
 
-utl_vector *utl_vector_create(size_t itemSize) {
+utl_vector *utl_vector_create(unsigned int itemSize) {
   utl_vector *vec = (utl_vector *)malloc(sizeof(utl_vector));
   if (!vec){
     utl_error_func("Can not allocate memory for vector structure", utl_user_defined_data);
@@ -64,7 +64,7 @@ utl_vector *utl_vector_create(size_t itemSize) {
   vec->size = 0;
   vec->capacitySize = 32;
   vec->itemSize = itemSize;
-  size_t initialPoolSize = 1000000;
+  unsigned int initialPoolSize = 1000000;
   vec->pool = utl_memory_pool_create(initialPoolSize);
   if (!vec->pool) {
     free(vec);
@@ -98,7 +98,7 @@ bool utl_vector_is_less(const utl_vector *vec1, const utl_vector *vec2) {
     utl_error_func("One or both vector pointers are NULL in vector_is_less", utl_user_defined_data);
     return false;
   }
-  size_t minSize = vec1->size < vec2->size ? vec1->size : vec2->size;
+  unsigned int minSize = vec1->size < vec2->size ? vec1->size : vec2->size;
   int cmp = memcmp(vec1->items, vec2->items, minSize * vec1->itemSize);
   return cmp < 0 || (cmp == 0 && vec1->size < vec2->size);
 }
@@ -108,7 +108,7 @@ bool utl_vector_is_greater(const utl_vector *vec1, const utl_vector *vec2) {
     utl_error_func("One or both vector pointers are NULL in vector_is_greater", utl_user_defined_data);
     return false;
   }
-  size_t minSize = vec1->size < vec2->size ? vec1->size : vec2->size;
+  unsigned int minSize = vec1->size < vec2->size ? vec1->size : vec2->size;
   int cmp = memcmp(vec1->items, vec2->items, minSize * vec1->itemSize);
   return cmp > 0 || (cmp == 0 && vec1->size > vec2->size);
 }
@@ -149,7 +149,7 @@ bool utl_vector_is_empty(utl_vector *vec) {
   return vec->size == 0;
 }
 
-void utl_vector_erase(utl_vector *vec, size_t pos, size_t len) {
+void utl_vector_erase(utl_vector *vec, unsigned int pos, unsigned int len) {
   if (vec == NULL) {
     utl_error_func("Vector is NULL in vector_erase", utl_user_defined_data);
     return;
@@ -167,7 +167,7 @@ void utl_vector_erase(utl_vector *vec, size_t pos, size_t len) {
   vec->size -= len;
 }
 
-void utl_vector_insert(utl_vector *vec, size_t pos, void *item) {
+void utl_vector_insert(utl_vector *vec, unsigned int pos, void *item) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_insert", utl_user_defined_data);
     return;
@@ -177,7 +177,7 @@ void utl_vector_insert(utl_vector *vec, size_t pos, void *item) {
     return;
   }
   if (vec->size == vec->capacitySize) {
-    size_t newCapacity = vec->capacitySize * 2;
+    unsigned int newCapacity = vec->capacitySize * 2;
     void *newItems = utl_memory_pool_allocate(vec->pool, newCapacity * vec->itemSize);
     if (!newItems) {
       utl_error_func("Failed to allocate memory for vector_insert", utl_user_defined_data);
@@ -196,7 +196,7 @@ void utl_vector_insert(utl_vector *vec, size_t pos, void *item) {
   vec->size++;
 }
 
-bool utl_vector_reserve(utl_vector *vec, size_t size) {
+bool utl_vector_reserve(utl_vector *vec, unsigned int size) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_reserve", utl_user_defined_data);
     return false; 
@@ -217,7 +217,7 @@ bool utl_vector_reserve(utl_vector *vec, size_t size) {
   return true;
 }
 
-void utl_vector_resize(utl_vector *vec, size_t size) {
+void utl_vector_resize(utl_vector *vec, unsigned int size) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_resize", utl_user_defined_data);
     return;
@@ -264,18 +264,18 @@ void utl_vector_swap(utl_vector *vec1, utl_vector *vec2) {
   void *tempItems = vec1->items;
   vec1->items = vec2->items;
   vec2->items = tempItems;
-  size_t tempSize = vec1->size;
+  unsigned int tempSize = vec1->size;
   vec1->size = vec2->size;
   vec2->size = tempSize;
-  size_t tempCapacity = vec1->capacitySize;
+  unsigned int tempCapacity = vec1->capacitySize;
   vec1->capacitySize = vec2->capacitySize;
   vec2->capacitySize = tempCapacity;
-  size_t tempItemSize = vec1->itemSize;
+  unsigned int tempItemSize = vec1->itemSize;
   vec1->itemSize = vec2->itemSize;
   vec2->itemSize = tempItemSize;
 }
 
-void utl_vector_assign(utl_vector *vec, size_t pos, void *item) {
+void utl_vector_assign(utl_vector *vec, unsigned int pos, void *item) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_assign", utl_user_defined_data);
     return;
@@ -287,7 +287,7 @@ void utl_vector_assign(utl_vector *vec, size_t pos, void *item) {
   memcpy((char *)vec->items + pos * vec->itemSize, item, vec->itemSize);
 }
 
-void utl_vector_emplace(utl_vector *vec, size_t pos, void *item, size_t itemSize) {
+void utl_vector_emplace(utl_vector *vec, unsigned int pos, void *item, unsigned int itemSize) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_emplace", utl_user_defined_data);
     return;
@@ -305,7 +305,7 @@ void utl_vector_emplace(utl_vector *vec, size_t pos, void *item, size_t itemSize
   vec->size++;
 }
 
-bool utl_vector_emplace_back(utl_vector *vec, void *item, size_t itemSize) {
+bool utl_vector_emplace_back(utl_vector *vec, void *item, unsigned int itemSize) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_emplace_back", utl_user_defined_data);
     return false;
@@ -330,7 +330,7 @@ bool utl_vector_push_back(utl_vector *vec, const void *item) {
     return false;
   }
   if (vec->size >= vec->capacitySize) {
-      size_t newCapacity = vec->capacitySize * 2;
+      unsigned int newCapacity = vec->capacitySize * 2;
       void *newItems = utl_memory_pool_allocate(vec->pool, newCapacity * vec->itemSize);
       if (!newItems) {
         utl_error_func("Failed to allocate memory in vector_push_back", utl_user_defined_data);
@@ -360,7 +360,7 @@ void utl_vector_deallocate(utl_vector *vec) {
   free(vec);
 }
 
-void *utl_vector_at(const utl_vector *vec, size_t pos) {
+void *utl_vector_at(const utl_vector *vec, unsigned int pos) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_at", utl_user_defined_data);
     return NULL;
@@ -477,7 +477,7 @@ void utl_vector_clear(utl_vector *vec) {
       return;
     }
     vec->size = 0;
-    size_t reducedCapacity = 4;
+    unsigned int reducedCapacity = 4;
     if (vec->capacitySize > reducedCapacity) {
         void *newItems = utl_memory_pool_allocate(vec->pool, reducedCapacity * vec->itemSize);
         if (newItems != NULL || reducedCapacity == 0) {
@@ -522,7 +522,7 @@ void *utl_vector_data(utl_vector *vec) {
   return vec->items;
 }
 
-size_t utl_vector_size(const utl_vector *vec) {
+unsigned int utl_vector_size(const utl_vector *vec) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_size", utl_user_defined_data);
     return 0; 
@@ -530,7 +530,7 @@ size_t utl_vector_size(const utl_vector *vec) {
   return vec->size;
 }
 
-size_t utl_vector_capacity(utl_vector *vec) {
+unsigned int utl_vector_capacity(utl_vector *vec) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_capacity", utl_user_defined_data);
     return 0;
@@ -538,7 +538,7 @@ size_t utl_vector_capacity(utl_vector *vec) {
   return vec->capacitySize;
 }
 
-size_t utl_vector_max_size(utl_vector *vec) {
+unsigned int utl_vector_max_size(utl_vector *vec) {
   if (!vec) {
     utl_error_func("Vector is NULL in vector_max_size", utl_user_defined_data);
     return 0;

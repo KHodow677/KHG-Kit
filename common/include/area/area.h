@@ -7,6 +7,6 @@
 typedef struct area_object {
   phy_rigid_body *body;
   phy_shape *shape;
-  size_t tex_id;
+  unsigned int tex_id;
 } area_object;
 
