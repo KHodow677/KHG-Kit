@@ -8,7 +8,7 @@ static gfx_texture TEXTURE_LOOKUP[NUM_TEXTURES];
 static texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
 
 static int compare_texture_strings(const void *a, const void *b) {
-  return strcmp((const char *)a, (const char *)b);
+  return strcmp(*(const char **)a, (const char *)b);
 }
 
 const gfx_texture generate_texture(char *filepath, float width, float height) {
@@ -46,13 +46,13 @@ void generate_textures() {
   TEXTURE_ASSET_REF[GROUND_GRASS] = (texture_asset){ "res/assets/textures/tiles/grounds/grass.png", 795, 688 };
   TEXTURE_ASSET_REF[BORDER_BLACK] = (texture_asset){ "res/assets/textures/tiles/borders/black.png", 725, 628 };
   TEXTURE_ASSET_REF[ELEMENT_DIRTPATCH_6] = (texture_asset){ "res/assets/textures/tiles/elements/dirt_patches/dirt_patch_6.png", 336, 416 };
-  for (int i = 0; i < NUM_TEXTURES; i++) {
+  for (unsigned int i = 0; i < NUM_TEXTURES; i++) {
     get_or_add_texture(i);
   }
 }
 
 void reset_textures() {
-  for (int i = 0; i < NUM_TEXTURES; i++) {
+  for (unsigned int i = 0; i < NUM_TEXTURES; i++) {
     TEXTURE_LOOKUP[i].id = NO_TEXTURE.id;
   }
 }

@@ -10,7 +10,6 @@ typedef struct ovr_tile_element {
 } ovr_tile_element;
 
 typedef struct ovr_tile {
-  bool enabled;
   unsigned int id;
   phy_vector2 pos;
   unsigned int ground_tex_id;
@@ -18,11 +17,10 @@ typedef struct ovr_tile {
   utl_array *elements;
 } ovr_tile;
 
-typedef struct area_tiles {
+typedef struct ovr_map {
   bool enabled;
-  int tiles_layer;
-  utl_array *tiles;
-} area_tiles;
+  utl_vector *tiles;
+} ovr_map;
 
-void render_tiles(utl_array *tiles, int parallax_value);
+void render_tiles(utl_vector *tiles, int parallax_value);
 

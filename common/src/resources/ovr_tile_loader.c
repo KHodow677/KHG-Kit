@@ -1,7 +1,10 @@
 #include "resources/ovr_tile_loader.h"
 #include "area/ovr_tile.h"
 #include "khg_utl/algorithm.h"
-#include <stdio.h>
+#include "khg_utl/array.h"
+#include "khg_utl/config.h"
+#include "resources/texture_loader.h"
+#include <stdlib.h>
 #include <string.h>
 
 static ovr_tile NO_OVR_TILE = { 0 };
@@ -9,12 +12,43 @@ static ovr_tile OVR_TILE_LOOKUP[NUM_OVR_TILES];
 static ovr_tile_asset OVR_TILE_ASSET_REF[NUM_OVR_TILES];
 
 static int compare_ovr_tile_strings(const void *a, const void *b) {
-  return strcmp((const char *)a, (const char *)b);
+  return strcmp(*(const char **)a, (const char *)b);
 }
 
 const ovr_tile generate_ovr_tile(char *filepath) {
   ovr_tile ot;
-  printf("%s\n", filepath);
+  utl_config_file *config = utl_config_create(filepath);
+  ot.ground_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "ground_tex"));
+  ot.border_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "border_tex"));
+  const unsigned int num_elements = utl_config_get_int(config, "info", "num_elements", 0);
+  ot.elements = utl_array_create(sizeof(ovr_tile_element), num_elements);
+  utl_config_iterator iterator = utl_config_get_iterator(config);
+  const char *section, *key, *value;
+  unsigned int element_count = 0;
+  ovr_tile_element template_element;
+  while (utl_config_next_entry(&iterator, &section, &key, &value)) {
+    if (strcmp(section, "elements")) {
+      continue;
+    }
+    size_t len = strlen(key);
+    char generic_key[len];
+    strncpy(generic_key, key, len - 1);
+    generic_key[len - 1] = '\0'; 
+    if (!strcmp(generic_key, "element_tex")) {
+      template_element.element_tex_id = get_tex_id_from_string(utl_config_get_value(config, section, key));
+      continue;
+    }
+    else if (!strcmp(generic_key, "element_pos")) {
+      char **element_pos = utl_config_get_array(config, section, key, 2);
+      template_element.pos = phy_vector2_new(atof(element_pos[0]), atof(element_pos[1]));
+      free(element_pos[0]);
+      free(element_pos[1]);
+      free(element_pos);
+      utl_array_set(ot.elements, element_count, &template_element);
+      element_count++;
+    }
+  }
+  utl_config_deallocate(config);
   return ot;
 }
 
@@ -41,7 +75,7 @@ const ovr_tile get_or_add_ovr_tile_from_string(const char *ovr_tile_key) {
 }
 
 void generate_ovr_tiles() {
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_0] = (ovr_tile_asset){ "res/assets/ovr_tiles/plains/clearing/0.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_0] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/0.ini" };
   for (unsigned int i = 0; i < NUM_OVR_TILES; i++) {
     get_or_add_ovr_tile(i);
   }

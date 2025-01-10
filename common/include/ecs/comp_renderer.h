@@ -23,6 +23,7 @@ typedef struct comp_renderer_constructor_info {
   phy_shape *shape; 
   const int tex_id;
   const unsigned int rig_id;
+  const unsigned int ovr_id;
   const int render_layer;
   const float parallax_value;
   const bool flipped;
