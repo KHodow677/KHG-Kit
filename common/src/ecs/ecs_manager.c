@@ -1,6 +1,5 @@
 #include "ecs/ecs_manager.h"
 #include "ecs/comp_animator.h"
-#include "ecs/comp_collider_group.h"
 #include "ecs/comp_light.h"
 #include "ecs/comp_mover.h"
 #include "ecs/comp_physics.h"
@@ -13,14 +12,12 @@ ecs_ecs *ECS = NULL;
 void ecs_setup() {
   ECS = ecs_new(ECS_ENTITY_COUNT, NULL);
   comp_animator_register();
-  comp_collider_group_register();
   comp_light_register();
   comp_mover_register();
   comp_physics_register();
   comp_renderer_register();
   comp_zone_register();
   sys_animator_register();
-  sys_collider_group_register();
   sys_light_register();
   sys_mover_register();
   sys_physics_register();

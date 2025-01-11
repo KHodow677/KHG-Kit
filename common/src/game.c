@@ -1,7 +1,6 @@
 #include "area/light.h"
 #include "game.h"
 #include "camera/camera.h"
-#include "ecs/comp_collider_group.h"
 #include "letterbox.h"
 #include "camera/camera_controller.h"
 #include "ecs/comp_animator.h"
@@ -12,18 +11,18 @@
 #include "ecs/comp_zone.h"
 #include "ecs/ecs_manager.h"
 #include "io/key_controller.h"
-#include "physics/physics.h"
-#include "resources/area_loader.h"
-#include "resources/rig_loader.h"
-#include "resources/texture_loader.h"
-#include "scene/scene_manager.h"
-#include "scene/scene_utl.h"
 #include "khg_phy/space.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
+#include "physics/physics.h"
+#include "resources/ovr_tile_loader.h"
+#include "resources/rig_loader.h"
+#include "resources/texture_loader.h"
+#include "scene/scene_manager.h"
+#include "scene/scene_utl.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdlib.h>
@@ -78,7 +77,7 @@ const int game_run() {
   log_sys_info();
   generate_textures();
   generate_rigs();
-  generate_areas();
+  generate_ovr_tiles();
   scenes_setup();
   scenes_switch(TO_MAIN_SCENE);
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
@@ -102,7 +101,6 @@ const bool gfx_loop(const float delta) {
     move_camera(&CAMERA, delta);
     ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, COLLIDER_GROUP_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);

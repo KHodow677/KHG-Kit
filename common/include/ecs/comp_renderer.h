@@ -1,6 +1,5 @@
 #pragma once
 
-#include "area/tile.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "rig/rig.h"
@@ -12,7 +11,6 @@ typedef struct comp_renderer {
   phy_rigid_body *body;
   phy_shape *shape;
   rig rig;
-  area_tiles tiles;
   int render_layer;
   float parallax_value;
   phy_vector2 offset;
@@ -25,7 +23,6 @@ typedef struct comp_renderer_constructor_info {
   phy_shape *shape; 
   const int tex_id;
   const unsigned int rig_id;
-  const unsigned int area_id;
   const int render_layer;
   const float parallax_value;
   const bool flipped;

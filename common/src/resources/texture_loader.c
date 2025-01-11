@@ -8,7 +8,7 @@ static gfx_texture TEXTURE_LOOKUP[NUM_TEXTURES];
 static texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
 
 static int compare_texture_strings(const void *a, const void *b) {
-  return strcmp(*(const char **)a, (const char *)b);
+  return strcmp((const char *)a, (const char *)b);
 }
 
 const gfx_texture generate_texture(char *filepath, float width, float height) {

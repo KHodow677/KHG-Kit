@@ -4,10 +4,19 @@
 #include "khg_utl/array.h"
 #include <stddef.h>
 
-typedef struct area_tile {
+typedef struct ovr_tile_element {
   phy_vector2 pos;
-  unsigned int tex_id;
-} area_tile;
+  unsigned int element_tex_id;
+} ovr_tile_element;
+
+typedef struct ovr_tile {
+  bool enabled;
+  unsigned int id;
+  phy_vector2 pos;
+  unsigned int ground_tex_id;
+  unsigned int border_tex_id;
+  utl_array *elements;
+} ovr_tile;
 
 typedef struct area_tiles {
   bool enabled;
