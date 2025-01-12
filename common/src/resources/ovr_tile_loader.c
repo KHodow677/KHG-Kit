@@ -1,6 +1,5 @@
-#include "area/ovr_tile.h"
+#include "area/ovr_map.h"
 #include "khg_utl/algorithm.h"
-#include "khg_utl/array.h"
 #include "khg_utl/config.h"
 #include "khg_utl/string.h"
 #include "resources/texture_loader.h"

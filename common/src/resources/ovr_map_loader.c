@@ -1,4 +1,4 @@
-#include "area/ovr_tile.h"
+#include "area/ovr_map.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/config.h"
 #include "khg_utl/string.h"
@@ -15,7 +15,7 @@ static int compare_ovr_map_strings(const void *a, const void *b) {
 }
 
 const ovr_map generate_ovr_map(const char *filepath) {
-  ovr_map map = { true, utl_vector_create(sizeof(ovr_tile_info)) };
+  ovr_map map = { true, 1.0f, utl_vector_create(sizeof(ovr_tile_info)) };
   generate_ovr_map_from_file(&map, filepath);
   return map;
 }

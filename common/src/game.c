@@ -100,6 +100,7 @@ const bool gfx_loop(const float delta) {
     get_letterbox();
     render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
     gfx_internal_renderer_set_shader(PRIMARY_SHADER);
+    gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
     move_camera(&CAMERA, delta);
     ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);

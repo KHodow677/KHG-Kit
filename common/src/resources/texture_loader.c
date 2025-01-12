@@ -43,8 +43,8 @@ const gfx_texture get_or_add_texture_from_string(const char *tex_key) {
 
 void generate_textures() {
   TEXTURE_ASSET_REF[SQUARE] = (texture_asset){ "res/assets/textures/square.png", 512, 512 };
-  TEXTURE_ASSET_REF[GROUND_GRASS] = (texture_asset){ "res/assets/textures/tiles/grounds/grass.png", 795, 688 };
-  TEXTURE_ASSET_REF[BORDER_BLACK] = (texture_asset){ "res/assets/textures/tiles/borders/black.png", 725, 628 };
+  TEXTURE_ASSET_REF[GROUND_GRASS] = (texture_asset){ "res/assets/textures/tiles/grounds/grass.png", 725, 628 };
+  TEXTURE_ASSET_REF[BORDER_BLACK] = (texture_asset){ "res/assets/textures/tiles/borders/black.png", 795, 688 };
   TEXTURE_ASSET_REF[ELEMENT_DIRTPATCH_6] = (texture_asset){ "res/assets/textures/tiles/elements/dirt_patches/dirt_patch_6.png", 336, 416 };
   for (unsigned int i = 0; i < NUM_TEXTURES; i++) {
     get_or_add_texture(i);
