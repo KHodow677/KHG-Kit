@@ -1,8 +1,9 @@
 #pragma once
 
-#include "area/ovr_tile.h"
+#include "area/ovr_map.h"
 
 #define FOREACH_OVR_MAP(OVR_MAP)\
+  OVR_MAP(NULL_OVR_MAP)\
   OVR_MAP(PLAYER_OVR_MAP)\
   OVR_MAP(NUM_OVR_MAPS)\
 

@@ -382,7 +382,7 @@ void utl_config_set_comment(utl_config_file *config, const char *section, const 
 }
 
 utl_config_iterator utl_config_get_iterator(const utl_config_file *config) {
-  utl_config_iterator iterator = {0};
+  utl_config_iterator iterator = { 0 };
   if (!config) {
     utl_error_func("Config file is null", utl_user_defined_data);
     return iterator; 

@@ -3,6 +3,7 @@
 #include "rig/rig.h"
 
 #define FOREACH_RIG(RIG)\
+  RIG(NULL_RIG)\
   RIG(PLAYER_RIG)\
   RIG(NUM_RIGS)\
 
@@ -15,8 +16,6 @@ typedef enum {
 
 #define RIG_STRINGS (char *[]){ FOREACH_RIG(GENERATE_RIG_STRING) }
 #define RIG_STRINGS_SIZE sizeof(RIG_STRINGS) / sizeof(RIG_STRINGS[0])
-
-#define NO_RIG_ID NUM_RIGS
 
 typedef struct rig_asset {
   char *rig_filepath;

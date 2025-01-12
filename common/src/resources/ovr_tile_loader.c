@@ -1,9 +1,10 @@
-#include "resources/ovr_tile_loader.h"
 #include "area/ovr_tile.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
+#include "khg_utl/string.h"
 #include "resources/texture_loader.h"
+#include "resources/ovr_tile_loader.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -21,7 +22,6 @@ const ovr_tile generate_ovr_tile(char *filepath) {
   ot.ground_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "ground_tex"));
   ot.border_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "border_tex"));
   const unsigned int num_elements = utl_config_get_int(config, "info", "num_elements", 0);
-  ot.elements = utl_array_create(sizeof(ovr_tile_element), num_elements);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
   unsigned int element_count = 0;
@@ -30,22 +30,21 @@ const ovr_tile generate_ovr_tile(char *filepath) {
     if (strcmp(section, "elements")) {
       continue;
     }
-    size_t len = strlen(key);
-    char generic_key[len];
-    strncpy(generic_key, key, len - 1);
-    generic_key[len - 1] = '\0'; 
-    if (!strcmp(generic_key, "element_tex")) {
+    utl_string *key_obj = utl_string_create(key);
+    if (utl_string_starts_with(key_obj, "element_tex")) {
       template_element.element_tex_id = get_tex_id_from_string(utl_config_get_value(config, section, key));
+      utl_string_deallocate(key_obj);
       continue;
     }
-    else if (!strcmp(generic_key, "element_pos")) {
+    else if (utl_string_starts_with(key_obj, "element_pos")) {
       char **element_pos = utl_config_get_array(config, section, key, 2);
       template_element.pos = phy_vector2_new(atof(element_pos[0]), atof(element_pos[1]));
       free(element_pos[0]);
       free(element_pos[1]);
       free(element_pos);
-      utl_array_set(ot.elements, element_count, &template_element);
+      ot.elements[element_count] = template_element;
       element_count++;
+      utl_string_deallocate(key_obj);
     }
   }
   utl_config_deallocate(config);
