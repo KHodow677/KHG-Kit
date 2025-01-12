@@ -7,7 +7,6 @@
 #include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
 #include <math.h>
-#include <stdio.h>
 
 void set_ovr_map_tile_scale(ovr_map *map, const float tile_scale) {
   map->tile_scale = tile_scale;
@@ -48,7 +47,6 @@ void render_ovr_map(ovr_map *map, const phy_vector2 map_pos) {
     render_item(map, tile, tile.border_tex_id, tile_size, map_pos, at->pos, phy_vector2_new(0.5f, 0.5f), false);
     for (unsigned int i = 0; i < tile.num_elements; i++) {
       ovr_tile_element element = tile.elements[i];
-      printf("%i, %i\n", element.element_tex_id, ELEMENT_DIRTPATCH_6);
       render_item(map, tile, element.element_tex_id, tile_size, map_pos, at->pos, element.pos, element.flipped);
     }
   }
