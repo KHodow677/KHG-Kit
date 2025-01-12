@@ -1,6 +1,7 @@
-#include "resources/texture_loader.h"
 #include "khg_gfx/texture.h"
 #include "khg_utl/algorithm.h"
+#include "resources/texture_loader.h"
+#include <stdio.h>
 #include <string.h>
 
 static gfx_texture NO_TEXTURE = { 0 };
@@ -11,7 +12,7 @@ static int compare_texture_strings(const void *a, const void *b) {
   return strcmp(*(const char **)a, (const char *)b);
 }
 
-const gfx_texture generate_texture(char *filepath, float width, float height) {
+const gfx_texture generate_texture(const char *filepath, const float width, const float height) {
   gfx_texture tex = gfx_load_texture_asset(filepath);
   tex.width = width;
   tex.height = height;
@@ -19,7 +20,7 @@ const gfx_texture generate_texture(char *filepath, float width, float height) {
   return tex;
 }
 
-const bool check_texture_loaded(unsigned int tex_id) {
+const bool check_texture_loaded(const unsigned int tex_id) {
   return (tex_id == NULL_TEXTURE || TEXTURE_LOOKUP[tex_id].id != NO_TEXTURE.id);
 }
 
@@ -27,7 +28,7 @@ const unsigned int get_tex_id_from_string(const char *tex_key) {
   return utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
 }
 
-const gfx_texture get_or_add_texture(unsigned int tex_id) {
+const gfx_texture get_or_add_texture(const unsigned int tex_id) {
   if (check_texture_loaded(tex_id)) {
     return TEXTURE_LOOKUP[tex_id];
   }
@@ -45,9 +46,18 @@ void generate_textures() {
   TEXTURE_ASSET_REF[SQUARE] = (texture_asset){ "res/assets/textures/square.png", 512, 512 };
   TEXTURE_ASSET_REF[GROUND_GRASS] = (texture_asset){ "res/assets/textures/tiles/grounds/grass.png", 725, 628 };
   TEXTURE_ASSET_REF[BORDER_BLACK] = (texture_asset){ "res/assets/textures/tiles/borders/black.png", 795, 688 };
-  TEXTURE_ASSET_REF[ELEMENT_DIRTPATCH_6] = (texture_asset){ "res/assets/textures/tiles/elements/dirt_patches/dirt_patch_6.png", 336, 416 };
-  for (unsigned int i = 0; i < NUM_TEXTURES; i++) {
-    get_or_add_texture(i);
+  for (unsigned int i = ELEMENT_BUSH_0, count = 0; i <= ELEMENT_BUSH_59; i++) {
+    unsigned int count = 0;
+    char path[128];
+    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/bushes/bush_%d.png", count++);
+    TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
+    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
+  }
+  for (unsigned int i = ELEMENT_DIRTPATCH_0, count = 0; i <= ELEMENT_DIRTPATCH_59; i++) {
+    char path[128];
+    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/dirt_patches/dirt_patch_%d.png", count++);
+    TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
+    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
   }
 }
 

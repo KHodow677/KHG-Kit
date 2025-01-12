@@ -23,7 +23,6 @@ const ovr_tile generate_ovr_tile(char *filepath) {
   const unsigned int num_elements = utl_config_get_int(config, "info", "num_elements", 0);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
-  unsigned int element_count = 0;
   ovr_tile_element template_element;
   while (utl_config_next_entry(&iterator, &section, &key, &value)) {
     if (strcmp(section, "elements")) {
@@ -41,9 +40,15 @@ const ovr_tile generate_ovr_tile(char *filepath) {
       free(element_pos[0]);
       free(element_pos[1]);
       free(element_pos);
-      ot.elements[element_count] = template_element;
-      element_count++;
       utl_string_deallocate(key_obj);
+      continue;
+    }
+    else if (utl_string_starts_with(key_obj, "element_flipped")) {
+      template_element.flipped = utl_config_get_bool(config, section, key, false);
+      ot.elements[ot.num_elements] = template_element;
+      ot.num_elements++;
+      utl_string_deallocate(key_obj);
+      continue;
     }
   }
   utl_config_deallocate(config);
@@ -74,9 +79,6 @@ const ovr_tile get_or_add_ovr_tile_from_string(const char *ovr_tile_key) {
 
 void generate_ovr_tiles() {
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_0] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/0.ini" };
-  for (unsigned int i = 0; i < NUM_OVR_TILES; i++) {
-    get_or_add_ovr_tile(i);
-  }
 }
 
 void reset_ovr_tiles() {

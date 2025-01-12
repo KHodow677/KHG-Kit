@@ -53,7 +53,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
       }
       else if (info->ovr_map.enabled) {
         phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
-        render_ovr_map(&info->ovr_map, pos, info->parallax_value);
+        render_ovr_map(&info->ovr_map, pos);
       }
       else {
         phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
