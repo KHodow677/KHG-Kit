@@ -3,6 +3,7 @@
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
+#include <math.h>
 #include <stdio.h>
 
 float SCREEN_WIDTH = INITIAL_WIDTH;
@@ -18,6 +19,23 @@ static GLFWwindow *game_init() {
   glfwMakeContextCurrent(window);
   gfx_init_glfw(SCREEN_WIDTH, SCREEN_HEIGHT, window);
   return window;
+}
+
+static void update_font() {
+  unsigned int min_change = fminf((unsigned int)(gfx_get_display_width() / SCREEN_WIDTH * original_font_size), (unsigned int)(gfx_get_display_height() / SCREEN_WIDTH * original_font_size));
+  if (font.font_size != min_change) {
+    gfx_free_font(&font);
+    font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", min_change);
+  }
+}
+
+static void render_div(float pos_x, float pos_y, float div_width, float div_height, float padding) {
+  gfx_element_props div_props = gfx_get_theme().div_props;
+  div_props.corner_radius = 0.0f;
+  div_props.border_width = 0.0f;
+  div_props.color = GFX_WHITE;
+  gfx_push_style_props(div_props);
+  gfx_div_begin(((vec2s){ pos_x, pos_y }), ((vec2s){ div_width, div_height }), false);
 }
 
 void log_sys_info() {
