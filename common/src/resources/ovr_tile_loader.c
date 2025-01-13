@@ -20,7 +20,6 @@ const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
   utl_config_file *config = utl_config_create(filepath);
   ot.ground_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "ground_tex"));
   ot.border_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "border_tex"));
-  const unsigned int num_elements = utl_config_get_int(config, "info", "num_elements", 0);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
   ovr_tile_element template_element;

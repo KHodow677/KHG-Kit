@@ -30,7 +30,7 @@ typedef struct ovr_map {
 } ovr_map;
 
 void set_ovr_map_tile_scale(ovr_map *map, const float tile_scale);
-phy_vector2 get_ovr_map_pos(ovr_map *map, const phy_vector2 map_pos, const unsigned int tile_size, const phy_vector2 coords, const phy_vector2 offset);
+phy_vector2 get_ovr_map_pos(ovr_map *map, const phy_vector2 map_pos, const unsigned int tile_size, const phy_vector2 coords, const phy_vector2 offset, const float tex_height);
 
 void render_item(ovr_map *map, const ovr_tile tile, const unsigned int tex_id, const unsigned int tile_size, const phy_vector2 map_pos, const phy_vector2 coords, const phy_vector2 perc_offset, const bool flipped);
 void render_ovr_map(ovr_map *map, const phy_vector2 map_pos);

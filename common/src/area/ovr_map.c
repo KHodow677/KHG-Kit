@@ -12,13 +12,16 @@ void set_ovr_map_tile_scale(ovr_map *map, const float tile_scale) {
   map->tile_scale = tile_scale;
 }
 
-phy_vector2 get_ovr_map_pos(ovr_map *map, const phy_vector2 map_pos, const unsigned int tile_size, const phy_vector2 coords, const phy_vector2 offset) {
+phy_vector2 get_ovr_map_pos(ovr_map *map, const phy_vector2 map_pos, const unsigned int tile_size, const phy_vector2 coords, const phy_vector2 offset, const float tex_height) {
   const phy_vector2 half_screen = phy_vector2_new(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
   phy_vector2 pos = phy_vector2_add(phy_vector2_mul(phy_vector2_sub(map_pos, half_screen), map->tile_scale), half_screen);
   float hor_dist_comp = tile_size * sqrt(3.0f) / 2.0f;
   float ver_dist_comp = tile_size / 2.0f;
   phy_vector2 raw = phy_vector2_new(hor_dist_comp * coords.x, ver_dist_comp * coords.y);
-  return phy_vector2_add(phy_vector2_add(pos, raw), offset);
+  if (phy_vector2_len(offset) != 0.0f) {
+    return phy_vector2_add(phy_vector2_add(pos, raw), phy_vector2_add(offset, phy_vector2_new(0.0f, -(tex_height / 2.0f))));
+  }
+  return phy_vector2_add(pos, raw);
 }
 
 unsigned int get_ovr_tile_size(ovr_map *map, const unsigned int tex_id) {
@@ -32,7 +35,7 @@ void render_item(ovr_map *map, const ovr_tile tile, const unsigned int tex_id, c
   tex_ref.width *= map->tile_scale;
   tex_ref.height *= map->tile_scale;
   const phy_vector2 offset_from_mid = phy_vector2_sub(perc_offset, phy_vector2_new(0.5f, 0.5f));
-  phy_vector2 pos = get_ovr_map_pos(map, map_pos, tile_size, coords, phy_vector2_mul(offset_from_mid, tile_size / 2.0f));
+  phy_vector2 pos = get_ovr_map_pos(map, map_pos, tile_size, coords, phy_vector2_mul(offset_from_mid, tile_size * 1.338f), tex_ref.height);
   phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
   gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, 0 };
   transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
