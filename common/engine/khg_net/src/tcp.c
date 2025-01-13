@@ -3,6 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(WIN32) || defined(WIN64)
+#else
+#include <errno.h>
+#endif
+
 static void net_tcp_format_error_message(net_tcp_status_info *status_info) {
   if (!status_info) {
     utl_error_func("Status information is null and invalid", utl_user_defined_data);
