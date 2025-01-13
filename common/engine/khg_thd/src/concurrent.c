@@ -6,8 +6,8 @@
 int thd_mutex_init(thd_mutex *mtx, int type) {
 #if defined(_WIN32) || defined(_WIN64)
   mtx->mAlreadyLocked = false;
-  mtx->mRecursive = type & MUTEX_RECURSIVE;
-  mtx->mTimed = type & MUTEX_TIMED;
+  mtx->mRecursive = type & THD_MUTEX_RECURSIVE;
+  mtx->mTimed = type & THD_MUTEX_TIMED;
   if (!mtx->mTimed) {
     InitializeCriticalSection(&(mtx->mHandle.cs));
   }
@@ -199,10 +199,10 @@ int thd_condition_signal(thd_thread_condition *cond) {
   LeaveCriticalSection(&cond->mWaitersCountLock);
   if(haveWaiters) {
     if (SetEvent(cond->mEvents[_CONDITION_EVENT_ONE]) == 0) {
-      return THREAD_ERROR;
+      return THD_THREAD_ERROR;
     }
   }
-  return THREAD_SUCCESS;
+  return THD_THREAD_SUCCESS;
 #else
   return pthread_cond_signal(cond) == 0 ? THD_THREAD_SUCCESS : THD_THREAD_ERROR;
 #endif
@@ -226,20 +226,20 @@ int thd_condition_broadcast(thd_thread_condition *cond) {
 }
 
 #if defined(_WIN32) || defined(_WIN64)
-static int _cnd_timedwait_win32(ThreadCondition *cond, thd_mutex *mtx, DWORD timeout) {
+static int _cnd_timedwait_win32(thd_thread_condition *cond, thd_mutex *mtx, DWORD timeout) {
   DWORD result;
   int lastWaiter;
   EnterCriticalSection(&cond->mWaitersCountLock);
   ++cond->mWaitersCount;
   LeaveCriticalSection(&cond->mWaitersCountLock);
-  mutex_unlock(mtx);
+  thd_mutex_unlock(mtx);
   result = WaitForMultipleObjects(2, cond->mEvents, false, timeout);
   if (result == WAIT_TIMEOUT) {
-    mutex_lock(mtx);
+    thd_mutex_lock(mtx);
     return THD_THREAD_TIMEOUT;
   }
   else if (result == WAIT_FAILED) {
-    mutex_lock(mtx);
+    thd_mutex_lock(mtx);
     return THD_THREAD_ERROR;
   }
   EnterCriticalSection(&cond->mWaitersCountLock);
@@ -248,11 +248,11 @@ static int _cnd_timedwait_win32(ThreadCondition *cond, thd_mutex *mtx, DWORD tim
   LeaveCriticalSection(&cond->mWaitersCountLock);
   if (lastWaiter) {
     if (ResetEvent(cond->mEvents[_CONDITION_EVENT_ALL]) == 0) {
-      mutex_lock(mtx);
+      thd_mutex_lock(mtx);
       return THD_THREAD_ERROR;
     }
   }
-  mutex_lock(mtx);
+  thd_mutex_lock(mtx);
   return THD_THREAD_SUCCESS;
 }
 #endif
@@ -290,22 +290,23 @@ int thd_condition_timedwait(thd_thread_condition *cond, thd_mutex *mtx, const st
 
 #if defined(_WIN32) || defined(_WIN64)
 
-struct CThreadTSSData {
-  void* value;
-  ThreadSpecific key;
-  struct CThreadTSSData* next;
+typedef struct thd_cthread_tss_data thd_cthread_tss_data;
+struct thd_cthread_tss_data {
+  void *value;
+  thd_thread_specific key;
+  thd_cthread_tss_data *next;
 };
 
-static ThreadSpecificDestructor _cthread_tss_dtors[1088] = { NULL, };
-static _Thread_local struct CThreadTSSData* _cthread_tss_head = NULL;
-static _Thread_local struct CThreadTSSData* _cthread_tss_tail = NULL;
+static thd_thread_specific_destructor _cthread_tss_dtors[1088] = { NULL, };
+static _Thread_local thd_cthread_tss_data *_cthread_tss_head = NULL;
+static _Thread_local thd_cthread_tss_data *_cthread_tss_tail = NULL;
 static void _cthread_tss_cleanup (void);
 
 static void _cthread_tss_cleanup (void) {
-  struct CThreadTSSData* data;
+  thd_cthread_tss_data *data;
   int iteration;
   unsigned int again = 1;
-  void* value;
+  void *value;
   for (iteration = 0 ; iteration < TSS_DTOR_ITERATIONS && again > 0 ; iteration++) {
     again = 0;
     for (data = _cthread_tss_head ; data != NULL ; data = data->next) {
@@ -356,19 +357,19 @@ PIMAGE_TLS_CALLBACK p_thread_callback __attribute__((section(".CRT$XLB"))) = _ct
 
 typedef struct {
   thd_thread_start mFunction;
-  void * mArg;
-} ThreadStartInfo;
+  void *mArg;
+} thd_thread_start_info;
 
 
 #if defined(_WIN32) || defined(_WIN64)
 static DWORD WINAPI _thrd_wrapper_function(LPVOID aArg) {
 #else
-static void * _thrd_wrapper_function(void * aArg) {
+static void *_thrd_wrapper_function(void *aArg) {
 #endif
   thd_thread_start fun;
   void *arg;
   int  res;
-  ThreadStartInfo *ti = (ThreadStartInfo *) aArg;
+  thd_thread_start_info *ti = (thd_thread_start_info *) aArg;
   fun = ti->mFunction;
   arg = ti->mArg;
   free((void *)ti);
@@ -384,7 +385,7 @@ static void * _thrd_wrapper_function(void * aArg) {
 }
 
 int thd_thread_create(thd_thread *thr, thd_thread_start func, void *arg) {
-  ThreadStartInfo* ti = (ThreadStartInfo*)malloc(sizeof(ThreadStartInfo));
+  thd_thread_start_info *ti = (thd_thread_start_info *)malloc(sizeof(thd_thread_start_info));
   if (ti == NULL) {
     return THD_THREAD_NOMEM;
   }
@@ -536,8 +537,8 @@ int thd_thread_specific_create(thd_thread_specific *key, thd_thread_specific_des
 
 void thd_thread_specific_delete(thd_thread_specific key) {
 #if defined(_WIN32) || defined(_WIN64)
-  struct CThreadTSSData* data = (struct CThreadTSSData*) TlsGetValue (key);
-  struct CThreadTSSData* prev = NULL;
+  thd_cthread_tss_data* data = (thd_cthread_tss_data*) TlsGetValue (key);
+  thd_cthread_tss_data* prev = NULL;
   if (data != NULL) {
     if (data == _cthread_tss_head) {
       _cthread_tss_head = data->next;
@@ -564,7 +565,7 @@ void thd_thread_specific_delete(thd_thread_specific key) {
 
 void *thd_thread_specific_get(thd_thread_specific key) {
 #if defined(_WIN32) || defined(_WIN64)
-  struct CThreadTSSData* data = (struct CThreadTSSData*)TlsGetValue(key);
+  thd_cthread_tss_data* data = (thd_cthread_tss_data*)TlsGetValue(key);
   if (data == NULL) {
     return NULL;
   }
@@ -576,9 +577,9 @@ void *thd_thread_specific_get(thd_thread_specific key) {
 
 int thd_thread_specific_set(thd_thread_specific key, void *val) {
 #if defined(_WIN32) || defined(_WIN64)
-  struct CThreadTSSData* data = (struct CThreadTSSData*)TlsGetValue(key);
+  thd_cthread_tss_data* data = (thd_cthread_tss_data*)TlsGetValue(key);
   if (data == NULL) {
-      data = (struct CThreadTSSData*)malloc(sizeof(struct CThreadTSSData));
+      data = (thd_cthread_tss_data*)malloc(sizeof(thd_cthread_tss_data));
       if (data == NULL) {
         return THD_THREAD_ERROR;
       }
@@ -638,4 +639,3 @@ void thd_call_once(thd_once_flag *flag, void (*func)(void)) {
   }
 }
 #endif
-

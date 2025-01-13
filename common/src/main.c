@@ -1,8 +1,8 @@
 #include "game.h"
-#include "network/server.h"
+#include <stdio.h>
 
 const int main(int argc, char *argv[]) {
-  /*return server();*/
+  printf("KHG Kit\n");
   if (argc > 1) {
   }
   else {
@@ -10,4 +10,3 @@ const int main(int argc, char *argv[]) {
   }
   return 0;
 }
-

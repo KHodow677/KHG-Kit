@@ -1456,7 +1456,7 @@ extern "C" {
 #endif
 
 #ifdef MA_HAS_STDINT
-    typedef unsigned long ma_uintptr;
+    typedef unsigned long long ma_uintptr;
 #else
     #if defined(_WIN32)
         #if defined(_WIN64)

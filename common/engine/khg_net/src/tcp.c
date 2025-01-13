@@ -209,7 +209,7 @@ net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, unsigned int
         *sent = (unsigned int)bytes_sent;
       }
       utl_error_func("Sending data failed", utl_user_defined_data);
-      return TCP_ERR_SEND;
+      return NET_TCP_ERR_SEND;
     }
     bytes_sent += bytesSent;
 #else
@@ -277,7 +277,7 @@ net_tcp_status net_tcp_close(net_tcp_socket socket) {
   result = closesocket(socket);
   if (result == SOCKET_ERROR) {
     utl_error_func("Closing socket failed", utl_user_defined_data);
-    return TCP_ERR_CLOSE;
+    return NET_TCP_ERR_CLOSE;
   }
 #else
   result = close(socket);
@@ -293,13 +293,13 @@ net_tcp_status net_tcp_shutdown(net_tcp_socket socket, net_tcp_shutdown_how how)
   short shutdown_how;
 #if defined(_WIN32) || defined(_WIN64)
   switch (how) {
-    case TCP_SHUTDOWN_RECEIVE:
+    case NET_TCP_SHUTDOWN_RECEIVE:
       shutdown_how = SD_RECEIVE;
       break;
-    case TCP_SHUTDOWN_SEND:
+    case NET_TCP_SHUTDOWN_SEND:
       shutdown_how = SD_SEND;
       break;
-    case TCP_SHUTDOWN_BOTH:
+    case NET_TCP_SHUTDOWN_BOTH:
       shutdown_how = SD_BOTH;
       break;
     default:
@@ -401,7 +401,7 @@ net_tcp_status net_tcp_set_non_blocking(net_tcp_socket socket, bool enable) {
   u_long mode = enable ? 1 : 0;
   if (ioctlsocket(socket, FIONBIO, &mode) != NO_ERROR) {
     utl_error_func("Setting non-blocking mode failed", utl_user_defined_data);
-    return TCP_ERR_GENERIC;
+    return NET_TCP_ERR_GENERIC;
   }
 #else
   short flags = fcntl(socket, F_GETFL, 0);
@@ -885,7 +885,7 @@ net_tcp_status net_tcp_async_send(net_tcp_socket socket, const void *buf, unsign
     short lastError = WSAGetLastError();
     if (lastError == WSAEWOULDBLOCK) {
       utl_error_func("Connection is blocked", utl_user_defined_data);
-      return TCP_ERR_WOULD_BLOCK;
+      return NET_TCP_ERR_WOULD_BLOCK;
     }
 #else
     if (errno == EAGAIN || errno == EWOULDBLOCK) {

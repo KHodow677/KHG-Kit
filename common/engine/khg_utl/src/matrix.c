@@ -48,15 +48,15 @@ static double utl_binomial_coefficient(int n, int k) {
   return value;
 }
 
-static int64_t utl_factorial(int n) {
-  int64_t result = 1;
+static long long utl_factorial(int n) {
+  long long result = 1;
   for (int i = 2; i <= n; ++i) {
     result *= i;
   }
   return result;
 }
 
-static int64_t utl_binomial_factorial(int n, int k) {
+static long long utl_binomial_factorial(int n, int k) {
   if (k > n) {
     utl_error_func("Invalid inputs", utl_user_defined_data);
     return 0;
@@ -64,7 +64,7 @@ static int64_t utl_binomial_factorial(int n, int k) {
   if (k == 0 || k == n) {
     return 1;
   }
-  int64_t result = utl_factorial(n) / (utl_factorial(k) * utl_factorial(n - k));
+  long long result = utl_factorial(n) / (utl_factorial(k) * utl_factorial(n - k));
   return result;
 }
 
@@ -1665,9 +1665,9 @@ utl_matrix *utl_matrix_inverse_hilbert(unsigned int n) {
   for (unsigned int i = 0; i < n; ++i) {
     for (unsigned int j = 0; j < n; ++j) {
       int s = i + j;
-      int64_t sign = (s % 2 == 0) ? 1 : -1;
-      int64_t numerator = sign * (i + j + 1) * utl_binomial_factorial(n + i, n - j - 1) * utl_binomial_factorial(n + j, n - i - 1) * utl_binomial_factorial(s, i) * utl_binomial_factorial(s, j);
-      int64_t denominator = 1;
+      long long sign = (s % 2 == 0) ? 1 : -1;
+      long long numerator = sign * (i + j + 1) * utl_binomial_factorial(n + i, n - j - 1) * utl_binomial_factorial(n + j, n - i - 1) * utl_binomial_factorial(s, i) * utl_binomial_factorial(s, j);
+      long long denominator = 1;
       double value = (double)numerator / denominator;
       utl_matrix_set(inv_h, i, j, value);
     }
