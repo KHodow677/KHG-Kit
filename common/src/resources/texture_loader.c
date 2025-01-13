@@ -59,6 +59,18 @@ void generate_textures() {
     TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
     strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
   }
+  for (unsigned int i = ELEMENT_GRASS_BUSH_DARK_0, count = 0; i <= ELEMENT_GRASS_BUSH_DARK_59; i++) {
+    char path[128];
+    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_bushes/dark/grass_bush_%d.png", count++);
+    TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
+    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
+  }
+  for (unsigned int i = ELEMENT_GRASS_BUSH_REG_0, count = 0; i <= ELEMENT_GRASS_BUSH_REG_59; i++) {
+    char path[128];
+    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_bushes/reg/grass_bush_%d.png", count++);
+    TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
+    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
+  }
 }
 
 void reset_textures() {
