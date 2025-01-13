@@ -15,8 +15,8 @@ static int compare_ovr_tile_strings(const void *a, const void *b) {
   return strcmp(*(const char **)a, (const char *)b);
 }
 
-const ovr_tile generate_ovr_tile(char *filepath) {
-  ovr_tile ot;
+const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
+  ovr_tile ot = { .id = id };
   utl_config_file *config = utl_config_create(filepath);
   ot.ground_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "ground_tex"));
   ot.border_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "border_tex"));
@@ -68,7 +68,7 @@ const ovr_tile get_or_add_ovr_tile(unsigned int ovr_tile_id) {
     return OVR_TILE_LOOKUP[ovr_tile_id];
   }
   const ovr_tile_asset ota = OVR_TILE_ASSET_REF[ovr_tile_id];
-  OVR_TILE_LOOKUP[ovr_tile_id] = generate_ovr_tile(ota.ovr_tile_filepath);
+  OVR_TILE_LOOKUP[ovr_tile_id] = generate_ovr_tile(ota.ovr_tile_filepath, ovr_tile_id);
   return OVR_TILE_LOOKUP[ovr_tile_id];
 }
 

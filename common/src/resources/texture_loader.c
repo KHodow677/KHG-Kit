@@ -47,7 +47,6 @@ void generate_textures() {
   TEXTURE_ASSET_REF[GROUND_GRASS] = (texture_asset){ "res/assets/textures/tiles/grounds/grass.png", 725, 628 };
   TEXTURE_ASSET_REF[BORDER_BLACK] = (texture_asset){ "res/assets/textures/tiles/borders/black.png", 795, 688 };
   for (unsigned int i = ELEMENT_BUSH_0, count = 0; i <= ELEMENT_BUSH_59; i++) {
-    unsigned int count = 0;
     char path[128];
     snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/bushes/bush_%d.png", count++);
     TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
@@ -68,6 +67,12 @@ void generate_textures() {
   for (unsigned int i = ELEMENT_GRASS_BUSH_REG_0, count = 0; i <= ELEMENT_GRASS_BUSH_REG_59; i++) {
     char path[128];
     snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_bushes/reg/grass_bush_%d.png", count++);
+    TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
+    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
+  }
+  for (unsigned int i = ELEMENT_GRASS_MARKS_0, count = 0; i <= ELEMENT_GRASS_MARKS_59; i++) {
+    char path[128];
+    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_marks/grass_marks_%d.png", count++);
     TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
     strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
   }

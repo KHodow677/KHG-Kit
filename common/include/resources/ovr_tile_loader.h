@@ -21,7 +21,7 @@ typedef struct ovr_tile_asset {
   char *ovr_tile_filepath;
 } ovr_tile_asset;
 
-const ovr_tile generate_ovr_tile(char *filepath);
+const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id);
 const bool check_ovr_tile_loaded(unsigned int ovr_tile_id);
 const unsigned int get_ovr_tile_id_from_string(const char *ovr_tile_key);
 
