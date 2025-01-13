@@ -1,9 +1,12 @@
 #include "game.h"
-#include <stdio.h>
+#include "network/server.h"
+#include <string.h>
 
 const int main(int argc, char *argv[]) {
-  printf("KHG Kit\n");
   if (argc > 1) {
+    if (!strcmp(argv[1], "server")) {
+      return server();
+    }
   }
   else {
     return game_run();

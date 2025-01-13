@@ -1,8 +1,9 @@
-#include <stdlib.h>
-#include <string.h>
 #include "khg_net/http.h"
 #include "khg_utl/error_func.h"
 #include "khg_utl/string.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static net_http_route ROUTES[NET_MAX_ROUTES];
 static unsigned int ROUTE_COUNT = 0;
