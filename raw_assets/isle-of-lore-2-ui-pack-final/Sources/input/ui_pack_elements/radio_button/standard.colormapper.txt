@@ -1,3 +1,0 @@
-line_checked -> iol2_dark
-line -> iol2_dark
-white -> iol2_white

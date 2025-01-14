@@ -1,3 +1,0 @@
-line -> iol2_dark
-dark -> iol2_yellow
-light -> iol2_red

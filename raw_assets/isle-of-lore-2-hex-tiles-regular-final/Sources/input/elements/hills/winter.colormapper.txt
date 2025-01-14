@@ -1,3 +1,0 @@
-dark -> iol2_snow_dark
-light -> iol2_snow_light
-medium -> iol2_snow_medium

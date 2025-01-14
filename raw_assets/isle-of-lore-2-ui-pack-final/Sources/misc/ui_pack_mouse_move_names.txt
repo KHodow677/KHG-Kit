@@ -1,3 +1,0 @@
-Mouse Move Left and Right
-Mouse Move Up and Down
-Mouse Move

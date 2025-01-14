@@ -1,4 +1,0 @@
-line -> iol2_dark
-light -> iol2_green_light
-dark -> iol2_green_dark
-medium -> iol2_green_medium

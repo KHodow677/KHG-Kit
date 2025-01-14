@@ -1,4 +1,0 @@
-outline -> iol2_dark
-white -> iol2_white
-gray_light -> iol2_gray_light
-gray_dark -> iol2_gray_dark

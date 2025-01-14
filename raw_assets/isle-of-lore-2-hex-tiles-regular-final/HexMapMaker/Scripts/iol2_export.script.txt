@@ -1,2 +1,0 @@
-set_type = tile script
-build_tile

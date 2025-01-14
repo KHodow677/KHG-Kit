@@ -1,1 +1,0 @@
-cloud_light -> iol2_cloud_light

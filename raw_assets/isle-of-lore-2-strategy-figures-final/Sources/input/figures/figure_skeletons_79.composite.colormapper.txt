@@ -1,4 +1,0 @@
-width:800 height:500
-id:"figures\figure_skeleton_51" x:5 y:0 flipped:false outline-cutoff:350
-id:"figures\figure_skeleton_51" x:-70 y:-40 flipped:false
-id:"figures\figure_skeleton_51" x:70 y:-40 flipped:true

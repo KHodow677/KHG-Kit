@@ -1,4 +1,0 @@
-width:800 height:500
-id:"figures\figure_elf_112" x:0 y:0 flipped:false outline-cutoff:350
-id:"figures\figure_elf_112" x:-100 y:-40 flipped:false
-id:"figures\figure_elf_112" x:100 y:-40 flipped:true

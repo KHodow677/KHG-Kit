@@ -1,2 +1,0 @@
-white -> iol2_white
-dark -> iol2_dark

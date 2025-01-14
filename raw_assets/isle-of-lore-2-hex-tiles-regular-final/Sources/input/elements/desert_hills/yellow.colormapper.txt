@@ -1,3 +1,0 @@
-line -> iol2_dark
-light -> iol2_sand_light
-dark -> iol2_sand_dark

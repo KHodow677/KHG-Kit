@@ -1,8 +1,0 @@
-RT
-LT
-R2
-L2
-ZR
-ZL
-R
-L

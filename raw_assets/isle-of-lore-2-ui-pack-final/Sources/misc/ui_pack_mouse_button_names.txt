@@ -1,7 +1,0 @@
-Left Mouse Button
-Right Mouse Button
-Middle Mouse Button
-Mouse Wheel Up
-Mouse Wheel Down
-Mouse Wheel
-Empty
