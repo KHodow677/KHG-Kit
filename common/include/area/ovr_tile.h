@@ -30,3 +30,6 @@ phy_vector2 ovr_tile_pos_to_world_pos(const phy_vector2 coords);
 phy_vector2 get_ovr_tile_rendering_pos(const phy_vector2 coords, const phy_vector2 offset, const float tex_height);
 void render_ovr_tile_item(const ovr_tile tile, const unsigned int tex_id, const phy_vector2 coords, const phy_vector2 offset, const bool flipped);
 void render_ovr_tile(const unsigned int tile_id, const phy_vector2 tile_pos);
+
+void render_ovr_tile_ground(const unsigned int tile_id, const phy_vector2 tile_pos);
+void render_ovr_tile_border(const unsigned int tile_id, const phy_vector2 tile_pos);

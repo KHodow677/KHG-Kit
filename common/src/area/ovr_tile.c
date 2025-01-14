@@ -58,3 +58,13 @@ void render_ovr_tile(const unsigned int tile_id, const phy_vector2 tile_pos) {
   }
   render_ovr_tile_item(tile, tile.border_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
 }
+
+void render_ovr_tile_ground(const unsigned int tile_id, const phy_vector2 tile_pos) {
+  const ovr_tile tile = get_or_add_ovr_tile(tile_id);
+  render_ovr_tile_item(tile, tile.ground_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
+}
+
+void render_ovr_tile_border(const unsigned int tile_id, const phy_vector2 tile_pos) {
+  const ovr_tile tile = get_or_add_ovr_tile(tile_id);
+  render_ovr_tile_item(tile, tile.border_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
+}

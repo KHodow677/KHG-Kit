@@ -78,6 +78,7 @@ const ovr_tile get_or_add_ovr_tile_from_string(const char *ovr_tile_key) {
 
 void generate_ovr_tiles() {
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_0] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/0.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_1] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/1.ini" };
 }
 
 void reset_ovr_tiles() {
