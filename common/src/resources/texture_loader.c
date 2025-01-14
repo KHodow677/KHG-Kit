@@ -84,7 +84,7 @@ void generate_textures() {
   }
   for (unsigned int i = ELEMENT_TALLGRASS_0, count = 0; i <= ELEMENT_TALLGRASS_59; i++) {
     char path[128];
-    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_patches/tall_grass_%d.png", count++);
+    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/tall_grass/tall_grass_%d.png", count++);
     TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
     strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
   }

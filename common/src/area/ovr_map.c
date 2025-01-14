@@ -8,6 +8,8 @@
 #include "resources/texture_loader.h"
 #include <math.h>
 
+#define TILE_RAW_POSITION 420 
+
 void set_ovr_map_tile_scale(ovr_map *map, const float tile_scale) {
   map->tile_scale = tile_scale;
 }
@@ -30,12 +32,12 @@ unsigned int get_ovr_tile_size(ovr_map *map, const unsigned int tex_id) {
   return tex_ref.height;
 }
 
-void render_item(ovr_map *map, const ovr_tile tile, const unsigned int tex_id, const unsigned int tile_size, const phy_vector2 map_pos, const phy_vector2 coords, const phy_vector2 perc_offset, const bool flipped) {
+void render_ovr_tile_item(ovr_map *map, const ovr_tile tile, const unsigned int tex_id, const unsigned int tile_size, const phy_vector2 map_pos, const phy_vector2 coords, const phy_vector2 offset, const bool flipped) {
   gfx_texture tex_ref = get_or_add_texture(tex_id);
   tex_ref.width *= map->tile_scale;
   tex_ref.height *= map->tile_scale;
-  const phy_vector2 offset_from_mid = phy_vector2_sub(perc_offset, phy_vector2_new(0.5f, 0.5f));
-  phy_vector2 pos = get_ovr_map_pos(map, map_pos, tile_size, coords, phy_vector2_mul(offset_from_mid, tile_size * 1.338f), tex_ref.height);
+  const phy_vector2 offset_from_mid = phy_vector2_sub(offset, phy_vector2_new(TILE_RAW_POSITION, TILE_RAW_POSITION));
+  phy_vector2 pos = get_ovr_map_pos(map, map_pos, tile_size, coords, phy_vector2_mul(offset_from_mid, map->tile_scale), tex_ref.height);
   phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
   gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, 0 };
   transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
@@ -46,12 +48,12 @@ void render_ovr_map(ovr_map *map, const phy_vector2 map_pos) {
   for (ovr_tile_info *at = utl_vector_begin(map->tiles); at != (ovr_tile_info *)utl_vector_end(map->tiles); at++) {
     const ovr_tile tile = get_or_add_ovr_tile(at->id);
     const unsigned int tile_size = get_ovr_tile_size(map, tile.ground_tex_id);
-    render_item(map, tile, tile.ground_tex_id, tile_size, map_pos, at->pos, phy_vector2_new(0.5f, 0.5f), false);
-    render_item(map, tile, tile.border_tex_id, tile_size, map_pos, at->pos, phy_vector2_new(0.5f, 0.5f), false);
+    render_ovr_tile_item(map, tile, tile.ground_tex_id, tile_size, map_pos, at->pos, phy_vector2_new(TILE_RAW_POSITION, TILE_RAW_POSITION), false);
     for (unsigned int i = 0; i < tile.num_elements; i++) {
       ovr_tile_element element = tile.elements[i];
-      render_item(map, tile, element.element_tex_id, tile_size, map_pos, at->pos, element.pos, element.flipped);
+      render_ovr_tile_item(map, tile, element.element_tex_id, tile_size, map_pos, at->pos, element.pos, element.flipped);
     }
+    render_ovr_tile_item(map, tile, tile.border_tex_id, tile_size, map_pos, at->pos, phy_vector2_new(TILE_RAW_POSITION, TILE_RAW_POSITION), false);
   }
 }
 
