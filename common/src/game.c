@@ -18,7 +18,6 @@
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "physics/physics.h"
-#include "resources/ovr_map_loader.h"
 #include "resources/ovr_tile_loader.h"
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
@@ -79,7 +78,6 @@ const int game_run() {
   generate_textures();
   generate_rigs();
   generate_ovr_tiles();
-  generate_ovr_maps();
   scenes_setup();
   scenes_switch(TO_MAIN_SCENE);
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);

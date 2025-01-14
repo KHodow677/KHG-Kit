@@ -37,10 +37,10 @@ static void clamp_camera_x(camera *cam, const float range_x_min, const float ran
 }
 
 void move_camera(camera *cam, const float delta) {
-  camera_move_to_position(cam, delta);
-  camera_zoom_to_value(cam, delta);
-  const float range_x_min = camera_get_value_to_clamp_x(cam, 0.0f);
-  const float range_x_max = camera_get_value_to_clamp_x(cam, 2560.0f);
-  clamp_camera_x(cam, range_x_min, range_x_max);
+  // camera_move_to_position(cam, delta);
+  // camera_zoom_to_value(cam, delta);
+  // const float range_x_min = camera_get_value_to_clamp_x(cam, -2560.0f);
+  // const float range_x_max = camera_get_value_to_clamp_x(cam, 2560.0f);
+  // clamp_camera_x(cam, range_x_min, range_x_max);
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "area/ovr_map.h"
+#include "area/ovr_tile.h"
 
 #define FOREACH_OVR_TILE(TEXTURE)\
   TEXTURE(NULL_OVR_TILE)\
