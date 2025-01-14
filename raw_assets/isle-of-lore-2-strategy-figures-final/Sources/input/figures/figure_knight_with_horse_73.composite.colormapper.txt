@@ -1,0 +1,3 @@
+width:800 height:500
+id:"figures\figure_knight_13" x:40 y:0 flipped:false
+id:"figures\figure_armored_horse_39" x:-50 y:-8 flipped:false

@@ -1,0 +1,200 @@
+Wood
+Log
+Plank
+Branch
+Bark
+Root
+Leaf
+Resin
+Seeds
+Pine Cone
+Sprout
+Walnut
+Coal
+Grass
+Herbs
+Turf
+Flowers
+Straw
+Manure
+Rock
+Stone
+Flint
+Copper Ore
+Copper Nugget
+Copper Ingot
+Silver Ore
+Silver Nugget
+Silver Ingot
+Gold Ore
+Gold Nugget
+Gold Ingot
+Iron Ore
+Iron Nugget
+Iron Ingot
+Sponge
+Seaweed
+Salt
+Water
+Clam
+Clay
+Diamond
+Crystal
+Ice
+Snowball
+Apple
+Lemon
+Orange
+Carrot
+Turnip
+Potato
+Corn
+Wheat
+Salad
+Garlic
+Tomato
+Bread
+Beer
+Wine
+Egg
+Broken Egg
+Mushroom
+Bee
+Beehive
+Honey
+Milk
+Cheese
+Animal Tooth
+Human Tooth
+Bone
+Skull
+Fishbone
+Bone Powder
+Steak
+Leg of Meat
+Fish
+Worm
+Eyeball
+Feather
+Scale
+Leather
+Fur
+Wool
+Thread
+Nails
+Iron Spikes
+Crowbar
+Rope
+Ladder
+Pole
+Sleeping Bag
+Tent
+Campfire
+Lockpicking Tools
+Bandage
+Compass
+Dice
+Playing Card
+Cards
+Tinderbox
+Net
+Chain
+Trap
+Coin
+Coins
+Ring
+Amulet
+Mirror
+Flute
+Lute
+Horn
+Key
+Boss Key
+Key Chain
+Bust
+Fairy
+Heart Piece Empty
+Heart Piece Small
+Heart Piece Quarter
+Heart Piece Half
+Heart Piece Three Quarter
+Heart Piece Full
+Candle
+Torch
+Lantern
+Dynamite
+Bomb
+Paper
+Letter
+Envelope
+Scroll
+Map
+Treasure Map
+Book
+Doll
+Purse
+Backpack
+Saddle
+Sack
+Crate
+Barrel
+Chest
+Treasure Chest
+Jar
+Bucket
+Small Empty Potion
+Small Health Potion
+Small Mana Potion
+Big Empty Potion
+Big Health Potion
+Big Mana Potion
+Empty Bottle
+Bottle with Letter
+Dagger
+Sword
+Shortsword
+Rapier
+Axe
+Greataxe
+Hammer
+Club
+Mace
+Staff
+Lance
+Trident
+Sickle
+Pitchfork
+Shovel
+Mop
+Pickaxe
+Scythe
+Saw
+Fishing Rod
+Magic Wand
+Magic Staff
+Bow
+Crossbow
+Boomerang
+Sling
+Arrow
+Bolt
+Quiver
+Wooden Shield
+Iron Shield
+Cap
+Robe
+Glove
+Pants
+Shoe
+Leather Helmet
+Leather Armor
+Leather Glove
+Leather Pants
+Boot
+Plate Helmet
+Plate Armor
+Plate Glove
+Plate Leggings
+Plate Boot
+Cape
+Belt

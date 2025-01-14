@@ -1,0 +1,6 @@
+white_on_top -> iol2_white
+line -> iol2_dark
+white -> iol2_white
+blue_light -> iol2_water_light
+blue_medium -> iol2_water_medium
+blue_dark -> iol2_water_dark

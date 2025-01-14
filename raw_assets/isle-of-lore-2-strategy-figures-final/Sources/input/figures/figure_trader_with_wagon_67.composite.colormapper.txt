@@ -1,0 +1,3 @@
+width:800 height:500
+id:"figures\figure_trader_7" x:40 y:0 flipped:false
+id:"figures\figure_wagon_43" x:-50 y:-8 flipped:false
