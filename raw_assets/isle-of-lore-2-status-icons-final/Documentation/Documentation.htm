@@ -1,0 +1,1946 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="files\style.css">
+<title>Isle of Lore 2: Status Icons</title>
+</head>
+<body>
+<div id="divNavi">
+	<a class="aNavi" href="#Introduction">Introduction</a>
+	<a class="aNavi" href="#ContentStructure">Content Structure</a>
+	<a class="aNavi" href="#StatusIcons">Status Icons</a>
+	<a class="aNavi" href="#ColorMapper">Color Mapper</a>
+	<a class="aNavi" href="#Specification">Specification</a>
+	<a class="aNavi" href="#Changelog">Changelog</a>
+</div>
+<div id="divMain">
+
+	<div class="divLogo"><img style="max-width: 562px; padding-top: 50px;" src="files\logo.png"></div>
+	
+	<p></p><a name="Introduction"></a><div class="divBuffer"></div>
+	<h2>Introduction</h2>
+
+	<p><b>Isle of Lore 2: Status Icons</b> is a pack of 136 icons which can be used as interface elements to indicate the current condition of a player character. They cover common statuses, buffs and debuffs and other states and conditions a game character could be in. They work great with my other <b>Isle of Lore 2</b> packs, including <a href="https://stevencolling.itch.io/isle-of-lore-2-hex-tiles-regular" target="_blank">Isle of Lore 2: Hex Tiles</a>!</p>
+
+	<p>The icons come as png files with and without a background and also as Krita (.kra) and Photoshop (.psd) source files for your personal edits. The pack is compatible with my batch image editing tool <a href="https://stevencolling.itch.io/color-mapper" target="_blank">Color Mapper</a>, which means you can easily change the color palette of the icons to your own liking... the required <b>Color Mapper Files</b> are included!</p>
+
+	<p>If you bought the pack when it came out, you may notice some differences. First and foremost, the color palette is a bit darker and more saturated, making it compatible with the <b>Isle of Lore 2: Hex Tiles</b> update. The icons were completely re-drawn in a higher resolution (150% the size), too! Besides that, some new icons were added (Campfire, Anchor, Unlucky, Chicken, Disarmed, Demon, Star, Backpack) or changed (Lucky, Unconscious, Banner, Key, Closed Lock, Open Lock). Some extra icons (Crawling, Prone, Pushback, Bubbled, Running, Jumping, Praying, Meditating) were released as an extra download and are now part of the pack itself.</p>
+
+	<p>This documentation will go into more detail on how to find the files you want and how to change and re-export them to fit your needs.</p>
+	
+	<p>Please keep the license in mind, which is available as a <span class="spanCode">License.txt</span>-file in the folder you downloaded. If you have questions or feedback, you can reach me through the following channels. I especially recommend the mailing list and my Discord server to stay up-to-date respectively to chat about your and my projects!</p>
+	
+	<ul>
+		<li>E-Mail: <a href="mailto:info@stevencolling.com">info@stevencolling.com</a></li>
+		<li>Mailing List (get news and exclusive discounts!): <a href="https://mailinglist.stevencolling.com/game_assets/" target="_blank">https://mailinglist.stevencolling.com/game_assets/</a></li>
+		<li>Discord Server (connect with others using my software and assets!): <a href="https://stevencolling.com/discord.php" target="_blank">https://stevencolling.com/discord.php</a></li>
+		<li>Discord Profile: <a href="https://discordapp.com/users/171308170038214656/" target="_blank">https://discordapp.com/users/171308170038214656/</a></li>
+		<li>General Help: <a href="https://stevencolling.com/help.htm" target="_blank">https://stevencolling.com/help.htm</a></li>
+		<li>Website: <a href="https://stevencolling.com" target="_blank">https://stevencolling.com</a></li>
+	</ul>
+	
+	<p></p><a name="ContentStructure"></a><div class="divBuffer"></div>
+	<h2>Content Structure</h2>
+	
+	<p>The asset pack contains a folder called <span class="spanCode">Sources</span> and in it, you'll find the three folders <span class="spanCode">input</span>, <span class="spanCode">output</span> and <span class="spanCode">misc</span>. While <span class="spanCode">misc</span> contains a list of icon names ordered by their ID, the <span class="spanCode">input</span> and <span class="spanCode">output</span> folders are the ones relevant for a <a href="https://stevencolling.itch.io/color-mapper" target="_blank">Color Mapper</a> setup. If you don't use <b>Color Mapper</b>, you can head straight to the <span class="spanCode">output</span>-folder and use the files there, but if you do, please refer to the section <a href="#ColorMapper">Re-exporting the Icons with Color Mapper</a> further down.</p>
+
+	<p>The icons come in two variants. The first variant places the icons on a white background with rounded corners. The second variant has a transparent background. Both variants have their respective folders <span class="spanCode">status_icons.standard_<b>background</b></span> and <span class="spanCode">status_icons.standard_<b>transparent</b></span> within the <span class="spanCode">output</span>-folder.
+
+	<p>After we had a look at the <span class="spanCode">output</span>-folder, let's check the content structure of the <span class="spanCode">input\status_icons</span>-folder, where you'll find all the Krita (.kra) and Photoshop (.psd) files as well as image file exports (.png) of all the single layers of every icon. These files are required if you want to use <b>Color Mapper</b>. The <b>Color Mapper Files</b> <span class="spanCode">*.colormapper.txt</b></span> tell <b>Color Mapper</b> how to assemble the icons. The icons which have numbers on them are generated with the help of the <b>Composite Files</b> <span class="spanCode">*.composite.colormapper.txt</b></span>.</p>
+	
+	<p></p><a name="StatusIcons"></a><div class="divBuffer"></div>
+	<h2>Status Icons</h2>
+	
+	<p>The following table provides an overview of all the status icons included.</p>
+
+	<table class="tableIcons">
+		<tr>
+			<th>Icon</th>
+			<th>ID</th>
+			<th>Name</th>
+			<th>File</th>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_strength_0.png"></td>
+			<td>0</td>
+			<td>Strength</td>
+			<td>status_icon_strength_0.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_agility_1.png"></td>
+			<td>1</td>
+			<td>Agility</td>
+			<td>status_icon_agility_1.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_constitution_2.png"></td>
+			<td>2</td>
+			<td>Constitution</td>
+			<td>status_icon_constitution_2.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_charisma_3.png"></td>
+			<td>3</td>
+			<td>Charisma</td>
+			<td>status_icon_charisma_3.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_intelligence_4.png"></td>
+			<td>4</td>
+			<td>Intelligence</td>
+			<td>status_icon_intelligence_4.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_wisdom_5.png"></td>
+			<td>5</td>
+			<td>Wisdom</td>
+			<td>status_icon_wisdom_5.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_health_6.png"></td>
+			<td>6</td>
+			<td>Health</td>
+			<td>status_icon_health_6.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_mana_7.png"></td>
+			<td>7</td>
+			<td>Mana</td>
+			<td>status_icon_mana_7.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_dead_8.png"></td>
+			<td>8</td>
+			<td>Dead</td>
+			<td>status_icon_dead_8.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_wounded_9.png"></td>
+			<td>9</td>
+			<td>Wounded</td>
+			<td>status_icon_wounded_9.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_deceased_10.png"></td>
+			<td>10</td>
+			<td>Deceased</td>
+			<td>status_icon_deceased_10.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_undead_11.png"></td>
+			<td>11</td>
+			<td>Undead</td>
+			<td>status_icon_undead_11.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_ghost_12.png"></td>
+			<td>12</td>
+			<td>Ghost</td>
+			<td>status_icon_ghost_12.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_vampirism_13.png"></td>
+			<td>13</td>
+			<td>Vampirism</td>
+			<td>status_icon_vampirism_13.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time_14.png"></td>
+			<td>14</td>
+			<td>Time</td>
+			<td>status_icon_time_14.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_growing_15.png"></td>
+			<td>15</td>
+			<td>Growing</td>
+			<td>status_icon_growing_15.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_seeing_16.png"></td>
+			<td>16</td>
+			<td>Seeing</td>
+			<td>status_icon_seeing_16.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_not_seeing_17.png"></td>
+			<td>17</td>
+			<td>Not Seeing</td>
+			<td>status_icon_not_seeing_17.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_blinded_18.png"></td>
+			<td>18</td>
+			<td>Blinded</td>
+			<td>status_icon_blinded_18.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_speaking_19.png"></td>
+			<td>19</td>
+			<td>Speaking</td>
+			<td>status_icon_speaking_19.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_silenced_20.png"></td>
+			<td>20</td>
+			<td>Silenced</td>
+			<td>status_icon_silenced_20.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_hearing_21.png"></td>
+			<td>21</td>
+			<td>Hearing</td>
+			<td>status_icon_hearing_21.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_deaf_22.png"></td>
+			<td>22</td>
+			<td>Deaf</td>
+			<td>status_icon_deaf_22.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_smelling_23.png"></td>
+			<td>23</td>
+			<td>Smelling</td>
+			<td>status_icon_smelling_23.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_not_hungry_24.png"></td>
+			<td>24</td>
+			<td>Not Hungry</td>
+			<td>status_icon_not_hungry_24.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_hungry_25.png"></td>
+			<td>25</td>
+			<td>Hungry</td>
+			<td>status_icon_hungry_25.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_not_thirsty_26.png"></td>
+			<td>26</td>
+			<td>Not Thirsty</td>
+			<td>status_icon_not_thirsty_26.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_thirsty_27.png"></td>
+			<td>27</td>
+			<td>Thirsty</td>
+			<td>status_icon_thirsty_27.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_bandaged_28.png"></td>
+			<td>28</td>
+			<td>Bandaged</td>
+			<td>status_icon_bandaged_28.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_bread_29.png"></td>
+			<td>29</td>
+			<td>Bread</td>
+			<td>status_icon_bread_29.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_meat_30.png"></td>
+			<td>30</td>
+			<td>Meat</td>
+			<td>status_icon_meat_30.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_drunk_31.png"></td>
+			<td>31</td>
+			<td>Drunk</td>
+			<td>status_icon_drunk_31.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_buffed_32.png"></td>
+			<td>32</td>
+			<td>Buffed</td>
+			<td>status_icon_buffed_32.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_debuffed_33.png"></td>
+			<td>33</td>
+			<td>Debuffed</td>
+			<td>status_icon_debuffed_33.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_faster_34.png"></td>
+			<td>34</td>
+			<td>Faster</td>
+			<td>status_icon_faster_34.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_slower_35.png"></td>
+			<td>35</td>
+			<td>Slower</td>
+			<td>status_icon_slower_35.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_blessed_36.png"></td>
+			<td>36</td>
+			<td>Blessed</td>
+			<td>status_icon_blessed_36.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_cursed_37.png"></td>
+			<td>37</td>
+			<td>Cursed</td>
+			<td>status_icon_cursed_37.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_heaven_38.png"></td>
+			<td>38</td>
+			<td>Heaven</td>
+			<td>status_icon_heaven_38.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_curse_39.png"></td>
+			<td>39</td>
+			<td>Curse</td>
+			<td>status_icon_curse_39.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_regenerating_40.png"></td>
+			<td>40</td>
+			<td>Regenerating</td>
+			<td>status_icon_regenerating_40.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_bleeding_41.png"></td>
+			<td>41</td>
+			<td>Bleeding</td>
+			<td>status_icon_bleeding_41.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_poisoned_42.png"></td>
+			<td>42</td>
+			<td>Poisoned</td>
+			<td>status_icon_poisoned_42.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_poisoned_lungs_43.png"></td>
+			<td>43</td>
+			<td>Poisoned Lungs</td>
+			<td>status_icon_poisoned_lungs_43.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_suffocating_44.png"></td>
+			<td>44</td>
+			<td>Suffocating</td>
+			<td>status_icon_suffocating_44.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_sick_45.png"></td>
+			<td>45</td>
+			<td>Sick</td>
+			<td>status_icon_sick_45.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_gas_46.png"></td>
+			<td>46</td>
+			<td>Gas</td>
+			<td>status_icon_gas_46.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_acid_47.png"></td>
+			<td>47</td>
+			<td>Acid</td>
+			<td>status_icon_acid_47.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_stunned_48.png"></td>
+			<td>48</td>
+			<td>Stunned</td>
+			<td>status_icon_stunned_48.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_unconscious_49.png"></td>
+			<td>49</td>
+			<td>Unconscious</td>
+			<td>status_icon_unconscious_49.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_exhausted_50.png"></td>
+			<td>50</td>
+			<td>Exhausted</td>
+			<td>status_icon_exhausted_50.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_overburdened_51.png"></td>
+			<td>51</td>
+			<td>Overburdened</td>
+			<td>status_icon_overburdened_51.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_sleeping_52.png"></td>
+			<td>52</td>
+			<td>Sleeping</td>
+			<td>status_icon_sleeping_52.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_disguised_53.png"></td>
+			<td>53</td>
+			<td>Disguised</td>
+			<td>status_icon_disguised_53.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_disappearing_54.png"></td>
+			<td>54</td>
+			<td>Disappearing</td>
+			<td>status_icon_disappearing_54.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_invisible_55.png"></td>
+			<td>55</td>
+			<td>Invisible</td>
+			<td>status_icon_invisible_55.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_entangled_56.png"></td>
+			<td>56</td>
+			<td>Entangled</td>
+			<td>status_icon_entangled_56.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_tentacled_57.png"></td>
+			<td>57</td>
+			<td>Tentacled</td>
+			<td>status_icon_tentacled_57.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_restrained_58.png"></td>
+			<td>58</td>
+			<td>Restrained</td>
+			<td>status_icon_restrained_58.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_webbed_59.png"></td>
+			<td>59</td>
+			<td>Webbed</td>
+			<td>status_icon_webbed_59.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_hooked_60.png"></td>
+			<td>60</td>
+			<td>Hooked</td>
+			<td>status_icon_hooked_60.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_trapped_61.png"></td>
+			<td>61</td>
+			<td>Trapped</td>
+			<td>status_icon_trapped_61.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_falling_62.png"></td>
+			<td>62</td>
+			<td>Falling</td>
+			<td>status_icon_falling_62.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_levitating_63.png"></td>
+			<td>63</td>
+			<td>Levitating</td>
+			<td>status_icon_levitating_63.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_scared_64.png"></td>
+			<td>64</td>
+			<td>Scared</td>
+			<td>status_icon_scared_64.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_raged_65.png"></td>
+			<td>65</td>
+			<td>Raged</td>
+			<td>status_icon_raged_65.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_stressed_66.png"></td>
+			<td>66</td>
+			<td>Stressed</td>
+			<td>status_icon_stressed_66.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_confused_67.png"></td>
+			<td>67</td>
+			<td>Confused</td>
+			<td>status_icon_confused_67.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_hypnotized_68.png"></td>
+			<td>68</td>
+			<td>Hypnotized</td>
+			<td>status_icon_hypnotized_68.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_charmed_69.png"></td>
+			<td>69</td>
+			<td>Charmed</td>
+			<td>status_icon_charmed_69.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_loving_70.png"></td>
+			<td>70</td>
+			<td>Loving</td>
+			<td>status_icon_loving_70.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_singing_71.png"></td>
+			<td>71</td>
+			<td>Singing</td>
+			<td>status_icon_singing_71.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_attack_72.png"></td>
+			<td>72</td>
+			<td>Attack</td>
+			<td>status_icon_attack_72.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_broken_weapon_73.png"></td>
+			<td>73</td>
+			<td>Broken Weapon</td>
+			<td>status_icon_broken_weapon_73.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_buffed_attack_74.png"></td>
+			<td>74</td>
+			<td>Buffed Attack</td>
+			<td>status_icon_buffed_attack_74.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_debuffed_attack_75.png"></td>
+			<td>75</td>
+			<td>Debuffed Attack</td>
+			<td>status_icon_debuffed_attack_75.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_faster_attack_76.png"></td>
+			<td>76</td>
+			<td>Faster Attack</td>
+			<td>status_icon_faster_attack_76.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_slower_attack_77.png"></td>
+			<td>77</td>
+			<td>Slower Attack</td>
+			<td>status_icon_slower_attack_77.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_lucky_78.png"></td>
+			<td>78</td>
+			<td>Lucky</td>
+			<td>status_icon_lucky_78.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_ammunition_79.png"></td>
+			<td>79</td>
+			<td>Ammunition</td>
+			<td>status_icon_ammunition_79.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_defense_80.png"></td>
+			<td>80</td>
+			<td>Defense</td>
+			<td>status_icon_defense_80.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_broken_defense_81.png"></td>
+			<td>81</td>
+			<td>Broken Defense</td>
+			<td>status_icon_broken_defense_81.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_buffed_defense_82.png"></td>
+			<td>82</td>
+			<td>Buffed Defense</td>
+			<td>status_icon_buffed_defense_82.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_debuffed_defense_83.png"></td>
+			<td>83</td>
+			<td>Debuffed Defense</td>
+			<td>status_icon_debuffed_defense_83.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_reflected_84.png"></td>
+			<td>84</td>
+			<td>Reflected</td>
+			<td>status_icon_reflected_84.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_marked_85.png"></td>
+			<td>85</td>
+			<td>Marked</td>
+			<td>status_icon_marked_85.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_tracked_86.png"></td>
+			<td>86</td>
+			<td>Tracked</td>
+			<td>status_icon_tracked_86.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_light_87.png"></td>
+			<td>87</td>
+			<td>Light</td>
+			<td>status_icon_light_87.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot_88.png"></td>
+			<td>88</td>
+			<td>Afoot</td>
+			<td>status_icon_afoot_88.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying_89.png"></td>
+			<td>89</td>
+			<td>Flying</td>
+			<td>status_icon_flying_89.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground_90.png"></td>
+			<td>90</td>
+			<td>Underground</td>
+			<td>status_icon_underground_90.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater_91.png"></td>
+			<td>91</td>
+			<td>Underwater</td>
+			<td>status_icon_underwater_91.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_bomb_92.png"></td>
+			<td>92</td>
+			<td>Bomb</td>
+			<td>status_icon_bomb_92.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_explosion_93.png"></td>
+			<td>93</td>
+			<td>Explosion</td>
+			<td>status_icon_explosion_93.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_debris_94.png"></td>
+			<td>94</td>
+			<td>Debris</td>
+			<td>status_icon_debris_94.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_earthquake_95.png"></td>
+			<td>95</td>
+			<td>Earthquake</td>
+			<td>status_icon_earthquake_95.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_fire_96.png"></td>
+			<td>96</td>
+			<td>Fire</td>
+			<td>status_icon_fire_96.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_water_97.png"></td>
+			<td>97</td>
+			<td>Water</td>
+			<td>status_icon_water_97.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_ice_98.png"></td>
+			<td>98</td>
+			<td>Ice</td>
+			<td>status_icon_ice_98.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_earth_99.png"></td>
+			<td>99</td>
+			<td>Earth</td>
+			<td>status_icon_earth_99.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_nature_100.png"></td>
+			<td>100</td>
+			<td>Nature</td>
+			<td>status_icon_nature_100.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_wind_101.png"></td>
+			<td>101</td>
+			<td>Wind</td>
+			<td>status_icon_wind_101.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_thunder_102.png"></td>
+			<td>102</td>
+			<td>Thunder</td>
+			<td>status_icon_thunder_102.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_darkness_103.png"></td>
+			<td>103</td>
+			<td>Darkness</td>
+			<td>status_icon_darkness_103.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_burning_104.png"></td>
+			<td>104</td>
+			<td>Burning</td>
+			<td>status_icon_burning_104.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_drowning_105.png"></td>
+			<td>105</td>
+			<td>Drowning</td>
+			<td>status_icon_drowning_105.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_freezing_106.png"></td>
+			<td>106</td>
+			<td>Freezing</td>
+			<td>status_icon_freezing_106.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_petrified_107.png"></td>
+			<td>107</td>
+			<td>Petrified</td>
+			<td>status_icon_petrified_107.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_overgrown_108.png"></td>
+			<td>108</td>
+			<td>Overgrown</td>
+			<td>status_icon_overgrown_108.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_blown_away_109.png"></td>
+			<td>109</td>
+			<td>Blown Away</td>
+			<td>status_icon_blown_away_109.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_electrified_110.png"></td>
+			<td>110</td>
+			<td>Electrified</td>
+			<td>status_icon_electrified_110.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_darkened_111.png"></td>
+			<td>111</td>
+			<td>Darkened</td>
+			<td>status_icon_darkened_111.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_key_112.png"></td>
+			<td>112</td>
+			<td>Key</td>
+			<td>status_icon_key_112.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_closed_lock_113.png"></td>
+			<td>113</td>
+			<td>Closed Lock</td>
+			<td>status_icon_closed_lock_113.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_open_lock_114.png"></td>
+			<td>114</td>
+			<td>Open Lock</td>
+			<td>status_icon_open_lock_114.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_loot_115.png"></td>
+			<td>115</td>
+			<td>Loot</td>
+			<td>status_icon_loot_115.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_coin_116.png"></td>
+			<td>116</td>
+			<td>Coin</td>
+			<td>status_icon_coin_116.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_potion_117.png"></td>
+			<td>117</td>
+			<td>Potion</td>
+			<td>status_icon_potion_117.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_banner_118.png"></td>
+			<td>118</td>
+			<td>Banner</td>
+			<td>status_icon_banner_118.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_axe_119.png"></td>
+			<td>119</td>
+			<td>Axe</td>
+			<td>status_icon_axe_119.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_crawling_120.png"></td>
+			<td>120</td>
+			<td>Crawling</td>
+			<td>status_icon_crawling_120.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_prone_121.png"></td>
+			<td>121</td>
+			<td>Prone</td>
+			<td>status_icon_prone_121.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_pushback_122.png"></td>
+			<td>122</td>
+			<td>Pushback</td>
+			<td>status_icon_pushback_122.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_bubbled_123.png"></td>
+			<td>123</td>
+			<td>Bubbled</td>
+			<td>status_icon_bubbled_123.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_running_124.png"></td>
+			<td>124</td>
+			<td>Running</td>
+			<td>status_icon_running_124.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_jumping_125.png"></td>
+			<td>125</td>
+			<td>Jumping</td>
+			<td>status_icon_jumping_125.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_praying_126.png"></td>
+			<td>126</td>
+			<td>Praying</td>
+			<td>status_icon_praying_126.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_meditating_127.png"></td>
+			<td>127</td>
+			<td>Meditating</td>
+			<td>status_icon_meditating_127.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_campfire_128.png"></td>
+			<td>128</td>
+			<td>Campfire</td>
+			<td>status_icon_campfire_128.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_anchor_129.png"></td>
+			<td>129</td>
+			<td>Anchor</td>
+			<td>status_icon_anchor_129.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_unlucky_130.png"></td>
+			<td>130</td>
+			<td>Unlucky</td>
+			<td>status_icon_unlucky_130.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_chicken_131.png"></td>
+			<td>131</td>
+			<td>Chicken</td>
+			<td>status_icon_chicken_131.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_disarmed_132.png"></td>
+			<td>132</td>
+			<td>Disarmed</td>
+			<td>status_icon_disarmed_132.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_demon_133.png"></td>
+			<td>133</td>
+			<td>Demon</td>
+			<td>status_icon_demon_133.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_star_134.png"></td>
+			<td>134</td>
+			<td>Star</td>
+			<td>status_icon_star_134.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_backpack_135.png"></td>
+			<td>135</td>
+			<td>Backpack</td>
+			<td>status_icon_backpack_135.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot0_1000.png"></td>
+			<td>1000</td>
+			<td>Afoot 0</td>
+			<td>status_icon_afoot0_1000.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot5_1001.png"></td>
+			<td>1001</td>
+			<td>Afoot 5</td>
+			<td>status_icon_afoot5_1001.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot10_1002.png"></td>
+			<td>1002</td>
+			<td>Afoot 10</td>
+			<td>status_icon_afoot10_1002.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot15_1003.png"></td>
+			<td>1003</td>
+			<td>Afoot 15</td>
+			<td>status_icon_afoot15_1003.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot20_1004.png"></td>
+			<td>1004</td>
+			<td>Afoot 20</td>
+			<td>status_icon_afoot20_1004.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot25_1005.png"></td>
+			<td>1005</td>
+			<td>Afoot 25</td>
+			<td>status_icon_afoot25_1005.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot30_1006.png"></td>
+			<td>1006</td>
+			<td>Afoot 30</td>
+			<td>status_icon_afoot30_1006.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot35_1007.png"></td>
+			<td>1007</td>
+			<td>Afoot 35</td>
+			<td>status_icon_afoot35_1007.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot40_1008.png"></td>
+			<td>1008</td>
+			<td>Afoot 40</td>
+			<td>status_icon_afoot40_1008.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot45_1009.png"></td>
+			<td>1009</td>
+			<td>Afoot 45</td>
+			<td>status_icon_afoot45_1009.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot50_1010.png"></td>
+			<td>1010</td>
+			<td>Afoot 50</td>
+			<td>status_icon_afoot50_1010.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot60_1011.png"></td>
+			<td>1011</td>
+			<td>Afoot 60</td>
+			<td>status_icon_afoot60_1011.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot70_1012.png"></td>
+			<td>1012</td>
+			<td>Afoot 70</td>
+			<td>status_icon_afoot70_1012.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot80_1013.png"></td>
+			<td>1013</td>
+			<td>Afoot 80</td>
+			<td>status_icon_afoot80_1013.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot90_1014.png"></td>
+			<td>1014</td>
+			<td>Afoot 90</td>
+			<td>status_icon_afoot90_1014.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot100_1015.png"></td>
+			<td>1015</td>
+			<td>Afoot 100</td>
+			<td>status_icon_afoot100_1015.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot120_1016.png"></td>
+			<td>1016</td>
+			<td>Afoot 120</td>
+			<td>status_icon_afoot120_1016.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot140_1017.png"></td>
+			<td>1017</td>
+			<td>Afoot 140</td>
+			<td>status_icon_afoot140_1017.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot160_1018.png"></td>
+			<td>1018</td>
+			<td>Afoot 160</td>
+			<td>status_icon_afoot160_1018.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot180_1019.png"></td>
+			<td>1019</td>
+			<td>Afoot 180</td>
+			<td>status_icon_afoot180_1019.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot200_1020.png"></td>
+			<td>1020</td>
+			<td>Afoot 200</td>
+			<td>status_icon_afoot200_1020.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot250_1021.png"></td>
+			<td>1021</td>
+			<td>Afoot 250</td>
+			<td>status_icon_afoot250_1021.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afoot300_1022.png"></td>
+			<td>1022</td>
+			<td>Afoot 300</td>
+			<td>status_icon_afoot300_1022.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_afootinfinity_1023.png"></td>
+			<td>1023</td>
+			<td>Afoot Infinity</td>
+			<td>status_icon_afootinfinity_1023.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying0_2000.png"></td>
+			<td>2000</td>
+			<td>Flying 0</td>
+			<td>status_icon_flying0_2000.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying5_2001.png"></td>
+			<td>2001</td>
+			<td>Flying 5</td>
+			<td>status_icon_flying5_2001.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying10_2002.png"></td>
+			<td>2002</td>
+			<td>Flying 10</td>
+			<td>status_icon_flying10_2002.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying15_2003.png"></td>
+			<td>2003</td>
+			<td>Flying 15</td>
+			<td>status_icon_flying15_2003.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying20_2004.png"></td>
+			<td>2004</td>
+			<td>Flying 20</td>
+			<td>status_icon_flying20_2004.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying25_2005.png"></td>
+			<td>2005</td>
+			<td>Flying 25</td>
+			<td>status_icon_flying25_2005.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying30_2006.png"></td>
+			<td>2006</td>
+			<td>Flying 30</td>
+			<td>status_icon_flying30_2006.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying35_2007.png"></td>
+			<td>2007</td>
+			<td>Flying 35</td>
+			<td>status_icon_flying35_2007.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying40_2008.png"></td>
+			<td>2008</td>
+			<td>Flying 40</td>
+			<td>status_icon_flying40_2008.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying45_2009.png"></td>
+			<td>2009</td>
+			<td>Flying 45</td>
+			<td>status_icon_flying45_2009.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying50_2010.png"></td>
+			<td>2010</td>
+			<td>Flying 50</td>
+			<td>status_icon_flying50_2010.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying60_2011.png"></td>
+			<td>2011</td>
+			<td>Flying 60</td>
+			<td>status_icon_flying60_2011.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying70_2012.png"></td>
+			<td>2012</td>
+			<td>Flying 70</td>
+			<td>status_icon_flying70_2012.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying80_2013.png"></td>
+			<td>2013</td>
+			<td>Flying 80</td>
+			<td>status_icon_flying80_2013.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying90_2014.png"></td>
+			<td>2014</td>
+			<td>Flying 90</td>
+			<td>status_icon_flying90_2014.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying100_2015.png"></td>
+			<td>2015</td>
+			<td>Flying 100</td>
+			<td>status_icon_flying100_2015.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying120_2016.png"></td>
+			<td>2016</td>
+			<td>Flying 120</td>
+			<td>status_icon_flying120_2016.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying140_2017.png"></td>
+			<td>2017</td>
+			<td>Flying 140</td>
+			<td>status_icon_flying140_2017.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying160_2018.png"></td>
+			<td>2018</td>
+			<td>Flying 160</td>
+			<td>status_icon_flying160_2018.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying180_2019.png"></td>
+			<td>2019</td>
+			<td>Flying 180</td>
+			<td>status_icon_flying180_2019.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying200_2020.png"></td>
+			<td>2020</td>
+			<td>Flying 200</td>
+			<td>status_icon_flying200_2020.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying250_2021.png"></td>
+			<td>2021</td>
+			<td>Flying 250</td>
+			<td>status_icon_flying250_2021.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flying300_2022.png"></td>
+			<td>2022</td>
+			<td>Flying 300</td>
+			<td>status_icon_flying300_2022.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_flyinginfinity_2023.png"></td>
+			<td>2023</td>
+			<td>Flying Infinity</td>
+			<td>status_icon_flyinginfinity_2023.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground0_3000.png"></td>
+			<td>3000</td>
+			<td>Underground 0</td>
+			<td>status_icon_underground0_3000.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground5_3001.png"></td>
+			<td>3001</td>
+			<td>Underground 5</td>
+			<td>status_icon_underground5_3001.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground10_3002.png"></td>
+			<td>3002</td>
+			<td>Underground 10</td>
+			<td>status_icon_underground10_3002.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground15_3003.png"></td>
+			<td>3003</td>
+			<td>Underground 15</td>
+			<td>status_icon_underground15_3003.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground20_3004.png"></td>
+			<td>3004</td>
+			<td>Underground 20</td>
+			<td>status_icon_underground20_3004.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground25_3005.png"></td>
+			<td>3005</td>
+			<td>Underground 25</td>
+			<td>status_icon_underground25_3005.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground30_3006.png"></td>
+			<td>3006</td>
+			<td>Underground 30</td>
+			<td>status_icon_underground30_3006.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground35_3007.png"></td>
+			<td>3007</td>
+			<td>Underground 35</td>
+			<td>status_icon_underground35_3007.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground40_3008.png"></td>
+			<td>3008</td>
+			<td>Underground 40</td>
+			<td>status_icon_underground40_3008.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground45_3009.png"></td>
+			<td>3009</td>
+			<td>Underground 45</td>
+			<td>status_icon_underground45_3009.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground50_3010.png"></td>
+			<td>3010</td>
+			<td>Underground 50</td>
+			<td>status_icon_underground50_3010.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground60_3011.png"></td>
+			<td>3011</td>
+			<td>Underground 60</td>
+			<td>status_icon_underground60_3011.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground70_3012.png"></td>
+			<td>3012</td>
+			<td>Underground 70</td>
+			<td>status_icon_underground70_3012.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground80_3013.png"></td>
+			<td>3013</td>
+			<td>Underground 80</td>
+			<td>status_icon_underground80_3013.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground90_3014.png"></td>
+			<td>3014</td>
+			<td>Underground 90</td>
+			<td>status_icon_underground90_3014.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground100_3015.png"></td>
+			<td>3015</td>
+			<td>Underground 100</td>
+			<td>status_icon_underground100_3015.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground120_3016.png"></td>
+			<td>3016</td>
+			<td>Underground 120</td>
+			<td>status_icon_underground120_3016.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground140_3017.png"></td>
+			<td>3017</td>
+			<td>Underground 140</td>
+			<td>status_icon_underground140_3017.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground160_3018.png"></td>
+			<td>3018</td>
+			<td>Underground 160</td>
+			<td>status_icon_underground160_3018.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground180_3019.png"></td>
+			<td>3019</td>
+			<td>Underground 180</td>
+			<td>status_icon_underground180_3019.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground200_3020.png"></td>
+			<td>3020</td>
+			<td>Underground 200</td>
+			<td>status_icon_underground200_3020.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground250_3021.png"></td>
+			<td>3021</td>
+			<td>Underground 250</td>
+			<td>status_icon_underground250_3021.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underground300_3022.png"></td>
+			<td>3022</td>
+			<td>Underground 300</td>
+			<td>status_icon_underground300_3022.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_undergroundinfinity_3023.png"></td>
+			<td>3023</td>
+			<td>Underground Infinity</td>
+			<td>status_icon_undergroundinfinity_3023.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater0_4000.png"></td>
+			<td>4000</td>
+			<td>Underwater 0</td>
+			<td>status_icon_underwater0_4000.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater5_4001.png"></td>
+			<td>4001</td>
+			<td>Underwater 5</td>
+			<td>status_icon_underwater5_4001.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater10_4002.png"></td>
+			<td>4002</td>
+			<td>Underwater 10</td>
+			<td>status_icon_underwater10_4002.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater15_4003.png"></td>
+			<td>4003</td>
+			<td>Underwater 15</td>
+			<td>status_icon_underwater15_4003.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater20_4004.png"></td>
+			<td>4004</td>
+			<td>Underwater 20</td>
+			<td>status_icon_underwater20_4004.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater25_4005.png"></td>
+			<td>4005</td>
+			<td>Underwater 25</td>
+			<td>status_icon_underwater25_4005.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater30_4006.png"></td>
+			<td>4006</td>
+			<td>Underwater 30</td>
+			<td>status_icon_underwater30_4006.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater35_4007.png"></td>
+			<td>4007</td>
+			<td>Underwater 35</td>
+			<td>status_icon_underwater35_4007.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater40_4008.png"></td>
+			<td>4008</td>
+			<td>Underwater 40</td>
+			<td>status_icon_underwater40_4008.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater45_4009.png"></td>
+			<td>4009</td>
+			<td>Underwater 45</td>
+			<td>status_icon_underwater45_4009.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater50_4010.png"></td>
+			<td>4010</td>
+			<td>Underwater 50</td>
+			<td>status_icon_underwater50_4010.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater60_4011.png"></td>
+			<td>4011</td>
+			<td>Underwater 60</td>
+			<td>status_icon_underwater60_4011.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater70_4012.png"></td>
+			<td>4012</td>
+			<td>Underwater 70</td>
+			<td>status_icon_underwater70_4012.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater80_4013.png"></td>
+			<td>4013</td>
+			<td>Underwater 80</td>
+			<td>status_icon_underwater80_4013.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater90_4014.png"></td>
+			<td>4014</td>
+			<td>Underwater 90</td>
+			<td>status_icon_underwater90_4014.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater100_4015.png"></td>
+			<td>4015</td>
+			<td>Underwater 100</td>
+			<td>status_icon_underwater100_4015.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater120_4016.png"></td>
+			<td>4016</td>
+			<td>Underwater 120</td>
+			<td>status_icon_underwater120_4016.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater140_4017.png"></td>
+			<td>4017</td>
+			<td>Underwater 140</td>
+			<td>status_icon_underwater140_4017.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater160_4018.png"></td>
+			<td>4018</td>
+			<td>Underwater 160</td>
+			<td>status_icon_underwater160_4018.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater180_4019.png"></td>
+			<td>4019</td>
+			<td>Underwater 180</td>
+			<td>status_icon_underwater180_4019.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater200_4020.png"></td>
+			<td>4020</td>
+			<td>Underwater 200</td>
+			<td>status_icon_underwater200_4020.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater250_4021.png"></td>
+			<td>4021</td>
+			<td>Underwater 250</td>
+			<td>status_icon_underwater250_4021.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwater300_4022.png"></td>
+			<td>4022</td>
+			<td>Underwater 300</td>
+			<td>status_icon_underwater300_4022.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_underwaterinfinity_4023.png"></td>
+			<td>4023</td>
+			<td>Underwater Infinity</td>
+			<td>status_icon_underwaterinfinity_4023.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time0_5000.png"></td>
+			<td>5000</td>
+			<td>Time 0</td>
+			<td>status_icon_time0_5000.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time1_5001.png"></td>
+			<td>5001</td>
+			<td>Time 1</td>
+			<td>status_icon_time1_5001.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time2_5002.png"></td>
+			<td>5002</td>
+			<td>Time 2</td>
+			<td>status_icon_time2_5002.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time3_5003.png"></td>
+			<td>5003</td>
+			<td>Time 3</td>
+			<td>status_icon_time3_5003.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time4_5004.png"></td>
+			<td>5004</td>
+			<td>Time 4</td>
+			<td>status_icon_time4_5004.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time5_5005.png"></td>
+			<td>5005</td>
+			<td>Time 5</td>
+			<td>status_icon_time5_5005.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time6_5006.png"></td>
+			<td>5006</td>
+			<td>Time 6</td>
+			<td>status_icon_time6_5006.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time7_5007.png"></td>
+			<td>5007</td>
+			<td>Time 7</td>
+			<td>status_icon_time7_5007.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time8_5008.png"></td>
+			<td>5008</td>
+			<td>Time 8</td>
+			<td>status_icon_time8_5008.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time9_5009.png"></td>
+			<td>5009</td>
+			<td>Time 9</td>
+			<td>status_icon_time9_5009.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time10_5010.png"></td>
+			<td>5010</td>
+			<td>Time 10</td>
+			<td>status_icon_time10_5010.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time11_5011.png"></td>
+			<td>5011</td>
+			<td>Time 11</td>
+			<td>status_icon_time11_5011.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time12_5012.png"></td>
+			<td>5012</td>
+			<td>Time 12</td>
+			<td>status_icon_time12_5012.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time13_5013.png"></td>
+			<td>5013</td>
+			<td>Time 13</td>
+			<td>status_icon_time13_5013.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time14_5014.png"></td>
+			<td>5014</td>
+			<td>Time 14</td>
+			<td>status_icon_time14_5014.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time15_5015.png"></td>
+			<td>5015</td>
+			<td>Time 15</td>
+			<td>status_icon_time15_5015.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time20_5016.png"></td>
+			<td>5016</td>
+			<td>Time 20</td>
+			<td>status_icon_time20_5016.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time25_5017.png"></td>
+			<td>5017</td>
+			<td>Time 25</td>
+			<td>status_icon_time25_5017.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time30_5018.png"></td>
+			<td>5018</td>
+			<td>Time 30</td>
+			<td>status_icon_time30_5018.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time40_5019.png"></td>
+			<td>5019</td>
+			<td>Time 40</td>
+			<td>status_icon_time40_5019.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time45_5020.png"></td>
+			<td>5020</td>
+			<td>Time 45</td>
+			<td>status_icon_time45_5020.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time50_5021.png"></td>
+			<td>5021</td>
+			<td>Time 50</td>
+			<td>status_icon_time50_5021.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_time60_5022.png"></td>
+			<td>5022</td>
+			<td>Time 60</td>
+			<td>status_icon_time60_5022.png</td>
+		</tr>
+		<tr>
+			<td><img src=".\files\examples\status_icons\status_icon_timeinfinity_5023.png"></td>
+			<td>5023</td>
+			<td>Time Infinity</td>
+			<td>status_icon_timeinfinity_5023.png</td>
+		</tr>
+
+	</table>
+	
+	<p></p><a name="ColorMapper"></a><div class="divBuffer"></div>
+	<h2>Re-exporting the Icons with Color Mapper</h2>
+	
+	<p>If you already used <b>Color Mapper</b> before, please get the update before using it with the <b>Status Icons</b> pack, as the update contains a new feature allowing to reference other files by file name instead of identifier when using composites; this <b>Color Mapper</b> update is required by the <b>Status Icons</b> pack.</p>
+
+	<p>If you want to use the icons the way they are, refer to the <span class="spanCode">Sources\output</span>-folders. But if you want to change the icons, for example replace some or all of the colors, you can use my batch image editing tool <a href="https://stevencolling.itch.io/color-mapper" target="_blank">Color Mapper</a>. It can also re-size, re-scale and re-position icons, all in one go.</p>
+
+	<div class="divImage"><img src="files\colormapper_0.png"><p><b>Color Mapper</b> assembling an icon from its single parts.</p></div>
+	
+	<div class="divImage"><img src="files\colormapper_1.png"><p><b>Color Mapper</b> assembling an icon, but also switching out some of the colors.</p></div>
+	
+	<p>To make <b>Color Mapper</b> work, the <b>Isle of Lore 2: Status Icons</b> download includes the folders <span class="spanCode">Sources\input\status_icons</span>, containing the <a href="https://krita.org" target="_blank">Krita</a> (.kra) and Photoshop (.psd) source files as well as png exports of the single layers and <b>Color Mapper Files</b> (.colormapper.txt) containing information on how <b>Color Mapper</b> is going to assemble the files.</p>
+	
+	<p><b>Color Mapper</b> isn't a part of this asset pack and instead has to be downloaded <a href="https://stevencolling.itch.io/color-mapper" target="_blank">here</a>, which allows me to release updates for <b>Color Mapper</b> independently of the projects it is used in. The download includes a <span class="spanCode">Documentation</span>-folder with exact instructions on how to use <b>Color Mapper</b>, but the workflow in general is at follows:</p>
+	
+	<ol>
+		<li>Setup <b>Color Mapper's</b> configuration file so it knows where to find the <span class="spanCode">Sources\input</span> and <span class="spanCode">Sources\output</span> folders.</li>
+		<li>Running <b>Color Mapper</b>, which will gather all the <span class="spanCode">*.colormapper.txt</span>-files in the input folder and assemble the png files (and composites) from the single layer files with colors referenced in the <span class="spanCode">*.colormapper.txt</span>-file and defined in <b>Color Mapper's</b> configuration file. The assembled png files will be put in the <span class="spanCode">output</span>-folder.</li>
+		<li>After checking the results, the files from the <span class="spanCode">output</span>-folder are ready to use.</li>
+	</ol>
+	
+	<p><b>Color Mapper</b> already comes with a configuration file <span class="spanCode">config.txt</span> properly setup with the colors from my <b>Isle of Lore 2</b> asset packs, but for the sake of completeness, here are the proper color entries for a <b>Color Mapper</b> configuration file.</p>
+	
+	<p class="pCode">
+		color: iol2_white -> #ffffff<br>
+		color: iol2_cloud_light -> #dadada<br>
+		color: iol2_cloud_dark -> #797979<br>
+		color: iol2_dark -> #161616<br>
+		color: iol2_gray_light -> #262626<br>
+		color: iol2_gray_dark -> #1f1f1f<br>
+		color: iol2_blue_light -> #56837f<br>
+		color: iol2_blue_medium -> #3c5858<br>
+		color: iol2_blue_dark -> #263236<br>
+		color: iol2_brown_light -> #92744d<br>
+		color: iol2_brown_dark -> #644939<br>
+		color: iol2_green_light -> #e8df63<br>
+		color: iol2_green_medium -> #889954<br>
+		color: iol2_green_dark -> #3a5241<br>
+		color: iol2_red_dark -> #662c2d<br>
+		color: iol2_red -> #9c4741<br>
+		color: iol2_orange -> #d09a54<br>
+		color: iol2_yellow -> #edc95e<br>
+		color: iol2_water_light -> #51c4b9<br>
+		color: iol2_water_medium -> #35a1a0<br>
+		color: iol2_water_dark -> #37838b<br>
+		color: iol2_stone -> #a78979<br>
+		color: iol2_fire -> #ba433a<br>
+		color: iol2_fire_yellow -> #fbd050<br>
+		color: iol2_fire_orange -> #df9c45<br>
+		color: iol2_sand_light -> #ffd66c<br>
+		color: iol2_sand_medium -> #dcb95f<br>
+		color: iol2_sand_dark -> #a37f49<br>
+		color: iol2_snow_light -> #a2e9de<br>
+		color: iol2_snow_medium -> #4b8588<br>
+		color: iol2_snow_dark -> #28434b<br>
+		color: iol2_skin -> #a78979<br>
+		color: iol2_smoke -> #4a4a4a<br>
+		color: iol2_skyblue_light -> #50b1d8<br>
+		color: iol2_skyblue_medium -> #3979bc<br>
+		color: iol2_purple -> #5e40a3
+	</p>
+	
+	<p>If you want to make changes to the icons themselves, you can open the <a href="https://krita.org" target="_blank">Krita</a> or Photoshop files, edit them and export the single layers accordingly. Make sure to keep the naming scheme <span class="spanCode">status_icon_(name)_(id)_(layer).png</span> intact, for example <span class="spanCode">status_icon_strength_0_line.png</span> for the <span class="spanCode">line</span>-layer of the Strength icon which has the id <span class="spanCode">0</span>.</p>
+
+	<p>Some of the icons have numbers on them. Those are generated with the help of <b>Color Mapper's Composites</b> feature. Take a look at <span class="spanCode">status_icon_afoot0_1000.composite.colormapper.txt</span>:</p>
+
+	<p class="pCode">
+		width:768 height:768<br>
+		file:"afoot_0.png" x:0 y:0 flipped:false<br>
+		id:"status_icons\status_icon_afoot_88" x:0 y:0 flipped:false
+	</p>
+
+	<p>This file tells <b>Color Mapper</b> to generate a new image in the size of 768x768 pixels and render, from bottom to top, the Afoot icon <span class="spanCode">status_icon_afoot_88</span> by its id (<span class="spanCode">id:</span>) and then afterwards the number 0 icon from the file <span class="spanCode">afoot_0.png</span> by its file name (<span class="spanCode">file:</span>).</p>
+	
+	<p></p><a name="Specification"></a><div class="divBuffer"></div>
+	<h2>Specification</h2>
+	
+	<h3>Colors</h3>
+
+	<p>The following colors are used across all of my <b>Isle of Lore 2</b> packs. Every color except the ones grayed out are used in <b>Isle of Lore 2: Status Icons</b>.</p>
+	
+	<table>
+		<tr>
+			<th>Color Name</th>
+			<th>Color Mapper Code</th>
+			<th>Hex Color Code</th>
+			<th style="padding: 0px; width: 10px"></th>
+		</tr>
+		<tr>
+			<td>Blue Light</td>
+			<td>iol2_blue_light</td>
+			<td>56837f</td>
+			<td style="padding: 0px; width: 10px; background-color: #56837f"></td>
+		</tr>
+		<tr>
+			<td>Blue Medium</td>
+			<td>iol2_blue_medium</td>
+			<td>3c5858</td>
+			<td style="padding: 0px; width: 10px; background-color: #3c5858"></td>
+		</tr>
+		<tr>
+			<td>Blue Dark</td>
+			<td>iol2_blue_dark</td>
+			<td>263236</td>
+			<td style="padding: 0px; width: 10px; background-color: #263236"></td>
+		</tr>
+		<tr>
+			<td>Brown Light</td>
+			<td>iol2_brown_light</td>
+			<td>92744d</td>
+			<td style="padding: 0px; width: 10px; background-color: #92744d"></td>
+		</tr>
+		<tr>
+			<td>Brown Dark</td>
+			<td>iol2_brown_dark</td>
+			<td>644939</td>
+			<td style="padding: 0px; width: 10px; background-color: #644939"></td>
+		</tr>
+		<tr>
+			<td>Cloud Light</td>
+			<td>iol2_cloud_light</td>
+			<td>dadada</td>
+			<td style="padding: 0px; width: 10px; background-color: #dadada"></td>
+		</tr>
+		<tr>
+			<td>Cloud Dark</td>
+			<td>iol2_cloud_dark</td>
+			<td>797979</td>
+			<td style="padding: 0px; width: 10px; background-color: #797979"></td>
+		</tr>
+		<tr>
+			<td>Dark</td>
+			<td>iol2_dark</td>
+			<td>161616</td>
+			<td style="padding: 0px; width: 10px; background-color: #161616"></td>
+		</tr>
+		<tr>
+			<td>Fire</td>
+			<td>iol2_fire</td>
+			<td>ba433a</td>
+			<td style="padding: 0px; width: 10px; background-color: #ba433a"></td>
+		</tr>
+		<tr>
+			<td>Fire Orange</td>
+			<td>iol2_fire_orange</td>
+			<td>df9c45</td>
+			<td style="padding: 0px; width: 10px; background-color: #df9c45"></td>
+		</tr>
+		<tr>
+			<td>Fire Yellow</td>
+			<td>iol2_fire_yellow</td>
+			<td>fbd050</td>
+			<td style="padding: 0px; width: 10px; background-color: #fbd050"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Gray Light</td>
+			<td>iol2_gray_light</td>
+			<td>262626</td>
+			<td style="padding: 0px; width: 10px; background-color: #262626"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Gray Dark</td>
+			<td>iol2_gray_dark</td>
+			<td>1f1f1f</td>
+			<td style="padding: 0px; width: 10px; background-color: #1f1f1f"></td>
+		</tr>
+		<tr>
+			<td>Green Light</td>
+			<td>iol2_green_light</td>
+			<td>e8df63</td>
+			<td style="padding: 0px; width: 10px; background-color: #e8df63"></td>
+		</tr>
+		<tr>
+			<td>Green Medium</td>
+			<td>iol2_green_medium</td>
+			<td>889954</td>
+			<td style="padding: 0px; width: 10px; background-color: #889954"></td>
+		</tr>
+		<tr>
+			<td>Green Dark</td>
+			<td>iol2_green_dark</td>
+			<td>3a5241</td>
+			<td style="padding: 0px; width: 10px; background-color: #3a5241"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Orange</td>
+			<td>iol2_orange</td>
+			<td>d09a54</td>
+			<td style="padding: 0px; width: 10px; background-color: #d09a54"></td>
+		</tr>
+		<tr>
+			<td>Purple</td>
+			<td>iol2_purple</td>
+			<td>5e40a3</td>
+			<td style="padding: 0px; width: 10px; background-color: #5e40a3"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Red</td>
+			<td>iol2_red</td>
+			<td>9c4741</td>
+			<td style="padding: 0px; width: 10px; background-color: #9c4741"></td>
+		</tr>
+		<tr>
+			<td>Red Dark</td>
+			<td>iol2_red_dark</td>
+			<td>662c2d</td>
+			<td style="padding: 0px; width: 10px; background-color: #662c2d"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Sand Light</td>
+			<td>iol2_sand_light</td>
+			<td>ffd66c</td>
+			<td style="padding: 0px; width: 10px; background-color: #ffd66c"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Sand Medium</td>
+			<td>iol2_sand_medium</td>
+			<td>dcb95f</td>
+			<td style="padding: 0px; width: 10px; background-color: #dcb95f"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Sand Dark</td>
+			<td>iol2_sand_dark</td>
+			<td>a37f49</td>
+			<td style="padding: 0px; width: 10px; background-color: #a37f49"></td>
+		</tr>
+		<tr>
+			<td>Skin</td>
+			<td>iol2_skin</td>
+			<td>a78979</td>
+			<td style="padding: 0px; width: 10px; background-color: #a78979"></td>
+		</tr>
+		<tr>
+			<td>Skyblue Light</td>
+			<td>iol2_skyblue_light</td>
+			<td>50b1d8</td>
+			<td style="padding: 0px; width: 10px; background-color: #50b1d8"></td>
+		</tr>
+		<tr>
+			<td>Skyblue Medium</td>
+			<td>iol2_skyblue_medium</td>
+			<td>3979bc</td>
+			<td style="padding: 0px; width: 10px; background-color: #3979bc"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Smoke</td>
+			<td>iol2_smoke</td>
+			<td>4a4a4a</td>
+			<td style="padding: 0px; width: 10px; background-color: #4a4a4a"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Snow Light</td>
+			<td>iol2_snow_light</td>
+			<td>a2e9de</td>
+			<td style="padding: 0px; width: 10px; background-color: #a2e9de"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Snow Medium</td>
+			<td>iol2_snow_medium</td>
+			<td>4b8588</td>
+			<td style="padding: 0px; width: 10px; background-color: #4b8588"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Snow Dark</td>
+			<td>iol2_snow_dark</td>
+			<td>28434b</td>
+			<td style="padding: 0px; width: 10px; background-color: #28434b"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Stone</td>
+			<td>iol2_stone</td>
+			<td>a78979</td>
+			<td style="padding: 0px; width: 10px; background-color: #a78979"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Water Light</td>
+			<td>iol2_water_light</td>
+			<td>51c4b9</td>
+			<td style="padding: 0px; width: 10px; background-color: #51c4b9"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Water Medium</td>
+			<td>iol2_water_medium</td>
+			<td>35a1a0</td>
+			<td style="padding: 0px; width: 10px; background-color: #35a1a0"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Water Dark</td>
+			<td>iol2_water_dark</td>
+			<td>37838b</td>
+			<td style="padding: 0px; width: 10px; background-color: #37838b"></td>
+		</tr>
+		<tr>
+			<td>White</td>
+			<td>iol2_white</td>
+			<td>ffffff</td>
+			<td style="padding: 0px; width: 10px; background-color: #ffffff"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Yellow</td>
+			<td>iol2_yellow</td>
+			<td>edc95e</td>
+			<td style="padding: 0px; width: 10px; background-color: #edc95e"></td>
+		</tr>
+	</table>
+	
+	<h3>Sizes</h3>
+	
+	<table>
+		<tr>
+			<th>Entity</th>
+			<th>Size (px)</th>
+		</tr>
+		<tr>
+			<td>Icons</td>
+			<td>768x768</td>
+		</tr>
+	</table>
+	
+	<h3>Pencils</h3>
+	
+	<p>The icons were drawn in <a href="https://krita.org/" target="_blank">Krita</a>.</p>
+	
+	<table>
+		<tr>
+			<th>Application</th>
+			<th>Pencil</th>
+			<th>Size</th>
+		</tr>
+		<tr>
+			<td>Linework Icons</td>
+			<td>Basic-1</td>
+			<td>50px</td>
+		</tr>
+	</table>
+	
+	<p></p><a name="Changelog"></a><div class="divBuffer"></div>
+	<h2>Changelog</h2>
+	
+	<p><span class="spanChangelogVersion">2.0</span> <span class="spanCode">15. Sep 2023</span> Complete redrawing of all the icons in a higher resolution (150% the size). Adapted color palette. Added Color Mapper support. Added new icons: Campfire, Anchor, Unlucky, Chicken, Disarmed, Demon, Star, Backpack. Added previously released new icons to the pack: Crawling, Prone, Pushback, Bubbled, Running, Jumping, Praying, Meditating. Redesigned some icons: Lucky, Unconscious, Banner, Key, Open Lock, Closed Lock. Removed white area around line-based icons as well as for Disappearing and Overburdened. Renamed some icons: dead_0 to dead, dead_1 to deceased, dead_2 to ghost and beer to drunk. Removed sprite sheets from the pack. Changed some use of color for some of the icons, for example using a proper orange as a shadow color for red instead of using brown.</p>
+	<p><span class="spanChangelogVersion">1.0</span> <span class="spanCode">01. Mar 2020</span> Release.</p>
+	
+</div>
+</body>
+</html>

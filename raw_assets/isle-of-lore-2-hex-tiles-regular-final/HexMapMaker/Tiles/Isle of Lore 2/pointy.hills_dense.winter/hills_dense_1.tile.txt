@@ -1,0 +1,37 @@
+# CANVAS
+
+version: 1.0
+size: (840, 840)
+
+# GROUND
+
+id: "Isle of Lore 2\pointy.grass_grounds.winter\grass_ground_0"
+position: (106, 57)
+render: true
+
+# BORDER
+
+id: "Isle of Lore 2\pointy.border_medium.dark\border_medium_0"
+position: (76, 22)
+
+# RENDER MASK
+
+active: true
+
+# ELEMENTS
+
+element: id:"Isle of Lore 2\hills.winter\hill_26" layer:main position:(429, 277) flipped:false sort:0
+element: id:"Isle of Lore 2\bushes.winter\bush_23" layer:main position:(602, 315) flipped:true sort:0
+element: id:"Isle of Lore 2\bushes.winter\bush_32" layer:main position:(204, 320) flipped:true sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_28" layer:main position:(700, 352) flipped:false sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_1" layer:main position:(324, 395) flipped:true sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_16" layer:main position:(206, 451) flipped:false sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_12" layer:main position:(568, 534) flipped:true sort:0
+element: id:"Isle of Lore 2\bushes.winter\bush_33" layer:main position:(486, 549) flipped:true sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_18" layer:main position:(229, 560) flipped:false sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_21" layer:main position:(653, 585) flipped:false sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_10" layer:main position:(433, 634) flipped:false sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_15" layer:main position:(173, 656) flipped:false sort:0
+element: id:"Isle of Lore 2\bushes.winter\bush_21" layer:main position:(314, 682) flipped:true sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_23" layer:main position:(640, 695) flipped:true sort:0
+element: id:"Isle of Lore 2\hills.winter\hill_27" layer:main position:(418, 793) flipped:false sort:0
