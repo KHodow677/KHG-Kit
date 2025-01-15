@@ -32,11 +32,11 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
   if (dt == 0.0f) {
     return 0;
   }
-  for (int layer = 0; layer < 10; layer++) {
+  for (unsigned int layer = 0; layer < 10; layer++) {
     for (int id = 0; id < entity_count; id++) {
       comp_renderer *info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
-      if (info->ovr_tile.id && layer == 1) {
-        render_ovr_tile(info->ovr_tile.id, info->ovr_tile.pos);
+      if (info->ovr_tile.id) {
+        render_ovr_tile(info->ovr_tile.id, info->ovr_tile.pos, layer);
         continue;
       }
       if (layer != info->render_layer) {
@@ -52,9 +52,6 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
       }
       if (info->rig.enabled) {
         render_rig(&info->rig, info->parallax_value, info->flipped);
-      }
-      else if (info->ovr_tile.id) {
-        render_ovr_tile(info->ovr_tile.id, info->ovr_tile.pos);
       }
       else {
         phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);

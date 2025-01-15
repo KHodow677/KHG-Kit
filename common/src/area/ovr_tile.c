@@ -8,6 +8,9 @@
 #include <math.h>
 
 #define OVR_TILE_RAW_POSITION 420 
+#define GROUND_LAYER 0
+#define ELEMENT_LAYER 1
+#define BORDER_LAYER 2
 
 static float OVR_TILE_SCALE = 1.0f;
 static float OVR_TILE_SIZE = 0.0f;
@@ -49,22 +52,21 @@ void render_ovr_tile_item(const ovr_tile tile, const unsigned int tex_id, const 
   gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x, cam_pos.y, CAMERA.zoom, true, flipped);
 }
 
-void render_ovr_tile(const unsigned int tile_id, const phy_vector2 tile_pos) {
+void render_ovr_tile(const unsigned int tile_id, const phy_vector2 tile_pos, const unsigned int layer) {
   const ovr_tile tile = get_or_add_ovr_tile(tile_id);
-  render_ovr_tile_item(tile, tile.ground_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
-  for (unsigned int i = 0; i < tile.num_elements; i++) {
-    ovr_tile_element element = tile.elements[i];
-    render_ovr_tile_item(tile, element.element_tex_id, tile_pos, element.pos, element.flipped);
+  switch (layer) {
+    case GROUND_LAYER:
+      render_ovr_tile_item(tile, tile.ground_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
+      break;
+    case ELEMENT_LAYER:
+      for (unsigned int i = 0; i < tile.num_elements; i++) {
+        ovr_tile_element element = tile.elements[i];
+        render_ovr_tile_item(tile, element.element_tex_id, tile_pos, element.pos, element.flipped);
+      }
+      break;
+    case BORDER_LAYER:
+      render_ovr_tile_item(tile, tile.border_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
+      break;
   }
-  render_ovr_tile_item(tile, tile.border_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
 }
 
-void render_ovr_tile_ground(const unsigned int tile_id, const phy_vector2 tile_pos) {
-  const ovr_tile tile = get_or_add_ovr_tile(tile_id);
-  render_ovr_tile_item(tile, tile.ground_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
-}
-
-void render_ovr_tile_border(const unsigned int tile_id, const phy_vector2 tile_pos) {
-  const ovr_tile tile = get_or_add_ovr_tile(tile_id);
-  render_ovr_tile_item(tile, tile.border_tex_id, tile_pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION), false);
-}
