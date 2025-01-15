@@ -928,7 +928,7 @@ char *utl_json_serialize(const utl_json_element *element) {
     return NULL;
   }
   utl_json_serialize_internal(element, str);
-  const char *temp = utl_string_c_str(str);
+  const char *temp = utl_string_str(str);
   char *serialized = utl_string_strdup(temp);
   if (!serialized) {
     utl_error_func("Memory allocation failed for string duplication", utl_user_defined_data);
@@ -1418,7 +1418,7 @@ char *utl_json_format(const utl_json_element *element) {
   }
   utl_string *str = utl_string_create("");
   utl_json_format_internal(element, str, 0);
-  const char *temp = utl_string_c_str(str);
+  const char *temp = utl_string_str(str);
   char *formatted = utl_string_strdup(temp);
   if (!formatted) {
     utl_error_func("Memory allocation failed for formatted string", utl_user_defined_data);

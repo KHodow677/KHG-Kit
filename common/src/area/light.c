@@ -37,7 +37,7 @@ void setup_lights_shader() {
     utl_string_append(frag_src, "\n");
   }
   utl_file_reader_close(reader);
-  LIGHTING_SHADER = gfx_internal_shader_prg_create(utl_string_c_str(vert_src), utl_string_c_str(frag_src));
+  LIGHTING_SHADER = gfx_internal_shader_prg_create(utl_string_str(vert_src), utl_string_str(frag_src));
   utl_string_clear(vert_src);
   utl_string_clear(frag_src);
   reader = utl_file_reader_open("res/assets/shaders/vertex/framebuffer.vert", UTL_READ_TEXT);
@@ -52,7 +52,7 @@ void setup_lights_shader() {
     utl_string_append(frag_src, "\n");
   }
   utl_file_reader_close(reader);
-  FRAMEBUFFER_SHADER = gfx_internal_shader_prg_create(utl_string_c_str(vert_src), utl_string_c_str(frag_src));
+  FRAMEBUFFER_SHADER = gfx_internal_shader_prg_create(utl_string_str(vert_src), utl_string_str(frag_src));
   utl_string_deallocate(vert_src);
   utl_string_deallocate(frag_src);
 }

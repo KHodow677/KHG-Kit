@@ -130,7 +130,7 @@ void gfx_internal_renderer_init() {
     utl_string_append(frag_src, "\n");
   }
   utl_file_reader_close(reader);
-  GFX_STATE.render.shader = gfx_internal_shader_prg_create(utl_string_c_str(vert_src), utl_string_c_str(frag_src));
+  GFX_STATE.render.shader = gfx_internal_shader_prg_create(utl_string_str(vert_src), utl_string_str(frag_src));
   utl_string_deallocate(vert_src);
   utl_string_deallocate(frag_src);
   GFX_STATE.render.vert_pos[0] = (vec4s){ -0.5f, -0.5f, 0.0f, 1.0f };

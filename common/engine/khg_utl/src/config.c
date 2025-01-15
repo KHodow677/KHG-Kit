@@ -58,7 +58,7 @@ utl_config_file *utl_config_create(const char *filename) {
   while (utl_file_reader_read_line(line, sizeof(line), fr)) {
     utl_string *str = utl_string_create(line);
     utl_string_trim(str);
-    const char *trimmed = utl_string_c_str(str);
+    const char *trimmed = utl_string_str(str);
     char *writable_trimmed = utl_string_strdup(trimmed);
     utl_string_deallocate(str);
     utl_config_entry entry = {0};
