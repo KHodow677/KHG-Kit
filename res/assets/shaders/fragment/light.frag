@@ -51,4 +51,3 @@ void main() {
     o_color.a *= clamp(1.0 - dithered_intensity, 0.0, 1.0);
   }
 }
-

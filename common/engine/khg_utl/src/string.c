@@ -830,11 +830,12 @@ const char *utl_string_crend(utl_string *str) {
   return str->data_str - 1;
 }
 
-void utl_string_clear(utl_string* str) {
+void utl_string_clear(utl_string *str) {
   if (str != NULL) {
     str->size = 0;
     if (str->data_str != NULL) { 
       str->data_str[0] = '\0';
+      return;
     }
   }
   utl_error_func("String object is null no need to clear", utl_user_defined_data);
