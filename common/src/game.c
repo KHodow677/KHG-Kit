@@ -119,6 +119,7 @@ const bool gfx_loop_post(const float delta) {
   gfx_begin();
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
+  glUniform1i(glGetUniformLocation(LIGHTING_SHADER.id, "u_num_lights_active"), LIGHT_COUNT);
   render_lights();
   GFX_STATE.current_div.scrollable = false;
   return true;

@@ -8,16 +8,17 @@ in vec2 v_texcoord;
 flat in vec2 v_scale;
 flat in vec2 v_pos_px;
 in float v_corner_radius;
-uniform sampler2D u_textures[32];
-uniform vec2 u_screen_size;
 in vec2 v_min_coord;
 in vec2 v_max_coord;
-const int num_lights = 2;
+const int num_lights = 1024;
+uniform sampler2D u_textures[32];
+uniform vec2 u_screen_size;
 uniform vec3 u_light_color;
+uniform int u_num_lights_active;
 uniform vec2 u_light_pos_percs[num_lights];
 uniform float u_light_intensities[num_lights];
 float rounded_box_sdf(vec2 center_pos, vec2 size, float radius) {
-  return length(max(abs(center_pos) - size + radius,0.0)) - radius;
+  return length(max(abs(center_pos) - size + radius, 0.0)) - radius;
 }
 void main() {
   if (u_screen_size.y - gl_FragCoord.y < v_min_coord.y && v_min_coord.y != -1) {
@@ -39,7 +40,7 @@ void main() {
   }
   vec4 fill_color = opaque_color;
   o_color = fill_color;
-  for (int i = 0; i < num_lights; i++) {
+  for (int i = 0; i < u_num_lights_active; i++) {
     vec2 u_light_pos_perc = u_light_pos_percs[i];
     float u_light_intensity = u_light_intensities[i];
     vec2 light_pos = vec2(v_pos_px.x + v_scale.x * u_light_pos_perc.x, u_screen_size.y - (v_pos_px.y + v_scale.y * u_light_pos_perc.y));

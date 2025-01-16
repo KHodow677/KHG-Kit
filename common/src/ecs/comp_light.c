@@ -6,7 +6,6 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
-#include <stdio.h>
 
 ecs_id LIGHT_COMPONENT_SIGNATURE;
 ecs_id LIGHT_SYSTEM_SIGNATURE;
