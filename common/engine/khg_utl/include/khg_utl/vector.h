@@ -4,14 +4,14 @@
 
 typedef struct {
   void *pool;
-  unsigned int poolSize;
+  unsigned int pool_size;
   unsigned int used;
 } MemoryPoolVector;
 
 typedef struct {
   void *items;
   unsigned int size;
-  unsigned int capacitySize;
+  unsigned int capacity_size;
   unsigned int itemSize;
   MemoryPoolVector *pool;
 } utl_vector;

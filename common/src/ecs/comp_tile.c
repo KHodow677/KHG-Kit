@@ -1,4 +1,5 @@
 #include "ecs/comp_tile.h"
+#include "area/ovr_tile.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
@@ -18,13 +19,20 @@ static void comp_tile_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *pt
   comp_tile *info = ptr;
   const comp_tile_constructor_info *constructor_info = TILE_CONSTRUCTOR_INFO;
   if (info && constructor_info) {
-    info->tile_id = constructor_info->tile_id;
-    info->tile_pos = constructor_info->tile_pos;
+    info->tile = constructor_info->tile;
+    add_ovr_tile_elements(&info->tile);
+  }
+}
+
+static void comp_tile_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
+  comp_tile *info = ptr;
+  if (info) {
+    remove_ovr_tile_elements(&info->tile);
   }
 }
 
 void comp_tile_register() {
-  TILE_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_tile), comp_tile_constructor, NULL);
+  TILE_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_tile), comp_tile_constructor, comp_tile_destructor);
 }
 
 void sys_tile_register() {
@@ -38,3 +46,4 @@ comp_tile *sys_tile_add(const ecs_id eid, comp_tile_constructor_info *clci) {
   TILE_CONSTRUCTOR_INFO = clci;
   return ecs_add(ECS, eid, TILE_COMPONENT_SIGNATURE, NULL);
 }
+

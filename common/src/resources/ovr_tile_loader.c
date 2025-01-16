@@ -1,5 +1,6 @@
 #include "area/ovr_tile.h"
 #include "khg_utl/algorithm.h"
+#include "khg_utl/array.h"
 #include "khg_utl/config.h"
 #include "khg_utl/string.h"
 #include "resources/texture_loader.h"
@@ -16,12 +17,15 @@ static int compare_ovr_tile_strings(const void *a, const void *b) {
 }
 
 const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
-  ovr_tile ot = { .id = id };
+  ovr_tile ot = { id };
   utl_config_file *config = utl_config_create(filepath);
   ot.ground_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "ground_tex"));
   ot.border_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "border_tex"));
+  ot.num_elements = utl_config_get_int(config, "info", "num_elements", 0);
+  ot.elements = utl_array_create(sizeof(ovr_tile_element), ot.num_elements);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
+  unsigned int count = 0;
   ovr_tile_element template_element;
   while (utl_config_next_entry(&iterator, &section, &key, &value)) {
     if (strcmp(section, "elements")) {
@@ -44,8 +48,9 @@ const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
     }
     else if (utl_string_starts_with(key_obj, "element_flipped")) {
       template_element.flipped = utl_config_get_bool(config, section, key, false);
-      ot.elements[ot.num_elements] = template_element;
-      ot.num_elements++;
+      template_element.parent_tile = NULL;
+      utl_array_set(ot.elements, count, &template_element);
+      count++;
       utl_string_deallocate(key_obj);
       continue;
     }
@@ -55,7 +60,7 @@ const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
 }
 
 const bool check_ovr_tile_loaded(unsigned int ovr_tile_id) {
-  return (ovr_tile_id == NULL_OVR_TILE || OVR_TILE_LOOKUP[ovr_tile_id].id != NO_OVR_TILE.id);
+  return (ovr_tile_id == NULL_OVR_TILE || OVR_TILE_LOOKUP[ovr_tile_id].tile_id != NO_OVR_TILE.tile_id);
 }
 
 const unsigned int get_ovr_tile_id_from_string(const char *ovr_tile_key) {
@@ -83,7 +88,7 @@ void generate_ovr_tiles() {
 
 void reset_ovr_tiles() {
   for (unsigned int i = 0; i < NUM_OVR_TILES; i++) {
-    OVR_TILE_LOOKUP[i].id = NO_OVR_TILE.id;
+    OVR_TILE_LOOKUP[i].tile_id = NO_OVR_TILE.tile_id;
   }
 }
 

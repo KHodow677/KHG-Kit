@@ -1,6 +1,7 @@
 #include "area/light.h"
 #include "game.h"
 #include "camera/camera.h"
+#include "ecs/comp_tile.h"
 #include "letterbox.h"
 #include "camera/camera_controller.h"
 #include "ecs/comp_animator.h"
@@ -102,6 +103,7 @@ const bool gfx_loop(const float delta) {
     move_camera(&CAMERA, delta);
     ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, TILE_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
     ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);

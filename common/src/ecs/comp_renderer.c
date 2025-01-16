@@ -35,8 +35,8 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
   for (unsigned int layer = 0; layer < 10; layer++) {
     for (int id = 0; id < entity_count; id++) {
       comp_renderer *info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
-      if (info->ovr_tile.id) {
-        render_ovr_tile(info->ovr_tile.id, info->ovr_tile.pos, layer);
+      if (info->ovr_tile.tile_id) {
+        render_ovr_tile(&info->ovr_tile, &layer);
         continue;
       }
       if (layer != info->render_layer) {
@@ -85,7 +85,7 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
 }
 
 static void comp_renderer_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
-  const comp_renderer *info = ptr;
+  comp_renderer *info = ptr;
   if (info && info->rig.enabled) {
     free_rig(&info->rig);
   }

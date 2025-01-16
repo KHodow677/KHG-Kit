@@ -56,7 +56,7 @@ static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void 
 }
 
 static void comp_physics_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
-  const comp_physics *info = ptr;
+  comp_physics *info = ptr;
   if (info) {
     phy_space_remove_rigidbody(SPACE, info->body);
     phy_rigid_body_remove_shape(info->body, info->shape);
