@@ -9,7 +9,6 @@
 #include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
 #include <math.h>
-#include <stdio.h>
 
 #define OVR_TILE_RAW_POSITION 420 
 #define GROUND_LAYER 0
