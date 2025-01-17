@@ -81,12 +81,12 @@ const int game_run() {
   load_main_scene();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
-  int res = gfx_loop_manager(window, false);
+  int res = gfx_loop_manager(window, true);
   unload_main_scene();
   return res;
 }
 
-const bool gfx_loop(const float delta) {
+const bool gfx_loop(const float delta, const float fps_val) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
@@ -110,7 +110,7 @@ const bool gfx_loop(const float delta) {
   return true;
 }
 
-const bool gfx_loop_post(const float delta) {
+const bool gfx_loop_post(const float delta, const float fps_val) {
   gfx_begin();
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
@@ -120,12 +120,14 @@ const bool gfx_loop_post(const float delta) {
   return true;
 };
 
-const bool gfx_loop_ui(const float delta) {
+const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_begin();
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
-  gfx_text("Test the Font");
+  char fps[256]; 
+  snprintf(fps, sizeof(fps), "FPS: %.2f", fps_val);
+  gfx_text(fps);
   gfx_pop_font();
   GFX_STATE.current_div.scrollable = false;
   return true;

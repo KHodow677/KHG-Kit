@@ -94,6 +94,7 @@ const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
   double last_time = glfwGetTime();
   int frame_count = 0;
   double fps_start_time = last_time;
+  double fps = 0.0f;
   while (!glfwWindowShouldClose(window)) {
     double current_time = glfwGetTime();
     double elapsed_time = current_time - last_time;
@@ -102,15 +103,15 @@ const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx_get_display_width(), gfx_get_display_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if (!gfx_loop(elapsed_time)) {
+    if (!gfx_loop(elapsed_time, fps)) {
       break;
     }
     gfx_end();
-    if (!gfx_loop_post(elapsed_time)) {
+    if (!gfx_loop_post(elapsed_time, fps)) {
       break;
     }
     gfx_end();
-    if (!gfx_loop_ui(elapsed_time)) {
+    if (!gfx_loop_ui(elapsed_time, fps)) {
       break;
     }
     gfx_end();
@@ -120,10 +121,9 @@ const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
     double fps_elapsed_time = current_time - fps_start_time;
     if (fps_elapsed_time > 0.0) {
       if (show_fps) {
-        double fps = frame_count / fps_elapsed_time;
+        fps = frame_count / fps_elapsed_time;
         char title[256];
         snprintf(title, sizeof(title), "FPS: %.2f", fps);
-        gfx_text(title);
       }
       frame_count = 0;
       fps_start_time = current_time;
