@@ -12,4 +12,5 @@ void build_ovr_map(const phy_vector2 pos, const float scale) {
   build_ovr_tile(PLAINS_CLEARING_1, phy_vector2_new(1.0f, 1.0f));
   build_ovr_tile(PLAINS_CLEARING_2, phy_vector2_new(1.0f, -1.0f));
   build_ovr_tile(PLAINS_CLEARING_3, phy_vector2_new(-1.0f, -1.0f));
+  build_ovr_tile(PLAINS_CLEARING_4, phy_vector2_new(-1.0f, 1.0f));
 }
