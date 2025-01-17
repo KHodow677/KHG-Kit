@@ -3,16 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-static MemoryPoolVector *utl_memory_pool_create(unsigned int size);
-static void *utl_memory_pool_allocate(MemoryPoolVector *pool, unsigned int size);
-static void utl_memory_pool_destroy(MemoryPoolVector *pool);
+static utl_memory_pool_vector *utl_memory_pool_create(unsigned int size);
+static void *utl_memory_pool_allocate(utl_memory_pool_vector *pool, unsigned int size);
+static void utl_memory_pool_destroy(utl_memory_pool_vector *pool);
 
-static MemoryPoolVector *utl_memory_pool_create(unsigned int size) {
+static utl_memory_pool_vector *utl_memory_pool_create(unsigned int size) {
   if (size == 0) {
     utl_error_func("Memory pool size cannot be zero", utl_user_defined_data);
     return NULL;
   }
-  MemoryPoolVector *pool = malloc(sizeof(MemoryPoolVector));
+  utl_memory_pool_vector *pool = malloc(sizeof(utl_memory_pool_vector));
   if (!pool) {
     utl_error_func("Failed to allocate memory for memory_pool_vector structure", utl_user_defined_data);
     return NULL;
@@ -28,7 +28,7 @@ static MemoryPoolVector *utl_memory_pool_create(unsigned int size) {
   return pool;
 }
 
-static void *utl_memory_pool_allocate(MemoryPoolVector *pool, unsigned int size) {
+static void *utl_memory_pool_allocate(utl_memory_pool_vector *pool, unsigned int size) {
   if (!pool) {
     utl_error_func("Memory pool is not initialized", utl_user_defined_data);
     return NULL;
@@ -46,7 +46,7 @@ static void *utl_memory_pool_allocate(MemoryPoolVector *pool, unsigned int size)
   return mem;
 }
 
-static void utl_memory_pool_destroy(MemoryPoolVector *pool) {
+static void utl_memory_pool_destroy(utl_memory_pool_vector *pool) {
   if (!pool) {
     utl_error_func("Attempted to destroy a non-initialized memory pool", utl_user_defined_data);
     return;

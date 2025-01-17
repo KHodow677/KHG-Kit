@@ -2,8 +2,8 @@
 #include "khg_phy/core/phy_vector.h"
 #include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
-#include "scene/scenes/main/tile_builder.h"
-#include "scene/scenes/main/map_builder.h"
+#include "scene/builders/map_builder.h"
+#include "scene/builders/tile_builder.h"
 
 void build_ovr_map(const phy_vector2 pos, const float scale) {
   set_ovr_tile_scale(0.25f);

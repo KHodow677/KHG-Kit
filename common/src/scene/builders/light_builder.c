@@ -1,9 +1,9 @@
-#include "scene/scenes/main/light_builder.h"
 #include "ecs/comp_light.h"
 #include "ecs/comp_physics.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/core/phy_vector.h"
+#include "scene/builders/light_builder.h"
 
 void build_light(const float x, const float y, const float light_radius) {
   const ecs_id entity = ecs_create(ECS);

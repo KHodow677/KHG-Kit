@@ -1,10 +1,10 @@
-#include "scene/scenes/main/zone_builder.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_zone.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
+#include "scene/builders/zone_builder.h"
 
 void build_zone(const phy_rigid_body *player_body, const int min_x, const int max_x) {
   const ecs_id entity = ecs_create(ECS);

@@ -8,7 +8,7 @@
 #include "khg_phy/core/phy_vector.h"
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
-#include "scene/scenes/main/tile_builder.h"
+#include "scene/builders/tile_builder.h"
 
 void build_ovr_tile(const unsigned int tile_id, const phy_vector2 pos) {
   const ecs_id entity = ecs_create(ECS);

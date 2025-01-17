@@ -21,7 +21,7 @@ static void reverse(void *first, void *last, unsigned int size) {
   }
 }
 
-static void quickSortInternal(void *base, unsigned int low, unsigned int high, unsigned int size, utl_compare_func comp, void *temp) {
+static void quick_sort_internal(void *base, unsigned int low, unsigned int high, unsigned int size, utl_compare_func comp, void *temp) {
   if (low < high) {
     char* pivot = (char*)base + high * size;
     unsigned int i = low;
@@ -37,9 +37,9 @@ static void quickSortInternal(void *base, unsigned int low, unsigned int high, u
     memcpy((char*)base + i * size, pivot, size);
     memcpy(pivot, temp, size);
     if (i > 0) {
-      quickSortInternal(base, low, i - 1, size, comp, temp);
+      quick_sort_internal(base, low, i - 1, size, comp, temp);
     }
-    quickSortInternal(base, i + 1, high, size, comp, temp);
+    quick_sort_internal(base, i + 1, high, size, comp, temp);
   }
 }
 
@@ -69,11 +69,11 @@ static void merge(void *base, unsigned int low, unsigned int mid, unsigned int h
   memcpy((char*)base + low * size, temp, k * size);
 }
 
-static void mergeSortInternal(void *base, unsigned int low, unsigned int high, unsigned int size, utl_compare_func comp, void *temp) {
+static void merge_sort_internal(void *base, unsigned int low, unsigned int high, unsigned int size, utl_compare_func comp, void *temp) {
   if (high - low > 1) {
     unsigned int mid = low + (high - low) / 2;
-    mergeSortInternal(base, low, mid, size, comp, temp);
-    mergeSortInternal(base, mid, high, size, comp, temp);
+    merge_sort_internal(base, low, mid, size, comp, temp);
+    merge_sort_internal(base, mid, high, size, comp, temp);
     merge(base, low, mid, high, size, comp, temp);
   }
 }
@@ -82,7 +82,7 @@ void utl_algorithm_stable_sort(void *base, unsigned int num, unsigned int size, 
   if (num > 1) {
     void* temp = malloc(num * size);
     if (temp) {
-        mergeSortInternal(base, 0, num, size, comp, temp);
+        merge_sort_internal(base, 0, num, size, comp, temp);
         free(temp);
     } 
     else {
@@ -96,7 +96,7 @@ void utl_algorithm_sort(void *base, unsigned int num, unsigned int size, utl_com
   if (num > 1) {
     void* temp = malloc(size);
     if (temp) {
-      quickSortInternal(base, 0, num - 1, size, comp, temp);
+      quick_sort_internal(base, 0, num - 1, size, comp, temp);
       free(temp);
     } 
     else {

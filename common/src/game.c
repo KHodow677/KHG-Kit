@@ -22,8 +22,7 @@
 #include "resources/ovr_tile_loader.h"
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
-#include "scene/scene_manager.h"
-#include "scene/scene_utl.h"
+#include "scene/scene_loader.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdlib.h>
@@ -79,13 +78,11 @@ const int game_run() {
   generate_textures();
   generate_rigs();
   generate_ovr_tiles();
-  scenes_setup();
-  scenes_switch(TO_MAIN_SCENE);
+  load_main_scene();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, false);
-  ecs_cleanup();
-  physics_cleanup();
+  unload_main_scene();
   return res;
 }
 
@@ -94,24 +91,22 @@ const bool gfx_loop(const float delta) {
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   update_key_controls();
-  if (check_current_scene("MAIN")) {
-    gfx_clear_style_props();
-    get_letterbox();
-    render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
-    gfx_internal_renderer_set_shader(PRIMARY_SHADER);
-    gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
-    move_camera(&CAMERA, delta);
-    ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, TILE_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
-    phy_space_step(SPACE, delta);
-    gfx_div_end();
-    GFX_STATE.current_div.scrollable = false;
-  }
+  gfx_clear_style_props();
+  get_letterbox();
+  render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
+  gfx_internal_renderer_set_shader(PRIMARY_SHADER);
+  gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
+  move_camera(&CAMERA, delta);
+  ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, TILE_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
+  phy_space_step(SPACE, delta);
+  gfx_div_end();
+  GFX_STATE.current_div.scrollable = false;
   return true;
 }
 
