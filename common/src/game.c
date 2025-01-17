@@ -125,7 +125,7 @@ const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
-  char fps[256]; 
+  char fps[64]; 
   snprintf(fps, sizeof(fps), "FPS: %.2f", fps_val);
   gfx_text(fps);
   gfx_pop_font();

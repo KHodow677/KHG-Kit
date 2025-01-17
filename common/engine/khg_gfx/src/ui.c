@@ -91,13 +91,13 @@ const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
   GLuint framebuffer, texture;
   GLuint vao, vbo, ebo;
   gfx_setup_framebuffer(&framebuffer, &texture, &vao, &vbo, &ebo);
-  double last_time = glfwGetTime();
+  float last_time = glfwGetTime();
   int frame_count = 0;
-  double fps_start_time = last_time;
-  double fps = 0.0f;
+  float fps_start_time = last_time;
+  float fps = 0.0f;
   while (!glfwWindowShouldClose(window)) {
-    double current_time = glfwGetTime();
-    double elapsed_time = current_time - last_time;
+    float current_time = glfwGetTime();
+    float elapsed_time = current_time - last_time;
     last_time = current_time;
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -118,11 +118,11 @@ const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     gfx_framebuffer(vao, texture);
     frame_count++;
-    double fps_elapsed_time = current_time - fps_start_time;
+    float fps_elapsed_time = current_time - fps_start_time;
     if (fps_elapsed_time > 0.0) {
       if (show_fps) {
         fps = frame_count / fps_elapsed_time;
-        char title[256];
+        char title[64];
         snprintf(title, sizeof(title), "FPS: %.2f", fps);
       }
       frame_count = 0;
