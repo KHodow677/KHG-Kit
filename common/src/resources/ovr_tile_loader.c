@@ -90,6 +90,9 @@ void generate_ovr_tiles() {
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_5] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/5.ini" };
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_6] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/6.ini" };
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_7] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/7.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_8] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/8.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_9] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/9.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_0] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/0.ini" };
 }
 
 void reset_ovr_tiles() {
