@@ -93,6 +93,15 @@ void generate_ovr_tiles() {
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_8] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/8.ini" };
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_9] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/9.ini" };
   OVR_TILE_ASSET_REF[PLAINS_DENSE_0] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/0.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_1] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/1.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_2] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/2.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_3] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/3.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_4] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/4.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_5] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/5.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_6] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/6.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_7] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/7.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_8] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/8.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_9] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/9.ini" };
 }
 
 void reset_ovr_tiles() {
