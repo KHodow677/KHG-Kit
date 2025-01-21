@@ -26,10 +26,10 @@ void transform_letterbox_element_tex(const gfx_aabb letterbox, phy_vector2 *pos,
   const float scale_y = letterbox.size.y / SCREEN_HEIGHT * SCREEN_SCALE;
   tex->width *= scale_x;
   tex->height *= scale_y;
-  pos->x = (pos->x) * scale_x + letterbox.pos.x;
-  pos->y = (pos->y) * scale_y + letterbox.pos.y;
-  cam_pos->x = (cam_pos->x) * scale_x;
-  cam_pos->y = (cam_pos->y) * scale_y;
+  pos->x = (pos->x * scale_x) + letterbox.pos.x;
+  pos->y = (pos->y * scale_y) + letterbox.pos.y;
+  cam_pos->x *= scale_x;
+  cam_pos->y *= scale_y;
 }
 
 void transform_letterbox_element_aabb(const gfx_aabb letterbox, phy_vector2 *pos, phy_vector2 *cam_pos, gfx_aabb *aabb) {
@@ -37,10 +37,10 @@ void transform_letterbox_element_aabb(const gfx_aabb letterbox, phy_vector2 *pos
   const float scale_y = letterbox.size.y / SCREEN_HEIGHT * SCREEN_SCALE;
   aabb->size.x *= scale_x;
   aabb->size.y *= scale_y;
-  pos->x = (pos->x) * scale_x + letterbox.pos.x;
-  pos->y = (pos->y) * scale_y + letterbox.pos.y;
-  cam_pos->x = (cam_pos->x) * scale_x;
-  cam_pos->y = (cam_pos->y) * scale_y;
+  pos->x = (pos->x * scale_x) + letterbox.pos.x;
+  pos->y = (pos->y * scale_y) + letterbox.pos.y;
+  cam_pos->x *= scale_x;
+  cam_pos->y *= scale_y;
 }
 
 void get_letterbox() {

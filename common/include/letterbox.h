@@ -9,4 +9,3 @@ void transform_letterbox_element_tex(const gfx_aabb letterbox, phy_vector2 *pos,
 void transform_letterbox_element_aabb(const gfx_aabb letterbox, phy_vector2 *pos, phy_vector2 *cam_pos, gfx_aabb *aabb);
 
 void get_letterbox(void);
-

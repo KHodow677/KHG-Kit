@@ -1,7 +1,6 @@
 #include "area/light.h"
 #include "game.h"
 #include "camera/camera.h"
-#include "ecs/comp_tile.h"
 #include "letterbox.h"
 #include "camera/camera_controller.h"
 #include "ecs/comp_animator.h"
@@ -9,9 +8,11 @@
 #include "ecs/comp_mover.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
+#include "ecs/comp_tile.h"
 #include "ecs/comp_zone.h"
 #include "ecs/ecs_manager.h"
 #include "io/key_controller.h"
+#include "io/cursor_controller.h"
 #include "khg_phy/space.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/internal.h"
@@ -91,6 +92,7 @@ const bool gfx_loop(const float delta, const float fps_val) {
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   update_key_controls();
+  update_cursor_controls();
   gfx_clear_style_props();
   get_letterbox();
   render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);

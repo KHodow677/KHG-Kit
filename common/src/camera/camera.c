@@ -23,16 +23,16 @@ void camera_setup(camera *cam) {
 const phy_vector2 screen_to_world(const float screen_x, const float screen_y) {
   const float window_center_x = LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f;
   const float window_center_y = LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f;
-  const float world_x = (screen_x - window_center_x) / CAMERA.zoom + window_center_x + CAMERA.position.x;
-  const float world_y = (screen_y - window_center_y) / CAMERA.zoom + window_center_y + CAMERA.position.y;
+  const float world_x = (screen_x - window_center_x) / CAMERA.zoom + window_center_x + (CAMERA.position.x * (gfx_get_display_width() / SCREEN_WIDTH));
+  const float world_y = (screen_y - window_center_y) / CAMERA.zoom + window_center_y + (CAMERA.position.y * (gfx_get_display_height() / SCREEN_HEIGHT));
   return phy_vector2_new(world_x, world_y);
 }
 
 const phy_vector2 world_to_screen(const float world_x, const float world_y) {
   const float window_center_x = LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f;
   const float window_center_y = LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f;
-  const float screen_x = (world_x - CAMERA.position.x - window_center_x) * CAMERA.zoom + window_center_x;
-  const float screen_y = (world_y - CAMERA.position.y - window_center_y) * CAMERA.zoom + window_center_y;
+  const float screen_x = (world_x - (CAMERA.position.x * (gfx_get_display_width() / SCREEN_WIDTH)) - window_center_x) * CAMERA.zoom + window_center_x;
+  const float screen_y = (world_y - (CAMERA.position.y * (gfx_get_display_height() / SCREEN_HEIGHT)) - window_center_y) * CAMERA.zoom + window_center_y;
   return phy_vector2_new(screen_x, screen_y);
 }
 

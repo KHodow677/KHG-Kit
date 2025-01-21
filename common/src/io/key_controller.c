@@ -5,15 +5,15 @@
 
 bool KEYBOARD_STATE[GLFW_KEY_LAST] = { 0 };
 
-const bool key_button_is_down(int key) {
+const bool key_button_is_down(unsigned int key) {
   return GFX_STATE.input.keyboard.keys[key];
 }
 
-const bool key_button_went_down(int key) {
+const bool key_button_went_down(unsigned int key) {
   return KEYBOARD_STATE[key] && GFX_STATE.input.keyboard.keys[key];
 }
 
-const bool key_button_went_up(int key) {
+const bool key_button_went_up(unsigned int key) {
   return KEYBOARD_STATE[key] && !GFX_STATE.input.keyboard.keys[key];
 }
 
