@@ -63,27 +63,27 @@ bool gfx_mouse_button_changed_on_div(unsigned int button) {
   return gfx_mouse_button_changed(button) && GFX_STATE.scrollbar_div.id == GFX_STATE.current_div.id;
 }
 
-double gfx_get_mouse_x() {
+float gfx_get_mouse_x() {
   return GFX_STATE.input.mouse.xpos;
 }
 
-double gfx_get_mouse_y() {
+float gfx_get_mouse_y() {
   return GFX_STATE.input.mouse.ypos;
 }
 
-double gfx_get_mouse_x_delta() {
+float gfx_get_mouse_x_delta() {
   return GFX_STATE.input.mouse.xpos_delta;
 }
 
-double gfx_get_mouse_y_delta() {
+float gfx_get_mouse_y_delta() {
   return GFX_STATE.input.mouse.ypos_delta;
 }
 
-double gfx_get_mouse_scroll_x() {
+float gfx_get_mouse_scroll_x() {
   return GFX_STATE.input.mouse.xscroll_delta;
 }
 
-double gfx_get_mouse_scroll_y() {
+float gfx_get_mouse_scroll_y() {
   return GFX_STATE.input.mouse.yscroll_delta;
 }
 

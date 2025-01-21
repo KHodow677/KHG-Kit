@@ -45,12 +45,12 @@ bool gfx_mouse_button_went_down_on_div(unsigned int button);
 bool gfx_mouse_button_is_released_on_div(unsigned int button);
 bool gfx_mouse_button_changed_on_div(unsigned int button);
 
-double gfx_get_mouse_x(void);
-double gfx_get_mouse_y(void);
-double gfx_get_mouse_x_delta(void);
-double gfx_get_mouse_y_delta(void);
-double gfx_get_mouse_scroll_x(void);
-double gfx_get_mouse_scroll_y(void);
+float gfx_get_mouse_x(void);
+float gfx_get_mouse_y(void);
+float gfx_get_mouse_x_delta(void);
+float gfx_get_mouse_y_delta(void);
+float gfx_get_mouse_scroll_x(void);
+float gfx_get_mouse_scroll_y(void);
 
 gfx_cursor_pos_event gfx_mouse_move_event_occur(void);
 gfx_mouse_button_event gfx_mouse_button_event_occur(void);

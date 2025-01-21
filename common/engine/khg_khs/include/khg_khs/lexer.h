@@ -41,7 +41,7 @@ typedef struct lex_token {
       const char *str;
       khs_size len;
     } sym;
-    khs_float number;
+    float number;
     int err_type;
   } content;
 } khs_lex_token;

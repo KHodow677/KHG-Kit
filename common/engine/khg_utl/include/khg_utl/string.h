@@ -27,7 +27,6 @@ struct string {
 
 char utl_string_at(utl_string *str, unsigned int index);
 float utl_string_to_float(utl_string *str);
-double utl_string_to_double(utl_string *str);
 
 utl_string *utl_string_create(const char *initial_str);
 utl_string *utl_string_create_with_pool(unsigned int size);
@@ -36,7 +35,6 @@ utl_string **utl_string_split(utl_string *str, const char *delimiter, int *count
 utl_string *utl_string_join(utl_string **strings, int count, const char *delimiter);
 utl_string *utl_string_from_int(int value);
 utl_string *utl_string_from_float(float value);
-utl_string *utl_string_from_double(double value);
 utl_string **utl_string_tokenize(utl_string *str, const char *delimiters, int *count);
 utl_string **utl_string_create_from_initializer(unsigned int count, ...);
 utl_string *utl_string_to_hex(utl_string *str);

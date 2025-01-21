@@ -59,6 +59,6 @@ bool utl_config_has_section(const utl_config_file *config, const char *section);
 bool utl_config_has_key(const utl_config_file *config, const char *section, const char *key);
 
 int utl_config_get_int(const utl_config_file *config, const char *section, const char *key, int default_value);
-double utl_config_get_double(const utl_config_file *config, const char *section, const char *key, double default_value);
+float utl_config_get_float(const utl_config_file *config, const char *section, const char *key, float default_value);
 utl_config_iterator utl_config_get_iterator(const utl_config_file *config);
 

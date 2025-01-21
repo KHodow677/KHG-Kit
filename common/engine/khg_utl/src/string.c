@@ -1110,18 +1110,6 @@ float utl_string_to_float(utl_string *str) {
   return atof(str->data_str);
 }
 
-double utl_string_to_double(utl_string *str) {
-  if (str == NULL) {
-    utl_error_func("Null string object", utl_user_defined_data);
-    return 0.0;
-  }
-  if (utl_string_empty(str)) {
-    utl_error_func("Empty string", utl_user_defined_data);
-    return 0.0;
-  }
-  return strtod(str->data_str, NULL);
-}
-
 void utl_string_pad_left(utl_string *str, unsigned int total_length, char pad_char) {
   if (str == NULL) {
     utl_error_func("Null string object", utl_user_defined_data);
@@ -1293,12 +1281,6 @@ char *utl_string_from_int_cstr(int value) {
 utl_string *utl_string_from_float(float value) {
   char buffer[32];
   sprintf(buffer, "%f", value);
-  return utl_string_create(buffer);
-}
-
-utl_string *utl_string_from_double(double value) {
-  char buffer[32];
-  snprintf(buffer, sizeof(buffer), "%f", value);
   return utl_string_create(buffer);
 }
 

@@ -128,7 +128,7 @@ static unsigned char khs_match_keyword(const char *sym, khs_size len) {
 
 khs_lex_token khs_parse_number(khs_lex_state *state) {
   const char *start = state->at;
-  khs_float float_v = 0;
+  float float_v = 0;
   while (!khs_is_at_end(state) && (khs_is_digit(*state->at) || *state->at == '\'')) {
     if (*state->at == '\'') {
       state->at++;
@@ -140,8 +140,8 @@ khs_lex_token khs_parse_number(khs_lex_state *state) {
   }
   if (!khs_is_at_end(state) && *state->at == '.') {
     state->at++;
-    khs_float decimals = 0;
-    khs_float pow = 1.0;
+    float decimals = 0;
+    float pow = 1.0;
     while (!khs_is_at_end(state) && (khs_is_digit(*state->at) || *state->at == '\'')) {
       if (*state->at == '\'') {
         state->at++;

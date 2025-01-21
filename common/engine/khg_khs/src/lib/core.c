@@ -76,7 +76,7 @@ static khs_val khs_sub_callback(const khs_val *args, khs_size n_args) {
     khs_blame_arg(args[0]);
     return KHS_ERR("Expected number as first argument for '-'");
   }
-  khs_float res = khs_as_num(args[0]);
+  float res = khs_as_num(args[0]);
   if (n_args == 1) {
     return KHS_NUMBER(-res);
   }
@@ -192,9 +192,9 @@ static khs_val khs_for_callback(const khs_val *args, khs_size n_args) {
     khs_blame_arg(args[1]);
     return KHS_ERR("Second argument of 'for' must be number");
   }
-  khs_float from = khs_as_num(args[0]);
-  khs_float until = khs_as_num(args[1]);
-  khs_float i = from;
+  float from = khs_as_num(args[0]);
+  float until = khs_as_num(args[1]);
+  float i = from;
   khs_val res = KHS_NULL;
   if (from <= until) {
     while (i < until) {
@@ -807,7 +807,7 @@ static khs_val khs_construct_array_callback(const khs_val *args, khs_size n_args
     khs_blame_arg(args[0]);
     return KHS_ERR("Expected integer number as first argument of 'construct-array'");
   }
-  khs_float f = khs_as_num(args[0]);
+  float f = khs_as_num(args[0]);
   if (f > KHS_SIZE_MAX) {
     khs_blame_arg(args[0]);
     return KHS_ERR("Array would be too large");
@@ -943,8 +943,8 @@ static khs_val khs_substring_callback(const khs_val *args, khs_size n_args) {
     khs_blame_arg(args[2]);
     return KHS_ERR("Expected ending index as integer, got '%0'");
   }
-  khs_float fi_f = khs_as_num(args[1]);
-  khs_float ti_f = khs_as_num(args[2]);
+  float fi_f = khs_as_num(args[1]);
+  float ti_f = khs_as_num(args[2]);
   if (fi_f > ti_f) {
     khs_blame_arg(args[1]);
     khs_blame_arg(args[2]);
@@ -1098,7 +1098,7 @@ static khs_val khs_parse_number_callback(const khs_val *args, khs_size n_args) {
       break;
     }
   }
-  khs_float res = 0;
+  float res = 0;
   bool negative = false;
   if (c != str_end && *c == '-') {
     negative = true;
@@ -1113,7 +1113,7 @@ static khs_val khs_parse_number_callback(const khs_val *args, khs_size n_args) {
   }
   if (c != str_end && *c == '.') {
     c++;
-    khs_float pow = 1;
+    float pow = 1;
     for (; c != str_end; c++) {
       if (!khs_char_is_digit(*c)) {
         break;
@@ -1133,7 +1133,7 @@ size_t khs_iilog10(size_t i) {
   return n;
 }
 
-size_t khs_iflog10(khs_float f, khs_float *opt_out) {
+size_t khs_iflog10(float f, float *opt_out) {
   size_t n = 0;
   while ((f /= 10.0) > 1) {
     n++;
@@ -1172,7 +1172,7 @@ static void  khs_move_cursor(khs_stringf *f, size_t offset) {
 }
 
 
-static khs_val khs_num_to_str(khs_float num) {
+static khs_val khs_num_to_str(float num) {
   bool negative = num < 0;
   if(negative) {
     num = -num;
@@ -1189,7 +1189,7 @@ static khs_val khs_num_to_str(khs_float num) {
     }
   }
   if (num > ULONG_MAX) {
-    khs_float  significand;
+    float  significand;
     size_t exp = khs_iflog10(num, &significand);
     size_t n_sig_digits = 4;
     size_t n_exp_digits = khs_iilog10(exp) + 1;
@@ -1250,7 +1250,7 @@ static khs_val khs_num_to_str(khs_float num) {
   if (n_ddigits != 0) {
     khs_write_char(&s, '.');
   }
-  khs_float dec_part = num - int_v;
+  float dec_part = num - int_v;
   for (size_t i = 0; i < n_ddigits; i++) {
     dec_part *= 10;
     char digit = khs_int_as_digit(((unsigned long long) dec_part) % 10);
@@ -1293,7 +1293,7 @@ static khs_val khs_as_string_callback(const khs_val *args, khs_size n_args) {
 static khs_val khs_round_callback(const khs_val *args, khs_size n_args) {
   (void)n_args;
   KHS_EXPECT_TYPE1(KHS_TYPE_NUMBER, "number");
-  khs_float num = khs_as_num(args[0]);
+  float num = khs_as_num(args[0]);
   bool negative = num < 0;
   if (negative) {
     num = -num;
@@ -1302,7 +1302,7 @@ static khs_val khs_round_callback(const khs_val *args, khs_size n_args) {
     return khs_retain(args[0]);
   }
   unsigned long long i = (num + 0.5);
-  khs_float res = i;
+  float res = i;
   if (negative) {
     res = -res;
   }
@@ -1483,7 +1483,7 @@ static khs_val khs_random_callback(const khs_val *args, khs_size n_args) {
   (void)n_args, (void)args;
   static unsigned long long seed = (unsigned long long)&khs_random_callback;
   seed = khs_random_from(seed);
-  return KHS_NUMBER((khs_float) (seed) / (khs_float)ULONG_MAX);
+  return KHS_NUMBER((float) (seed) / (float)ULONG_MAX);
 }
 
 static khs_val khs_slice_array(khs_val array, khs_size from, khs_size to) {
@@ -1521,8 +1521,8 @@ static khs_val khs_slice_callback(const khs_val *args, khs_size n_args) {
     khs_blame_arg(args[2]);
     return KHS_ERR("Can only use integers as array indicies");
   }
-  khs_float from_n = khs_as_num(args[1]);
-  khs_float to_n = khs_as_num(args[2]);
+  float from_n = khs_as_num(args[1]);
+  float to_n = khs_as_num(args[2]);
   if (to_n > KHS_SIZE_MAX) {
     khs_blame_arg(args[1]);
     return KHS_ERR("Index out of range");
@@ -1856,7 +1856,7 @@ static khs_val khs_repeat_callback(const khs_val *args, khs_size n_args) {
     khs_blame_arg(args[1]);
     return KHS_ERR("Can only repeat strings an integer number of times");
   }
-  khs_float num = khs_as_num(args[1]);
+  float num = khs_as_num(args[1]);
   if (num < 0 || num > KHS_SIZE_MAX) {
     khs_blame_arg(args[1]);
     return KHS_ERR("Invalid number of repetitions");
@@ -1928,7 +1928,7 @@ static khs_val khs_ceil_callback(const khs_val *args, khs_size n_args) {
   if (khs_is_integer(args[0])) {
     return khs_retain(args[0]);
   }
-  khs_float res = (unsigned long long)khs_as_num(args[0]);
+  float res = (unsigned long long)khs_as_num(args[0]);
   res += 1;
   return KHS_NUMBER(res);
 }

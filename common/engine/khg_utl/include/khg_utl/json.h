@@ -13,7 +13,7 @@ typedef enum {
 
 typedef union {
   bool bool_val;
-  double number_val;
+  float number_val;
   char *string_val;
   utl_vector *array_val;
   utl_map *object_val;

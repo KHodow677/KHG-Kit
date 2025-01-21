@@ -913,18 +913,10 @@ void utl_algorithm_iota(void* first, void* last, void* val, unsigned int size, u
       }
       break; }
     case UTL_TYPE_FLOAT: {
-      float current = *(float*)val;
+      float current = *(float *)val;
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
           current += 1.0f;
-          ptr += size;
-      }
-      break; }
-    case UTL_TYPE_DOUBLE: {
-      double current = *(double*)val;
-      while (ptr != (char*)last) {
-          memcpy(ptr, &current, size);
-          current += 1.0;
           ptr += size;
       }
       break; }
@@ -973,14 +965,6 @@ void utl_algorithm_iota(void* first, void* last, void* val, unsigned int size, u
       while (ptr != (char*)last) {
           memcpy(ptr, &current, size);
           current += 1;
-          ptr += size;
-      }
-      break; }
-    case UTL_TYPE_LONG_DOUBLE: {
-      long double current = *(long double*)val;
-      while (ptr != (char*)last) {
-          memcpy(ptr, &current, size);
-          current += 1.0;
           ptr += size;
       }
       break; }

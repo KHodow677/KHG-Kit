@@ -165,7 +165,7 @@ static utl_json_element *utl_parse_number(utl_json_parser_state *state) {
   strncpy(number_str, state->input + start, length);
   number_str[length] = '\0';
   char *endptr;
-  double number_double = strtod(number_str, &endptr);
+  float number_float = strtod(number_str, &endptr);
   if (endptr == number_str) {
     utl_error_func("Invalid number format", utl_user_defined_data);
     free(number_str);
@@ -177,7 +177,7 @@ static utl_json_element *utl_parse_number(utl_json_parser_state *state) {
     utl_error_func("Failed to create JSON number element", utl_user_defined_data);
     return NULL;
   }
-  element->value.number_val = number_double;
+  element->value.number_val = number_float;
   return element;
 }
 
@@ -1203,7 +1203,7 @@ void *utl_json_convert(const utl_json_element *element, utl_json_type type) {
       return NULL;
     case UTL_JSON_NUMBER:
       if (element->type == UTL_JSON_STRING) {
-        double *num = (double *)malloc(sizeof(double));
+        float *num = malloc(sizeof(float));
         if (!num) {
           utl_error_func("Memory allocation failed for string to number conversion", utl_user_defined_data);  
           return NULL;
@@ -1215,7 +1215,7 @@ void *utl_json_convert(const utl_json_element *element, utl_json_type type) {
       return NULL;
     case UTL_JSON_BOOL:
       if (element->type == UTL_JSON_NUMBER) {
-        bool *bool_val = (bool *)malloc(sizeof(bool));
+        bool *bool_val = malloc(sizeof(bool));
         if (!bool_val) {
           utl_error_func("Memory allocation failed for number to boolean conversion", utl_user_defined_data);  
           return NULL;

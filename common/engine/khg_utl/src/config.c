@@ -334,7 +334,7 @@ int utl_config_get_int(const utl_config_file *config, const char *section, const
   return default_value; 
 }
 
-double utl_config_get_double(const utl_config_file *config, const char *section, const char *key, double default_value) {
+float utl_config_get_float(const utl_config_file *config, const char *section, const char *key, float default_value) {
   if (!config || !section || !key) {
     utl_error_func("Invalid arguments provided", utl_user_defined_data);
     return default_value;
@@ -342,9 +342,9 @@ double utl_config_get_double(const utl_config_file *config, const char *section,
   const char *value = utl_config_get_value(config, section, key);
   if (value) {
     char *end;
-    double double_val = strtod(value, &end);
+    float float_val = strtod(value, &end);
     if (end != value && *end == '\0') {
-      return double_val; 
+      return float_val; 
     }
   } 
   return default_value;
