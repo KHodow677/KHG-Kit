@@ -6,6 +6,7 @@
 #include "khg_utl/error_func.h"
 #include "cglm/mat4.h"
 #include "khg_utl/file_reader.h"
+#include "khg_utl/string.h"
 #include "libclipboard/libclipboard.h"
 #include <stdio.h>
 #include <string.h>
@@ -114,15 +115,24 @@ void gfx_internal_renderer_init() {
   glEnableVertexAttribArray(10);
   glVertexAttribPointer(11, 2, GL_FLOAT, GL_FALSE, sizeof(gfx_vertex), (void *)(int **)offsetof(gfx_vertex, max_coord));
   glEnableVertexAttribArray(11);
+  utl_string *vert_src = utl_string_create("");
+  utl_string *frag_src = utl_string_create("");
+  char shader_buffer[1024];
   utl_file_reader *reader = utl_file_reader_open("res/assets/shaders/vertex/primary.vert", UTL_READ_TEXT);
-  char vert_src[(int)pow(2, 16)];
-  utl_file_reader_read(vert_src, sizeof(char), sizeof(vert_src) - 1, reader);
+  while (utl_file_reader_read_line(shader_buffer, sizeof(shader_buffer), reader)) {
+    utl_string_append(vert_src, shader_buffer);
+    utl_string_append(vert_src, "\n");
+  }
   utl_file_reader_close(reader);
   reader = utl_file_reader_open("res/assets/shaders/fragment/primary.frag", UTL_READ_TEXT);
-  char frag_src[(int)pow(2, 16)];
-  utl_file_reader_read(frag_src, sizeof(char), sizeof(frag_src) - 1, reader);
+  while (utl_file_reader_read_line(shader_buffer, sizeof(shader_buffer), reader)) {
+    utl_string_append(frag_src, shader_buffer);
+    utl_string_append(frag_src, "\n");
+  }
   utl_file_reader_close(reader);
-  GFX_STATE.render.shader = gfx_internal_shader_prg_create(vert_src, frag_src);
+  GFX_STATE.render.shader = gfx_internal_shader_prg_create(utl_string_str(vert_src), utl_string_str(frag_src));
+  utl_string_deallocate(vert_src);
+  utl_string_deallocate(frag_src);
   GFX_STATE.render.vert_pos[0] = (vec4s){ -0.5f, -0.5f, 0.0f, 1.0f };
   GFX_STATE.render.vert_pos[1] = (vec4s){ 0.5f, -0.5f, 0.0f, 1.0f };
   GFX_STATE.render.vert_pos[2] = (vec4s){ 0.5f, 0.5f, 0.0f, 1.0f };

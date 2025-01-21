@@ -4,6 +4,7 @@
 #include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"
 #include "khg_utl/file_reader.h"
+#include "khg_utl/string.h"
 #include "letterbox.h"
 #include "resources/texture_loader.h"
 
@@ -21,24 +22,39 @@ void setup_lights_texture() {
 
 void setup_lights_shader() {
   PRIMARY_SHADER = GFX_STATE.render.shader;
+  utl_string *vert_src = utl_string_create("");
+  utl_string *frag_src = utl_string_create("");
+  char shader_buffer[1024];
   utl_file_reader *reader = utl_file_reader_open("res/assets/shaders/vertex/primary.vert", UTL_READ_TEXT);
-  char light_vert_src[(int)pow(2, 18)];
-  utl_file_reader_read(light_vert_src, sizeof(char), sizeof(light_vert_src) - 1, reader);
+  while (utl_file_reader_read_line(shader_buffer, sizeof(shader_buffer), reader)) {
+    utl_string_append(vert_src, shader_buffer);
+    utl_string_append(vert_src, "\n");
+  }
   utl_file_reader_close(reader);
   reader = utl_file_reader_open("res/assets/shaders/fragment/light.frag", UTL_READ_TEXT);
-  char light_frag_src[(int)pow(2, 18)];
-  utl_file_reader_read(light_frag_src, sizeof(char), sizeof(light_frag_src) - 1, reader);
+  while (utl_file_reader_read_line(shader_buffer, sizeof(shader_buffer), reader)) {
+    utl_string_append(frag_src, shader_buffer);
+    utl_string_append(frag_src, "\n");
+  }
   utl_file_reader_close(reader);
-  LIGHTING_SHADER = gfx_internal_shader_prg_create(light_vert_src, light_frag_src);
+  LIGHTING_SHADER = gfx_internal_shader_prg_create(utl_string_str(vert_src), utl_string_str(frag_src));
+  utl_string_clear(vert_src);
+  utl_string_clear(frag_src);
   reader = utl_file_reader_open("res/assets/shaders/vertex/framebuffer.vert", UTL_READ_TEXT);
-  char framebuffer_vert_src[(int)pow(2, 14)];
-  utl_file_reader_read(framebuffer_vert_src, sizeof(char), sizeof(framebuffer_vert_src) - 1, reader);
+  while (utl_file_reader_read_line(shader_buffer, sizeof(shader_buffer), reader)) {
+    utl_string_append(vert_src, shader_buffer);
+    utl_string_append(vert_src, "\n");
+  }
   utl_file_reader_close(reader);
   reader = utl_file_reader_open("res/assets/shaders/fragment/framebuffer.frag", UTL_READ_TEXT);
-  char framebuffer_frag_src[(int)pow(2, 14)];
-  utl_file_reader_read(framebuffer_frag_src, sizeof(char), sizeof(framebuffer_frag_src) - 1, reader);
+  while (utl_file_reader_read_line(shader_buffer, sizeof(shader_buffer), reader)) {
+    utl_string_append(frag_src, shader_buffer);
+    utl_string_append(frag_src, "\n");
+  }
   utl_file_reader_close(reader);
-  FRAMEBUFFER_SHADER = gfx_internal_shader_prg_create(framebuffer_vert_src, framebuffer_frag_src);
+  FRAMEBUFFER_SHADER = gfx_internal_shader_prg_create(utl_string_str(vert_src), utl_string_str(frag_src));
+  utl_string_deallocate(vert_src);
+  utl_string_deallocate(frag_src);
 }
 
 void clear_lights() {

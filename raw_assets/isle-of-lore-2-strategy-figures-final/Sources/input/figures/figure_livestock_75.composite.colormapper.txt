@@ -1,0 +1,5 @@
+width:800 height:500
+id:"figures\figure_chicken_24" x:5 y:0 flipped:false outline-cutoff:350
+id:"figures\figure_cow_26" x:-100 y:-20 flipped:false
+id:"figures\figure_pig_28" x:100 y:-20 flipped:true
+id:"figures\figure_sheep_23" x:0 y:-120 flipped:false

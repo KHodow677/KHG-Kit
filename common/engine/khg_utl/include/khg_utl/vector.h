@@ -4,16 +4,16 @@
 
 typedef struct {
   void *pool;
-  unsigned int poolSize;
+  unsigned int pool_size;
   unsigned int used;
-} MemoryPoolVector;
+} utl_memory_pool_vector;
 
 typedef struct {
   void *items;
   unsigned int size;
-  unsigned int capacitySize;
+  unsigned int capacity_size;
   unsigned int itemSize;
-  MemoryPoolVector *pool;
+  utl_memory_pool_vector *pool;
 } utl_vector;
 
 utl_vector *utl_vector_create(unsigned int itemSize);

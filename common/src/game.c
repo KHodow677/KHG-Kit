@@ -1,7 +1,7 @@
 #include "area/light.h"
 #include "game.h"
 #include "camera/camera.h"
-#include "ecs/comp_collider_group.h"
+#include "ecs/comp_tile.h"
 #include "letterbox.h"
 #include "camera/camera_controller.h"
 #include "ecs/comp_animator.h"
@@ -12,18 +12,17 @@
 #include "ecs/comp_zone.h"
 #include "ecs/ecs_manager.h"
 #include "io/key_controller.h"
-#include "physics/physics.h"
-#include "resources/area_loader.h"
-#include "resources/rig_loader.h"
-#include "resources/texture_loader.h"
-#include "scene/scene_manager.h"
-#include "scene/scene_utl.h"
 #include "khg_phy/space.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
+#include "physics/physics.h"
+#include "resources/ovr_tile_loader.h"
+#include "resources/rig_loader.h"
+#include "resources/texture_loader.h"
+#include "scene/scene_loader.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include <stdlib.h>
@@ -78,57 +77,57 @@ const int game_run() {
   log_sys_info();
   generate_textures();
   generate_rigs();
-  generate_areas();
-  scenes_setup();
-  scenes_switch(TO_MAIN_SCENE);
+  generate_ovr_tiles();
+  load_main_scene();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
-  int res = gfx_loop_manager(window, false);
-  ecs_cleanup();
-  physics_cleanup();
+  int res = gfx_loop_manager(window, true);
+  unload_main_scene();
   return res;
 }
 
-const bool gfx_loop(const float delta) {
+const bool gfx_loop(const float delta, const float fps_val) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   update_key_controls();
-  if (check_current_scene("MAIN")) {
-    gfx_clear_style_props();
-    get_letterbox();
-    render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
-    gfx_internal_renderer_set_shader(PRIMARY_SHADER);
-    move_camera(&CAMERA, delta);
-    ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, COLLIDER_GROUP_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
-    phy_space_step(SPACE, delta);
-    gfx_div_end();
-    GFX_STATE.current_div.scrollable = false;
-  }
+  gfx_clear_style_props();
+  get_letterbox();
+  render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
+  gfx_internal_renderer_set_shader(PRIMARY_SHADER);
+  gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
+  move_camera(&CAMERA, delta);
+  ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, TILE_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
+  ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
+  phy_space_step(SPACE, delta);
+  gfx_div_end();
+  GFX_STATE.current_div.scrollable = false;
   return true;
 }
 
-const bool gfx_loop_post(const float delta) {
+const bool gfx_loop_post(const float delta, const float fps_val) {
   gfx_begin();
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
+  glUniform1i(glGetUniformLocation(LIGHTING_SHADER.id, "u_num_lights_active"), LIGHT_COUNT);
   render_lights();
   GFX_STATE.current_div.scrollable = false;
   return true;
 };
 
-const bool gfx_loop_ui(const float delta) {
+const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_begin();
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
-  gfx_text("Test the Font");
+  char fps[64]; 
+  snprintf(fps, sizeof(fps), "FPS: %.2f", fps_val);
+  gfx_text(fps);
   gfx_pop_font();
   GFX_STATE.current_div.scrollable = false;
   return true;

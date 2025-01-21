@@ -16,7 +16,6 @@ typedef SOCKET net_tcp_socket;
 typedef short net_tcp_socket;
 #endif
 
-#include "openssl/crypto.h"
 #include <stddef.h> 
 #include <stdbool.h>
 
@@ -62,11 +61,6 @@ typedef struct net_tcp_status_info {
   char message[256];
 } net_tcp_status_info;
 
-typedef struct net_socket_ssl_mapping {
-  net_tcp_socket socket;
-  SSL *ssl;
-} net_socket_ssl_mapping;
-
 net_tcp_status net_tcp_init(void); 
 net_tcp_status net_tcp_cleanup(void);
 net_tcp_status net_tcp_socket_create(net_tcp_socket *socket);
@@ -91,17 +85,6 @@ net_tcp_status net_tcp_disable_ssl(net_tcp_socket socket);
 net_tcp_status net_tcp_async_send(net_tcp_socket socket, const void *buf, unsigned int len);
 net_tcp_status net_tcp_async_recv(net_tcp_socket socket, void* buf, unsigned int len);
 net_tcp_status net_tcp_get_connection_quality(net_tcp_socket socket, float *rtt, float *variance);
-net_tcp_status net_tcp_ssl_init(const char *cert, const char *key);
-net_tcp_status net_tcp_ssl_cleanup(void);
-net_tcp_status net_tcp_ssl_connect(net_tcp_socket socket, const char *host);
-net_tcp_status net_tcp_ssl_accept(net_tcp_socket socket);
-net_tcp_status net_tcp_ssl_send(net_tcp_socket socket, const void *buf, unsigned int len, unsigned int *sent);
-net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, unsigned int len, unsigned int *received);
-net_tcp_status net_tcp_ssl_close(net_tcp_socket socket);
 
 void net_tcp_get_last_error(net_tcp_status_info *status_info);
-void net_tcp_set_ssl(net_tcp_socket socket, SSL *ssl);
-
-SSL *net_tcp_get_ssl(net_tcp_socket socket);
 bool net_tcp_is_valid_address(const char *address);
-

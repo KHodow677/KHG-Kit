@@ -1,0 +1,256 @@
+Strength
+Agility
+Constitution
+Charisma
+Intelligence
+Wisdom
+Health
+Mana
+Dead
+Wounded
+Deceased
+Undead
+Ghost
+Vampirism
+Time
+Growing
+Seeing
+Not Seeing
+Blinded
+Speaking
+Silenced
+Hearing
+Deaf
+Smelling
+Not Hungry
+Hungry
+Not Thirsty
+Thirsty
+Bandaged
+Bread
+Meat
+Drunk
+Buffed
+Debuffed
+Faster
+Slower
+Blessed
+Cursed
+Heaven
+Curse
+Regenerating
+Bleeding
+Poisoned
+Poisoned Lungs
+Suffocating
+Sick
+Gas
+Acid
+Stunned
+Unconscious
+Exhausted
+Overburdened
+Sleeping
+Disguised
+Disappearing
+Invisible
+Entangled
+Tentacled
+Restrained
+Webbed
+Hooked
+Trapped
+Falling
+Levitating
+Scared
+Raged
+Stressed
+Confused
+Hypnotized
+Charmed
+Loving
+Singing
+Attack
+Broken Weapon
+Buffed Attack
+Debuffed Attack
+Faster Attack
+Slower Attack
+Lucky
+Ammunition
+Defense
+Broken Defense
+Buffed Defense
+Debuffed Defense
+Reflected
+Marked
+Tracked
+Light
+Afoot
+Flying
+Underground
+Underwater
+Bomb
+Explosion
+Debris
+Earthquake
+Fire
+Water
+Ice
+Earth
+Nature
+Wind
+Thunder
+Darkness
+Burning
+Drowning
+Freezing
+Petrified
+Overgrown
+Blown Away
+Electrified
+Darkened
+Key
+Closed Lock
+Open Lock
+Loot
+Coin
+Potion
+Banner
+Axe
+Crawling
+Prone
+Pushback
+Bubbled
+Running
+Jumping
+Praying
+Meditating
+Campfire
+Anchor
+Unlucky
+Chicken
+Disarmed
+Demon
+Star
+Backpack
+Afoot 0
+Afoot 5
+Afoot 10
+Afoot 15
+Afoot 20
+Afoot 25
+Afoot 30
+Afoot 35
+Afoot 40
+Afoot 45
+Afoot 50
+Afoot 60
+Afoot 70
+Afoot 80
+Afoot 90
+Afoot 100
+Afoot 120
+Afoot 140
+Afoot 160
+Afoot 180
+Afoot 200
+Afoot 250
+Afoot 300
+Afoot Infinity
+Flying 0
+Flying 5
+Flying 10
+Flying 15
+Flying 20
+Flying 25
+Flying 30
+Flying 35
+Flying 40
+Flying 45
+Flying 50
+Flying 60
+Flying 70
+Flying 80
+Flying 90
+Flying 100
+Flying 120
+Flying 140
+Flying 160
+Flying 180
+Flying 200
+Flying 250
+Flying 300
+Flying Infinity
+Underground 0
+Underground 5
+Underground 10
+Underground 15
+Underground 20
+Underground 25
+Underground 30
+Underground 35
+Underground 40
+Underground 45
+Underground 50
+Underground 60
+Underground 70
+Underground 80
+Underground 90
+Underground 100
+Underground 120
+Underground 140
+Underground 160
+Underground 180
+Underground 200
+Underground 250
+Underground 300
+Underground Infinity
+Underwater 0
+Underwater 5
+Underwater 10
+Underwater 15
+Underwater 20
+Underwater 25
+Underwater 30
+Underwater 35
+Underwater 40
+Underwater 45
+Underwater 50
+Underwater 60
+Underwater 70
+Underwater 80
+Underwater 90
+Underwater 100
+Underwater 120
+Underwater 140
+Underwater 160
+Underwater 180
+Underwater 200
+Underwater 250
+Underwater 300
+Underwater Infinity
+Time 0
+Time 1
+Time 2
+Time 3
+Time 4
+Time 5
+Time 6
+Time 7
+Time 8
+Time 9
+Time 10
+Time 11
+Time 12
+Time 13
+Time 14
+Time 15
+Time 20
+Time 25
+Time 30
+Time 40
+Time 45
+Time 50
+Time 60
+Time Infinity

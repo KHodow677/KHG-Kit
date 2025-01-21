@@ -1,37 +1,12 @@
 #include "khg_net/tcp.h"
 #include "khg_utl/error_func.h"
-#include "openssl/ssl.h"
-#include "openssl/err.h"
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
-static net_socket_ssl_mapping SSL_MAPPINGS[NET_MAX_SSL_CONNECTIONS];
-static SSL_CTX *SSL_CONTEXT = NULL;
-
-static void net_initialize_ssl_mappings() {
-  for (unsigned int i = 0; i < NET_MAX_SSL_CONNECTIONS; i++) {
-    SSL_MAPPINGS[i].socket = -1;
-    SSL_MAPPINGS[i].ssl = NULL;
-  }
-}
-
-static net_socket_ssl_mapping *net_get_ssl_mapping(net_tcp_socket socket, bool allocate) {
-  net_socket_ssl_mapping *empty_slot = NULL;
-  for (unsigned int i = 0; i < NET_MAX_SSL_CONNECTIONS; i++) {
-    if (SSL_MAPPINGS[i].socket == socket) {
-      return &SSL_MAPPINGS[i];
-    } 
-    else if (!empty_slot && SSL_MAPPINGS[i].socket == NET_TCP_INVALID_SOCKET && allocate) {
-      empty_slot = &SSL_MAPPINGS[i];
-    }
-  }
-  if (allocate && empty_slot) {
-    empty_slot->socket = socket;
-    return empty_slot;
-  }
-  return NULL;
-}
+#if defined(_WIN32) || defined(_WIN64)
+#else
+#include <errno.h>
+#endif
 
 static void net_tcp_format_error_message(net_tcp_status_info *status_info) {
   if (!status_info) {
@@ -209,7 +184,7 @@ net_tcp_status net_tcp_send(net_tcp_socket socket, const void *buf, unsigned int
         *sent = (unsigned int)bytes_sent;
       }
       utl_error_func("Sending data failed", utl_user_defined_data);
-      return TCP_ERR_SEND;
+      return NET_TCP_ERR_SEND;
     }
     bytes_sent += bytesSent;
 #else
@@ -277,7 +252,7 @@ net_tcp_status net_tcp_close(net_tcp_socket socket) {
   result = closesocket(socket);
   if (result == SOCKET_ERROR) {
     utl_error_func("Closing socket failed", utl_user_defined_data);
-    return TCP_ERR_CLOSE;
+    return NET_TCP_ERR_CLOSE;
   }
 #else
   result = close(socket);
@@ -293,13 +268,13 @@ net_tcp_status net_tcp_shutdown(net_tcp_socket socket, net_tcp_shutdown_how how)
   short shutdown_how;
 #if defined(_WIN32) || defined(_WIN64)
   switch (how) {
-    case TCP_SHUTDOWN_RECEIVE:
+    case NET_TCP_SHUTDOWN_RECEIVE:
       shutdown_how = SD_RECEIVE;
       break;
-    case TCP_SHUTDOWN_SEND:
+    case NET_TCP_SHUTDOWN_SEND:
       shutdown_how = SD_SEND;
       break;
-    case TCP_SHUTDOWN_BOTH:
+    case NET_TCP_SHUTDOWN_BOTH:
       shutdown_how = SD_BOTH;
       break;
     default:
@@ -401,7 +376,7 @@ net_tcp_status net_tcp_set_non_blocking(net_tcp_socket socket, bool enable) {
   u_long mode = enable ? 1 : 0;
   if (ioctlsocket(socket, FIONBIO, &mode) != NO_ERROR) {
     utl_error_func("Setting non-blocking mode failed", utl_user_defined_data);
-    return TCP_ERR_GENERIC;
+    return NET_TCP_ERR_GENERIC;
   }
 #else
   short flags = fcntl(socket, F_GETFL, 0);
@@ -565,299 +540,6 @@ net_tcp_status net_tcp_get_sock_name(net_tcp_socket socket, char *host, unsigned
   return NET_TCP_SUCCESS;
 }
 
-void net_tcp_set_ssl(net_tcp_socket socket, SSL *ssl) {
-  net_socket_ssl_mapping *mapping = net_get_ssl_mapping(socket, true);
-  if (mapping) {
-    mapping->ssl = ssl;
-  }
-}
-
-SSL *net_tcp_get_ssl(net_tcp_socket socket) {
-  net_socket_ssl_mapping *mapping = net_get_ssl_mapping(socket, false);
-  return mapping ? mapping->ssl : NULL;
-}
-
-net_tcp_status net_tcp_enable_ssl(net_tcp_socket socket) {
-  if (SSL_CONTEXT == NULL) {
-    utl_error_func("SSL context is not initialized", utl_user_defined_data);
-    return NET_TCP_ERR_SETUP;
-  }
-  SSL *ssl = SSL_new(SSL_CONTEXT);
-  if (!ssl) {
-    utl_error_func("Failed to create SSL object", utl_user_defined_data);
-    return NET_TCP_ERR_GENERIC;
-  }
-  if (SSL_set_fd(ssl, socket) == 0) {
-    utl_error_func("Failed to associate socket with SSL", utl_user_defined_data);
-    SSL_free(ssl);
-    return NET_TCP_ERR_GENERIC;
-  }
-  net_tcp_set_ssl(socket, ssl);
-  return NET_TCP_SUCCESS;
-}
-
-net_tcp_status net_tcp_disable_ssl(net_tcp_socket socket) {
-  SSL *ssl = net_tcp_get_ssl(socket);
-  if (ssl == NULL) {
-    utl_error_func("No SSL object associated with the socket", utl_user_defined_data);
-    return NET_TCP_ERR_NO_SSL;
-  }
-  short shutdown_result = SSL_shutdown(ssl);
-  if (shutdown_result == 0) {
-    SSL_shutdown(ssl);
-  }
-  SSL_free(ssl);
-  net_tcp_set_ssl(socket, NULL);
-  return NET_TCP_SUCCESS;
-}
-
-net_tcp_status net_tcp_ssl_init(const char *cert, const char *key) {
-  if (SSL_CONTEXT != NULL) {
-    return NET_TCP_SUCCESS; 
-  }
-  SSL_load_error_strings();   
-  OpenSSL_add_ssl_algorithms();
-  SSL_CONTEXT = SSL_CTX_new(TLS_server_method()); 
-  if (!SSL_CONTEXT) {
-    utl_error_func("Error creating SSL context", utl_user_defined_data);
-    return NET_TCP_ERR_SETUP; 
-  }
-  if (SSL_CTX_use_certificate_file(SSL_CONTEXT, cert, SSL_FILETYPE_PEM) <= 0) {
-    utl_error_func("Error loading certificate from file", utl_user_defined_data);
-    SSL_CTX_free(SSL_CONTEXT);
-    SSL_CONTEXT = NULL; 
-    return NET_TCP_ERR_SSL;
-  }
-  if (SSL_CTX_use_PrivateKey_file(SSL_CONTEXT, key, SSL_FILETYPE_PEM) <= 0) {
-    utl_error_func("Error loading private key from file", utl_user_defined_data);
-    SSL_CTX_free(SSL_CONTEXT);
-    SSL_CONTEXT = NULL; 
-    return NET_TCP_ERR_SSL;
-  }
-  if (!SSL_CTX_check_private_key(SSL_CONTEXT)) {
-    utl_error_func("Private key does not match the public certificate", utl_user_defined_data);
-    SSL_CTX_free(SSL_CONTEXT);
-    SSL_CONTEXT = NULL; 
-    return NET_TCP_ERR_SSL;
-  }
-  net_initialize_ssl_mappings();
-  return NET_TCP_SUCCESS;
-}
-
-net_tcp_status net_tcp_ssl_cleanup(void) {
-  if (SSL_CONTEXT != NULL) {
-    SSL_CTX_free(SSL_CONTEXT);
-    SSL_CONTEXT = NULL;
-  }
-  EVP_cleanup();
-  ERR_free_strings();
-  return NET_TCP_SUCCESS;
-}
-
-net_tcp_status net_tcp_ssl_connect(net_tcp_socket socket, const char *host) {
-  if (SSL_CONTEXT == NULL) {
-    utl_error_func("SSL context is not initialized", utl_user_defined_data);
-    return NET_TCP_ERR_SETUP;
-  }
-  if (host == NULL || host[0] == '\0') {
-    utl_error_func("Host parameter is null or empty", utl_user_defined_data);
-    return NET_TCP_ERR_RESOLVE;
-  }
-  SSL *ssl = SSL_new(SSL_CONTEXT);
-  if (ssl == NULL) {
-    utl_error_func("Failed to create SSL object", utl_user_defined_data);
-    return NET_TCP_ERR_SSL;
-  }
-  if (SSL_set_fd(ssl, socket) == 0) {
-    utl_error_func("Failed to set file descriptor for SSL", utl_user_defined_data);
-    SSL_free(ssl); 
-    return NET_TCP_ERR_SSL; 
-  }
-  if (SSL_set_tlsext_host_name(ssl, host) == 0) {
-    utl_error_func("Failed to set SNI Hostname", utl_user_defined_data);
-    SSL_free(ssl); 
-    return NET_TCP_ERR_SSL; 
-  }
-  if (SSL_connect(ssl) != 1) {
-    utl_error_func("SSL handshake failed", utl_user_defined_data);
-    SSL_free(ssl);
-    return NET_TCP_ERR_SSL_HANDSHAKE;
-  }
-  net_socket_ssl_mapping *mapping = net_get_ssl_mapping(socket, true);
-  if (!mapping) {
-    utl_error_func("Failed to map SSL object with socket", utl_user_defined_data);
-    SSL_free(ssl);
-    return NET_TCP_ERR_SSL;
-  }
-  mapping->ssl = ssl;
-  return NET_TCP_SUCCESS;
-}
-
-net_tcp_status net_tcp_ssl_accept(net_tcp_socket socket) {
-  if (SSL_CONTEXT == NULL) {
-    utl_error_func("SSL context is not initialized", utl_user_defined_data);
-    return NET_TCP_ERR_SETUP;
-  }
-  SSL *ssl = SSL_new(SSL_CONTEXT);
-  if (ssl == NULL) {
-    utl_error_func("Failed to create SSL object", utl_user_defined_data);
-    return NET_TCP_ERR_SSL;
-  }
-  if (SSL_set_fd(ssl, socket) == 0) {
-    utl_error_func("Failed to set file descriptor for SSL", utl_user_defined_data);
-    SSL_free(ssl);
-    return NET_TCP_ERR_SSL;
-  }
-  short accept_result = SSL_accept(ssl);
-  if (accept_result <= 0) {
-    short sslError = SSL_get_error(ssl, accept_result);
-    utl_error_func("SSL accept failed", utl_user_defined_data);
-    if (sslError == SSL_ERROR_SYSCALL) {
-      unsigned long long err;
-      while ((err = ERR_get_error()) != 0) {
-        utl_error_func("OpenSSL Error", utl_user_defined_data);
-      }
-      if (errno != 0) {
-        utl_error_func("System call error", utl_user_defined_data);
-      }
-    }
-    SSL_free(ssl);
-    return NET_TCP_ERR_SSL_HANDSHAKE;
-  }
-  net_socket_ssl_mapping *mapping = net_get_ssl_mapping(socket, true);
-  if (!mapping) {
-    utl_error_func("Failed to map SSL object with socket", utl_user_defined_data);
-    SSL_free(ssl); 
-    return NET_TCP_ERR_SSL; 
-  }
-  mapping->ssl = ssl;
-  return NET_TCP_SUCCESS;
-}
-
-net_tcp_status net_tcp_ssl_close(net_tcp_socket socket) {
-  SSL *ssl = net_tcp_get_ssl(socket);
-  if (!ssl) {
-    utl_error_func("No SSL object associated with the socket, closing socket without SSL shutdown", utl_user_defined_data);
-    net_tcp_close(socket);
-    return NET_TCP_ERR_NO_SSL;
-  }
-  short shutdown_result = SSL_shutdown(ssl);
-  if (shutdown_result == 0) {
-    shutdown_result = SSL_shutdown(ssl);
-    if (shutdown_result != 1) {
-      utl_error_func("SSL shutdown did not complete cleanly", utl_user_defined_data);
-    }
-  } 
-  else if (shutdown_result < 0) {
-    utl_error_func("SSL shutdown failed", utl_user_defined_data);
-  }
-  SSL_free(ssl);
-  net_tcp_set_ssl(socket, NULL);
-  net_tcp_status close_status = net_tcp_close(socket);
-  if (close_status != NET_TCP_SUCCESS) {
-    utl_error_func("Socket close failed", utl_user_defined_data);
-    return close_status;
-  }
-  return NET_TCP_SUCCESS;
-}
-
-net_tcp_status net_tcp_ssl_send(net_tcp_socket socket, const void *buf, unsigned int len, unsigned int *sent) {
-  if (!buf || len == 0) {
-    utl_error_func("Invalid buffer or length for SSL send", utl_user_defined_data);
-    return NET_TCP_ERR_SEND;
-  }
-  SSL *ssl = net_tcp_get_ssl(socket);
-  if (!ssl) {
-    utl_error_func("No SSL object associated with the socket", utl_user_defined_data);
-    return NET_TCP_ERR_NO_SSL;
-  }
-  short total_sent = 0;
-  short result = 0;
-  const char *data_ptr = (const char *)buf;
-  while (len > 0) {
-    result = SSL_write(ssl, data_ptr, len);
-    if (result <= 0) {
-      short sslError = SSL_get_error(ssl, result);
-      switch (sslError) {
-        case SSL_ERROR_WANT_WRITE:
-        case SSL_ERROR_WANT_READ:
-          if (sent) {
-            *sent = total_sent;
-          }
-          return NET_TCP_SUCCESS;
-        case SSL_ERROR_ZERO_RETURN:
-          utl_error_func("SSL connection closed by peer", utl_user_defined_data);
-          return NET_TCP_ERR_CLOSE;
-        case SSL_ERROR_SYSCALL:
-          utl_error_func("SSL write system call error", utl_user_defined_data);
-          return NET_TCP_ERR_SEND;
-        default:
-          utl_error_func("SSL write error", utl_user_defined_data);
-          return NET_TCP_ERR_SEND;
-      }
-    }
-    total_sent += result;
-    data_ptr += result;
-    len -= result;
-  }
-  if (sent) {
-    *sent = total_sent;
-  }
-  return NET_TCP_SUCCESS;
-}
-
-net_tcp_status net_tcp_ssl_recv(net_tcp_socket socket, void *buf, unsigned int len, unsigned int *received) {
-  if (!buf || len == 0) {
-    utl_error_func("Invalid buffer or length for SSL receive", utl_user_defined_data);
-    return NET_TCP_ERR_RECV;
-  }
-  SSL *ssl = net_tcp_get_ssl(socket);
-  if (!ssl) {
-    utl_error_func("[tcp_ssl_recv] No SSL object associated with the socket", utl_user_defined_data);
-    return NET_TCP_ERR_NO_SSL;
-  }
-  short result = SSL_read(ssl, buf, len);
-  if (result > 0) {
-    if (received) {
-      *received = result;
-    }
-    return NET_TCP_SUCCESS;
-  } 
-  else {
-    short ssl_error = SSL_get_error(ssl, result);
-    switch (ssl_error) {
-      case SSL_ERROR_WANT_READ:
-      case SSL_ERROR_WANT_WRITE:
-        if (received) {
-          *received = 0;
-        }
-        return NET_TCP_SUCCESS;
-      case SSL_ERROR_ZERO_RETURN:
-        utl_error_func("SSL connection closed by peer", utl_user_defined_data);
-        return NET_TCP_ERR_CLOSE;
-      case SSL_ERROR_SYSCALL: {
-        if (ERR_peek_error() == 0) {
-          if (result == 0 || errno == 0) {
-            utl_error_func("SSL connection closed by peer or EOF reached", utl_user_defined_data);
-            SSL_free(ssl);
-            net_tcp_set_ssl(socket, NULL);
-            net_tcp_close(socket);
-            return NET_TCP_ERR_CLOSE;
-          } 
-          else {
-            utl_error_func("SSL system call error", utl_user_defined_data);
-          }
-        }
-        utl_error_func("SSL read system call error", utl_user_defined_data);
-        return NET_TCP_ERR_RECV;
-      }
-      default:
-        utl_error_func("SSL read error", utl_user_defined_data);
-        return NET_TCP_ERR_RECV;
-    }
-  }
-}
-
 net_tcp_status net_tcp_get_connection_quality(net_tcp_socket socket, float *rtt, float *variance) {
 #if defined(_WIN32) || defined(_WIN64)
   utl_error_func("Direct RTT measurement not supported on Windows", utl_user_defined_data);
@@ -885,7 +567,7 @@ net_tcp_status net_tcp_async_send(net_tcp_socket socket, const void *buf, unsign
     short lastError = WSAGetLastError();
     if (lastError == WSAEWOULDBLOCK) {
       utl_error_func("Connection is blocked", utl_user_defined_data);
-      return TCP_ERR_WOULD_BLOCK;
+      return NET_TCP_ERR_WOULD_BLOCK;
     }
 #else
     if (errno == EAGAIN || errno == EWOULDBLOCK) {

@@ -16,7 +16,7 @@ void camera_setup(camera *cam) {
   printf("Screen height: %d\n", mode->height);
   cam->zoom = INITIAL_ZOOM;
   cam->target_zoom = INITIAL_ZOOM;
-  cam->position = phy_vector2_new(0.0f, 0.0f);
+  cam->position = phy_vector2_new(-SCREEN_WIDTH / 2.0f, -SCREEN_HEIGHT / 2.0f);
   cam->target = phy_vector2_new(0.0f, 0.0f);
 }
 

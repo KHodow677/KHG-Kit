@@ -270,7 +270,7 @@ void utl_string_reverse(utl_string *str) {
       reverse[j] = str->data_str[index];
     }
     reverse[str->size] = '\0';
-    utl_string_replace(str, utl_string_c_str(str), reverse);
+    utl_string_replace(str, utl_string_str(str), reverse);
     free(reverse);
   }
   else {
@@ -750,7 +750,7 @@ const char *utl_string_data(utl_string *str) {
   return str->data_str;
 }
 
-const char *utl_string_c_str(const utl_string *str) {
+const char *utl_string_str(const utl_string *str) {
   if (str == NULL) { 
     utl_error_func("Invalid input", utl_user_defined_data);
     return "";
@@ -830,11 +830,12 @@ const char *utl_string_crend(utl_string *str) {
   return str->data_str - 1;
 }
 
-void utl_string_clear(utl_string* str) {
+void utl_string_clear(utl_string *str) {
   if (str != NULL) {
     str->size = 0;
     if (str->data_str != NULL) { 
       str->data_str[0] = '\0';
+      return;
     }
   }
   utl_error_func("String object is null no need to clear", utl_user_defined_data);

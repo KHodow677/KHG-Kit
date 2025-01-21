@@ -1,0 +1,34 @@
+size: 930 922
+centered: true
+offset: 465 461
+name -> iol2_dark
+*name_line -> iol2_dark
+*name_shadow -> iol2_cloud_light
+*name_fill -> iol2_white
+mask: mask_circle_outer_930x922
+*border_circle_outer -> iol2_dark
+*border_circle_inner -> iol2_dark
+*border_circle_fill -> iol2_white
+line -> iol2_dark
+dark -> iol2_dark
+orange -> iol2_orange
+yellow -> iol2_yellow
+red -> iol2_red
+brown_light -> iol2_brown_light
+brown_dark -> iol2_brown_dark
+blue_light -> iol2_blue_light
+blue_dark -> iol2_blue_dark
+blue_medium -> iol2_blue_medium
+green_light -> iol2_green_light
+green_dark -> iol2_green_dark
+green_medium -> iol2_green_medium
+water_light -> iol2_water_light
+water_dark -> iol2_water_dark
+water_medium -> iol2_water_medium
+sand_light -> iol2_sand_light
+sand_dark -> iol2_sand_dark
+cloud_light -> iol2_cloud_light
+white -> iol2_white
+backdrop_blue_medium -> iol2_blue_medium
+backdrop_white -> iol2_white
+backdrop_gray_dark -> iol2_gray_dark

@@ -1,4 +1,5 @@
 #include "resources/anim_loader.h"
+#include "khg_utl/string.h"
 #include "resources/texture_loader.h"
 #include "rig/anim.h"
 #include "rig/rig.h"
@@ -28,29 +29,30 @@ void generate_animation_frame(rig *r, const char *dir_path, const char *rig_sect
     if (strcmp(section, rig_section)) {
       continue;
     }
-    size_t len = strlen(key);
-    char generic_key[len];
-    strncpy(generic_key, key, len - 1);
-    generic_key[len - 1] = '\0'; 
-    if (!strcmp(generic_key, "bone_tex")) {
+    utl_string *key_obj = utl_string_create(key);
+    if (utl_string_starts_with(key_obj, "bone_tex")) {
       bone_frame.bone_tex = get_tex_id_from_string((const char *)utl_config_get_value(config, section, key));
+      utl_string_deallocate(key_obj);
       continue;
     }
-    else if (!strcmp(generic_key, "bone_offset")) {
+    else if (utl_string_starts_with(key_obj, "bone_offset")) {
       char **bone_offset = utl_config_get_array(config, section, key, 2);
       bone_frame.bone_offset = phy_vector2_new(atof(bone_offset[0]), atof(bone_offset[1]));
       free(bone_offset[0]);
       free(bone_offset[1]);
       free(bone_offset);
+      utl_string_deallocate(key_obj);
       continue;
     }
-    else if (!strcmp(generic_key, "bone_angle_offset")) {
+    else if (utl_string_starts_with(key_obj, "bone_angle_offset")) {
       bone_frame.bone_angle_offset = atof((char *)utl_config_get_value(config, section, key));
+      utl_string_deallocate(key_obj);
       continue;
     }
-    else if (!strcmp(generic_key, "bone_num")) {
+    else if (utl_string_starts_with(key_obj, "bone_num")) {
       int bone_num = utl_config_get_int(config, section, key, 0);
       utl_array_set(new_frame, bone_num, &bone_frame);
+      utl_string_deallocate(key_obj);
     }
   }
   utl_config_deallocate(config);

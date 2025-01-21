@@ -1,0 +1,8 @@
+source: ..\..\elements\markers
+size: 840 840
+offset: 327 51
+outline -> iol2_dark
+line -> iol2_dark
+white -> iol2_white
+shadow -> iol2_red
+red -> iol2_fire

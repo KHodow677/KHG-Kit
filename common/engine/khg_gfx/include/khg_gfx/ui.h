@@ -16,9 +16,9 @@
 
 void gfx_init_glfw(unsigned int display_width, unsigned int display_height, void *glfw_window);
 const int gfx_loop_manager(GLFWwindow *window, const bool show_fps);
-const bool gfx_loop(const float delta);
-const bool gfx_loop_post(const float delta);
-const bool gfx_loop_ui(const float delta);
+const bool gfx_loop(const float delta, const float fps_val);
+const bool gfx_loop_post(const float delta, const float fps_val);
+const bool gfx_loop_ui(const float delta, const float fps_val);
 void gfx_framebuffer(const unsigned int vao, const unsigned int texture);
 void gfx_terminate(void);
 

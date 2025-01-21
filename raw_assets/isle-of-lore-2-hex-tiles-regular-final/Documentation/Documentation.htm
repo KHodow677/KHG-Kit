@@ -1,0 +1,1030 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="files\style.css">
+<title>Isle of Lore 2: Hex Tiles</title>
+</head>
+<body>
+<div id="divNavi">
+	<a class="aNavi" href="#Introduction">Introduction</a>
+	<a class="aNavi" href="#ContentStructure">Content Structure</a>
+	<a class="aNavi" href="#Tiles">Tiles</a>
+	<a class="aNavi" href="#Elements">Elements</a>
+	<a class="aNavi" href="#ElementsLocations">Locations</a>
+	<a class="aNavi" href="#ElementsMarkers">Markers</a>
+	<a class="aNavi" href="#ElementsFlairs">Flairs</a>
+	<a class="aNavi" href="#ElementsPathsRoadsRivers">Paths</a>
+	<a class="aNavi" href="#Borders">Borders</a>
+	<a class="aNavi" href="#Grounds">Grounds</a>
+	<a class="aNavi" href="#ColorMapper">Color Mapper</a>
+	<a class="aNavi" href="#TileBuilder">Tile Builder</a>
+	<a class="aNavi" href="#Specification">Specification</a>
+	<a class="aNavi" href="#Changelog">Changelog</a>
+</div>
+<div id="divMain">
+
+	<div class="divLogo"><img style="max-width: 400px; padding-top: 50px;" src="files\logo.png"></div>
+	
+	<p></p><a name="Introduction"></a><div class="divBuffer"></div>
+	<h2>Introduction</h2>
+	
+	<p>The asset pack <b>Isle of Lore 2: Hex Tiles</b> is a set of hex tiles both in a pointy-bottom and flat-bottom variant covering many biomes. The tiles are available as png files and in a data format which allows to change and re-export the tiles with the help of my tool <a href="https://stevencolling.itch.io/tile-builder" target="_blank">Tile Builder</a>. The asset pack also includes the elements from which the tiles were created, meaning trees, bushes and more. These elements are available as pngs as well as in their single parts, which allows to re-export the elements with different color palettes with my other tool <a href="https://stevencolling.itch.io/color-mapper" target="_blank">Color Mapper</a>.</p>
+	
+	<p>This documentation will go into more detail on how to find the files you want and how to change and re-export them to fit your needs.</p>
+	
+	<p>Please keep the license in mind, which is available as a <span class="spanCode">License.txt</span>-file in the folder you downloaded. If you have questions or feedback, you can reach me through the following channels. I especially recommend the mailing list and my Discord server to stay up-to-date respectively to chat about your and my projects!</p>
+	
+	<ul>
+		<li>E-Mail: <a href="mailto:info@stevencolling.com">info@stevencolling.com</a></li>
+		<li>Mailing List (get news and exclusive discounts!): <a href="https://mailinglist.stevencolling.com/game_assets/" target="_blank">https://mailinglist.stevencolling.com/game_assets/</a></li>
+		<li>Discord Server (connect with others using my software and assets!): <a href="https://stevencolling.com/discord.php" target="_blank">https://stevencolling.com/discord.php</a></li>
+		<li>Discord Profile: <a href="https://discordapp.com/users/171308170038214656/" target="_blank">https://discordapp.com/users/171308170038214656/</a></li>
+		<li>General Help: <a href="https://stevencolling.com/help.htm" target="_blank">https://stevencolling.com/help.htm</a></li>
+		<li>Website: <a href="https://stevencolling.com" target="_blank">https://stevencolling.com</a></li>
+	</ul>
+	
+	<p>Fun fact: <b>Isle of Lore 2: Hex Tiles</b> was called <b>Isle of Lore 2: Hex Tiles Regular</b> and included fewer tiles, only in one orientation, with no separate element files and no way to re-export the tiles without a lot of manual work!</p>
+	
+	<p></p><a name="ContentStructure"></a><div class="divBuffer"></div>
+	<h2>Content Structure</h2>
+	
+	<p>The asset pack comes with a directory called <span class="spanCode">HexMapMaker</span>, which is the name of the hex tile mapping and creation tool I'm developing right now. The software isn't available yet, but I encourage you to use the directory structure inside to manage my assets, and potentially the assets of other creators and your own. Inside that folder, to which I will refer to as the <b>User Data Folder</b> from now on, you'll find the following directories:</p>
+	
+	<ul>
+		<li><b>Borders</b>: tile borders</li>
+		<li><b>Elements</b>: elements like trees and bushes</li>
+		<li><b>Grounds</b>: tile grounds (or backdrops)</li>
+		<li><b>Scripts</b>: scripts used with <b>Tile Builder</b></li>
+		<li><b>Tiles</b>: the tiles as pngs and <span class="spanCode">*.tile.txt</span>-files</li>
+		<li><b>Workbench</b>: a folder on which <b>Tile Builder</b> operates</li>
+	</ul>
+	
+	<p>Some of the directories have a <span class="spanCode">Isle of Lore 2</span> sub-folder, in which the content can be found in their respective folders. "Isle of Lore 2" is the content pack in that case, and within are the content files like different borders, elements, grounds or tiles from this <b>Isle of Lore 2: Hex Tiles</b> asset pack. Do not rename or move the folders or files within the <b>User Data Folder</b>, as my tools like <b>Tile Builder</b> and later <b>Hex Map Maker</b> will require that structure to work correctly.</p>
+	
+	<p>If you are not interested in changing or re-exporting the tiles, elements or anything else, you can use the pngs in that <b>User Data Folder</b> as they are. But if you want to make changes to the tiles and re-export them in batch, there is a dedicated section called <a href="#TileBuilder">Editing &amp; Re-Exporting Tiles with Tile Builder</a> further down.</p>
+	
+	<p>Besides the <b>User Data Folder</b> <span class="spanCode">HexMapMaker</span>, there is another folder called <span class="spanCode">Sources</span>. This folder is not part of the user data space and can be moved freely. It contains the single parts of the elements from which the final element pngs were created. The folder contains an <span class="spanCode">input</span> and an <span class="spanCode">output</span> folder, with the latter being empty. That's because the exported pngs are already in the <b>User Data Folder</b> and having them duplicated would be a waste of space. Instead, you can use my <b>Color Mapper</b> tool to re-export the elements with their parts from the <span class="spanCode">input</span> folder and check the results in the <span class="spanCode">output</span> folder, and in case you like the result, copy the results over to their respective <b>User Data Folder</b>. The section <a href="#ColorMapper">Re-Exporting Elements with <b>Color Mapper</b></a> will go into further details.</p>
+	
+	<p></p><a name="Tiles"></a><div class="divBuffer"></div>
+	<h2>Tiles</h2>
+	
+	<p>Tiles are available in the folder <span class="spanCode">HexMapMaker\Tiles\Isle of Lore 2</span>. They are divided into sub-folders named accordingly to indicate their orientation (pointy-bottom or flat-bottom), their biome and the palette. As an example, <span class="spanCode">flat.pine_forest_dense.green</span> contains 10 flat-bottom dense forest tiles in green, while <span class="spanCode">pointy.pine_forest_sparse.winter</span> contains 10 pointy-bottom sparse pine forest tiles in a winter setting. For every tile, there is both an image file (png), and a <span class="spanCode">*.tile.txt</span>-file. The <span class="spanCode">*.tile.txt</span>-file contains the data for the tile, including the positioning of its elements, and can be used together with <a href="#TileBuilder">Tile Builder</a> to change and re-export the tiles.</p>
+	
+	<p>Before going through all the tiles available in <b>Isle of Lore 2: Hex Tiles</b>, let's have a look at the sub-biome availability (sparse pine forest, dense pine forest and so on) as well as the availability of a winter variant for all the biomes. In the following table, you can infer that the "City" biome has a Clearing, Dense, Winter and Mountain variant, while the "Clouds" biome only has a Mountain variant and a special one called Clouds.</p>
+	
+	<table style="font-size: 12px">
+		<tr>
+			<th>Biome</th>
+			<th>Clearing</th>
+			<th>Dense</th>
+			<th>Lake</th>
+			<th>Sparse</th>
+			<th>Winter</th>
+			<th>Mountain</th>
+			<th>Other</th>
+		</tr>
+		<tr>
+			<td>City</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+			<td></td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Clouds</td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>x</td>
+			<td>clouds</td>
+		</tr>
+		<tr>
+			<td>Desert</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Grassland</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Hills</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Jungle Forest</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Meadow</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Mixed Forest</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Oak Forest</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Ocean</td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>x</td>
+			<td>big, rocky, small</td>
+		</tr>
+		<tr>
+			<td>Pine Forest</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Swamp</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Valley</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>Wheat</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td>x</td>
+			<td></td>
+		</tr>
+	</table>
+	
+	<p>Across the two tile orientations, the biomes and their palettes, there are 2160 tiles in total (or 1080 per orientation). The following list only shows pointy-bottom tiles for the sake of brevity.</p>
+	
+	<div class="divGallery">
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\city_clearing_0_green.png"><p>City Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\city_clearing_0_winter.png"><p>City Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\city_dense_0_green.png"><p>City Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\city_dense_0_winter.png"><p>City Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\clouds_0_white.png"><p>Clouds<br>(White)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\desert_clearing_0_yellow.png"><p>Desert Clearing<br>(Yellow)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\desert_dense_0_yellow.png"><p>Desert Dense<br>(Yellow)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\desert_oasis_0_yellow.png"><p>Desert Oasis<br>(Yellow)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\desert_sparse_0_yellow.png"><p>Desert Sparse<br>(Yellow)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\grassland_clearing_0_green.png"><p>Grassland Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\grassland_clearing_0_winter.png"><p>Grassland Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\grassland_dense_0_green.png"><p>Grassland Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\grassland_dense_0_winter.png"><p>Grassland Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\grassland_lake_0_green.png"><p>Grassland Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\grassland_lake_0_winter.png"><p>Grassland Lake<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\grassland_sparse_0_green.png"><p>Grassland Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\grassland_sparse_0_winter.png"><p>Grassland Sparse<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\hills_clearing_0_green.png"><p>Hills Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\hills_clearing_0_winter.png"><p>Hills Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\hills_dense_0_green.png"><p>Hills Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\hills_dense_0_winter.png"><p>Hills Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\hills_lake_0_green.png"><p>Hills Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\hills_lake_0_winter.png"><p>Hills Lake<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\hills_sparse_0_green.png"><p>Hills Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\hills_sparse_0_winter.png"><p>Hills Sparse<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\jungle_forest_clearing_0_green.png"><p>Jungle Forest Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\jungle_forest_dense_0_green.png"><p>Jungle Forest Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\jungle_forest_lake_0_green.png"><p>Jungle Forest Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\jungle_forest_sparse_0_green.png"><p>Jungle Forest Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\meadow_clearing_0_green.png"><p>Meadow Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\meadow_clearing_0_winter.png"><p>Meadow Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\meadow_dense_0_green.png"><p>Meadow Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\meadow_dense_0_winter.png"><p>Meadow Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\meadow_lake_0_green.png"><p>Meadow Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\meadow_lake_0_winter.png"><p>Meadow Lake<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\meadow_sparse_0_green.png"><p>Meadow Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\meadow_sparse_0_winter.png"><p>Meadow Sparse<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mixed_forest_clearing_0_green.png"><p>Mixed Forest Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mixed_forest_clearing_0_winter.png"><p>Mixed Forest Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mixed_forest_dense_0_green.png"><p>Mixed Forest Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mixed_forest_dense_0_winter.png"><p>Mixed Forest Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mixed_forest_lake_0_green.png"><p>Mixed Forest Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mixed_forest_lake_0_winter.png"><p>Mixed Forest Lake<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mixed_forest_sparse_0_green.png"><p>Mixed Forest Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mixed_forest_sparse_0_winter.png"><p>Mixed Forest Sparse<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_city_0_green.png"><p>Mountain City<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_city_0_winter.png"><p>Mountain City<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_clouds_0_white.png"><p>Mountain Clouds<br>(White)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_desert_0_yellow.png"><p>Mountain Desert<br>(Yellow)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_grassland_0_green.png"><p>Mountain Grassland<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_grassland_0_winter.png"><p>Mountain Grassland<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_hills_0_green.png"><p>Mountain Hills<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_hills_0_winter.png"><p>Mountain Hills<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_jungle_forest_0_green.png"><p>Mountain Jungle Forest<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_meadow_0_green.png"><p>Mountain Meadow<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_meadow_0_winter.png"><p>Mountain Meadow<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_mixed_forest_0_green.png"><p>Mountain Mixed Forest<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_mixed_forest_0_winter.png"><p>Mountain Mixed Forest<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_oak_forest_0_green.png"><p>Mountain Oak Forest<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_oak_forest_0_winter.png"><p>Mountain Oak Forest<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_ocean_0_blue.png"><p>Mountain Ocean<br>(Blue)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_pine_forest_0_green.png"><p>Mountain Pine Forest<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_pine_forest_0_winter.png"><p>Mountain Pine Forest<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_swamp_0_green.png"><p>Mountain Swamp<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_swamp_0_winter.png"><p>Mountain Swamp<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_valley_0_green.png"><p>Mountain Valley<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_valley_0_winter.png"><p>Mountain Valley<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\mountain_wheat_0_green.png"><p>Mountain Wheat<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\oak_forest_clearing_0_green.png"><p>Oak Forest Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\oak_forest_clearing_0_winter.png"><p>Oak Forest Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\oak_forest_dense_0_green.png"><p>Oak Forest Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\oak_forest_dense_0_winter.png"><p>Oak Forest Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\oak_forest_lake_0_green.png"><p>Oak Forest Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\oak_forest_lake_0_winter.png"><p>Oak Forest Lake<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\oak_forest_sparse_0_green.png"><p>Oak Forest Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\oak_forest_sparse_0_winter.png"><p>Oak Forest Sparse<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\ocean_big_0_blue.png"><p>Ocean Big<br>(Blue)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\ocean_rocky_0_blue.png"><p>Ocean Rocky<br>(Blue)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\ocean_small_0_blue.png"><p>Ocean Small<br>(Blue)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\pine_forest_clearing_0_green.png"><p>Pine Forest Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\pine_forest_clearing_0_winter.png"><p>Pine Forest Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\pine_forest_dense_0_green.png"><p>Pine Forest Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\pine_forest_dense_0_winter.png"><p>Pine Forest Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\pine_forest_lake_0_green.png"><p>Pine Forest Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\pine_forest_lake_0_winter.png"><p>Pine Forest Lake<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\pine_forest_sparse_0_green.png"><p>Pine Forest Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\pine_forest_sparse_0_winter.png"><p>Pine Forest Sparse<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\swamp_clearing_0_green.png"><p>Swamp Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\swamp_clearing_0_winter.png"><p>Swamp Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\swamp_dense_0_green.png"><p>Swamp Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\swamp_dense_0_winter.png"><p>Swamp Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\swamp_sparse_0_green.png"><p>Swamp Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\swamp_sparse_0_winter.png"><p>Swamp Sparse<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\valley_clearing_0_green.png"><p>Valley Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\valley_clearing_0_winter.png"><p>Valley Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\valley_dense_0_green.png"><p>Valley Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\valley_dense_0_winter.png"><p>Valley Dense<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\valley_lake_0_green.png"><p>Valley Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\valley_lake_0_winter.png"><p>Valley Lake<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\valley_sparse_0_green.png"><p>Valley Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\valley_sparse_0_winter.png"><p>Valley Sparse<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\wheat_clearing_0_green.png"><p>Wheat Clearing<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\wheat_clearing_0_winter.png"><p>Wheat Clearing<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\wheat_dense_0_green.png"><p>Wheat Dense<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\wheat_lake_0_green.png"><p>Wheat Lake<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\wheat_lake_0_winter.png"><p>Wheat Lake<br>(Winter)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\wheat_sparse_0_green.png"><p>Wheat Sparse<br>(Green)</p></div>
+		<div class="divGalleryEntry divGalleryEntryBig"><img src=".\files\examples\tiles\wheat_sparse_0_winter.png"><p>Wheat Sparse<br>(Winter)</p></div>
+	</div>
+	
+	<p></p><a name="Elements"></a><div class="divBuffer"></div>
+	<h2>Elements</h2>
+	
+	<p>These are the elements like trees, bushes, grass patches and many more, available at <span class="spanCode">HexMapMaker\Elements\Isle of Lore 2</span>. The folders containing the elements have a so-called <b>Palette Name</b> attached, for example <span class="spanCode">bushes.green</span> and <span class="spanCode">bushes.winter</span> with <span class="spanCode">green</span> and <span class="spanCode">winter</span> declaring two different palettes for the same type of element (bushes). Besides the elements listed here, which are used in the tiles, there are also special elements, namely locations (buildings), markers, flairs and roads, which are listed further below.</p>
+	
+	<div class="divGallery">
+		<div class="divGalleryEntry"><img src=".\files\examples\big_wave_0.png"><p>30x Big Waves</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\bush_0_green.png"><p>60x Bushes (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\bush_0_winter.png"><p>60x Bushes (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\capped_rock_0.png"><p>60x Capped Rocks</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\uncapped_rock_0.png"><p>60x Uncapped Rocks</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\cloud_0.png"><p>60x Clouds</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\dead_oak_tree_0.png"><p>60x Dead Oak Trees</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\dead_pine_tree_0.png"><p>60x Dead Pine Trees</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\desert_hill_0.png"><p>30x Desert Hills</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\dirt_patch_0.png"><p>60x Dirt Patches</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_bush_0_green.png"><p>60x Grass Bushes (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_bush_0_greendark.png"><p>60x Grass Bushes (Green Dark)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_bush_0_red.png"><p>60x Grass Bushes (Red)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_bush_0_winter.png"><p>60x Grass Bushes (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_bush_0_winterdark.png"><p>60x Grass Bushes (Winter Dark)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_bush_0_yellow.png"><p>60x Grass Bushes (Yellow)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_marks_0_green.png"><p>60x Grass Marks (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_marks_0_winter.png"><p>60x Grass Marks (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_patch_0_green.png"><p>60x Grass Patches (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_patch_0_winter.png"><p>60x Grass Patches (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\hill_0_green.png"><p>30x Hills (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\hill_0_winter.png"><p>30x Hills (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\jungle_tree_0.png"><p>60x Jungle Trees</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\lake_0.png"><p>60x Lakes</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\mountain_0.png"><p>12x Mountains</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\oak_tree_0_green.png"><p>60x Oak Trees (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\oak_tree_0_winter.png"><p>60x Oak Trees (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\palm_tree_0.png"><p>60x Palm Trees</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\peat_0_green.png"><p>60x Peats (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\peat_0_winter.png"><p>60x Peats (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\pine_tree_0_green.png"><p>60x Pine Trees (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\pine_tree_0_winter.png"><p>60x Pine Trees (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\reed_0_green.png"><p>60x Reeds (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\reed_0_winter.png"><p>60x Reeds (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\sand_marks_0.png"><p>60x Sand Marks</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\sand_patch_0.png"><p>60x Sand Patches</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\small_wave_0.png"><p>60x Small Waves</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\tall_grass_0_green.png"><p>60x Tall Grass (Green)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\tall_grass_0_winter.png"><p>60x Tall Grass (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\tall_grass_0_yellow.png"><p>60x Tall Grass (Yellow)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\thorn_0.png"><p>60x Thorns</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\water_patch_0.png"><p>60x Water Patches</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\wheat_0.png"><p>60x Wheats</p></div>
+	</div>
+	
+	<p></p><a name="ElementsLocations"></a><div class="divBuffer"></div>
+	<h2>Elements: Locations</h2>
+	
+	<p>Locations are icons depicting buildings. They come in three variants: with a white border around them, with a white border suspended at the bottom and no border at all. These variants appear as <span class="spanCode">full</span>, <span class="spanCode">semi</span> and <span class="spanCode">none</span> in the file names. The actual high-resolution location icons have their own folders at <span class="spanCode">Elements\Isle of Lore 2\locations.standard_full</span>, <span class="spanCode">Elements\Isle of Lore 2\locations.standard_semi</span> and <span class="spanCode">Elements\Isle of Lore 2\locations.standard_none</span>, but there is also an overlay variant, in which the icons are scaled down and centered in an image the size of a tile. They are meant to be overlaid on tiles and are available in the folders <span class="spanCode">Tiles\Isle of Lore 2\overlay_locations.standard_full</span> etc. Side note: the unusual naming scheme of <span class="spanCode">location_(name)_(id).png</span> has its origin in how <b>Color Mapper</b> operates.</p>
+	
+	<div class="divGallery">
+	<div class="divGalleryEntry"><img src=".\files\examples\location_house_0.png"><p>House (0)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_village_1.png"><p>Village (1)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_city_house_2.png"><p>City House (2)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_city_3.png"><p>City (3)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_quarry_4.png"><p>Quarry (4)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_farm_5.png"><p>Farm (5)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_windmill_6.png"><p>Windmill (6)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_witch_hut_7.png"><p>Witch Hut (7)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_tent_8.png"><p>Tent (8)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_tents_9.png"><p>Tents (9)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_tower_10.png"><p>Tower (10)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_fort_11.png"><p>Fort (11)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_inn_12.png"><p>Inn (12)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_lighthouse_13.png"><p>Lighthouse (13)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_bridge_14.png"><p>Bridge (14)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_castle_15.png"><p>Castle (15)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_chapel_16.png"><p>Chapel (16)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_cave_17.png"><p>Cave (17)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_dungeon_18.png"><p>Dungeon (18)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_mine_19.png"><p>Mine (19)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_nest_20.png"><p>Nest (20)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_waterfall_21.png"><p>Waterfall (21)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_campfire_22.png"><p>Campfire (22)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_sanctuary_23.png"><p>Sanctuary (23)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_ruined_house_24.png"><p>Ruined House (24)</p></div>
+	<div class="divGalleryEntry"><img src=".\files\examples\location_military_tent_25.png"><p>Military Tent (25)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\location_battlefield_26.png"><p>Battlefield (26)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\location_graveyard_27.png"><p>Graveyard (27)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\location_ship_28.png"><p>Ship (28)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\location_shipwreck_29.png"><p>Shipwreck (29)</p></div>
+	</div>
+	
+	<p></p><a name="ElementsMarkers"></a><div class="divBuffer"></div>
+	<h2>Elements: Markers</h2>
+	
+	<p>Markers are indicators to be placed on maps. The high-resolution markers are available at the folder <span class="spanCode">Elements\Isle of Lore 2\markers.standard</span>, but there are overlay variants in <span class="spanCode">Tiles\Isle of Lore 2\flat.overlay_markers.standard</span> and <span class="spanCode">Tiles\Isle of Lore 2\pointy.overlay_markers.standard</span> for flat-bottom respectively pointy-bottom tiles, in which the markers are properly positioned so they can be directly placed on tiles. Side note: the unusual naming scheme of <span class="spanCode">marker_(name)_(id).png</span> has its origin in how <b>Color Mapper</b> operates.</p>
+	
+	<div class="divGallery">
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_empty_0.png"><p>Empty (0)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_small_dot_1.png"><p>Small Dot (1)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_big_dot_2.png"><p>Big Dot (2)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_cross_3.png"><p>Cross (3)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_question_mark_4.png"><p>Question Mark (4)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_exclamation_mark_5.png"><p>Exclamation Mark (5)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_boot_track_6.png"><p>Boot Track (6)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_foot_track_7.png"><p>Foot Track (7)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_animal_track_8.png"><p>Animal Track (8)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_bird_track_9.png"><p>Bird Track (9)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_hoof_track_10.png"><p>Hoof Track (10)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_boot_11.png"><p>Boot (11)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_wheel_12.png"><p>Wheel (12)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_hand_13.png"><p>Hand (13)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_fist_14.png"><p>Fist (14)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_coin_15.png"><p>Coin (15)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_ship_16.png"><p>Ship (16)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_heart_17.png"><p>Heart (17)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_sword_18.png"><p>Sword (18)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_shield_19.png"><p>Shield (19)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_arrow_20.png"><p>Arrow (20)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_house_21.png"><p>House (21)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_campfire_22.png"><p>Campfire (22)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_anchor_23.png"><p>Anchor (23)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_letter_a_24.png"><p>A-Z (24-49)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\marker_letter_zero_50.png"><p>0-9 (50-59)</p></div>
+	</div>
+	
+	<p></p><a name="ElementsFlairs"></a><div class="divBuffer"></div>
+	<h2>Elements: Flairs</h2>
+	
+	<p>Flairs are indicators originally meant to be placed at the bottom of a pointy-bottom tile with border, but they can be used as general-purpose icons on tiles, too. The high-resolution flairs are available at the folder <span class="spanCode">Elements\Isle of Lore 2\flairs.standard</span>, but there are overlay variants in <span class="spanCode">Tiles\Isle of Lore 2\flat.overlay_flairs.standard</span> and <span class="spanCode">Tiles\Isle of Lore 2\pointy.overlay_flairs.standard</span> for flat-bottom respectively pointy-bottom tiles, in which the flairs are properly positioned so they can be directly placed on tiles. Side note: the unusual naming scheme of <span class="spanCode">flair_(name)_(id).png</span> has its origin in how <b>Color Mapper</b> operates.</p>
+	
+	<div class="divGallery">
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_empty_0.png"><p>Empty (0)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_cross_1.png"><p>Cross (1)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_question_mark_2.png"><p>Question Mark (2)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_exclamation_mark_3.png"><p>Exclamation Mark (3)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_skull_4.png"><p>Skull (4)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_horned_skull_5.png"><p>Horned Skull (5)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_crowned_skull_6.png"><p>Crowned Skull (6)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_two_skulls_7.png"><p>Two Skulls (7)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_three_skulls_8.png"><p>Three Skulls (8)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_drop_9.png"><p>Drop (9)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_corn_10.png"><p>Corn (10)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_ghost_11.png"><p>Ghost (11)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_heart_12.png"><p>Heart (12)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_diamond_13.png"><p>Diamond (13)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_spades_14.png"><p>Spades (14)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_clubs_15.png"><p>Clubs (15)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_sun_16.png"><p>Sun (16)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_cloud_17.png"><p>Cloud (17)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_rain_18.png"><p>Rain (18)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_storm_19.png"><p>Storm (19)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_snow_20.png"><p>Snow (20)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_wind_21.png"><p>Wind (21)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_moon_22.png"><p>Moon (22)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_fire_23.png"><p>Fire (23)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_letter_a_24.png"><p>A-Z (24-49)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\flair_letter_zero_50.png"><p>0-9 (50-59)</p></div>
+	</div>
+	
+	<p></p><a name="ElementsPathsRoadsRivers"></a><div class="divBuffer"></div>
+	<h2>Elements: Paths, Roads &amp; Rivers</h2>
+	
+	<p>Paths, roads and rivers are available as both a flat-bottom and a pointy-bottom variant to be overlaid over the corresponding type of tile to create paths, roads and rivers. They are available in the folders <span class="spanCode">Tiles\Isle of Lore 2\flat.overlay_paths.white</span>, <span class="spanCode">Tiles\Isle of Lore 2\pointy.overlay_roads.white</span> and so on.</p>
+
+	<div class="divGallery">
+		<div class="divGalleryEntry"><img src=".\files\examples\overlay_path_ne-sw_13.png"><p>21x Paths</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\overlay_road_ne-sw_13.png"><p>21x Roads</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\overlay_river_ne-sw_13.png"><p>21x Rivers</p></div>
+	</div>
+	
+	<p>The files have a bit mask in their file name to indicate which sides of the hex have a connection and which not. As a hex tile has 6 sides, there are 6 numbers, which are either 0 if there is no connection or 1 if there is a connection, starting on the north side of the tile for flat-bottom tiles and on the north-east side of the tile for pointy-bottom tiles, then going clockwise. As an example, the file <span class="spanCode">overlay_river_c<b>100100</b>_8.png</span> connects the north with the south for a flat-bottom tile or the north-east with the south-east for a pointy-bottom tile.</p>
+
+	<div class="divImage"><img src="files\connections_0.png"><p>Every bit in the bit mask denotes if that side of the tile has a connection (for example from a river) or not.</p></div>
+	
+	<p></p><a name="Borders"></a><div class="divBuffer"></div>
+	<h2>Borders</h2>
+	
+	<p>Thin, medium and thick borders, available at <span class="spanCode">HexMapMaker\Borders\Isle of Lore 2</span>. The tiles delivered with the asset pack use the medium border. Check the <a href="#SpecificationBorders">Specification</a> for the proper positioning of the borders with <a href="https://stevencolling.itch.io/tile-builder" target="_blank">Tile Builder</a>.</p>
+	
+	<div class="divGallery">
+		<div class="divGalleryEntry"><img src=".\files\examples\border_thin_0.png"><p>1x Thin Border</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\border_medium_0.png"><p>1x Medium Border</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\border_thick_0.png"><p>1x Thick Border</p></div>
+	</div>
+	
+	<p></p><a name="Grounds"></a><div class="divBuffer"></div>
+	<h2>Grounds</h2>
+	
+	<p>Tile grounds (or backdrops) for different biomes, available at <span class="spanCode">HexMapMaker\Grounds\Isle of Lore 2</span>.</p>
+	
+	<div class="divGallery">
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_ground_0_normal.png"><p>1x Grass Ground</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\grass_ground_0_winter.png"><p>1x Grass Ground (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\swamp_ground_0_normal.png"><p>1x Swamp Ground</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\swamp_ground_0_winter.png"><p>1x Swamp Ground (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\city_ground_0_normal.png"><p>1x City Ground</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\city_ground_0_winter.png"><p>1x City Ground (Winter)</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\desert_ground_0.png"><p>1x Desert Ground</p></div>
+		<div class="divGalleryEntry"><img src=".\files\examples\water_ground_0.png"><p>1x Water Ground</p></div>
+	</div>
+	
+	<p></p><a name="ColorMapper"></a><div class="divBuffer"></div>
+	<h2>Re-Exporting Elements with Color Mapper</h2>
+	
+	<p>If you need the tiles and the elements the way they are, you can use the png files in <span class="spanCode">HexMapMaker\Tiles\Isle of Lore 2</span> and <span class="spanCode">HexMapMaker\Elements\Isle of Lore 2</span> respectively. But in case you want to use different colors for the elements, I've written a tool called <b>Color Mapper</b> to batch-process the element files, borders and grounds and change the colors of their single parts independently from each other, and for all of them in one go. It can also re-size, re-scale and re-position the elements, for example to create scaled-down tile overlays out of the location icons.</p>
+	
+	<div class="divImage"><img src="files\colormapper_0.png"><p><b>Color Mapper</b> assembling a pine tree from its single parts.</p></div>
+	
+	<div class="divImage"><img src="files\colormapper_1.png"><p><b>Color Mapper</b> assembling a pine tree, but also switching out the colors of the single parts.</p></div>
+	
+	<p>For that purpose, the <b>Isle of Lore 2: Hex Tiles</b> download includes a folder called <span class="spanCode">Sources\input</span> with sub-folders containing both source files (<a href="https://krita.org" target="_blank">Krita</a> <span class="spanCode">*.kra</span> and Photoshop <span class="spanCode">*.psd</span>) as well as png exports of the single layers and <span class="spanCode">*.colormapper.txt</span>-files containing information on how <b>Color Mapper</b> is going to assemble the files.</p>
+	
+	<p><b>Color Mapper</b> isn't a part of this asset pack and instead has to be downloaded <a href="https://stevencolling.itch.io/color-mapper" target="_blank">here</a>, which allows me to release updates for <b>Color Mapper</b> independently of the projects it is used in. The download includes a <span class="spanCode">Documentation</span>-folder with exact instructions on how to use <b>Color Mapper</b>, but the workflow in general is at follows:</p>
+	
+	<ol>
+		<li>Setup <b>Color Mapper's</b> configuration file so it knows where to find the <span class="spanCode">Sources\input</span> and <span class="spanCode">Sources\output</span> folders.</li>
+		<li>Running <b>Color Mapper</b>, which will gather all the <span class="spanCode">*.colormapper.txt</span>-files in the input folder and assemble the png files from the single layer files with colors referenced in the <span class="spanCode">*.colormapper.txt</span>-file and defined in <b>Color Mapper's</b> configuration file. The assembled png files will be put in the <span class="spanCode">output</span>-folder.</li>
+		<li>After checking the results, the files from the <span class="spanCode">output</span>-folder can be copied over manually to <span class="spanCode">HexMapMaker\Elements</span> etc.</li>
+	</ol>
+	
+	<p><b>Color Mapper</b> already comes with a configuration file <span class="spanCode">config.txt</span> properly setup with the colors from my <b>Isle of Lore 2</b> asset packs, but for the sake of completeness, here are the proper color entries for a <b>Color Mapper</b> configuration file.</p>
+	
+	<p class="pCode">
+		color: iol2_white -> #ffffff<br>
+		color: iol2_cloud_light -> #dadada<br>
+		color: iol2_cloud_dark -> #797979<br>
+		color: iol2_dark -> #161616<br>
+		color: iol2_gray_light -> #262626<br>
+		color: iol2_gray_dark -> #1f1f1f<br>
+		color: iol2_blue_light -> #56837f<br>
+		color: iol2_blue_medium -> #3c5858<br>
+		color: iol2_blue_dark -> #263236<br>
+		color: iol2_brown_light -> #92744d<br>
+		color: iol2_brown_dark -> #644939<br>
+		color: iol2_green_light -> #e8df63<br>
+		color: iol2_green_medium -> #889954<br>
+		color: iol2_green_dark -> #3a5241<br>
+		color: iol2_red_dark -> #662c2d<br>
+		color: iol2_red -> #9c4741<br>
+		color: iol2_orange -> #d09a54<br>
+		color: iol2_yellow -> #edc95e<br>
+		color: iol2_water_light -> #51c4b9<br>
+		color: iol2_water_medium -> #35a1a0<br>
+		color: iol2_water_dark -> #37838b<br>
+		color: iol2_stone -> #a78979<br>
+		color: iol2_fire -> #ba433a<br>
+		color: iol2_fire_yellow -> #fbd050<br>
+		color: iol2_fire_orange -> #df9c45<br>
+		color: iol2_sand_light -> #ffd66c<br>
+		color: iol2_sand_medium -> #dcb95f<br>
+		color: iol2_sand_dark -> #a37f49<br>
+		color: iol2_snow_light -> #a2e9de<br>
+		color: iol2_snow_medium -> #4b8588<br>
+		color: iol2_snow_dark -> #28434b<br>
+		color: iol2_skin -> #a78979<br>
+		color: iol2_smoke -> #4a4a4a<br>
+		color: iol2_skyblue_light -> #50b1d8<br>
+		color: iol2_skyblue_medium -> #3979bc<br>
+		color: iol2_purple -> #5e40a3
+	</p>
+	
+	<p>If you want to make changes to the elements themselves, you can open the <a href="https://krita.org" target="_blank">Krita</a> or Photoshop files, edit them and export the single layers accordingly. Make sure to keep the naming scheme <span class="spanCode">(name)_(id)_(layer).png</span> intact, for example <span class="spanCode">pine_tree_0_line.png</span> for the <span class="spanCode">line</span>-layer of the pine tree with the id <span class="spanCode">0</span>.</p>
+	
+	<p></p><a name="TileBuilder"></a><div class="divBuffer"></div>
+	<h2>Editing &amp; Re-Exporting Tiles with Tile Builder</h2>
+	
+	<p>Again, if you just want to use the tile image files (png), go ahead, but in case you want to make changes to the tiles, like switching out different-colored trees to make new variations of a forest tile, you can use <b>Tile Builder</b> to batch-edit and batch-export some or all of the tiles in one go.</p>
+	
+	<p>For every png-file of a tile, there is a corresponding <span class="spanCode">*.tile.txt</span>-file containing information on how the tile png was assembled. The software I used to create the tiles is still in the making, but I published its export routine as an own console application called <b>Tile Builder</b>, which will collect all the <span class="spanCode">*.tile.txt</span>-files and the referenced elements to create a tile png from it. This process is driven by a script file.</p>
+	
+	<div class="divImage"><img src="files\tilebuilder_0.png"><p><b>Tile Builder</b> generating a tile image file from its elements (ground, border, trees, bushes etc.) as well as its <b>Tile File</b> (which stores the tile data, like the positioning of the elements), with the help of a <b>Script File</b> (which performs the export among other things).</p></div>
+	
+	<p>Similar to <b>Color Mapper</b>, <b>Tile Builder</b> is maintained separately and can be <a href="https://stevencolling.itch.io/tile-builder" target="_blank">downloaded here</a>. The download includes a <span class="spanCode">Documentation</span>-folder with detailed instructions on how to use <b>Tile Builder</b>, but the general workflow is as follows:</p>
+	
+	<ol>
+		<li>Define the scripts to run from the <span class="spanCode">HexMapMaker\Scripts</span>-folder in <b>Tile Builder's</b> configuration file.</li>
+		<li>Let <b>Tile Builder</b> run the scripts, which often includes editing, saving and exporting <span class="spanCode">*.tile.txt</span>-files in the <span class="spanCode">HexMapMaker\Workbench</span>-folder.</li>
+		<li>Checking the results in the <span class="spanCode">HexMapMaker\Workbench</span>-folder and manually copying the results back to the appropriate <span class="spanCode">HexMapMaker\Tiles</span>-folder.</li>
+	</ol>
+	
+	<p><b>Tile Builder</b> comes with several scripts in the <span class="spanCode">HexMapMaker\Scripts</span>-folder:</p>
+	
+	<ul>
+		<li><b>iol2_all:</b> Gather all the <span class="spanCode">*.tile.txt</span>-files from <span class="spanCode">HexMapMaker\Tiles</span> which have a winter variant, create a winter variant with the help of the <span class="spanCode">iol2_winter</span>-script, gather all the remaining tiles and then export every tile to png.</li>
+		<li><b>iol2_export:</b> Export all the tiles in the <span class="spanCode">HexMapMaker\Workbench</span>-folder to png.</li>
+		<li><b>iol2_winter:</b> Create a winter variant of all the tiles in the <span class="spanCode">HexMapMaker\Workbench</span>-folder by switching out elements which have a snowy version and saving (not exporting!) the <span class="spanCode">*.tile.txt</span>-file.</li>
+	</ul>
+	
+	<p></p><a name="Specification"></a><div class="divBuffer"></div>
+	<h2>Specification</h2>
+	
+	<p></p><a name="SpecificationColors"></a><div class="divBuffer"></div>
+	<h3>Colors</h3>
+
+	<p>The following colors are used across all of my <b>Isle of Lore 2</b> packs. Every color except the ones grayed out are used in <b>Isle of Lore 2: Hex Tiles</b>.</p>
+	
+	<table>
+		<tr>
+			<th>Color Name</th>
+			<th>Color Mapper Code</th>
+			<th>Hex Color Code</th>
+			<th style="padding: 0px; width: 10px"></th>
+		</tr>
+		<tr>
+			<td>Blue Light</td>
+			<td>iol2_blue_light</td>
+			<td>56837f</td>
+			<td style="padding: 0px; width: 10px; background-color: #56837f"></td>
+		</tr>
+		<tr>
+			<td>Blue Medium</td>
+			<td>iol2_blue_medium</td>
+			<td>3c5858</td>
+			<td style="padding: 0px; width: 10px; background-color: #3c5858"></td>
+		</tr>
+		<tr>
+			<td>Blue Dark</td>
+			<td>iol2_blue_dark</td>
+			<td>263236</td>
+			<td style="padding: 0px; width: 10px; background-color: #263236"></td>
+		</tr>
+		<tr>
+			<td>Brown Light</td>
+			<td>iol2_brown_light</td>
+			<td>92744d</td>
+			<td style="padding: 0px; width: 10px; background-color: #92744d"></td>
+		</tr>
+		<tr>
+			<td>Brown Dark</td>
+			<td>iol2_brown_dark</td>
+			<td>644939</td>
+			<td style="padding: 0px; width: 10px; background-color: #644939"></td>
+		</tr>
+		<tr>
+			<td>Cloud Light</td>
+			<td>iol2_cloud_light</td>
+			<td>dadada</td>
+			<td style="padding: 0px; width: 10px; background-color: #dadada"></td>
+		</tr>
+		<tr>
+			<td>Cloud Dark</td>
+			<td>iol2_cloud_dark</td>
+			<td>797979</td>
+			<td style="padding: 0px; width: 10px; background-color: #797979"></td>
+		</tr>
+		<tr>
+			<td>Dark</td>
+			<td>iol2_dark</td>
+			<td>161616</td>
+			<td style="padding: 0px; width: 10px; background-color: #161616"></td>
+		</tr>
+		<tr>
+			<td>Fire</td>
+			<td>iol2_fire</td>
+			<td>ba433a</td>
+			<td style="padding: 0px; width: 10px; background-color: #ba433a"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Fire Orange</td>
+			<td>iol2_fire_orange</td>
+			<td>df9c45</td>
+			<td style="padding: 0px; width: 10px; background-color: #df9c45"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Fire Yellow</td>
+			<td>iol2_fire_yellow</td>
+			<td>fbd050</td>
+			<td style="padding: 0px; width: 10px; background-color: #fbd050"></td>
+		</tr>
+		<tr>
+			<td>Gray Light</td>
+			<td>iol2_gray_light</td>
+			<td>262626</td>
+			<td style="padding: 0px; width: 10px; background-color: #262626"></td>
+		</tr>
+		<tr>
+			<td>Gray Dark</td>
+			<td>iol2_gray_dark</td>
+			<td>1f1f1f</td>
+			<td style="padding: 0px; width: 10px; background-color: #1f1f1f"></td>
+		</tr>
+		<tr>
+			<td>Green Light</td>
+			<td>iol2_green_light</td>
+			<td>e8df63</td>
+			<td style="padding: 0px; width: 10px; background-color: #e8df63"></td>
+		</tr>
+		<tr>
+			<td>Green Medium</td>
+			<td>iol2_green_medium</td>
+			<td>889954</td>
+			<td style="padding: 0px; width: 10px; background-color: #889954"></td>
+		</tr>
+		<tr>
+			<td>Green Dark</td>
+			<td>iol2_green_dark</td>
+			<td>3a5241</td>
+			<td style="padding: 0px; width: 10px; background-color: #3a5241"></td>
+		</tr>
+		<tr>
+			<td>Orange</td>
+			<td>iol2_orange</td>
+			<td>d09a54</td>
+			<td style="padding: 0px; width: 10px; background-color: #d09a54"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Purple</td>
+			<td>iol2_purple</td>
+			<td>5e40a3</td>
+			<td style="padding: 0px; width: 10px; background-color: #5e40a3"></td>
+		</tr>
+		<tr>
+			<td>Red</td>
+			<td>iol2_red</td>
+			<td>9c4741</td>
+			<td style="padding: 0px; width: 10px; background-color: #9c4741"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Red Dark</td>
+			<td>iol2_red_dark</td>
+			<td>662c2d</td>
+			<td style="padding: 0px; width: 10px; background-color: #662c2d"></td>
+		</tr>
+		<tr>
+			<td>Sand Light</td>
+			<td>iol2_sand_light</td>
+			<td>ffd66c</td>
+			<td style="padding: 0px; width: 10px; background-color: #ffd66c"></td>
+		</tr>
+		<tr>
+			<td>Sand Medium</td>
+			<td>iol2_sand_medium</td>
+			<td>dcb95f</td>
+			<td style="padding: 0px; width: 10px; background-color: #dcb95f"></td>
+		</tr>
+		<tr>
+			<td>Sand Dark</td>
+			<td>iol2_sand_dark</td>
+			<td>a37f49</td>
+			<td style="padding: 0px; width: 10px; background-color: #a37f49"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Skin</td>
+			<td>iol2_skin</td>
+			<td>a78979</td>
+			<td style="padding: 0px; width: 10px; background-color: #a78979"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Skyblue Light</td>
+			<td>iol2_skyblue_light</td>
+			<td>50b1d8</td>
+			<td style="padding: 0px; width: 10px; background-color: #50b1d8"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Skyblue Medium</td>
+			<td>iol2_skyblue_medium</td>
+			<td>3979bc</td>
+			<td style="padding: 0px; width: 10px; background-color: #3979bc"></td>
+		</tr>
+		<tr class="trDisabled">
+			<td>Smoke</td>
+			<td>iol2_smoke</td>
+			<td>4a4a4a</td>
+			<td style="padding: 0px; width: 10px; background-color: #4a4a4a"></td>
+		</tr>
+		<tr>
+			<td>Snow Light</td>
+			<td>iol2_snow_light</td>
+			<td>a2e9de</td>
+			<td style="padding: 0px; width: 10px; background-color: #a2e9de"></td>
+		</tr>
+		<tr>
+			<td>Snow Medium</td>
+			<td>iol2_snow_medium</td>
+			<td>4b8588</td>
+			<td style="padding: 0px; width: 10px; background-color: #4b8588"></td>
+		</tr>
+		<tr>
+			<td>Snow Dark</td>
+			<td>iol2_snow_dark</td>
+			<td>28434b</td>
+			<td style="padding: 0px; width: 10px; background-color: #28434b"></td>
+		</tr>
+		<tr>
+			<td>Stone</td>
+			<td>iol2_stone</td>
+			<td>a78979</td>
+			<td style="padding: 0px; width: 10px; background-color: #a78979"></td>
+		</tr>
+		<tr>
+			<td>Water Light</td>
+			<td>iol2_water_light</td>
+			<td>51c4b9</td>
+			<td style="padding: 0px; width: 10px; background-color: #51c4b9"></td>
+		</tr>
+		<tr>
+			<td>Water Medium</td>
+			<td>iol2_water_medium</td>
+			<td>35a1a0</td>
+			<td style="padding: 0px; width: 10px; background-color: #35a1a0"></td>
+		</tr>
+		<tr>
+			<td>Water Dark</td>
+			<td>iol2_water_dark</td>
+			<td>37838b</td>
+			<td style="padding: 0px; width: 10px; background-color: #37838b"></td>
+		</tr>
+		<tr>
+			<td>White</td>
+			<td>iol2_white</td>
+			<td>ffffff</td>
+			<td style="padding: 0px; width: 10px; background-color: #ffffff"></td>
+		</tr>
+		<tr>
+			<td>Yellow</td>
+			<td>iol2_yellow</td>
+			<td>edc95e</td>
+			<td style="padding: 0px; width: 10px; background-color: #edc95e"></td>
+		</tr>
+	</table>
+	
+	<p></p><a name="SpecificationSizes"></a><div class="divBuffer"></div>
+	<h3>Sizes</h3>
+	
+	<table>
+		<tr>
+			<th>Entity</th>
+			<th>Size (px)</th>
+		</tr>
+		<tr>
+			<td>Normal-Sized Elements</td>
+			<td>336x416</td>
+		</tr>
+		<tr>
+			<td>Big Elements (Hills, Big Waves)</td>
+			<td>1008x416</td>
+		</tr>
+		<tr>
+			<td>Mountains</td>
+			<td>1296x1456</td>
+		</tr>
+		<tr>
+			<td>Locations</td>
+			<td>800x500</td>
+		</tr>
+		<tr>
+			<td>Tiles</td>
+			<td>840x840</td>
+		</tr>
+		<tr>
+			<td>Grounds</td>
+			<td>624x728</td>
+		</tr>
+		<tr>
+			<td>Render Masks</td>
+			<td>840x840</td>
+		</tr>
+	</table>
+	
+	<p></p><a name="SpecificationBorders"></a><div class="divBuffer"></div>
+	<h3>Borders</h3>
+	
+	<table>
+		<tr>
+			<th>Border</th>
+			<th>Thickness</th>
+			<th>Canvas Position (flat)</th>
+			<th>Canvas Position (pointy)</th>
+		</tr>
+		<tr>
+			<td>Thin Border</td>
+			<td>32px</td>
+			<td>41, 76</td>
+			<td>93, 42</td>
+		</tr>
+		<tr>
+			<td>Medium Border</td>
+			<td>64px</td>
+			<td>22, 66</td>
+			<td>76, 24</td>
+		</tr>
+		<tr>
+			<td>Thick Border</td>
+			<td>80px</td>
+			<td>14, 60</td>
+			<td>66, 14</td>
+		</tr>
+	</table>
+	
+	<p></p><a name="SpecificationPencils"></a><div class="divBuffer"></div>
+	<h3>Pencils</h3>
+	
+	<p>The illustrations, including the elements, were drawn in <a href="https://krita.org/" target="_blank">Krita</a>.</p>
+	
+	<table>
+		<tr>
+			<th>Application</th>
+			<th>Pencil</th>
+			<th>Size</th>
+		</tr>
+		<tr>
+			<td>Linework</td>
+			<td>Basic-1</td>
+			<td>12px</td>
+		</tr>
+		<tr>
+			<td>Location Outline</td>
+			<td>Basic-1</td>
+			<td>24px</td>
+		</tr>
+		<tr>
+			<td>Paths</td>
+			<td>Basic-1</td>
+			<td>32px</td>
+		</tr>
+	</table>
+	
+	<p></p><a name="Changelog"></a><div class="divBuffer"></div>
+	<h2>Changelog</h2>
+	
+	<p><span class="spanChangelogVersion">2.1</span> <span class="spanCode">21. Sep 2023</span> Fixed the ground and border dimensions as well as ground and border positioning within a 840x840px tile for both flat-bottom and pointy-bottom tiles so they are as regular as possible (all sides being of same length): please refer to the table below for the exact changes; the actual size of a rendered tile remains 840x840. Changed flair and marker positioning for their generated tile overlays (y:-10 for flat-bottom and y:-2 for pointy-bottom tiles). New bit mask naming scheme for path, road and river file names. Fixed wrong paths in the overlay generating Color Mapper files. Updated and fixed parts of the documentation, including color config example entries and color palette table.</p>
+	<table>
+		<tr>
+			<th>Entity</th>
+			<th>Size Before</th>
+			<th>Size Now</th>
+			<th>Position Before</th>
+			<th>Position Now</th>
+		</tr>
+		<tr>
+			<td>Ground (Flat)</td>
+			<td>725x634</td>
+			<td>725x628</td>
+			<td>57, 103</td>
+			<td>57, 106</td>
+		</tr>
+		<tr>
+			<td>Ground (Pointy)</td>
+			<td>624x728</td>
+			<td>628x725</td>
+			<td>108, 56</td>
+			<td>106, 57</td>
+		</tr>
+		<tr>
+			<td>Border Medium (Flat)</td>
+			<td>795x708</td>
+			<td>795x688</td>
+			<td>22, 66</td>
+			<td>22, 76</td>
+		</tr>
+		<tr>
+			<td>Border Medium (Pointy)</td>
+			<td>688x792</td>
+			<td>688x795</td>
+			<td>76, 24</td>
+			<td>76, 22</td>
+		</tr>
+		<tr>
+			<td>Border Thin (Flat)</td>
+			<td>758x668</td>
+			<td>758x656</td>
+			<td>41, 76</td>
+			<td>41, 92</td>
+		</tr>
+		<tr>
+			<td>Border Thin (Pointy)</td>
+			<td>654x756</td>
+			<td>656x758</td>
+			<td>93, 42</td>
+			<td>92, 41</td>
+		</tr>
+		<tr>
+			<td>Border Thick (Flat)</td>
+			<td>812x720</td>
+			<td>812x703</td>
+			<td>14, 60</td>
+			<td>14, 68</td>
+		</tr>
+		<tr>
+			<td>Border Thick (Pointy)</td>
+			<td>708x812</td>
+			<td>703x812</td>
+			<td>66, 14</td>
+			<td>68, 14</td>
+		</tr>
+	</table>
+	<p><span class="spanChangelogVersion">2.0</span> <span class="spanCode">21. Jun 2023</span> Complete overhaul and redrawing of all the images, new tiles and elements as well as support for Color Mapper and Tile Builder. Adapted color palette.</p>
+	<p><span class="spanChangelogVersion">1.0</span> <span class="spanCode">26. Nov 2019</span> Original hex tiles.</p>
+	
+</div>
+</body>
+</html>

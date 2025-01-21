@@ -1,0 +1,26 @@
+Pine Forest
+Oak Forest
+Mixed Forest
+Hills
+Grassland
+Meadow
+Swamp
+Valley
+Jungle
+Desert
+Ocean
+Aloft
+Wheat
+Mountain
+Arctic
+Ship
+Coast
+Cavern
+Inn
+Space
+Temple
+Village
+Town
+City
+Castle
+Manor

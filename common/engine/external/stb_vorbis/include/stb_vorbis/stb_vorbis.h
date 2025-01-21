@@ -624,11 +624,11 @@ enum STBVorbisError
 
 
 typedef unsigned char  stbv_uint8;
-typedef   signed char  stbv_int8;
+typedef signed char  stbv_int8;
 typedef unsigned short stbv_uint16;
-typedef   signed short stbv_int16;
+typedef signed short stbv_int16;
 typedef unsigned int   stbv_uint32;
-typedef   signed int   stbv_int32;
+typedef signed int   stbv_int32;
 
 #ifndef TRUE
 #define TRUE 1

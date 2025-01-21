@@ -110,7 +110,7 @@ unsigned int utl_string_count(utl_string *str, const char *substr);
 unsigned int utl_string_utf8_char_len(char c);
 
 const char *utl_string_data(utl_string *str);
-const char *utl_string_c_str(const utl_string *str);
+const char *utl_string_str(const utl_string *str);
 const char *utl_string_cbegin(utl_string *str);
 const char *utl_string_cend(utl_string *str);
 const char *utl_string_crbegin(utl_string *str);

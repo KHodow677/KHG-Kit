@@ -1,20 +1,18 @@
-#include "area/tile.h"
-#include "ecs/comp_renderer.h"
+#include "area/ovr_tile.h"
 #include "camera/camera.h"
 #include "ecs/comp_physics.h"
+#include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
-#include "khg_gfx/ui.h"
-#include "khg_phy/shape.h"
-#include "khg_utl/array.h"
-#include "letterbox.h"
-#include "resources/area_loader.h"
-#include "resources/rig_loader.h"
-#include "resources/texture_loader.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
+#include "khg_gfx/ui.h"
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
+#include "khg_phy/shape.h"
+#include "letterbox.h"
+#include "resources/rig_loader.h"
+#include "resources/texture_loader.h"
 #include "rig/rig.h"
 #include <math.h>
 #include <stdio.h>
@@ -34,9 +32,13 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
   if (dt == 0.0f) {
     return 0;
   }
-  for (int layer = 0; layer < 10; layer++) {
+  for (unsigned int layer = 0; layer < 10; layer++) {
     for (int id = 0; id < entity_count; id++) {
       comp_renderer *info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
+      if (info->ovr_tile.tile_id) {
+        render_ovr_tile(&info->ovr_tile, &layer);
+        continue;
+      }
       if (layer != info->render_layer) {
         continue;
       }
@@ -50,9 +52,6 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
       }
       if (info->rig.enabled) {
         render_rig(&info->rig, info->parallax_value, info->flipped);
-      }
-      else if (info->tiles.enabled) {
-        render_tiles(info->tiles.tiles, info->parallax_value);
       }
       else {
         phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
@@ -74,8 +73,8 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
   if (info && constructor_info) {
     info->body = constructor_info->body;
     info->shape = constructor_info->shape;
-    info->rig = constructor_info->rig_id != NO_RIG_ID ? get_rig(constructor_info->rig_id) : (rig){ false };
-    info->tiles = constructor_info->area_id != NO_AREA_ID ? get_area_tiles(constructor_info->area_id) : (area_tiles){ false };
+    info->rig = constructor_info->rig_id != NULL_RIG ? get_rig(constructor_info->rig_id) : (rig){ false };
+    info->ovr_tile = constructor_info->ovr_tile;
     info->tex_id = constructor_info->tex_id;
     info->render_layer = constructor_info->render_layer;
     info->parallax_value = constructor_info->parallax_value;
@@ -86,12 +85,9 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
 }
 
 static void comp_renderer_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
-  const comp_renderer *info = ptr;
+  comp_renderer *info = ptr;
   if (info && info->rig.enabled) {
     free_rig(&info->rig);
-  }
-  if (info && info->tiles.enabled) {
-    utl_array_deallocate(info->tiles.tiles);
   }
 }
 
@@ -110,4 +106,3 @@ comp_renderer *sys_renderer_add(const ecs_id eid, comp_renderer_constructor_info
   comp_renderer *res = ecs_add(ECS, eid, RENDERER_COMPONENT_SIGNATURE, NULL);
   return res;
 }
-
