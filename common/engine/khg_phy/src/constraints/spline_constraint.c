@@ -88,19 +88,19 @@ unsigned int phy_spline_constraint_get_number_of_control_points(const phy_constr
   return spline_cons->num_controls;
 }
 
-static inline phy_vector2 catmull_rom(phy_vector2 p0, phy_vector2 p1, phy_vector2 p2, phy_vector2 p3, double t) {
+static inline phy_vector2 catmull_rom(phy_vector2 p0, phy_vector2 p1, phy_vector2 p2, phy_vector2 p3, float t) {
   float t2 = t * t;
   float t3 = t2 * t;
-  double x = 0.5 * ((2.0 * p1.x) + (-p0.x + p2.x) * t + (2.0 * p0.x - 5.0 * p1.x + 4.0 * p2.x - p3.x) * t2 + (-p0.x + 3.0 * p1.x - 3.0 * p2.x + p3.x) * t3);
-  double y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2.0 * p0.y - 5.0 * p1.y + 4.0 * p2.y - p3.y) * t2 + (-p0.y + 3.0 * p1.y - 3.0 * p2.y + p3.y) * t3);
+  float x = 0.5 * ((2.0 * p1.x) + (-p0.x + p2.x) * t + (2.0 * p0.x - 5.0 * p1.x + 4.0 * p2.x - p3.x) * t2 + (-p0.x + 3.0 * p1.x - 3.0 * p2.x + p3.x) * t3);
+  float y = 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2.0 * p0.y - 5.0 * p1.y + 4.0 * p2.y - p3.y) * t2 + (-p0.y + 3.0 * p1.y - 3.0 * p2.y + p3.y) * t3);
   return phy_vector2_new(x, y);
 }
 
-static inline double gss_for_t(phy_vector2 p0, phy_vector2 p1, phy_vector2 p2, phy_vector2 p3, phy_vector2 p, double tolerance) {
-  double a = 0.0;
-  double b = 1.0;
-  double t1 = b - (b - a) * PHY_INV_PHI;
-  double t2 = a + (b - a) * PHY_INV_PHI;
+static inline float gss_for_t(phy_vector2 p0, phy_vector2 p1, phy_vector2 p2, phy_vector2 p3, phy_vector2 p, float tolerance) {
+  float a = 0.0;
+  float b = 1.0;
+  float t1 = b - (b - a) * PHY_INV_PHI;
+  float t2 = a + (b - a) * PHY_INV_PHI;
   while (fabs(b - a) > tolerance) {
     phy_vector2 v1 = catmull_rom(p0, p1, p2, p3, t1);
     phy_vector2 v2 = catmull_rom(p0, p1, p2, p3, t2);
@@ -128,7 +128,7 @@ static phy_vector2 spline_closest(phy_spline_constraint *spline, phy_vector2 poi
   float min_dist = INFINITY;
   for (unsigned int i = 0; i < num_segments; i++) {
     for (unsigned int j = 0; j < sample_per_segment; j++) {
-      double t = (double)j / (double)(sample_per_segment - 1);
+      float t = (float)j / (float)(sample_per_segment - 1);
       phy_vector2 p0 = controls[i];
       phy_vector2 p1 = controls[i + 1];
       phy_vector2 p2 = controls[i + 2];
@@ -144,7 +144,7 @@ static phy_vector2 spline_closest(phy_spline_constraint *spline, phy_vector2 poi
       }
     }
   }
-  double t = gss_for_t(segment0, segment1, segment2, segment3, point, PHY_SPLINE_CONSTRAINT_TOLERANCE);
+  float t = gss_for_t(segment0, segment1, segment2, segment3, point, PHY_SPLINE_CONSTRAINT_TOLERANCE);
   return catmull_rom(segment0, segment1, segment2, segment3, t);
 }
 

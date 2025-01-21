@@ -1429,7 +1429,7 @@ typedef void (* GLFWmousebuttonfun)(GLFWwindow*,int,int,int);
  *
  *  @ingroup input
  */
-typedef void (* GLFWcursorposfun)(GLFWwindow*,double,double);
+typedef void (* GLFWcursorposfun)(GLFWwindow*,float,float);
 
 /*! @brief The function pointer type for cursor enter/leave callbacks.
  *
@@ -1471,7 +1471,7 @@ typedef void (* GLFWcursorenterfun)(GLFWwindow*,int);
  *
  *  @ingroup input
  */
-typedef void (* GLFWscrollfun)(GLFWwindow*,double,double);
+typedef void (* GLFWscrollfun)(GLFWwindow*,float,float);
 
 /*! @brief The function pointer type for keyboard key callbacks.
  *

@@ -274,7 +274,7 @@ static khs_val khs_rands_callback(const khs_val *args, khs_size n_args) {
     khs_blame_arg(args[0]);
     return KHS_ERR("Expected integer length as argument");
   }
-  khs_float len = khs_as_num(args[0]);
+  float len = khs_as_num(args[0]);
   if (len < 0 || len > KHS_SIZE_MAX) {
     khs_blame_arg(args[0]);
     return KHS_ERR("Random string length is out of range");
@@ -288,7 +288,7 @@ static khs_val khs_rands_hex(const khs_val *args, khs_size n_args) {
     khs_blame_arg(args[0]);
     return KHS_ERR("Expected integer length as argument");
   }
-  khs_float len = khs_as_num(args[0]);
+  float len = khs_as_num(args[0]);
   if (len < 0 || len > KHS_SIZE_MAX) {
     khs_blame_arg(args[0]);
     return KHS_ERR("Random string length is out of range");

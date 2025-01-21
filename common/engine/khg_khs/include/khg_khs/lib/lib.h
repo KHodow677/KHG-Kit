@@ -34,7 +34,7 @@ static khs_val name(const khs_val *args, khs_size n_args) {\
       return KHS_ERR("Expected number as argument for '" #op "'");\
     }\
   }\
-  khs_float res = start_val;\
+  float res = start_val;\
   for (khs_size i = start_index; i < n_args; i++) {\
     if(KHS_TYPEOF(args[i]) != KHS_TYPE_NUMBER) {\
       khs_blame_arg(args[i]);\

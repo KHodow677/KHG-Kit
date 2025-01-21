@@ -857,7 +857,7 @@ void gfx_internal_glfw_mouse_button_callback(GLFWwindow *window, int button, int
   GFX_STATE.mb_ev.button_code = button;
 }
 
-void gfx_internal_glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
+void gfx_internal_glfw_scroll_callback(GLFWwindow *window, float xoffset, float yoffset) {
   GFX_STATE.input.mouse.xscroll_delta = xoffset;
   GFX_STATE.input.mouse.yscroll_delta = yoffset;
   for (unsigned int i = 0; i< GFX_STATE.input.scroll_cb_count; i++) {
@@ -899,7 +899,7 @@ void gfx_internal_glfw_scroll_callback(GLFWwindow *window, double xoffset, doubl
   }
 }
 
-void gfx_internal_glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos) {
+void gfx_internal_glfw_cursor_callback(GLFWwindow *window, float xpos, float ypos) {
   (void)window;
   gfx_mouse *mouse = &GFX_STATE.input.mouse;
   mouse->xpos = xpos;

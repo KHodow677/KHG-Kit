@@ -5,7 +5,6 @@
 #include <float.h>
 #include <stdbool.h>
 
-typedef double khs_float;
 #define KHS_NUM_MAX_INT (1ll << DBL_MANT_DIG)
 
 typedef unsigned khs_size;
@@ -68,7 +67,7 @@ struct khs_val {
     khs_table *table;
     const char *str;
     char inline_str[KHS_INLINE_STR_MAX_LEN];
-    khs_float num_v;
+    float num_v;
     bool bool_v;
     khs_external_fn *ext_fn;
     const char *fn;
@@ -114,7 +113,7 @@ struct khs_object {
 };
 
 const char *khs_get_raw_str(const khs_val *str);
-khs_float khs_as_num(khs_val val);
+float khs_as_num(khs_val val);
 bool khs_as_bool(khs_val val);
 khs_tag khs_as_tag(khs_val val);
 

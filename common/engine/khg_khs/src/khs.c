@@ -418,7 +418,7 @@ const char *khs_get_raw_str(const khs_val *str) {
   return &str->val.managed_str->str[0];
 }
 
-khs_float khs_as_num(khs_val val) {
+float khs_as_num(khs_val val) {
   assert(KHS_TYPEOF(val) == KHS_TYPE_NUMBER);
   return val.val.num_v;
 }
@@ -580,11 +580,11 @@ bool khs_is_integer(khs_val val) {
   if (KHS_TYPEOF(val) != KHS_TYPE_NUMBER) {
     return false;
   }
-  khs_float f = khs_as_num(val);
+  float f = khs_as_num(val);
   if (f >= KHS_NUM_MAX_INT || f <= -KHS_NUM_MAX_INT) {
     return true;
   }
-  return (khs_float)(long long)f - f == 0.0;
+  return (float)(long long)f - f == 0.0;
 }
 
 int khs_val_cmp(khs_val a, khs_val b) {
@@ -607,8 +607,8 @@ int khs_val_cmp(khs_val a, khs_val b) {
         return 2;
       } }
     case KHS_TYPE_NUMBER: {
-      khs_float n_a = khs_as_num(a);
-      khs_float n_b = khs_as_num(b);
+      float n_a = khs_as_num(a);
+      float n_b = khs_as_num(b);
       if (n_a == n_b) {
         return 0;
       }
@@ -1470,7 +1470,7 @@ khs_val khs_call(khs_val fn, const khs_val *args, unsigned int n_args, bool borr
         err = KHS_ERR("Can only index array with a number");
         goto ERR;
       }
-      khs_float f = khs_as_num(args[0]);
+      float f = khs_as_num(args[0]);
       if (!khs_is_integer(args[0])) {
         khs_blame_arg(args[0]);
         err = KHS_ERR("Can only index array with an integer number");

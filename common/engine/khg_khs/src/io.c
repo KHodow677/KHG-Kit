@@ -41,7 +41,7 @@ void khs_print_file_val(FILE *f, khs_val val) {
       fputs("Null", f);
       break;
     case KHS_TYPE_NUMBER: {
-      khs_float num = khs_as_num(val);
+      float num = khs_as_num(val);
       if (khs_is_integer(val) && num <= LLONG_MAX && num >= LLONG_MIN) {
         fprintf(f, "%lli", (long long int) num);
       }

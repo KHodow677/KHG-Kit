@@ -10,10 +10,10 @@ float utl_noise_interpolation_cosine(float a, float b, float x){
 
 void utl_noise_interpolation_2d(float **map, int start_y, int start_x, int end_y, int end_x){
   for (int i = start_y; i <= end_y; i++){
-    map[i][start_x] = utl_noise_interpolation_cosine(map[start_y][start_x], map[end_y][start_x], (double)(i - start_y) / (end_y - start_y));
-    map[i][end_x] = utl_noise_interpolation_cosine(map[start_y][end_x], map[end_y][end_x], (double)(i - start_y) / (end_y - start_y));
+    map[i][start_x] = utl_noise_interpolation_cosine(map[start_y][start_x], map[end_y][start_x], (float)(i - start_y) / (end_y - start_y));
+    map[i][end_x] = utl_noise_interpolation_cosine(map[start_y][end_x], map[end_y][end_x], (float)(i - start_y) / (end_y - start_y));
     for (int j = start_x; j <= end_x; j++){
-      map[i][j] = utl_noise_interpolation_cosine(map[i][start_x], map[i][end_x], (double)(j - start_x) / (end_x - start_x));
+      map[i][j] = utl_noise_interpolation_cosine(map[i][start_x], map[i][end_x], (float)(j - start_x) / (end_x - start_x));
     }
   }
 }
@@ -39,13 +39,13 @@ void utl_noise_normalize_noise(float ** map, int size){
   }
 }
 
-float **utl_noise_value_noise(float **noise_map, int size, int octaves, double scaling_factor){
+float **utl_noise_value_noise(float **noise_map, int size, int octaves, float scaling_factor){
   float **gen_map = (float **)calloc(size, sizeof(float *));
   for (unsigned int i = 0; i < size; i ++){
     gen_map[i] = (float *)calloc(size, sizeof(float));
   }
   int pitch;
-  double persistance = 1;
+  float persistance = 1;
   for (unsigned int o = 0; o <= octaves; o++){
     pitch = (int)(size - 1)/pow(2, o);
     for (int i = 0; i < size; i += pitch){
@@ -64,7 +64,7 @@ float **utl_noise_value_noise(float **noise_map, int size, int octaves, double s
   return gen_map;
 }
 
-float **utl_noise_generate_value_noise(int seed, int size, int octaves, double scaling_factor){
+float **utl_noise_generate_value_noise(int seed, int size, int octaves, float scaling_factor){
   srand(seed);
   float ** nmap = (float **)calloc(size, sizeof(float *));
   for (unsigned int i = 0; i < size; i++){

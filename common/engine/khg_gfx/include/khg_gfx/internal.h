@@ -58,9 +58,9 @@ typedef struct {
   bool buttons_current[GFX_MAX_MOUSE_BUTTONS];
   bool buttons_last[GFX_MAX_MOUSE_BUTTONS];
 
-  double xpos, ypos, xpos_last, ypos_last, xpos_delta, ypos_delta;
+  float xpos, ypos, xpos_last, ypos_last, xpos_delta, ypos_delta;
   bool first_mouse_press; 
-  double xscroll_delta, yscroll_delta;
+  float xscroll_delta, yscroll_delta;
 } gfx_mouse;
 
 typedef struct {
@@ -172,8 +172,8 @@ int gfx_internal_map_vals(int value, int from_min, int from_max, int to_min, int
 
 void gfx_internal_glfw_key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 void gfx_internal_glfw_mouse_button_callback(GLFWwindow *window, int button, int action, int mods); 
-void gfx_internal_glfw_scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-void gfx_internal_glfw_cursor_callback(GLFWwindow *window, double xpos, double ypos);
+void gfx_internal_glfw_scroll_callback(GLFWwindow *window, float xoffset, float yoffset);
+void gfx_internal_glfw_cursor_callback(GLFWwindow *window, float xpos, float ypos);
 void gfx_internal_glfw_char_callback(GLFWwindow *window, unsigned int charcode);
 void gfx_internal_glfw_window_size_callback(GLFWwindow *window, int width, int height);
 
