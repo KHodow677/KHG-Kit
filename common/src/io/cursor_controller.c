@@ -2,7 +2,6 @@
 #include "camera/camera.h"
 #include "khg_gfx/events.h"
 #include "khg_phy/core/phy_vector.h"
-#include <stdio.h>
 
 cursor_state CURSOR_STATE = { 0 };
 
@@ -23,5 +22,5 @@ void update_cursor_controls() {
   CURSOR_STATE.screen_pos.y = gfx_get_mouse_y();
   phy_vector2 pos = phy_vector2_new(CURSOR_STATE.screen_pos.x, CURSOR_STATE.screen_pos.y);
   CURSOR_STATE.world_pos = screen_to_world(pos.x, pos.y);
-  printf("CURSOR: x: %f, y: %f\n", CURSOR_STATE.world_pos.x, CURSOR_STATE.world_pos.y);
 }
+

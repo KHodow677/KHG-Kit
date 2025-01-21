@@ -41,6 +41,10 @@ void set_ovr_tile_size(const unsigned int tile_tex_id) {
   OVR_TILE_SIZE = tex_ref.height * OVR_TILE_SCALE;
 }
 
+const float get_ovr_tile_size() {
+  return OVR_TILE_SIZE;
+}
+
 phy_vector2 ovr_tile_rendering_pos(const phy_vector2 coords, const phy_vector2 offset, const float tex_height) {
   const phy_vector2 offset_from_mid = phy_vector2_sub(offset, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
   const phy_vector2 scaled_offset = phy_vector2_mul(offset_from_mid, OVR_TILE_SCALE);
