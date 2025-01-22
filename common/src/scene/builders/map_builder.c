@@ -2,7 +2,6 @@
 #include "khg_phy/core/phy_vector.h"
 #include "khg_utl/random.h"
 #include "khg_utl/time.h"
-#include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/builders/map_builder.h"
 #include "scene/builders/tile_builder.h"
@@ -33,5 +32,5 @@ void build_ovr_map(const phy_vector2 pos, const float scale) {
   /*build_ovr_tile(PLAINS_DENSE_6, phy_vector2_new(0.0f, 0.0f));*/
   /*build_ovr_tile(PLAINS_DENSE_7, phy_vector2_new(0.0f, 0.0f));*/
   /*build_ovr_tile(PLAINS_DENSE_8, phy_vector2_new(0.0f, 0.0f));*/
-  build_ovr_tile(PLAINS_DENSE_9, phy_vector2_new(0.0f, 0.0f));
+  /*build_ovr_tile(PLAINS_DENSE_9, phy_vector2_new(0.0f, 0.0f));*/
 }

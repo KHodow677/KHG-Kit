@@ -4,7 +4,7 @@
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 
-#define MAX_LIGHTS
+#define MAX_LIGHTS 256
 
 typedef struct {
   vec2s pos_perc;

@@ -40,7 +40,7 @@ utl_time *utl_time_current_time(void) {
   struct timeval tv;
   gettimeofday(&tv, NULL);
   struct tm *timeinfo = localtime(&tv.tv_sec);
-  Time *timeObject = time_create(timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec / 1000);
+  utl_time *timeObject = utl_time_create(timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, tv.tv_usec / 1000);
   return timeObject;
 #endif
 }
