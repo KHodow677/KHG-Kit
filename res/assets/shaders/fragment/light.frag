@@ -10,13 +10,12 @@ flat in vec2 v_pos_px;
 in float v_corner_radius;
 in vec2 v_min_coord;
 in vec2 v_max_coord;
-const int num_lights = 1024;
 uniform sampler2D u_textures[32];
 uniform vec2 u_screen_size;
 uniform vec3 u_light_color;
 uniform int u_num_lights_active;
-uniform vec2 u_light_pos_percs[num_lights];
-uniform float u_light_intensities[num_lights];
+uniform vec2 u_light_pos_percs[256];
+uniform float u_light_intensities[256];
 float rounded_box_sdf(vec2 center_pos, vec2 size, float radius) {
   return length(max(abs(center_pos) - size + radius, 0.0)) - radius;
 }

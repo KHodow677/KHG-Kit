@@ -14,7 +14,7 @@ gfx_shader PRIMARY_SHADER = { 0 };
 gfx_shader LIGHTING_SHADER = { 0 };
 gfx_shader FRAMEBUFFER_SHADER = { 0 };
 int LIGHT_COUNT = 0;
-light LIGHTS[1024];
+light LIGHTS[] = { 0 };
 
 void setup_lights_texture() {
   LIGHTING_OVERLAY = get_or_add_texture(SQUARE);

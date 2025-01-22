@@ -26,7 +26,7 @@ static ecs_ret sys_tile_update(ecs_ecs *ecs, ecs_id *entities, const unsigned in
   for (unsigned int id = 0; id < entity_count; id++) {
     comp_physics *p_info = ecs_get(ECS, entities[id], PHYSICS_COMPONENT_SIGNATURE);
     bool is_hovered = is_within_tile(phy_rigid_body_get_position(p_info->body), CURSOR_STATE.world_pos, 0.9f, get_ovr_tile_size());
-    printf("Hovered: %i\n", is_hovered);
+    // printf("Hovered: %i\n", is_hovered);
   }
   return 0;
 }

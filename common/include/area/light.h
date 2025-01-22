@@ -1,8 +1,10 @@
 #pragma once
 
+#include "cglm/types-struct.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
-#include "cglm/types-struct.h"
+
+#define MAX_LIGHTS
 
 typedef struct {
   vec2s pos_perc;
@@ -15,7 +17,7 @@ extern gfx_shader PRIMARY_SHADER;
 extern gfx_shader LIGHTING_SHADER;
 extern gfx_shader FRAMEBUFFER_SHADER;
 extern int LIGHT_COUNT;
-extern light LIGHTS[1024];
+extern light LIGHTS[MAX_LIGHTS];
 
 void setup_lights_texture(void);
 void setup_lights_shader(void);
