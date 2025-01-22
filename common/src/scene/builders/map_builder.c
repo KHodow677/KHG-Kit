@@ -1,13 +1,19 @@
 #include "area/ovr_tile.h"
 #include "khg_phy/core/phy_vector.h"
+#include "khg_utl/random.h"
+#include "khg_utl/time.h"
 #include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/builders/map_builder.h"
 #include "scene/builders/tile_builder.h"
 
 void build_ovr_map(const phy_vector2 pos, const float scale) {
+  set_ovr_tile_options();
   set_ovr_tile_scale(0.25f);
   set_ovr_tile_size(GROUND_GRASS);
+  utl_random_seed((unsigned int) utl_time_current_time_in_seconds());
+  build_ovr_tile(*(unsigned int *)utl_random_choice(utl_vector_data(OVR_TILE_OPTIONS), utl_vector_size(OVR_TILE_OPTIONS), sizeof(unsigned int)), phy_vector2_new(0.0f, 0.0f));
+  clear_ovr_tile_options(); 
   /*build_ovr_tile(PLAINS_CLEARING_0, phy_vector2_new(0.0f, 0.0f));*/
   /*build_ovr_tile(PLAINS_CLEARING_1, phy_vector2_new(0.0f, 0.0f));*/
   /*build_ovr_tile(PLAINS_CLEARING_2, phy_vector2_new(0.0f, 0.0f));*/

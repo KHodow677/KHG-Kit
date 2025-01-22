@@ -24,6 +24,8 @@ typedef struct ovr_tile {
   unsigned int num_elements;
 } ovr_tile;
 
+extern utl_vector *OVR_TILE_OPTIONS;
+
 void set_ovr_tile_scale(const float tile_scale);
 void set_ovr_tile_size(const unsigned int tile_tex_id);
 const float get_ovr_tile_size(void);
@@ -39,3 +41,5 @@ void remove_ovr_tile_elements(ovr_tile_info *parent_tile);
 
 void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer);
 
+void set_ovr_tile_options(void);
+void clear_ovr_tile_options(void);

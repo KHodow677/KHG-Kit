@@ -15,6 +15,8 @@
 #define ELEMENT_LAYER 1
 #define BORDER_LAYER 2
 
+utl_vector *OVR_TILE_OPTIONS = NULL;
+
 static float OVR_TILE_SCALE = 1.0f;
 static float OVR_TILE_SIZE = 0.0f;
 
@@ -140,5 +142,17 @@ void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer) {
     default:
       break;
   }
+}
+
+void set_ovr_tile_options() {
+  OVR_TILE_OPTIONS = utl_vector_create(sizeof(unsigned int));
+  utl_vector_reserve(OVR_TILE_OPTIONS, NUM_OVR_TILES);
+  for (unsigned int i = 0; i < NUM_OVR_TILES; i++) {
+    utl_vector_push_back(OVR_TILE_OPTIONS, &i);
+  }
+}
+
+void clear_ovr_tile_options() {
+  utl_vector_deallocate(OVR_TILE_OPTIONS);
 }
 
