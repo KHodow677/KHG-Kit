@@ -20,12 +20,11 @@
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "physics/physics.h"
-#include "resources/ovr_tile_loader.h"
-#include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
-#include "scene/scene_loader.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
+#include "scene/scene_loader.h"
+#include "threading/resource_loading.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -77,13 +76,13 @@ const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
   generate_textures();
-  generate_rigs();
-  generate_ovr_tiles();
-  setup_scenes();
+  /*generate_rigs();*/
+  /*generate_ovr_tiles();*/
+  /*setup_scenes();*/
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, true);
-  clear_scenes();
+  /*clear_scenes();*/
   return res;
 }
 
@@ -91,7 +90,8 @@ const bool gfx_loop(const float delta, const float fps_val) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
-  if (!scene_loaded()) {
+  load_resources_defer(20);
+  if (!RESOUCES_LOADED || !SCENE_LOADED) {
     return true;
   }
   update_key_controls();
@@ -117,7 +117,7 @@ const bool gfx_loop(const float delta, const float fps_val) {
 
 const bool gfx_loop_post(const float delta, const float fps_val) {
   gfx_begin();
-  if (!scene_loaded()) {
+  if (!RESOUCES_LOADED || !SCENE_LOADED) {
     return true;
   }
   gfx_clear_style_props();
@@ -130,7 +130,7 @@ const bool gfx_loop_post(const float delta, const float fps_val) {
 
 const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_begin();
-  if (!scene_loaded()) {
+  if (!RESOUCES_LOADED || !SCENE_LOADED) {
     return true;
   }
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
@@ -145,7 +145,7 @@ const bool gfx_loop_ui(const float delta, const float fps_val) {
 };
 
 void gfx_framebuffer(const GLuint vao, const GLuint texture) {
-  if (!scene_loaded()) {
+  if (!RESOUCES_LOADED || !SCENE_LOADED) {
     return;
   }
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

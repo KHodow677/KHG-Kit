@@ -1,5 +1,6 @@
 #include "khg_gfx/texture.h"
 #include "khg_utl/algorithm.h"
+#include "threading/resource_loading.h"
 #include "resources/texture_loader.h"
 #include <stdio.h>
 #include <string.h>
@@ -28,12 +29,16 @@ const unsigned int get_tex_id_from_string(const char *tex_key) {
   return utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
 }
 
+void add_texture(const unsigned int tex_id) {
+  const texture_asset ta = TEXTURE_ASSET_REF[tex_id];
+  TEXTURE_LOOKUP[tex_id] = generate_texture(ta.tex_filepath, ta.tex_width, ta.tex_height);
+}
+
 const gfx_texture get_or_add_texture(const unsigned int tex_id) {
   if (check_texture_loaded(tex_id)) {
     return TEXTURE_LOOKUP[tex_id];
   }
-  const texture_asset ta = TEXTURE_ASSET_REF[tex_id];
-  TEXTURE_LOOKUP[tex_id] = generate_texture(ta.tex_filepath, ta.tex_width, ta.tex_height);
+  add_texture(tex_id);
   return TEXTURE_LOOKUP[tex_id];
 }
 
@@ -88,14 +93,20 @@ void generate_textures() {
     TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
     strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
   }
-  for (unsigned int i = 0; i < NUM_TEXTURES; i++) {
-    get_or_add_texture(i);
-  }
 }
 
 void reset_textures() {
   for (unsigned int i = 0; i < NUM_TEXTURES; i++) {
     TEXTURE_LOOKUP[i].id = NO_TEXTURE.id;
+  }
+}
+
+void load_texture_tick(const unsigned int count) {
+  for (unsigned int i = 0; i < count; i++) {
+    if (TEXTURE_LOAD_PROGRESS < NUM_TEXTURES) {
+      add_texture(TEXTURE_LOAD_PROGRESS++);
+      printf("TEX PROGRESS: %i\n", TEXTURE_LOAD_PROGRESS);
+    }
   }
 }
 

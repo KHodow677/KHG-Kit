@@ -71,9 +71,11 @@ const gfx_texture generate_texture(const char *filepath, const float width, cons
 const bool check_texture_loaded(const unsigned int tex_id);
 const unsigned int get_tex_id_from_string(const char *tex_key);
 
+void add_texture(const unsigned int tex_id);
 const gfx_texture get_or_add_texture(const unsigned int tex_id);
 const gfx_texture get_or_add_texture_from_string(const char *tex_key);
 
 void generate_textures(void);
 void reset_textures(void);
+void load_texture_tick(const unsigned int count);
 

@@ -7,12 +7,13 @@
 #include "physics/physics.h"
 #include "scene/builders/map_builder.h"
 #include "scene/builders/structure_builder.h"
+#include "threading/resource_loading.h"
 #include "scene/scene_loader.h"
 #include <stdbool.h>
+#include <stdio.h>
 
 utl_vector *GAME_SCENES = NULL;
-
-static bool SCENE_LOADED = false;
+bool SCENE_LOADED = false;
 
 static void load_main() {
   physics_setup(phy_vector2_new(0.0f, 0.0f));
@@ -44,10 +45,6 @@ void clear_scenes(void) {
     }
   }
   utl_vector_deallocate(GAME_SCENES);
-}
-
-const bool scene_loaded() {
-  return SCENE_LOADED;
 }
 
 void add_scene(void (*load_fn)(void), void (*unload_fn)(void)) {
