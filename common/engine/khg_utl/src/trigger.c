@@ -113,8 +113,8 @@ static void listener_add_trigger(utl_listener *listener, utl_trigger *trigger) {
 }
 
 
-static void trigger_remove_listenerlist_index(utl_trigger *trigger, int slot, int listindex) {
-  trigger->event[slot].listeners[listindex] = NULL;
+static void trigger_remove_listener_list_index(utl_trigger *trigger, int slot, int list_index) {
+  trigger->event[slot].listeners[list_index] = NULL;
   trigger->event[slot].num_listeners--;
   if (trigger->event[slot].num_listeners == 0) {
     trigger->event[slot].name[0] = '\0';
@@ -133,7 +133,7 @@ static void trigger_disregard_listener(utl_trigger *trigger, utl_listener *liste
       if (trigger->event[i].listeners[s] != listener) {
         continue;
       }
-      trigger_remove_listenerlist_index(trigger, i, s);
+      trigger_remove_listener_list_index(trigger, i, s);
       break;
     }
   }
@@ -180,28 +180,28 @@ void utl_trigger_delete(utl_trigger *const trigger) {
   trigger_free(trigger);
 }
 
-void utl_trigger_event(utl_trigger *const trigger, const char *const eventname, const void *const eventdata) {
+void utl_trigger_event(utl_trigger *const trigger, const char *const event_name, const void *const event_data) {
   int index;
-  if (find_name_slot(trigger, eventname, &index) == 0) {
+  if (find_name_slot(trigger, event_name, &index) == 0) {
     return;
   }
   for (unsigned i = 0; i < trigger->event[index].allocated_listeners; i++) {
     if (trigger->event[index].listeners[i] != NULL) {
-      send_event_to_listener(trigger->event[index].listeners[i], eventname, eventdata);
+      send_event_to_listener(trigger->event[index].listeners[i], event_name, event_data);
     }
   }
 }
 
-int utl_trigger_unlisten(utl_trigger *const trigger, const char *const eventname, utl_listener *const listener) {
+int utl_trigger_unlisten(utl_trigger *const trigger, const char *const event_name, utl_listener *const listener) {
   int index;
-  if (find_name_slot(trigger, eventname, &index) == 0) {
+  if (find_name_slot(trigger, event_name, &index) == 0) {
     return 0;
   } 
   else {
     int i = trigger->event[index].allocated_listeners;
     while (i--) {
       if (trigger->event[index].listeners[i] == listener) {
-	      trigger_remove_listenerlist_index(trigger, index, i);
+	      trigger_remove_listener_list_index(trigger, index, i);
         return 1;
       }
     }
@@ -209,10 +209,10 @@ int utl_trigger_unlisten(utl_trigger *const trigger, const char *const eventname
   return 0;
 }
 
-void utl_trigger_listen(utl_trigger *const trigger, const char *const eventname, utl_listener *const listener) {
+void utl_trigger_listen(utl_trigger *const trigger, const char *const event_name, utl_listener *const listener) {
   trigger_add_listener(trigger, UTL_TRIGGER_DELETION_EVENT_NAME, listener);
   listener_add_trigger(listener, trigger);
-  trigger_add_listener(trigger, eventname, listener);
+  trigger_add_listener(trigger, event_name, listener);
 }
 
 void utl_listener_init(utl_listener *const listener) {

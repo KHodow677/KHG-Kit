@@ -7,7 +7,7 @@
 #define UTL_LISTENER_AUTODELETION_EVENT_NAME "_lau"
 
 typedef struct utl_trigger utl_trigger;
-typedef void (utl_listener_func)(const char *const event_name, const void *const event_data, void *const listener_data);
+typedef void (utl_listener_func)(const char *event_name, const void *event_data, void *listener_data);
 
 typedef struct {
   unsigned short num_triggers;
@@ -27,7 +27,7 @@ struct utl_trigger {
   } event[UTL_TRIGGER_TABLE_SIZE];
 };
 
-#define utl_listener_new_with_func(func) listenerSetFunction(utl_listener_new(), (func))
+#define utl_listener_new_with_func(func) utl_listener_set_func(utl_listener_new(), (func))
 utl_listener *utl_listener_new(void);
 void utl_listener_init(utl_listener *const listener);
 void utl_listener_delete(utl_listener *const listener);

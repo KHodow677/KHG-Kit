@@ -79,11 +79,11 @@ const int game_run() {
   generate_textures();
   generate_rigs();
   generate_ovr_tiles();
-  load_main_scene();
+  setup_scenes();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
   int res = gfx_loop_manager(window, true);
-  unload_main_scene();
+  clear_scenes();
   return res;
 }
 
@@ -91,6 +91,9 @@ const bool gfx_loop(const float delta, const float fps_val) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
+  if (!scene_loaded()) {
+    return true;
+  }
   update_key_controls();
   update_cursor_controls();
   gfx_clear_style_props();
@@ -114,6 +117,9 @@ const bool gfx_loop(const float delta, const float fps_val) {
 
 const bool gfx_loop_post(const float delta, const float fps_val) {
   gfx_begin();
+  if (!scene_loaded()) {
+    return true;
+  }
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
   glUniform1i(glGetUniformLocation(LIGHTING_SHADER.id, "u_num_lights_active"), LIGHT_COUNT);
@@ -124,6 +130,9 @@ const bool gfx_loop_post(const float delta, const float fps_val) {
 
 const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_begin();
+  if (!scene_loaded()) {
+    return true;
+  }
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
@@ -136,6 +145,9 @@ const bool gfx_loop_ui(const float delta, const float fps_val) {
 };
 
 void gfx_framebuffer(const GLuint vao, const GLuint texture) {
+  if (!scene_loaded()) {
+    return;
+  }
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(FRAMEBUFFER_SHADER.id);
   float timeValue = (float)glfwGetTime();

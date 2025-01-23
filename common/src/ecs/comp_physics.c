@@ -2,7 +2,6 @@
 #include "ecs/ecs_manager.h"
 #include "khg_phy/core/phy_vector.h"
 #include "physics/physics.h"
-#include "utility/math_utl.h"
 #include "khg_phy/body.h"
 #include "khg_phy/space.h"
 #include "khg_phy/core/phy_vector.h"

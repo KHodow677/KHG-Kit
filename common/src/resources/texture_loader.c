@@ -88,6 +88,9 @@ void generate_textures() {
     TEXTURE_ASSET_REF[i] = (texture_asset){ .tex_width = 336, .tex_height = 416 };
     strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
   }
+  for (unsigned int i = 0; i < NUM_TEXTURES; i++) {
+    get_or_add_texture(i);
+  }
 }
 
 void reset_textures() {
