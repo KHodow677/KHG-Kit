@@ -20,6 +20,7 @@
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "physics/physics.h"
+#include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
@@ -76,40 +77,41 @@ const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
   generate_textures();
-  /*generate_rigs();*/
-  /*generate_ovr_tiles();*/
-  /*setup_scenes();*/
+  add_texture(SQUARE);
+  // generate_ovr_tiles();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
+  setup_lights_texture();
+  setup_lights_shader();
+  // setup_scenes();
   int res = gfx_loop_manager(window, true);
-  /*clear_scenes();*/
+  // clear_scenes();
   return res;
 }
 
 const bool gfx_loop(const float delta, const float fps_val) {
+  load_resources_defer(1);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
-  load_resources_defer(20);
-  if (!RESOUCES_LOADED || !SCENE_LOADED) {
-    return true;
-  }
+  gfx_clear_style_props();
+  gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_key_controls();
   update_cursor_controls();
-  gfx_clear_style_props();
   get_letterbox();
   render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
-  gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
-  move_camera(&CAMERA, delta);
-  ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
-  ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
-  ecs_update_system(ECS, TILE_SYSTEM_SIGNATURE, delta);
-  ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
-  ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
-  ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
-  ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
-  phy_space_step(SPACE, delta);
+  if (RESOUCES_LOADED && SCENE_LOADED) {
+    move_camera(&CAMERA, delta);
+    ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, TILE_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
+    phy_space_step(SPACE, delta);
+  }
   gfx_div_end();
   GFX_STATE.current_div.scrollable = false;
   return true;
@@ -117,9 +119,6 @@ const bool gfx_loop(const float delta, const float fps_val) {
 
 const bool gfx_loop_post(const float delta, const float fps_val) {
   gfx_begin();
-  if (!RESOUCES_LOADED || !SCENE_LOADED) {
-    return true;
-  }
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
   glUniform1i(glGetUniformLocation(LIGHTING_SHADER.id, "u_num_lights_active"), LIGHT_COUNT);
@@ -130,9 +129,6 @@ const bool gfx_loop_post(const float delta, const float fps_val) {
 
 const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_begin();
-  if (!RESOUCES_LOADED || !SCENE_LOADED) {
-    return true;
-  }
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
@@ -145,9 +141,6 @@ const bool gfx_loop_ui(const float delta, const float fps_val) {
 };
 
 void gfx_framebuffer(const GLuint vao, const GLuint texture) {
-  if (!RESOUCES_LOADED || !SCENE_LOADED) {
-    return;
-  }
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(FRAMEBUFFER_SHADER.id);
   float timeValue = (float)glfwGetTime();

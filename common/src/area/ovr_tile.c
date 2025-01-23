@@ -14,6 +14,7 @@
 #define GROUND_LAYER 0
 #define ELEMENT_LAYER 1
 #define BORDER_LAYER 2
+#define GROUND_TEX_SIZE 628
 
 utl_vector *OVR_TILE_OPTIONS = NULL;
 
@@ -36,11 +37,7 @@ static int compare_ovr_tile_elements(const void *a, const void *b) {
 
 void set_ovr_tile_scale(const float tile_scale) {
   OVR_TILE_SCALE = tile_scale;
-}
-
-void set_ovr_tile_size(const unsigned int tile_tex_id) {
-  gfx_texture tex_ref = get_or_add_texture(tile_tex_id);
-  OVR_TILE_SIZE = tex_ref.height * OVR_TILE_SCALE;
+  OVR_TILE_SIZE = GROUND_TEX_SIZE * OVR_TILE_SCALE;
 }
 
 const float get_ovr_tile_size() {

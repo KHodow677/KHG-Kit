@@ -38,8 +38,7 @@ const gfx_texture get_or_add_texture(const unsigned int tex_id) {
   if (check_texture_loaded(tex_id)) {
     return TEXTURE_LOOKUP[tex_id];
   }
-  add_texture(tex_id);
-  return TEXTURE_LOOKUP[tex_id];
+  return TEXTURE_LOOKUP[SQUARE];
 }
 
 const gfx_texture get_or_add_texture_from_string(const char *tex_key) {
@@ -104,8 +103,8 @@ void reset_textures() {
 void load_texture_tick(const unsigned int count) {
   for (unsigned int i = 0; i < count; i++) {
     if (TEXTURE_LOAD_PROGRESS < NUM_TEXTURES) {
+      printf("LOADED: %i\n", TEXTURE_LOAD_PROGRESS);
       add_texture(TEXTURE_LOAD_PROGRESS++);
-      printf("TEX PROGRESS: %i\n", TEXTURE_LOAD_PROGRESS);
     }
   }
 }

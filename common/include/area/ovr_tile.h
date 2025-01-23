@@ -27,7 +27,6 @@ typedef struct ovr_tile {
 extern utl_vector *OVR_TILE_OPTIONS;
 
 void set_ovr_tile_scale(const float tile_scale);
-void set_ovr_tile_size(const unsigned int tile_tex_id);
 const float get_ovr_tile_size(void);
 
 phy_vector2 ovr_tile_pos_to_world_pos(const phy_vector2 coords);

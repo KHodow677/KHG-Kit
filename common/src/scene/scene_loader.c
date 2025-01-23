@@ -19,8 +19,6 @@ static void load_main() {
   physics_setup(phy_vector2_new(0.0f, 0.0f));
   ecs_setup();
   camera_setup(&CAMERA);
-  setup_lights_texture();
-  setup_lights_shader();
   set_ovr_tile_options();
   build_ovr_map(phy_vector2_new(960.0f, 540.0f), 0.25f);
   build_initial_structures();
