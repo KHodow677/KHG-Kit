@@ -6,6 +6,7 @@
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/core/phy_vector.h"
+#include "khg_utl/random.h"
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/builders/tile_builder.h"
@@ -20,5 +21,9 @@ void build_ovr_tile(const unsigned int tile_id, const phy_vector2 pos) {
   comp_tile *ct = sys_tile_add(entity, &comp_tile_ci);
   comp_light_constructor_info comp_light_ci = { cp->body, (light){ (vec2s){ 0.0, 0.0 }, 50.0f }, phy_vector2_new(0.0f, 0.0f) };
   comp_light *cl = sys_light_add(entity, &comp_light_ci);
+}
+
+void build_random_tile(const phy_vector2 pos) {
+  build_ovr_tile(*(unsigned int *)utl_random_choice(utl_vector_data(OVR_TILE_OPTIONS), utl_vector_size(OVR_TILE_OPTIONS), sizeof(unsigned int)), pos);
 }
 

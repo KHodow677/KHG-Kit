@@ -1,5 +1,6 @@
 #include "area/light.h"
 #include "scene/scene_loader.h"
+#include "area/ovr_tile.h"
 #include "camera/camera.h"
 #include "ecs/ecs_manager.h"
 #include "physics/physics.h"
@@ -12,12 +13,14 @@ void load_main_scene() {
   camera_setup(&CAMERA);
   setup_lights_texture();
   setup_lights_shader();
+  set_ovr_tile_options();
   build_ovr_map(phy_vector2_new(960.0f, 540.0f), 0.25f);
 };
 
 void unload_main_scene() {
   ecs_cleanup();
   physics_cleanup();
+  clear_ovr_tile_options(); 
 }
 
 void load_game_scene() {
