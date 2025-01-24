@@ -17,7 +17,7 @@ int LIGHT_COUNT = 0;
 light LIGHTS[] = { 0 };
 
 void setup_lights_texture() {
-  LIGHTING_OVERLAY = get_or_add_texture(SQUARE);
+  LIGHTING_OVERLAY = get_texture(EMPTY_TEXTURE);
 }
 
 void setup_lights_shader() {

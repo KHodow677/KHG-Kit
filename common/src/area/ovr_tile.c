@@ -9,6 +9,7 @@
 #include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
 #include <math.h>
+#include <stdio.h>
 
 #define OVR_TILE_RAW_POSITION 420 
 #define GROUND_LAYER 0
@@ -27,8 +28,8 @@ static bool OVR_TILE_ELEMENTS_RENDERED = false;
 static int compare_ovr_tile_elements(const void *a, const void *b) {
   const ovr_tile_element *e1 = a;
   const ovr_tile_element *e2 = b;
-  float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, get_or_add_texture(e1->element_tex_id).height * OVR_TILE_SCALE).y;
-  float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, get_or_add_texture(e2->element_tex_id).height * OVR_TILE_SCALE).y;
+  float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, get_texture(e1->element_tex_id).height * OVR_TILE_SCALE).y;
+  float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, get_texture(e2->element_tex_id).height * OVR_TILE_SCALE).y;
   if (fabsf(arg1 - arg2) < 1e-6f) {
     return 0;
   }
@@ -63,7 +64,7 @@ phy_vector2 ovr_tile_pos_to_world_pos(const phy_vector2 coords) {
 }
 
 void render_ovr_tile_item(const unsigned int tex_id, const phy_vector2 coords, const phy_vector2 offset, const bool flipped) {
-  gfx_texture tex_ref = get_or_add_texture(tex_id);
+  gfx_texture tex_ref = get_texture(tex_id);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
   phy_vector2 pos = ovr_tile_rendering_pos(coords, offset, tex_ref.height);
@@ -75,7 +76,7 @@ void render_ovr_tile_item(const unsigned int tex_id, const phy_vector2 coords, c
 }
 
 void render_ovr_tile_element_item(const ovr_tile_element *element, const phy_vector2 offset, const bool flipped) {
-  gfx_texture tex_ref = get_or_add_texture(element->element_tex_id);
+  gfx_texture tex_ref = get_texture(element->element_tex_id);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
   phy_vector2 pos = ovr_tile_rendering_pos(element->parent_tile->pos, offset, tex_ref.height);
@@ -90,7 +91,7 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
   if (!OVR_TILE_ELEMENTS) {
     OVR_TILE_ELEMENTS = utl_vector_create(sizeof(ovr_tile_element));
   }
-  const ovr_tile tile = get_or_add_ovr_tile(parent_tile->tile_id);
+  const ovr_tile tile = get_ovr_tile(parent_tile->tile_id);
   utl_vector_reserve(OVR_TILE_ELEMENTS, OVR_TILE_ELEMENTS->capacity_size + tile.num_elements);
   for (unsigned int i = 0; i < tile.num_elements; i++) {
     ovr_tile_element element = *(ovr_tile_element *)utl_array_at(tile.elements, i);
@@ -103,7 +104,7 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
 }
 
 void remove_ovr_tile_elements(ovr_tile_info *parent_tile) {
-  const ovr_tile tile = get_or_add_ovr_tile(parent_tile->tile_id);
+  const ovr_tile tile = get_ovr_tile(parent_tile->tile_id);
   for (int i = utl_vector_size(OVR_TILE_ELEMENTS) - 1; i >= 0; i--) {
     if (((ovr_tile_element *)utl_vector_at(OVR_TILE_ELEMENTS, i))->parent_tile == parent_tile) {
       utl_vector_erase(OVR_TILE_ELEMENTS, i, 1);
@@ -115,7 +116,7 @@ void remove_ovr_tile_elements(ovr_tile_info *parent_tile) {
 }
 
 void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer) {
-  const ovr_tile tile_ref = get_or_add_ovr_tile(tile->tile_id);
+  const ovr_tile tile_ref = get_ovr_tile(tile->tile_id);
   if (!layer) {
     return;
   }
@@ -139,17 +140,5 @@ void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer) {
     default:
       break;
   }
-}
-
-void set_ovr_tile_options() {
-  OVR_TILE_OPTIONS = utl_vector_create(sizeof(unsigned int));
-  utl_vector_reserve(OVR_TILE_OPTIONS, NUM_OVR_TILES);
-  for (unsigned int i = 0; i < NUM_OVR_TILES; i++) {
-    utl_vector_push_back(OVR_TILE_OPTIONS, &i);
-  }
-}
-
-void clear_ovr_tile_options() {
-  utl_vector_deallocate(OVR_TILE_OPTIONS);
 }
 

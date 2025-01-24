@@ -7,6 +7,7 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_utl/random.h"
+#include "resources/ovr_tile_loader.h"
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/builders/tile_builder.h"
@@ -15,7 +16,7 @@ void build_ovr_tile(const unsigned int tile_id, const phy_vector2 pos) {
   const ecs_id entity = ecs_create(ECS);
   comp_physics_constructor_info comp_physics_ci = { PHYSICS_BOX, 0.0f, 0.0f, 1.0f, ovr_tile_pos_to_world_pos(pos), 0.0f, false, false, false };
   comp_physics *cp = sys_physics_add(entity, &comp_physics_ci);
-  comp_renderer_constructor_info comp_renderer_ci = { cp->body, cp->shape, NULL_TEXTURE, NULL_RIG, (ovr_tile_info){ tile_id, pos }, 0, 1.0f, false, false };
+  comp_renderer_constructor_info comp_renderer_ci = { cp->body, cp->shape, EMPTY_TEXTURE, NULL_RIG, (ovr_tile_info){ tile_id, pos }, 0, 1.0f, false, false };
   comp_renderer *cr = sys_renderer_add(entity, &comp_renderer_ci);
   comp_tile_constructor_info comp_tile_ci = { (ovr_tile_info){ tile_id, pos } };
   comp_tile *ct = sys_tile_add(entity, &comp_tile_ci);
@@ -24,6 +25,7 @@ void build_ovr_tile(const unsigned int tile_id, const phy_vector2 pos) {
 }
 
 void build_random_tile(const phy_vector2 pos) {
-  build_ovr_tile(*(unsigned int *)utl_random_choice(utl_vector_data(OVR_TILE_OPTIONS), utl_vector_size(OVR_TILE_OPTIONS), sizeof(unsigned int)), pos);
+  unsigned int option = utl_random_randint(PLAINS_CLEARING_0, PLAINS_DENSE_9);
+  build_ovr_tile(option, pos);
 }
 

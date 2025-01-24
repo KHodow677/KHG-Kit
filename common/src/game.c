@@ -1,6 +1,8 @@
 #include "area/light.h"
 #include "game.h"
 #include "camera/camera.h"
+#include "khg_utl/random.h"
+#include "khg_utl/time.h"
 #include "letterbox.h"
 #include "camera/camera_controller.h"
 #include "ecs/comp_animator.h"
@@ -76,16 +78,15 @@ void log_sys_info() {
 const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
+  utl_random_seed((unsigned int)utl_time_current_time_in_seconds());
   generate_textures();
-  add_texture(SQUARE);
-  // generate_ovr_tiles();
+  generate_ovr_tiles();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
   setup_lights_texture();
   setup_lights_shader();
-  // setup_scenes();
   int res = gfx_loop_manager(window, true);
-  // clear_scenes();
+  clear_scenes();
   return res;
 }
 

@@ -40,5 +40,3 @@ void remove_ovr_tile_elements(ovr_tile_info *parent_tile);
 
 void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer);
 
-void set_ovr_tile_options(void);
-void clear_ovr_tile_options(void);

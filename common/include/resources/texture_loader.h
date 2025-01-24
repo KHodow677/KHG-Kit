@@ -3,9 +3,9 @@
 #include "khg_gfx/texture.h"
 
 #define FOREACH_TEXTURE(TEXTURE)\
-  TEXTURE(NULL_TEXTURE)\
-  TEXTURE(SQUARE)\
-  TEXTURE(GROUND_GRASS)\
+  TEXTURE(EMPTY_TEXTURE)\
+  TEXTURE(GROUND_GRASS_GREEN)\
+  TEXTURE(GROUND_GRASS_BLUE)\
   TEXTURE(BORDER_BLACK)\
   TEXTURE(ELEMENT_BUSH_0) TEXTURE(ELEMENT_BUSH_1) TEXTURE(ELEMENT_BUSH_2) TEXTURE(ELEMENT_BUSH_3) TEXTURE(ELEMENT_BUSH_4) TEXTURE(ELEMENT_BUSH_5) TEXTURE(ELEMENT_BUSH_6) TEXTURE(ELEMENT_BUSH_7) TEXTURE(ELEMENT_BUSH_8) TEXTURE(ELEMENT_BUSH_9)\
   TEXTURE(ELEMENT_BUSH_10) TEXTURE(ELEMENT_BUSH_11) TEXTURE(ELEMENT_BUSH_12) TEXTURE(ELEMENT_BUSH_13) TEXTURE(ELEMENT_BUSH_14) TEXTURE(ELEMENT_BUSH_15) TEXTURE(ELEMENT_BUSH_16) TEXTURE(ELEMENT_BUSH_17) TEXTURE(ELEMENT_BUSH_18) TEXTURE(ELEMENT_BUSH_19)\
@@ -68,12 +68,11 @@ typedef struct texture_asset {
 } texture_asset;
 
 const gfx_texture generate_texture(const char *filepath, const float width, const float height);
-const bool check_texture_loaded(const unsigned int tex_id);
 const unsigned int get_tex_id_from_string(const char *tex_key);
 
-void add_texture(const unsigned int tex_id);
-const gfx_texture get_or_add_texture(const unsigned int tex_id);
-const gfx_texture get_or_add_texture_from_string(const char *tex_key);
+void add_texture(void);
+const gfx_texture get_texture(const unsigned int tex_id);
+const gfx_texture get_texture_from_string(const char *tex_key);
 
 void generate_textures(void);
 void reset_textures(void);

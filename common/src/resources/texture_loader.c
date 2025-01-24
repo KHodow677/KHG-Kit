@@ -21,34 +21,29 @@ const gfx_texture generate_texture(const char *filepath, const float width, cons
   return tex;
 }
 
-const bool check_texture_loaded(const unsigned int tex_id) {
-  return (tex_id == NULL_TEXTURE || TEXTURE_LOOKUP[tex_id].id != NO_TEXTURE.id);
-}
-
 const unsigned int get_tex_id_from_string(const char *tex_key) {
   return utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
 }
 
-void add_texture(const unsigned int tex_id) {
-  const texture_asset ta = TEXTURE_ASSET_REF[tex_id];
-  TEXTURE_LOOKUP[tex_id] = generate_texture(ta.tex_filepath, ta.tex_width, ta.tex_height);
+void add_texture() {
+  const texture_asset ta = TEXTURE_ASSET_REF[TEXTURE_LOAD_PROGRESS];
+  TEXTURE_LOOKUP[TEXTURE_LOAD_PROGRESS] = generate_texture(ta.tex_filepath, ta.tex_width, ta.tex_height);
+  TEXTURE_LOAD_PROGRESS++;
 }
 
-const gfx_texture get_or_add_texture(const unsigned int tex_id) {
-  if (check_texture_loaded(tex_id)) {
-    return TEXTURE_LOOKUP[tex_id];
-  }
-  return TEXTURE_LOOKUP[SQUARE];
+const gfx_texture get_texture(const unsigned int tex_id) {
+  return TEXTURE_LOOKUP[tex_id];
 }
 
-const gfx_texture get_or_add_texture_from_string(const char *tex_key) {
+const gfx_texture get_texture_from_string(const char *tex_key) {
   const unsigned int tex_id = get_tex_id_from_string(tex_key);
-  return get_or_add_texture(tex_id);
+  return get_texture(tex_id);
 }
 
 void generate_textures() {
-  TEXTURE_ASSET_REF[SQUARE] = (texture_asset){ "res/assets/textures/square.png", 512, 512 };
-  TEXTURE_ASSET_REF[GROUND_GRASS] = (texture_asset){ "res/assets/textures/tiles/grounds/grass.png", 725, 628 };
+  TEXTURE_ASSET_REF[EMPTY_TEXTURE] = (texture_asset){ "res/assets/textures/square.png", 512, 512 };
+  TEXTURE_ASSET_REF[GROUND_GRASS_GREEN] = (texture_asset){ "res/assets/textures/tiles/grounds/grass_green.png", 725, 628 };
+  TEXTURE_ASSET_REF[GROUND_GRASS_BLUE] = (texture_asset){ "res/assets/textures/tiles/grounds/grass_blue.png", 725, 628 };
   TEXTURE_ASSET_REF[BORDER_BLACK] = (texture_asset){ "res/assets/textures/tiles/borders/black.png", 795, 688 };
   for (unsigned int i = ELEMENT_BUSH_0, count = 0; i <= ELEMENT_BUSH_59; i++) {
     char path[128];
@@ -103,8 +98,8 @@ void reset_textures() {
 void load_texture_tick(const unsigned int count) {
   for (unsigned int i = 0; i < count; i++) {
     if (TEXTURE_LOAD_PROGRESS < NUM_TEXTURES) {
-      printf("LOADED: %i\n", TEXTURE_LOAD_PROGRESS);
-      add_texture(TEXTURE_LOAD_PROGRESS++);
+      /*printf("LOADED: %i\n", TEXTURE_LOAD_PROGRESS);*/
+      add_texture();
     }
   }
 }

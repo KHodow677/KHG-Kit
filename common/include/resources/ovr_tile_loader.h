@@ -3,7 +3,7 @@
 #include "area/ovr_tile.h"
 
 #define FOREACH_OVR_TILE(TEXTURE)\
-  TEXTURE(NULL_OVR_TILE)\
+  TEXTURE(EMPTY_OVR_TILE)\
   TEXTURE(PLAINS_CLEARING_0)\
   TEXTURE(PLAINS_CLEARING_1)\
   TEXTURE(PLAINS_CLEARING_2)\
@@ -41,12 +41,13 @@ typedef struct ovr_tile_asset {
 } ovr_tile_asset;
 
 const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id);
-const bool check_ovr_tile_loaded(unsigned int ovr_tile_id);
 const unsigned int get_ovr_tile_id_from_string(const char *ovr_tile_key);
 
-const ovr_tile get_or_add_ovr_tile(unsigned int ovr_tile_id);
-const ovr_tile get_or_add_ovr_tile_from_string(const char *ovr_tile_key);
+void add_ovr_tile(void);
+const ovr_tile get_ovr_tile(unsigned int ovr_tile_id);
+const ovr_tile get_ovr_tile_from_string(const char *ovr_tile_key);
 
 void generate_ovr_tiles(void);
 void reset_ovr_tiles(void);
+void load_ovr_tile_tick(const unsigned int count);
 
