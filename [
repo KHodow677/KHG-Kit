@@ -29,19 +29,25 @@ static float OVR_TILE_SIZE = 0.0f;
 static utl_vector *OVR_TILE_ELEMENTS = NULL;
 static bool OVR_TILE_ELEMENTS_RENDERED = false;
 
-static float OVR_TILE_ELEMENT_MIN_DURATION = 1.0f;
-static float OVR_TILE_ELEMENT_MAX_DURATION = 3.0f;
-static float OVR_TILE_ELEMENT_MAX_ANGLE = 0.0872665f;
-
 static int compare_ovr_tile_elements(const void *a, const void *b) {
   const ovr_tile_element *e1 = a;
   const ovr_tile_element *e2 = b;
-  float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, get_texture(e1->element_tex_id).height * OVR_TILE_SCALE, 0.0f).y;
-  float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, get_texture(e2->element_tex_id).height * OVR_TILE_SCALE, 0.0f).y;
+  float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, get_texture(e1->element_tex_id).height * OVR_TILE_SCALE).y;
+  float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, get_texture(e2->element_tex_id).height * OVR_TILE_SCALE).y;
   if (fabsf(arg1 - arg2) < 1e-6f) {
     return 0;
   }
   return (arg1 > arg2) - (arg1 < arg2);
+}
+
+static float normalize_ovr_tile_element_angle(float angle) {
+  while (angle < 0) {
+    angle += 2 * M_PI;
+  }
+  while (angle >= 2 * M_PI) {
+    angle -= 2 * M_PI;
+  }
+  return angle;
 }
 
 void set_ovr_tile_scale(const float tile_scale) {
@@ -53,14 +59,14 @@ const float get_ovr_tile_size() {
   return OVR_TILE_SIZE;
 }
 
-phy_vector2 ovr_tile_rendering_pos(const phy_vector2 coords, const phy_vector2 offset, const float tex_height, const float tex_angle) {
+phy_vector2 ovr_tile_rendering_pos(const phy_vector2 coords, const phy_vector2 offset, const float tex_height) {
   const phy_vector2 offset_from_mid = phy_vector2_sub(offset, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
   const phy_vector2 scaled_offset = phy_vector2_mul(offset_from_mid, OVR_TILE_SCALE);
   const float hor_dist_comp = OVR_TILE_SIZE * sqrt(3.0f) / 2.0f;
   const float ver_dist_comp = OVR_TILE_SIZE / 2.0f;
   const phy_vector2 pos = phy_vector2_new(hor_dist_comp * coords.x, ver_dist_comp * coords.y);
   if (phy_vector2_len(scaled_offset) != 0.0f) {
-    return phy_vector2_add(pos, phy_vector2_add(scaled_offset, phy_vector2_new((tex_height / 2.0f) * sinf(tex_angle), -(tex_height / 2.0f) * cosf(tex_angle))));
+    return phy_vector2_add(pos, phy_vector2_add(scaled_offset, phy_vector2_new(0.0f, -(tex_height / 2.0f))));
   }
   return pos;
 }
@@ -75,7 +81,7 @@ void render_ovr_tile_item(const unsigned int tex_id, const phy_vector2 coords, c
   gfx_texture tex_ref = get_texture(tex_id);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
-  phy_vector2 pos = ovr_tile_rendering_pos(coords, offset, tex_ref.height, 0.0f);
+  phy_vector2 pos = ovr_tile_rendering_pos(coords, offset, tex_ref.height);
   phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
   gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, 0 };
   transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
@@ -87,7 +93,7 @@ void render_ovr_tile_element_item(const ovr_tile_element *element) {
   gfx_texture tex_ref = get_texture(element->element_tex_id);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
-  phy_vector2 pos = ovr_tile_rendering_pos(element->parent_tile->pos, element->pos, tex_ref.height, element->angle);
+  phy_vector2 pos = ovr_tile_rendering_pos(element->parent_tile->pos, element->pos, tex_ref.height);
   phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
   gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, element->angle };
   transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
@@ -95,16 +101,35 @@ void render_ovr_tile_element_item(const ovr_tile_element *element) {
   OVR_TILE_ELEMENTS_RENDERED = true;
 }
 
-void update_ovr_tile_element_item(ovr_tile_element *element, const float dt) {
-  frame_tick(&element->frame, dt);
-  if (frame_time_up(&element->frame)) {
-    element->current_angle = element->target_angle;
-    element->target_angle = element->target_angle > 0.0f ? utl_random_uniform(-OVR_TILE_ELEMENT_MAX_ANGLE, 0.0f) : utl_random_uniform(0.0f, OVR_TILE_ELEMENT_MAX_ANGLE);
-    element->frame.duration = utl_random_uniform(OVR_TILE_ELEMENT_MIN_DURATION, OVR_TILE_ELEMENT_MAX_DURATION);
-    frame_reset(&element->frame);
+void update_ovr_tile_elements(float dt) {
+  for (ovr_tile_element *it = (ovr_tile_element *)utl_vector_begin(OVR_TILE_ELEMENTS); it != (ovr_tile_element *)utl_vector_end(OVR_TILE_ELEMENTS); it++) { 
+    if (it) {
+      frame_tick(&it->frame, dt);
+      if (frame_time_up(&it->frame)) {
+        it->target_angle = utl_random_uniform(-M_PI / 2, M_PI / 2);
+      }
+      it->target_angle = normalize_ovr_tile_element_angle(it->target_angle);
+      it->angle = normalize_ovr_tile_element_angle(it->angle);
+      element->angle_progress = 
+      if (fabsf(normalize_ovr_tile_element_angle(element->target_angle) - normalize_ovr_tile_element_angle(element->angle)) < 0.005f) {
+        element->target_angle = utl_random_uniform(-M_PI / 2, M_PI / 2);
+      }
+      if (element->angle > element->target_angle) {
+        element->angle = utl_easing_linear_interpolation(element);
+      }
+      element->angle += utl_easing_linear_interpolation();
+    }
   }
-  const float normalized_ang_diff = fmodf(element->target_angle - element->current_angle + M_PI, 2 * M_PI) - M_PI;
-  element->angle = element->current_angle + normalized_ang_diff * utl_easing_linear_interpolation(frame_perc(&element->frame));
+  element->target_angle = normalize_ovr_tile_element_angle(element->target_angle);
+  element->angle = normalize_ovr_tile_element_angle(element->angle);
+  element->angle_progress = 
+  if (fabsf(normalize_ovr_tile_element_angle(element->target_angle) - normalize_ovr_tile_element_angle(element->angle)) < 0.005f) {
+    element->target_angle = utl_random_uniform(-M_PI / 2, M_PI / 2);
+  }
+  if (element->angle > element->target_angle) {
+    element->angle = utl_easing_linear_interpolation(element);
+  }
+  element->angle += utl_easing_linear_interpolation();
 }
 
 void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
@@ -115,8 +140,6 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
   utl_vector_reserve(OVR_TILE_ELEMENTS, OVR_TILE_ELEMENTS->capacity_size + tile.num_elements);
   for (unsigned int i = 0; i < tile.num_elements; i++) {
     ovr_tile_element element = *(ovr_tile_element *)utl_array_at(tile.elements, i);
-    element.frame.timer = utl_random_uniform(0.0f, OVR_TILE_ELEMENT_MIN_DURATION);
-    element.frame.duration = utl_random_uniform(OVR_TILE_ELEMENT_MIN_DURATION, OVR_TILE_ELEMENT_MAX_DURATION);
     element.parent_tile = parent_tile;
     utl_vector_push_back(OVR_TILE_ELEMENTS, &element);
   }
@@ -137,7 +160,7 @@ void remove_ovr_tile_elements(ovr_tile_info *parent_tile) {
   }
 }
 
-void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float dt) {
+void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer) {
   const ovr_tile tile_ref = get_ovr_tile(tile->tile_id);
   if (!layer) {
     return;
@@ -152,7 +175,6 @@ void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float
       }
       for (ovr_tile_element *it = (ovr_tile_element *)utl_vector_begin(OVR_TILE_ELEMENTS); it != (ovr_tile_element *)utl_vector_end(OVR_TILE_ELEMENTS); it++) { 
         if (it) {
-          update_ovr_tile_element_item(it, dt);
           render_ovr_tile_element_item(it);
         }
       }

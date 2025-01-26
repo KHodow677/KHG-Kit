@@ -17,13 +17,13 @@ void update_rig_with_interpolated_frame(bone *b, const bone_frame_info *current,
   if (b->updated) {
     return;
   }
-  phy_vector2 target_bone_offset = flipped ? phy_vector2_new(-target->bone_offset.x, target->bone_offset.y) : target->bone_offset;
-  phy_vector2 current_bone_offset = flipped ? phy_vector2_new(-current->bone_offset.x, current->bone_offset.y) : current->bone_offset;
-  float target_bone_angle_offset = flipped ? -target->bone_angle_offset : target->bone_angle_offset;
-  float current_bone_angle_offset = flipped ? -current->bone_angle_offset : current->bone_angle_offset;
-  float x_diff = target_bone_offset.x - current_bone_offset.x;
-  float y_diff = target_bone_offset.y - current_bone_offset.y;
-  float ang_diff = target_bone_angle_offset - current_bone_angle_offset;
+  const phy_vector2 target_bone_offset = flipped ? phy_vector2_new(-target->bone_offset.x, target->bone_offset.y) : target->bone_offset;
+  const phy_vector2 current_bone_offset = flipped ? phy_vector2_new(-current->bone_offset.x, current->bone_offset.y) : current->bone_offset;
+  const float target_bone_angle_offset = flipped ? -target->bone_angle_offset : target->bone_angle_offset;
+  const float current_bone_angle_offset = flipped ? -current->bone_angle_offset : current->bone_angle_offset;
+  const float x_diff = target_bone_offset.x - current_bone_offset.x;
+  const float y_diff = target_bone_offset.y - current_bone_offset.y;
+  const float ang_diff = target_bone_angle_offset - current_bone_angle_offset;
   b->bone_tex_id = current->bone_tex;
   b->bone_offset.x = current_bone_offset.x + x_diff * utl_easing_linear_interpolation(frame_percentage);
   b->bone_offset.y = current_bone_offset.y + y_diff * utl_easing_linear_interpolation(frame_percentage);

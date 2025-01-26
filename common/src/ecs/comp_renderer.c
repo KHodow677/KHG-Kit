@@ -36,7 +36,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
     for (int id = 0; id < entity_count; id++) {
       comp_renderer *info = ecs_get(ECS, entities[id], RENDERER_COMPONENT_SIGNATURE);
       if (info->ovr_tile.tile_id) {
-        render_ovr_tile(&info->ovr_tile, &layer);
+        render_ovr_tile(&info->ovr_tile, &layer, dt);
         continue;
       }
       if (layer != info->render_layer) {

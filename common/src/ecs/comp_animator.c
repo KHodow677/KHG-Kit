@@ -5,6 +5,7 @@
 #include "khg_ecs/ecs.h"
 #include "rig/anim.h"
 #include "rig/rig.h"
+#include "util/frame.h"
 #include <stdio.h>
 
 ecs_id ANIMATOR_COMPONENT_SIGNATURE;
@@ -22,30 +23,30 @@ static ecs_ret sys_animator_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
     if (!r_info->rig.enabled) {
       continue;
     }
-    info->frame_timer -= dt;
+    frame_tick(&info->frame, dt);
     if (r_info->rig.current_state_id != info->target_state_id) {
       r_info->rig.current_state_id = info->target_state_id;
       r_info->rig.current_frame_id = info->target_frame_id;
     }
-    if (info->frame_timer <= 0 && info->target_frame_id == last_frame_num(&r_info->rig, r_info->rig.current_state_id)) {
+    if (frame_time_up(&info->frame) && info->target_frame_id == last_frame_num(&r_info->rig, r_info->rig.current_state_id)) {
       r_info->rig.current_frame_id = last_frame_num(&r_info->rig, r_info->rig.current_state_id);
       set_state_and_frame(&r_info->rig, r_info->rig.current_state_id, r_info->rig.current_frame_id);
       info->target_frame_id = 0;
-      info->frame_timer = info->frame_duration;
+      frame_reset(&info->frame);
     }
-    else if (info->frame_timer <= 0 && r_info->rig.current_frame_id == last_frame_num(&r_info->rig, r_info->rig.current_state_id)) {
+    else if (frame_time_up(&info->frame) && r_info->rig.current_frame_id == last_frame_num(&r_info->rig, r_info->rig.current_state_id)) {
       r_info->rig.current_frame_id = 0;
       set_state_and_frame(&r_info->rig, r_info->rig.current_state_id, r_info->rig.current_frame_id);
       info->target_frame_id++;
-      info->frame_timer = info->frame_duration;
+      frame_reset(&info->frame);
     }
-    else if (info->frame_timer <= 0) {
+    else if (frame_time_up(&info->frame)) {
       r_info->rig.current_frame_id++;
       set_state_and_frame(&r_info->rig, r_info->rig.current_state_id, r_info->rig.current_frame_id);
       info->target_frame_id++;
-      info->frame_timer = info->frame_duration;
+      frame_reset(&info->frame);
     }
-    update_rig(&r_info->rig, r_info->body, 1.0f - info->frame_timer / info->frame_duration, get_frame(&r_info->rig, info->target_state_id, info->target_frame_id), r_info->flipped);
+    update_rig(&r_info->rig, r_info->body, frame_perc(&info->frame), get_frame(&r_info->rig, info->target_state_id, info->target_frame_id), r_info->flipped);
   }
   return 0;
 }
@@ -56,8 +57,7 @@ static void comp_animator_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
   if (info && constructor_info) {
     info->target_state_id = constructor_info->initial_target_state_id;
     info->target_frame_id = constructor_info->initial_target_frame_id;
-    info->frame_duration = constructor_info->frame_duration;
-    info->frame_timer = constructor_info->frame_duration;
+    info->frame = (frame_info){ constructor_info->frame_duration, constructor_info->frame_duration };
     info->destroy_on_max = constructor_info->destroy_on_max;
   }
 }

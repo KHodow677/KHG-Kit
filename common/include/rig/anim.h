@@ -3,7 +3,7 @@
 #include "rig/rig.h"
 #include "khg_phy/core/phy_vector.h"
 
-typedef struct frame_info {
+typedef struct bone_frame_info {
   unsigned int bone_tex;
   phy_vector2 bone_offset;
   float bone_angle_offset;
