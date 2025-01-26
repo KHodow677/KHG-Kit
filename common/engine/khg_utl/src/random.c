@@ -3,8 +3,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 static unsigned int rand_state;
+
+void utl_random_seed_clock() {
+  srand((unsigned int)(time(NULL) ^ clock()));
+  unsigned int seed = 0;
+  for (int i = 0; i < 9; i++) {
+    seed = seed * 10 + (rand() % 10);
+  }
+  utl_random_seed(seed);
+}
 
 void utl_random_seed(unsigned int seed) {
   rand_state = seed;

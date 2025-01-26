@@ -78,7 +78,7 @@ void log_sys_info() {
 const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
-  utl_random_seed((unsigned int)utl_time_current_time_in_seconds());
+  utl_random_seed_clock();
   generate_textures();
   generate_ovr_tiles();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);

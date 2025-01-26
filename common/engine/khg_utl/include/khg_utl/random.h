@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 
+void utl_random_seed_clock(void);
 void utl_random_seed(unsigned int seed);
 void utl_random_shuffle(void *array, unsigned int n, unsigned int size);
 void utl_random_choices(void *array, unsigned int n, unsigned int size, unsigned int num_choices, void *choices, float *weights);
@@ -15,7 +16,7 @@ int utl_random_randint(int a, int b);
 int utl_random_randrange(int a, int b, int step);
 int utl_random_randbits(int a);
 
-float utl_random_random();
+float utl_random_random(void);
 float utl_random_uniform(float a, float b);
 float utl_random_triangular(float low, float high, float mode);
 float utl_random_gauss(float mean, float stddev);
