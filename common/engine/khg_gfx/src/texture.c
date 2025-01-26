@@ -1,3 +1,4 @@
+#include <stdio.h>
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 
@@ -48,6 +49,42 @@ gfx_texture gfx_load_texture(const char *filepath, bool flip, gfx_texture_filter
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
   glGenerateMipmap(GL_TEXTURE_2D);
   stbi_image_free(image);
+  tex.width = width;
+  tex.height = height;
+  return tex;
+}
+
+
+void gfx_fetch_texture_raw(unsigned char **image, const char *filepath, int *width, int *height, int *channels) {
+  *image = stbi_load(filepath, width, height, channels, STBI_rgb_alpha);
+}
+
+void gfx_free_texture_raw(unsigned char *image) {
+  stbi_image_free(image);
+}
+
+gfx_texture gfx_load_texture_raw(unsigned char *image, const int width, const int height, const int channels, bool flip, gfx_texture_filtering filter) {
+  gfx_texture tex;
+  if (!image) {
+    utl_error_func("Failed to load a texture", utl_user_defined_data);
+    return tex;
+  }
+  glGenTextures(1, &tex.id);
+  glBindTexture(GL_TEXTURE_2D, tex.id); 
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  switch(filter) {
+    case GFX_TEX_FILTER_LINEAR:
+      glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glTextureParameteri(tex.id, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      break;
+    case GFX_TEX_FILTER_NEAREST:
+      glTextureParameteri(tex.id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTextureParameteri(tex.id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      break;
+  }
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+  glGenerateMipmap(GL_TEXTURE_2D);
   tex.width = width;
   tex.height = height;
   return tex;
@@ -288,6 +325,10 @@ void gfx_free_texture(gfx_texture *tex) {
 
 gfx_texture gfx_load_texture_asset(const char *filepath) {
   return gfx_load_texture(filepath, false, GFX_TEX_FILTER_LINEAR);
+}
+
+gfx_texture gfx_load_texture_asset_raw(unsigned char *image, const int width, const int height, const int channels) {
+  return gfx_load_texture_raw(image, width, height, channels, false, GFX_TEX_FILTER_LINEAR);
 }
 
 void gfx_free_font(gfx_font *font) {

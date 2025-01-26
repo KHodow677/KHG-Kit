@@ -1,5 +1,3 @@
-#include "area/ovr_tile.h"
-#include "camera/camera.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
@@ -10,10 +8,12 @@
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_phy/shape.h"
-#include "letterbox.h"
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
 #include "rig/rig.h"
+#include "util/camera/camera.h"
+#include "util/ovr_tile.h"
+#include "util/letterbox.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -57,7 +57,7 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
         phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
         phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
         const float angle = phy_rigid_body_get_angle(info->body);
-        const gfx_texture tex_ref = get_or_add_texture(info->tex_id);
+        const gfx_texture tex_ref = get_texture(info->tex_id);
         gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
         transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
         gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);

@@ -1,5 +1,5 @@
 #include "game.h"
-#include "network/server.h"
+#include "util/network/server.h"
 #include <string.h>
 
 const int main(int argc, char *argv[]) {

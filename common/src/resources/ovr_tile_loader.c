@@ -1,10 +1,12 @@
-#include "area/ovr_tile.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
 #include "khg_utl/string.h"
 #include "resources/texture_loader.h"
+#include "threading/resource_loading.h"
 #include "resources/ovr_tile_loader.h"
+#include "util/ovr_tile.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -59,29 +61,27 @@ const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
   return ot;
 }
 
-const bool check_ovr_tile_loaded(unsigned int ovr_tile_id) {
-  return (ovr_tile_id == NULL_OVR_TILE || OVR_TILE_LOOKUP[ovr_tile_id].tile_id != NO_OVR_TILE.tile_id);
-}
-
 const unsigned int get_ovr_tile_id_from_string(const char *ovr_tile_key) {
   return utl_algorithm_find_at(OVR_TILE_STRINGS, OVR_TILE_STRINGS_SIZE, sizeof(char *), ovr_tile_key, compare_ovr_tile_strings);
 }
 
-const ovr_tile get_or_add_ovr_tile(unsigned int ovr_tile_id) {
-  if (check_ovr_tile_loaded(ovr_tile_id)) {
-    return OVR_TILE_LOOKUP[ovr_tile_id];
-  }
-  const ovr_tile_asset ota = OVR_TILE_ASSET_REF[ovr_tile_id];
-  OVR_TILE_LOOKUP[ovr_tile_id] = generate_ovr_tile(ota.ovr_tile_filepath, ovr_tile_id);
+void add_ovr_tile(void) {
+  const ovr_tile_asset ota = OVR_TILE_ASSET_REF[OVR_TILE_THREAD.progress];
+  OVR_TILE_LOOKUP[OVR_TILE_THREAD.progress] = generate_ovr_tile(ota.ovr_tile_filepath, OVR_TILE_THREAD.progress);
+  OVR_TILE_THREAD.progress++;
+}
+
+const ovr_tile get_ovr_tile(unsigned int ovr_tile_id) {
   return OVR_TILE_LOOKUP[ovr_tile_id];
 }
 
-const ovr_tile get_or_add_ovr_tile_from_string(const char *ovr_tile_key) {
+const ovr_tile get_ovr_tile_from_string(const char *ovr_tile_key) {
   const unsigned int ovr_tile_id = get_ovr_tile_id_from_string(ovr_tile_key);
-  return get_or_add_ovr_tile(ovr_tile_id);
+  return get_ovr_tile(ovr_tile_id);
 }
 
 void generate_ovr_tiles() {
+  OVR_TILE_ASSET_REF[EMPTY_OVR_TILE] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/empty.ini" };
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_0] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/0.ini" };
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_1] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/1.ini" };
   OVR_TILE_ASSET_REF[PLAINS_CLEARING_2] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/2.ini" };
@@ -104,9 +104,10 @@ void generate_ovr_tiles() {
   OVR_TILE_ASSET_REF[PLAINS_DENSE_9] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/9.ini" };
 }
 
-void reset_ovr_tiles() {
-  for (unsigned int i = 0; i < NUM_OVR_TILES; i++) {
-    OVR_TILE_LOOKUP[i].tile_id = NO_OVR_TILE.tile_id;
+int load_ovr_tile_tick(void *arg) {
+  if (OVR_TILE_THREAD.progress < NUM_OVR_TILES) {
+    add_ovr_tile();
   }
+  return 0;
 }
 

@@ -1,13 +1,13 @@
-#include "camera/camera.h"
-#include "letterbox.h"
-#include "physics/physics.h"
-#include "resources/texture_loader.h"
-#include "rig/anim.h"
-#include "rig/rig.h"
 #include "khg_phy/body.h"
 #include "khg_phy/space.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_utl/array.h"
+#include "resources/texture_loader.h"
+#include "rig/anim.h"
+#include "rig/rig.h"
+#include "util/camera/camera.h"
+#include "util/letterbox.h"
+#include "util/physics.h"
 #include <string.h>
 #include <unistd.h>
 
@@ -86,7 +86,7 @@ void render_rig(const rig *r, const float parallax_value, const bool flipped) {
     const float angle = phy_rigid_body_get_angle(b->bone_body);
     phy_vector2 pos = phy_rigid_body_get_position(b->bone_body);
     phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
-    const gfx_texture tex_ref = get_or_add_texture(b->bone_tex_id);
+    const gfx_texture tex_ref = get_texture(b->bone_tex_id);
     gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, angle };
     transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
     gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * parallax_value, cam_pos.y * parallax_value, CAMERA.zoom, true, flipped);

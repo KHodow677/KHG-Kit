@@ -35,6 +35,9 @@ gfx_font gfx_load_font(const char *filepath, unsigned int size);
 gfx_font gfx_load_font_ex(const char *filepath, unsigned int size, unsigned int bitmap_w, unsigned int bitmap_h);
 
 gfx_texture gfx_load_texture(const char *filepath, bool flip, gfx_texture_filtering filter);
+void gfx_fetch_texture_raw(unsigned char **image, const char *filepath, int *width, int *height, int *channels);
+void gfx_free_texture_raw(unsigned char *image);
+gfx_texture gfx_load_texture_raw(unsigned char *image, const int width, const int height, const int channels, bool flip, gfx_texture_filtering filter);
 gfx_texture gfx_load_texture_resized(const char *filepath, bool flip, gfx_texture_filtering filter, unsigned int w, unsigned int h);
 gfx_texture gfx_load_texture_resized_factor(const char *filepath, bool flip, gfx_texture_filtering filter, float wfactor, float hfactor);
 gfx_texture gfx_load_texture_from_memory(const void *data, unsigned int size, bool flip, gfx_texture_filtering filter);
@@ -54,6 +57,7 @@ unsigned char *gfx_load_texture_data_from_memory_resized_factor(const void *data
 void gfx_create_texture_from_image_data(gfx_texture_filtering filter, unsigned int *id, int width, int height, int channels, unsigned char* data); 
 void gfx_free_texture(gfx_texture *tex);
 gfx_texture gfx_load_texture_asset(const char *filepath);
+gfx_texture gfx_load_texture_asset_raw(unsigned char *image, const int width, const int height, const int channels);
 
 void gfx_free_font(gfx_font *font);
 gfx_font gfx_load_font_asset(const char *filepath, const unsigned int font_size);

@@ -1,7 +1,11 @@
 #include "khg_thd/concurrent.h"
 #include <stdlib.h>
 #include <stdbool.h>
+
+#if !defined(_WIN32) && !defined(_WIN64)
 #include <errno.h>
+#else
+#endif
 
 int thd_mutex_init(thd_mutex *mtx, int type) {
 #if defined(_WIN32) || defined(_WIN64)

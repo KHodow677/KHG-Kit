@@ -1,9 +1,9 @@
 #pragma once
 
-#include "area/light.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
+#include "util/light.h"
 
 typedef struct comp_light {
   ecs_id id;
