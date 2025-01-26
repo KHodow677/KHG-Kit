@@ -19,5 +19,5 @@ extern resource_thread TEXTURE_RAW_THREAD;
 extern resource_thread TEXTURE_THREAD;
 
 void load_thread_defer(resource_thread *resource, int (*task)(void *));
-void load_resources_defer(const unsigned int batch_size);
+void load_resources_defer(void);
 

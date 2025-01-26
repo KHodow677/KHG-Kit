@@ -44,15 +44,19 @@ void load_thread_defer(resource_thread *resource, int (*task)(void *)) {
   }
 }
 
-void load_resources_defer(const unsigned int batch_size) {
-  load_thread_defer(&OVR_TILE_THREAD, load_ovr_tiles_task);
-  load_thread_defer(&TEXTURE_RAW_THREAD, load_textures_raw_task);
-  if (OVR_TILE_THREAD.progress == NUM_OVR_TILES && TEXTURE_RAW_THREAD.progress == NUM_TEXTURES) {
-    load_thread_defer(&TEXTURE_THREAD, load_texture_tick);
+void load_resources_defer() {
+  if (RESOUCES_LOADED) {
+    return;
   }
-  if (!RESOUCES_LOADED && check_thread_maxed(&OVR_TILE_THREAD) && check_thread_maxed(&TEXTURE_RAW_THREAD) && check_thread_maxed(&TEXTURE_THREAD)) {
+  else if (check_thread_maxed(&OVR_TILE_THREAD) && check_thread_maxed(&TEXTURE_RAW_THREAD) && check_thread_maxed(&TEXTURE_THREAD)) {
     RESOUCES_LOADED = true;
     setup_scenes();
+    return;
+  }
+  load_thread_defer(&OVR_TILE_THREAD, load_ovr_tiles_task);
+  load_thread_defer(&TEXTURE_RAW_THREAD, load_textures_raw_task);
+  if (check_thread_maxed(&OVR_TILE_THREAD) && check_thread_maxed(&TEXTURE_RAW_THREAD)) {
+    load_thread_defer(&TEXTURE_THREAD, load_texture_tick);
   }
 }
 

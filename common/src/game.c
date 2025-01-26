@@ -91,7 +91,7 @@ const int game_run() {
 }
 
 const bool gfx_loop(const float delta, const float fps_val) {
-  load_resources_defer(1);
+  load_resources_defer();
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
