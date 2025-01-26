@@ -66,9 +66,9 @@ const unsigned int get_ovr_tile_id_from_string(const char *ovr_tile_key) {
 }
 
 void add_ovr_tile(void) {
-  const ovr_tile_asset ota = OVR_TILE_ASSET_REF[OVR_TILE_LOAD_PROGRESS];
-  OVR_TILE_LOOKUP[OVR_TILE_LOAD_PROGRESS] = generate_ovr_tile(ota.ovr_tile_filepath, OVR_TILE_LOAD_PROGRESS);
-  OVR_TILE_LOAD_PROGRESS++;
+  const ovr_tile_asset ota = OVR_TILE_ASSET_REF[OVR_TILE_THREAD.progress];
+  OVR_TILE_LOOKUP[OVR_TILE_THREAD.progress] = generate_ovr_tile(ota.ovr_tile_filepath, OVR_TILE_THREAD.progress);
+  OVR_TILE_THREAD.progress++;
 }
 
 const ovr_tile get_ovr_tile(unsigned int ovr_tile_id) {
@@ -104,17 +104,10 @@ void generate_ovr_tiles() {
   OVR_TILE_ASSET_REF[PLAINS_DENSE_9] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/9.ini" };
 }
 
-void reset_ovr_tiles() {
-  for (unsigned int i = 0; i < NUM_OVR_TILES; i++) {
-    OVR_TILE_LOOKUP[i].tile_id = NO_OVR_TILE.tile_id;
+int load_ovr_tile_tick(void *arg) {
+  if (OVR_TILE_THREAD.progress < NUM_OVR_TILES) {
+    add_ovr_tile();
   }
+  return 0;
 }
 
-void load_ovr_tile_tick(const unsigned int count) {
-  for (unsigned int i = 0; i < count; i++) {
-    if (OVR_TILE_LOAD_PROGRESS < NUM_OVR_TILES) {
-      printf("LOADED: %i\n", OVR_TILE_LOAD_PROGRESS);
-      add_ovr_tile();
-    }
-  }
-}

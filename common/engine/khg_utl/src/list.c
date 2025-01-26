@@ -199,7 +199,6 @@ void utl_list_sort(utl_list *list) {
     return;
   }
   if (list->size < 2 || list->compare == NULL) {
-    utl_error_func("Insufficient size or null compare function", utl_user_defined_data);
     return;
   }
   bool swapped;

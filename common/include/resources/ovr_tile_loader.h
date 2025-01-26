@@ -48,6 +48,5 @@ const ovr_tile get_ovr_tile(unsigned int ovr_tile_id);
 const ovr_tile get_ovr_tile_from_string(const char *ovr_tile_key);
 
 void generate_ovr_tiles(void);
-void reset_ovr_tiles(void);
-void load_ovr_tile_tick(const unsigned int count);
+int load_ovr_tile_tick(void *arg);
 

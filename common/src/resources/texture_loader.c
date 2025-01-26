@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static gfx_texture NO_TEXTURE = { 0 };
+static texture_raw_info TEXTURE_RAW_LOOKUP[NUM_TEXTURES];
 static gfx_texture TEXTURE_LOOKUP[NUM_TEXTURES];
 static texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
 
@@ -21,14 +21,32 @@ const gfx_texture generate_texture(const char *filepath, const float width, cons
   return tex;
 }
 
+const gfx_texture generate_texture_raw(texture_raw_info raw_info) {
+  gfx_texture tex = gfx_load_texture_asset_raw(raw_info.tex_raw, raw_info.width, raw_info.height, raw_info.channels);
+  tex.width = raw_info.width;
+  tex.height = raw_info.height;
+  tex.angle = 0;
+  return tex;
+}
+
 const unsigned int get_tex_id_from_string(const char *tex_key) {
   return utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
 }
 
+void add_texture_raw() {
+  const texture_asset ta = TEXTURE_ASSET_REF[TEXTURE_RAW_THREAD.progress];
+  int width, height, channels;
+  unsigned char *tex_raw;
+  gfx_fetch_texture_raw(&tex_raw, ta.tex_filepath, &width, &height, &channels);
+  TEXTURE_RAW_LOOKUP[TEXTURE_RAW_THREAD.progress] = (texture_raw_info){ tex_raw, ta.tex_width, ta.tex_height, channels };
+  TEXTURE_RAW_THREAD.progress++;
+}
+
 void add_texture() {
-  const texture_asset ta = TEXTURE_ASSET_REF[TEXTURE_LOAD_PROGRESS];
-  TEXTURE_LOOKUP[TEXTURE_LOAD_PROGRESS] = generate_texture(ta.tex_filepath, ta.tex_width, ta.tex_height);
-  TEXTURE_LOAD_PROGRESS++;
+  const texture_asset ta = TEXTURE_ASSET_REF[TEXTURE_THREAD.progress];
+  TEXTURE_LOOKUP[TEXTURE_THREAD.progress] = generate_texture_raw(TEXTURE_RAW_LOOKUP[TEXTURE_THREAD.progress]);
+  gfx_free_texture_raw(TEXTURE_RAW_LOOKUP[TEXTURE_THREAD.progress].tex_raw);
+  TEXTURE_THREAD.progress++;
 }
 
 const gfx_texture get_texture(const unsigned int tex_id) {
@@ -89,18 +107,19 @@ void generate_textures() {
   }
 }
 
-void reset_textures() {
-  for (unsigned int i = 0; i < NUM_TEXTURES; i++) {
-    TEXTURE_LOOKUP[i].id = NO_TEXTURE.id;
+int load_texture_raw_tick(void *arg) {
+  if (TEXTURE_RAW_THREAD.progress < NUM_TEXTURES) {
+    add_texture_raw();
   }
+  return 0;
 }
 
-void load_texture_tick(const unsigned int count) {
-  for (unsigned int i = 0; i < count; i++) {
-    if (TEXTURE_LOAD_PROGRESS < NUM_TEXTURES) {
-      /*printf("LOADED: %i\n", TEXTURE_LOAD_PROGRESS);*/
+int load_texture_tick(void *arg) {
+  for (unsigned int i = 0; i < *(int *)arg; i++) {
+    if (TEXTURE_THREAD.progress < NUM_TEXTURES) {
       add_texture();
     }
   }
+  return 0;
 }
 

@@ -67,14 +67,23 @@ typedef struct texture_asset {
   int tex_height;
 } texture_asset;
 
+typedef struct texture_raw_info {
+  unsigned char *tex_raw;
+  int width;
+  int height;
+  int channels;
+} texture_raw_info;
+
 const gfx_texture generate_texture(const char *filepath, const float width, const float height);
+const gfx_texture generate_texture_raw(texture_raw_info raw_info);
 const unsigned int get_tex_id_from_string(const char *tex_key);
 
 void add_texture(void);
+void add_texture_raw(void);
 const gfx_texture get_texture(const unsigned int tex_id);
 const gfx_texture get_texture_from_string(const char *tex_key);
 
 void generate_textures(void);
-void reset_textures(void);
-void load_texture_tick(const unsigned int count);
+int load_texture_raw_tick(void *arg);
+int load_texture_tick(void *arg);
 

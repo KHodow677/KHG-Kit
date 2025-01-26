@@ -1,41 +1,58 @@
-#include "threading/resource_loading.h"
 #include "khg_thd/concurrent.h"
 #include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/scene_loader.h"
-#include <stdio.h>
+#include "threading/resource_loading.h"
 
-volatile bool RESOUCES_LOADED = false;
-volatile unsigned int TEXTURE_LOAD_PROGRESS = EMPTY_TEXTURE;
-volatile unsigned int OVR_TILE_LOAD_PROGRESS = EMPTY_OVR_TILE;
-
-static thd_thread OVR_TILE_THREAD = { 0 };
-static bool OVR_TILE_LOADING_STARTED = false;
-static bool OVR_TILES_LOADED = false;
+bool RESOUCES_LOADED = false;
+resource_thread OVR_TILE_THREAD = { .enabled = true, .max = NUM_OVR_TILES };
+resource_thread TEXTURE_RAW_THREAD = { .enabled = true, .max = NUM_TEXTURES };
+resource_thread TEXTURE_THREAD = { .enabled = false, .max = NUM_TEXTURES };
 
 static int load_ovr_tiles_task(void *arg) {
   for (unsigned int i = EMPTY_OVR_TILE; i < NUM_OVR_TILES; i++) {
-    load_ovr_tile_tick(1);
+    load_ovr_tile_tick(arg);
   }
   return 0; 
 }
 
+static int load_textures_raw_task(void *arg) {
+  for (unsigned int i = EMPTY_TEXTURE; i < NUM_TEXTURES; i++) {
+    load_texture_raw_tick(arg);
+  }
+  return 0; 
+}
+
+bool check_thread_maxed(resource_thread *resource) {
+  return resource->max == resource->progress;
+}
+
+void load_thread_defer(resource_thread *resource, int (*task)(void *)) {
+  if (!resource->enabled) {
+    task(&resource->max);
+    resource->loading_started = true;
+  }
+  if (!resource->loading_started) {
+    resource->loading_started = true;
+    thd_thread_create(&resource->thread, (thd_thread_start)task, NULL);
+  }
+  if (!resource->loaded && resource->progress >= resource->max) {
+    resource->loaded = true;
+    if (resource->enabled) {
+      thd_thread_join(resource->thread, NULL);
+    }
+  }
+}
+
 void load_resources_defer(const unsigned int batch_size) {
-  if (!OVR_TILE_LOADING_STARTED) {
-    OVR_TILE_LOADING_STARTED = true;
-    unsigned int batch = batch_size;
-    thd_thread_create(&OVR_TILE_THREAD, (thd_thread_start)load_ovr_tiles_task, &batch);
+  load_thread_defer(&OVR_TILE_THREAD, load_ovr_tiles_task);
+  load_thread_defer(&TEXTURE_RAW_THREAD, load_textures_raw_task);
+  if (OVR_TILE_THREAD.progress == NUM_OVR_TILES && TEXTURE_RAW_THREAD.progress == NUM_TEXTURES) {
+    load_thread_defer(&TEXTURE_THREAD, load_texture_tick);
   }
-  if (!OVR_TILES_LOADED && OVR_TILE_LOAD_PROGRESS >= NUM_OVR_TILES) {
-    OVR_TILES_LOADED = true;
-    thd_thread_join(OVR_TILE_THREAD, NULL);
-    printf("JOINED\n");
-  }
-  load_texture_tick(batch_size);
-  if (!RESOUCES_LOADED && TEXTURE_LOAD_PROGRESS == NUM_TEXTURES && OVR_TILE_LOAD_PROGRESS == NUM_OVR_TILES) {
+  if (!RESOUCES_LOADED && check_thread_maxed(&OVR_TILE_THREAD) && check_thread_maxed(&TEXTURE_RAW_THREAD) && check_thread_maxed(&TEXTURE_THREAD)) {
     RESOUCES_LOADED = true;
     setup_scenes();
-    printf("DONE\n");
   }
 }
 
