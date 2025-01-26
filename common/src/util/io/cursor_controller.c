@@ -1,7 +1,7 @@
-#include "io/cursor_controller.h"
-#include "camera/camera.h"
 #include "khg_gfx/events.h"
 #include "khg_phy/core/phy_vector.h"
+#include "util/camera/camera.h"
+#include "util/io/cursor_controller.h"
 
 cursor_state CURSOR_STATE = { 0 };
 

@@ -1,5 +1,3 @@
-#include "area/ovr_tile.h"
-#include "camera/camera.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
@@ -10,10 +8,12 @@
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_phy/shape.h"
-#include "letterbox.h"
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
 #include "rig/rig.h"
+#include "util/camera/camera.h"
+#include "util/ovr_tile.h"
+#include "util/letterbox.h"
 #include <math.h>
 #include <stdio.h>
 

@@ -1,10 +1,10 @@
 #include "ecs/comp_physics.h"
 #include "ecs/ecs_manager.h"
 #include "khg_phy/core/phy_vector.h"
-#include "physics/physics.h"
 #include "khg_phy/body.h"
 #include "khg_phy/space.h"
 #include "khg_phy/core/phy_vector.h"
+#include "util/physics.h"
 #include <stdio.h>
 
 ecs_id PHYSICS_COMPONENT_SIGNATURE;

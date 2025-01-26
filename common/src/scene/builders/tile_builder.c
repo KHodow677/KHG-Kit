@@ -1,4 +1,3 @@
-#include "area/ovr_tile.h"
 #include "ecs/comp_light.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
@@ -11,6 +10,7 @@
 #include "resources/rig_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/builders/tile_builder.h"
+#include "util/ovr_tile.h"
 
 void build_ovr_tile(const unsigned int tile_id, const phy_vector2 pos) {
   const ecs_id entity = ecs_create(ECS);

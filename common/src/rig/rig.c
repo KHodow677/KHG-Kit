@@ -1,13 +1,13 @@
-#include "camera/camera.h"
-#include "letterbox.h"
-#include "physics/physics.h"
-#include "resources/texture_loader.h"
-#include "rig/anim.h"
-#include "rig/rig.h"
 #include "khg_phy/body.h"
 #include "khg_phy/space.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_utl/array.h"
+#include "resources/texture_loader.h"
+#include "rig/anim.h"
+#include "rig/rig.h"
+#include "util/camera/camera.h"
+#include "util/letterbox.h"
+#include "util/physics.h"
 #include <string.h>
 #include <unistd.h>
 

@@ -1,9 +1,9 @@
-#include "camera/camera.h"
 #include "GLFW/glfw3.h"
 #include "game.h"
 #include "khg_gfx/elements.h"
 #include "khg_phy/core/phy_vector.h"
-#include "letterbox.h"
+#include "util/camera/camera.h"
+#include "util/letterbox.h"
 #include <stdio.h>
 
 camera CAMERA = { 0 };

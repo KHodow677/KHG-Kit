@@ -1,12 +1,12 @@
 #include "ecs/comp_tile.h"
-#include "area/ovr_tile.h"
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
 #include "game.h"
-#include "io/cursor_controller.h"
 #include "khg_gfx/elements.h"
 #include "khg_phy/core/phy_vector.h"
+#include "util/io/cursor_controller.h"
+#include "util/ovr_tile.h"
 #include <stdio.h>
 
 ecs_id TILE_COMPONENT_SIGNATURE;

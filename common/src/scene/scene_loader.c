@@ -1,11 +1,11 @@
-#include "camera/camera.h"
 #include "ecs/ecs_manager.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_utl/list.h"
-#include "physics/physics.h"
 #include "scene/builders/map_builder.h"
 #include "scene/builders/structure_builder.h"
 #include "scene/scene_loader.h"
+#include "util/camera/camera.h"
+#include "util/physics.h"
 #include <stdbool.h>
 #include <stdio.h>
 

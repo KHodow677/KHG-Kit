@@ -2,11 +2,11 @@
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
-#include "io/key_controller.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/contact.h"
 #include "khg_utl/easing.h"
-#include "physics/physics.h"
+#include "util/io/key_controller.h"
+#include "util/physics.h"
 #include <stdio.h>
 
 ecs_id MOVER_COMPONENT_SIGNATURE;

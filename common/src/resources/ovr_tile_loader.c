@@ -1,4 +1,3 @@
-#include "area/ovr_tile.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
@@ -6,6 +5,7 @@
 #include "resources/texture_loader.h"
 #include "threading/resource_loading.h"
 #include "resources/ovr_tile_loader.h"
+#include "util/ovr_tile.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

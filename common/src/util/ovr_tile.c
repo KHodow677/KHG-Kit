@@ -1,13 +1,13 @@
-#include "area/ovr_tile.h"
-#include "camera/camera.h"
 #include "khg_gfx/texture.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/vector.h"
-#include "letterbox.h"
 #include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
+#include "util/camera/camera.h"
+#include "util/ovr_tile.h"
+#include "util/letterbox.h"
 #include <math.h>
 #include <stdio.h>
 

@@ -1,12 +1,12 @@
-#include "area/light.h"
 #include "game.h"
 #include "glad/glad.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"
 #include "khg_utl/file_reader.h"
 #include "khg_utl/string.h"
-#include "letterbox.h"
 #include "resources/texture_loader.h"
+#include "util/light.h"
+#include "util/letterbox.h"
 
 gfx_texture LIGHTING_OVERLAY = { 0 };
 float LIGHTING_OVERLAY_COLOR[3] = { 0.0f, 0.0f, 0.0f };

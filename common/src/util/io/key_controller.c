@@ -1,7 +1,7 @@
-#include "io/key_controller.h"
 #include "GLFW/glfw3.h"
 #include "khg_gfx/events.h"
 #include "khg_gfx/internal.h"
+#include "util/io/key_controller.h"
 
 bool KEYBOARD_STATE[GLFW_KEY_LAST] = { 0 };
 

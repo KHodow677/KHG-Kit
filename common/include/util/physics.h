@@ -1,6 +1,7 @@
 #pragma once
 
 #include "khg_phy/body.h"
+#include "khg_phy/contact.h"
 #include "khg_phy/space.h"
 #include "khg_phy/core/phy_vector.h"
 
@@ -14,4 +15,8 @@ extern physics_collision_info COLLISION_INFO;
 
 void physics_setup(const phy_vector2 grav);
 void physics_cleanup(void);
+
+void physics_on_contact_added(phy_space *space, phy_contact_event event, void *user_arg);
+void physics_on_contact_persisted(phy_space *space, phy_contact_event event, void *user_arg);
+void physics_on_contact_removed(phy_space *space, phy_contact_event event, void *user_arg);
 

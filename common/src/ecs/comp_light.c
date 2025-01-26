@@ -1,11 +1,11 @@
-#include "area/light.h"
 #include "ecs/comp_light.h"
-#include "camera/camera.h"
 #include "ecs/comp_physics.h"
 #include "ecs/ecs_manager.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
+#include "util/camera/camera.h"
+#include "util/light.h"
 
 ecs_id LIGHT_COMPONENT_SIGNATURE;
 ecs_id LIGHT_SYSTEM_SIGNATURE;

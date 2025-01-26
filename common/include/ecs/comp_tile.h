@@ -1,7 +1,7 @@
 #pragma once
 
-#include "area/ovr_tile.h"
 #include "khg_ecs/ecs.h"
+#include "util/ovr_tile.h"
 
 typedef struct comp_tile {
   ecs_id id;

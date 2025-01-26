@@ -1,9 +1,9 @@
 #pragma once
 
-#include "area/ovr_tile.h"
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "rig/rig.h"
+#include "util/ovr_tile.h"
 #include <stddef.h>
 
 typedef struct comp_renderer {

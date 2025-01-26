@@ -3,7 +3,7 @@
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
 #include "khg_phy/contact.h"
-#include "physics/physics.h"
+#include "util/physics.h"
 
 typedef enum move_direction {
   MOVE_LEFT,
