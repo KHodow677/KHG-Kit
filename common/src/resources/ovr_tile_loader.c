@@ -105,7 +105,8 @@ void generate_ovr_tiles() {
 }
 
 int load_ovr_tile_tick(void *arg) {
-  if (OVR_TILE_THREAD.progress < NUM_OVR_TILES) {
+  resource_thread *thread = arg;
+  if (thread->progress < NUM_OVR_TILES) {
     add_ovr_tile();
   }
   return 0;

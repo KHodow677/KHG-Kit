@@ -107,15 +107,17 @@ void generate_textures() {
 }
 
 int load_texture_raw_tick(void *arg) {
-  if (TEXTURE_RAW_THREAD.progress < NUM_TEXTURES) {
+  resource_thread *thread = arg;
+  if (thread->progress < NUM_TEXTURES) {
     add_texture_raw();
   }
   return 0;
 }
 
 int load_texture_tick(void *arg) {
-  for (unsigned int i = 0; i < *(int *)arg; i++) {
-    if (TEXTURE_THREAD.progress < NUM_TEXTURES) {
+  resource_thread *thread = arg;
+  for (unsigned int i = 0; i < thread->max; i++) {
+    if (thread->progress < NUM_TEXTURES) {
       add_texture();
     }
   }

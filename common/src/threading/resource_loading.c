@@ -29,12 +29,12 @@ bool check_thread_maxed(resource_thread *resource) {
 
 void load_thread_defer(resource_thread *resource, int (*task)(void *)) {
   if (!resource->enabled) {
-    task(&resource->max);
+    task(resource);
     resource->loading_started = true;
   }
   if (!resource->loading_started) {
     resource->loading_started = true;
-    thd_thread_create(&resource->thread, (thd_thread_start)task, NULL);
+    thd_thread_create(&resource->thread, (thd_thread_start)task, resource);
   }
   if (!resource->loaded && resource->progress >= resource->max) {
     resource->loaded = true;

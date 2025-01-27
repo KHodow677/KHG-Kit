@@ -117,6 +117,8 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
     ovr_tile_element element = *(ovr_tile_element *)utl_array_at(tile.elements, i);
     element.frame.timer = utl_random_uniform(0.0f, OVR_TILE_ELEMENT_MIN_DURATION);
     element.frame.duration = utl_random_uniform(OVR_TILE_ELEMENT_MIN_DURATION, OVR_TILE_ELEMENT_MAX_DURATION);
+    element.angle = utl_random_uniform(-OVR_TILE_ELEMENT_MAX_ANGLE, OVR_TILE_ELEMENT_MAX_ANGLE);
+    element.target_angle = utl_random_uniform(-OVR_TILE_ELEMENT_MAX_ANGLE, OVR_TILE_ELEMENT_MAX_ANGLE);
     element.parent_tile = parent_tile;
     utl_vector_push_back(OVR_TILE_ELEMENTS, &element);
   }
