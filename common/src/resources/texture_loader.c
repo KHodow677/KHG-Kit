@@ -1,6 +1,6 @@
 #include "khg_gfx/texture.h"
 #include "khg_utl/algorithm.h"
-#include "threading/resource_loading.h"
+#include "loading/resource_loading.h"
 #include "resources/texture_loader.h"
 #include <stdio.h>
 #include <string.h>

@@ -3,7 +3,7 @@
 #include "khg_utl/config.h"
 #include "khg_utl/string.h"
 #include "resources/texture_loader.h"
-#include "threading/resource_loading.h"
+#include "loading/resource_loading.h"
 #include "resources/ovr_tile_loader.h"
 #include "util/ovr_tile.h"
 #include <stdio.h>

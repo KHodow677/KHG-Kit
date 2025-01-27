@@ -1,8 +1,8 @@
 #include "khg_thd/concurrent.h"
+#include "loading/resource_loading.h"
 #include "resources/ovr_tile_loader.h"
 #include "resources/texture_loader.h"
 #include "scene/scene_loader.h"
-#include "threading/resource_loading.h"
 
 bool RESOUCES_LOADED = false;
 resource_thread OVR_TILE_THREAD = { .enabled = true, .max = NUM_OVR_TILES };

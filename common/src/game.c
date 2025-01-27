@@ -26,11 +26,14 @@
 #include "util/light.h"
 #include "util/physics.h"
 #include "scene/scene_loader.h"
-#include "threading/resource_loading.h"
+#include "loading/resource_loading.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+
+#define NAMESPACE_LOADING_USE
+#include "loading/namespace.h"
 
 float SCREEN_WIDTH = INITIAL_WIDTH;
 float SCREEN_HEIGHT = INITIAL_HEIGHT;
@@ -77,6 +80,7 @@ void log_sys_info() {
 const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
+  printf("NAMESPACE TEST: %i\n", NAMESPACE_LOADING()->mult2(1));
   utl_random_seed_clock();
   generate_textures();
   generate_ovr_tiles();
