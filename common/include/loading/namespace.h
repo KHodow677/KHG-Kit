@@ -3,14 +3,14 @@
 #include "khg_thd/concurrent.h"
 #include <stdbool.h>
 
-typedef struct resource_thread {
+typedef struct loading_resource_thread {
   bool enabled;
   thd_thread thread;
   unsigned int progress;
   unsigned int max;
   bool loading_started;
   bool loaded;
-} resource_thread;
+} loading_resource_thread;
 
 #define FOREACH_OVR_TILE(TEXTURE)\
   TEXTURE(EMPTY_OVR_TILE)\
@@ -39,9 +39,9 @@ typedef struct resource_thread {
 #define GENERATE_OVR_TILE_ENUM(ENUM) ENUM,
 #define GENERATE_OVR_TILE_STRING(STRING) #STRING,
 
-typedef enum {
+typedef enum loading_ovr_tile_id {
   FOREACH_OVR_TILE(GENERATE_OVR_TILE_ENUM)
-} ovr_tile_id;
+} loading_ovr_tile_id;
 
 #define OVR_TILE_STRINGS (char *[]){ FOREACH_OVR_TILE(GENERATE_OVR_TILE_STRING) }
 #define OVR_TILE_STRINGS_SIZE sizeof(OVR_TILE_STRINGS) / sizeof(OVR_TILE_STRINGS[0])
@@ -53,20 +53,6 @@ typedef enum {
 
 #define GENERATE_RIG_ENUM(ENUM) ENUM,
 #define GENERATE_RIG_STRING(STRING) #STRING,
-
-typedef enum {
-  FOREACH_RIG(GENERATE_RIG_ENUM)
-} rig_id;
-
-#define RIG_STRINGS (char *[]){ FOREACH_RIG(GENERATE_RIG_STRING) }
-#define RIG_STRINGS_SIZE sizeof(RIG_STRINGS) / sizeof(RIG_STRINGS[0])
-
-typedef struct rig_asset {
-  char *rig_filepath;
-  char *rb_section;
-  char *rig_section;
-  unsigned int num_anim;
-} rig_asset;
 
 #define FOREACH_TEXTURE(TEXTURE)\
   TEXTURE(EMPTY_TEXTURE)\
@@ -119,38 +105,35 @@ typedef struct rig_asset {
 #define GENERATE_TEXTURE_ENUM(ENUM) ENUM,
 #define GENERATE_TEXTURE_STRING(STRING) #STRING,
 
-typedef enum {
+typedef enum loading_texture_id {
   FOREACH_TEXTURE(GENERATE_TEXTURE_ENUM)
-} texture_id;
+} loading_texture_id;
 
 #define TEXTURE_STRINGS (char *[]){ FOREACH_TEXTURE(GENERATE_TEXTURE_STRING) }
 #define TEXTURE_STRINGS_SIZE sizeof(TEXTURE_STRINGS) / sizeof(TEXTURE_STRINGS[0])
 
-typedef struct texture_asset {
+typedef struct loading_texture_asset {
   char tex_filepath[128];
   int tex_width;
   int tex_height;
-} texture_asset;
+} loading_texture_asset;
 
-typedef struct texture_raw_info {
+typedef struct loading_texture_raw_info {
   unsigned char *tex_raw;
   int width;
   int height;
   int channels;
-} texture_raw_info;
+} loading_texture_raw_info;
 
-typedef struct ovr_tile_asset {
+typedef struct loading_ovr_tile_asset {
   char *ovr_tile_filepath;
-} ovr_tile_asset;
-
+} loading_ovr_tile_asset;
 
 #if defined(NAMESPACE_LOADING_IMPL) || defined(NAMESPACE_LOADING_USE)
-
 #include "khg_gfx/texture.h"
 #include "util/ovr_tile.h"
-
 typedef struct loading_namespace {
-  void (*load_thread_defer)(struct resource_thread *, int (*)(void *));
+  void (*load_thread_defer)(struct loading_resource_thread *, int (*)(void *));
   void (*load_resources_defer)(void);
   const unsigned int (*get_ovr_tile_id_from_string)(const char *);
   const ovr_tile (*get_ovr_tile)(unsigned int);
@@ -164,11 +147,10 @@ typedef struct loading_namespace {
   int (*load_texture_raw_tick)(void *);
   int (*load_texture_tick)(void *);
   bool RESOURCES_LOADED;
-  resource_thread OVR_TILE_THREAD;
-  resource_thread TEXTURE_RAW_THREAD;
-  resource_thread TEXTURE_THREAD;
+  loading_resource_thread OVR_TILE_THREAD;
+  loading_resource_thread TEXTURE_RAW_THREAD;
+  loading_resource_thread TEXTURE_THREAD;
 } loading_namespace;
-
 #endif
 
 #ifdef NAMESPACE_LOADING_IMPL

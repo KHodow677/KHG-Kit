@@ -18,11 +18,11 @@ static int load_textures_raw_task(void *arg) {
   return 0; 
 }
 
-static bool resource_thread_maxed(resource_thread *resource) {
+static bool resource_thread_maxed(loading_resource_thread *resource) {
   return resource->max == resource->progress;
 }
 
-void load_thread_defer(resource_thread *resource, int (*task)(void *)) {
+void load_thread_defer(loading_resource_thread *resource, int (*task)(void *)) {
   if (!resource->enabled) {
     task(resource);
     resource->loading_started = true;

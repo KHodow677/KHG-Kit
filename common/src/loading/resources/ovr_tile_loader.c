@@ -12,7 +12,7 @@
 
 static ovr_tile NO_OVR_TILE = { 0 };
 static ovr_tile OVR_TILE_LOOKUP[NUM_OVR_TILES];
-static ovr_tile_asset OVR_TILE_ASSET_REF[NUM_OVR_TILES];
+static loading_ovr_tile_asset OVR_TILE_ASSET_REF[NUM_OVR_TILES];
 
 static int compare_ovr_tile_strings(const void *a, const void *b) {
   return strcmp(*(const char **)a, (const char *)b);
@@ -62,7 +62,7 @@ static const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
 }
 
 static void add_ovr_tile(void) {
-  const ovr_tile_asset ota = OVR_TILE_ASSET_REF[NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress];
+  const loading_ovr_tile_asset ota = OVR_TILE_ASSET_REF[NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress];
   OVR_TILE_LOOKUP[NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress] = generate_ovr_tile(ota.ovr_tile_filepath, NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress);
   NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress++;
 }
@@ -76,36 +76,36 @@ const ovr_tile get_ovr_tile(unsigned int ovr_tile_id) {
 }
 
 const ovr_tile get_ovr_tile_from_string(const char *ovr_tile_key) {
-  const unsigned int ovr_tile_id = NAMESPACE_LOADING_INTERNAL.get_ovr_tile_id_from_string(ovr_tile_key);
-  return NAMESPACE_LOADING_INTERNAL.get_ovr_tile(ovr_tile_id);
+  const unsigned int ovr_tile_id = get_ovr_tile_id_from_string(ovr_tile_key);
+  return get_ovr_tile(ovr_tile_id);
 }
 
 void generate_ovr_tiles() {
-  OVR_TILE_ASSET_REF[EMPTY_OVR_TILE] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/empty.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_0] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/0.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_1] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/1.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_2] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/2.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_3] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/3.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_4] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/4.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_5] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/5.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_6] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/6.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_7] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/7.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_8] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/8.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_CLEARING_9] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/9.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_0] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/0.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_1] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/1.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_2] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/2.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_3] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/3.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_4] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/4.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_5] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/5.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_6] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/6.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_7] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/7.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_8] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/8.ini" };
-  OVR_TILE_ASSET_REF[PLAINS_DENSE_9] = (ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/9.ini" };
+  OVR_TILE_ASSET_REF[EMPTY_OVR_TILE] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/empty.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_0] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/0.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_1] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/1.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_2] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/2.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_3] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/3.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_4] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/4.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_5] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/5.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_6] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/6.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_7] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/7.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_8] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/8.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_CLEARING_9] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/clearing/9.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_0] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/0.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_1] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/1.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_2] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/2.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_3] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/3.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_4] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/4.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_5] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/5.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_6] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/6.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_7] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/7.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_8] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/8.ini" };
+  OVR_TILE_ASSET_REF[PLAINS_DENSE_9] = (loading_ovr_tile_asset){ "res/assets/data/ovr_tiles/plains/dense/9.ini" };
 }
 
 int load_ovr_tile_tick(void *arg) {
-  resource_thread *thread = arg;
+  loading_resource_thread *thread = arg;
   if (thread->progress < NUM_OVR_TILES) {
     add_ovr_tile();
   }

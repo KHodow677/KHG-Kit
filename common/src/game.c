@@ -1,14 +1,8 @@
+#define NAMESPACE_ELEMENT_USE
 #define NAMESPACE_LOADING_USE
 
+#include "element/namespace.h"
 #include "game.h"
-#include "khg_utl/random.h"
-#include "ecs/comp_light.h"
-#include "ecs/comp_mover.h"
-#include "ecs/comp_physics.h"
-#include "ecs/comp_renderer.h"
-#include "ecs/comp_tile.h"
-#include "ecs/comp_zone.h"
-#include "ecs/ecs_manager.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include "khg_phy/space.h"
@@ -17,6 +11,7 @@
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
+#include "khg_utl/random.h"
 #include "loading/namespace.h"
 #include "util/camera/camera.h"
 #include "util/camera/camera_controller.h"
@@ -30,7 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-
 
 float SCREEN_WIDTH = INITIAL_WIDTH;
 float SCREEN_HEIGHT = INITIAL_HEIGHT;
@@ -103,12 +97,10 @@ const bool gfx_loop(const float delta, const float fps_val) {
   gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
   if (NAMESPACE_LOADING()->RESOURCES_LOADED && SCENE_LOADED) {
     move_camera(&CAMERA, delta);
-    ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, TILE_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->TILE_INFO.system_signature, delta);
+    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->PHYSICS_INFO.system_signature, delta);
+    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->RENDER_INFO.system_signature, delta);
+    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->LIGHT_INFO.system_signature, delta);
     phy_space_step(SPACE, delta);
   }
   gfx_div_end();

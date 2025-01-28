@@ -63,7 +63,7 @@ void clear_lights() {
   LIGHT_COUNT = 0;
 }
 
-void add_light(vec2s pos_perc, float radius) {
+void add_light(phy_vector2 pos_perc, float radius) {
   const int i = LIGHT_COUNT++;
   LIGHTS[i] = (light){ pos_perc, radius};
 }
