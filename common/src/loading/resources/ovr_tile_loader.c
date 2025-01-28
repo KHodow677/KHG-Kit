@@ -1,10 +1,10 @@
+#define NAMESPACE_LOADING_IMPL
+
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/config.h"
 #include "khg_utl/string.h"
-#include "resources/texture_loader.h"
-#include "loading/resource_loading.h"
-#include "resources/ovr_tile_loader.h"
+#include "loading/namespace.h"
 #include "util/ovr_tile.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,11 +18,11 @@ static int compare_ovr_tile_strings(const void *a, const void *b) {
   return strcmp(*(const char **)a, (const char *)b);
 }
 
-const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
+static const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
   ovr_tile ot = { id };
   utl_config_file *config = utl_config_create(filepath);
-  ot.ground_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "ground_tex"));
-  ot.border_tex_id = get_tex_id_from_string(utl_config_get_value(config, "info", "border_tex"));
+  ot.ground_tex_id = NAMESPACE_LOADING_INTERNAL.get_tex_id_from_string(utl_config_get_value(config, "info", "ground_tex"));
+  ot.border_tex_id = NAMESPACE_LOADING_INTERNAL.get_tex_id_from_string(utl_config_get_value(config, "info", "border_tex"));
   ot.num_elements = utl_config_get_int(config, "info", "num_elements", 0);
   ot.elements = utl_array_create(sizeof(ovr_tile_element), ot.num_elements);
   utl_config_iterator iterator = utl_config_get_iterator(config);
@@ -35,7 +35,7 @@ const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
     }
     utl_string *key_obj = utl_string_create(key);
     if (utl_string_starts_with(key_obj, "element_tex")) {
-      template_element.element_tex_id = get_tex_id_from_string(utl_config_get_value(config, section, key));
+      template_element.element_tex_id = NAMESPACE_LOADING_INTERNAL.get_tex_id_from_string(utl_config_get_value(config, section, key));
       utl_string_deallocate(key_obj);
       continue;
     }
@@ -61,14 +61,14 @@ const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
   return ot;
 }
 
-const unsigned int get_ovr_tile_id_from_string(const char *ovr_tile_key) {
-  return utl_algorithm_find_at(OVR_TILE_STRINGS, OVR_TILE_STRINGS_SIZE, sizeof(char *), ovr_tile_key, compare_ovr_tile_strings);
+static void add_ovr_tile(void) {
+  const ovr_tile_asset ota = OVR_TILE_ASSET_REF[NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress];
+  OVR_TILE_LOOKUP[NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress] = generate_ovr_tile(ota.ovr_tile_filepath, NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress);
+  NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD.progress++;
 }
 
-void add_ovr_tile(void) {
-  const ovr_tile_asset ota = OVR_TILE_ASSET_REF[OVR_TILE_THREAD.progress];
-  OVR_TILE_LOOKUP[OVR_TILE_THREAD.progress] = generate_ovr_tile(ota.ovr_tile_filepath, OVR_TILE_THREAD.progress);
-  OVR_TILE_THREAD.progress++;
+const unsigned int get_ovr_tile_id_from_string(const char *ovr_tile_key) {
+  return utl_algorithm_find_at(OVR_TILE_STRINGS, OVR_TILE_STRINGS_SIZE, sizeof(char *), ovr_tile_key, compare_ovr_tile_strings);
 }
 
 const ovr_tile get_ovr_tile(unsigned int ovr_tile_id) {
@@ -76,8 +76,8 @@ const ovr_tile get_ovr_tile(unsigned int ovr_tile_id) {
 }
 
 const ovr_tile get_ovr_tile_from_string(const char *ovr_tile_key) {
-  const unsigned int ovr_tile_id = get_ovr_tile_id_from_string(ovr_tile_key);
-  return get_ovr_tile(ovr_tile_id);
+  const unsigned int ovr_tile_id = NAMESPACE_LOADING_INTERNAL.get_ovr_tile_id_from_string(ovr_tile_key);
+  return NAMESPACE_LOADING_INTERNAL.get_ovr_tile(ovr_tile_id);
 }
 
 void generate_ovr_tiles() {

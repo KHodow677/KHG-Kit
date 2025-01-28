@@ -1,3 +1,5 @@
+#define NAMESPACE_LOADING_USE
+
 #include "ecs/comp_physics.h"
 #include "ecs/comp_renderer.h"
 #include "ecs/ecs_manager.h"
@@ -8,9 +10,7 @@
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_phy/shape.h"
-#include "resources/rig_loader.h"
-#include "resources/texture_loader.h"
-#include "rig/rig.h"
+#include "loading/namespace.h"
 #include "util/camera/camera.h"
 #include "util/ovr_tile.h"
 #include "util/letterbox.h"
@@ -50,14 +50,11 @@ static ecs_ret sys_renderer_update(ecs_ecs *ecs, ecs_id *entities, const unsigne
         transform_letterbox_element_aabb(LETTERBOX, &pos, &cam_pos, &aabb);
         gfx_rect_no_block(pos.x, pos.y, aabb.size.x, aabb.size.y, GFX_GREEN, 0.0, angle);
       }
-      if (info->rig.enabled) {
-        render_rig(&info->rig, info->parallax_value, info->flipped);
-      }
       else {
         phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(info->body), info->offset);
         phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
         const float angle = phy_rigid_body_get_angle(info->body);
-        const gfx_texture tex_ref = get_texture(info->tex_id);
+        const gfx_texture tex_ref = NAMESPACE_LOADING()->get_texture(info->tex_id);
         gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
         transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
         gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);
@@ -73,7 +70,6 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
   if (info && constructor_info) {
     info->body = constructor_info->body;
     info->shape = constructor_info->shape;
-    info->rig = constructor_info->rig_id != NULL_RIG ? get_rig(constructor_info->rig_id) : (rig){ false };
     info->ovr_tile = constructor_info->ovr_tile;
     info->tex_id = constructor_info->tex_id;
     info->render_layer = constructor_info->render_layer;
@@ -84,15 +80,8 @@ static void comp_renderer_constructor(ecs_ecs *ecs, const ecs_id entity_id, void
   }
 }
 
-static void comp_renderer_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
-  comp_renderer *info = ptr;
-  if (info && info->rig.enabled) {
-    free_rig(&info->rig);
-  }
-}
-
 void comp_renderer_register() {
-  RENDERER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_renderer), comp_renderer_constructor, comp_renderer_destructor);
+  RENDERER_COMPONENT_SIGNATURE = ecs_register_component(ECS, sizeof(comp_renderer), comp_renderer_constructor, NULL);
 }
 
 void sys_renderer_register() {
@@ -106,3 +95,4 @@ comp_renderer *sys_renderer_add(const ecs_id eid, comp_renderer_constructor_info
   comp_renderer *res = ecs_add(ECS, eid, RENDERER_COMPONENT_SIGNATURE, NULL);
   return res;
 }
+

@@ -1,7 +1,8 @@
+#define NAMESPACE_LOADING_IMPL
+
 #include "khg_gfx/texture.h"
 #include "khg_utl/algorithm.h"
-#include "loading/resource_loading.h"
-#include "resources/texture_loader.h"
+#include "loading/namespace.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -13,7 +14,7 @@ static int compare_texture_strings(const void *a, const void *b) {
   return strcmp(*(const char **)a, (const char *)b);
 }
 
-const gfx_texture generate_texture(const char *filepath, const float width, const float height) {
+static const gfx_texture generate_texture(const char *filepath, const float width, const float height) {
   gfx_texture tex = gfx_load_texture_asset(filepath);
   tex.width = width;
   tex.height = height;
@@ -21,7 +22,7 @@ const gfx_texture generate_texture(const char *filepath, const float width, cons
   return tex;
 }
 
-const gfx_texture generate_texture_raw(texture_raw_info raw_info) {
+static const gfx_texture generate_texture_raw(texture_raw_info raw_info) {
   gfx_texture tex = gfx_load_texture_asset_raw(raw_info.tex_raw, raw_info.width, raw_info.height, raw_info.channels);
   tex.width = raw_info.width;
   tex.height = raw_info.height;
@@ -29,24 +30,24 @@ const gfx_texture generate_texture_raw(texture_raw_info raw_info) {
   return tex;
 }
 
-const unsigned int get_tex_id_from_string(const char *tex_key) {
-  return utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
-}
-
-void add_texture_raw() {
-  const texture_asset ta = TEXTURE_ASSET_REF[TEXTURE_RAW_THREAD.progress];
+static void add_texture_raw() {
+  const texture_asset ta = TEXTURE_ASSET_REF[NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.progress];
   int width, height, channels;
   unsigned char *tex_raw;
   gfx_fetch_texture_raw(&tex_raw, ta.tex_filepath, &width, &height, &channels);
-  TEXTURE_RAW_LOOKUP[TEXTURE_RAW_THREAD.progress] = (texture_raw_info){ tex_raw, ta.tex_width, ta.tex_height, channels };
-  TEXTURE_RAW_THREAD.progress++;
+  TEXTURE_RAW_LOOKUP[NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.progress] = (texture_raw_info){ tex_raw, ta.tex_width, ta.tex_height, channels };
+  NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.progress++;
 }
 
-void add_texture() {
-  const texture_asset ta = TEXTURE_ASSET_REF[TEXTURE_THREAD.progress];
-  TEXTURE_LOOKUP[TEXTURE_THREAD.progress] = generate_texture_raw(TEXTURE_RAW_LOOKUP[TEXTURE_THREAD.progress]);
-  gfx_free_texture_raw(TEXTURE_RAW_LOOKUP[TEXTURE_THREAD.progress].tex_raw);
-  TEXTURE_THREAD.progress++;
+static void add_texture() {
+  const texture_asset ta = TEXTURE_ASSET_REF[NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress];
+  TEXTURE_LOOKUP[NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress] = generate_texture_raw(TEXTURE_RAW_LOOKUP[NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress]);
+  gfx_free_texture_raw(TEXTURE_RAW_LOOKUP[NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress].tex_raw);
+  NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress++;
+}
+
+const unsigned int get_tex_id_from_string(const char *tex_key) {
+  return utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
 }
 
 const gfx_texture get_texture(const unsigned int tex_id) {
@@ -54,8 +55,8 @@ const gfx_texture get_texture(const unsigned int tex_id) {
 }
 
 const gfx_texture get_texture_from_string(const char *tex_key) {
-  const unsigned int tex_id = get_tex_id_from_string(tex_key);
-  return get_texture(tex_id);
+  const unsigned int tex_id = NAMESPACE_LOADING_INTERNAL.get_tex_id_from_string(tex_key);
+  return NAMESPACE_LOADING_INTERNAL.get_texture(tex_id);
 }
 
 void generate_textures() {

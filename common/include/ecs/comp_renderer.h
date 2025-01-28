@@ -2,7 +2,6 @@
 
 #include "khg_ecs/ecs.h"
 #include "khg_phy/body.h"
-#include "rig/rig.h"
 #include "util/ovr_tile.h"
 #include <stddef.h>
 
@@ -11,7 +10,6 @@ typedef struct comp_renderer {
   int tex_id;
   phy_rigid_body *body;
   phy_shape *shape;
-  rig rig;
   ovr_tile_info ovr_tile;
   int render_layer;
   float parallax_value;
@@ -24,7 +22,6 @@ typedef struct comp_renderer_constructor_info {
   phy_rigid_body *body; 
   phy_shape *shape; 
   const int tex_id;
-  const unsigned int rig_id;
   const ovr_tile_info ovr_tile;
   const unsigned int render_layer;
   const float parallax_value;

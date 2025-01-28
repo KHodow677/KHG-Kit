@@ -1,10 +1,12 @@
+#define NAMESPACE_LOADING_USE
+
 #include "game.h"
 #include "glad/glad.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/internal.h"
 #include "khg_utl/file_reader.h"
 #include "khg_utl/string.h"
-#include "resources/texture_loader.h"
+#include "loading/namespace.h"
 #include "util/light.h"
 #include "util/letterbox.h"
 
@@ -17,7 +19,7 @@ int LIGHT_COUNT = 0;
 light LIGHTS[] = { 0 };
 
 void setup_lights_texture() {
-  LIGHTING_OVERLAY = get_texture(EMPTY_TEXTURE);
+  LIGHTING_OVERLAY = NAMESPACE_LOADING()->get_texture(0);
 }
 
 void setup_lights_shader() {
