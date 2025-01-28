@@ -1,10 +1,6 @@
 #pragma once
 
-#if defined(NAMESPACE_LOADING_IMPL) || defined(NAMESPACE_LOADING_USE)
-
-#include "khg_gfx/texture.h"
 #include "khg_thd/concurrent.h"
-#include "util/ovr_tile.h"
 #include <stdbool.h>
 
 typedef struct resource_thread {
@@ -146,6 +142,12 @@ typedef struct texture_raw_info {
 typedef struct ovr_tile_asset {
   char *ovr_tile_filepath;
 } ovr_tile_asset;
+
+
+#if defined(NAMESPACE_LOADING_IMPL) || defined(NAMESPACE_LOADING_USE)
+
+#include "khg_gfx/texture.h"
+#include "util/ovr_tile.h"
 
 typedef struct loading_namespace {
   void (*load_thread_defer)(struct resource_thread *, int (*)(void *));
