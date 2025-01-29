@@ -50,6 +50,11 @@ static const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
     }
     else if (utl_string_starts_with(key_obj, "element_flipped")) {
       template_element.flipped = utl_config_get_bool(config, section, key, false);
+      utl_string_deallocate(key_obj);
+      continue;
+    }
+    else if (utl_string_starts_with(key_obj, "element_stable")) {
+      template_element.stable = utl_config_get_bool(config, section, key, false);
       template_element.parent_tile = NULL;
       utl_array_set(ot.elements, count, &template_element);
       count++;

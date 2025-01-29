@@ -18,6 +18,7 @@ typedef struct ovr_tile_element {
   float current_angle;
   frame_info frame;
   bool flipped;
+  bool stable;
   ovr_tile_info *parent_tile;
 } ovr_tile_element;
 
