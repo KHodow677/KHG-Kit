@@ -37,6 +37,9 @@ static float OVR_TILE_ELEMENT_MAX_ANGLE = 0.174533f;
 static int compare_ovr_tile_elements(const void *a, const void *b) {
   const ovr_tile_element *e1 = a;
   const ovr_tile_element *e2 = b;
+  if (e1->stable != e2->stable) {
+    return e2->stable - e1->stable; 
+  }
   float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, NAMESPACE_LOADING()->get_texture(e1->element_tex_id).height * OVR_TILE_SCALE, 0.0f).y;
   float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, NAMESPACE_LOADING()->get_texture(e2->element_tex_id).height * OVR_TILE_SCALE, 0.0f).y;
   if (fabsf(arg1 - arg2) < 1e-6f) {
@@ -97,6 +100,9 @@ void render_ovr_tile_element_item(const ovr_tile_element *element) {
 }
 
 void update_ovr_tile_element_item(ovr_tile_element *element, const float dt) {
+  if (element->stable) {
+    return;
+  }
   frame_tick(&element->frame, dt);
   if (frame_time_up(&element->frame)) {
     element->current_angle = element->target_angle;
@@ -116,10 +122,12 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
   utl_vector_reserve(OVR_TILE_ELEMENTS, OVR_TILE_ELEMENTS->capacity_size + tile.num_elements);
   for (unsigned int i = 0; i < tile.num_elements; i++) {
     ovr_tile_element element = *(ovr_tile_element *)utl_array_at(tile.elements, i);
-    element.frame.timer = utl_random_uniform(0.0f, OVR_TILE_ELEMENT_MIN_DURATION);
-    element.frame.duration = utl_random_uniform(OVR_TILE_ELEMENT_MIN_DURATION, OVR_TILE_ELEMENT_MAX_DURATION);
-    element.angle = utl_random_uniform(-OVR_TILE_ELEMENT_MAX_ANGLE, OVR_TILE_ELEMENT_MAX_ANGLE);
-    element.target_angle = utl_random_uniform(-OVR_TILE_ELEMENT_MAX_ANGLE, OVR_TILE_ELEMENT_MAX_ANGLE);
+    if (!element.stable) {
+      element.frame.timer = utl_random_uniform(0.0f, OVR_TILE_ELEMENT_MIN_DURATION);
+      element.frame.duration = utl_random_uniform(OVR_TILE_ELEMENT_MIN_DURATION, OVR_TILE_ELEMENT_MAX_DURATION);
+      element.angle = utl_random_uniform(-OVR_TILE_ELEMENT_MAX_ANGLE, OVR_TILE_ELEMENT_MAX_ANGLE);
+      element.target_angle = utl_random_uniform(-OVR_TILE_ELEMENT_MAX_ANGLE, OVR_TILE_ELEMENT_MAX_ANGLE);
+    }
     element.parent_tile = parent_tile;
     utl_vector_push_back(OVR_TILE_ELEMENTS, &element);
   }
