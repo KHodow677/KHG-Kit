@@ -21,8 +21,10 @@ static int compare_ovr_tile_strings(const void *a, const void *b) {
 static const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
   ovr_tile ot = { id };
   utl_config_file *config = utl_config_create(filepath);
-  ot.ground_tex_id = NAMESPACE_LOADING_INTERNAL.get_tex_id_from_string(utl_config_get_value(config, "info", "ground_tex"));
-  ot.border_tex_id = NAMESPACE_LOADING_INTERNAL.get_tex_id_from_string(utl_config_get_value(config, "info", "border_tex"));
+  const char *ground_tex_id = utl_config_get_value(config, "info", "ground_tex");
+  const char *border_tex_id = utl_config_get_value(config, "info", "border_tex");
+  strcpy(ot.ground_tex_id, ground_tex_id);
+  strcpy(ot.border_tex_id, border_tex_id);
   ot.num_elements = utl_config_get_int(config, "info", "num_elements", 0);
   ot.elements = utl_array_create(sizeof(ovr_tile_element), ot.num_elements);
   utl_config_iterator iterator = utl_config_get_iterator(config);
@@ -35,7 +37,8 @@ static const ovr_tile generate_ovr_tile(char *filepath, const unsigned int id) {
     }
     utl_string *key_obj = utl_string_create(key);
     if (utl_string_starts_with(key_obj, "element_tex")) {
-      template_element.element_tex_id = NAMESPACE_LOADING_INTERNAL.get_tex_id_from_string(utl_config_get_value(config, section, key));
+      const char *element_tex_id = utl_config_get_value(config, section, key);
+      strcpy(template_element.element_tex_id, element_tex_id);
       utl_string_deallocate(key_obj);
       continue;
     }

@@ -11,7 +11,7 @@ typedef struct ovr_tile_info {
 } ovr_tile_info;
 
 typedef struct ovr_tile_element {
-  unsigned int element_tex_id;
+  char element_tex_id[32];
   phy_vector2 pos;
   float angle;
   float target_angle;
@@ -24,8 +24,8 @@ typedef struct ovr_tile_element {
 
 typedef struct ovr_tile {
   unsigned int tile_id;
-  unsigned int ground_tex_id;
-  unsigned int border_tex_id;
+  char ground_tex_id[32];
+  char border_tex_id[32];
   utl_array *elements;
   unsigned int num_elements;
 } ovr_tile;
@@ -38,7 +38,7 @@ const float get_ovr_tile_size(void);
 phy_vector2 ovr_tile_pos_to_world_pos(const phy_vector2 coords);
 phy_vector2 ovr_tile_rendering_pos(const phy_vector2 coords, const phy_vector2 offset, const float tex_height, const float tex_angle);
 
-void render_ovr_tile_item(const unsigned int tex_id, const phy_vector2 coords, const phy_vector2 offset);
+void render_ovr_tile_item(char *tex_id, const phy_vector2 coords, const phy_vector2 offset);
 void render_ovr_tile_element_item(const ovr_tile_element *element);
 void update_ovr_tile_element_item(ovr_tile_element *element, const float dt);
 

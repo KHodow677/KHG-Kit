@@ -131,8 +131,11 @@ typedef struct loading_ovr_tile_asset {
 
 #if defined(NAMESPACE_LOADING_IMPL) || defined(NAMESPACE_LOADING_USE)
 #include "khg_gfx/texture.h"
+#include "khg_utl/config.h"
 #include "util/ovr_tile.h"
 typedef struct loading_namespace {
+  void (*load_configs)(const char *);
+  void (*close_config)(void);
   void (*load_thread_defer)(struct loading_resource_thread *, int (*)(void *));
   void (*load_resources_defer)(void);
   const unsigned int (*get_ovr_tile_id_from_string)(const char *);
@@ -140,12 +143,11 @@ typedef struct loading_namespace {
   const ovr_tile (*get_ovr_tile_from_string)(const char *);
   void (*generate_ovr_tiles)(void);
   int (*load_ovr_tile_tick)(void *);
-  const unsigned int (*get_tex_id_from_string)(const char *);
-  const gfx_texture (*get_texture)(const unsigned int);
-  const gfx_texture (*get_texture_from_string)(const char *);
-  void (*generate_textures)(void);
-  int (*load_texture_raw_tick)(void *);
-  int (*load_texture_tick)(void *);
+  void (*generate_tex_defs)(const char *);
+  void (*emplace_tex_defs_tick)(void *);
+  int (*emplace_tex_defs)(void *);
+  gfx_texture (*get_tex_def)(char *);
+  void (*free_tex_defs)(void);
   bool RESOURCES_LOADED;
   loading_resource_thread OVR_TILE_THREAD;
   loading_resource_thread TEXTURE_RAW_THREAD;

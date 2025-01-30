@@ -1,10 +1,9 @@
 #define NAMESPACE_LOADING_IMPL
 
-#include "khg_utl/map.h"
 #include "khg_thd/concurrent.h"
 #include "loading/namespace.h"
 #include "scene/scene_loader.h"
-#include "util/config.h"
+#include <stdio.h>
 
 static int load_ovr_tiles_task(void *arg) {
   for (unsigned int i = EMPTY_OVR_TILE; i < NUM_OVR_TILES; i++) {
@@ -14,16 +13,24 @@ static int load_ovr_tiles_task(void *arg) {
 }
 
 static int load_textures_raw_task(void *arg) {
-  utl_map_iterator map_it = utl_map_begin(TEXTURE_ASSETS);
-  for (unsigned int i = EMPTY_TEXTURE; i < NUM_TEXTURES; i++) {
-    NAMESPACE_LOADING_INTERNAL.load_texture_raw_tick(arg);
-    emplace_tex_defs_tick(&map_it);
+  for (unsigned int i = 0; i < NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.max; i++) {
+    NAMESPACE_LOADING_INTERNAL.emplace_tex_defs_tick(arg);
   }
+  printf("Part2\n");
   return 0; 
 }
 
 static bool resource_thread_maxed(loading_resource_thread *resource) {
   return resource->max == resource->progress;
+}
+
+void load_configs(const char *tex_filename) {
+  NAMESPACE_LOADING_INTERNAL.generate_tex_defs(tex_filename);
+  printf("Part1\n");
+}
+
+void close_configs() {
+  NAMESPACE_LOADING_INTERNAL.free_tex_defs();
 }
 
 void load_thread_defer(loading_resource_thread *resource, int (*task)(void *)) {
@@ -55,7 +62,7 @@ void load_resources_defer() {
   load_thread_defer(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD, load_ovr_tiles_task);
   load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD, load_textures_raw_task);
   if (resource_thread_maxed(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD) && resource_thread_maxed(&NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD)) {
-    load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD, NAMESPACE_LOADING_INTERNAL.load_texture_tick);
+    load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD, NAMESPACE_LOADING_INTERNAL.emplace_tex_defs);
   }
 }
 

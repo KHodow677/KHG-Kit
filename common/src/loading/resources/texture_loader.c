@@ -1,129 +1,96 @@
-#include "util/config.h"
+#include <stdio.h>
 #define NAMESPACE_LOADING_IMPL
 
+#include "khg_utl/config.h"
+#include "khg_utl/string.h"
+#include "khg_utl/vector.h"
 #include "khg_gfx/texture.h"
 #include "khg_utl/algorithm.h"
 #include "loading/namespace.h"
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-static loading_texture_raw_info TEXTURE_RAW_LOOKUP[NUM_TEXTURES];
-static gfx_texture TEXTURE_LOOKUP[NUM_TEXTURES];
-static loading_texture_asset TEXTURE_ASSET_REF[NUM_TEXTURES];
+static utl_vector *TEXTURE_NAMES;
+static utl_vector *TEXTURE_ASSETS;
+static utl_vector *TEXTURE_RAWS;
+static utl_vector *TEXTURES;
 
 static int compare_texture_strings(const void *a, const void *b) {
   return strcmp(*(const char **)a, (const char *)b);
 }
 
-static const gfx_texture generate_texture(const char *filepath, const float width, const float height) {
-  gfx_texture tex = gfx_load_texture_asset(filepath);
-  tex.width = width;
-  tex.height = height;
-  tex.angle = 0;
-  return tex;
-}
-
-static const gfx_texture generate_texture_raw(loading_texture_raw_info raw_info) {
-  gfx_texture tex = gfx_load_texture_asset_raw(raw_info.tex_raw, raw_info.width, raw_info.height, raw_info.channels);
-  tex.width = raw_info.width;
-  tex.height = raw_info.height;
-  tex.angle = 0;
-  return tex;
-}
-
-static void add_texture_raw() {
-  const loading_texture_asset ta = TEXTURE_ASSET_REF[NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.progress];
-  int width, height, channels;
-  unsigned char *tex_raw;
-  gfx_fetch_texture_raw(&tex_raw, ta.tex_filepath, &width, &height, &channels);
-  TEXTURE_RAW_LOOKUP[NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.progress] = (loading_texture_raw_info){ tex_raw, ta.tex_width, ta.tex_height, channels };
-  NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.progress++;
-}
-
-static void add_texture() {
-  const loading_texture_asset ta = TEXTURE_ASSET_REF[NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress];
-  TEXTURE_LOOKUP[NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress] = generate_texture_raw(TEXTURE_RAW_LOOKUP[NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress]);
-  gfx_free_texture_raw(TEXTURE_RAW_LOOKUP[NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress].tex_raw);
-  NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress++;
-}
-
-const unsigned int get_tex_id_from_string(const char *tex_key) {
-  return utl_algorithm_find_at(TEXTURE_STRINGS, TEXTURE_STRINGS_SIZE, sizeof(char *), tex_key, compare_texture_strings);
-}
-
-const gfx_texture get_texture(const unsigned int tex_id) {
-  return TEXTURE_LOOKUP[tex_id];
-}
-
-const gfx_texture get_texture_from_string(const char *tex_key) {
-  const unsigned int tex_id = get_tex_id_from_string(tex_key);
-  return get_texture(tex_id);
-}
-
-void generate_textures() {
-  TEXTURE_ASSET_REF[EMPTY_TEXTURE] = (loading_texture_asset){ "res/assets/textures/square.png", 512, 512 };
-  TEXTURE_ASSET_REF[GROUND_GRASS] = (loading_texture_asset){ "res/assets/textures/tiles/grounds/grass.png", 725, 628 };
-  TEXTURE_ASSET_REF[BORDER_BLACK] = (loading_texture_asset){ "res/assets/textures/tiles/borders/black.png", 795, 688 };
-  for (unsigned int i = ELEMENT_BUSH_0, count = 0; i <= ELEMENT_BUSH_59; i++) {
-    char path[128];
-    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/bushes/bush_%d.png", count++);
-    TEXTURE_ASSET_REF[i] = (loading_texture_asset){ .tex_width = 336, .tex_height = 416 };
-    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
+void generate_tex_defs(const char *filename) {
+  TEXTURE_NAMES = utl_vector_create(sizeof(char *));
+  TEXTURE_ASSETS = utl_vector_create(sizeof(loading_texture_asset));
+  TEXTURE_RAWS = utl_vector_create(sizeof(loading_texture_raw_info));
+  TEXTURES = utl_vector_create(sizeof(gfx_texture));
+  utl_config_file *config = utl_config_create(filename);
+  utl_config_iterator iterator = utl_config_get_iterator(config);
+  const char *section, *key, *value;
+  char last_section[128];
+  if (utl_config_next_entry(&iterator, &section, &key, &value)) {
+    if (!strcmp(last_section, section)) {
+      strcpy(last_section, section);
+      return;
+    };
+    strcpy(last_section, section);
+    char *tex_str = utl_string_strdup(section);
+    const char *path = utl_config_get_value(config, section, "path");
+    const int width = utl_config_get_int(config, section, "width", 512);
+    const int height = utl_config_get_int(config, section, "height", 512);
+    loading_texture_asset tex_asset = { .tex_width = width, .tex_height = height };
+    strcpy(tex_asset.tex_filepath, path);
+    utl_vector_push_back(TEXTURE_NAMES, &tex_str);
+    utl_vector_push_back(TEXTURE_ASSETS, &tex_asset);
   }
-  for (unsigned int i = ELEMENT_DIRTPATCH_0, count = 0; i <= ELEMENT_DIRTPATCH_59; i++) {
-    char path[128];
-    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/dirt_patches/dirt_patch_%d.png", count++);
-    TEXTURE_ASSET_REF[i] = (loading_texture_asset){ .tex_width = 336, .tex_height = 416 };
-    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
-  }
-  for (unsigned int i = ELEMENT_GRASSBUSH_DARK_0, count = 0; i <= ELEMENT_GRASSBUSH_DARK_59; i++) {
-    char path[128];
-    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_bushes/dark/grass_bush_%d.png", count++);
-    TEXTURE_ASSET_REF[i] = (loading_texture_asset){ .tex_width = 336, .tex_height = 416 };
-    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
-  }
-  for (unsigned int i = ELEMENT_GRASSBUSH_REG_0, count = 0; i <= ELEMENT_GRASSBUSH_REG_59; i++) {
-    char path[128];
-    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_bushes/reg/grass_bush_%d.png", count++);
-    TEXTURE_ASSET_REF[i] = (loading_texture_asset){ .tex_width = 336, .tex_height = 416 };
-    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
-  }
-  for (unsigned int i = ELEMENT_GRASSMARKS_0, count = 0; i <= ELEMENT_GRASSMARKS_59; i++) {
-    char path[128];
-    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_marks/grass_marks_%d.png", count++);
-    TEXTURE_ASSET_REF[i] = (loading_texture_asset){ .tex_width = 336, .tex_height = 416 };
-    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
-  }
-  for (unsigned int i = ELEMENT_GRASSPATCH_0, count = 0; i <= ELEMENT_GRASSPATCH_59; i++) {
-    char path[128];
-    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/grass_patches/grass_patch_%d.png", count++);
-    TEXTURE_ASSET_REF[i] = (loading_texture_asset){ .tex_width = 336, .tex_height = 416 };
-    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
-  }
-  for (unsigned int i = ELEMENT_TALLGRASS_0, count = 0; i <= ELEMENT_TALLGRASS_59; i++) {
-    char path[128];
-    snprintf(path, sizeof(path), "res/assets/textures/tiles/elements/tall_grass/tall_grass_%d.png", count++);
-    TEXTURE_ASSET_REF[i] = (loading_texture_asset){ .tex_width = 336, .tex_height = 416 };
-    strcpy(TEXTURE_ASSET_REF[i].tex_filepath, path);
-  }
+  utl_config_deallocate(config);
 }
 
-int load_texture_raw_tick(void *arg) {
+void emplace_tex_defs_tick(void *arg) {
   loading_resource_thread *thread = arg;
-  if (thread->progress < NUM_TEXTURES) {
-    add_texture_raw();
+  const unsigned int num_names = utl_vector_size(TEXTURE_NAMES);
+  if (thread->progress < num_names) {
+    char *tex_str = utl_vector_at(TEXTURE_NAMES, thread->progress);
+    loading_texture_asset tex_asset = *(loading_texture_asset *)utl_vector_at(TEXTURE_ASSETS, thread->progress);
+    int width, height, channels;
+    unsigned char *tex_raw;
+    gfx_fetch_texture_raw(&tex_raw, tex_asset.tex_filepath, &width, &height, &channels);
+    loading_texture_raw_info tex_raw_info = { tex_raw, tex_asset.tex_width, tex_asset.tex_height, channels };
+    NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.progress++;
+    utl_vector_push_back(TEXTURE_RAWS, &tex_raw_info);
   }
+}
+
+int emplace_tex_defs(void *arg) {
+  for (loading_texture_raw_info *tex_raw_info = utl_vector_begin(TEXTURE_RAWS); tex_raw_info != utl_vector_end(TEXTURE_RAWS); tex_raw_info++) {
+    gfx_texture tex = gfx_load_texture_asset_raw(tex_raw_info->tex_raw, tex_raw_info->width, tex_raw_info->height, tex_raw_info->channels);
+    tex.width = tex_raw_info->width;
+    tex.height = tex_raw_info->height;
+    tex.angle = 0;
+    gfx_free_texture_raw(tex_raw_info->tex_raw);
+    NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress++;
+    utl_vector_push_back(TEXTURES, &tex);
+  }
+  printf("Part3\n");
   return 0;
 }
 
-int load_texture_tick(void *arg) {
-  emplace_tex_defs();
-  loading_resource_thread *thread = arg;
-  for (unsigned int i = 0; i < thread->max; i++) {
-    if (thread->progress < NUM_TEXTURES) {
-      add_texture();
-    }
+gfx_texture get_tex_def(char *tex_str) {
+  unsigned int loc = utl_algorithm_find_at(utl_vector_data(TEXTURE_NAMES), utl_vector_size(TEXTURE_NAMES), sizeof(char *), tex_str, compare_texture_strings);
+  gfx_texture *tex = utl_vector_at(TEXTURES, loc);
+  if (!tex) {
+    return (gfx_texture){ 0 };
   }
-  return 0;
+  return *tex;
+}
+
+void free_tex_defs() {
+  for (char **tex_name = utl_vector_begin(TEXTURE_NAMES); tex_name != utl_vector_end(TEXTURE_NAMES); tex_name++) {
+    free(*tex_name);
+  }
+  utl_vector_deallocate(TEXTURE_NAMES);
+  utl_vector_deallocate(TEXTURE_ASSETS);
+  utl_vector_deallocate(TEXTURE_RAWS);
+  utl_vector_deallocate(TEXTURES);
 }
 
