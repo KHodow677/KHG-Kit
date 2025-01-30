@@ -44,7 +44,7 @@ void transform_letterbox_element_aabb(const gfx_aabb letterbox, phy_vector2 *pos
 }
 
 void get_letterbox() {
-  const float current_aspect_ratio = (float)gfx_get_display_width() / (float)gfx_get_display_height();
+  const float current_aspect_ratio = (float)(gfx_get_display_width()) / (float)(gfx_get_display_height());
   const float ratio_ratio = current_aspect_ratio / TARGET_ASPECT_RATIO;
   LETTERBOX.pos.x = get_letterbox_x(current_aspect_ratio, ratio_ratio);
   LETTERBOX.pos.y = get_letterbox_y(current_aspect_ratio, ratio_ratio);

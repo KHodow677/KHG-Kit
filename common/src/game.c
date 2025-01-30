@@ -35,9 +35,9 @@ static unsigned int original_font_size;
 
 static GLFWwindow *game_init() {
   glfwInit();
-  GLFWwindow *window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Game", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(INITIAL_WIDTH, INITIAL_HEIGHT, "Game", NULL, NULL);
   glfwMakeContextCurrent(window);
-  gfx_init_glfw(SCREEN_WIDTH, SCREEN_HEIGHT, window);
+  gfx_init_glfw(INITIAL_WIDTH, INITIAL_HEIGHT, window);
   return window;
 }
 
@@ -122,7 +122,7 @@ const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
-  char fps[64]; 
+  char fps[16]; 
   snprintf(fps, sizeof(fps), "FPS: %.2f", fps_val);
   gfx_text(fps);
   gfx_pop_font();
