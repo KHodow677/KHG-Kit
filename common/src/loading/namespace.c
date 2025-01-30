@@ -22,6 +22,7 @@ loading_namespace NAMESPACE_LOADING_INTERNAL = {
   .free_tex_defs = free_tex_defs,
   .RESOURCES_LOADED = false,
   .OVR_TILE_THREAD = { .enabled = true, .max = NUM_OVR_TILES },
+  .TEXTURE_ASSET_THREAD = { .enabled = true, .max = 0 },
   .TEXTURE_RAW_THREAD = { .enabled = true, .max = 0 },
   .TEXTURE_THREAD = { .enabled = false, .max = 0 }
 };

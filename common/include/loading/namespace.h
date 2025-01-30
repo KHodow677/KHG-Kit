@@ -84,6 +84,7 @@ typedef struct loading_namespace {
   void (*free_tex_defs)(void);
   bool RESOURCES_LOADED;
   loading_resource_thread OVR_TILE_THREAD;
+  loading_resource_thread TEXTURE_ASSET_THREAD;
   loading_resource_thread TEXTURE_RAW_THREAD;
   loading_resource_thread TEXTURE_THREAD;
 } loading_namespace;

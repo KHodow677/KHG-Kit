@@ -6,7 +6,6 @@
 #include "khg_gfx/texture.h"
 #include "khg_utl/algorithm.h"
 #include "loading/namespace.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -73,7 +72,6 @@ int emplace_tex_defs(void *arg) {
     NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress++;
     utl_vector_push_back(TEXTURES, &tex);
   }
-  printf("Part3\n");
   return 0;
 }
 
