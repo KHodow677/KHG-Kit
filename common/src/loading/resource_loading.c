@@ -1,4 +1,3 @@
-#include <stdio.h>
 #define NAMESPACE_LOADING_IMPL
 
 #include "khg_thd/concurrent.h"
@@ -13,13 +12,11 @@ static int load_ovr_tiles_task(void *arg) {
   for (unsigned int i = EMPTY_OVR_TILE; i < NUM_OVR_TILES; i++) {
     NAMESPACE_LOADING_INTERNAL.load_ovr_tile_tick(arg);
   }
-  printf("Task2\n");
   return 0; 
 }
 
 static int load_textures_asset_task(void *arg) {
   NAMESPACE_LOADING_INTERNAL.generate_tex_defs(TEX_CONFIG_FILENAME);
-  printf("Task1\n");
   return 0; 
 }
 
@@ -27,7 +24,6 @@ static int load_textures_raw_task(void *arg) {
   for (unsigned int i = 0; i < NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.max; i++) {
     NAMESPACE_LOADING_INTERNAL.emplace_tex_defs_tick(arg);
   }
-  printf("Task3\n");
   return 0; 
 }
 

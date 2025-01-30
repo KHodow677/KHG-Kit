@@ -8,7 +8,6 @@
 #include "loading/namespace.h"
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 static utl_vector *TEXTURE_NAMES;
 static utl_vector *TEXTURE_ASSETS;
@@ -78,7 +77,6 @@ int emplace_tex_defs(void *arg) {
     NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress++;
     utl_vector_push_back(TEXTURES, &tex);
   }
-  printf("Task4\n");
   return 0;
 }
 
