@@ -1,8 +1,10 @@
 #define NAMESPACE_LOADING_IMPL
 
+#include "khg_utl/map.h"
 #include "khg_thd/concurrent.h"
 #include "loading/namespace.h"
 #include "scene/scene_loader.h"
+#include "util/config.h"
 
 static int load_ovr_tiles_task(void *arg) {
   for (unsigned int i = EMPTY_OVR_TILE; i < NUM_OVR_TILES; i++) {
@@ -12,8 +14,10 @@ static int load_ovr_tiles_task(void *arg) {
 }
 
 static int load_textures_raw_task(void *arg) {
+  utl_map_iterator map_it = utl_map_begin(TEXTURE_ASSETS);
   for (unsigned int i = EMPTY_TEXTURE; i < NUM_TEXTURES; i++) {
     NAMESPACE_LOADING_INTERNAL.load_texture_raw_tick(arg);
+    emplace_tex_defs_tick(&map_it);
   }
   return 0; 
 }

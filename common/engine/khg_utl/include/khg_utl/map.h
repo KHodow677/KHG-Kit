@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stddef.h>
 #include <stdbool.h>
 
 #define UTL_RED 1
@@ -38,9 +37,9 @@ typedef struct utl_map_iterator_pair {
 
 typedef struct utl_map {
   utl_map_node *root;
-  compare_func_map compFunc;
-  value_dealloc_func deallocKey;
-  value_dealloc_func deallocValue;
+  compare_func_map comp_func;
+  value_dealloc_func dealloc_key;
+  value_dealloc_func dealloc_value;
   unsigned int size;
 } utl_map;
 

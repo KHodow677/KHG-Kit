@@ -1,3 +1,4 @@
+#include "util/config.h"
 #define NAMESPACE_LOADING_IMPL
 
 #include "khg_gfx/texture.h"
@@ -116,6 +117,7 @@ int load_texture_raw_tick(void *arg) {
 }
 
 int load_texture_tick(void *arg) {
+  emplace_tex_defs();
   loading_resource_thread *thread = arg;
   for (unsigned int i = 0; i < thread->max; i++) {
     if (thread->progress < NUM_TEXTURES) {

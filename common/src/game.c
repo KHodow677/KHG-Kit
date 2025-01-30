@@ -1,3 +1,4 @@
+#include "util/config.h"
 #define NAMESPACE_ELEMENT_USE
 #define NAMESPACE_LOADING_USE
 
@@ -71,6 +72,7 @@ void log_sys_info() {
 const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
+  generate_tex_defs("res/assets/data/tex_defs.ini");
   utl_random_seed_clock();
   NAMESPACE_LOADING()->generate_textures();
   NAMESPACE_LOADING()->generate_ovr_tiles();
@@ -80,6 +82,7 @@ const int game_run() {
   setup_lights_shader();
   int res = gfx_loop_manager(window, true);
   clear_scenes();
+  free_tex_defs();
   return res;
 }
 
