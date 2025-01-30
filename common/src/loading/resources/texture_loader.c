@@ -1,4 +1,3 @@
-#include <stdio.h>
 #define NAMESPACE_LOADING_IMPL
 
 #include "khg_utl/config.h"
@@ -7,6 +6,7 @@
 #include "khg_gfx/texture.h"
 #include "khg_utl/algorithm.h"
 #include "loading/namespace.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -27,11 +27,11 @@ void generate_tex_defs(const char *filename) {
   utl_config_file *config = utl_config_create(filename);
   utl_config_iterator iterator = utl_config_get_iterator(config);
   const char *section, *key, *value;
-  char last_section[128];
-  if (utl_config_next_entry(&iterator, &section, &key, &value)) {
+  char last_section[128] = "";
+  while (utl_config_next_entry(&iterator, &section, &key, &value)) {
     if (!strcmp(last_section, section)) {
       strcpy(last_section, section);
-      return;
+      continue;
     };
     strcpy(last_section, section);
     char *tex_str = utl_string_strdup(section);

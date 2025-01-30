@@ -13,7 +13,7 @@ static int load_ovr_tiles_task(void *arg) {
 }
 
 static int load_textures_raw_task(void *arg) {
-  for (unsigned int i = 0; i < NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.max; i++) {
+  for (unsigned int i = EMPTY_TEXTURE; i < NUM_TEXTURES; i++) {
     NAMESPACE_LOADING_INTERNAL.emplace_tex_defs_tick(arg);
   }
   printf("Part2\n");
@@ -61,6 +61,7 @@ void load_resources_defer() {
   }
   load_thread_defer(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD, load_ovr_tiles_task);
   load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD, load_textures_raw_task);
+  /*printf("%i\n", NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.progress);*/
   if (resource_thread_maxed(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD) && resource_thread_maxed(&NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD)) {
     load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD, NAMESPACE_LOADING_INTERNAL.emplace_tex_defs);
   }
