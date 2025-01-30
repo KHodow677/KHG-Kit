@@ -23,10 +23,10 @@ loading_namespace NAMESPACE_LOADING_INTERNAL = {
   .get_location_tex_str = get_location_tex_str,
   .free_tex_defs = free_tex_defs,
   .RESOURCES_LOADED = false,
-  .OVR_TILE_THREAD = { .enabled = true, .max = NUM_OVR_TILES },
-  .TEXTURE_ASSET_THREAD = { .enabled = true, .max = 0 },
-  .TEXTURE_RAW_THREAD = { .enabled = true, .max = 0 },
-  .TEXTURE_THREAD = { .enabled = false, .max = 0 }
+  .OVR_TILE_THREAD = { .enabled = true, .max = NUM_OVR_TILES, .loaded = false, .loading_started = false, .progress = 0 },
+  .TEXTURE_ASSET_THREAD = { .enabled = true, .max = 0, .loaded = false, .loading_started = false, .progress = 0 },
+  .TEXTURE_RAW_THREAD = { .enabled = true, .max = 0, .loaded = false, .loading_started = false, .progress = 0 },
+  .TEXTURE_THREAD = { .enabled = false, .max = 0, .loaded = false, .loading_started = false, .progress = 0 }
 };
 
 loading_namespace *NAMESPACE_LOADING(void) {

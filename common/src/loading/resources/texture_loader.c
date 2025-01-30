@@ -1,4 +1,3 @@
-#include "loading/resources/texture_loader.h"
 #define NAMESPACE_LOADING_IMPL
 
 #include "khg_utl/config.h"
@@ -9,6 +8,7 @@
 #include "loading/namespace.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 static utl_vector *TEXTURE_NAMES;
 static utl_vector *TEXTURE_ASSETS;
@@ -40,10 +40,12 @@ void generate_tex_defs(const char *filename) {
     const int height = utl_config_get_int(config, section, "height", 512);
     loading_texture_asset tex_asset = { .tex_width = width, .tex_height = height };
     strcpy(tex_asset.tex_filepath, path);
+    NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD.progress++;
     utl_vector_push_back(TEXTURE_NAMES, &tex_str);
     utl_vector_push_back(TEXTURE_ASSETS, &tex_asset);
   }
   utl_config_deallocate(config);
+  NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD.max = utl_vector_size(TEXTURE_NAMES);
   NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.max = utl_vector_size(TEXTURE_NAMES);
   NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.max = utl_vector_size(TEXTURE_NAMES);
 }
@@ -64,7 +66,10 @@ void emplace_tex_defs_tick(void *arg) {
 }
 
 int emplace_tex_defs(void *arg) {
-  for (loading_texture_raw_info *tex_raw_info = utl_vector_begin(TEXTURE_RAWS); tex_raw_info != utl_vector_end(TEXTURE_RAWS); tex_raw_info++) {
+  loading_resource_thread *thread = arg;
+  const unsigned int num_names = utl_vector_size(TEXTURE_NAMES);
+  while (thread->progress < num_names) {
+    loading_texture_raw_info *tex_raw_info = utl_vector_at(TEXTURE_RAWS, NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress);
     gfx_texture tex = gfx_load_texture_asset_raw(tex_raw_info->tex_raw, tex_raw_info->width, tex_raw_info->height, tex_raw_info->channels);
     tex.width = tex_raw_info->width;
     tex.height = tex_raw_info->height;
@@ -73,6 +78,7 @@ int emplace_tex_defs(void *arg) {
     NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.progress++;
     utl_vector_push_back(TEXTURES, &tex);
   }
+  printf("Task4\n");
   return 0;
 }
 

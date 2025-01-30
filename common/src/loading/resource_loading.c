@@ -1,9 +1,11 @@
-#include "khg_utl/string.h"
+#include <stdio.h>
 #define NAMESPACE_LOADING_IMPL
 
 #include "khg_thd/concurrent.h"
+#include "khg_utl/string.h"
 #include "loading/namespace.h"
 #include "scene/scene_loader.h"
+#include <stdlib.h>
 
 static char *TEX_CONFIG_FILENAME;
 
@@ -11,12 +13,13 @@ static int load_ovr_tiles_task(void *arg) {
   for (unsigned int i = EMPTY_OVR_TILE; i < NUM_OVR_TILES; i++) {
     NAMESPACE_LOADING_INTERNAL.load_ovr_tile_tick(arg);
   }
+  printf("Task2\n");
   return 0; 
 }
 
 static int load_textures_asset_task(void *arg) {
   NAMESPACE_LOADING_INTERNAL.generate_tex_defs(TEX_CONFIG_FILENAME);
-  NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD.progress = NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD.max;
+  printf("Task1\n");
   return 0; 
 }
 
@@ -24,6 +27,7 @@ static int load_textures_raw_task(void *arg) {
   for (unsigned int i = 0; i < NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.max; i++) {
     NAMESPACE_LOADING_INTERNAL.emplace_tex_defs_tick(arg);
   }
+  printf("Task3\n");
   return 0; 
 }
 
@@ -44,7 +48,7 @@ void load_thread_defer(loading_resource_thread *resource, int (*task)(void *), l
   if (await && !resource_thread_maxed(await)) {
     return;
   }
-  if (!resource->enabled) {
+  if (!resource->enabled && !resource->loaded) {
     task(resource);
     resource->loading_started = true;
   }
@@ -70,7 +74,8 @@ void load_resources_defer() {
     return;
   }
   load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD, load_textures_asset_task, NULL);
-  load_thread_defer(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD, load_ovr_tiles_task, &NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD);
   load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD, load_textures_raw_task, &NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD);
   load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD, NAMESPACE_LOADING_INTERNAL.emplace_tex_defs, &NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD);
+  load_thread_defer(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD, load_ovr_tiles_task, &NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD);
 }
+
