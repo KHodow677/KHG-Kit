@@ -217,17 +217,17 @@ static void map_erase_fixup(utl_map *map, utl_map_node *x) {
   }
 }
 
-static void map_free_nodes(utl_map_node *node, value_dealloc_func deallocKey, value_dealloc_func deallocValue) {
+static void map_free_nodes(utl_map_node *node, value_dealloc_func dealloc_key, value_dealloc_func dealloc_value) {
   if (node == NULL) {
     return;
   }
-  map_free_nodes(node->left, deallocKey, deallocValue);
-  map_free_nodes(node->right, deallocKey, deallocValue);
-  if (deallocKey) { 
-    deallocKey(node->key);
+  map_free_nodes(node->left, dealloc_key, dealloc_value);
+  map_free_nodes(node->right, dealloc_key, dealloc_value);
+  if (dealloc_key) { 
+    dealloc_key(node->key);
   }
-  if (deallocValue) {
-    deallocValue(node->value);
+  if (dealloc_value) {
+    dealloc_value(node->value);
   }
   free(node);
 }
@@ -276,7 +276,7 @@ static void map_insert_fixup(utl_map *map, utl_map_node *newNode) {
   map->root->color = UTL_BLACK;
 }
 
-utl_map *utl_map_create(compare_func_map comp, value_dealloc_func deallocKey, value_dealloc_func deallocValue) {
+utl_map *utl_map_create(compare_func_map comp, value_dealloc_func dealloc_key, value_dealloc_func dealloc_value) {
   if (!comp) {
     utl_error_func("Compare function is null, cannot create map", utl_user_defined_data);
     exit(-1);
@@ -287,9 +287,9 @@ utl_map *utl_map_create(compare_func_map comp, value_dealloc_func deallocKey, va
     exit(-1);
   }
   m->root = NULL;
-  m->compFunc = comp;
-  m->deallocKey = deallocKey;
-  m->deallocValue = deallocValue;
+  m->comp_func = comp;
+  m->dealloc_key = dealloc_key;
+  m->dealloc_value = dealloc_value;
   m->size = 0;
   return m;
 }
@@ -299,7 +299,7 @@ void utl_map_deallocate(utl_map *map) {
     utl_error_func("Map is null or empty there is nothing to deallocate in map_deallocate", utl_user_defined_data);
     return;
   }
-  map_free_nodes(map->root, map->deallocKey, map->deallocValue);
+  map_free_nodes(map->root, map->dealloc_key, map->dealloc_value);
   free(map);
 }
 
@@ -336,10 +336,10 @@ bool utl_map_insert(utl_map *map, utl_key_type key, utl_value_type value) {
     utl_map_node *parent = NULL;
     while (*curr) {
       parent = *curr;
-      int cmp = map->compFunc(key, (*curr)->key);
+      int cmp = map->comp_func(key, (*curr)->key);
       if (cmp == 0) {
-        if (map->deallocValue) {
-          map->deallocValue((*curr)->value);
+        if (map->dealloc_value) {
+          map->dealloc_value((*curr)->value);
         }
         (*curr)->value = value;
         return true;
@@ -370,7 +370,7 @@ utl_value_type utl_map_at(const utl_map *map, utl_key_type key) {
   }
   utl_map_node *curr = map->root;
   while (curr) {
-    int cmp = map->compFunc(key, curr->key);
+    int cmp = map->comp_func(key, curr->key);
     if (cmp == 0) { 
       return curr->value;
     }
@@ -389,7 +389,7 @@ void utl_map_clear(utl_map *map) {
     utl_error_func("Null pointer provided for map in map_clear", utl_user_defined_data);
     return;
   }
-  map_free_nodes(map->root, map->deallocKey, map->deallocValue);
+  map_free_nodes(map->root, map->dealloc_key, map->dealloc_value);
   map->root = NULL;
   map->size = 0;
 }
@@ -405,15 +405,15 @@ void utl_map_swap(utl_map *map1, utl_map *map2) {
   unsigned int tempSize = map1->size;
   map1->size = map2->size;
   map2->size = tempSize;
-  compare_func_map tempCompFunc = map1->compFunc;
-  map1->compFunc = map2->compFunc;
-  map2->compFunc = tempCompFunc;
-  value_dealloc_func tempDeallocKey = map1->deallocKey;
-  map1->deallocKey = map2->deallocKey;
-  map2->deallocKey = tempDeallocKey;
-  value_dealloc_func tempDeallocValue = map1->deallocValue;
-  map1->deallocValue = map2->deallocValue;
-  map2->deallocValue = tempDeallocValue;
+  compare_func_map tempCompFunc = map1->comp_func;
+  map1->comp_func = map2->comp_func;
+  map2->comp_func = tempCompFunc;
+  value_dealloc_func tempDeallocKey = map1->dealloc_key;
+  map1->dealloc_key = map2->dealloc_key;
+  map2->dealloc_key = tempDeallocKey;
+  value_dealloc_func tempDeallocValue = map1->dealloc_value;
+  map1->dealloc_value = map2->dealloc_value;
+  map2->dealloc_value = tempDeallocValue;
 }
 
 unsigned int utl_map_count(const utl_map *map, utl_key_type key) {
@@ -423,7 +423,7 @@ unsigned int utl_map_count(const utl_map *map, utl_key_type key) {
   }
   utl_map_node* current = map->root;
   while (current != NULL) {
-    int cmp = map->compFunc(key, current->key);
+    int cmp = map->comp_func(key, current->key);
     if (cmp == 0) {
       return 1;
     }
@@ -446,7 +446,7 @@ bool utl_map_emplace(utl_map *map, utl_key_type key, utl_value_type value) {
   utl_map_node *parent = NULL;
   while (*curr) {
     parent = *curr;
-    int cmp = map->compFunc(key, (*curr)->key);
+    int cmp = map->comp_func(key, (*curr)->key);
     if (cmp == 0) { 
       return false;
     }
@@ -473,7 +473,7 @@ compare_func_map utl_map_key_comp(const utl_map *map) {
     utl_error_func("Null pointer provided for map in map_key_comp", utl_user_defined_data);
     return NULL;
   }
-  return map->compFunc;
+  return map->comp_func;
 }
 
 bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, utl_key_type key, utl_value_type value) {
@@ -494,7 +494,7 @@ bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, utl_key_type key,
   }
   if (hint.node != NULL) {
     utl_map_node *curr = hint.node;
-    int cmp = map->compFunc(key, curr->key);
+    int cmp = map->comp_func(key, curr->key);
     if (cmp < 0) {
       if (curr->left == NULL) {
         curr->left = newNode;
@@ -522,7 +522,7 @@ bool utl_map_emplace_hint(utl_map *map, utl_map_iterator hint, utl_key_type key,
   utl_map_node *parent = NULL;
   while (*curr) {
     parent = *curr;
-    int cmp = map->compFunc(key, (*curr)->key);
+    int cmp = map->comp_func(key, (*curr)->key);
     if (cmp == 0) {
       free(newNode);
       return false;
@@ -548,7 +548,7 @@ bool utl_map_erase(utl_map *map, utl_key_type key) {
   }
   utl_map_node *z = map->root;
   while (z != NULL) {
-    int cmp = map->compFunc(key, z->key);
+    int cmp = map->comp_func(key, z->key);
     if (cmp == 0) {
       break;
     }
@@ -593,11 +593,11 @@ bool utl_map_erase(utl_map *map, utl_key_type key) {
     y->left->parent = y;
     y->color = z->color;
   }
-  if (map->deallocKey) {
-    map->deallocKey(z->key);
+  if (map->dealloc_key) {
+    map->dealloc_key(z->key);
   }
-  if (map->deallocValue) {
-    map->deallocValue(z->value);
+  if (map->dealloc_value) {
+    map->dealloc_value(z->value);
   }
   free(z);
   if (y_original_color == UTL_BLACK) { 
@@ -615,7 +615,7 @@ utl_map_iterator utl_map_find(const utl_map *map, utl_key_type key) {
   }
   utl_map_node *current = map->root;
   while (current != NULL) {
-    int cmp = map->compFunc(key, current->key);
+    int cmp = map->comp_func(key, current->key);
     if (cmp == 0) {
       iterator.node = current;
       return iterator;
@@ -726,7 +726,7 @@ utl_map_iterator utl_map_lower_bound(const utl_map *map, utl_key_type key) {
   utl_map_node *current = map->root;
   utl_map_node *last = NULL;
   while (current != NULL) {
-    if (map->compFunc(current->key, key) >= 0) {
+    if (map->comp_func(current->key, key) >= 0) {
       last = current;
       current = current->left;
     } 
@@ -749,7 +749,7 @@ utl_map_iterator utl_map_upper_bound(const utl_map* map, utl_key_type key) {
   utl_map_node *current = map->root;
   utl_map_node *last = NULL;
   while (current != NULL) {
-    if (map->compFunc(current->key, key) > 0) {
+    if (map->comp_func(current->key, key) > 0) {
       last = current;
       current = current->left;
     } 
@@ -799,7 +799,7 @@ utl_map *utl_map_copy(const utl_map *src) {
     utl_error_func("Map Object is NULL and Invalid in map_copy", utl_user_defined_data);
     return NULL;
   }
-  utl_map *newMap = utl_map_create(src->compFunc, src->deallocKey, src->deallocValue);
+  utl_map *newMap = utl_map_create(src->comp_func, src->dealloc_key, src->dealloc_value);
   if (!newMap) {
     utl_error_func("Can not Allocate memory for newMap in map_copy", utl_user_defined_data);    
     return NULL;

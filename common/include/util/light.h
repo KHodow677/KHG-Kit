@@ -1,13 +1,13 @@
 #pragma once
 
-#include "cglm/types-struct.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
+#include "khg_phy/core/phy_vector.h"
 
 #define MAX_LIGHTS 256
 
 typedef struct {
-  vec2s pos_perc;
+  phy_vector2 pos_perc;
   float intensity;
 } light;
 
@@ -23,7 +23,7 @@ void setup_lights_texture(void);
 void setup_lights_shader(void);
 
 void clear_lights();
-void add_light(vec2s pos_perc, float radius);
+void add_light(phy_vector2 pos_perc, float radius);
 
 void render_lights(void);
 

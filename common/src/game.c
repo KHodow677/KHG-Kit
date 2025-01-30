@@ -1,13 +1,8 @@
+#define NAMESPACE_ELEMENT_USE
+#define NAMESPACE_LOADING_USE
+
+#include "element/namespace.h"
 #include "game.h"
-#include "khg_utl/random.h"
-#include "ecs/comp_animator.h"
-#include "ecs/comp_light.h"
-#include "ecs/comp_mover.h"
-#include "ecs/comp_physics.h"
-#include "ecs/comp_renderer.h"
-#include "ecs/comp_tile.h"
-#include "ecs/comp_zone.h"
-#include "ecs/ecs_manager.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 #include "khg_phy/space.h"
@@ -16,8 +11,8 @@
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
-#include "resources/ovr_tile_loader.h"
-#include "resources/texture_loader.h"
+#include "khg_utl/random.h"
+#include "loading/namespace.h"
 #include "util/camera/camera.h"
 #include "util/camera/camera_controller.h"
 #include "util/io/key_controller.h"
@@ -26,7 +21,6 @@
 #include "util/light.h"
 #include "util/physics.h"
 #include "scene/scene_loader.h"
-#include "threading/resource_loading.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -78,11 +72,10 @@ const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
   utl_random_seed_clock();
-  generate_textures();
-  generate_ovr_tiles();
+  NAMESPACE_LOADING()->load_configs("res/assets/data/tex_defs.ini");
+  NAMESPACE_LOADING()->generate_ovr_tiles();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
-  setup_lights_texture();
   setup_lights_shader();
   int res = gfx_loop_manager(window, true);
   clear_scenes();
@@ -90,7 +83,7 @@ const int game_run() {
 }
 
 const bool gfx_loop(const float delta, const float fps_val) {
-  load_resources_defer();
+  NAMESPACE_LOADING()->load_resources_defer();
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
@@ -101,15 +94,12 @@ const bool gfx_loop(const float delta, const float fps_val) {
   get_letterbox();
   render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
   gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
-  if (RESOUCES_LOADED && SCENE_LOADED) {
+  if (NAMESPACE_LOADING()->RESOURCES_LOADED && SCENE_LOADED) {
     move_camera(&CAMERA, delta);
-    ecs_update_system(ECS, MOVER_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, ZONE_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, TILE_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, PHYSICS_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, ANIMATOR_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, RENDERER_SYSTEM_SIGNATURE, delta);
-    ecs_update_system(ECS, LIGHT_SYSTEM_SIGNATURE, delta);
+    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->TILE_INFO.system_signature, delta);
+    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->PHYSICS_INFO.system_signature, delta);
+    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->RENDER_INFO.system_signature, delta);
+    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->LIGHT_INFO.system_signature, delta);
     phy_space_step(SPACE, delta);
   }
   gfx_div_end();

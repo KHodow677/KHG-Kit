@@ -1,10 +1,11 @@
-#include "ecs/ecs_manager.h"
+#include "element/ecs_manager.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_utl/list.h"
 #include "scene/builders/map_builder.h"
 #include "scene/builders/structure_builder.h"
 #include "scene/scene_loader.h"
 #include "util/camera/camera.h"
+#include "util/light.h"
 #include "util/physics.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -19,6 +20,7 @@ static int compare_scenes(const void *a, const void *b) {
 }
 
 static void load_main() {
+  setup_lights_texture();
   physics_setup(phy_vector2_new(0.0f, 0.0f));
   ecs_setup();
   camera_setup(&CAMERA);
