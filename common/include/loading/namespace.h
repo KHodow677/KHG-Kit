@@ -70,7 +70,7 @@ typedef struct loading_ovr_tile_asset {
 typedef struct loading_namespace {
   void (*load_configs)(const char *);
   void (*close_config)(void);
-  void (*load_thread_defer)(struct loading_resource_thread *, int (*)(void *));
+  void (*load_thread_defer)(loading_resource_thread *, int (*)(void *), loading_resource_thread *);
   void (*load_resources_defer)(void);
   const unsigned int (*get_ovr_tile_id_from_string)(const char *);
   const ovr_tile (*get_ovr_tile)(unsigned int);
@@ -80,7 +80,9 @@ typedef struct loading_namespace {
   void (*generate_tex_defs)(const char *);
   void (*emplace_tex_defs_tick)(void *);
   int (*emplace_tex_defs)(void *);
+  gfx_texture (*get_tex_def_by_location)(unsigned int);
   gfx_texture (*get_tex_def)(char *);
+  unsigned int (*get_location_tex_str)(const char *);
   void (*free_tex_defs)(void);
   bool RESOURCES_LOADED;
   loading_resource_thread OVR_TILE_THREAD;

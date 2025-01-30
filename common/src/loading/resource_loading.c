@@ -40,7 +40,10 @@ void close_configs() {
   free(TEX_CONFIG_FILENAME);
 }
 
-void load_thread_defer(loading_resource_thread *resource, int (*task)(void *)) {
+void load_thread_defer(loading_resource_thread *resource, int (*task)(void *), loading_resource_thread *await) {
+  if (await && !resource_thread_maxed(await)) {
+    return;
+  }
   if (!resource->enabled) {
     task(resource);
     resource->loading_started = true;
@@ -66,13 +69,8 @@ void load_resources_defer() {
     setup_scenes();
     return;
   }
-  load_thread_defer(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD, load_ovr_tiles_task);
-  load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD, load_textures_asset_task);
-  if (resource_thread_maxed(&NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD)) {
-    load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD, load_textures_raw_task);
-  }
-  if (resource_thread_maxed(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD) && resource_thread_maxed(&NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD)) {
-    load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD, NAMESPACE_LOADING_INTERNAL.emplace_tex_defs);
-  }
+  load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD, load_textures_asset_task, NULL);
+  load_thread_defer(&NAMESPACE_LOADING_INTERNAL.OVR_TILE_THREAD, load_ovr_tiles_task, &NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD);
+  load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD, load_textures_raw_task, &NAMESPACE_LOADING_INTERNAL.TEXTURE_ASSET_THREAD);
+  load_thread_defer(&NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD, NAMESPACE_LOADING_INTERNAL.emplace_tex_defs, &NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD);
 }
-

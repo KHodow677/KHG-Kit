@@ -1,3 +1,4 @@
+#include "loading/resources/texture_loader.h"
 #define NAMESPACE_LOADING_IMPL
 
 #include "khg_utl/config.h"
@@ -75,13 +76,21 @@ int emplace_tex_defs(void *arg) {
   return 0;
 }
 
-gfx_texture get_tex_def(char *tex_str) {
-  unsigned int loc = utl_algorithm_find_at(utl_vector_data(TEXTURE_NAMES), utl_vector_size(TEXTURE_NAMES), sizeof(char *), tex_str, compare_texture_strings);
+gfx_texture get_tex_def_by_location(unsigned int loc) {
   gfx_texture *tex = utl_vector_at(TEXTURES, loc);
   if (!tex) {
     return (gfx_texture){ 0 };
   }
   return *tex;
+}
+
+gfx_texture get_tex_def(char *tex_str) {
+  unsigned int loc = utl_algorithm_find_at(utl_vector_data(TEXTURE_NAMES), utl_vector_size(TEXTURE_NAMES), sizeof(char *), tex_str, compare_texture_strings);
+  return get_tex_def_by_location(loc);
+}
+
+unsigned int get_location_tex_str(const char *tex_str) {
+  return utl_algorithm_find_at(utl_vector_data(TEXTURE_NAMES), utl_vector_size(TEXTURE_NAMES), sizeof(char *), tex_str, compare_texture_strings);
 }
 
 void free_tex_defs() {
@@ -93,4 +102,3 @@ void free_tex_defs() {
   utl_vector_deallocate(TEXTURE_RAWS);
   utl_vector_deallocate(TEXTURES);
 }
-

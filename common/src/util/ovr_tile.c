@@ -40,8 +40,8 @@ static int compare_ovr_tile_elements(const void *a, const void *b) {
   if (e1->stable != e2->stable) {
     return e2->stable - e1->stable; 
   }
-  float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, NAMESPACE_LOADING()->get_tex_def((char *)e1->element_tex_id).height * OVR_TILE_SCALE, 0.0f).y;
-  float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, NAMESPACE_LOADING()->get_tex_def((char *)e2->element_tex_id).height * OVR_TILE_SCALE, 0.0f).y;
+  float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, NAMESPACE_LOADING()->get_tex_def_by_location(e1->element_tex_id_loc).height * OVR_TILE_SCALE, 0.0f).y;
+  float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, NAMESPACE_LOADING()->get_tex_def_by_location(e2->element_tex_id_loc).height * OVR_TILE_SCALE, 0.0f).y;
   if (fabsf(arg1 - arg2) < 1e-6f) {
     return 0;
   }
@@ -75,8 +75,8 @@ phy_vector2 ovr_tile_pos_to_world_pos(const phy_vector2 coords) {
   return phy_vector2_new(hor_dist_comp * coords.x, ver_dist_comp * coords.y);
 }
 
-void render_ovr_tile_item(char *tex_id, const phy_vector2 coords, const phy_vector2 offset) {
-  gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def(tex_id);
+void render_ovr_tile_item(const unsigned int tex_id_loc, const phy_vector2 coords, const phy_vector2 offset) {
+  gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def_by_location(tex_id_loc);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
   phy_vector2 pos = ovr_tile_rendering_pos(coords, offset, tex_ref.height, 0.0f);
@@ -88,7 +88,7 @@ void render_ovr_tile_item(char *tex_id, const phy_vector2 coords, const phy_vect
 }
 
 void render_ovr_tile_element_item(const ovr_tile_element *element) {
-  gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def((char *)element->element_tex_id);
+  gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def_by_location(element->element_tex_id_loc);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
   phy_vector2 pos = ovr_tile_rendering_pos(element->parent_tile->pos, element->pos, tex_ref.height, element->angle);
@@ -155,7 +155,7 @@ void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float
   }
   switch (*layer) {
     case GROUND_LAYER:
-      render_ovr_tile_item((char *)tile_ref.ground_tex_id, tile->pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
+      render_ovr_tile_item(tile_ref.ground_tex_id_loc, tile->pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
       break;
     case ELEMENT_LAYER:
       if (OVR_TILE_ELEMENTS_RENDERED) {
@@ -169,7 +169,7 @@ void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float
       }
       break;
     case BORDER_LAYER:
-      render_ovr_tile_item((char *)tile_ref.border_tex_id, tile->pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
+      render_ovr_tile_item(tile_ref.border_tex_id_loc, tile->pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
       break;
     default:
       break;

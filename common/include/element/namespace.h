@@ -31,7 +31,7 @@ typedef struct element_comp_physics {
 
 typedef struct element_comp_render {
   ecs_id id;
-  char tex_id[32];
+  unsigned int tex_id_loc;
   ovr_tile_info ovr_tile;
   unsigned int render_layer;
   float parallax_value;

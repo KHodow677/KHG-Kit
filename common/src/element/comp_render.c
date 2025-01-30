@@ -41,7 +41,7 @@ static ecs_ret sys_render_update(ecs_ecs *ecs, ecs_id *entities, const unsigned 
       phy_vector2 pos = phy_rigid_body_get_position(p_info->body);
       phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
       const float angle = phy_rigid_body_get_angle(p_info->body);
-      const gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def(info->tex_id);
+      const gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def_by_location(info->tex_id_loc);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
       gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);
@@ -54,7 +54,7 @@ static void comp_render_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *
   element_comp_render *info = ptr;
   const element_comp_render *constructor_info = NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.init_info;
   if (info && constructor_info) {
-    strcpy(info->tex_id, constructor_info->tex_id);
+    info->tex_id_loc = constructor_info->tex_id_loc;
     info->ovr_tile = constructor_info->ovr_tile;
     info->render_layer = constructor_info->render_layer;
     info->parallax_value = constructor_info->parallax_value;
