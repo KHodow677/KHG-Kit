@@ -49,11 +49,11 @@ static void update_font() {
   }
 }
 
-static void render_div(float pos_x, float pos_y, float div_width, float div_height, float padding) {
+static void render_div(float pos_x, float pos_y, float div_width, float div_height, float padding, gfx_color color) {
   gfx_element_props div_props = gfx_get_theme().div_props;
   div_props.corner_radius = 0.0f;
   div_props.border_width = 0.0f;
-  div_props.color = GFX_WHITE;
+  div_props.color = color;
   gfx_push_style_props(div_props);
   gfx_div_begin(((vec2s){ pos_x, pos_y }), ((vec2s){ div_width, div_height }), false);
 }
@@ -92,7 +92,7 @@ const bool gfx_loop(const float delta, const float fps_val) {
   update_key_controls();
   update_cursor_controls();
   get_letterbox();
-  render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0);
+  render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0, GFX_WHITE);
   gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
   if (NAMESPACE_LOADING()->RESOURCES_LOADED && SCENE_LOADED) {
     move_camera(&CAMERA, delta);
@@ -112,18 +112,24 @@ const bool gfx_loop_post(const float delta, const float fps_val) {
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
   glUniform1i(glGetUniformLocation(LIGHTING_SHADER.id, "u_num_lights_active"), LIGHT_COUNT);
+  get_letterbox();
+  render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0, GFX_BLACK);
   render_lights();
+  gfx_div_end();
   GFX_STATE.current_div.scrollable = false;
   return true;
 };
 
 const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_begin();
+  gfx_clear_style_props();
   gfx_internal_renderer_set_shader(PRIMARY_SHADER);
   update_font();
   gfx_push_font(&font);
   char fps[16]; 
   snprintf(fps, sizeof(fps), "FPS: %.2f", fps_val);
+  gfx_set_ptr_x(LETTERBOX.pos.x);
+  gfx_set_ptr_y(LETTERBOX.pos.y);
   gfx_text(fps);
   gfx_pop_font();
   GFX_STATE.current_div.scrollable = false;
@@ -139,7 +145,7 @@ void gfx_framebuffer(const GLuint vao, const GLuint texture) {
   glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_time"), timeValue);
   glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_brightness_decrease"), 0.15f);
   glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_noise_intensity"), 0.12f);
-  glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_distortion_strength"), 0.0015f);
+  glUniform1f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_distortion_strength"), 0.0005f);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
   glUniform1i(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_framebuffer_texture"), 0);

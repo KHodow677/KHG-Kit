@@ -85,6 +85,6 @@ void render_lights() {
   glUniform1fv(glGetUniformLocation(GFX_STATE.render.shader.id, "u_light_intensities"), LIGHT_COUNT, light_radii);
   LIGHTING_OVERLAY.width = LETTERBOX.size.x + 1;
   LIGHTING_OVERLAY.height = LETTERBOX.size.y + 1;
-  gfx_image_no_block(gfx_get_display_width() * 0.5f, gfx_get_display_height() * 0.5f, LIGHTING_OVERLAY, 0, 0, 1, true, false);
+  gfx_image_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LIGHTING_OVERLAY, 0, 0, 1, true, false);
 }
 
