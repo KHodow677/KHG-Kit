@@ -13,7 +13,7 @@ static int load_ovr_tiles_task(void *arg) {
 }
 
 static int load_textures_raw_task(void *arg) {
-  for (unsigned int i = EMPTY_TEXTURE; i < NUM_TEXTURES; i++) {
+  for (unsigned int i = 0; i < NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.max; i++) {
     NAMESPACE_LOADING_INTERNAL.emplace_tex_defs_tick(arg);
   }
   printf("Part2\n");

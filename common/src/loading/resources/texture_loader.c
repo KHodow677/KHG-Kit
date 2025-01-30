@@ -44,6 +44,8 @@ void generate_tex_defs(const char *filename) {
     utl_vector_push_back(TEXTURE_ASSETS, &tex_asset);
   }
   utl_config_deallocate(config);
+  NAMESPACE_LOADING_INTERNAL.TEXTURE_RAW_THREAD.max = utl_vector_size(TEXTURE_NAMES);
+  NAMESPACE_LOADING_INTERNAL.TEXTURE_THREAD.max = utl_vector_size(TEXTURE_NAMES);
 }
 
 void emplace_tex_defs_tick(void *arg) {
