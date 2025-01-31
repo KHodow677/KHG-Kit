@@ -1,4 +1,4 @@
-#define NAMESPACE_LOADING_USE
+#define NAMESPACE_TASKING_USE
 
 #include "khg_gfx/texture.h"
 #include "khg_phy/core/phy_vector.h"
@@ -7,7 +7,7 @@
 #include "khg_utl/easing.h"
 #include "khg_utl/random.h"
 #include "khg_utl/vector.h"
-#include "loading/namespace.h"
+#include "tasking/namespace.h"
 #include "util/camera/camera.h"
 #include "util/ovr_tile.h"
 #include "util/frame.h"
@@ -40,8 +40,8 @@ static int compare_ovr_tile_elements(const void *a, const void *b) {
   if (e1->stable != e2->stable) {
     return e2->stable - e1->stable; 
   }
-  float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, NAMESPACE_LOADING()->get_tex_def_by_location(e1->element_tex_id_loc).height * OVR_TILE_SCALE, 0.0f).y;
-  float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, NAMESPACE_LOADING()->get_tex_def_by_location(e2->element_tex_id_loc).height * OVR_TILE_SCALE, 0.0f).y;
+  float arg1 = ovr_tile_rendering_pos(e1->parent_tile->pos, e1->pos, NAMESPACE_TASKING()->get_tex_def_by_location(e1->element_tex_id_loc).height * OVR_TILE_SCALE, 0.0f).y;
+  float arg2 = ovr_tile_rendering_pos(e2->parent_tile->pos, e2->pos, NAMESPACE_TASKING()->get_tex_def_by_location(e2->element_tex_id_loc).height * OVR_TILE_SCALE, 0.0f).y;
   if (fabsf(arg1 - arg2) < 1e-6f) {
     return 0;
   }
@@ -76,7 +76,7 @@ phy_vector2 ovr_tile_pos_to_world_pos(const phy_vector2 coords) {
 }
 
 void render_ovr_tile_item(const unsigned int tex_id_loc, const phy_vector2 coords, const phy_vector2 offset) {
-  gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def_by_location(tex_id_loc);
+  gfx_texture tex_ref = NAMESPACE_TASKING()->get_tex_def_by_location(tex_id_loc);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
   phy_vector2 pos = ovr_tile_rendering_pos(coords, offset, tex_ref.height, 0.0f);
@@ -88,7 +88,7 @@ void render_ovr_tile_item(const unsigned int tex_id_loc, const phy_vector2 coord
 }
 
 void render_ovr_tile_element_item(const ovr_tile_element *element) {
-  gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def_by_location(element->element_tex_id_loc);
+  gfx_texture tex_ref = NAMESPACE_TASKING()->get_tex_def_by_location(element->element_tex_id_loc);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
   phy_vector2 pos = ovr_tile_rendering_pos(element->parent_tile->pos, element->pos, tex_ref.height, element->angle);
@@ -118,7 +118,7 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
   if (!OVR_TILE_ELEMENTS) {
     OVR_TILE_ELEMENTS = utl_vector_create(sizeof(ovr_tile_element));
   }
-  const ovr_tile tile = NAMESPACE_LOADING()->get_ovr_tile(parent_tile->tile_id);
+  const ovr_tile tile = NAMESPACE_TASKING()->get_ovr_tile(parent_tile->tile_id);
   utl_vector_reserve(OVR_TILE_ELEMENTS, OVR_TILE_ELEMENTS->capacity_size + tile.num_elements);
   for (unsigned int i = 0; i < tile.num_elements; i++) {
     ovr_tile_element element = *(ovr_tile_element *)utl_array_at(tile.elements, i);
@@ -137,7 +137,7 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
 }
 
 void remove_ovr_tile_elements(ovr_tile_info *parent_tile) {
-  const ovr_tile tile = NAMESPACE_LOADING()->get_ovr_tile(parent_tile->tile_id);
+  const ovr_tile tile = NAMESPACE_TASKING()->get_ovr_tile(parent_tile->tile_id);
   for (int i = utl_vector_size(OVR_TILE_ELEMENTS) - 1; i >= 0; i--) {
     if (((ovr_tile_element *)utl_vector_at(OVR_TILE_ELEMENTS, i))->parent_tile == parent_tile) {
       utl_vector_erase(OVR_TILE_ELEMENTS, i, 1);
@@ -149,7 +149,7 @@ void remove_ovr_tile_elements(ovr_tile_info *parent_tile) {
 }
 
 void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float dt) {
-  const ovr_tile tile_ref = NAMESPACE_LOADING()->get_ovr_tile(tile->tile_id);
+  const ovr_tile tile_ref = NAMESPACE_TASKING()->get_ovr_tile(tile->tile_id);
   if (!layer) {
     return;
   }

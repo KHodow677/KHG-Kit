@@ -1,7 +1,5 @@
-#include <string.h>
 #define NAMESPACE_ELEMENT_IMPL
-
-#define NAMESPACE_LOADING_USE
+#define NAMESPACE_TASKING_USE
 
 #include "element/namespace.h"
 #include "khg_ecs/ecs.h"
@@ -10,12 +8,13 @@
 #include "khg_phy/body.h"
 #include "khg_phy/core/phy_vector.h"
 #include "khg_phy/shape.h"
-#include "loading/namespace.h"
+#include "tasking/namespace.h"
 #include "util/camera/camera.h"
 #include "util/ovr_tile.h"
 #include "util/letterbox.h"
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 static const gfx_aabb get_aabb_from_shape(phy_shape *shape) {
   phy_vector2 point1 = shape->polygon.vertices[0];
@@ -41,7 +40,7 @@ static ecs_ret sys_render_update(ecs_ecs *ecs, ecs_id *entities, const unsigned 
       phy_vector2 pos = phy_rigid_body_get_position(p_info->body);
       phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
       const float angle = phy_rigid_body_get_angle(p_info->body);
-      const gfx_texture tex_ref = NAMESPACE_LOADING()->get_tex_def_by_location(info->tex_id_loc);
+      const gfx_texture tex_ref = NAMESPACE_TASKING()->get_tex_def_by_location(info->tex_id_loc);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
       gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);

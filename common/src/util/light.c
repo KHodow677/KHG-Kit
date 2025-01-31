@@ -1,4 +1,4 @@
-#define NAMESPACE_LOADING_USE
+#define NAMESPACE_TASKING_USE
 
 #include "game.h"
 #include "glad/glad.h"
@@ -6,7 +6,7 @@
 #include "khg_gfx/internal.h"
 #include "khg_utl/file_reader.h"
 #include "khg_utl/string.h"
-#include "loading/namespace.h"
+#include "tasking/namespace.h"
 #include "util/light.h"
 #include "util/letterbox.h"
 
@@ -19,7 +19,7 @@ int LIGHT_COUNT = 0;
 light LIGHTS[] = { 0 };
 
 void setup_lights_texture() {
-  LIGHTING_OVERLAY = NAMESPACE_LOADING()->get_tex_def("EMPTY_TEXTURE");
+  LIGHTING_OVERLAY = NAMESPACE_TASKING()->get_tex_def("EMPTY_TEXTURE");
 }
 
 void setup_lights_shader() {

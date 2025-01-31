@@ -1,5 +1,5 @@
 #define NAMESPACE_ELEMENT_USE
-#define NAMESPACE_LOADING_USE
+#define NAMESPACE_TASKING_USE
 
 #include "element/namespace.h"
 #include "game.h"
@@ -12,7 +12,7 @@
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
 #include "khg_utl/random.h"
-#include "loading/namespace.h"
+#include "tasking/namespace.h"
 #include "util/camera/camera.h"
 #include "util/camera/camera_controller.h"
 #include "util/io/key_controller.h"
@@ -72,8 +72,8 @@ const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
   utl_random_seed_clock();
-  NAMESPACE_LOADING()->load_configs("res/assets/data/tex_defs.ini");
-  NAMESPACE_LOADING()->generate_ovr_tiles();
+  NAMESPACE_TASKING()->load_configs("res/assets/data/tex_defs.ini");
+  NAMESPACE_TASKING()->generate_ovr_tiles();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
   setup_lights_shader();
@@ -83,7 +83,7 @@ const int game_run() {
 }
 
 const bool gfx_loop(const float delta, const float fps_val) {
-  NAMESPACE_LOADING()->load_resources_defer();
+  NAMESPACE_TASKING()->load_resources_defer();
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
@@ -94,7 +94,7 @@ const bool gfx_loop(const float delta, const float fps_val) {
   get_letterbox();
   render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0, GFX_WHITE);
   gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
-  if (NAMESPACE_LOADING()->RESOURCES_LOADED && SCENE_LOADED) {
+  if (NAMESPACE_TASKING()->RESOURCES_LOADED && SCENE_LOADED) {
     move_camera(&CAMERA, delta);
     ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->TILE_INFO.system_signature, delta);
     ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->PHYSICS_INFO.system_signature, delta);

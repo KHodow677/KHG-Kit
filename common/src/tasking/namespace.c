@@ -1,11 +1,11 @@
-#define NAMESPACE_LOADING_IMPL 
+#define NAMESPACE_TASKING_IMPL
 
-#include "loading/namespace.h"
-#include "loading/resource_loading.h"
-#include "loading/resources/ovr_tile_loader.h"
-#include "loading/resources/texture_loader.h"
+#include "tasking/namespace.h"
+#include "tasking/resource_loading.h"
+#include "tasking/resources/ovr_tile_loader.h"
+#include "tasking/resources/texture_loader.h"
 
-loading_namespace NAMESPACE_LOADING_INTERNAL = {
+tasking_namespace NAMESPACE_TASKING_INTERNAL = {
   .load_configs = load_configs,
   .close_config = close_configs,
   .load_thread_defer = load_thread_defer,
@@ -29,7 +29,7 @@ loading_namespace NAMESPACE_LOADING_INTERNAL = {
   .TEXTURE_THREAD = { .enabled = false, .max = 0, .loaded = false, .loading_started = false, .progress = 0 }
 };
 
-loading_namespace *NAMESPACE_LOADING(void) {
-  return &NAMESPACE_LOADING_INTERNAL;
+tasking_namespace *NAMESPACE_TASKING(void) {
+  return &NAMESPACE_TASKING_INTERNAL;
 }
 
