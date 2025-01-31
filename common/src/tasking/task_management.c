@@ -1,50 +1,74 @@
 #define NAMESPACE_TASKING_IMPL
 
 #define MAX_TASKS 100
-#define NUM_THREADS 5
+#define THREAD_POOL_SIZE 5
 
 #include "khg_thd/concurrent.h"
 #include "tasking/namespace.h"
 #include <stdbool.h>
 
 tasking_task task_queue[MAX_TASKS];
-int task_count = 0;
+int queue_start = 0;
+int queue_end = 0;
 thd_mutex queue_mutex;
-thd_thread_condition has_tasks;
+thd_thread_condition queue_not_empty;
+thd_thread_condition queue_not_full;
+bool thread_pool_shutdown = 0;
 
 static void task_enqueue(void (*function)(void *), void *arg) {
   thd_mutex_lock(&queue_mutex);
-  if (task_count < MAX_TASKS) {
-    tasking_task new_task;
-    new_task.function = function;
-    new_task.arg = arg;
-    task_queue[task_count++] = new_task;
-    thd_condition_signal(&has_tasks);
+  while ((queue_end + 1) % MAX_TASKS == queue_start) {
+    thd_condition_wait(&queue_not_full, &queue_mutex);
   }
+  task_queue[queue_end].function = function;
+  task_queue[queue_end].arg = arg;
+  queue_end = (queue_end + 1) % MAX_TASKS;
+  thd_condition_signal(&queue_not_empty);
   thd_mutex_unlock(&queue_mutex);
 }
 
-static tasking_task *task_dequeue() {
-  tasking_task *task = NULL;
-  if (task_count > 0) {
-    task = &task_queue[--task_count];
+static tasking_task task_dequeue() {
+  tasking_task task;
+  thd_mutex_lock(&queue_mutex);
+  while (queue_start == queue_end && !thread_pool_shutdown) {
+    thd_condition_wait(&queue_not_empty, &queue_mutex);
   }
+  if (thread_pool_shutdown) {
+    thd_mutex_unlock(&queue_mutex);
+    thd_thread_exit(0);
+  }
+  task = task_queue[queue_start];
+  queue_start = (queue_start + 1) % MAX_TASKS;
+  thd_condition_signal(&queue_not_full);
+  thd_mutex_unlock(&queue_mutex);
   return task;
 }
 
 static int task_worker(void *arg) {
   (void)arg;
-  while (true) {
-    thd_mutex_lock(&queue_mutex);
-    while (task_count == 0) {
-      thd_condition_wait(&has_tasks, &queue_mutex);
-    }
-    tasking_task* task = task_dequeue();
-    thd_mutex_unlock(&queue_mutex);
-    if (task) {
-      task->function(task->arg);
+  while (1) {
+    tasking_task task = task_dequeue();
+    if (task.function) {
+      task.function(task.arg);
     }
   }
-  return -1;
+  return 0; 
+}
+
+static void initialize_thread_pool() {
+  thd_mutex_init(&queue_mutex, THD_MUTEX_PLAIN);
+  thd_condition_init(&queue_not_empty);
+  thd_condition_init(&queue_not_full);
+  thd_thread threads[THREAD_POOL_SIZE];
+  for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
+    thd_thread_create(&threads[i], task_worker, NULL);
+  }
+}
+
+static void shutdown_thread_pool() {
+  thd_mutex_lock(&queue_mutex);
+  thread_pool_shutdown = true;
+  thd_condition_broadcast(&queue_not_empty);
+  thd_mutex_unlock(&queue_mutex);
 }
 
