@@ -7,15 +7,15 @@
 #include "tasking/namespace.h"
 #include <stdbool.h>
 
-tasking_task task_queue[MAX_TASKS];
+worker_task task_queue[MAX_TASKS];
 int queue_start = 0;
 int queue_end = 0;
 thd_mutex queue_mutex;
 thd_thread_condition queue_not_empty;
 thd_thread_condition queue_not_full;
-bool thread_pool_shutdown = 0;
+bool thread_pool_shutdown = false;
 
-static void task_enqueue(void (*function)(void *), void *arg) {
+void task_enqueue(void (*function)(void *), void *arg) {
   thd_mutex_lock(&queue_mutex);
   while ((queue_end + 1) % MAX_TASKS == queue_start) {
     thd_condition_wait(&queue_not_full, &queue_mutex);
@@ -27,8 +27,8 @@ static void task_enqueue(void (*function)(void *), void *arg) {
   thd_mutex_unlock(&queue_mutex);
 }
 
-static tasking_task task_dequeue() {
-  tasking_task task;
+worker_task task_dequeue() {
+  worker_task task;
   thd_mutex_lock(&queue_mutex);
   while (queue_start == queue_end && !thread_pool_shutdown) {
     thd_condition_wait(&queue_not_empty, &queue_mutex);
@@ -47,7 +47,7 @@ static tasking_task task_dequeue() {
 static int task_worker(void *arg) {
   (void)arg;
   while (1) {
-    tasking_task task = task_dequeue();
+    worker_task task = task_dequeue();
     if (task.function) {
       task.function(task.arg);
     }

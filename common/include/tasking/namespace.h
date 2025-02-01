@@ -3,14 +3,14 @@
 #include "khg_thd/concurrent.h"
 #include <stdbool.h>
 
-typedef struct tasking_resource_thread {
+typedef struct resource_thread {
   bool enabled;
   thd_thread thread;
   unsigned int progress;
   unsigned int max;
   bool loading_started;
   bool loaded;
-} tasking_resource_thread;
+} resource_thread;
 
 #define FOREACH_OVR_TILE(TEXTURE)\
   TEXTURE(EMPTY_OVR_TILE)\
@@ -39,34 +39,34 @@ typedef struct tasking_resource_thread {
 #define GENERATE_OVR_TILE_ENUM(ENUM) ENUM,
 #define GENERATE_OVR_TILE_STRING(STRING) #STRING,
 
-typedef enum loading_ovr_tile_id {
+typedef enum ovr_tile_id {
   FOREACH_OVR_TILE(GENERATE_OVR_TILE_ENUM)
-} loading_ovr_tile_id;
+} ovr_tile_id;
 
 #define OVR_TILE_STRINGS (char *[]){ FOREACH_OVR_TILE(GENERATE_OVR_TILE_STRING) }
 #define OVR_TILE_STRINGS_SIZE sizeof(OVR_TILE_STRINGS) / sizeof(OVR_TILE_STRINGS[0])
 
-typedef struct tasking_texture_asset {
+typedef struct texture_asset {
   char tex_filepath[128];
   int tex_width;
   int tex_height;
-} tasking_texture_asset;
+} texture_asset;
 
-typedef struct tasking_texture_raw_info {
+typedef struct texture_raw_info {
   unsigned char *tex_raw;
   int width;
   int height;
   int channels;
-} tasking_texture_raw_info;
+} texture_raw_info;
 
-typedef struct tasking_ovr_tile_asset {
+typedef struct ovr_tile_asset {
   char *ovr_tile_filepath;
-} tasking_ovr_tile_asset;
+} ovr_tile_asset;
 
-typedef struct tasking_task {
+typedef struct worker_task {
   void (*function)(void *);
   void *arg;
-} tasking_task;
+} worker_task;
 
 #if defined(NAMESPACE_TASKING_IMPL) || defined(NAMESPACE_TASKING_USE)
 #include "khg_gfx/texture.h"
@@ -75,7 +75,7 @@ typedef struct tasking_task {
 typedef struct tasking_namespace {
   void (*load_configs)(const char *);
   void (*close_config)(void);
-  void (*load_thread_defer)(tasking_resource_thread *, int (*)(void *), tasking_resource_thread *);
+  void (*load_thread_defer)(resource_thread *, int (*)(void *), resource_thread *);
   void (*load_resources_defer)(void);
   const unsigned int (*get_ovr_tile_id_from_string)(const char *);
   const ovr_tile (*get_ovr_tile)(unsigned int);
@@ -90,10 +90,10 @@ typedef struct tasking_namespace {
   unsigned int (*get_location_tex_str)(const char *);
   void (*free_tex_defs)(void);
   bool RESOURCES_LOADED;
-  tasking_resource_thread OVR_TILE_THREAD;
-  tasking_resource_thread TEXTURE_ASSET_THREAD;
-  tasking_resource_thread TEXTURE_RAW_THREAD;
-  tasking_resource_thread TEXTURE_THREAD;
+  resource_thread OVR_TILE_THREAD;
+  resource_thread TEXTURE_ASSET_THREAD;
+  resource_thread TEXTURE_RAW_THREAD;
+  resource_thread TEXTURE_THREAD;
 } tasking_namespace;
 #endif
 

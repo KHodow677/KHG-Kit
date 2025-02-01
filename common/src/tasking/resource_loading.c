@@ -27,7 +27,7 @@ static int load_textures_raw_task(void *arg) {
   return 0; 
 }
 
-static bool resource_thread_maxed(tasking_resource_thread *resource) {
+static bool resource_thread_maxed(resource_thread *resource) {
   return resource->max == resource->progress;
 }
 
@@ -40,7 +40,7 @@ void close_configs() {
   free(TEX_CONFIG_FILENAME);
 }
 
-void load_thread_defer(tasking_resource_thread *resource, int (*task)(void *), tasking_resource_thread *await) {
+void load_thread_defer(resource_thread *resource, int (*task)(void *), resource_thread *await) {
   if (await && !resource_thread_maxed(await)) {
     return;
   }

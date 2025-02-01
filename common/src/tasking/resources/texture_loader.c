@@ -20,8 +20,8 @@ static int compare_texture_strings(const void *a, const void *b) {
 
 void generate_tex_defs(const char *filename) {
   TEXTURE_NAMES = utl_vector_create(sizeof(char *));
-  TEXTURE_ASSETS = utl_vector_create(sizeof(tasking_texture_asset));
-  TEXTURE_RAWS = utl_vector_create(sizeof(tasking_texture_raw_info));
+  TEXTURE_ASSETS = utl_vector_create(sizeof(texture_asset));
+  TEXTURE_RAWS = utl_vector_create(sizeof(texture_raw_info));
   TEXTURES = utl_vector_create(sizeof(gfx_texture));
   utl_config_file *config = utl_config_create(filename);
   utl_config_iterator iterator = utl_config_get_iterator(config);
@@ -37,7 +37,7 @@ void generate_tex_defs(const char *filename) {
     const char *path = utl_config_get_value(config, section, "path");
     const int width = utl_config_get_int(config, section, "width", 512);
     const int height = utl_config_get_int(config, section, "height", 512);
-    tasking_texture_asset tex_asset = { .tex_width = width, .tex_height = height };
+    texture_asset tex_asset = { .tex_width = width, .tex_height = height };
     strcpy(tex_asset.tex_filepath, path);
     NAMESPACE_TASKING_INTERNAL.TEXTURE_ASSET_THREAD.progress++;
     utl_vector_push_back(TEXTURE_NAMES, &tex_str);
@@ -50,25 +50,25 @@ void generate_tex_defs(const char *filename) {
 }
 
 void emplace_tex_defs_tick(void *arg) {
-  tasking_resource_thread *thread = arg;
+  resource_thread *thread = arg;
   const unsigned int num_names = utl_vector_size(TEXTURE_NAMES);
   if (thread->progress < num_names) {
     char *tex_str = utl_vector_at(TEXTURE_NAMES, thread->progress);
-    tasking_texture_asset tex_asset = *(tasking_texture_asset *)utl_vector_at(TEXTURE_ASSETS, thread->progress);
+    texture_asset tex_asset = *(texture_asset *)utl_vector_at(TEXTURE_ASSETS, thread->progress);
     int width, height, channels;
     unsigned char *tex_raw;
     gfx_fetch_texture_raw(&tex_raw, tex_asset.tex_filepath, &width, &height, &channels);
-    tasking_texture_raw_info tex_raw_info = { tex_raw, tex_asset.tex_width, tex_asset.tex_height, channels };
+    texture_raw_info tex_raw_info = { tex_raw, tex_asset.tex_width, tex_asset.tex_height, channels };
     NAMESPACE_TASKING_INTERNAL.TEXTURE_RAW_THREAD.progress++;
     utl_vector_push_back(TEXTURE_RAWS, &tex_raw_info);
   }
 }
 
 int emplace_tex_defs(void *arg) {
-  tasking_resource_thread *thread = arg;
+  resource_thread *thread = arg;
   const unsigned int num_names = utl_vector_size(TEXTURE_NAMES);
   while (thread->progress < num_names) {
-    tasking_texture_raw_info *tex_raw_info = utl_vector_at(TEXTURE_RAWS, NAMESPACE_TASKING_INTERNAL.TEXTURE_THREAD.progress);
+    texture_raw_info *tex_raw_info = utl_vector_at(TEXTURE_RAWS, NAMESPACE_TASKING_INTERNAL.TEXTURE_THREAD.progress);
     gfx_texture tex = gfx_load_texture_asset_raw(tex_raw_info->tex_raw, tex_raw_info->width, tex_raw_info->height, tex_raw_info->channels);
     tex.width = tex_raw_info->width;
     tex.height = tex_raw_info->height;
