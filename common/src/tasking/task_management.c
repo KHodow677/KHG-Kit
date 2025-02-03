@@ -7,13 +7,13 @@
 #include "tasking/namespace.h"
 #include <stdbool.h>
 
-worker_task task_queue[MAX_TASKS];
-int queue_start = 0;
-int queue_end = 0;
-thd_mutex queue_mutex;
-thd_thread_condition queue_not_empty;
-thd_thread_condition queue_not_full;
-bool thread_pool_shutdown = false;
+static worker_task task_queue[MAX_TASKS];
+static int queue_start = 0;
+static int queue_end = 0;
+static thd_mutex queue_mutex;
+static thd_thread_condition queue_not_empty;
+static thd_thread_condition queue_not_full;
+static bool thread_pool_shutdown = false;
 
 void task_enqueue(void (*function)(void *), void *arg) {
   thd_mutex_lock(&queue_mutex);
@@ -44,7 +44,7 @@ worker_task task_dequeue() {
   return task;
 }
 
-static int task_worker(void *arg) {
+int task_worker(void *arg) {
   (void)arg;
   while (1) {
     worker_task task = task_dequeue();
@@ -55,7 +55,7 @@ static int task_worker(void *arg) {
   return 0; 
 }
 
-static void initialize_thread_pool() {
+void initialize_thread_pool() {
   thd_mutex_init(&queue_mutex, THD_MUTEX_PLAIN);
   thd_condition_init(&queue_not_empty);
   thd_condition_init(&queue_not_full);
@@ -65,7 +65,7 @@ static void initialize_thread_pool() {
   }
 }
 
-static void shutdown_thread_pool() {
+void shutdown_thread_pool() {
   thd_mutex_lock(&queue_mutex);
   thread_pool_shutdown = true;
   thd_condition_broadcast(&queue_not_empty);

@@ -89,6 +89,11 @@ typedef struct tasking_namespace {
   gfx_texture (*get_tex_def)(char *);
   unsigned int (*get_location_tex_str)(const char *);
   void (*free_tex_defs)(void);
+  void (*task_enqueue)(void (*)(void *), void *);
+  worker_task (*task_dequeue)(void);
+  int (*task_worker)(void *);
+  void (*initialize_thread_pool)(void);
+  void (*shutdown_thread_pool)(void);
   bool RESOURCES_LOADED;
   resource_thread OVR_TILE_THREAD;
   resource_thread TEXTURE_ASSET_THREAD;
