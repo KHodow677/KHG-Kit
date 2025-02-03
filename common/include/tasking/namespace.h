@@ -70,10 +70,9 @@ typedef struct worker_task {
 } worker_task;
 
 typedef struct texture_object {
-  bool loaded;
-  char name[32];
-  char path[128];
-  unsigned char *raw_data;
+  bool loaded, loading;
+  unsigned int id, width, height;
+  char name[32], path[128];
   gfx_texture texture;
 } texture_object;
 
@@ -103,6 +102,11 @@ typedef struct tasking_namespace {
   int (*task_worker)(void *);
   void (*initialize_thread_pool)(void);
   void (*shutdown_thread_pool)(void);
+  void (*populate_texture_data)(const char *);
+  void (*load_texture_data)(void *);
+  gfx_texture (*get_texture_data)(const unsigned int);
+  const unsigned int (*get_texture_id)(const char *);
+  void (*clear_texture_data)(void);
   bool RESOURCES_LOADED;
   resource_thread OVR_TILE_THREAD;
   resource_thread TEXTURE_ASSET_THREAD;

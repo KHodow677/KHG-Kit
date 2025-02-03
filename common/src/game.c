@@ -72,6 +72,10 @@ const int game_run() {
   GLFWwindow *window = game_init();
   log_sys_info();
   utl_random_seed_clock();
+  NAMESPACE_TASKING()->initialize_thread_pool();
+  NAMESPACE_TASKING()->populate_texture_data("res/assets/data/tex_defs.ini");
+  unsigned int test = NAMESPACE_TASKING()->get_texture_id("EMPTY_TEXTURE");
+  NAMESPACE_TASKING()->load_texture_data(&test);
   NAMESPACE_TASKING()->load_configs("res/assets/data/tex_defs.ini");
   NAMESPACE_TASKING()->generate_ovr_tiles();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
@@ -79,6 +83,8 @@ const int game_run() {
   setup_lights_shader();
   int res = gfx_loop_manager(window, true);
   clear_scenes();
+  NAMESPACE_TASKING()->clear_texture_data();
+  NAMESPACE_TASKING()->shutdown_thread_pool();
   return res;
 }
 

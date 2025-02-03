@@ -5,6 +5,7 @@
 #include "tasking/resources/ovr_tile_loader.h"
 #include "tasking/resources/texture_loader.h"
 #include "tasking/task_management.h"
+#include "tasking/texture_loader.h"
 
 tasking_namespace NAMESPACE_TASKING_INTERNAL = {
   .load_configs = load_configs,
@@ -28,6 +29,11 @@ tasking_namespace NAMESPACE_TASKING_INTERNAL = {
   .task_worker = task_worker,
   .initialize_thread_pool = initialize_thread_pool,
   .shutdown_thread_pool = shutdown_thread_pool,
+  .populate_texture_data = populate_texture_data,
+  .load_texture_data = load_texture_data,
+  .get_texture_data = get_texture_data,
+  .get_texture_id = get_texture_id,
+  .clear_texture_data = clear_texture_data,
   .RESOURCES_LOADED = false,
   .OVR_TILE_THREAD = { .enabled = true, .max = NUM_OVR_TILES, .loaded = false, .loading_started = false, .progress = 0 },
   .TEXTURE_ASSET_THREAD = { .enabled = true, .max = 0, .loaded = false, .loading_started = false, .progress = 0 },
