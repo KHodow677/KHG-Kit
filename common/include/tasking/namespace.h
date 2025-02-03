@@ -1,5 +1,6 @@
 #pragma once
 
+#include "khg_gfx/texture.h"
 #include "khg_thd/concurrent.h"
 #include <stdbool.h>
 
@@ -67,6 +68,14 @@ typedef struct worker_task {
   void (*function)(void *);
   void *arg;
 } worker_task;
+
+typedef struct texture_object {
+  bool loaded;
+  char name[32];
+  char path[128];
+  unsigned char *raw_data;
+  gfx_texture texture;
+} texture_object;
 
 #if defined(NAMESPACE_TASKING_IMPL) || defined(NAMESPACE_TASKING_USE)
 #include "khg_gfx/texture.h"

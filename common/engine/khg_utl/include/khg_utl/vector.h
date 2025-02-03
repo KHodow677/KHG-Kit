@@ -16,7 +16,7 @@ typedef struct {
   utl_memory_pool_vector *pool;
 } utl_vector;
 
-utl_vector *utl_vector_create(unsigned int itemSize);
+utl_vector *utl_vector_create(unsigned int item_size);
 
 bool utl_vector_is_equal(const utl_vector *vec1, const utl_vector *vec2);
 bool utl_vector_is_less(const utl_vector *vec1, const utl_vector *vec2);
@@ -27,7 +27,7 @@ bool utl_vector_is_less_or_equal(const utl_vector *vec1, const utl_vector *vec2)
 bool utl_vector_is_empty(utl_vector *vec);
 bool utl_vector_reserve(utl_vector *vec, unsigned int size);
 bool utl_vector_push_back(utl_vector *vec, const void *item);
-bool utl_vector_emplace_back(utl_vector *vec, void *item, unsigned int itemSize);
+bool utl_vector_emplace_back(utl_vector *vec, void *item, unsigned int item_size);
 
 void utl_vector_erase(utl_vector *vec, unsigned int pos, unsigned int len);
 void utl_vector_insert(utl_vector *vec, unsigned int pos, void *item);
@@ -36,7 +36,7 @@ void utl_vector_shrink_to_fit(utl_vector *vec);
 void utl_vector_clear(utl_vector *vec);
 void utl_vector_swap(utl_vector *vec1, utl_vector *vec2);
 void utl_vector_assign(utl_vector *vec, unsigned int pos, void *item);
-void utl_vector_emplace(utl_vector *vec, unsigned int pos, void *item, unsigned int itemSize);
+void utl_vector_emplace(utl_vector *vec, unsigned int pos, void *item, unsigned int item_size);
 void utl_vector_deallocate(utl_vector *vec);
 
 const void *utl_vector_cbegin(utl_vector *vec);

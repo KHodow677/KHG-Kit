@@ -80,6 +80,16 @@ int emplace_tex_defs(void *arg) {
   return 0;
 }
 
+void free_tex_defs() {
+  for (char **tex_name = utl_vector_begin(TEXTURE_NAMES); tex_name != utl_vector_end(TEXTURE_NAMES); tex_name++) {
+    free(*tex_name);
+  }
+  utl_vector_deallocate(TEXTURE_NAMES);
+  utl_vector_deallocate(TEXTURE_ASSETS);
+  utl_vector_deallocate(TEXTURE_RAWS);
+  utl_vector_deallocate(TEXTURES);
+}
+
 gfx_texture get_tex_def_by_location(unsigned int loc) {
   gfx_texture *tex = utl_vector_at(TEXTURES, loc);
   if (!tex) {
@@ -97,12 +107,3 @@ unsigned int get_location_tex_str(const char *tex_str) {
   return utl_algorithm_find_at(utl_vector_data(TEXTURE_NAMES), utl_vector_size(TEXTURE_NAMES), sizeof(char *), tex_str, compare_texture_strings);
 }
 
-void free_tex_defs() {
-  for (char **tex_name = utl_vector_begin(TEXTURE_NAMES); tex_name != utl_vector_end(TEXTURE_NAMES); tex_name++) {
-    free(*tex_name);
-  }
-  utl_vector_deallocate(TEXTURE_NAMES);
-  utl_vector_deallocate(TEXTURE_ASSETS);
-  utl_vector_deallocate(TEXTURE_RAWS);
-  utl_vector_deallocate(TEXTURES);
-}

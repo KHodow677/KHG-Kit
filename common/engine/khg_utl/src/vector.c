@@ -55,7 +55,7 @@ static void utl_memory_pool_destroy(utl_memory_pool_vector *pool) {
   free(pool);
 }
 
-utl_vector *utl_vector_create(unsigned int itemSize) {
+utl_vector *utl_vector_create(unsigned int item_size) {
   utl_vector *vec = (utl_vector *)malloc(sizeof(utl_vector));
   if (!vec){
     utl_error_func("Can not allocate memory for vector structure", utl_user_defined_data);
@@ -63,7 +63,7 @@ utl_vector *utl_vector_create(unsigned int itemSize) {
   } 
   vec->size = 0;
   vec->capacity_size = 32;
-  vec->itemSize = itemSize;
+  vec->itemSize = item_size;
   unsigned int initialPoolSize = 1000000;
   vec->pool = utl_memory_pool_create(initialPoolSize);
   if (!vec->pool) {
@@ -71,7 +71,7 @@ utl_vector *utl_vector_create(unsigned int itemSize) {
     utl_error_func("Can not allocate memory for vector pool", utl_user_defined_data);
     exit(-1);
   }
-  vec->items = utl_memory_pool_allocate(vec->pool, vec->capacity_size * itemSize);
+  vec->items = utl_memory_pool_allocate(vec->pool, vec->capacity_size * item_size);
   if (!vec->items) {
     utl_memory_pool_destroy(vec->pool);
     free(vec);
