@@ -2,11 +2,11 @@
 
 #include "khg_kin/namespace.h"
 
-kin_engine kin_engine_create(void);
-void kin_engine_deallocate(kin_engine *e);
+kin_engine engine_create(void);
+void engine_deallocate(kin_engine *engine);
 
-void kin_engine_step(kin_engine e, float dt);
-void kin_engine_body_add(kin_engine e, kin_body b);
-void kin_engine_body_remove(kin_engine e, kin_body b);
+void engine_step(kin_engine engine, float dt);
+void engine_body_add(kin_engine engine, kin_body body);
+void engine_body_remove(kin_engine engine, kin_body body);
 
-void kin_engine_print(kin_engine e);
+void engine_print(kin_engine engine);

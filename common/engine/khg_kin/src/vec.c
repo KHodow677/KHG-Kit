@@ -1,51 +1,53 @@
-#include "khg_kin/vec.h"
+#define NAMESPACE_KIN_IMPL
+
+#include "khg_kin/namespace.h"
 #include <math.h>
 
-kin_vec kin_vec_create(float x, float y) {
-  return (kin_vec){x, y};
+kin_vec vec_create(float x, float y) {
+  return (kin_vec){ x, y };
 }
 
-void kin_vec_copy(kin_vec* v1, kin_vec v2) {
-  v1->x = v2.x;
-  v1->y = v2.y;
+void vec_copy(kin_vec *vec1, kin_vec vec2) {
+  vec1->x = vec2.x;
+  vec1->y = vec2.y;
 }
 
-float kin_vec_sq_length(kin_vec v) {
-  return v.x * v.x + v.y * v.y;
+float vec_sq_length(kin_vec vec) {
+  return vec.x * vec.x + vec.y * vec.y;
 }
 
-float kin_vec_length(kin_vec v) {
-  return sqrt(v.x * v.x + v.y * v.y);
+float vec_length(kin_vec vec) {
+  return sqrt(vec.x * vec.x + vec.y * vec.y);
 }
 
-kin_vec kin_vec_perp(kin_vec v) {
-  return (kin_vec){-v.y, v.x};
+kin_vec vec_perp(kin_vec vec) {
+  return (kin_vec){-vec.y, vec.x};
 }
 
-kin_vec kin_vec_add(kin_vec v1, kin_vec v2) {
-  return (kin_vec){v1.x + v2.x, v1.y + v2.y};
+kin_vec vec_add(kin_vec vec1, kin_vec vec2) {
+  return (kin_vec){vec1.x + vec2.x, vec1.y + vec2.y};
 }
 
-kin_vec kin_vec_sub(kin_vec v1, kin_vec v2) {
-  return (kin_vec){v1.x - v2.x, v1.y - v2.y};
+kin_vec vec_sub(kin_vec vec1, kin_vec vec2) {
+  return (kin_vec){vec1.x - vec2.x, vec1.y - vec2.y};
 }
 
-float kin_vec_dot(kin_vec v1, kin_vec v2) {
-  return v1.x * v2.x + v1.y * v2.y;
+float vec_dot(kin_vec vec1, kin_vec vec2) {
+  return vec1.x * vec2.x + vec1.y * vec2.y;
 }
 
-float kin_vec_cross(kin_vec v1, kin_vec v2) {
-  return v1.x * v2.y - v1.y * v2.x;
+float vec_cross(kin_vec vec1, kin_vec vec2) {
+  return vec1.x * vec2.y - vec1.y * vec2.x;
 }
 
-kin_vec kin_vec_scale(kin_vec v, float f) {
-  return (kin_vec){v.x * f, v.y * f};
+kin_vec vec_scale(kin_vec vec, float scale) {
+  return (kin_vec){vec.x * scale, vec.y * scale};
 }
 
-float kin_vec_dist(kin_vec v1, kin_vec v2) {
-  return kin_vec_length(kin_vec_sub(v1, v2));
+float vec_dist(kin_vec vec1, kin_vec vec2) {
+  return vec_length(vec_sub(vec1, vec2));
 }
 
-kin_vec kin_vec_rot(kin_vec v, kin_vec r) {
-  return (kin_vec){ v.x * r.x + v.y * r.y, v.y * r.x - v.x * r.y};
+kin_vec vec_rot(kin_vec vec, kin_vec ang) {
+  return (kin_vec){ vec.x * ang.x + vec.y * ang.y, vec.y * ang.x - vec.x * ang.y};
 }
