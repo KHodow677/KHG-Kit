@@ -76,6 +76,7 @@ const int game_run() {
   NAMESPACE_TASKING()->populate_texture_data("res/assets/data/tex_defs.ini");
   unsigned int test = NAMESPACE_TASKING()->get_texture_id("EMPTY_TEXTURE");
   NAMESPACE_TASKING()->load_texture_data(&test);
+  NAMESPACE_TASKING()->get_texture_data(test);
   NAMESPACE_TASKING()->load_configs("res/assets/data/tex_defs.ini");
   NAMESPACE_TASKING()->generate_ovr_tiles();
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);

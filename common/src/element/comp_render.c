@@ -40,7 +40,7 @@ static ecs_ret sys_render_update(ecs_ecs *ecs, ecs_id *entities, const unsigned 
       phy_vector2 pos = phy_rigid_body_get_position(p_info->body);
       phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
       const float angle = phy_rigid_body_get_angle(p_info->body);
-      const gfx_texture tex_ref = NAMESPACE_TASKING()->get_tex_def_by_location(info->tex_id_loc);
+      const gfx_texture tex_ref = NAMESPACE_TASKING()->get_texture_data(info->tex_id_loc);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
       gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);

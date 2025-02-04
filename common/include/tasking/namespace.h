@@ -70,9 +70,10 @@ typedef struct worker_task {
 } worker_task;
 
 typedef struct texture_object {
-  bool loaded, loading;
-  unsigned int id, width, height;
+  bool loaded, fetching, uploaded;
+  unsigned int id, width, height, channels;
   char name[32], path[128];
+  unsigned char *texture_raw;
   gfx_texture texture;
 } texture_object;
 
@@ -93,9 +94,6 @@ typedef struct tasking_namespace {
   void (*generate_tex_defs)(const char *);
   void (*emplace_tex_defs_tick)(void *);
   int (*emplace_tex_defs)(void *);
-  gfx_texture (*get_tex_def_by_location)(unsigned int);
-  gfx_texture (*get_tex_def)(char *);
-  unsigned int (*get_location_tex_str)(const char *);
   void (*free_tex_defs)(void);
   void (*task_enqueue)(void (*)(void *), void *);
   worker_task (*task_dequeue)(void);

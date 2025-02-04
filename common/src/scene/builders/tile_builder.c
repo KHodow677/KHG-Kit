@@ -13,7 +13,7 @@ void build_ovr_tile(const unsigned int tile_id, const phy_vector2 pos) {
   const ecs_id entity = ecs_create(NAMESPACE_ELEMENT()->ECS);
   element_comp_physics comp_physics_ci = { .init_pos = ovr_tile_pos_to_world_pos(pos), .init_size = phy_vector2_new(0.0f, 0.0f), .init_ang = 0.0f };
   element_comp_physics *cp = NAMESPACE_ELEMENT()->sys_physics_add(entity, &comp_physics_ci);
-  element_comp_render comp_renderer_ci = { .tex_id_loc = NAMESPACE_TASKING()->get_location_tex_str("EMPTY_TEXTURE"), .ovr_tile = (ovr_tile_info){ tile_id, pos }, .render_layer = 0, .parallax_value = 1.0f, .flipped = false };
+  element_comp_render comp_renderer_ci = { .tex_id_loc = NAMESPACE_TASKING()->get_texture_id("EMPTY_TEXTURE"), .ovr_tile = (ovr_tile_info){ tile_id, pos }, .render_layer = 0, .parallax_value = 1.0f, .flipped = false };
   element_comp_render *cr = NAMESPACE_ELEMENT()->sys_render_add(entity, &comp_renderer_ci);
   comp_tile comp_tile_ci = { .tile = (ovr_tile_info){ tile_id, pos } };
   comp_tile *ct = NAMESPACE_ELEMENT()->sys_tile_add(entity, &comp_tile_ci);

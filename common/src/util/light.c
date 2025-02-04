@@ -19,7 +19,8 @@ int LIGHT_COUNT = 0;
 light LIGHTS[] = { 0 };
 
 void setup_lights_texture() {
-  LIGHTING_OVERLAY = NAMESPACE_TASKING()->get_tex_def("EMPTY_TEXTURE");
+  unsigned int light_tex_id = NAMESPACE_TASKING()->get_texture_id("EMPTY_TEXTURE");
+  LIGHTING_OVERLAY = NAMESPACE_TASKING()->get_texture_data(light_tex_id);
 }
 
 void setup_lights_shader() {
