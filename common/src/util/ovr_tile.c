@@ -82,7 +82,7 @@ void render_ovr_tile_item(const unsigned int tex_id_loc, const phy_vector2 coord
   phy_vector2 pos = ovr_tile_rendering_pos(coords, offset, tex_ref.height, 0.0f);
   phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
   gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, 0 };
-  transform_box_element_tex(GAME_SCREEN, &pos, &cam_pos, &tex);
+  transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
   gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x, cam_pos.y, CAMERA.zoom, true, false);
   OVR_TILE_ELEMENTS_RENDERED = false;
 }
@@ -94,7 +94,7 @@ void render_ovr_tile_element_item(const ovr_tile_element *element) {
   phy_vector2 pos = ovr_tile_rendering_pos(element->parent_tile->pos, element->pos, tex_ref.height, element->angle);
   phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
   gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, element->angle };
-  transform_box_element_tex(GAME_SCREEN, &pos, &cam_pos, &tex);
+  transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
   gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x, cam_pos.y, CAMERA.zoom, true, element->flipped);
   OVR_TILE_ELEMENTS_RENDERED = true;
 }
