@@ -70,7 +70,7 @@ void add_light(phy_vector2 pos_perc, float radius) {
 }
 
 void render_lights() {
-  const float scale = LETTERBOX.size.x / INITIAL_WIDTH;
+  const float scale = GAME_SCREEN.size.x / INITIAL_WIDTH;
   glUniform3f(glGetUniformLocation(GFX_STATE.render.shader.id, "u_light_color"), LIGHTING_OVERLAY_COLOR[0], LIGHTING_OVERLAY_COLOR[1], LIGHTING_OVERLAY_COLOR[2]);
   glUniform1i(glGetUniformLocation(GFX_STATE.render.shader.id, "u_num_lights"), LIGHT_COUNT);
   float light_position_percs[LIGHT_COUNT * 2];
@@ -84,8 +84,8 @@ void render_lights() {
     light_radii[i] = LIGHTS[i].intensity * scale;
   }
   glUniform1fv(glGetUniformLocation(GFX_STATE.render.shader.id, "u_light_intensities"), LIGHT_COUNT, light_radii);
-  LIGHTING_OVERLAY.width = LETTERBOX.size.x + 1;
-  LIGHTING_OVERLAY.height = LETTERBOX.size.y + 1;
-  gfx_image_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LIGHTING_OVERLAY, 0, 0, 1, true, false);
+  LIGHTING_OVERLAY.width = GAME_SCREEN.size.x + 1;
+  LIGHTING_OVERLAY.height = GAME_SCREEN.size.y + 1;
+  gfx_image_no_block(GAME_SCREEN.pos.x + GAME_SCREEN.size.x / 2.0f, GAME_SCREEN.pos.y + GAME_SCREEN.size.y / 2.0f, LIGHTING_OVERLAY, 0, 0, 1, true, false);
 }
 

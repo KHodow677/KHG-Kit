@@ -91,7 +91,7 @@ const int game_run() {
 
 const bool gfx_loop(const float delta, const float fps_val) {
   NAMESPACE_TASKING()->load_resources_defer();
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   gfx_clear_style_props();
@@ -99,8 +99,11 @@ const bool gfx_loop(const float delta, const float fps_val) {
   update_key_controls();
   update_cursor_controls();
   get_letterbox();
-  render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0, GFX_WHITE);
-  gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
+  get_game_screen();
+  // printf("LETTERBOX: %f, %f, %f, %f\n", LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y);
+  // printf("GAME SCREEN: %f, %f, %f, %f\n", GAME_SCREEN.pos.x, GAME_SCREEN.pos.y, GAME_SCREEN.size.x, GAME_SCREEN.size.y);
+  // render_div(GAME_SCREEN.pos.x, GAME_SCREEN.pos.y, GAME_SCREEN.size.x, GAME_SCREEN.size.y, 0, GFX_WHITE);
+  // gfx_rect_no_block(GAME_SCREEN.pos.x + GAME_SCREEN.size.x / 2.0f, GAME_SCREEN.pos.y + GAME_SCREEN.size.y / 2.0f, GAME_SCREEN.size.x, GAME_SCREEN.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
   if (NAMESPACE_TASKING()->RESOURCES_LOADED && SCENE_LOADED) {
     move_camera(&CAMERA, delta);
     ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->TILE_INFO.system_signature, delta);
@@ -109,7 +112,7 @@ const bool gfx_loop(const float delta, const float fps_val) {
     ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->LIGHT_INFO.system_signature, delta);
     phy_space_step(SPACE, delta);
   }
-  gfx_div_end();
+  // gfx_div_end();
   GFX_STATE.current_div.scrollable = false;
   return true;
 }
@@ -119,10 +122,10 @@ const bool gfx_loop_post(const float delta, const float fps_val) {
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
   glUniform1i(glGetUniformLocation(LIGHTING_SHADER.id, "u_num_lights_active"), LIGHT_COUNT);
-  get_letterbox();
-  render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0, GFX_BLACK);
+  // get_letterbox();
+  // render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0, GFX_BLACK);
   render_lights();
-  gfx_div_end();
+  // gfx_div_end();
   GFX_STATE.current_div.scrollable = false;
   return true;
 };
@@ -135,8 +138,8 @@ const bool gfx_loop_ui(const float delta, const float fps_val) {
   gfx_push_font(&font);
   char fps[16]; 
   snprintf(fps, sizeof(fps), "FPS: %.2f", fps_val);
-  gfx_set_ptr_x(LETTERBOX.pos.x);
-  gfx_set_ptr_y(LETTERBOX.pos.y);
+  // gfx_set_ptr_x(LETTERBOX.pos.x);
+  // gfx_set_ptr_y(LETTERBOX.pos.y);
   gfx_text(fps);
   gfx_pop_font();
   GFX_STATE.current_div.scrollable = false;
@@ -144,6 +147,9 @@ const bool gfx_loop_ui(const float delta, const float fps_val) {
 };
 
 void gfx_framebuffer(const GLuint vao, const GLuint texture) {
+  get_letterbox();
+  // glViewport(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(FRAMEBUFFER_SHADER.id);
   float timeValue = (float)glfwGetTime();
@@ -156,6 +162,7 @@ void gfx_framebuffer(const GLuint vao, const GLuint texture) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
   glUniform1i(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_framebuffer_texture"), 0);
+  glUniform4f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_aabb"), 0.5f, 0.5f, 1.0f, 1.0f);
   glBindVertexArray(vao);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);

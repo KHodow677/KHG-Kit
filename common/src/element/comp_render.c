@@ -42,7 +42,7 @@ static ecs_ret sys_render_update(ecs_ecs *ecs, ecs_id *entities, const unsigned 
       const float angle = phy_rigid_body_get_angle(p_info->body);
       const gfx_texture tex_ref = NAMESPACE_TASKING()->get_texture_data(info->tex_id_loc);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
-      transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
+      transform_box_element_tex(GAME_SCREEN, &pos, &cam_pos, &tex);
       gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x * info->parallax_value, cam_pos.y * info->parallax_value, CAMERA.zoom, true, info->flipped);
     }
   }
