@@ -162,7 +162,10 @@ void gfx_framebuffer(const GLuint vao, const GLuint texture) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
   glUniform1i(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_framebuffer_texture"), 0);
-  glUniform4f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_aabb"), 0.5f, 0.5f, 1.0f, 1.0f);
+  int screen_width = 1920, screen_height = 1080;
+  int target_width = 1280, target_height = 720;
+  glUniform2f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_screen_size"), (float)screen_width, (float)screen_height);
+  glUniform2f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_target_size"), (float)target_width, (float)target_height);
   glBindVertexArray(vao);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
