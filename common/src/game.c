@@ -91,7 +91,7 @@ const int game_run() {
 
 const bool gfx_loop(const float delta, const float fps_val) {
   NAMESPACE_TASKING()->load_resources_defer();
-  glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
   gfx_clear_style_props();
@@ -103,7 +103,7 @@ const bool gfx_loop(const float delta, const float fps_val) {
   // printf("LETTERBOX: %f, %f, %f, %f\n", LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y);
   // printf("GAME SCREEN: %f, %f, %f, %f\n", GAME_SCREEN.pos.x, GAME_SCREEN.pos.y, GAME_SCREEN.size.x, GAME_SCREEN.size.y);
   // render_div(GAME_SCREEN.pos.x, GAME_SCREEN.pos.y, GAME_SCREEN.size.x, GAME_SCREEN.size.y, 0, GFX_WHITE);
-  // gfx_rect_no_block(GAME_SCREEN.pos.x + GAME_SCREEN.size.x / 2.0f, GAME_SCREEN.pos.y + GAME_SCREEN.size.y / 2.0f, GAME_SCREEN.size.x, GAME_SCREEN.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
+  // gfx_rect_no_block(GAME_SCREEN.pos.x + GAME_SCREEN.size.x / 2.0f, GAME_SCREEN.pos.y + GAME_SCREEN.size.y / 2.0f, GAME_SCREEN.size.x, GAME_SCREEN.size.y, GFX_RED, 0.0f, 0.0f);
   if (NAMESPACE_TASKING()->RESOURCES_LOADED && SCENE_LOADED) {
     move_camera(&CAMERA, delta);
     ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->TILE_INFO.system_signature, delta);
@@ -122,8 +122,8 @@ const bool gfx_loop_post(const float delta, const float fps_val) {
   gfx_clear_style_props();
   gfx_internal_renderer_set_shader(LIGHTING_SHADER);
   glUniform1i(glGetUniformLocation(LIGHTING_SHADER.id, "u_num_lights_active"), LIGHT_COUNT);
-  // get_letterbox();
-  // render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0, GFX_BLACK);
+  // get_game_screen();
+  // render_div(GAME_SCREEN.pos.x, GAME_SCREEN.pos.y, GAME_SCREEN.size.x, GAME_SCREEN.size.y, 0, GFX_WHITE);
   render_lights();
   // gfx_div_end();
   GFX_STATE.current_div.scrollable = false;
@@ -162,7 +162,7 @@ void gfx_framebuffer(const GLuint vao, const GLuint texture) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
   glUniform1i(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_framebuffer_texture"), 0);
-  int screen_width = 1920, screen_height = 1080;
+  int screen_width = gfx_get_display_width(), screen_height = gfx_get_display_height();
   int target_width = 1280, target_height = 720;
   glUniform2f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_screen_size"), (float)screen_width, (float)screen_height);
   glUniform2f(glGetUniformLocation(FRAMEBUFFER_SHADER.id, "u_target_size"), (float)target_width, (float)target_height);
