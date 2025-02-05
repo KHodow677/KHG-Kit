@@ -64,14 +64,11 @@ void load_resources_defer() {
   if (NAMESPACE_TASKING_INTERNAL.RESOURCES_LOADED) {
     return;
   }
-  else if (resource_thread_maxed(&NAMESPACE_TASKING_INTERNAL.OVR_TILE_THREAD) && resource_thread_maxed(&NAMESPACE_TASKING_INTERNAL.TEXTURE_THREAD)) {
+  else if (resource_thread_maxed(&NAMESPACE_TASKING_INTERNAL.OVR_TILE_THREAD)) {
     NAMESPACE_TASKING_INTERNAL.RESOURCES_LOADED = true;
     setup_scenes();
     return;
   }
-  load_thread_defer(&NAMESPACE_TASKING_INTERNAL.TEXTURE_ASSET_THREAD, load_textures_asset_task, NULL);
-  load_thread_defer(&NAMESPACE_TASKING_INTERNAL.TEXTURE_RAW_THREAD, load_textures_raw_task, &NAMESPACE_TASKING_INTERNAL.TEXTURE_ASSET_THREAD);
-  load_thread_defer(&NAMESPACE_TASKING_INTERNAL.TEXTURE_THREAD, NAMESPACE_TASKING_INTERNAL.emplace_tex_defs, &NAMESPACE_TASKING_INTERNAL.TEXTURE_RAW_THREAD);
-  load_thread_defer(&NAMESPACE_TASKING_INTERNAL.OVR_TILE_THREAD, load_ovr_tiles_task, &NAMESPACE_TASKING_INTERNAL.TEXTURE_THREAD);
+  load_thread_defer(&NAMESPACE_TASKING_INTERNAL.OVR_TILE_THREAD, load_ovr_tiles_task, NULL);
 }
 
