@@ -21,7 +21,6 @@ static int compare_tile_names(const void *a, const void *b) {
 
 void populate_tile_data(const char *filename) {
   thd_mutex_init(&TILE_DATA_MUTEX, THD_MUTEX_PLAIN);
-  thd_mutex_lock(&TILE_DATA_MUTEX);
   TILE_DATA = utl_vector_create(sizeof(tile_object));
   utl_config_file *config = utl_config_create(filename);
   utl_config_iterator iterator = utl_config_get_iterator(config);
@@ -40,7 +39,6 @@ void populate_tile_data(const char *filename) {
     utl_vector_push_back(TILE_DATA, &tile_obj);
   }
   utl_config_deallocate(config);
-  thd_mutex_unlock(&TILE_DATA_MUTEX);
 }
 
 void load_tile_data(void *arg) {
@@ -50,9 +48,9 @@ void load_tile_data(void *arg) {
   unsigned int *tile_id = arg;
   thd_mutex_lock(&TILE_DATA_MUTEX);
   tile_object *tile_obj = utl_vector_at(TILE_DATA, *tile_id);
-  thd_mutex_unlock(&TILE_DATA_MUTEX);
   tile_obj->tile = (ovr_tile){ *tile_id };
   utl_config_file *config = utl_config_create(tile_obj->path);
+  thd_mutex_unlock(&TILE_DATA_MUTEX);
   const char *ground_tex_id = utl_config_get_value(config, "info", "ground_tex");
   const char *border_tex_id = utl_config_get_value(config, "info", "border_tex");
   tile_obj->tile.ground_tex_id_loc = NAMESPACE_TASKING_INTERNAL.get_texture_id(ground_tex_id);
@@ -91,55 +89,43 @@ void load_tile_data(void *arg) {
     else if (utl_string_starts_with(key_obj, "element_stable")) {
       template_element.stable = utl_config_get_bool(config, section, key, false);
       template_element.parent_tile = NULL;
-      thd_mutex_lock(&TILE_DATA_MUTEX);
       utl_array_set(tile_obj->tile.elements, count, &template_element);
       count++;
-      thd_mutex_unlock(&TILE_DATA_MUTEX);
       utl_string_deallocate(key_obj);
       continue;
     }
   }
   utl_config_deallocate(config);
-  thd_mutex_lock(&TILE_DATA_MUTEX);
   tile_obj->loaded = true;
   tile_obj->fetching = false;
-  thd_mutex_unlock(&TILE_DATA_MUTEX);
 }
 
 const ovr_tile get_tile_data(const unsigned int tex_id) {
   thd_mutex_lock(&TILE_DATA_MUTEX);
   tile_object *tile_obj = utl_vector_at(TILE_DATA, tex_id);
-  if (tile_obj->loaded) {
+  if (tile_obj && tile_obj->loaded) {
     thd_mutex_unlock(&TILE_DATA_MUTEX);
     return tile_obj->tile;
   }
-  if (!tile_obj->fetching) {
+  if (tile_obj && !tile_obj->fetching) {
     tile_obj->fetching = true;
-    thd_mutex_unlock(&TILE_DATA_MUTEX);
     NAMESPACE_TASKING_INTERNAL.task_enqueue(load_tile_data, &tile_obj->id);
   }
-  else {
-    thd_mutex_unlock(&TILE_DATA_MUTEX);
-  }
+  thd_mutex_unlock(&TILE_DATA_MUTEX);
   return ((tile_object *)utl_vector_at(TILE_DATA, 0))->tile;
 }
 
 const unsigned int get_tile_id(const char *tex_name) {
-  thd_mutex_lock(&TILE_DATA_MUTEX);
   unsigned int res = utl_algorithm_find_at(utl_vector_data(TILE_DATA), utl_vector_size(TILE_DATA), sizeof(tile_object), tex_name, compare_tile_names);
-  thd_mutex_unlock(&TILE_DATA_MUTEX);
   return res;
 }
 
 const char *get_random_tile_name() {
-  thd_mutex_lock(&TILE_DATA_MUTEX);
   tile_object *rand_tile = utl_random_choice(utl_vector_data(TILE_DATA) + sizeof(tile_object), utl_vector_size(TILE_DATA) - 1, sizeof(tile_object));
-  thd_mutex_unlock(&TILE_DATA_MUTEX);
   return rand_tile->name;
 }
 
 void clear_tile_data() {
-  thd_mutex_lock(&TILE_DATA_MUTEX);
   utl_vector_deallocate(TILE_DATA);
-  thd_mutex_unlock(&TILE_DATA_MUTEX);
 }
+
