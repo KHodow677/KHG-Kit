@@ -13,7 +13,7 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const unsigned
     return 0;
   }
   for (unsigned int id = 0; id < entity_count; id++) {
-    element_comp_physics *info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
+    comp_physics *info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
     phy_vector2 current_velocity = phy_rigid_body_get_linear_velocity(info->body);
     phy_rigid_body_set_linear_velocity(info->body, info->vel);
     phy_rigid_body_set_angle(info->body, 0.0f);
@@ -22,8 +22,8 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const unsigned
 }
 
 static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr, void *args) {
-  element_comp_physics *info = ptr;
-  const element_comp_physics *constructor_info = NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.init_info;
+  comp_physics *info = ptr;
+  const comp_physics *constructor_info = NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.init_info;
   if (info && constructor_info) {
     phy_rigid_body_initializer body_init = phy_rigid_body_initializer_default;
     body_init.type = PHY_RIGID_BODY_TYPE_DYNAMIC;
@@ -43,7 +43,7 @@ static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void 
 }
 
 static void comp_physics_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
-  element_comp_physics *info = ptr;
+  comp_physics *info = ptr;
   if (info) {
     phy_space_remove_rigidbody(SPACE, info->body);
     phy_rigid_body_remove_shape(info->body, info->shape);
@@ -53,7 +53,7 @@ static void comp_physics_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *
 }
 
 void comp_physics_register() {
-  NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature = ecs_register_component(NAMESPACE_ELEMENT_INTERNAL.ECS, sizeof(element_comp_physics), comp_physics_constructor, comp_physics_destructor);
+  NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature = ecs_register_component(NAMESPACE_ELEMENT_INTERNAL.ECS, sizeof(comp_physics), comp_physics_constructor, comp_physics_destructor);
 }
 
 void sys_physics_register() {
@@ -61,7 +61,7 @@ void sys_physics_register() {
   ecs_require_component(NAMESPACE_ELEMENT_INTERNAL.ECS, NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.system_signature, NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
 }
 
-element_comp_physics *sys_physics_add(const ecs_id eid, element_comp_physics *cp) {
+comp_physics *sys_physics_add(const ecs_id eid, comp_physics *cp) {
   NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.init_info = cp;
   return ecs_add(NAMESPACE_ELEMENT_INTERNAL.ECS, eid, NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature, NULL);
 }

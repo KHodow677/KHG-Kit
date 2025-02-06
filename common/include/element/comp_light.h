@@ -6,5 +6,5 @@
 void comp_light_register(void);
 void sys_light_register(void);
 
-element_comp_light *sys_light_add(const ecs_id eid, element_comp_light *cl);
+comp_light *sys_light_add(const ecs_id eid, comp_light *cl);
 

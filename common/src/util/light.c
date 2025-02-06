@@ -1,4 +1,4 @@
-#define NAMESPACE_LOADING_USE
+#define NAMESPACE_TASKING_USE
 
 #include "game.h"
 #include "glad/glad.h"
@@ -6,7 +6,7 @@
 #include "khg_gfx/internal.h"
 #include "khg_utl/file_reader.h"
 #include "khg_utl/string.h"
-#include "loading/namespace.h"
+#include "tasking/namespace.h"
 #include "util/light.h"
 #include "util/letterbox.h"
 
@@ -19,7 +19,8 @@ int LIGHT_COUNT = 0;
 light LIGHTS[] = { 0 };
 
 void setup_lights_texture() {
-  LIGHTING_OVERLAY = NAMESPACE_LOADING()->get_tex_def("EMPTY_TEXTURE");
+  unsigned int light_tex_id = NAMESPACE_TASKING()->get_texture_id("EMPTY_TEXTURE");
+  LIGHTING_OVERLAY = NAMESPACE_TASKING()->get_texture_data(light_tex_id);
 }
 
 void setup_lights_shader() {
@@ -85,6 +86,6 @@ void render_lights() {
   glUniform1fv(glGetUniformLocation(GFX_STATE.render.shader.id, "u_light_intensities"), LIGHT_COUNT, light_radii);
   LIGHTING_OVERLAY.width = LETTERBOX.size.x + 1;
   LIGHTING_OVERLAY.height = LETTERBOX.size.y + 1;
-  gfx_image_no_block(gfx_get_display_width() * 0.5f, gfx_get_display_height() * 0.5f, LIGHTING_OVERLAY, 0, 0, 1, true, false);
+  gfx_image_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LIGHTING_OVERLAY, 0, 0, 1, true, false);
 }
 

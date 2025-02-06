@@ -101,7 +101,7 @@ const int gfx_loop_manager(GLFWwindow *window, const bool show_fps) {
     last_time = current_time;
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx_get_display_width(), gfx_get_display_height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gfx_get_display_width() / 1.0f, gfx_get_display_height() / 1.0f, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (!gfx_loop(elapsed_time, fps)) {
       break;

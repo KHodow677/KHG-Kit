@@ -8,6 +8,7 @@
 typedef struct ovr_tile_info {
   unsigned int tile_id;
   phy_vector2 pos;
+  char name[32];
 } ovr_tile_info;
 
 typedef struct ovr_tile_element {
@@ -46,4 +47,3 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile);
 void remove_ovr_tile_elements(ovr_tile_info *parent_tile);
 
 void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float dt);
-
