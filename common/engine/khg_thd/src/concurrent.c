@@ -1,6 +1,7 @@
 #include "khg_thd/concurrent.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h>
 
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <errno.h>
