@@ -28,8 +28,8 @@ static ecs_ret sys_render_update(ecs_ecs *ecs, ecs_id *entities, const unsigned 
   }
   for (unsigned int layer = 0; layer < 10; layer++) {
     for (int id = 0; id < entity_count; id++) {
-      element_comp_render *info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.component_signature);
-      element_comp_physics *p_info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
+      comp_render *info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.component_signature);
+      comp_physics *p_info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
       if (info->ovr_tile.tile_id) {
         render_ovr_tile(&info->ovr_tile, &layer, dt);
         continue;
@@ -50,8 +50,8 @@ static ecs_ret sys_render_update(ecs_ecs *ecs, ecs_id *entities, const unsigned 
 }
 
 static void comp_render_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr, void *args) {
-  element_comp_render *info = ptr;
-  const element_comp_render *constructor_info = NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.init_info;
+  comp_render *info = ptr;
+  const comp_render *constructor_info = NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.init_info;
   if (info && constructor_info) {
     info->tex_id_loc = constructor_info->tex_id_loc;
     info->ovr_tile = constructor_info->ovr_tile;
@@ -62,7 +62,7 @@ static void comp_render_constructor(ecs_ecs *ecs, const ecs_id entity_id, void *
 }
 
 void comp_render_register() {
-  NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.component_signature = ecs_register_component(NAMESPACE_ELEMENT_INTERNAL.ECS, sizeof(element_comp_render), comp_render_constructor, NULL);
+  NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.component_signature = ecs_register_component(NAMESPACE_ELEMENT_INTERNAL.ECS, sizeof(comp_render), comp_render_constructor, NULL);
 }
 
 void sys_render_register() {
@@ -71,9 +71,9 @@ void sys_render_register() {
   ecs_require_component(NAMESPACE_ELEMENT_INTERNAL.ECS, NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.system_signature, NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
 }
 
-element_comp_render *sys_render_add(const ecs_id eid, element_comp_render *cr) {
+comp_render *sys_render_add(const ecs_id eid, comp_render *cr) {
   NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.init_info = cr;
-  element_comp_render *res = ecs_add(NAMESPACE_ELEMENT_INTERNAL.ECS, eid, NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.component_signature, NULL);
+  comp_render *res = ecs_add(NAMESPACE_ELEMENT_INTERNAL.ECS, eid, NAMESPACE_ELEMENT_INTERNAL.RENDER_INFO.component_signature, NULL);
   return res;
 }
 

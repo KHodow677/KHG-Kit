@@ -1,3 +1,4 @@
+#include <stdio.h>
 #define NAMESPACE_TASKING_IMPL
 
 #include "khg_thd/concurrent.h"
@@ -7,7 +8,6 @@
 #include "khg_utl/vector.h"
 #include "tasking/namespace.h"
 #include "util/ovr_tile.h"
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -19,13 +19,29 @@ static int compare_tile_names(const void *a, const void *b) {
   return strcmp(tile_a->name, (const char *)b);
 }
 
+static unsigned int get_num_tiles(utl_config_iterator iterator) {
+  const char *section, *key, *value;
+  char last_section[128];
+  unsigned int count = 0;
+  while (utl_config_next_entry(&iterator, &section, &key, &value)) {
+    if (!strcmp(last_section, section)) {
+      strcpy(last_section, section);
+      continue;
+    };
+    strcpy(last_section, section);
+    count++;
+  }
+  return count;
+}
+
 void populate_tile_data(const char *filename) {
   thd_mutex_init(&TILE_DATA_MUTEX, THD_MUTEX_PLAIN);
   TILE_DATA = utl_vector_create(sizeof(tile_object));
   utl_config_file *config = utl_config_create(filename);
   utl_config_iterator iterator = utl_config_get_iterator(config);
+  utl_vector_reserve(TILE_DATA, get_num_tiles(iterator));
   const char *section, *key, *value;
-  char last_section[128] = "";
+  char last_section[128];
   while (utl_config_next_entry(&iterator, &section, &key, &value)) {
     if (!strcmp(last_section, section)) {
       strcpy(last_section, section);

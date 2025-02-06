@@ -77,10 +77,7 @@ const int game_run() {
   NAMESPACE_TASKING()->populate_tile_data("res/assets/data/tile_defs.ini");
   unsigned int test = NAMESPACE_TASKING()->get_texture_id("EMPTY_TEXTURE");
   unsigned int test2 = NAMESPACE_TASKING()->get_tile_id("EMPTY_TILE");
-  NAMESPACE_TASKING()->load_texture_data(&test);
   NAMESPACE_TASKING()->load_tile_data(&test2);
-  NAMESPACE_TASKING()->get_texture_data(test);
-  NAMESPACE_TASKING()->get_tile_data(test2);
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
   setup_lights_shader();

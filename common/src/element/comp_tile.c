@@ -19,7 +19,7 @@ static bool is_within_tile(const phy_vector2 tile_center, const phy_vector2 test
 
 static ecs_ret sys_tile_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
   for (unsigned int id = 0; id < entity_count; id++) {
-    element_comp_physics *p_info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
+    comp_physics *p_info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
     comp_tile *info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.TILE_INFO.component_signature);
     if (!info->loaded && NAMESPACE_TASKING()->get_tile_data(info->tile.tile_id).tile_id) {
       add_ovr_tile_elements(&info->tile);
