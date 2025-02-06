@@ -80,11 +80,11 @@ const int game_run() {
   NAMESPACE_TASKING()->load_texture_data(&test);
   NAMESPACE_TASKING()->load_tile_data(&test2);
   NAMESPACE_TASKING()->get_texture_data(test);
-  // NAMESPACE_TASKING()->get_tile_data(test2);
-  NAMESPACE_TASKING()->generate_ovr_tiles();
+  NAMESPACE_TASKING()->get_tile_data(test2);
   font = gfx_load_font_asset("res/assets/fonts/acme-regular.ttf", 50);
   original_font_size = font.font_size;
   setup_lights_shader();
+  setup_scenes();
   int res = gfx_loop_manager(window, true);
   clear_scenes();
   NAMESPACE_TASKING()->clear_texture_data();
@@ -93,7 +93,6 @@ const int game_run() {
 }
 
 const bool gfx_loop(const float delta, const float fps_val) {
-  NAMESPACE_TASKING()->load_resources_defer();
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   gfx_begin();
@@ -104,14 +103,12 @@ const bool gfx_loop(const float delta, const float fps_val) {
   get_letterbox();
   render_div(LETTERBOX.pos.x, LETTERBOX.pos.y, LETTERBOX.size.x, LETTERBOX.size.y, 0, GFX_WHITE);
   gfx_rect_no_block(LETTERBOX.pos.x + LETTERBOX.size.x / 2.0f, LETTERBOX.pos.y + LETTERBOX.size.y / 2.0f, LETTERBOX.size.x, LETTERBOX.size.y, (gfx_color){ 23, 21, 35, 255 }, 0.0f, 0.0f);
-  if (NAMESPACE_TASKING()->RESOURCES_LOADED && SCENE_LOADED) {
-    move_camera(&CAMERA, delta);
-    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->TILE_INFO.system_signature, delta);
-    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->PHYSICS_INFO.system_signature, delta);
-    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->RENDER_INFO.system_signature, delta);
-    ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->LIGHT_INFO.system_signature, delta);
-    phy_space_step(SPACE, delta);
-  }
+  move_camera(&CAMERA, delta);
+  ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->TILE_INFO.system_signature, delta);
+  ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->PHYSICS_INFO.system_signature, delta);
+  ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->RENDER_INFO.system_signature, delta);
+  ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->LIGHT_INFO.system_signature, delta);
+  phy_space_step(SPACE, delta);
   gfx_div_end();
   GFX_STATE.current_div.scrollable = false;
   return true;

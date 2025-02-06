@@ -118,7 +118,7 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
   if (!OVR_TILE_ELEMENTS) {
     OVR_TILE_ELEMENTS = utl_vector_create(sizeof(ovr_tile_element));
   }
-  const ovr_tile tile = NAMESPACE_TASKING()->get_ovr_tile(parent_tile->tile_id);
+  const ovr_tile tile = NAMESPACE_TASKING()->get_tile_data(parent_tile->tile_id);
   utl_vector_reserve(OVR_TILE_ELEMENTS, OVR_TILE_ELEMENTS->capacity_size + tile.num_elements);
   for (unsigned int i = 0; i < tile.num_elements; i++) {
     ovr_tile_element element = *(ovr_tile_element *)utl_array_at(tile.elements, i);
@@ -137,7 +137,7 @@ void add_ovr_tile_elements(ovr_tile_info *parent_tile) {
 }
 
 void remove_ovr_tile_elements(ovr_tile_info *parent_tile) {
-  const ovr_tile tile = NAMESPACE_TASKING()->get_ovr_tile(parent_tile->tile_id);
+  const ovr_tile tile = NAMESPACE_TASKING()->get_tile_data(parent_tile->tile_id);
   for (int i = utl_vector_size(OVR_TILE_ELEMENTS) - 1; i >= 0; i--) {
     if (((ovr_tile_element *)utl_vector_at(OVR_TILE_ELEMENTS, i))->parent_tile == parent_tile) {
       utl_vector_erase(OVR_TILE_ELEMENTS, i, 1);
@@ -149,7 +149,7 @@ void remove_ovr_tile_elements(ovr_tile_info *parent_tile) {
 }
 
 void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float dt) {
-  const ovr_tile tile_ref = NAMESPACE_TASKING()->get_ovr_tile(tile->tile_id);
+  const ovr_tile tile_ref = NAMESPACE_TASKING()->get_tile_data(tile->tile_id);
   if (!layer) {
     return;
   }
@@ -161,8 +161,8 @@ void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float
       if (OVR_TILE_ELEMENTS_RENDERED) {
         break;
       }
-      for (ovr_tile_element *it = (ovr_tile_element *)utl_vector_begin(OVR_TILE_ELEMENTS); it != (ovr_tile_element *)utl_vector_end(OVR_TILE_ELEMENTS); it++) { 
-        if (it) {
+      if (OVR_TILE_ELEMENTS) {
+        for (ovr_tile_element *it = (ovr_tile_element *)utl_vector_begin(OVR_TILE_ELEMENTS); it != (ovr_tile_element *)utl_vector_end(OVR_TILE_ELEMENTS); it++) { 
           update_ovr_tile_element_item(it, dt);
           render_ovr_tile_element_item(it);
         }

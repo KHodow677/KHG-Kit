@@ -1,4 +1,3 @@
-#include <stdio.h>
 #define NAMESPACE_TASKING_IMPL
 
 #include "khg_gfx/texture.h"
@@ -62,7 +61,6 @@ gfx_texture get_texture_data(const unsigned int tex_id) {
       tex_obj->texture = gfx_load_texture_asset_raw(tex_obj->texture_raw, tex_obj->width, tex_obj->height, tex_obj->channels);
       gfx_free_texture_raw(tex_obj->texture_raw);
       tex_obj->uploaded = true;
-      printf("TEX ID LOADED: %i\n", tex_id);
     }
     return tex_obj->texture;
   }

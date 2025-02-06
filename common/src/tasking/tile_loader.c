@@ -1,11 +1,14 @@
 #define NAMESPACE_TASKING_IMPL
 
 #include "khg_utl/algorithm.h"
+#include "khg_utl/random.h"
 #include "khg_utl/string.h"
 #include "khg_utl/vector.h"
 #include "tasking/namespace.h"
 #include "util/ovr_tile.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 static utl_vector *TILE_DATA;
 
@@ -88,6 +91,8 @@ void load_tile_data(void *arg) {
     }
   }
   utl_config_deallocate(config);
+  tile_obj->loaded = true;
+  tile_obj->fetching = false;
 }
 
 const ovr_tile get_tile_data(const unsigned int tex_id) {
@@ -104,6 +109,11 @@ const ovr_tile get_tile_data(const unsigned int tex_id) {
 
 const unsigned int get_tile_id(const char *tex_name) {
   return utl_algorithm_find_at(utl_vector_data(TILE_DATA), utl_vector_size(TILE_DATA), sizeof(tile_object), tex_name, compare_tile_names);
+}
+
+const char *get_random_tile_name() {
+  tile_object *rand_tile = utl_random_choice(utl_vector_data(TILE_DATA) + sizeof(tile_object), utl_vector_size(TILE_DATA) - 1, sizeof(tile_object));
+  return rand_tile->name;
 }
 
 void clear_tile_data() {

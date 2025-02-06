@@ -40,6 +40,7 @@ typedef struct element_comp_render {
 
 typedef struct comp_tile {
   ecs_id id;
+  bool loaded;
   ovr_tile_info tile;
 } comp_tile;
 

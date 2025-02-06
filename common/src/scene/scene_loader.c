@@ -75,4 +75,3 @@ void toggle_scene(const unsigned int scene_id) {
     }
   }
 }
-

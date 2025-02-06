@@ -1,18 +1,8 @@
 #pragma once
 
 #include "khg_gfx/texture.h"
-#include "khg_thd/concurrent.h"
 #include "util/ovr_tile.h"
 #include <stdbool.h>
-
-typedef struct resource_thread {
-  bool enabled;
-  thd_thread thread;
-  unsigned int progress;
-  unsigned int max;
-  bool loading_started;
-  bool loaded;
-} resource_thread;
 
 #define FOREACH_OVR_TILE(TEXTURE)\
   TEXTURE(EMPTY_OVR_TILE)\
@@ -90,17 +80,6 @@ typedef struct tile_object {
 #include "khg_utl/config.h"
 #include "util/ovr_tile.h"
 typedef struct tasking_namespace {
-  void (*load_thread_defer)(resource_thread *, int (*)(void *), resource_thread *);
-  void (*load_resources_defer)(void);
-  const unsigned int (*get_ovr_tile_id_from_string)(const char *);
-  const ovr_tile (*get_ovr_tile)(unsigned int);
-  const ovr_tile (*get_ovr_tile_from_string)(const char *);
-  void (*generate_ovr_tiles)(void);
-  int (*load_ovr_tile_tick)(void *);
-  void (*generate_tex_defs)(const char *);
-  void (*emplace_tex_defs_tick)(void *);
-  int (*emplace_tex_defs)(void *);
-  void (*free_tex_defs)(void);
   void (*task_enqueue)(void (*)(void *), void *);
   worker_task (*task_dequeue)(void);
   int (*task_worker)(void *);
@@ -115,12 +94,8 @@ typedef struct tasking_namespace {
   void (*load_tile_data)(void *);
   const ovr_tile (*get_tile_data)(const unsigned int);
   const unsigned int (*get_tile_id)(const char *);
+  const char *(*get_random_tile_name)(void);
   void (*clear_tile_data)(void);
-  bool RESOURCES_LOADED;
-  resource_thread OVR_TILE_THREAD;
-  resource_thread TEXTURE_ASSET_THREAD;
-  resource_thread TEXTURE_RAW_THREAD;
-  resource_thread TEXTURE_THREAD;
 } tasking_namespace;
 #endif
 
