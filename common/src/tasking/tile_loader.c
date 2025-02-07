@@ -61,12 +61,11 @@ void load_tile_data(void *arg) {
   if (!arg) {
     return;
   }
-  unsigned int *tile_id = arg;
   thd_mutex_lock(&TILE_DATA_MUTEX);
+  unsigned int *tile_id = arg;
   tile_object *tile_obj = utl_vector_at(TILE_DATA, *tile_id);
   tile_obj->tile = (ovr_tile){ *tile_id };
   utl_config_file *config = utl_config_create(tile_obj->path);
-  thd_mutex_unlock(&TILE_DATA_MUTEX);
   const char *ground_tex_id = utl_config_get_value(config, "info", "ground_tex");
   const char *border_tex_id = utl_config_get_value(config, "info", "border_tex");
   tile_obj->tile.ground_tex_id_loc = NAMESPACE_TASKING_INTERNAL.get_texture_id(ground_tex_id);
@@ -114,6 +113,7 @@ void load_tile_data(void *arg) {
   utl_config_deallocate(config);
   tile_obj->loaded = true;
   tile_obj->fetching = false;
+  thd_mutex_unlock(&TILE_DATA_MUTEX);
 }
 
 const ovr_tile get_tile_data(const unsigned int tex_id) {

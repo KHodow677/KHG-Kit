@@ -65,10 +65,9 @@ void load_texture_data(void *arg) {
   if (!arg) {
     return;
   }
-  unsigned int *tex_id = arg;
   thd_mutex_lock(&TEXTURE_DATA_MUTEX);
+  unsigned int *tex_id = arg;
   texture_object *tex_obj = utl_vector_at(TEXTURE_DATA, *tex_id);
-  thd_mutex_unlock(&TEXTURE_DATA_MUTEX);
   tex_obj->texture = gfx_load_texture_asset(tex_obj->path);
   int width, height, channels;
   gfx_fetch_texture_raw(&tex_obj->texture_raw, tex_obj->path, &width, &height, &channels);
@@ -76,6 +75,7 @@ void load_texture_data(void *arg) {
   tex_obj->texture.height = tex_obj->height;
   tex_obj->loaded = true;
   tex_obj->fetching = false;
+  thd_mutex_unlock(&TEXTURE_DATA_MUTEX);
 }
 
 gfx_texture get_texture_data(const unsigned int tex_id) {
