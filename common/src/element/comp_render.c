@@ -5,22 +5,12 @@
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/elements.h"
 #include "khg_gfx/texture.h"
-#include "khg_phy/body.h"
-#include "khg_phy/core/phy_vector.h"
-#include "khg_phy/shape.h"
 #include "tasking/namespace.h"
 #include "util/camera/camera.h"
 #include "util/ovr_tile.h"
 #include "util/letterbox.h"
-#include <math.h>
 #include <stdio.h>
 #include <string.h>
-
-static const gfx_aabb get_aabb_from_shape(phy_shape *shape) {
-  phy_vector2 point1 = shape->polygon.vertices[0];
-  phy_vector2 point2 = shape->polygon.vertices[2];
-  return (gfx_aabb){ (point1.x + point2.x) / 2.0f, (point1.y + point2.y) / 2.0f, fabsf(point2.x - point1.x), fabsf(point2.y - point1.y) };
-}
 
 static ecs_ret sys_render_update(ecs_ecs *ecs, ecs_id *entities, const unsigned int entity_count, const ecs_dt dt, void *udata) {
   if (dt == 0.0f) {
@@ -37,9 +27,9 @@ static ecs_ret sys_render_update(ecs_ecs *ecs, ecs_id *entities, const unsigned 
       if (layer != info->render_layer) {
         continue;
       }
-      phy_vector2 pos = phy_rigid_body_get_position(p_info->body);
-      phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
-      const float angle = phy_rigid_body_get_angle(p_info->body);
+      kin_vec pos = p_info->body->pos;
+      kin_vec cam_pos = (kin_vec){ CAMERA.position.x, CAMERA.position.y };
+      const float angle = p_info->body->rot_scalar;
       const gfx_texture tex_ref = NAMESPACE_TASKING()->get_texture_data(info->tex_id_loc);
       gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, tex_ref.angle };
       transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);

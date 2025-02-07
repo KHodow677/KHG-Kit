@@ -1,7 +1,8 @@
+#define NAMESPACE_KIN_USE
 #define NAMESPACE_TASKING_USE
 
 #include "khg_gfx/texture.h"
-#include "khg_phy/core/phy_vector.h"
+#include "khg_kin/namespace.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/array.h"
 #include "khg_utl/easing.h"
@@ -57,30 +58,30 @@ const float get_ovr_tile_size() {
   return OVR_TILE_SIZE;
 }
 
-phy_vector2 ovr_tile_rendering_pos(const phy_vector2 coords, const phy_vector2 offset, const float tex_height, const float tex_angle) {
-  const phy_vector2 offset_from_mid = phy_vector2_sub(offset, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
-  const phy_vector2 scaled_offset = phy_vector2_mul(offset_from_mid, OVR_TILE_SCALE);
+kin_vec ovr_tile_rendering_pos(const kin_vec coords, const kin_vec offset, const float tex_height, const float tex_angle) {
+  const kin_vec offset_from_mid = NAMESPACE_KIN()->vec_sub(offset, (kin_vec){ OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION });
+  const kin_vec scaled_offset = NAMESPACE_KIN()->vec_scale(offset_from_mid, OVR_TILE_SCALE);
   const float hor_dist_comp = OVR_TILE_SIZE * sqrt(3.0f) / 2.0f;
   const float ver_dist_comp = OVR_TILE_SIZE / 2.0f;
-  const phy_vector2 pos = phy_vector2_new(hor_dist_comp * coords.x, ver_dist_comp * coords.y);
-  if (phy_vector2_len(scaled_offset) != 0.0f) {
-    return phy_vector2_add(pos, phy_vector2_add(scaled_offset, phy_vector2_new((tex_height / 2.0f) * sinf(tex_angle), -(tex_height / 2.0f) * cosf(tex_angle))));
+  const kin_vec pos = { hor_dist_comp * coords.x, ver_dist_comp * coords.y };
+  if (NAMESPACE_KIN()->vec_length(scaled_offset) != 0.0f) {
+    return NAMESPACE_KIN()->vec_add(pos, NAMESPACE_KIN()->vec_add(scaled_offset, (kin_vec){ (tex_height / 2.0f) * sinf(tex_angle), -(tex_height / 2.0f) * cosf(tex_angle) }));
   }
   return pos;
 }
 
-phy_vector2 ovr_tile_pos_to_world_pos(const phy_vector2 coords) {
+kin_vec ovr_tile_pos_to_world_pos(const kin_vec coords) {
   const float hor_dist_comp = OVR_TILE_SIZE * sqrt(3.0f) / 2.0f;
   const float ver_dist_comp = OVR_TILE_SIZE / 2.0f;
-  return phy_vector2_new(hor_dist_comp * coords.x, ver_dist_comp * coords.y);
+  return (kin_vec){ hor_dist_comp * coords.x, ver_dist_comp * coords.y };
 }
 
-void render_ovr_tile_item(const unsigned int tex_id_loc, const phy_vector2 coords, const phy_vector2 offset) {
+void render_ovr_tile_item(const unsigned int tex_id_loc, const kin_vec coords, const kin_vec offset) {
   gfx_texture tex_ref = NAMESPACE_TASKING()->get_texture_data(tex_id_loc);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
-  phy_vector2 pos = ovr_tile_rendering_pos(coords, offset, tex_ref.height, 0.0f);
-  phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
+  kin_vec pos = ovr_tile_rendering_pos(coords, offset, tex_ref.height, 0.0f);
+  kin_vec cam_pos = { CAMERA.position.x, CAMERA.position.y };
   gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, 0 };
   transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
   gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x, cam_pos.y, CAMERA.zoom, true, false);
@@ -91,8 +92,8 @@ void render_ovr_tile_element_item(const ovr_tile_element *element) {
   gfx_texture tex_ref = NAMESPACE_TASKING()->get_texture_data(element->element_tex_id_loc);
   tex_ref.width *= OVR_TILE_SCALE;
   tex_ref.height *= OVR_TILE_SCALE;
-  phy_vector2 pos = ovr_tile_rendering_pos(element->parent_tile->pos, element->pos, tex_ref.height, element->angle);
-  phy_vector2 cam_pos = phy_vector2_new(CAMERA.position.x, CAMERA.position.y);
+  kin_vec pos = ovr_tile_rendering_pos(element->parent_tile->pos, element->pos, tex_ref.height, element->angle);
+  kin_vec cam_pos = { CAMERA.position.x, CAMERA.position.y };
   gfx_texture tex = { tex_ref.id, tex_ref.width, tex_ref.height, element->angle };
   transform_letterbox_element_tex(LETTERBOX, &pos, &cam_pos, &tex);
   gfx_image_no_block(pos.x, pos.y, tex, cam_pos.x, cam_pos.y, CAMERA.zoom, true, element->flipped);
@@ -155,7 +156,7 @@ void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float
   }
   switch (*layer) {
     case GROUND_LAYER:
-      render_ovr_tile_item(tile_ref.ground_tex_id_loc, tile->pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
+      render_ovr_tile_item(tile_ref.ground_tex_id_loc, tile->pos, (kin_vec){ OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION });
       break;
     case ELEMENT_LAYER:
       if (OVR_TILE_ELEMENTS_RENDERED) {
@@ -169,7 +170,7 @@ void render_ovr_tile(const ovr_tile_info *tile, unsigned int *layer, const float
       }
       break;
     case BORDER_LAYER:
-      render_ovr_tile_item(tile_ref.border_tex_id_loc, tile->pos, phy_vector2_new(OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION));
+      render_ovr_tile_item(tile_ref.border_tex_id_loc, tile->pos, (kin_vec){ OVR_TILE_RAW_POSITION, OVR_TILE_RAW_POSITION });
       break;
     default:
       break;

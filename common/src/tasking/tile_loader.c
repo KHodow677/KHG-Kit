@@ -1,6 +1,6 @@
-#include <stdio.h>
 #define NAMESPACE_TASKING_IMPL
 
+#include "khg_kin/namespace.h"
 #include "khg_thd/concurrent.h"
 #include "khg_utl/algorithm.h"
 #include "khg_utl/random.h"
@@ -89,7 +89,7 @@ void load_tile_data(void *arg) {
     }
     else if (utl_string_starts_with(key_obj, "element_pos")) {
       char **element_pos = utl_config_get_array(config, section, key, 2);
-      template_element.pos = phy_vector2_new(atof(element_pos[0]), atof(element_pos[1]));
+      template_element.pos = (kin_vec){ atof(element_pos[0]), atof(element_pos[1]) };
       free(element_pos[0]);
       free(element_pos[1]);
       free(element_pos);

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "khg_ecs/ecs.h"
-#include "khg_phy/body.h"
-#include "khg_phy/core/phy_vector.h"
+#include "khg_kin/namespace.h"
 #include "util/light.h"
 #include "util/ovr_tile.h"
 
@@ -15,17 +14,15 @@ typedef struct element_ecs_info {
 typedef struct comp_light {
   ecs_id id;
   light light;
-  phy_vector2 offset;
+  kin_vec offset;
 } comp_light;
 
 typedef struct comp_physics {
   ecs_id id;
-  phy_rigid_body *body;
-  phy_shape *shape;
-  phy_vector2 vel;
+  kin_body body;
+  kin_vec vel;
   bool is_moving;
-  phy_vector2 init_pos;
-  phy_vector2 init_size;
+  kin_vec init_pos;
   float init_ang;
 } comp_physics;
 

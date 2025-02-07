@@ -1,9 +1,9 @@
 #define NAMESPACE_ELEMENT_IMPL
+#define NAMESPACE_KIN_USE
 
+#include "khg_kin/namespace.h"
 #include "element/namespace.h"
 #include "khg_ecs/ecs.h"
-#include "khg_phy/body.h"
-#include "khg_phy/core/phy_vector.h"
 #include "util/camera/camera.h"
 #include "util/light.h"
 
@@ -15,8 +15,8 @@ static ecs_ret sys_light_update(ecs_ecs *ecs, ecs_id *entities, const unsigned i
   for (unsigned int id = 0; id < entity_count; id++) {
     comp_light *info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.LIGHT_INFO.component_signature);
     comp_physics *p_info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
-    const phy_vector2 pos = phy_vector2_add(phy_rigid_body_get_position(p_info->body), info->offset);
-    const phy_vector2 screen_pos_perc = world_to_screen_perc(pos.x, pos.y);
+    const kin_vec pos = NAMESPACE_KIN()->vec_add(p_info->body->pos, info->offset);
+    const kin_vec screen_pos_perc = world_to_screen_perc(pos.x, pos.y);
     info->light.pos_perc.x = screen_pos_perc.x;
     info->light.pos_perc.y = screen_pos_perc.y;
     add_light(info->light.pos_perc, info->light.intensity);

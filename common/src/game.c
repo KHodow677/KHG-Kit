@@ -1,16 +1,17 @@
 #define NAMESPACE_ELEMENT_USE
+#define NAMESPACE_KIN_USE
 #define NAMESPACE_TASKING_USE
 
 #include "element/namespace.h"
 #include "game.h"
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
-#include "khg_phy/space.h"
 #include "khg_ecs/ecs.h"
 #include "khg_gfx/internal.h"
 #include "khg_gfx/texture.h"
 #include "khg_gfx/ui.h"
 #include "khg_gfx/elements.h"
+#include "khg_kin/namespace.h"
 #include "khg_utl/random.h"
 #include "tasking/namespace.h"
 #include "util/camera/camera.h"
@@ -105,7 +106,7 @@ const bool gfx_loop(const float delta, const float fps_val) {
   ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->PHYSICS_INFO.system_signature, delta);
   ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->RENDER_INFO.system_signature, delta);
   ecs_update_system(NAMESPACE_ELEMENT()->ECS, NAMESPACE_ELEMENT()->LIGHT_INFO.system_signature, delta);
-  phy_space_step(SPACE, delta);
+  NAMESPACE_KIN()->engine_step(ENGINE, delta);
   gfx_div_end();
   GFX_STATE.current_div.scrollable = false;
   return true;

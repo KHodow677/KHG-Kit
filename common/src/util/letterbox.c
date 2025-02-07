@@ -1,5 +1,6 @@
 #include "game.h"
 #include "khg_gfx/elements.h"
+#include "khg_kin/namespace.h"
 #include "util/letterbox.h"
 
 static const float TARGET_ASPECT_RATIO = 16.0f / 9.0f;
@@ -27,7 +28,7 @@ static const float get_letterbox_height(const float current_aspect_ratio, const 
   return current_aspect_ratio < TARGET_ASPECT_RATIO ? scaled_height * ratio_ratio : scaled_height;
 }
 
-void transform_letterbox_element_tex(const gfx_aabb letterbox, phy_vector2 *pos, phy_vector2 *cam_pos, gfx_texture *tex) {
+void transform_letterbox_element_tex(const gfx_aabb letterbox, kin_vec *pos, kin_vec *cam_pos, gfx_texture *tex) {
   const float scale_x = letterbox.size.x / SCREEN_WIDTH * SCREEN_SCALE;
   const float scale_y = letterbox.size.y / SCREEN_HEIGHT * SCREEN_SCALE;
   tex->width *= scale_x;
@@ -38,7 +39,7 @@ void transform_letterbox_element_tex(const gfx_aabb letterbox, phy_vector2 *pos,
   cam_pos->y *= scale_y;
 }
 
-void transform_letterbox_element_aabb(const gfx_aabb letterbox, phy_vector2 *pos, phy_vector2 *cam_pos, gfx_aabb *aabb) {
+void transform_letterbox_element_aabb(const gfx_aabb letterbox, kin_vec *pos, kin_vec *cam_pos, gfx_aabb *aabb) {
   const float scale_x = letterbox.size.x / SCREEN_WIDTH * SCREEN_SCALE;
   const float scale_y = letterbox.size.y / SCREEN_HEIGHT * SCREEN_SCALE;
   aabb->size.x *= scale_x;
