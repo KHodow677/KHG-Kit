@@ -1,17 +1,18 @@
+#include <stdio.h>
 #define NAMESPACE_TASKING_IMPL
 
 #include "khg_kin/namespace.h"
 #include "khg_thd/concurrent.h"
 #include "khg_utl/algorithm.h"
+#include "khg_utl/array.h"
 #include "khg_utl/random.h"
 #include "khg_utl/string.h"
-#include "khg_utl/vector.h"
 #include "tasking/namespace.h"
 #include "util/ovr_tile.h"
 #include <stdlib.h>
 #include <string.h>
 
-static utl_vector *TILE_DATA;
+static utl_array *TILE_DATA;
 static thd_mutex TILE_DATA_MUTEX;
 
 static int compare_tile_names(const void *a, const void *b) {
@@ -19,9 +20,14 @@ static int compare_tile_names(const void *a, const void *b) {
   return strcmp(tile_a->name, (const char *)b);
 }
 
-static unsigned int get_num_tiles(utl_config_iterator iterator) {
+void populate_tile_data(const char *filename) {
+  thd_mutex_init(&TILE_DATA_MUTEX, THD_MUTEX_PLAIN);
+  utl_config_file *config = utl_config_create(filename);
+  utl_config_iterator iterator = utl_config_get_iterator(config);
+  unsigned int num_defs = utl_config_get_int(config, "INFO", "num_defs", 0);
+  TILE_DATA = utl_array_create(sizeof(tile_object), num_defs);
   const char *section, *key, *value;
-  char last_section[128];
+  char last_section[128] = "INFO";
   unsigned int count = 0;
   while (utl_config_next_entry(&iterator, &section, &key, &value)) {
     if (!strcmp(last_section, section)) {
@@ -29,30 +35,12 @@ static unsigned int get_num_tiles(utl_config_iterator iterator) {
       continue;
     };
     strcpy(last_section, section);
-    count++;
-  }
-  return count;
-}
-
-void populate_tile_data(const char *filename) {
-  thd_mutex_init(&TILE_DATA_MUTEX, THD_MUTEX_PLAIN);
-  TILE_DATA = utl_vector_create(sizeof(tile_object));
-  utl_config_file *config = utl_config_create(filename);
-  utl_config_iterator iterator = utl_config_get_iterator(config);
-  utl_vector_reserve(TILE_DATA, get_num_tiles(iterator));
-  const char *section, *key, *value;
-  char last_section[128];
-  while (utl_config_next_entry(&iterator, &section, &key, &value)) {
-    if (!strcmp(last_section, section)) {
-      strcpy(last_section, section);
-      continue;
-    };
-    strcpy(last_section, section);
     const char *path = utl_config_get_value(config, section, "path");
-    tile_object tile_obj = { .loaded = false, .fetching = false, .id = utl_vector_size(TILE_DATA) };
+    tile_object tile_obj = { .loaded = false, .fetching = false, .id = count };
     strcpy(tile_obj.name, section);
     strcpy(tile_obj.path, path);
-    utl_vector_push_back(TILE_DATA, &tile_obj);
+    utl_array_set(TILE_DATA, count, &tile_obj);
+    count++;
   }
   utl_config_deallocate(config);
 }
@@ -63,7 +51,7 @@ void load_tile_data(void *arg) {
   }
   thd_mutex_lock(&TILE_DATA_MUTEX);
   unsigned int *tile_id = arg;
-  tile_object *tile_obj = utl_vector_at(TILE_DATA, *tile_id);
+  tile_object *tile_obj = utl_array_at(TILE_DATA, *tile_id);
   tile_obj->tile = (ovr_tile){ *tile_id };
   utl_config_file *config = utl_config_create(tile_obj->path);
   const char *ground_tex_id = utl_config_get_value(config, "info", "ground_tex");
@@ -118,7 +106,7 @@ void load_tile_data(void *arg) {
 
 const ovr_tile get_tile_data(const unsigned int tex_id) {
   thd_mutex_lock(&TILE_DATA_MUTEX);
-  tile_object *tile_obj = utl_vector_at(TILE_DATA, tex_id);
+  tile_object *tile_obj = utl_array_at(TILE_DATA, tex_id);
   if (tile_obj && tile_obj->loaded) {
     thd_mutex_unlock(&TILE_DATA_MUTEX);
     return tile_obj->tile;
@@ -128,20 +116,20 @@ const ovr_tile get_tile_data(const unsigned int tex_id) {
     NAMESPACE_TASKING_INTERNAL.task_enqueue(load_tile_data, &tile_obj->id);
   }
   thd_mutex_unlock(&TILE_DATA_MUTEX);
-  return ((tile_object *)utl_vector_at(TILE_DATA, 0))->tile;
+  return ((tile_object *)utl_array_at(TILE_DATA, 0))->tile;
 }
 
 const unsigned int get_tile_id(const char *tex_name) {
-  unsigned int res = utl_algorithm_find_at(utl_vector_data(TILE_DATA), utl_vector_size(TILE_DATA), sizeof(tile_object), tex_name, compare_tile_names);
+  unsigned int res = utl_algorithm_find_at(utl_array_data(TILE_DATA), utl_array_size(TILE_DATA), sizeof(tile_object), tex_name, compare_tile_names);
   return res;
 }
 
 const char *get_random_tile_name() {
-  tile_object *rand_tile = utl_random_choice(utl_vector_data(TILE_DATA) + sizeof(tile_object), utl_vector_size(TILE_DATA) - 1, sizeof(tile_object));
+  tile_object *rand_tile = utl_random_choice(utl_array_data(TILE_DATA) + sizeof(tile_object), utl_array_size(TILE_DATA) - 1, sizeof(tile_object));
   return rand_tile->name;
 }
 
 void clear_tile_data() {
-  utl_vector_deallocate(TILE_DATA);
+  utl_array_deallocate(TILE_DATA);
 }
 

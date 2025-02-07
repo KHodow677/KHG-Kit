@@ -73,10 +73,9 @@ struct ecs_ecs {
   unsigned int comp_count;
   ecs_sys systems[ECS_MAX_SYSTEMS];
   unsigned int system_count;
-  void *mem_ctx;
 };
 
-ecs_ecs *ecs_new(unsigned int entity_count, void *mem_ctx);
+ecs_ecs *ecs_new(unsigned int entity_count);
 void ecs_free(ecs_ecs *ecs);
 void ecs_reset(ecs_ecs *ecs);
 
