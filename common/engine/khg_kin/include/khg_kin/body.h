@@ -21,3 +21,4 @@ void body_print(kin_body body);
 
 kin_vec world_to_local(kin_body body, kin_vec vec);
 kin_vec local_to_world(kin_body body, kin_vec vec);
+

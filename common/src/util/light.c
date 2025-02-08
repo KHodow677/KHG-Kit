@@ -1,3 +1,4 @@
+#include "khg_kin/namespace.h"
 #define NAMESPACE_TASKING_USE
 
 #include "game.h"
@@ -64,7 +65,7 @@ void clear_lights() {
   LIGHT_COUNT = 0;
 }
 
-void add_light(phy_vector2 pos_perc, float radius) {
+void add_light(kin_vec pos_perc, float radius) {
   const int i = LIGHT_COUNT++;
   LIGHTS[i] = (light){ pos_perc, radius};
 }

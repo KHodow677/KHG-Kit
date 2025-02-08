@@ -7,7 +7,7 @@
 
 void *ecs_realloc_zero(ecs_ecs *ecs, void *ptr, unsigned int old_size, unsigned int new_size);
 
-ecs_ecs *ecs_new(unsigned int entity_count, void *mem_ctx) {
+ecs_ecs *ecs_new(unsigned int entity_count) {
   assert(entity_count > 0);
   ecs_ecs *ecs = (ecs_ecs *)malloc(sizeof(ecs_ecs));
   if (NULL == ecs) {
@@ -15,7 +15,6 @@ ecs_ecs *ecs_new(unsigned int entity_count, void *mem_ctx) {
   }
   memset(ecs, 0, sizeof(ecs_ecs));
   ecs->entity_count = entity_count;
-  ecs->mem_ctx = mem_ctx;
   ecs_stack_init(ecs, &ecs->entity_pool, entity_count);
   ecs_stack_init(ecs, &ecs->destroy_queue, entity_count);
   ecs_stack_init(ecs, &ecs->remove_queue, entity_count * 2);

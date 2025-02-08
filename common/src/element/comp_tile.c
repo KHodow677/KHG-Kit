@@ -1,18 +1,19 @@
 #define NAMESPACE_ELEMENT_IMPL
+#define NAMESPACE_KIN_USE
 #define NAMESPACE_TASKING_USE
 
 #include "element/namespace.h"
 #include "game.h"
 #include "khg_gfx/elements.h"
-#include "khg_phy/core/phy_vector.h"
+#include "khg_kin/namespace.h"
 #include "tasking/namespace.h"
 #include "util/io/cursor_controller.h"
 #include "util/ovr_tile.h"
 
-static bool is_within_tile(const phy_vector2 tile_center, const phy_vector2 test_position, const float threshold, float tile_size) {
+static bool is_within_tile(const kin_vec tile_center, const kin_vec test_position, const float threshold, float tile_size) {
   tile_size *= (gfx_get_display_width() / SCREEN_WIDTH);
   tile_size *= (gfx_get_display_height() / SCREEN_HEIGHT);
-  const float dist = phy_vector2_dist(test_position, tile_center);
+  const float dist = NAMESPACE_KIN()->vec_dist(test_position, tile_center);
   const float edge_radius = tile_size / 2.0f * threshold;
   return dist < edge_radius;
 }
@@ -25,7 +26,7 @@ static ecs_ret sys_tile_update(ecs_ecs *ecs, ecs_id *entities, const unsigned in
       add_ovr_tile_elements(&info->tile);
       info->loaded = true;
     }
-    bool is_hovered = is_within_tile(phy_rigid_body_get_position(p_info->body), CURSOR_STATE.world_pos, 0.9f, get_ovr_tile_size());
+    bool is_hovered = is_within_tile(p_info->body->pos, CURSOR_STATE.world_pos, 0.9f, get_ovr_tile_size());
   }
   return 0;
 }

@@ -1,5 +1,4 @@
 #include "element/ecs_manager.h"
-#include "khg_phy/core/phy_vector.h"
 #include "khg_utl/list.h"
 #include "scene/builders/map_builder.h"
 #include "scene/builders/structure_builder.h"
@@ -21,10 +20,10 @@ static int compare_scenes(const void *a, const void *b) {
 
 static void load_main() {
   setup_lights_texture();
-  physics_setup(phy_vector2_new(0.0f, 0.0f));
+  physics_setup();
   ecs_setup();
   camera_setup(&CAMERA);
-  build_ovr_map(phy_vector2_new(960.0f, 540.0f), 0.25f);
+  build_ovr_map(1.0f / 6.0f);
   build_initial_structures();
 }
 

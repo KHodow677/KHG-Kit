@@ -1,10 +1,8 @@
 #define NAMESPACE_ELEMENT_IMPL
+#define NAMESPACE_KIN_USE
 
 #include "element/namespace.h"
-#include "khg_phy/core/phy_vector.h"
-#include "khg_phy/body.h"
-#include "khg_phy/space.h"
-#include "khg_phy/core/phy_vector.h"
+#include "khg_kin/namespace.h"
 #include "util/physics.h"
 #include <stdio.h>
 
@@ -14,9 +12,8 @@ static ecs_ret sys_physics_update(ecs_ecs *ecs, ecs_id *entities, const unsigned
   }
   for (unsigned int id = 0; id < entity_count; id++) {
     comp_physics *info = ecs_get(NAMESPACE_ELEMENT_INTERNAL.ECS, entities[id], NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.component_signature);
-    phy_vector2 current_velocity = phy_rigid_body_get_linear_velocity(info->body);
-    phy_rigid_body_set_linear_velocity(info->body, info->vel);
-    phy_rigid_body_set_angle(info->body, 0.0f);
+    info->body->lin_vel = info->vel;
+    info->body->rot_scalar = 0.0f;
   }
   return 0;
 }
@@ -25,30 +22,20 @@ static void comp_physics_constructor(ecs_ecs *ecs, const ecs_id entity_id, void 
   comp_physics *info = ptr;
   const comp_physics *constructor_info = NAMESPACE_ELEMENT_INTERNAL.PHYSICS_INFO.init_info;
   if (info && constructor_info) {
-    phy_rigid_body_initializer body_init = phy_rigid_body_initializer_default;
-    body_init.type = PHY_RIGID_BODY_TYPE_DYNAMIC;
-    body_init.position = phy_vector2_new(0.0, 0.0);
-    info->body = phy_rigid_body_new(body_init);
-    info->vel = phy_vector2_new(0.0f, 0.0f);
+    info->body = NAMESPACE_KIN()->body_create();
+    NAMESPACE_KIN()->engine_body_add(ENGINE, info->body);
+    info->body->pos = constructor_info->init_pos;
+    info->body->rot_scalar = constructor_info->init_ang;
+    info->body->mass = 1.0f;
+    info->body->inertia = 1.0f;
     info->is_moving = false;
-    phy_rigid_body_set_mass(info->body, 1.0f);
-    phy_rigid_body_set_gravity_scale(info->body, 0.0f);
-    phy_rigid_body_set_position(info->body, constructor_info->init_pos);
-    phy_rigid_body_set_angle(info->body, constructor_info->init_ang);
-    info->shape = phy_rect_shape_new(constructor_info->init_size.x, constructor_info->init_size.y, phy_vector2_zero);
-    phy_rigid_body_add_shape(info->body, info->shape);
-    phy_rigid_body_disable_collisions(info->body);
-    phy_space_add_rigidbody(SPACE, info->body);
   }
 }
 
 static void comp_physics_destructor(ecs_ecs *ecs, const ecs_id entity_id, void *ptr) {
   comp_physics *info = ptr;
   if (info) {
-    phy_space_remove_rigidbody(SPACE, info->body);
-    phy_rigid_body_remove_shape(info->body, info->shape);
-    phy_rigid_body_free(info->body);
-    phy_shape_free(info->shape);
+    NAMESPACE_KIN()->engine_body_remove(ENGINE, info->body);
   }
 }
 
